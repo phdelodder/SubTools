@@ -167,9 +167,7 @@ public class DiskCacheManager extends CacheManager {
     } catch (IOException ex) {
       Logger.instance.error(Logger.stack2String(ex));
     } catch (ClassNotFoundException ex) {
-      location.delete(); // since the refactoring move the class, the object still looking in the
-                         // previous location
-      Logger.instance.error(Logger.stack2String(ex));
+      Logger.instance.log(Logger.stack2String(ex));
     }
     return ce;
   }
