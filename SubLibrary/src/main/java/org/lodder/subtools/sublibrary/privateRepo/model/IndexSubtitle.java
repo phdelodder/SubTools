@@ -1,0 +1,148 @@
+package org.lodder.subtools.sublibrary.privateRepo.model;
+
+import java.io.Serializable;
+
+
+public class IndexSubtitle implements Serializable {
+  /**
+	 * 
+	 */
+  private static final long serialVersionUID = -7687377134723402960L;
+  private String name;
+  private int season;
+  private int episode;
+  private String filename;
+  private String language;
+  private String uploader;
+  private String originalSource;
+  private int tvdbid;
+
+  public IndexSubtitle() {
+
+  }
+
+  public IndexSubtitle(String name, int season, int episode, String filename, String language,
+      int tvdbid, String uploader, String originalSource) {
+    setName(name);
+    setSeason(season);
+    setEpisode(episode);
+    setFilename(filename);
+    setLanguage(language);
+    setTvdbid(tvdbid);
+    setUploader(uploader);
+    setOriginalSource(originalSource);
+  }
+
+  /**
+   * @return the name
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * @param name the name to set
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  /**
+   * @return the season
+   */
+  public int getSeason() {
+    return season;
+  }
+
+  /**
+   * @param season the season to set
+   */
+  public void setSeason(int season) {
+    this.season = season;
+  }
+
+  /**
+   * @return the episode
+   */
+  public int getEpisode() {
+    return episode;
+  }
+
+  /**
+   * @param episode the episode to set
+   */
+  public void setEpisode(int episode) {
+    this.episode = episode;
+  }
+
+  /**
+   * @return the filename
+   */
+  public String getFilename() {
+    return filename;
+  }
+
+  /**
+   * @param filename the filename to set
+   */
+  public void setFilename(String filename) {
+    this.filename = filename;
+  }
+
+  /**
+   * @return the language
+   */
+  public String getLanguage() {
+    return language;
+  }
+
+  /**
+   * @param language the language to set
+   */
+  public void setLanguage(String language) {
+    this.language = language;
+  }
+
+  /**
+   * @return the tvdbid
+   */
+  public int getTvdbid() {
+    return tvdbid;
+  }
+
+  /**
+   * @param tvdbid the tvdbid to set
+   */
+  public void setTvdbid(int tvdbid) {
+    this.tvdbid = tvdbid;
+  }
+
+  /**
+   * @return the uploader
+   */
+  public String getUploader() {
+    return uploader;
+  }
+
+  /**
+   * @param uploader the uploader to set
+   */
+  public void setUploader(String uploader) {
+    this.uploader = uploader;
+  }
+
+  /**
+   * @return the originalSource
+   */
+  public String getOriginalSource() {
+    return originalSource;
+  }
+
+  /**
+   * @param originalSource the originalSource to set
+   */
+  public void setOriginalSource(String originalSource) {
+    this.originalSource = originalSource;
+  }
+
+}
