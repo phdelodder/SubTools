@@ -69,7 +69,7 @@ public class JTheTVDBAdapter {
       for (String name : names) {
         String a = name.replaceAll("[^A-Za-z]", "");
         String b = serieName.replaceAll("[^A-Za-z]", "");
-        if (a.equals(b)) {
+        if (!a.isEmpty() && a.equals(b)) {
           return tvdbid;
         }
       }
