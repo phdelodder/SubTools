@@ -25,6 +25,7 @@ import org.lodder.subtools.sublibrary.exception.VideoFileParseException;
 import org.lodder.subtools.sublibrary.logging.Listener;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.EpisodeFile;
+import org.lodder.subtools.sublibrary.model.MovieFile;
 import org.lodder.subtools.sublibrary.model.VideoFile;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
@@ -76,8 +77,11 @@ public class SortSubtitle implements Listener {
     List<File> files = getFileListing(outputDir);
     List<IndexSubtitle> index = new ArrayList<IndexSubtitle>();
     File indexLoc = new File(outputDir, "index");
+    int x = 0;
     for (File file : files) {
       try {
+        x++;
+        System.out.println("threathing file " + x + " of " + files.size() + " " + file.toString());
         VideoFile videoFile =
             VideoFileFactory.get(file, outputDir, new ArrayList<MappingTvdbScene>());
         final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter();
@@ -119,9 +123,36 @@ public class SortSubtitle implements Listener {
                     .getEpisodeNumbers().get(i), PrivateRepoIndex.extractOriginalFilename(videoFile
                     .getFilename()), language, Integer.parseInt(thetvdbserie.getId()),
                     PrivateRepoIndex.extractUploader(videoFile.getFilename()), PrivateRepoIndex
-                        .extractOriginalSource(videoFile.getFilename())));
+                        .extractOriginalSource(videoFile.getFilename()), videoFile.getVideoType()));
+              } else {
+                System.out.println("doesn't exists: " + to.toString());
               }
             }
+          }
+        } else if (videoFile.getVideoType() == VideoType.MOVIE) {
+          MovieFile movieFile = (MovieFile) videoFile;
+          String language = "";
+          try {
+            language = DetectLanguage.execute(file);
+          } catch (Exception e) {
+            Logger.instance.error(Logger.stack2String(e));
+          }
+          final String filename = removeLanguageCode(videoFile.getFilename(), language);
+          String title = replaceWindowsChars(movieFile.getTitle());
+
+          final File pathFolder =
+              new File(outputDir + File.separator + "movies" + File.separator + title + " "
+                  + movieFile.getYear() + File.separator + language + File.separator);
+
+          File to = new File(pathFolder, filename);
+
+          if (to.exists()) {
+            index.add(new IndexSubtitle(title, PrivateRepoIndex.extractOriginalFilename(filename),
+                language, PrivateRepoIndex.extractUploader(filename), PrivateRepoIndex
+                    .extractOriginalSource(filename), videoFile.getVideoType(), movieFile
+                    .getImdbid(), movieFile.getYear()));
+          } else {
+            System.out.println("doesn't exists: " + to.toString());
           }
         }
       } catch (ControlFactoryException e) {
@@ -168,6 +199,7 @@ public class SortSubtitle implements Listener {
         strIndex = Files.read(indexLoc);
         index = PrivateRepoIndex.getIndex(strIndex);
       } catch (IOException e) {
+        index = new ArrayList<IndexSubtitle>();
         Logger.instance.error(Logger.stack2String(e));
       }
     }
@@ -245,7 +277,7 @@ public class SortSubtitle implements Listener {
                     PrivateRepoIndex.extractOriginalFilename(filename), language, Integer
                         .parseInt(thetvdbserie.getId()),
                     PrivateRepoIndex.extractUploader(filename), PrivateRepoIndex
-                        .extractOriginalSource(filename)));
+                        .extractOriginalSource(filename), videoFile.getVideoType()));
               }
             }
           } else {
@@ -257,7 +289,12 @@ public class SortSubtitle implements Listener {
             }
           }
         } else if (videoFile.getVideoType() == VideoType.MOVIE) {
-          final File pathFolder = new File(outputDir + File.separator + "movies" + File.separator);
+          MovieFile movieFile = (MovieFile) videoFile;
+          String title = replaceWindowsChars(movieFile.getTitle());
+          String language = DetectLanguage.execute(file);
+          final File pathFolder =
+              new File(outputDir + File.separator + "movies" + File.separator + title + " "
+                  + movieFile.getYear() + File.separator + language + File.separator);
 
           if (!pathFolder.exists()) {
             if (!pathFolder.mkdirs()) {
@@ -266,11 +303,32 @@ public class SortSubtitle implements Listener {
             }
           }
 
-          File to = new File(pathFolder, videoFile.getFilename());
-          if (remove) {
-            Files.move(file, to);
+          final String filename = removeLanguageCode(videoFile.getFilename(), language);
+          File to = new File(pathFolder, filename);
+
+          if (to.exists()) {
+            if (textFilesEqual(to, file)) {
+              Logger.instance.log("Duplicate file detected with exact same content, file deleted!"
+                  + to.getName());
+              file.delete();
+            } else {
+              Logger.instance.log("Duplicate file detected but content is different! "
+                  + videoFile.getPath() + " " + videoFile.getFilename());
+            }
           } else {
-            Files.copy(file, to);
+            if (remove) {
+              Files.move(file, to);
+            } else {
+              Files.copy(file, to);
+            }
+
+            IndexSubtitle indexSubtitle =
+                new IndexSubtitle(title, PrivateRepoIndex.extractOriginalFilename(filename),
+                    language, PrivateRepoIndex.extractUploader(filename),
+                    PrivateRepoIndex.extractOriginalSource(filename), videoFile.getVideoType(),
+                    movieFile.getImdbid(), movieFile.getYear());
+
+            index.add(indexSubtitle);
           }
         }
 
@@ -291,10 +349,18 @@ public class SortSubtitle implements Listener {
     Iterator<IndexSubtitle> i = index.iterator();
     while (i.hasNext()) {
       IndexSubtitle indexSubtitle = i.next();
-      String t =
-          indexSubtitle.getName() + File.separator + indexSubtitle.getSeason() + File.separator
-              + indexSubtitle.getEpisode() + File.separator + indexSubtitle.getLanguage()
-              + File.separator + PrivateRepoIndex.getFullFilename(indexSubtitle);
+      String t = "";
+      if (indexSubtitle.getVideoType() == VideoType.EPISODE) {
+        t =
+            indexSubtitle.getName() + File.separator + indexSubtitle.getSeason() + File.separator
+                + indexSubtitle.getEpisode() + File.separator + indexSubtitle.getLanguage()
+                + File.separator + PrivateRepoIndex.getFullFilename(indexSubtitle);
+      } else if (indexSubtitle.getVideoType() == VideoType.MOVIE) {
+        t =
+            "movies" + File.separator + indexSubtitle.getName() + " " + indexSubtitle.getYear()
+                + File.separator + indexSubtitle.getLanguage() + File.separator
+                + PrivateRepoIndex.getFullFilename(indexSubtitle);
+      }
 
       File temp = new File(outputDir, t);
       if (!temp.exists()) {
