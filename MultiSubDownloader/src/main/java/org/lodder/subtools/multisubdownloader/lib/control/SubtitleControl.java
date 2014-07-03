@@ -104,6 +104,7 @@ public class SubtitleControl {
   public List<Subtitle> getSubtitles(MovieFile movieFile, String... languagecode) {
     Logger.instance.trace("SubtitleControl", "getSubtitles", "Movie");
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
+    listFoundSubtitles.addAll(privateRepo.searchSubtitles(movieFile, languagecode[0]));
     listFoundSubtitles.addAll(jOpenSubAdapter.searchSubtitles(movieFile, languagecode));
     listFoundSubtitles.addAll(jPodnapisiAdapter.searchSubtitles(movieFile, languagecode[0]));
     return this.getSubtitlesFiltered(listFoundSubtitles, movieFile);
