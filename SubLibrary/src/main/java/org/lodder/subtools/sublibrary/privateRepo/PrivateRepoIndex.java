@@ -168,7 +168,16 @@ public class PrivateRepoIndex {
 						currIndexSubtitle.setOriginalSource(tagContent);
 						break;
 					case "videotype":
-						currIndexSubtitle.setVideoType(VideoType.valueOf(tagContent));
+						currIndexSubtitle.setVideoType(VideoType
+								.valueOf(tagContent));
+						break;
+					case "imdbid":
+						currIndexSubtitle.setImdbid(Integer
+								.parseInt(tagContent));
+						break;
+					case "year":
+						currIndexSubtitle.setYear(Integer.parseInt(tagContent));
+						break;
 					}
 					break;
 
@@ -250,8 +259,8 @@ public class PrivateRepoIndex {
 						.getOriginalSource()));
 				privateRepoItem.appendChild(originalsource);
 				Element videotype = newDoc.createElement("videotype");
-				videotype.appendChild(newDoc.createTextNode(item
-						.getVideoType().toString()));
+				videotype.appendChild(newDoc.createTextNode(item.getVideoType()
+						.toString()));
 				privateRepoItem.appendChild(videotype);
 				Element imdbid = newDoc.createElement("imdbid");
 				imdbid.appendChild(newDoc.createTextNode(Integer.toString(item
