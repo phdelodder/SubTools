@@ -36,66 +36,6 @@ import org.xml.sax.SAXException;
 
 public class PrivateRepoIndex {
 
-	public static List<IndexSubtitle> getIndexOld(String index) {
-		Document doc;
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		ArrayList<IndexSubtitle> list = new ArrayList<IndexSubtitle>();
-		try {
-			// Use the factory to create a builder
-			DocumentBuilder builder;
-			builder = factory.newDocumentBuilder();
-			doc = builder.parse(new ByteArrayInputStream(index
-					.getBytes("UTF-8")));
-
-			NodeList nList = doc.getElementsByTagName("PrivateRepoItem");
-
-			for (int i = 0; i < nList.getLength(); i++) {
-				if (nList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-					int season = XMLHelper.getIntTagValue("season",
-							(Element) nList.item(i));
-					int episode = XMLHelper.getIntTagValue("episode",
-							(Element) nList.item(i));
-					int tvdbid = XMLHelper.getIntTagValue("tvdbid",
-							(Element) nList.item(i));
-					String name = XMLHelper.getStringTagValue("name",
-							(Element) nList.item(i));
-					String language = XMLHelper.getStringTagValue("language",
-							(Element) nList.item(i));
-					String filename = XMLHelper.getStringTagValue("filename",
-							(Element) nList.item(i));
-					String uploader = XMLHelper.getStringTagValue("uploader",
-							(Element) nList.item(i));
-					String originalSource = XMLHelper.getStringTagValue(
-							"originalSource", (Element) nList.item(i));
-					String videoTypeString = XMLHelper.getStringTagValue(
-							"videotype", (Element) nList.item(i));
-					VideoType videoType = VideoType.EPISODE;
-					if (!videoTypeString.isEmpty())
-						videoType = VideoType.valueOf(videoTypeString);
-					IndexSubtitle item = new IndexSubtitle(name, season,
-							episode, filename, language, tvdbid, uploader,
-							originalSource, videoType);
-					list.add(item);
-				}
-			}
-
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SAXException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return list;
-
-	}
-
 	public static List<IndexSubtitle> getIndex(String index) {
 		List<IndexSubtitle> repoList = null;
 		IndexSubtitle currIndexSubtitle = null;
