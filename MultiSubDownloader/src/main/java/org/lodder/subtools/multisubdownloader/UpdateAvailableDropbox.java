@@ -5,6 +5,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.lodder.subtools.sublibrary.SubProperties;
 import org.lodder.subtools.sublibrary.cache.CacheManager;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
@@ -50,7 +51,7 @@ public class UpdateAvailableDropbox {
 
 	private boolean check(String baseName, String extension) {
 		try {
-			String newFoundVersion = Version.VERSION;
+			String newFoundVersion = SubProperties.getSubProperties().getProperty("version");
 			String source = ucm.fetchAsString(new URL(url), timeout);
 			Document sourceDoc = Jsoup.parse(source);
 			Elements results = sourceDoc.getElementsByClass("filename-link");
@@ -61,7 +62,7 @@ public class UpdateAvailableDropbox {
 							.substring(href.lastIndexOf("/") + 1, href.length())
 							.replace(baseName, "")
 							.replace("-v", "").replace("." + extension, "").trim();
-					int compare = compareVersions(Version.VERSION, foundVersion);
+					int compare = compareVersions(SubProperties.getSubProperties().getProperty("version"), foundVersion);
 					if (compare < 0) {
 						if (compareVersions(newFoundVersion, foundVersion) <= 0) {
 							newFoundVersion = foundVersion;

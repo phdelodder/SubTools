@@ -68,6 +68,7 @@ import org.lodder.subtools.multisubdownloader.gui.workers.SearchNameWorker;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.util.Export;
 import org.lodder.subtools.multisubdownloader.util.Import;
+import org.lodder.subtools.sublibrary.SubProperties;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -158,7 +159,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
           JOptionPane.INFORMATION_MESSAGE);
     } else if (showNoUpdate) {
       JOptionPane.showMessageDialog(this, "Geen nieuwe update beschikbaar" + ", huidige versie: "
-          + Version.VERSION, "MultiSubDownloader", JOptionPane.INFORMATION_MESSAGE);
+          + SubProperties.getSubProperties().getProperty("version"), "MultiSubDownloader", JOptionPane.INFORMATION_MESSAGE);
     }
   }
 

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.lodder.subtools</groupId>
 	<artifactId>multisubdownloader</artifactId>
-	<version>0.1.16</version>
+	<version>0.1.17</version>
 	<name>MultiSubDownloader</name>
 
 	<repositories>
@@ -28,10 +28,16 @@
 		<dependency>
 			<groupId>org.lodder.subtools</groupId>
 			<artifactId>sublibrary</artifactId>
-			<version>0.1.1</version>
+			<version>0.1.2</version>
 		</dependency>
 	</dependencies>
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
