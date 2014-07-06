@@ -3,13 +3,13 @@ package org.lodder.subtools.sublibrary;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class SubProperties {
+public class ConfigProperties {
 
-	private static SubProperties subProps = null;
+	private static ConfigProperties configProps = null;
 	private java.util.Properties prop = new java.util.Properties();
 	private InputStream input = null;
 
-	private SubProperties() {
+	private ConfigProperties() {
 		try {
 			input = getClass().getResourceAsStream("/config.properties");
 			prop.load(input);
@@ -26,10 +26,10 @@ public class SubProperties {
 		}
 	}
 
-	public static SubProperties getSubProperties() {
-		if (subProps == null)
-			subProps = new SubProperties();
-		return subProps;
+	public static ConfigProperties getInstance() {
+		if (configProps == null)
+			configProps = new ConfigProperties();
+		return configProps;
 	}
 
 	public String getProperty(String key){
