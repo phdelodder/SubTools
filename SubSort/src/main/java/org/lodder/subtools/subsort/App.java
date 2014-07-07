@@ -29,7 +29,7 @@ public class App {
 
     if (line != null) {
       if (line.hasOption("help")) {
-        formatter.printHelp("MultiSubDownloader", getCLIOptions());
+        formatter.printHelp("SubSort", getCLIOptions());
       } else {
         SortSubtitle sortSubtitle = new SortSubtitle();
         if (line.hasOption("rebuildindex")) {
