@@ -670,7 +670,7 @@ public class PreferenceDialog extends MutliSubDialog {
               "Selecteer uitsluit map");
       excludeList.addItem(seType, path.getAbsolutePath());
     } else if (seType == SettingsExcludeType.REGEX) {
-      String regex = JOptionPane.showInputDialog("Geef een REGEX op: (VB: S0*)");;
+      String regex = JOptionPane.showInputDialog("Geef een REGEX op: (VB: S0*)");
       excludeList.addItem(seType, regex);
     }
   }

@@ -68,7 +68,7 @@ public class App {
 					File file = new File(
 							line.getOptionValue("importpreferences"));
 					try {
-						if (file != null && file.isFile()) {
+						if (file.isFile()) {
 							prefctrl.importPreferences(file);
 						}
 					} catch (Exception e) {

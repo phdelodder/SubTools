@@ -23,7 +23,6 @@ public class JPodnapisiAdapter implements JSubAdapter {
     try {
       if (jpapi == null) jpapi = new JPodnapisiApi("JBierSubDownloader");
     } catch (Exception e) {
-      System.out.println(e);
       Logger.instance.error("API PODNAPISI INIT: " + e.getCause());
     }
   }
