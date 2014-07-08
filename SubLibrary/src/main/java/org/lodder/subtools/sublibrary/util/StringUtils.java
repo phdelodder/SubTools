@@ -21,7 +21,7 @@ public class StringUtils {
 		return list.toArray(new String[size]);
 	}
 
-	public static String RemoveIllegalFilenameChars(String s) {
+	public static String removeIllegalFilenameChars(String s) {
 		s = s.replace("/", "");
 		s = s.replace("\0", "");
 		return s;

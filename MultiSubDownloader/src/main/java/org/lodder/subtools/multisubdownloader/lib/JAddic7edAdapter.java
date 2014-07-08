@@ -57,7 +57,7 @@ public class JAddic7edAdapter implements JSubAdapter {
       if (sub.getLanguage().equals("Dutch")) sub.setLanguage("nl");
       if (sub.getLanguage().equals("English")) sub.setLanguage("en");
       if (sublanguageids[0].equals(sub.getLanguage())) {
-        listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.ADDIC7ED, StringUtils.RemoveIllegalFilenameChars(sub.getTitel() + " "
+        listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.ADDIC7ED, StringUtils.removeIllegalFilenameChars(sub.getTitel() + " "
             + sub.getVersion()), sub.getUrl(), sub.getLanguage(), sub.getVersion(),
             SubtitleMatchType.EVERYTHING, sub.getVersion(), sub.getUploader(), sub
                 .isHearingImpaired()));
