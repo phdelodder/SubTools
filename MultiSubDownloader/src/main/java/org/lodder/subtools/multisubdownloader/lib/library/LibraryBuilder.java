@@ -12,22 +12,6 @@ public class LibraryBuilder {
     this.librarySettings = librarySettings;
   }
 
-  static String replaceWindowsChars(String text) {
-    text = text.replace("|", "");
-    text = text.replace("\"", "");
-    text = text.replace("<", "");
-    text = text.replace(">", "");
-    text = text.replace("?", "");
-    text = text.replace("*", "");
-    text = text.replace(":", "");
-    text = text.replace("/", "");
-    text = text.replace("\\", "");
-    if (text.substring(text.length() - 1).equals(".")) {
-      text = text.substring(0, text.length() - 1);
-    }
-    return text.trim();
-  }
-
   public String replaceFormatedEpisodeNumber(String structure, String tag,
       List<Integer> episodeNumbers, boolean leadingZero) {
 

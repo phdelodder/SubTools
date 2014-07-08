@@ -26,4 +26,20 @@ public class StringUtils {
 		s = s.replace("\0", "");
 		return s;
 	}
+
+	public static String removeIllegalWindowsChars(String text) {
+	    text = text.replace("|", "");
+	    text = text.replace("\"", "");
+	    text = text.replace("<", "");
+	    text = text.replace(">", "");
+	    text = text.replace("?", "");
+	    text = text.replace("*", "");
+	    text = text.replace(":", "");
+	    text = text.replace("/", "");
+	    text = text.replace("\\", "");
+	    if (text.substring(text.length() - 1).equals(".")) {
+	      text = text.substring(0, text.length() - 1);
+	    }
+	    return text.trim();
+	  }
 }

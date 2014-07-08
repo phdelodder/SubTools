@@ -8,6 +8,7 @@ import org.lodder.subtools.sublibrary.model.EpisodeFile;
 import org.lodder.subtools.sublibrary.model.MovieFile;
 import org.lodder.subtools.sublibrary.model.VideoFile;
 import org.lodder.subtools.sublibrary.model.VideoType;
+import org.lodder.subtools.sublibrary.util.StringUtils;
 
 public class PathLibraryBuilder extends LibraryBuilder {
 
@@ -39,7 +40,7 @@ public class PathLibraryBuilder extends LibraryBuilder {
       show = episodeFile.getShow();
     }
     if (librarySettings.isLibraryReplaceChars()) {
-      show = replaceWindowsChars(show);
+      show = StringUtils.removeIllegalWindowsChars(show);
     }
 
     folder = folder.replaceAll("%SHOW NAME%", show);
@@ -73,7 +74,7 @@ public class PathLibraryBuilder extends LibraryBuilder {
     String title = movieFile.getTitle();
 
     if (librarySettings.isLibraryReplaceChars()) {
-      title = replaceWindowsChars(title);
+      title = StringUtils.removeIllegalWindowsChars(title);
     }
 
     folder = folder.replaceAll("%MOVIE TITLE%", title);

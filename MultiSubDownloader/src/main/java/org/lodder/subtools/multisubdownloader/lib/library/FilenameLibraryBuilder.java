@@ -5,6 +5,7 @@ import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
 import org.lodder.subtools.sublibrary.model.EpisodeFile;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.util.StringUtils;
 
 public class FilenameLibraryBuilder extends LibraryBuilder {
 
@@ -50,7 +51,7 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
       filename = videoFile.getFilename();
     }
     if (librarySettings.isLibraryReplaceChars()) {
-      filename = replaceWindowsChars(filename);
+      filename = StringUtils.removeIllegalWindowsChars(filename);
     }
     if (librarySettings.isLibraryFilenameReplaceSpace()) {
       filename = filename.replaceAll(" ", librarySettings.getLibraryFilenameReplacingSpaceSign());
@@ -93,7 +94,7 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
       filename = changeExtension(filename, ".srt");
     }
     if (librarySettings.isLibraryReplaceChars()) {
-      filename = replaceWindowsChars(filename);
+      filename = StringUtils.removeIllegalWindowsChars(filename);
     }
     if (librarySettings.isLibraryFilenameReplaceSpace()) {
       filename = filename.replaceAll(" ", librarySettings.getLibraryFilenameReplacingSpaceSign());
