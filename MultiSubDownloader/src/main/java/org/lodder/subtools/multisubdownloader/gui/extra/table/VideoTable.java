@@ -55,13 +55,8 @@ public class VideoTable extends ZebraJTable {
   public boolean isHideColumn(SearchColumnName searchColumnName) {
     int columnId = getColumnIdByName(searchColumnName);
     if (columnId > -1) {
-      // TableColumn tc = getColumnModel().getColumn(columnId);
-      if (getColumnModel().getColumn(columnId).getMinWidth() == 0
-          && getColumnModel().getColumn(columnId).getPreferredWidth() == 0) {
-        return true;
-      } else {
-        return false;
-      }
+        return getColumnModel().getColumn(columnId).getMinWidth() == 0
+            && getColumnModel().getColumn(columnId).getPreferredWidth() == 0;
     }
     return true;
   }
