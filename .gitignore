@@ -11,3 +11,7 @@ release.properties
 .settings
 .checkstyle
 .classpath
+
+#Intellij
+*.iml
+.idea
