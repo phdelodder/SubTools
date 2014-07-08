@@ -159,15 +159,10 @@ public class JOpenSubtitlesApi extends XmlRPC {
 
     Map<?, ?> response = invoke("SearchSubtitles", params);
     try {
-      List<Map<String, Object>> subtitleData = new ArrayList<Map<String, Object>>();
-
       Object[] data = (Object[]) response.get("data");
       for (Object o : data) {
-        subtitleData.add((Map<String, Object>) o);
+        subtitles.add(parseOSSubtitle((Map<String, String>) o));
       }
-
-      for (Map<?, ?> subtitle : subtitleData)
-        subtitles.add(parseOSSubtitle((Map<String, String>) subtitle));
     } catch (Exception localException) {}
     return subtitles;
   }
