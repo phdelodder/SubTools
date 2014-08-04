@@ -4,6 +4,11 @@ env:
    #   via the "travis encrypt" command using the project repo's public key
    - secure: ""
 
+language: java
+jdk:
+  - openjdk7
+  - oraclejdk7
+
 addons:
   coverity_scan:
     project:
