@@ -2,7 +2,7 @@ env:
   global:
    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
    #   via the "travis encrypt" command using the project repo's public key
-   - secure: ""
+   - secure: "in7unXXvnUfHsFxWiEVVeBltGD7MAz5hymPwCmC1BmYdThbo4jKeSe0taCW7NeOWkbr1JcCXtLGknzyDhuDMjbzy+l4Q9HdzXWAtqZXG48WvJcSmb6NyIdhmjM4ktskja5dY2CI7PT0MTLnvYbzW04rnPlHUl9liq2bSuiJSg3c="
 
 language: java
 jdk:
@@ -17,4 +17,4 @@ addons:
     notification_email: lodder@delodder.be
     build_command_prepend: "mvn clean"
     build_command:   "mvn -DskipTests=true compile"
-    branch_pattern: coverity_scan
+    branch_pattern: master
