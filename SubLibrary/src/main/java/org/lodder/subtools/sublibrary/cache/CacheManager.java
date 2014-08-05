@@ -17,7 +17,7 @@ import org.lodder.subtools.sublibrary.util.http.HttpClient;
 
 
 public class CacheManager {
-	private static CacheManager uc = null;
+	private volatile static CacheManager uc = null;
 	private final HashMap<String, CacheEntry> ucList;
 	private String UserAgent;
 	private static String DEFAULTUSERAGENT = "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)";

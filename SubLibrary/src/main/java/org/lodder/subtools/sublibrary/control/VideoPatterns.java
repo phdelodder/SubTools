@@ -10,7 +10,7 @@ import org.lodder.subtools.sublibrary.util.NamedPattern;
 
 public class VideoPatterns {
 
-  private static List<NamedPattern> plist = null;
+  private volatile static List<NamedPattern> plist = null;
 
   public static final String[] QUALITYKEYWORDS = new String[] {"hdtv", "web-dl", "web dl",
       "dvdrip", "bluray", "1080p", "ts", "dvdscreener", "r5", "bdrip", "brrip", "720p", "xvid",

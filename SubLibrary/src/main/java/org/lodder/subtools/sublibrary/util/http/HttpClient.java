@@ -30,7 +30,7 @@ import org.lodder.subtools.sublibrary.util.Files;
 
 public class HttpClient {
 
-  private static HttpClient hc;
+  private volatile static HttpClient hc;
   private final CookieManager cookieManager;
 
   HttpClient() {
