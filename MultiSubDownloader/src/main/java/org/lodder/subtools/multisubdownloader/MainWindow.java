@@ -430,7 +430,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     mntmQuit.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         close();
-        System.exit(-1);
+        System.exit(0);
       }
     });
 
