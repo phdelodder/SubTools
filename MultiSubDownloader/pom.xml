@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.lodder.subtools</groupId>
 	<artifactId>multisubdownloader</artifactId>
-	<version>0.1.20</version>
+	<version>0.1.21</version>
 	<name>MultiSubDownloader</name>
 
 	<repositories>
@@ -33,7 +33,7 @@
 		<dependency>
 			<groupId>org.lodder.subtools</groupId>
 			<artifactId>sublibrary</artifactId>
-			<version>0.1.5</version>
+			<version>0.1.6</version>
 		</dependency>
 	</dependencies>
 	<build>
