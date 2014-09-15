@@ -147,10 +147,11 @@ public class JPodnapisiApi extends XmlRPC{
     	String url = "http://simple.podnapisi.net/en/ondertitels-p"+subtitleId;
     	ucm.setRatelimit(0);
     	String xml = ucm.fetchAsString(new URL(url), 900);
-    	int beginIndex = xml.indexOf("/ppodnapisi/download/i/");
+    	int beginIndex = xml.indexOf("/ppodnapisi/predownload/i/");
     	if (beginIndex > 0) {
     		StringTokenizer st = new StringTokenizer(xml.substring(beginIndex - 3), "\"");
         	url = st.nextToken();
+        	url = url.replace("predownload", "download");
         	return "http://simple.podnapisi.net" + url;
     	} else {
     		Logger.instance.error("Download URL for subtitleID:"
