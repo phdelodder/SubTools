@@ -392,6 +392,7 @@ public class Actions {
     filters.add("srs");
     filters.add("nzb");
     filters.add("torrent");
+    filters.add("txt");
     final String[] extensions =
         videoFile.getPath().list(
             new FilenameExtensionFilter(filters.toArray(new String[filters.size()])));
