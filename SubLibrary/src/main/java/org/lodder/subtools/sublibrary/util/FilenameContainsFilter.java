@@ -8,13 +8,13 @@ import java.util.TreeSet;
 public class FilenameContainsFilter implements FilenameFilter {
     private final TreeSet<String> contains = new TreeSet<String>();
 
-    public FilenameContainsFilter(String ext) {
-        contains.add("." + ext.toLowerCase().trim());
+    public FilenameContainsFilter(String s) {
+        contains.add(s.trim());
     }
 
-    public FilenameContainsFilter(String[] extensions) {
-        for (String s : Arrays.asList(extensions)) {
-            contains.add("." + s.toLowerCase().trim());
+    public FilenameContainsFilter(String[] sarray) {
+        for (String s : Arrays.asList(sarray)) {
+            contains.add(s.trim());
         }
         contains.remove("");
     }
