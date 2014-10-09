@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
 
+import org.apache.commons.io.FileUtils;
 import org.lodder.subtools.multisubdownloader.gui.dialog.SelectDialog;
 import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
@@ -384,28 +385,38 @@ public class Actions {
       String videoFileName) throws IOException {
     Logger.instance.trace("Actions", "cleanUpFiles",
         "LibraryOtherFileAction" + librarySettings.getLibraryOtherFileAction());
-    final List<String> filters = new ArrayList<String>();
-    filters.add("nfo");
-    filters.add("jpg");
-    filters.add("sfv");
-    filters.add("srr");
-    filters.add("srs");
-    filters.add("nzb");
-    filters.add("torrent");
-    filters.add("txt");
-    final String[] extensions =
+    final List<String> fileFilters = new ArrayList<String>();
+    fileFilters.add("nfo");
+    fileFilters.add("jpg");
+    fileFilters.add("sfv");
+    fileFilters.add("srr");
+    fileFilters.add("srs");
+    fileFilters.add("nzb");
+    fileFilters.add("torrent");
+    fileFilters.add("txt");
+    final String[] files =
         videoFile.getPath().list(
-            new FilenameExtensionFilter(filters.toArray(new String[filters.size()])));
-    final String[] contains = videoFile.getPath().list(new FilenameContainsFilter("sample"));
+            new FilenameExtensionFilter(fileFilters.toArray(new String[fileFilters.size()])));
+
+    final List<String> folderFilters = new ArrayList<String>();
+    folderFilters.add("sample");
+    folderFilters.add("Sample");
+    final String[] folders =
+        videoFile.getPath().list(
+            new FilenameContainsFilter(folderFilters.toArray(new String[folderFilters.size()])));
 
     // remove duplicates using set
     final Set<String> list =
-        new LinkedHashSet<String>(Arrays.asList(StringUtils.join(extensions, contains)));
+        new LinkedHashSet<String>(Arrays.asList(StringUtils.join(files, folders)));
 
     if (librarySettings.getLibraryOtherFileAction().equals(LibraryOtherFileActionType.REMOVE)) {
       for (String s : list) {
         final File file = new File(videoFile.getPath(), s);
-        file.delete();
+        if (file.isDirectory()) {
+          FileUtils.deleteDirectory(file);
+        } else {
+          file.delete();
+        }
       }
     } else if (librarySettings.getLibraryOtherFileAction().equals(LibraryOtherFileActionType.MOVE)) {
       for (String s : list) {
@@ -416,26 +427,38 @@ public class Actions {
       for (String s : list) {
         String extension = VideoFileParser.extractFileNameExtension(s);
 
-        if (s.contains("sample")) {
+        File f = new File(videoFile.getPath(), s);
+
+        if (s.contains("sample") && !f.isDirectory()) {
           extension = "sample." + extension;
         }
 
-        final String filename =
-            videoFileName.substring(0, videoFileName.lastIndexOf(".")).concat("." + extension);
-        Files.move(new File(videoFile.getPath(), s), new File(path, filename));
+        if (f.isFile()) {
+          final String filename =
+              videoFileName.substring(0, videoFileName.lastIndexOf(".")).concat("." + extension);
+          Files.move(f, new File(path, filename));
+        } else {
+          Files.move(f, new File(path, s));
+        }
       }
     } else if (librarySettings.getLibraryOtherFileAction()
         .equals(LibraryOtherFileActionType.RENAME)) {
-      for (String s : extensions) {
+      for (String s : files) {
         String extension = VideoFileParser.extractFileNameExtension(s);
 
-        if (s.contains("sample")) {
+        File f = new File(videoFile.getPath(), s);
+
+        if (s.contains("sample") && !f.isDirectory()) {
           extension = "sample." + extension;
         }
 
-        final String filename =
-            videoFileName.substring(0, videoFileName.lastIndexOf(".")).concat("." + extension);
-        Files.move(new File(videoFile.getPath(), s), new File(videoFile.getPath(), filename));
+        if (f.isFile()) {
+          final String filename =
+              videoFileName.substring(0, videoFileName.lastIndexOf(".")).concat("." + extension);
+          Files.move(f, new File(videoFile.getPath(), filename));
+        } else {
+          Files.move(f, new File(path, s));
+        }
       }
     }
   }
