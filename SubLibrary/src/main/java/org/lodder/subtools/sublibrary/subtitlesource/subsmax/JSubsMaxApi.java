@@ -68,7 +68,7 @@ public class JSubsMaxApi extends Html {
           case XMLStreamConstants.END_ELEMENT:
             switch (reader.getLocalName()) {
               case "item":
-                lSubtitles.add(submaxitem);
+                if (submaxitem != null) lSubtitles.add(submaxitem);
                 break;
               case "title":
                 if (submaxitem != null) submaxitem.setTitle(tagContent);
@@ -83,10 +83,10 @@ public class JSubsMaxApi extends Html {
                 }
                 break;
               case "filename":
-                submaxitem.setFilename(tagContent);
+                if (submaxitem != null) submaxitem.setFilename(tagContent);
                 break;
               case "languages":
-                submaxitem.setLanguages(tagContent);
+                if (submaxitem != null) submaxitem.setLanguages(tagContent);
                 break;
             }
             break;
