@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import org.lodder.subtools.multisubdownloader.lib.JAddic7edAdapter;
 import org.lodder.subtools.multisubdownloader.lib.JOpenSubAdapter;
 import org.lodder.subtools.multisubdownloader.lib.JPodnapisiAdapter;
+import org.lodder.subtools.multisubdownloader.lib.JSubsMaxAdapter;
 import org.lodder.subtools.multisubdownloader.lib.JTVsubtitlesAdapter;
 import org.lodder.subtools.multisubdownloader.lib.PrivateRepo;
 import org.lodder.subtools.multisubdownloader.settings.model.SearchSubtitlePriority;
@@ -33,6 +34,7 @@ public class SubtitleControl {
   private final JPodnapisiAdapter jPodnapisiAdapter;
   private final JAddic7edAdapter jAddic7edAdapter;
   private final JTVsubtitlesAdapter jTVSubtitlesAdapter;
+  private final JSubsMaxAdapter jSubsMaxAdapter;
   private final PrivateRepo privateRepo;
   private final Settings settings;
 
@@ -45,6 +47,8 @@ public class SubtitleControl {
             settings.getLoginAddic7edUsername(), settings.getLoginAddic7edPassword());
     jTVSubtitlesAdapter = new JTVsubtitlesAdapter();
     privateRepo = PrivateRepo.getPrivateRepo();
+    jSubsMaxAdapter = new JSubsMaxAdapter();
+    
   }
 
   public List<Subtitle> getSubtitles(EpisodeFile episodeFile, String... languagecode) {
@@ -82,6 +86,11 @@ public class SubtitleControl {
         case TVSUBTITLES:
           if (settings.isSerieSourceTvSubtitles())
             listFoundSubtitles.addAll(jTVSubtitlesAdapter.searchSubtitles(episodeFile,
+                languagecode[0]));
+          break;
+        case SUBSMAX:
+          if (settings.isSerieSourceSubsMax())
+            listFoundSubtitles.addAll(jSubsMaxAdapter.searchSubtitles(episodeFile,
                 languagecode[0]));
           break;
         default:

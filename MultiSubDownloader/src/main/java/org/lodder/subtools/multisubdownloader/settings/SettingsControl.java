@@ -281,6 +281,7 @@ public class SettingsControl {
     preferences.putBoolean("serieSourcePodnapisi", settings.isSerieSourcePodnapisi());
     preferences.putBoolean("serieSourceTvSubtitles", settings.isSerieSourceTvSubtitles());
     preferences.putBoolean("serieSourcePrivateRepo", settings.isSerieSourcePrivateRepo());
+    preferences.putBoolean("serieSourceSubsMax", settings.isSerieSourceSubsMax());
 
     for (SearchSubtitlePriority prio : settings.getListSearchSubtitlePriority()) {
       switch (prio.getSubtitleSource()) {
@@ -301,6 +302,9 @@ public class SettingsControl {
           break;
         case TVSUBTITLES:
           preferences.putInt("serieSourceTvSubtitlesPrio", prio.getPriority());
+          break;
+        case SUBSMAX:
+          preferences.putInt("serieSourceSubsMaxPrio", prio.getPriority());
           break;
         default:
           break;
@@ -510,6 +514,7 @@ public class SettingsControl {
     settings.setSerieSourcePodnapisi(preferences.getBoolean("serieSourcePodnapisi", true));
     settings.setSerieSourceTvSubtitles(preferences.getBoolean("serieSourceTvSubtitles", true));
     settings.setSerieSourcePrivateRepo(preferences.getBoolean("serieSourcePrivateRepo", true));
+    settings.setSerieSourceSubsMax(preferences.getBoolean("serieSourceSubsMax", true));
 
     SearchSubtitlePriority prioAddic7ed =
         new SearchSubtitlePriority(SubtitleSource.ADDIC7ED, preferences.getInt(
@@ -529,6 +534,9 @@ public class SettingsControl {
     SearchSubtitlePriority prioTvSubtitles =
         new SearchSubtitlePriority(SubtitleSource.TVSUBTITLES, (Integer) preferences.getInt(
             "serieSourceTvSubtitlesPrio", 2));
+    SearchSubtitlePriority prioSubsMax =
+        new SearchSubtitlePriority(SubtitleSource.SUBSMAX, (Integer) preferences.getInt(
+            "serieSourceSubsMaxPrio", 2));
     List<SearchSubtitlePriority> lPrio = new ArrayList<SearchSubtitlePriority>();
 
     lPrio.add(prioAddic7ed);
@@ -537,6 +545,7 @@ public class SettingsControl {
     lPrio.add(prioPodnapisi);
     lPrio.add(prioPrivateRepo);
     lPrio.add(prioTvSubtitles);
+    lPrio.add(prioSubsMax);
 
     java.util.Collections.sort(lPrio, new Comparator<SearchSubtitlePriority>() {
       public int compare(SearchSubtitlePriority t1, SearchSubtitlePriority t2) {

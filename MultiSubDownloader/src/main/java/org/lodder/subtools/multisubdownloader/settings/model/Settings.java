@@ -28,7 +28,7 @@ public class Settings {
   private String loginAddic7edUsername;
   private String loginAddic7edPassword;
   private boolean serieSourceAddic7ed, serieSourceTvSubtitles, serieSourcePodnapisi,
-      serieSourceOpensubtitles, serieSourceLocal, serieSourcePrivateRepo;
+      serieSourceOpensubtitles, serieSourceLocal, serieSourcePrivateRepo, serieSourceSubsMax;
   private boolean autoUpdateMapping;
   private SettingsProcessEpisodeSource processEpisodeSource;
   private MappingSettings mappingSettings;
@@ -428,6 +428,14 @@ public class Settings {
    */
   public void setListSearchSubtitlePriority(List<SearchSubtitlePriority> listSearchSubtitlePriority) {
     this.listSearchSubtitlePriority = listSearchSubtitlePriority;
+  }
+
+  public boolean isSerieSourceSubsMax() {
+    return serieSourceSubsMax;
+  }
+
+  public void setSerieSourceSubsMax(boolean serieSourceSubsMax) {
+    this.serieSourceSubsMax = serieSourceSubsMax;
   }
 
 }
