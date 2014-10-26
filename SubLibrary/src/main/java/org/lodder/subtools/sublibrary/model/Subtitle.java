@@ -8,7 +8,7 @@ public class Subtitle {
     private boolean hearingImpaired;
 
     public enum SubtitleSource {
-        OPENSUBTITLES, PODNAPISI, ADDIC7ED, TVSUBTITLES, LOCAL, PRIVATEREPO
+        OPENSUBTITLES, PODNAPISI, ADDIC7ED, TVSUBTITLES, LOCAL, PRIVATEREPO, SUBSMAX
     }
 
     public Subtitle(SubtitleSource subtitleSource, String filename, String downloadlink, String languagecode, String quality, SubtitleMatchType subtitleMatchType, String team, String uploader, boolean hearingImp) {
