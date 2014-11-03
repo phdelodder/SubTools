@@ -29,8 +29,15 @@ public class JSubsMaxAdapter implements JSubAdapter {
 
   @Override
   public List<Subtitle> searchSubtitles(EpisodeFile episodeFile, String... sublanguageids) {
+    String showName = "";
+    if (episodeFile.getOriginalShowName().length() > 0) {
+      showName = episodeFile.getOriginalShowName();
+    } else {
+      showName = episodeFile.getShow();
+    }
+    
     List<SubMaxSubtitleDescriptor> lSubtitles =
-        jsmapi.searchSubtitles(episodeFile.getShow(), episodeFile.getSeason(), episodeFile
+        jsmapi.searchSubtitles(showName, episodeFile.getSeason(), episodeFile
             .getEpisodeNumbers().get(0), sublanguageids[0]);
     
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
