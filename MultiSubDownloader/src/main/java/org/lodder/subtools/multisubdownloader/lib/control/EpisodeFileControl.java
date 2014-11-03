@@ -130,7 +130,8 @@ public class EpisodeFileControl extends VideoFileControl {
     } else {
       thetvdbserie = jtvdba.getSerie(tvdbid);
     }
-
+    
+    ((EpisodeFile) videoFile).setOriginalShowName(thetvdbserie.getSerieName());
     ((EpisodeFile) videoFile).setTvdbid(Integer.parseInt(thetvdbserie.getId()));
   }
 
