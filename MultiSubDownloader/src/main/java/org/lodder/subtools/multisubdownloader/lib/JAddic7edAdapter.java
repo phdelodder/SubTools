@@ -37,18 +37,19 @@ public class JAddic7edAdapter implements JSubAdapter {
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
     try {
       String showName = "";
-      if (episodeFile.getOriginalShowName().length() > 0) {
-        showName = episodeFile.getOriginalShowName();
-      } else {
-        showName = episodeFile.getShow();
+
+      if (episodeFile.getShow().length() > 0) {
+        showName = jaapi.searchSerieName(episodeFile.getShow());
       }
 
-      if (showName.length() > 0) {
-        showName = jaapi.searchSerieName(showName);
-
-        lSubtitles.addAll(jaapi.searchSubtitles(showName, episodeFile.getSeason(), episodeFile
-            .getEpisodeNumbers().get(0), episodeFile.getTitle()));
+      if (showName.length() == 0) {
+        if (episodeFile.getOriginalShowName().length() > 0) {
+          showName = jaapi.searchSerieName(episodeFile.getOriginalShowName());
+        }
       }
+
+      lSubtitles.addAll(jaapi.searchSubtitles(showName, episodeFile.getSeason(), episodeFile
+          .getEpisodeNumbers().get(0), episodeFile.getTitle()));
 
     } catch (Exception e) {
       Logger.instance.error("API JAddic7ed searchSubtitles using title: " + e);
@@ -57,10 +58,10 @@ public class JAddic7edAdapter implements JSubAdapter {
       if (sub.getLanguage().equals("Dutch")) sub.setLanguage("nl");
       if (sub.getLanguage().equals("English")) sub.setLanguage("en");
       if (sublanguageids[0].equals(sub.getLanguage())) {
-        listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.ADDIC7ED, StringUtils.removeIllegalFilenameChars(sub.getTitel() + " "
-            + sub.getVersion()), sub.getUrl(), sub.getLanguage(), sub.getVersion(),
-            SubtitleMatchType.EVERYTHING, sub.getVersion(), sub.getUploader(), sub
-                .isHearingImpaired()));
+        listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.ADDIC7ED, StringUtils
+            .removeIllegalFilenameChars(sub.getTitel() + " " + sub.getVersion()), sub.getUrl(), sub
+            .getLanguage(), sub.getVersion(), SubtitleMatchType.EVERYTHING, sub.getVersion(), sub
+            .getUploader(), sub.isHearingImpaired()));
       }
     }
     return listFoundSubtitles;
