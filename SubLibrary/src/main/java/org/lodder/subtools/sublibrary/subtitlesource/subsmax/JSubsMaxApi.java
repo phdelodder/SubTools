@@ -35,7 +35,7 @@ public class JSubsMaxApi extends Html {
     }
 
     String url =
-        "http://subsmax.com/api/50/" + name + "-s" + season + "e" + episode + "-" + language;
+        "http://subsmax.com/api/50/" + name.replace(" ", "%20") + "-s" + season + "e" + episode + "-" + language;
 
     String html = this.getHtml(url);
 
