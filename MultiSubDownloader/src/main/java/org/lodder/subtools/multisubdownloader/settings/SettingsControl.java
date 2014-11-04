@@ -552,7 +552,7 @@ public class SettingsControl {
         return t1.getPriority() - t2.getPriority();
       }
     });
-    
+
     settings.setListSearchSubtitlePriority(lPrio);
   }
 

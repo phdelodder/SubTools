@@ -135,6 +135,15 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     pnlSearchText.setEnableDownloadButtons(false);
     checkUpdate(false);
     initPopupMenu();
+    
+    try {
+      if (this.settingsControl.getSettings().isAutoUpdateMapping()) {
+        Logger.instance.log("Auto updating mapping ....");
+        this.settingsControl.updateMappingFromOnline();
+      }
+    } catch (Throwable e) {
+      Logger.instance.error(Logger.stack2String(e));
+    }
   }
 
   private void checkUpdate(final boolean showNoUpdate) {
