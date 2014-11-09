@@ -21,19 +21,28 @@ public class Files {
   private static final int BUF_SIZE = 0x1000; // 4K
 
   public static void copy(File from, File to) throws IOException {
-    FileInputStream input = new FileInputStream(from);
-    FileOutputStream output = new FileOutputStream(to);
-    byte[] buf = new byte[BUF_SIZE];
-    while (true) {
-      int r = input.read(buf);
-      if (r == -1) {
-        break;
-      }
-      output.write(buf, 0, r);
-    }
+    FileInputStream input = null;
+    FileOutputStream output = null;
+    try {
+      input = new FileInputStream(from);
+      output = new FileOutputStream(to);
 
-    input.close();
-    output.close();
+      byte[] buf = new byte[BUF_SIZE];
+      while (true) {
+        int r;
+
+        r = input.read(buf);
+        if (r == -1) {
+          break;
+        }
+        output.write(buf, 0, r);
+      }
+    } catch (IOException e) {
+      throw e;
+    } finally {
+      if (input != null) input.close();
+      if (output != null) output.close();
+    }
   }
 
   public static void move(File from, File to) throws IOException {
@@ -64,51 +73,91 @@ public class Files {
       br.close();
     }
   }
-  
-  public static void write(File file, String content) throws IOException{
-    FileOutputStream os = new FileOutputStream(file);
-    byte[] bytesContent = content.getBytes();
-    os.write(bytesContent);
-    os.close();
+
+  public static void write(File file, String content) throws IOException {
+    FileOutputStream os = null;
+    try {
+      os = new FileOutputStream(file);
+      byte[] bytesContent = content.getBytes("UTF-8");
+      os.write(bytesContent);
+    } catch (IOException e) {
+      throw e;
+    } finally {
+      if (os != null) os.close();
+    }
   }
 
   public static void unzip(InputStream inputStream, File outputFile, String extensionFilter)
-      throws FileNotFoundException, IOException {
-    ZipInputStream zis = new ZipInputStream(inputStream);
-    ZipEntry ze;
-    while ((ze = zis.getNextEntry()) != null) {
-      if (ze.getName().endsWith(extensionFilter)) {
-        byte[] buff = new byte[1024];
-        // get file name
-        FileOutputStream fos = new FileOutputStream(outputFile);
-        int l = 0;
-        // write buffer to file
-        while ((l = zis.read(buff)) > 0) {
-          fos.write(buff, 0, l);
+      throws IOException {
+    ZipInputStream zis = null;
+    try {
+      zis = new ZipInputStream(inputStream);
+      ZipEntry ze;
+      while ((ze = zis.getNextEntry()) != null) {
+        if (ze.getName().endsWith(extensionFilter)) {
+          byte[] buff = new byte[1024];
+          // get file name
+          FileOutputStream fos = null;
+          try {
+            fos = new FileOutputStream(outputFile);
+            int l = 0;
+            // write buffer to file
+            while ((l = zis.read(buff)) > 0) {
+              fos.write(buff, 0, l);
+            }
+          } catch (IOException e) {
+            throw e;
+          } finally {
+            if (fos != null) fos.close();
+          }
         }
-        fos.close();
       }
+    } catch (IOException e) {
+      throw e;
+    } finally {
+      if (zis != null) zis.close();
     }
-    zis.close();
+
   }
 
   public static boolean isZipFile(File file) throws IOException {
+    boolean isZip = false;
+
     if (file.isDirectory()) {
-      return false;
+      return isZip;
     }
     if (!file.canRead()) {
       throw new IOException("Cannot read file " + file.getAbsolutePath());
     }
     if (file.length() < 4) {
-      return false;
+      return isZip;
     }
-    return isZipFile(new FileInputStream(file));
+
+    FileInputStream fis = null;
+    try {
+      fis = new FileInputStream(file);
+      isZip = isZipFile(fis);
+    } catch (IOException e) {
+      throw e;
+    } finally {
+      if (fis != null) fis.close();
+    }
+
+    return isZip;
   }
 
   public static boolean isZipFile(InputStream inputStream) throws IOException {
-    DataInputStream in = new DataInputStream(new BufferedInputStream(inputStream));
-    int test = in.readInt();
-    in.close();
+    DataInputStream in = null;
+    int test = -1;
+    try {
+      in = new DataInputStream(new BufferedInputStream(inputStream));
+      test = in.readInt();
+    } catch (IOException e){
+      throw e;
+    } finally {
+      if (in != null) in.close();
+    }
+    
     return test == 0x504b0304;
   }
 
