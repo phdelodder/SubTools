@@ -59,7 +59,7 @@ public class VideoPatterns {
 
       };
 
-  public static List<NamedPattern> getCompiledPatterns() {
+  public synchronized static List<NamedPattern> getCompiledPatterns() {
     if (plist == null) {
       plist = new ArrayList<NamedPattern>();
       for (String p : PATTERNS) {
