@@ -90,7 +90,7 @@ public class DiskCacheManager extends CacheManager {
         Element cacheEntry = newDoc.createElement("CacheEntry");
 
 
-        String encKey = new String(Base64.encode(key.getBytes()));
+        String encKey = Base64.encode(key.getBytes());
         Element cacheUrl = newDoc.createElement("cacheurl");
         cacheUrl.setAttribute("encode", "true");
         cacheUrl.appendChild(newDoc.createTextNode(encKey));
