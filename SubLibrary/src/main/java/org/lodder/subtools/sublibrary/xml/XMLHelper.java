@@ -110,8 +110,7 @@ public class XMLHelper {
   public static void writeToFile(File file, Document doc) throws Exception {
     String xmlString = getXMLAsString(doc);
     FileOutputStream os = new FileOutputStream(file);
-    byte[] xmlStringContent = new byte[xmlString.length()];
-    xmlStringContent = xmlString.getBytes();
+    byte[] xmlStringContent = xmlString.getBytes();
     os.write(xmlStringContent);
     os.close();
   }
