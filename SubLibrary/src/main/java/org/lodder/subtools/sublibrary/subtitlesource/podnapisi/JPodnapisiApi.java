@@ -39,7 +39,7 @@ public class JPodnapisiApi extends XmlRPC{
 
     private final CacheManager ucm;
     private Date lastCheck;
-    public final int maxAge =  90000;
+    public static final int maxAge =  90000;
     	
     public JPodnapisiApi(String useragent){
         super(useragent, "http://ssp.podnapisi.net:8000/RPC2/");
