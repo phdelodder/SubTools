@@ -139,20 +139,30 @@ public class DiskCacheManager extends CacheManager {
   }
 
   private void storeCacheObject(URL url, CacheEntry ce) {
-    FileOutputStream fos;
-    ObjectOutputStream out;
+    FileOutputStream fos = null;
+    ObjectOutputStream out = null;
     final File location = new File(path, UUID.randomUUID().toString());
     try {
       fos = new FileOutputStream(location);
       out = new ObjectOutputStream(fos);
       out.writeObject(ce);
-      out.close();
       indexList.put(url.toString(), location);
       storeIndex();
     } catch (FileNotFoundException e) {
       Logger.instance.error(Logger.stack2String(e));
     } catch (IOException e) {
       Logger.instance.error(Logger.stack2String(e));
+    } finally {
+      try {
+        if (out != null) {
+          out.close();
+        }
+        if (fos != null) {
+          fos.close();
+        }
+      } catch (IOException e) {
+        Logger.instance.error(Logger.stack2String(e));
+      }
     }
   }
 
