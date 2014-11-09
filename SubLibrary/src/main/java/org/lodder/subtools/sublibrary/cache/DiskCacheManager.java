@@ -190,7 +190,9 @@ public class DiskCacheManager extends CacheManager {
   }
 
   private void deleteCacheObject(File location) {
-    location.delete();
+    if (!location.delete()) {
+      throw new RuntimeException("Could not delete file " + location);
+    }
   }
 
   public void removeEntry(String url) {
