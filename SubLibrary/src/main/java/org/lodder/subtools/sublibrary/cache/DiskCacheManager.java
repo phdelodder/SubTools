@@ -168,17 +168,23 @@ public class DiskCacheManager extends CacheManager {
 
   private CacheEntry loadCacheObject(File location) {
     CacheEntry ce = null;
-    FileInputStream fis;
-    ObjectInputStream in;
+    FileInputStream fis = null;
+    ObjectInputStream in = null;
     try {
       fis = new FileInputStream(location);
       in = new ObjectInputStream(fis);
       ce = (CacheEntry) in.readObject();
-      in.close();
     } catch (IOException ex) {
       Logger.instance.error(Logger.stack2String(ex));
     } catch (ClassNotFoundException ex) {
       Logger.instance.log(Logger.stack2String(ex));
+    } finally {
+      try {
+        if (in != null) in.close();
+        if (fis != null) fis.close();
+      } catch (IOException e) {
+        Logger.instance.log(Logger.stack2String(e));
+      }
     }
     return ce;
   }
