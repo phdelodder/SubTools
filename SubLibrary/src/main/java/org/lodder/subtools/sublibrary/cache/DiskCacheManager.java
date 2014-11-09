@@ -32,7 +32,9 @@ public class DiskCacheManager extends CacheManager {
     super();
     path = new File(System.getProperty("user.home"), ".MultiSubDownloader");
     if (!path.exists()) {
-      path.mkdir();
+      if (!path.mkdir()) {
+        throw new RuntimeException("Could not create folder " + path);
+      }
     }
     indexList = new HashMap<String, File>();
     if (new File(path, "index").exists()) loadIndex();
