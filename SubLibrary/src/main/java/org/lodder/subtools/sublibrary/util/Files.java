@@ -67,8 +67,7 @@ public class Files {
   
   public static void write(File file, String content) throws IOException{
     FileOutputStream os = new FileOutputStream(file);
-    byte[] bytesContent = new byte[content.length()];
-    bytesContent = content.getBytes();
+    byte[] bytesContent = content.getBytes();
     os.write(bytesContent);
     os.close();
   }
