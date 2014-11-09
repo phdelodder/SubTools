@@ -60,7 +60,7 @@ public class DiskCacheManager extends CacheManager {
           String key = "";
           if (enc) {
             String raw = XMLHelper.getStringTagRawValue("cacheurl", (Element) nList.item(i));
-            key = new String(Base64.decode(raw));
+            key = new String(Base64.decode(raw), "UTF-8");
           } else {
             key = XMLHelper.getStringTagValue("cacheurl", (Element) nList.item(i));
           }
