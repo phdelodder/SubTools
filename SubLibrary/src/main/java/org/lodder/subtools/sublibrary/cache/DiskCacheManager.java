@@ -170,6 +170,7 @@ public class DiskCacheManager extends CacheManager {
     CacheEntry ce = null;
     FileInputStream fis = null;
     ObjectInputStream in = null;
+    if (!location.exists()) return null;
     try {
       fis = new FileInputStream(location);
       in = new ObjectInputStream(fis);

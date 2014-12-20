@@ -41,22 +41,37 @@ public class TheTVDBApi {
       e.printStackTrace();
     }
     Document doc = xmlHTTPAPI.getXMLDisk(url, 24 * 60 * 60 * 5);
-
-    NodeList nList = doc.getElementsByTagName("Series");
+    NodeList nList = null;
+    
+    if (doc != null){
+      nList = doc.getElementsByTagName("Series");
+    }
+    
+    if (nList == null || nList.getLength() == 0) {
+      //retry if failed, but delete entry!
+      xmlHTTPAPI.removeCacheEntry(url);
+      doc = xmlHTTPAPI.getXMLDisk(url, 24 * 60 * 60 * 5);
+      nList = doc.getElementsByTagName("Series");
+    }
+    
     for (int i = 0; i < nList.getLength(); i++) {
+
       Element eElement = (Element) nList.item(i);
       if (eElement != null) {
-        String seriesName = org.lodder.subtools.sublibrary.xml.XMLHelper.getStringTagValue("SeriesName", eElement);
+        String seriesName =
+            org.lodder.subtools.sublibrary.xml.XMLHelper.getStringTagValue("SeriesName", eElement);
         if (seriesName.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(
             seriename.replaceAll("[^A-Za-z]", ""))) {
           return org.lodder.subtools.sublibrary.xml.XMLHelper.getIntTagValue("seriesid", eElement);
         }
-        String aliasNames = org.lodder.subtools.sublibrary.xml.XMLHelper.getStringTagValue("AliasNames", eElement);
+        String aliasNames =
+            org.lodder.subtools.sublibrary.xml.XMLHelper.getStringTagValue("AliasNames", eElement);
         if (aliasNames.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(
             seriename.replaceAll("[^A-Za-z]", ""))) {
           return org.lodder.subtools.sublibrary.xml.XMLHelper.getIntTagValue("seriesid", eElement);
         }
       }
+
     }
     return 0;
   }
@@ -68,7 +83,18 @@ public class TheTVDBApi {
       String url = createApiUrl("series", new String[] {Integer.toString(tvdbid)});
       Document doc = xmlHTTPAPI.getXMLDisk(url);
 
-      NodeList nList = doc.getElementsByTagName("Series");
+      NodeList nList = null;
+      
+      if (doc != null){
+        nList = doc.getElementsByTagName("Series");
+      }
+      
+      if (nList == null || nList.getLength() == 0) {
+        //retry if failed, but delete entry!
+        xmlHTTPAPI.removeCacheEntry(url);
+        doc = xmlHTTPAPI.getXMLDisk(url);
+        nList = doc.getElementsByTagName("Series");
+      }
 
       if (nList.getLength() > 0 && nList.item(0).getNodeType() == Node.ELEMENT_NODE) {
         return parseSerieNode((Element) nList.item(0));
