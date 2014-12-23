@@ -180,6 +180,9 @@ public class HttpClient {
       if (url.getFile().endsWith(".zip") | Files.isZipFile(new ByteArrayInputStream(data))) {
         Files.unzip(new ByteArrayInputStream(data), file, ".srt");
       } else {
+        if (Files.isGZipCompressed(data)) {
+          data = Files.decompressGZip(data);
+        }
         String content = new String(data, "UTF-8");
         if (content.contains("Daily Download count exceeded")) {
           Logger.instance.error("Download problem: Addic7ed Daily Download count exceeded!");

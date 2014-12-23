@@ -2,6 +2,7 @@ package org.lodder.subtools.sublibrary.util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,8 +14,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import org.apache.commons.io.IOUtils;
 
 public class Files {
 
@@ -160,6 +164,27 @@ public class Files {
     
     return test == 0x504b0304;
   }
+  
+  /*
+   * Determines if a byte array is compressed. The java.util.zip GZip
+   * implementaiton does not expose the GZip header so it is difficult to determine
+   * if a string is compressed.
+   * 
+   * @param bytes an array of bytes
+   * @return true if the array is compressed or false otherwise
+   * @throws java.io.IOException if the byte array couldn't be read
+   */
+   public static boolean isGZipCompressed(byte[] bytes) throws IOException
+   {
+        if ((bytes == null) || (bytes.length < 2))
+        {
+             return false;
+        }
+        else
+        {
+              return ((bytes[0] == (byte) (GZIPInputStream.GZIP_MAGIC)) && (bytes[1] == (byte) (GZIPInputStream.GZIP_MAGIC >> 8)));
+        }
+   }
 
   public static void deleteEmptyFolders(File aStartingDir) throws FileNotFoundException {
     List<File> emptyFolders = new ArrayList<File>();
@@ -206,6 +231,22 @@ public class Files {
       emptyFolders.add(folder);
     }
     return isEmpty;
+  }
+
+  public static byte[] decompressGZip(byte[] data) throws IOException {
+    ByteArrayInputStream binput = new ByteArrayInputStream(data);
+    GZIPInputStream gzinput = null;
+    byte[] decompressedData = null;
+    try {
+      gzinput = new GZIPInputStream(binput);
+      decompressedData = IOUtils.toByteArray(gzinput);
+    } catch (IOException e) {
+      throw e;
+    } finally {
+      gzinput.close();
+      binput.close();
+    }
+    return decompressedData;
   }
 
 }
