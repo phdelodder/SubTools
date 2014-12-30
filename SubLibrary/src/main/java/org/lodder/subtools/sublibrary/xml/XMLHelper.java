@@ -17,6 +17,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -143,13 +144,24 @@ public class XMLHelper {
   }
 
   public static Document getDocument(InputStream inputStream) throws ParserConfigurationException,
-      SAXException, IOException {
+      IOException {
     Document doc;
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     // Use the factory to create a builder
     DocumentBuilder builder;
     builder = factory.newDocumentBuilder();
-    doc = builder.parse(inputStream);
+    try {
+      doc = builder.parse(inputStream);
+    } catch (SAXException e) {
+      if (Logger.instance.getLogLevel() == Level.TRACE) {
+        Logger.instance.trace("XMLHelper", "getDocument",
+            "Not a valid XML document, setting a blank document!");
+      } else {
+        Logger.instance.debug("Not a valid XML document, setting a blank document!");
+      }
+      doc = builder.newDocument();
+    }
+
     return doc;
   }
 }
