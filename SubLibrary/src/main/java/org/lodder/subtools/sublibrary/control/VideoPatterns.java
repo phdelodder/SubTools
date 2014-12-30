@@ -32,7 +32,7 @@ public class VideoPatterns {
           "(?<moviename>[\'\\w\\s:&()!.,_-]+)(?<part>Pt|Part|pt|part|Ep)[.](?<romanepisode>[I|V|X]+)[. ](?<year>19\\d{2}|20\\d{2})(?<description>[\'\\w\\s:&()!.,_-]+)",
           // serie
           "(?<seriesname>[\'\\w\\s:&()!.,_-]+)[Ss. _](?<seasonnumber>[\\d]{1,2})[XxEe]{1,2}(?<episodenumberstart>[\\d]{1,2})(?<episodebetween>[XxEe][\\d]{1,2})*[XxEe](?<episodenumberend>[\\d]{1,2})(?<description>[\'\\w\\s:&()!.,_-]+)",
-          "(?<seriesname>[\'\\w\\s:&()!.,_-]+)[Ss. _](?<seasonnumber>[\\d]{1,2})[XxEe]{1,2}(?<episodenumber>[\\d]{1,2})(?<description>[\'\\w\\s:&()!.,_-]+)",
+          "(?<seriesname>[\'\\w\\s:&()!.,_-]+)[Ss. _](?<seasonnumber>[\\d]{1,2})[XxEe]{1,2}(?<episodenumber>[\\d]{1,3})(?<description>[\'\\w\\s:&()!.,_-]+)",
           // sXeX - Serienaam - Titel ex: S04E02 - White Collar - Most Wanted.mkv
           "[Ss. _](?<seasonnumber>[\\d]{1,2})[XxEe]{1,2}(?<episodenumberstart>[\\d]{1,2})(?<episodebetween>[XxEe][\\d]{1,2})*[XxEe](?<episodenumberend>[\\d]{1,2})\\s?+-?\\s?+(?<seriesname>[\'\\w\\s:&()!.,_]+)\\s?+-?\\s?+(?<description>[\'\\w\\s:&()!.,_]+)",
           "[Ss. _](?<seasonnumber>[\\d]{1,2})[XxEe]{1,2}(?<episodenumber>[\\d]{1,2})\\s?+-?\\s?+(?<seriesname>[\'\\w\\s:&()!.,_]+)\\s?+-?\\s?+(?<description>[\'\\w\\s:&()!.,_]+)",
