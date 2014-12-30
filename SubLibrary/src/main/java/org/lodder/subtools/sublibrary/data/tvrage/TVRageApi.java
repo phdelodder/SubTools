@@ -1,5 +1,7 @@
 package org.lodder.subtools.sublibrary.data.tvrage;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,15 +84,23 @@ public class TVRageApi{
         tvrageURL.append(API_SITE);
         tvrageURL.append(urlParameter);
         tvrageURL.append("?");
+        
+        String encUrlData = urlData;
+        try {
+          encUrlData = URLEncoder.encode(urlData, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
 
         if (urlParameter.equalsIgnoreCase(API_SEARCH)) {
-            tvrageURL.append("show=").append(urlData);
+            tvrageURL.append("show=").append(encUrlData);
         } else if (urlParameter.equalsIgnoreCase(API_SHOWINFO)) {
-            tvrageURL.append("sid=").append(urlData);
+            tvrageURL.append("sid=").append(encUrlData);
         } else if (urlParameter.equalsIgnoreCase(API_EPISODE_LIST)) {
-            tvrageURL.append("sid=").append(urlData);
+            tvrageURL.append("sid=").append(encUrlData);
         } else if (urlParameter.equalsIgnoreCase(API_EPISODE_INFO)) {
-            tvrageURL.append("sid=").append(urlData);
+            tvrageURL.append("sid=").append(encUrlData);
             // Note this needs the season & episode appending to the url
         } else {
             return new StringBuilder(UNKNOWN);
