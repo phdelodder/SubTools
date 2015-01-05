@@ -8,21 +8,21 @@ A build is available [here] (https://www.dropbox.com/sh/1gz18xwzinfgmbl/gDfSgYN1
 
 ### CLI
 
----
+```
 java -jar multisubdownloader-0.1.27.one-jar.jar --nogui
----
+```
 
 ### X
 
----
+```
 java -jar multisubdownloader-0.1.27.one-jar.jar
----
+```
 
 ## Usage
 
----
+```
 java -jar multisubdownloader-0.1.27.one-jar.jar --nogui --help
----
+```
 
 usage:
  -debug                     enables logging
