@@ -54,8 +54,8 @@ public class Actions {
   public int determineWhatSubtitleDownload(final VideoFile videoFile,
       final boolean subtitleSelectionDialog) {
     if (videoFile.getMatchingSubs().size() > 0) {
-      Logger.instance.debug("determineWhatSubtitleDownload: # found subs: "
-          + videoFile.getMatchingSubs().size());
+      Logger.instance.debug("determineWhatSubtitleDownload for videoFile: "
+          + videoFile.getFilename() + " # found subs: " + videoFile.getMatchingSubs().size());
       if (settings.isOptionsAlwaysConfirm()) {
         return getSelected(videoFile);
       } else if (videoFile.getMatchingSubs().size() == 1
@@ -520,9 +520,13 @@ public class Actions {
     Logger.instance.debug("getAutomaticSubtitleSelection: quality rules: "
         + settings.getQualityRuleList().toString());
     for (String quality : settings.getQualityRuleList()) {
+      Logger.instance.trace("Actions", "getAutomaticSubtitleSelection", "Quality Rule checked: "
+          + quality);
       for (int i = 0; i < matchingSubs.size(); i++) {
         subtitle = matchingSubs.get(i);
         Logger.instance.debug("getAutomaticSubtitleSelection: subtitle quality: "
+            + subtitle.getQuality());
+        Logger.instance.trace("Actions", "getAutomaticSubtitleSelection", "subtitle quality: "
             + subtitle.getQuality());
         if (quality.equalsIgnoreCase(subtitle.getQuality())) {
           // subtitle.getQuality().contains(quality)
