@@ -124,7 +124,7 @@ public class App {
     options.addOption("trace", false, "more logging");
     options.addOption("importpreferences", true, "import preferences");
     options.addOption("force", false, "force to overwrite the subtitle on disk");
-    options.addOption("folder", false, "folder to search");
+    options.addOption("folder", true, "folder to search");
     options.addOption("downloadall", false, "Download all found subs using '-v1' system ");
     options.addOption("updatefromonlinemapping", false, "Update with the Mappings from online");
     options.addOption("selection", false,
