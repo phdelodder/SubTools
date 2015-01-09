@@ -525,6 +525,7 @@ public class Actions {
     Logger.instance.trace("Actions", "getAutomaticSubtitleSelection",
         "Second run, using word exists in");
     result = qualityRuleSelectionCompare(matchingSubs, false);
+    if (result > -1) return result;
 
     if (settings.isOptionsNoRuleMatchTakeFirst()) {
       Logger.instance.debug("getAutomaticSubtitleSelection: Using taking first rule");
@@ -549,7 +550,7 @@ public class Actions {
         if (equal && quality.equalsIgnoreCase(subtitle.getQuality())) return i;
         if (!equal) {
           for (String q : quality.split(" ")) {
-            if (subtitle.getQuality().contains(q)) return i;
+            if (subtitle.getQuality().toLowerCase().contains(q.toLowerCase())) return i;
           }
         }
       }
