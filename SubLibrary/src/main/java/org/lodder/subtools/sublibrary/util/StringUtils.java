@@ -37,7 +37,7 @@ public class StringUtils {
 	    text = text.replace(":", "");
 	    text = text.replace("/", "");
 	    text = text.replace("\\", "");
-	    if (text.substring(text.length() - 1).equals(".")) {
+	    if (text.length() > 0 && text.substring(text.length() - 1).equals(".")) {
 	      text = text.substring(0, text.length() - 1);
 	    }
 	    return text.trim();
