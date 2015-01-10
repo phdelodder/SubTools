@@ -23,7 +23,6 @@
 		<dependency>
 			<groupId>org.lodder.subtools</groupId>
 			<artifactId>sublibrary</artifactId>
-			<version>0.1.10</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -79,4 +78,13 @@
 		</plugins>
 	</build>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.lodder.subtools</groupId>
+				<artifactId>sublibrary</artifactId>
+				<version>LATEST</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>
