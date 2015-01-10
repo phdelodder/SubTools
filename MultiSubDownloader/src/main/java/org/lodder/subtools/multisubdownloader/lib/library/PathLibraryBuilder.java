@@ -49,14 +49,12 @@ public class PathLibraryBuilder extends LibraryBuilder {
     folder = replaceFormatedEpisodeNumber(folder, "%EX%", episodeFile.getEpisodeNumbers(), false);
     folder = folder.replaceAll("%SS%", formatedNumber(episodeFile.getSeason(), true));
     folder = folder.replaceAll("%S%", formatedNumber(episodeFile.getSeason(), false));
-    folder =
-        folder.replaceAll("%EE%", formatedNumber(episodeFile.getEpisodeNumbers().get(0), true));
-    folder =
-        folder.replaceAll("%E%", formatedNumber(episodeFile.getEpisodeNumbers().get(0), false));
+    folder = folder.replaceAll("%EE%", formatedNumber(episodeFile.getEpisodeNumbers().get(0), true));
+    folder = folder.replaceAll("%E%", formatedNumber(episodeFile.getEpisodeNumbers().get(0), false));
     folder = folder.replaceAll("%TITLE%", episodeFile.getTitle());
     try {
       folder = folder.replaceAll("%SEPARATOR%", File.separator);
-    } catch (IndexOutOfBoundsException ioobe) // windows hack needs "\\" instead of "\"
+    } catch (IndexOutOfBoundsException | IllegalArgumentException ioobe) // windows hack needs "\\" instead of "\"
     {
       folder = folder.replaceAll("%SEPARATOR%", File.separator + File.separator);
     }
