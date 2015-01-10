@@ -61,7 +61,8 @@ public class UpdateAvailableDropbox {
         if (href.contains(baseName)) {
           String foundVersion =
               href.substring(href.lastIndexOf("/") + 1, href.length()).replace(baseName, "")
-                  .replace("-v", "").replace("." + extension, "").trim().replace("?dl=0", "");
+                  .replace("-v", "").replace("-r", "").replace("." + extension, "").trim()
+                  .replace("?dl=0", "");
           int compare =
               compareVersions(ConfigProperties.getInstance().getProperty("version"), foundVersion);
           if (compare < 0) {
