@@ -183,7 +183,7 @@ public class CacheManager {
 					Logger.instance.debug("Added cached element: " + url);
 				}
 			} else {
-				if (ucList.get(url).toString().equals("")){
+				if (ucList.get(url.toString()).getContent().equals("")){
 				  Logger.instance.debug("Found cached element but empty, refetching: " + url);
 				  ucList.put(url.toString(), get(url, timeout));
                   Logger.instance.debug("Added cached element: " + url);
