@@ -59,7 +59,6 @@ public class SearchFileWorker extends SwingWorker<List<VideoFile>, String> {
     Logger.instance.debug(" - OptionSubtitleExactMatch : " + settings.isOptionSubtitleExactMatch());
     Logger.instance.debug(" - OptionSubtitleKeywordMatch : "
         + settings.isOptionSubtitleKeywordMatch());
-    Logger.instance.debug(" - OptionNoResultShowItAll : " + settings.isOptionNoResultShowItAll());
     Logger.instance.debug("-------------------------------");
 
     int progress = 0;

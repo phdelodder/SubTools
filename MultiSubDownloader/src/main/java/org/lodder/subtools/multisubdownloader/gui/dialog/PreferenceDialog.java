@@ -35,7 +35,7 @@ public class PreferenceDialog extends MutliSubDialog {
   private static final long serialVersionUID = -5730220264781738564L;
   private final JPanel contentPanel = new JPanel();
   private JCheckBox chkOnlyFound, chkAlwaysConfirm, chkSubtitleExactMethod,
-      chkSubtitleKeywordMethod, chkNoResultShowItAll;
+      chkSubtitleKeywordMethod;
   private SettingsControl settingsCtrl;
   private EpisodeLibraryPanel pnlEpisodeLibrary;
   private JListWithImages excludeList;
@@ -315,7 +315,7 @@ public class PreferenceDialog extends MutliSubDialog {
               new JCheckBox("Neem de eerste ondertitel als geen enkel regel resultaat heeft.");
           pnlOptions.add(chkNoRuleMatchTakeFirst, "cell 2 6 3 1");
         }
-        pnlOptions.add(new JLabel("Zoek methode"), "cell 0 8 5 1");
+        pnlOptions.add(new JLabel("Zoek filter"), "cell 0 8 5 1");
         pnlOptions.add(new JSeparator(), "cell 0 8 5 1,growx");
         chkSubtitleExactMethod =
             new JCheckBox(
@@ -326,10 +326,6 @@ public class PreferenceDialog extends MutliSubDialog {
               new JCheckBox(
                   "Keywords (op basis van woorden zoals 720p, xvid, ...) [werkt met iedere source]");
           pnlOptions.add(chkSubtitleKeywordMethod, "cell 1 10 3 1");
-        }
-        {
-          chkNoResultShowItAll = new JCheckBox("Geen resultaten? Toon wat er gevonden is.");
-          pnlOptions.add(chkNoResultShowItAll, "cell 1 11 3 1");
         }
         {
           chkExcludeHearingImpaired = new JCheckBox("Hearing Impaired uitsluiten");
@@ -571,7 +567,6 @@ public class PreferenceDialog extends MutliSubDialog {
     chkAlwaysConfirm.setSelected(settingsCtrl.getSettings().isOptionsAlwaysConfirm());
     chkSubtitleExactMethod.setSelected(settingsCtrl.getSettings().isOptionSubtitleExactMatch());
     chkSubtitleKeywordMethod.setSelected(settingsCtrl.getSettings().isOptionSubtitleKeywordMatch());
-    chkNoResultShowItAll.setSelected(settingsCtrl.getSettings().isOptionNoResultShowItAll());
     chkExcludeHearingImpaired.setSelected(settingsCtrl.getSettings()
         .isOptionSubtitleExcludeHearingImpaired());
     chkOnlyFound.setSelected(settingsCtrl.getSettings().isOptionsShowOnlyFound());
@@ -732,7 +727,6 @@ public class PreferenceDialog extends MutliSubDialog {
           chkSubtitleKeywordMethod.isSelected());
       settingsCtrl.getSettings().setOptionSubtitleExcludeHearingImpaired(
           chkExcludeHearingImpaired.isSelected());
-      settingsCtrl.getSettings().setOptionNoResultShowItAll(chkNoResultShowItAll.isSelected());
       settingsCtrl.getSettings().setOptionsShowOnlyFound(chkOnlyFound.isSelected());
       settingsCtrl.getSettings().setOptionsStopOnSearchError(chkStopOnSearchError.isSelected());
       settingsCtrl.getSettings().setProcessEpisodeSource(

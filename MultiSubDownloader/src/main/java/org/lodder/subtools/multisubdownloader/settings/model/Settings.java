@@ -10,7 +10,7 @@ public class Settings {
 
   private File lastOutputDir;
   private boolean optionsAlwaysConfirm, optionSubtitleExactMatch, optionSubtitleKeywordMatch,
-      optionNoResultShowItAll, optionSubtitleExcludeHearingImpaired;
+      optionSubtitleExcludeHearingImpaired;
   private boolean optionsShowOnlyFound, optionsStopOnSearchError;
   private boolean optionsNoRuleMatchTakeFirst, optionsAutomaticDownloadSelection;
   private List<SettingsExcludeItem> excludeList;
@@ -62,10 +62,9 @@ public class Settings {
     autoUpdateMapping = false;
     setOptionSubtitleExactMatch(true);
     setOptionSubtitleKeywordMatch(true);
-    setOptionNoResultShowItAll(true);
     setProcessEpisodeSource(SettingsProcessEpisodeSource.TVDB);
     setMappingSettings(new MappingSettings());
-    listSearchSubtitlePriority =  new ArrayList<SearchSubtitlePriority>();
+    listSearchSubtitlePriority = new ArrayList<SearchSubtitlePriority>();
   }
 
   public boolean isOptionsAlwaysConfirm() {
@@ -344,20 +343,6 @@ public class Settings {
    */
   public void setOptionSubtitleKeywordMatch(boolean optionSubtitleKeywordMatch) {
     this.optionSubtitleKeywordMatch = optionSubtitleKeywordMatch;
-  }
-
-  /**
-   * @return the optionNoResultShowItAll
-   */
-  public boolean isOptionNoResultShowItAll() {
-    return optionNoResultShowItAll;
-  }
-
-  /**
-   * @param optionNoResultShowItAll the optionNoResultShowItAll to set
-   */
-  public void setOptionNoResultShowItAll(boolean optionNoResultShowItAll) {
-    this.optionNoResultShowItAll = optionNoResultShowItAll;
   }
 
   /**

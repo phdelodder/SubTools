@@ -83,7 +83,6 @@ public class SettingsControl {
       preferences.putBoolean("OptionSubtitleKeywordMatch", settings.isOptionSubtitleKeywordMatch());
       preferences.putBoolean("OptionSubtitleExcludeHearingImpaired",
           settings.isOptionSubtitleExcludeHearingImpaired());
-      preferences.putBoolean("OptionNoResultShowItAll", settings.isOptionNoResultShowItAll());
       preferences.putBoolean("OptionsShowOnlyFound", settings.isOptionsShowOnlyFound());
       preferences.putBoolean("OptionsStopOnSearchError", settings.isOptionsStopOnSearchError());
       preferences.putBoolean("OptionsAutomaticDownloadSelection",
@@ -322,7 +321,6 @@ public class SettingsControl {
         true));
     settings.setOptionSubtitleExcludeHearingImpaired(preferences.getBoolean(
         "OptionSubtitleExcludeHearingImpaired", false));
-    settings.setOptionNoResultShowItAll(preferences.getBoolean("OptionNoResultShowItAll", true));
     settings.setOptionsShowOnlyFound(preferences.getBoolean("OptionsShowOnlyFound", false));
     settings.setOptionsStopOnSearchError(preferences.getBoolean("OptionsStopOnSearchError", false));
     settings.setOptionsAutomaticDownloadSelection(preferences.getBoolean(

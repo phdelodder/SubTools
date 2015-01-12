@@ -96,15 +96,6 @@ public class SubtitleControl {
         default:
           break;
       }
-
-      boolean tempOptionNoResultShowItAll = settings.isOptionNoResultShowItAll();
-      settings.setOptionNoResultShowItAll(false);
-      List<Subtitle> listResultFiltered =
-          this.getSubtitlesFiltered(listFoundSubtitles, episodeFile);
-      settings.setOptionNoResultShowItAll(tempOptionNoResultShowItAll);
-      if (listResultFiltered.size() > 0) {
-        return listResultFiltered;
-      }
     }
 
     return this.getSubtitlesFiltered(listFoundSubtitles, episodeFile);
@@ -291,7 +282,7 @@ public class SubtitleControl {
       }
     }
 
-    if (!foundKeywordMatch && !foundExactMatch && settings.isOptionNoResultShowItAll()) {
+    if (!foundKeywordMatch && !foundExactMatch) {
       for (Subtitle subtitle : listFoundSubtitles) {
         subtitle.setSubtitleMatchType(SubtitleMatchType.EVERYTHING);
         subtitle.setQuality(VideoFileParser.getQualityKeyword(subtitle.getFilename()));

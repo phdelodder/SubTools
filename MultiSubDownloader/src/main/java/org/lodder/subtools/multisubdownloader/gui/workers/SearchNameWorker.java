@@ -50,7 +50,6 @@ public class SearchNameWorker extends SwingWorker<List<Subtitle>, String> {
     Logger.instance.debug(" - OptionSubtitleExactMatch : " + settings.isOptionSubtitleExactMatch());
     Logger.instance.debug(" - OptionSubtitleKeywordMatch : "
         + settings.isOptionSubtitleKeywordMatch());
-    Logger.instance.debug(" - OptionNoResultShowItAll : " + settings.isOptionNoResultShowItAll());
     Logger.instance.debug("-------------------------------");
 
     int progress = 0;
