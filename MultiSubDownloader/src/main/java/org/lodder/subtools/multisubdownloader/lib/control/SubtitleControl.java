@@ -48,7 +48,7 @@ public class SubtitleControl {
     jTVSubtitlesAdapter = new JTVsubtitlesAdapter();
     privateRepo = PrivateRepo.getPrivateRepo();
     jSubsMaxAdapter = new JSubsMaxAdapter();
-    
+
   }
 
   public List<Subtitle> getSubtitles(EpisodeFile episodeFile, String... languagecode) {
@@ -90,15 +90,23 @@ public class SubtitleControl {
           break;
         case SUBSMAX:
           if (settings.isSerieSourceSubsMax())
-            listFoundSubtitles.addAll(jSubsMaxAdapter.searchSubtitles(episodeFile,
-                languagecode[0]));
+            listFoundSubtitles
+                .addAll(jSubsMaxAdapter.searchSubtitles(episodeFile, languagecode[0]));
           break;
         default:
           break;
       }
+
+      // After each search source, check if matching subtitles have been found! Only works if exact
+      // or keyword is checked!
+      if (settings.isOptionSubtitleExactMatch() || settings.isOptionSubtitleKeywordMatch()) {
+        List<Subtitle> listResultFiltered =
+            this.getSubtitlesFiltered(listFoundSubtitles, episodeFile, true);
+        if (listResultFiltered.size() > 0) return listResultFiltered;
+      }
     }
 
-    return this.getSubtitlesFiltered(listFoundSubtitles, episodeFile);
+    return this.getSubtitlesFiltered(listFoundSubtitles, episodeFile, false);
   }
 
   public List<Subtitle> getSubtitles(MovieFile movieFile, String... languagecode) {
@@ -107,7 +115,7 @@ public class SubtitleControl {
     listFoundSubtitles.addAll(privateRepo.searchSubtitles(movieFile, languagecode[0]));
     listFoundSubtitles.addAll(jOpenSubAdapter.searchSubtitles(movieFile, languagecode));
     listFoundSubtitles.addAll(jPodnapisiAdapter.searchSubtitles(movieFile, languagecode[0]));
-    return this.getSubtitlesFiltered(listFoundSubtitles, movieFile);
+    return this.getSubtitlesFiltered(listFoundSubtitles, movieFile, false);
   }
 
   private List<Subtitle> addLocalLibrary(EpisodeFile episodeFile, String languagecode) {
@@ -182,7 +190,7 @@ public class SubtitleControl {
   }
 
   protected List<Subtitle> getSubtitlesFiltered(List<Subtitle> listFoundSubtitles,
-      VideoFile videoFile) {
+      VideoFile videoFile, boolean ignoreEveryting) {
     Logger.instance.trace("SubtitleControl", "getSubtitlesFiltered", "");
 
     boolean foundExactMatch = false;
@@ -282,7 +290,7 @@ public class SubtitleControl {
       }
     }
 
-    if (!foundKeywordMatch && !foundExactMatch) {
+    if (!foundKeywordMatch && !foundExactMatch && ignoreEveryting) {
       for (Subtitle subtitle : listFoundSubtitles) {
         subtitle.setSubtitleMatchType(SubtitleMatchType.EVERYTHING);
         subtitle.setQuality(VideoFileParser.getQualityKeyword(subtitle.getFilename()));
