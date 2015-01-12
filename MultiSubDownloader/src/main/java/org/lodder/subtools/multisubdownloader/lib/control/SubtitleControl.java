@@ -101,12 +101,12 @@ public class SubtitleControl {
       // or keyword is checked!
       if (settings.isOptionSubtitleExactMatch() || settings.isOptionSubtitleKeywordMatch()) {
         List<Subtitle> listResultFiltered =
-            this.getSubtitlesFiltered(listFoundSubtitles, episodeFile, true);
+            this.getSubtitlesFiltered(listFoundSubtitles, episodeFile, false);
         if (listResultFiltered.size() > 0) return listResultFiltered;
       }
     }
 
-    return this.getSubtitlesFiltered(listFoundSubtitles, episodeFile, false);
+    return this.getSubtitlesFiltered(listFoundSubtitles, episodeFile, true);
   }
 
   public List<Subtitle> getSubtitles(MovieFile movieFile, String... languagecode) {
@@ -115,7 +115,7 @@ public class SubtitleControl {
     listFoundSubtitles.addAll(privateRepo.searchSubtitles(movieFile, languagecode[0]));
     listFoundSubtitles.addAll(jOpenSubAdapter.searchSubtitles(movieFile, languagecode));
     listFoundSubtitles.addAll(jPodnapisiAdapter.searchSubtitles(movieFile, languagecode[0]));
-    return this.getSubtitlesFiltered(listFoundSubtitles, movieFile, false);
+    return this.getSubtitlesFiltered(listFoundSubtitles, movieFile, true);
   }
 
   private List<Subtitle> addLocalLibrary(EpisodeFile episodeFile, String languagecode) {
@@ -190,7 +190,7 @@ public class SubtitleControl {
   }
 
   protected List<Subtitle> getSubtitlesFiltered(List<Subtitle> listFoundSubtitles,
-      VideoFile videoFile, boolean ignoreEveryting) {
+      VideoFile videoFile, boolean includeEverytingIfNoResults) {
     Logger.instance.trace("SubtitleControl", "getSubtitlesFiltered", "");
 
     boolean foundExactMatch = false;
@@ -290,7 +290,7 @@ public class SubtitleControl {
       }
     }
 
-    if (!foundKeywordMatch && !foundExactMatch && ignoreEveryting) {
+    if (!foundKeywordMatch && !foundExactMatch && includeEverytingIfNoResults) {
       for (Subtitle subtitle : listFoundSubtitles) {
         subtitle.setSubtitleMatchType(SubtitleMatchType.EVERYTHING);
         subtitle.setQuality(VideoFileParser.getQualityKeyword(subtitle.getFilename()));
