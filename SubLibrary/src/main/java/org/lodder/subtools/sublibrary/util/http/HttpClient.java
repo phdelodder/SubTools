@@ -57,14 +57,13 @@ public class HttpClient {
       try {
         int respCode = ((HttpURLConnection) conn).getResponseCode();
         if (respCode == 429) {
-          Logger.instance.log("429 error, gelieve 1 minuut te wachten");
+          Logger.instance.log("HTTP STATUS CODE 429: gelieve 1 minuut te wachten");
           try {
             TimeUnit.MINUTES.sleep(1);
             TimeUnit.SECONDS.sleep(1);
           } catch (InterruptedException ie) {
-            Thread.currentThread().interrupt(); // restore
-            // interrupted
-            // status
+            //restore interrupted status
+            Thread.currentThread().interrupt();
           }
           return doGet(url, userAgent);
         } else {
@@ -74,7 +73,6 @@ public class HttpClient {
       } catch (Exception ex) {
         Logger.instance.error(Logger.stack2String(ex));
       }
-      Logger.instance.error(Logger.stack2String(e));
     }
     return "";
   }
