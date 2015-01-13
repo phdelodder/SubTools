@@ -71,7 +71,8 @@ public class HttpClient {
               + getStringFromInputStream(((HttpURLConnection) conn).getErrorStream()));
         }
       } catch (Exception ex) {
-        Logger.instance.error(Logger.stack2String(ex));
+        Logger.instance.error(ex.getMessage());
+        Logger.instance.debug(Logger.stack2String(ex));
       }
     }
     return "";
