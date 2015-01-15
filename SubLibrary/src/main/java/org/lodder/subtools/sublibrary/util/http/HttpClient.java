@@ -67,8 +67,7 @@ public class HttpClient {
           }
           return doGet(url, userAgent);
         } else {
-          Logger.instance.error("Error response " + respCode + ": "
-              + getStringFromInputStream(((HttpURLConnection) conn).getErrorStream()));
+          Logger.instance.error("Error response: " + respCode + " For url: " + url);
         }
       } catch (Exception ex) {
         Logger.instance.error(ex.getMessage());
