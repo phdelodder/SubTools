@@ -47,7 +47,7 @@ public class CommandLine implements Listener {
 
     for (File f : folders) {
       List<File> files = actions.getFileListing(f, recursive, languagecode, force);
-      Logger.instance.debug("Files found to process: " + files.size());
+      Logger.instance.debug("# Files found to process: " + files.size());
       VideoFile videoFile;
       for (File file : files) {
         try {
