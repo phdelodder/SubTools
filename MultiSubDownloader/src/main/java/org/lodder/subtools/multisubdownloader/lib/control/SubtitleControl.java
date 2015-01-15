@@ -56,28 +56,29 @@ public class SubtitleControl {
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
 
     for (SearchSubtitlePriority searchSubtitlePriority : settings.getListSearchSubtitlePriority()) {
+      List<Subtitle> listSourceSubtitles = new ArrayList<Subtitle>();
       switch (searchSubtitlePriority.getSubtitleSource()) {
         case ADDIC7ED:
           if (settings.isSerieSourceAddic7ed())
-            listFoundSubtitles.addAll(jAddic7edAdapter.searchSubtitles(episodeFile, languagecode));
+            listSourceSubtitles.addAll(jAddic7edAdapter.searchSubtitles(episodeFile, languagecode));
           break;
         case LOCAL:
           if (settings.isSerieSourceLocal())
-            listFoundSubtitles.addAll(addLocalLibrary(episodeFile, languagecode[0]));
+            listSourceSubtitles.addAll(addLocalLibrary(episodeFile, languagecode[0]));
           break;
         case OPENSUBTITLES:
           if (settings.isSerieSourceOpensubtitles())
-            listFoundSubtitles.addAll(jOpenSubAdapter.searchSubtitles(episodeFile, languagecode));
+            listSourceSubtitles.addAll(jOpenSubAdapter.searchSubtitles(episodeFile, languagecode));
           break;
         case PODNAPISI:
           if (settings.isSerieSourcePodnapisi())
-            listFoundSubtitles.addAll(jPodnapisiAdapter.searchSubtitles(episodeFile,
+            listSourceSubtitles.addAll(jPodnapisiAdapter.searchSubtitles(episodeFile,
                 languagecode[0]));
           break;
         case PRIVATEREPO:
           if (settings.isSerieSourcePrivateRepo()) {
             try {
-              listFoundSubtitles.addAll(privateRepo.searchSubtitles(episodeFile, languagecode[0]));
+              listSourceSubtitles.addAll(privateRepo.searchSubtitles(episodeFile, languagecode[0]));
             } catch (UnsupportedEncodingException e) {
               Logger.instance.error(Logger.stack2String(e));
             }
@@ -85,24 +86,27 @@ public class SubtitleControl {
           break;
         case TVSUBTITLES:
           if (settings.isSerieSourceTvSubtitles())
-            listFoundSubtitles.addAll(jTVSubtitlesAdapter.searchSubtitles(episodeFile,
+            listSourceSubtitles.addAll(jTVSubtitlesAdapter.searchSubtitles(episodeFile,
                 languagecode[0]));
           break;
         case SUBSMAX:
           if (settings.isSerieSourceSubsMax())
-            listFoundSubtitles
-                .addAll(jSubsMaxAdapter.searchSubtitles(episodeFile, languagecode[0]));
+            listSourceSubtitles.addAll(jSubsMaxAdapter
+                .searchSubtitles(episodeFile, languagecode[0]));
           break;
         default:
           break;
       }
 
-      // After each search source, check if matching subtitles have been found! Only works if exact
-      // or keyword is checked!
-      if (settings.isOptionSubtitleExactMatch() || settings.isOptionSubtitleKeywordMatch()) {
-        List<Subtitle> listResultFiltered =
-            this.getSubtitlesFiltered(listFoundSubtitles, episodeFile, false);
-        if (listResultFiltered.size() > 0) return listResultFiltered;
+      if (listSourceSubtitles.size() > 0) {
+        // After each search source, check if matching subtitles have been found! Only works if
+        // exact or keyword is checked!
+        if (settings.isOptionSubtitleExactMatch() || settings.isOptionSubtitleKeywordMatch()) {
+          List<Subtitle> listResultFiltered =
+              this.getSubtitlesFiltered(listSourceSubtitles, episodeFile, false);
+          if (listResultFiltered.size() > 0) return listResultFiltered;
+        }
+        listFoundSubtitles.addAll(listSourceSubtitles);
       }
     }
 
