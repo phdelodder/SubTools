@@ -64,7 +64,8 @@ public class Actions {
         return 0;
       } else if (settings.isOptionsAutomaticDownloadSelection()) {
         Logger.instance.debug("determineWhatSubtitleDownload: Automatic Download Selection");
-        int selected = getAutomaticSubtitleSelection(videoFile.getMatchingSubs());
+        SubtitleSelection subSelection = new SubtitleSelection(settings, videoFile);
+        int selected = subSelection.getAutomaticSubtitleSelection();
         if (selected >= 0) return selected;
       } else if (videoFile.getMatchingSubs().size() > 1) {
         // show message for logging
@@ -511,51 +512,6 @@ public class Actions {
       }
     }
     return false;
-  }
-
-  public int getAutomaticSubtitleSelection(List<Subtitle> matchingSubs) {
-    Logger.instance.debug("getAutomaticSubtitleSelection: # quality rules: "
-        + settings.getQualityRuleList().size());
-    Logger.instance.debug("getAutomaticSubtitleSelection: quality rules: "
-        + settings.getQualityRuleList().toString());
-    Logger.instance.trace("Actions", "getAutomaticSubtitleSelection", "First run, using equal");
-    int result = qualityRuleSelectionCompare(matchingSubs, true);
-    if (result > -1) return result;
-
-    Logger.instance.trace("Actions", "getAutomaticSubtitleSelection",
-        "Second run, using word exists in");
-    result = qualityRuleSelectionCompare(matchingSubs, false);
-    if (result > -1) return result;
-
-    if (settings.isOptionsNoRuleMatchTakeFirst()) {
-      Logger.instance.debug("getAutomaticSubtitleSelection: Using taking first rule");
-      return 0;
-    } else {
-      Logger.instance.debug("getAutomaticSubtitleSelection: Nothing found");
-      return -1;
-    }
-  }
-
-  private int qualityRuleSelectionCompare(List<Subtitle> matchingSubs, boolean equal) {
-    Subtitle subtitle;
-    for (String quality : settings.getQualityRuleList()) {
-      Logger.instance.trace("Actions", "qualityRuleSelectionCompare", "Quality Rule checked: "
-          + quality);
-      for (int i = 0; i < matchingSubs.size(); i++) {
-        subtitle = matchingSubs.get(i);
-        Logger.instance.debug("qualityRuleSelectionCompare: subtitle quality: "
-            + subtitle.getQuality());
-        Logger.instance.trace("Actions", "qualityRuleSelectionCompare", "subtitle quality: "
-            + subtitle.getQuality());
-        if (equal && quality.equalsIgnoreCase(subtitle.getQuality())) return i;
-        if (!equal) {
-          for (String q : quality.split(" ")) {
-            if (subtitle.getQuality().toLowerCase().contains(q.toLowerCase())) return i;
-          }
-        }
-      }
-    }
-    return -1;
   }
 
   public void download(VideoFile videoFile, Subtitle subtitle, int version) throws Exception {
