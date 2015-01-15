@@ -23,17 +23,23 @@ public class SubtitleSelection {
     Logger.instance.debug("getAutomaticSubtitleSelection: quality rules: "
         + settings.getQualityRuleList().toString());
 
-    List<Subtitle> matchingSubs = videoFile.getMatchingSubs();
+    int result = -1;
 
-    Logger.instance.trace("SubtitleSelection", "getAutomaticSubtitleSelection",
-        "First run, using equal");
-    int result = qualityRuleSelectionCompare(matchingSubs, true);
-    if (result > -1) return result;
+    if (settings.isOptionsAutomaticDownloadSelectionQuality()) {
+      result = qualityRuleSelectionCompare(true);
+      if (result > -1) return result;
 
-    Logger.instance.trace("SubtitleSelection", "getAutomaticSubtitleSelection",
-        "Second run, using word exists");
-    result = qualityRuleSelectionCompare(matchingSubs, false);
-    if (result > -1) return result;
+      result = qualityRuleSelectionCompare(false);
+      if (result > -1) return result;
+    }
+
+    if (settings.isOptionsAutomaticDownloadSelectionTeam()) {
+      result = teamCompare(true);
+      if (result > -1) return result;
+
+      result = teamCompare(false);
+      if (result > -1) return result;
+    }
 
     if (settings.isOptionsNoRuleMatchTakeFirst()) {
       Logger.instance.debug("getAutomaticSubtitleSelection: Using taking first rule");
@@ -44,17 +50,40 @@ public class SubtitleSelection {
     }
   }
 
-  private int qualityRuleSelectionCompare(List<Subtitle> matchingSubs, boolean equal) {
+  private int teamCompare(boolean equal) {
+    Logger.instance.trace("SubtitleSelection", "teamCompare", "equal: " + equal);
+    List<Subtitle> matchingSubs = videoFile.getMatchingSubs();
+    Subtitle subtitle;
+    Logger.instance.trace("teamCompare", "teamCompare", "videofile team: " + videoFile.getTeam());
+    for (int i = 0; i < matchingSubs.size(); i++) {
+      subtitle = matchingSubs.get(i);
+      Logger.instance.trace("SubtitleSelection", "qualityRuleSelectionCompare", "subtitle team: "
+          + subtitle.getTeam());
+      if (equal) {
+        if (subtitle.getTeam().equalsIgnoreCase(videoFile.getTeam())) return i;
+      } else {
+        for (String t : subtitle.getTeam().split(" ")) {
+          if (videoFile.getQuality().toLowerCase().contains(t.toLowerCase())) return i;
+        }
+      }
+    }
+
+    return -1;
+  }
+
+  private int qualityRuleSelectionCompare(boolean equal) {
+    Logger.instance.trace("SubtitleSelection", "qualityRuleSelectionCompare", "equal: " + equal);
+    List<Subtitle> matchingSubs = videoFile.getMatchingSubs();
     Subtitle subtitle;
     for (String quality : settings.getQualityRuleList()) {
-      Logger.instance.trace("Actions", "qualityRuleSelectionCompare", "Quality Rule checked: "
-          + quality);
+      Logger.instance.trace("SubtitleSelection", "qualityRuleSelectionCompare",
+          "Quality Rule checked: " + quality);
       for (int i = 0; i < matchingSubs.size(); i++) {
         subtitle = matchingSubs.get(i);
         Logger.instance.debug("qualityRuleSelectionCompare: subtitle quality: "
             + subtitle.getQuality());
-        Logger.instance.trace("Actions", "qualityRuleSelectionCompare", "subtitle quality: "
-            + subtitle.getQuality());
+        Logger.instance.trace("SubtitleSelection", "qualityRuleSelectionCompare",
+            "subtitle quality: " + subtitle.getQuality());
         if (equal && quality.equalsIgnoreCase(subtitle.getQuality())) return i;
         if (!equal) {
           for (String q : quality.split(" ")) {
