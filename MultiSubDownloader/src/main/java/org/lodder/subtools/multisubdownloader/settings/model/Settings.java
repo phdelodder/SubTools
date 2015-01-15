@@ -12,7 +12,8 @@ public class Settings {
   private boolean optionsAlwaysConfirm, optionSubtitleExactMatch, optionSubtitleKeywordMatch,
       optionSubtitleExcludeHearingImpaired;
   private boolean optionsShowOnlyFound, optionsStopOnSearchError;
-  private boolean optionsNoRuleMatchTakeFirst, optionsAutomaticDownloadSelection;
+  private boolean optionsNoRuleMatchTakeFirst, optionsAutomaticDownloadSelection,
+      optionsAutomaticDownloadSelectionQuality, optionsAutomaticDownloadSelectionTeam;
   private List<SettingsExcludeItem> excludeList;
   private List<String> qualityRuleList;
   private LibrarySettings movieLibrarySettings;
@@ -421,6 +422,23 @@ public class Settings {
 
   public void setSerieSourceSubsMax(boolean serieSourceSubsMax) {
     this.serieSourceSubsMax = serieSourceSubsMax;
+  }
+
+  public boolean isOptionsAutomaticDownloadSelectionQuality() {
+    return optionsAutomaticDownloadSelectionQuality;
+  }
+
+  public void setOptionsAutomaticDownloadSelectionQuality(
+      boolean optionsAutomaticDownloadSelectionQuality) {
+    this.optionsAutomaticDownloadSelectionQuality = optionsAutomaticDownloadSelectionQuality;
+  }
+
+  public boolean isOptionsAutomaticDownloadSelectionTeam() {
+    return optionsAutomaticDownloadSelectionTeam;
+  }
+
+  public void setOptionsAutomaticDownloadSelectionTeam(boolean optionsAutomaticDownloadSelectionTeam) {
+    this.optionsAutomaticDownloadSelectionTeam = optionsAutomaticDownloadSelectionTeam;
   }
 
 }

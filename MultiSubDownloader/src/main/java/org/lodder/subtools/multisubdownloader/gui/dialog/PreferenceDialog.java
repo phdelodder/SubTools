@@ -49,10 +49,18 @@ public class PreferenceDialog extends MutliSubDialog {
   private JCheckBox chkProxyserverGebruiken, chkUserAddic7edLogin, chkExcludeHearingImpaired;
   private JListWithImages defaultIncomingFoldersList, localSourcesFoldersList;
   private JCheckBox chkSerieSourceAddic7ed, chkSerieSourceTvSubtitles, chkSerieSourcePodnapisi,
-      chkSerieSourceOpensubtitles, chkSerieSourceLocal, chkSerieSourcePrivateRepo,chkSerieSourceSubsMax;
+      chkSerieSourceOpensubtitles, chkSerieSourceLocal, chkSerieSourcePrivateRepo,
+      chkSerieSourceSubsMax;
   private JComboBox<SettingsProcessEpisodeSource> cbxEpisodeProcessSource;
   private JComboBox<Integer> cbxPriorityLocal, cbxPriorityPodnapisi, cbxPriorityAddic7ed,
       cbxPriorityTvSubtitles, cbxPriorityOpensubtitles, cbxPriorityPrivateRepo, cbxPrioritySubsMax;
+  private JCheckBox chkAutomaticSelectionQuality;
+  private JCheckBox chkAutomaticSelectionTeam;
+  private JButton btnAddExtraRule;
+  private JButton btnRemoveSelected;
+  private JScrollPane scrollPane_1;
+  private ArrowButton btnNaarBovenPlaatsen;
+  private ArrowButton btnNaarBenedenPlaatsen;
 
   /**
    * Create the dialog.
@@ -260,106 +268,115 @@ public class PreferenceDialog extends MutliSubDialog {
         JPanel pnlOptions = new JPanel();
         tabbedPane.addTab("Opties", null, pnlOptions, null);
         pnlOptions.setLayout(new MigLayout("", "[][433px,grow][433px][100px,grow][]",
-            "[][][][][grow][grow][][][][25px][][][][][23px][][23px][][]"));
+            "[][][][][][grow][grow][][][][][25px][][][][][23px][][23px][][]"));
         pnlOptions.add(new JLabel("Download opties"), "cell 0 0 5 1");
         pnlOptions.add(new JSeparator(), "cell 0 0 5 1,growx");
         chkAlwaysConfirm = new JCheckBox("Controleer altijd voor het downloaden");
         pnlOptions.add(chkAlwaysConfirm, "cell 1 1 3 1,grow");
-        chkAutomaticDownloadSelection = new JCheckBox("Automatische download selectie regels");
+        chkAutomaticDownloadSelection = new JCheckBox("Automatische selectie regels");
         chkAutomaticDownloadSelection.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent arg0) {}
         });
         pnlOptions.add(chkAutomaticDownloadSelection, "cell 1 2 3 1");
         {
-          JButton btnAddExtraRule = new JButton("Extra regel toevoegen");
+          btnAddExtraRule = new JButton("Extra regel toevoegen");
           btnAddExtraRule.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
               addRuleRow("");
             }
           });
-          pnlOptions.add(btnAddExtraRule, "cell 2 3,alignx right");
+          {
+            chkAutomaticSelectionQuality = new JCheckBox("Op basis van kwaliteit");
+            pnlOptions.add(chkAutomaticSelectionQuality, "cell 2 3 2 1");
+          }
+          pnlOptions.add(btnAddExtraRule, "cell 2 4,alignx right");
         }
-        JButton btnRemoveSelected = new JButton("Geselecteerde regel verwijderen");
+        btnRemoveSelected = new JButton("Geselecteerde regel verwijderen");
         btnRemoveSelected.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent arg0) {
             removeRuleRow();
           }
         });
-        pnlOptions.add(btnRemoveSelected, "cell 3 3");
+        pnlOptions.add(btnRemoveSelected, "cell 3 4");
         {
-          JScrollPane scrollPane = new JScrollPane();
-          pnlOptions.add(scrollPane, "cell 2 4 2 2,grow");
+          scrollPane_1 = new JScrollPane();
+          pnlOptions.add(scrollPane_1, "cell 2 5 2 2,grow");
           table = new JTable();
-          scrollPane.setViewportView(table);
+          scrollPane_1.setViewportView(table);
         }
         {
-          ArrowButton btnNaarBovenPlaatsen = new ArrowButton(SwingConstants.NORTH, 1, 10);
+          btnNaarBovenPlaatsen = new ArrowButton(SwingConstants.NORTH, 1, 10);
           btnNaarBovenPlaatsen.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
               moveRuleRowUp();
             }
           });
-          pnlOptions.add(btnNaarBovenPlaatsen, "cell 4 4 1 1");
+          pnlOptions.add(btnNaarBovenPlaatsen, "cell 4 5");
         }
         {
-          ArrowButton btnNaarBenedenPlaatsen = new ArrowButton(SwingConstants.SOUTH, 1, 10);
+          btnNaarBenedenPlaatsen = new ArrowButton(SwingConstants.SOUTH, 1, 10);
           btnNaarBenedenPlaatsen.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
               moveRuleRowDown();
             }
           });
-          pnlOptions.add(btnNaarBenedenPlaatsen, "cell 4 5");
+          pnlOptions.add(btnNaarBenedenPlaatsen, "cell 4 6");
+        }
+        {
+          chkAutomaticSelectionTeam = new JCheckBox("Op basis van team");
+          pnlOptions.add(chkAutomaticSelectionTeam, "cell 2 7 2 1");
         }
         {
           chkNoRuleMatchTakeFirst =
               new JCheckBox("Neem de eerste ondertitel als geen enkel regel resultaat heeft.");
-          pnlOptions.add(chkNoRuleMatchTakeFirst, "cell 2 6 3 1");
+          pnlOptions.add(chkNoRuleMatchTakeFirst, "cell 2 8 3 1");
         }
-        pnlOptions.add(new JLabel("Zoek filter"), "cell 0 8 5 1");
-        pnlOptions.add(new JSeparator(), "cell 0 8 5 1,growx");
+        pnlOptions.add(new JLabel("Zoek filter"), "cell 0 10 5 1");
+        pnlOptions.add(new JSeparator(), "cell 0 10 5 1,growx");
         chkSubtitleExactMethod =
             new JCheckBox(
                 "Exacte (werkt enkel als naamgeving identiek is) [werkte niet met Addic7ed]");
-        pnlOptions.add(chkSubtitleExactMethod, "cell 1 9 3 1,grow");
+        pnlOptions.add(chkSubtitleExactMethod, "cell 1 11 3 1,grow");
         {
           chkSubtitleKeywordMethod =
               new JCheckBox(
                   "Keywords (op basis van woorden zoals 720p, xvid, ...) [werkt met iedere source]");
-          pnlOptions.add(chkSubtitleKeywordMethod, "cell 1 10 3 1");
+          pnlOptions.add(chkSubtitleKeywordMethod, "cell 1 12 3 1");
         }
         {
           chkExcludeHearingImpaired = new JCheckBox("Hearing Impaired uitsluiten");
-          pnlOptions.add(chkExcludeHearingImpaired, "cell 1 12 3 1");
+          pnlOptions.add(chkExcludeHearingImpaired, "cell 1 14 3 1");
         }
-        pnlOptions.add(new JLabel("Tabel opties"), "cell 0 13 5 1");
-        pnlOptions.add(new JSeparator(), "cell 0 13 5 1,growx");
-        chkOnlyFound = new JCheckBox("Alleen gevonden tonen");
-        pnlOptions.add(chkOnlyFound, "cell 1 14 3 1,growx,aligny center");
-        pnlOptions.add(new JLabel("Fout afhandeling opties"), "cell 0 15 5 1");
+        pnlOptions.add(new JLabel("Tabel opties"), "cell 0 15 5 1");
         pnlOptions.add(new JSeparator(), "cell 0 15 5 1,growx");
+        chkOnlyFound = new JCheckBox("Alleen gevonden tonen");
+        pnlOptions.add(chkOnlyFound, "cell 1 16 3 1,growx,aligny center");
+        pnlOptions.add(new JLabel("Fout afhandeling opties"), "cell 0 17 5 1");
+        pnlOptions.add(new JSeparator(), "cell 0 17 5 1,growx");
         chkStopOnSearchError = new JCheckBox("Stop zoeken na fout");
-        pnlOptions.add(chkStopOnSearchError, "cell 1 16 3 1,alignx left,aligny center");
+        pnlOptions.add(chkStopOnSearchError, "cell 1 18 3 1,alignx left,aligny center");
         {
           JLabel label = new JLabel("Serie database source");
-          pnlOptions.add(label, "cell 0 17 5 1");
-          pnlOptions.add(new JSeparator(), "cell 0 17 5 1,growx");
+          pnlOptions.add(label, "cell 0 19 5 1");
+          pnlOptions.add(new JSeparator(), "cell 0 19 5 1,growx");
         }
         {
           cbxEpisodeProcessSource =
               new JComboBox<SettingsProcessEpisodeSource>(SettingsProcessEpisodeSource.values());
-          //cbxEpisodeProcessSource = new JComboBox<SettingsProcessEpisodeSource>();
+          // cbxEpisodeProcessSource = new JComboBox<SettingsProcessEpisodeSource>();
           cbxEpisodeProcessSource.setEnabled(false);
-          pnlOptions.add(cbxEpisodeProcessSource, "cell 1 18,growx");
+          pnlOptions.add(cbxEpisodeProcessSource, "cell 1 20,growx");
         }
       }
       {
         JPanel pnlSerieSources = new JPanel();
-        Integer[] prio = new Integer[] {1, 2, 3, 4, 5, 6,7 };
+        Integer[] prio = new Integer[] {1, 2, 3, 4, 5, 6, 7};
         tabbedPane.addTab("Serie Sources", null, pnlSerieSources, null);
         pnlSerieSources.setLayout(new MigLayout("", "[grow]", "[][top][]"));
         JPanel pnlSerieSourcesSelectionSettings = new JPanel();
         pnlSerieSources.add(pnlSerieSourcesSelectionSettings, "cell 0 0 3 1,grow");
-        pnlSerieSourcesSelectionSettings.setLayout(new MigLayout("", "[50px:n][][100.00,grow][grow][grow]", "[][][][][][][][]"));
+        pnlSerieSourcesSelectionSettings.setLayout(new MigLayout("",
+            "[50px:n][][100.00,grow][grow][grow]", "[][][][][][][][]"));
         pnlSerieSourcesSelectionSettings.add(new JLabel(
             "Selecteer de gewenste sources en bepaalde volgorde"), "cell 0 0 5 1,gapy 5");
         pnlSerieSourcesSelectionSettings.add(new JSeparator(), "cell 0 0 5 1,growx,gapy 5");
@@ -576,6 +593,10 @@ public class PreferenceDialog extends MutliSubDialog {
     pnlMovieLibrary.setLibrarySettings(settingsCtrl.getSettings().getMovieLibrarySettings());
     chkAutomaticDownloadSelection.setSelected(settingsCtrl.getSettings()
         .isOptionsAutomaticDownloadSelection());
+    chkAutomaticSelectionQuality.setSelected(settingsCtrl.getSettings()
+        .isOptionsAutomaticDownloadSelectionQuality());
+    chkAutomaticSelectionTeam.setSelected(settingsCtrl.getSettings()
+        .isOptionsAutomaticDownloadSelectionTeam());
     chkNoRuleMatchTakeFirst.setSelected(settingsCtrl.getSettings().isOptionsNoRuleMatchTakeFirst());
     for (String q : settingsCtrl.getSettings().getQualityRuleList()) {
       addRuleRow(q);
@@ -733,6 +754,10 @@ public class PreferenceDialog extends MutliSubDialog {
           (SettingsProcessEpisodeSource) cbxEpisodeProcessSource.getSelectedItem());
       settingsCtrl.getSettings().setOptionsAutomaticDownloadSelection(
           chkAutomaticDownloadSelection.isSelected());
+      settingsCtrl.getSettings().setOptionsAutomaticDownloadSelectionQuality(
+          chkAutomaticSelectionQuality.isSelected());
+      settingsCtrl.getSettings().setOptionsAutomaticDownloadSelectionTeam(
+          chkAutomaticSelectionTeam.isSelected());
       settingsCtrl.getSettings().setOptionsNoRuleMatchMatchTakeFirst(
           chkNoRuleMatchTakeFirst.isSelected());
       DefaultTableModel model = (DefaultTableModel) table.getModel();
