@@ -63,7 +63,7 @@ public class SubtitleSelection {
         if (subtitle.getTeam().equalsIgnoreCase(videoFile.getTeam())) return i;
       } else {
         for (String t : subtitle.getTeam().split(" ")) {
-          if (videoFile.getQuality().toLowerCase().contains(t.toLowerCase())) return i;
+          if (videoFile.getTeam().toLowerCase().contains(t.toLowerCase())) return i;
         }
       }
     }
