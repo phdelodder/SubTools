@@ -65,7 +65,7 @@ public class Actions {
       } else if (settings.isOptionsAutomaticDownloadSelection()) {
         Logger.instance.debug("determineWhatSubtitleDownload: Automatic Download Selection");
         SubtitleSelection subSelection = new SubtitleSelection(settings, videoFile);
-        int selected = subSelection.getAutomaticSubtitleSelection();
+        int selected = subSelection.getAutomatic();
         if (selected >= 0) return selected;
       } else if (videoFile.getMatchingSubs().size() > 1) {
         // show message for logging

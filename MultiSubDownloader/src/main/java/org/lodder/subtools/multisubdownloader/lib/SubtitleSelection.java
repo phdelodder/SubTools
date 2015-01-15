@@ -8,29 +8,30 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.VideoFile;
 
 public class SubtitleSelection {
-  
+
   private Settings settings;
   private VideoFile videoFile;
 
-  public SubtitleSelection(Settings settings, VideoFile videoFile){
+  public SubtitleSelection(Settings settings, VideoFile videoFile) {
     this.settings = settings;
     this.videoFile = videoFile;
   }
 
-  public int getAutomaticSubtitleSelection() { 
+  public int getAutomatic() {
     Logger.instance.debug("getAutomaticSubtitleSelection: # quality rules: "
         + settings.getQualityRuleList().size());
     Logger.instance.debug("getAutomaticSubtitleSelection: quality rules: "
         + settings.getQualityRuleList().toString());
-    Logger.instance.trace("Actions", "getAutomaticSubtitleSelection", "First run, using equal");
-    
+
     List<Subtitle> matchingSubs = videoFile.getMatchingSubs();
-    
+
+    Logger.instance.trace("SubtitleSelection", "getAutomaticSubtitleSelection",
+        "First run, using equal");
     int result = qualityRuleSelectionCompare(matchingSubs, true);
     if (result > -1) return result;
 
-    Logger.instance.trace("Actions", "getAutomaticSubtitleSelection",
-        "Second run, using word exists in");
+    Logger.instance.trace("SubtitleSelection", "getAutomaticSubtitleSelection",
+        "Second run, using word exists");
     result = qualityRuleSelectionCompare(matchingSubs, false);
     if (result > -1) return result;
 
@@ -42,7 +43,7 @@ public class SubtitleSelection {
       return -1;
     }
   }
-  
+
   private int qualityRuleSelectionCompare(List<Subtitle> matchingSubs, boolean equal) {
     Subtitle subtitle;
     for (String quality : settings.getQualityRuleList()) {
