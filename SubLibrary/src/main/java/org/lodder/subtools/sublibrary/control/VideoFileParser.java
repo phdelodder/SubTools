@@ -230,11 +230,11 @@ public class VideoFileParser {
     Logger.instance.trace("VideoFileParser", "getQualityKeyword", name);
     Pattern p = Pattern.compile(VideoPatterns.buildQualityRegex(), Pattern.CASE_INSENSITIVE);
     Matcher m = p.matcher(name);
-    String quality = "";
+    StringBuilder builder = new StringBuilder();
     while (m.find()) {
-      quality += m.group(0).replace(".", " ") + " ";
+      builder.append(m.group(0).replace(".", " ") + " ");
     }
-    return quality.trim();
+    return builder.toString().trim();
   }
 
   public static String extractFileNameExtension(final String fileName) {
