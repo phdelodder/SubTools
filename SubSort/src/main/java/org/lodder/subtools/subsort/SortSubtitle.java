@@ -446,8 +446,8 @@ public class SortSubtitle implements Listener {
   }
 
   private boolean textFilesEqual(File f1, File f2) {
-    String s1 = "";
-    String s = "";
+    StringBuilder builder1 = new StringBuilder();
+    StringBuilder builder2 = new StringBuilder();
     String y = "", z = "";
 
     BufferedReader bfr, bfr1;
@@ -456,14 +456,14 @@ public class SortSubtitle implements Listener {
       bfr1 = new BufferedReader(new FileReader(f2));
 
       while ((y = bfr.readLine()) != null)
-        s += y;
+        builder1.append(y);
       while ((z = bfr1.readLine()) != null)
-        s1 += z;
+        builder2.append(z);
 
       bfr.close();
       bfr1.close();
 
-      return s.equals(s1);
+      return builder2.toString().equals(builder1.toString());
 
     } catch (IOException e) {
       Logger.instance.error(Logger.stack2String(e));
@@ -491,11 +491,11 @@ public class SortSubtitle implements Listener {
     Logger.instance.trace(this.getClass().toString(), "getQualityKeyword", name);
     Pattern p = Pattern.compile(VideoPatterns.buildQualityRegex(), Pattern.CASE_INSENSITIVE);
     Matcher m = p.matcher(name);
-    String quality = "";
+    StringBuilder builder = new StringBuilder();
     while (m.find()) {
-      quality += m.group(0).replace(".", " ") + " ";
+      builder.append(m.group(0).replace(".", " ") + " ");
     }
-    return quality.trim();
+    return builder.toString().trim();
   }
 
   @Override

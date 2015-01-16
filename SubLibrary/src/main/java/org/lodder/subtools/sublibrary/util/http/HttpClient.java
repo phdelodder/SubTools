@@ -89,15 +89,15 @@ public class HttpClient {
     HttpURLConnection conn = null;
     Set<String> keys = data.keySet();
     Iterator<String> keyIter = keys.iterator();
-    String urlParameters = "";
+    StringBuilder urlParameters = new StringBuilder();
 
     try {
       for (int i = 0; keyIter.hasNext(); i++) {
         Object key = keyIter.next();
         if (i != 0) {
-          urlParameters += "&";
+          urlParameters.append("&");
         }
-        urlParameters += key + "=" + URLEncoder.encode(data.get(key), "UTF-8");
+        urlParameters.append(key + "=" + URLEncoder.encode(data.get(key), "UTF-8"));
       }
 
       conn = (HttpURLConnection) url.openConnection();
@@ -106,7 +106,7 @@ public class HttpClient {
       if (userAgent.length() > 0) conn.setRequestProperty("user-agent", userAgent);
       conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
       conn.setRequestProperty("Content-Length",
-          "" + Integer.toString(urlParameters.getBytes().length));
+          "" + Integer.toString(urlParameters.toString().getBytes().length));
       conn.setUseCaches(false);
       conn.setDoInput(true);
       conn.setDoOutput(true);
@@ -114,7 +114,7 @@ public class HttpClient {
 
       DataOutputStream out = new DataOutputStream(conn.getOutputStream());
 
-      out.writeBytes(urlParameters);
+      out.writeBytes(urlParameters.toString());
       out.flush();
       out.close();
 
