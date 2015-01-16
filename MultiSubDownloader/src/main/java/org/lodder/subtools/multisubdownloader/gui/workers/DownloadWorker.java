@@ -8,6 +8,7 @@ import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
+import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.VideoFile;
@@ -22,14 +23,17 @@ public class DownloadWorker extends SwingWorker<Void, String> {
 
   private final VideoTable table;
   private final Actions actions;
+  private final Settings settings;
 
   public DownloadWorker(VideoTable table, Settings settings) {
     this.table = table;
     actions = new Actions(settings, false);
+    this.settings = settings;
   }
 
   protected Void doInBackground() throws Exception {
     Logger.instance.trace(DownloadWorker.class.toString(), "doInBackground", "Rows to thread: " + table.getModel().getRowCount());
+    Info.downloadOptions(settings);
     final VideoTableModel model = (VideoTableModel) table.getModel();
     int selectedCount = model.getSelectedCount(table.getColumnIdByName(SearchColumnName.SELECT));
     int progress = 0;

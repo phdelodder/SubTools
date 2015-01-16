@@ -11,6 +11,7 @@ import javax.swing.SwingWorker;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
+import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.control.NameSearchControl;
 import org.lodder.subtools.multisubdownloader.lib.control.VideoFileFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
@@ -46,11 +47,7 @@ public class SearchNameWorker extends SwingWorker<List<Subtitle>, String> {
 
   @Override
   protected List<Subtitle> doInBackground() throws Exception {
-    Logger.instance.debug("----- Subtitle Filtering ------");
-    Logger.instance.debug(" - OptionSubtitleExactMatch : " + settings.isOptionSubtitleExactMatch());
-    Logger.instance.debug(" - OptionSubtitleKeywordMatch : "
-        + settings.isOptionSubtitleKeywordMatch());
-    Logger.instance.debug("-------------------------------");
+    Info.subtitleFiltering(settings);
 
     int progress = 0;
     setProgress(progress);

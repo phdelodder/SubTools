@@ -1,0 +1,35 @@
+package org.lodder.subtools.multisubdownloader.lib;
+
+import org.lodder.subtools.multisubdownloader.settings.model.Settings;
+import org.lodder.subtools.sublibrary.logging.Logger;
+
+public class Info {
+
+  public static void subtitleFiltering(Settings settings) {
+    Logger.instance.log("----- Subtitle Filtering ------");
+    Logger.instance.log(" - OptionSubtitleExactMatch : " + settings.isOptionSubtitleExactMatch());
+    Logger.instance.log(" - OptionSubtitleKeywordMatch : "
+        + settings.isOptionSubtitleKeywordMatch());
+    Logger.instance.log(" - OptionSubtitleExcludeHearingImpaired : "
+        + settings.isOptionSubtitleExcludeHearingImpaired());
+    Logger.instance.log("-------------------------------");
+  }
+
+  public static void downloadOptions(Settings settings) {
+    Logger.instance.log("----- Download Options ------");
+    Logger.instance.log(" - OptionsAlwaysConfirm : " + settings.isOptionsAlwaysConfirm());
+    Logger.instance.log(" - OptionsAutomaticDownloadSelection : "
+        + settings.isOptionsAutomaticDownloadSelection());
+    Logger.instance.log(" - OptionsAutomaticDownloadSelectionQuality : "
+        + settings.isOptionsAutomaticDownloadSelectionQuality());
+    Logger.instance.log(" - QualityRuleList : " + settings.getQualityRuleList());
+    for (String q : settings.getQualityRuleList()) {
+      Logger.instance.log("    - Rule : " + q);
+    }
+    Logger.instance.log(" - OptionsAutomaticDownloadSelectionTeam : "
+        + settings.isOptionsAutomaticDownloadSelectionTeam());
+    Logger.instance.log(" - OptionsNoRuleMatchTakeFirst : "
+        + settings.isOptionsNoRuleMatchTakeFirst());
+    Logger.instance.log("-----------------------------");
+  }
+}

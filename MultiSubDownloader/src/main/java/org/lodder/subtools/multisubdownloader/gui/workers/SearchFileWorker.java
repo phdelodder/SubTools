@@ -6,6 +6,7 @@ import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
+import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.control.VideoFileFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.logging.Logger;
@@ -55,11 +56,7 @@ public class SearchFileWorker extends SwingWorker<List<VideoFile>, String> {
 
   @Override
   protected List<VideoFile> doInBackground() throws Exception {
-    Logger.instance.debug("----- Subtitle Filtering ------");
-    Logger.instance.debug(" - OptionSubtitleExactMatch : " + settings.isOptionSubtitleExactMatch());
-    Logger.instance.debug(" - OptionSubtitleKeywordMatch : "
-        + settings.isOptionSubtitleKeywordMatch());
-    Logger.instance.debug("-------------------------------");
+    Info.subtitleFiltering(settings);
 
     int progress = 0;
     setProgress(progress);

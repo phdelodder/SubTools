@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.lib.Actions;
+import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.control.VideoFileFactory;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.sublibrary.logging.Listener;
@@ -81,9 +82,12 @@ public class CommandLine implements Listener {
   }
 
   public void Run() {
+    Info.subtitleFiltering(prefctrl.getSettings());
+    
     List<VideoFile> l;
     try {
       l = search();
+      Info.downloadOptions(prefctrl.getSettings());
       for (VideoFile ef : l) {
         download(ef);
       }
