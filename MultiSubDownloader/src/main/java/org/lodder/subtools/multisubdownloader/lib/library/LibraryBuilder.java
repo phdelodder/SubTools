@@ -22,11 +22,12 @@ public class LibraryBuilder {
       int posBegin = structurePart.lastIndexOf("%");
       String seperator = structure.substring(posBegin + 1, posEnd);
 
-
+      StringBuilder builder = new StringBuilder();
       for (final int epNum : episodeNumbers) {
-        formatedEpisodeNumber += seperator + formatedNumber(epNum, leadingZero);
+        builder.append(seperator + formatedNumber(epNum, leadingZero));
       }
-
+      formatedEpisodeNumber += builder.toString();
+      
       // strip the first seperator off
       formatedEpisodeNumber = formatedEpisodeNumber.substring(1, formatedEpisodeNumber.length());
     }
