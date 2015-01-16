@@ -21,6 +21,7 @@
 		<dependency>
 			<groupId>org.lodder.subtools</groupId>
 			<artifactId>sublibrary</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -76,15 +77,6 @@
 		</plugins>
 	</build>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.lodder.subtools</groupId>
-				<artifactId>sublibrary</artifactId>
-				<version>LATEST</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 	<parent>
 		<groupId>org.lodder.subtools</groupId>
 		<artifactId>subtools</artifactId>
