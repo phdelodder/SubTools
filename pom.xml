@@ -3,14 +3,39 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.lodder.subtools</groupId>
 	<artifactId>subtools</artifactId>
-	<version>0.1</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<name>SubTools</name>
 	<packaging>pom</packaging>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<scm>
+		<connection>scm:git:git@github.com:phdelodder/SubTools.git</connection>
+		<url>scm:git:git@github.com:phdelodder/SubTools.git</url>
+		<developerConnection>scm:git:git@github.com:phdelodder/SubTools.git</developerConnection>
+	</scm>
 
 	<modules>
 		<module>SubLibrary</module>
 		<module>MultiSubDownloader</module>
 		<module>SubSort</module>
 	</modules>
+
+	<issueManagement>
+		<system>github</system>
+		<url>https://github.com/phdelodder/SubTools/issues</url>
+	</issueManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.1</version>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>
