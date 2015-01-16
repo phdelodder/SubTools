@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.lodder.subtools.multisubdownloader.lib.SubtitleSelectionCLI;
 import org.lodder.subtools.multisubdownloader.lib.JAddic7edAdapter;
 import org.lodder.subtools.multisubdownloader.lib.JOpenSubAdapter;
 import org.lodder.subtools.multisubdownloader.lib.JPodnapisiAdapter;
@@ -303,6 +304,27 @@ public class SubtitleControl {
         addToFoundSubtitleList(listFilteredSubtitles, subtitle);
       }
     }
+
+    // If Automatic selection is enabled, we can already filter
+    if (settings.isOptionsAutomaticDownloadSelection()) {
+      Logger.instance.debug("getSubtitlesFiltered: Automatic download selection detected.");
+
+      SubtitleSelectionCLI subtitleSelection = new SubtitleSelectionCLI(settings, videoFile);
+      int index = subtitleSelection.getAutomatic(listFilteredSubtitles);
+
+      // If a subtitle was selected, remove all other subtitles
+      if (index >= 0) {
+        Logger.instance.debug("getSubtitlesFiltered: Automatic selection made.");
+        Subtitle subtitle = listFilteredSubtitles.get(index);
+        listFilteredSubtitles.clear();
+        addToFoundSubtitleList(listFilteredSubtitles, subtitle);
+      } else if (!settings.isOptionsNoRuleMatchTakeFirst()) {
+        // If we don't use the TakeFirst option, we should throw away all subtitles
+        Logger.instance.debug("getSubtitlesFiltered: No automatic selection could be made.");
+        listFilteredSubtitles.clear();
+      }
+    }
+
     return listFilteredSubtitles;
   }
 
