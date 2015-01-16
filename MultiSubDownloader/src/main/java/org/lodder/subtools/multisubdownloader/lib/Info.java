@@ -26,8 +26,8 @@ public class Info {
     for (String q : settings.getQualityRuleList()) {
       Logger.instance.log("    - Rule : " + q);
     }
-    Logger.instance.log(" - OptionsAutomaticDownloadSelectionTeam : "
-        + settings.isOptionsAutomaticDownloadSelectionTeam());
+    Logger.instance.log(" - OptionsAutomaticDownloadSelectionReleaseGroup : "
+        + settings.isOptionsAutomaticDownloadSelectionReleaseGroup());
     Logger.instance.log(" - OptionsNoRuleMatchTakeFirst : "
         + settings.isOptionsNoRuleMatchTakeFirst());
     Logger.instance.log("-----------------------------");

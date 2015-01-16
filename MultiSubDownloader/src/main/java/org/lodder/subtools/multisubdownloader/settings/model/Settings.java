@@ -13,7 +13,7 @@ public class Settings {
       optionSubtitleExcludeHearingImpaired;
   private boolean optionsShowOnlyFound, optionsStopOnSearchError;
   private boolean optionsNoRuleMatchTakeFirst, optionsAutomaticDownloadSelection,
-      optionsAutomaticDownloadSelectionQuality, optionsAutomaticDownloadSelectionTeam;
+      optionsAutomaticDownloadSelectionQuality, optionsAutomaticDownloadSelectionReleaseGroup;
   private List<SettingsExcludeItem> excludeList;
   private List<String> qualityRuleList;
   private LibrarySettings movieLibrarySettings;
@@ -433,12 +433,12 @@ public class Settings {
     this.optionsAutomaticDownloadSelectionQuality = optionsAutomaticDownloadSelectionQuality;
   }
 
-  public boolean isOptionsAutomaticDownloadSelectionTeam() {
-    return optionsAutomaticDownloadSelectionTeam;
+  public boolean isOptionsAutomaticDownloadSelectionReleaseGroup() {
+    return optionsAutomaticDownloadSelectionReleaseGroup;
   }
 
-  public void setOptionsAutomaticDownloadSelectionTeam(boolean optionsAutomaticDownloadSelectionTeam) {
-    this.optionsAutomaticDownloadSelectionTeam = optionsAutomaticDownloadSelectionTeam;
+  public void setOptionsAutomaticDownloadSelectionReleaseGroup(boolean optionsAutomaticDownloadSelectionReleaseGroup) {
+    this.optionsAutomaticDownloadSelectionReleaseGroup = optionsAutomaticDownloadSelectionReleaseGroup;
   }
 
 }

@@ -323,7 +323,7 @@ public class PreferenceDialog extends MutliSubDialog {
           pnlOptions.add(btnNaarBenedenPlaatsen, "cell 4 6");
         }
         {
-          chkAutomaticSelectionTeam = new JCheckBox("Op basis van team");
+          chkAutomaticSelectionTeam = new JCheckBox("Op basis van release group");
           pnlOptions.add(chkAutomaticSelectionTeam, "cell 2 7 2 1");
         }
         {
@@ -596,7 +596,7 @@ public class PreferenceDialog extends MutliSubDialog {
     chkAutomaticSelectionQuality.setSelected(settingsCtrl.getSettings()
         .isOptionsAutomaticDownloadSelectionQuality());
     chkAutomaticSelectionTeam.setSelected(settingsCtrl.getSettings()
-        .isOptionsAutomaticDownloadSelectionTeam());
+        .isOptionsAutomaticDownloadSelectionReleaseGroup());
     chkNoRuleMatchTakeFirst.setSelected(settingsCtrl.getSettings().isOptionsNoRuleMatchTakeFirst());
     for (String q : settingsCtrl.getSettings().getQualityRuleList()) {
       addRuleRow(q);
@@ -756,7 +756,7 @@ public class PreferenceDialog extends MutliSubDialog {
           chkAutomaticDownloadSelection.isSelected());
       settingsCtrl.getSettings().setOptionsAutomaticDownloadSelectionQuality(
           chkAutomaticSelectionQuality.isSelected());
-      settingsCtrl.getSettings().setOptionsAutomaticDownloadSelectionTeam(
+      settingsCtrl.getSettings().setOptionsAutomaticDownloadSelectionReleaseGroup(
           chkAutomaticSelectionTeam.isSelected());
       settingsCtrl.getSettings().setOptionsNoRuleMatchMatchTakeFirst(
           chkNoRuleMatchTakeFirst.isSelected());

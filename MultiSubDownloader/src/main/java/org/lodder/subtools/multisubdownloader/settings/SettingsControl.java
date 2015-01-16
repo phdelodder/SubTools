@@ -90,7 +90,7 @@ public class SettingsControl {
       preferences.putBoolean("OptionsAutomaticDownloadSelectionQuality",
           settings.isOptionsAutomaticDownloadSelectionQuality());
       preferences.putBoolean("OptionsAutomaticDownloadSelectionTeam",
-          settings.isOptionsAutomaticDownloadSelectionTeam());
+          settings.isOptionsAutomaticDownloadSelectionReleaseGroup());
       preferences.putBoolean("OptionsNoRuleMatchTakeFirst",
           settings.isOptionsNoRuleMatchTakeFirst());
       preferences.putBoolean("OptionRecursive", settings.isOptionRecursive());
@@ -331,7 +331,7 @@ public class SettingsControl {
         "OptionsAutomaticDownloadSelection", false));
     settings.setOptionsAutomaticDownloadSelectionQuality(preferences.getBoolean(
         "OptionsAutomaticDownloadSelectionQuality", false));
-    settings.setOptionsAutomaticDownloadSelectionTeam(preferences.getBoolean(
+    settings.setOptionsAutomaticDownloadSelectionReleaseGroup(preferences.getBoolean(
         "OptionsAutomaticDownloadSelectionTeam", false));
     settings.setOptionsNoRuleMatchMatchTakeFirst(preferences.getBoolean(
         "OptionsNoRuleMatchTakeFirst", false));

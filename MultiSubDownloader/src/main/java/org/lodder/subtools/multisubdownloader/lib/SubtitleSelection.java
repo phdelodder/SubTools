@@ -33,7 +33,7 @@ public abstract class SubtitleSelection {
       if (result > -1) return result;
     }
 
-    if (settings.isOptionsAutomaticDownloadSelectionTeam()) {
+    if (settings.isOptionsAutomaticDownloadSelectionReleaseGroup()) {
       result = teamCompare(true);
       if (result > -1) return result;
 
