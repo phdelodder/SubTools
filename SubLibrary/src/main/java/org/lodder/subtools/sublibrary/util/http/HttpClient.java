@@ -30,6 +30,7 @@ import org.lodder.subtools.sublibrary.util.Files;
 
 public class HttpClient {
 
+  private static volatile Object myLock = new Object();
   private volatile static HttpClient hc;
   private final CookieManager cookieManager;
 
@@ -39,7 +40,14 @@ public class HttpClient {
 
   public static HttpClient getHttpClient() {
     Logger.instance.trace("HttpClient", "getHttpClient", "");
-    if (hc == null) hc = new HttpClient();
+    if (hc == null) { // avoid sync penalty if we can
+      synchronized (HttpClient.myLock) { // declare a private static Object to use for mutex
+        if (hc == null) { // have to do this inside the sync
+          hc = new HttpClient();
+        }
+      }
+    }
+
     return hc;
   }
 
@@ -62,7 +70,7 @@ public class HttpClient {
             TimeUnit.MINUTES.sleep(1);
             TimeUnit.SECONDS.sleep(1);
           } catch (InterruptedException ie) {
-            //restore interrupted status
+            // restore interrupted status
             Thread.currentThread().interrupt();
           }
           return doGet(url, userAgent);
