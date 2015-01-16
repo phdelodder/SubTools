@@ -82,8 +82,9 @@ public class CommandLine implements Listener {
   }
 
   public void Run() {
+    Info.subtitleSources(prefctrl.getSettings());
     Info.subtitleFiltering(prefctrl.getSettings());
-    
+        
     List<VideoFile> l;
     try {
       l = search();

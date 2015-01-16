@@ -47,6 +47,7 @@ public class SearchNameWorker extends SwingWorker<List<Subtitle>, String> {
 
   @Override
   protected List<Subtitle> doInBackground() throws Exception {
+    Info.subtitleSources(settings);
     Info.subtitleFiltering(settings);
 
     int progress = 0;

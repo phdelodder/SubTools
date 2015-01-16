@@ -56,6 +56,7 @@ public class SearchFileWorker extends SwingWorker<List<VideoFile>, String> {
 
   @Override
   protected List<VideoFile> doInBackground() throws Exception {
+    Info.subtitleSources(settings);
     Info.subtitleFiltering(settings);
 
     int progress = 0;
