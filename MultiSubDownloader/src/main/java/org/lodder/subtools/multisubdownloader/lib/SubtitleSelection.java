@@ -7,7 +7,7 @@ import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.VideoFile;
 
-public class SubtitleSelection {
+public abstract class SubtitleSelection {
 
   private Settings settings;
   private VideoFile videoFile;
@@ -94,4 +94,6 @@ public class SubtitleSelection {
     }
     return -1;
   }
+  
+  protected abstract int getUserInput(VideoFile videoFile);
 }

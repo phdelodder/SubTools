@@ -1,6 +1,5 @@
 package org.lodder.subtools.multisubdownloader.lib;
 
-import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -11,10 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import javax.swing.JFrame;
-
 import org.apache.commons.io.FileUtils;
-import org.lodder.subtools.multisubdownloader.gui.dialog.SelectDialog;
 import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
@@ -27,10 +23,10 @@ import org.lodder.subtools.sublibrary.control.VideoFileParser;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.VideoFile;
 import org.lodder.subtools.sublibrary.model.VideoType;
-import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
 import org.lodder.subtools.sublibrary.util.FilenameContainsFilter;
 import org.lodder.subtools.sublibrary.util.FilenameExtensionFilter;
@@ -53,26 +49,31 @@ public class Actions {
 
   public int determineWhatSubtitleDownload(final VideoFile videoFile,
       final boolean subtitleSelectionDialog) {
+
+    SubtitleSelection subSelection;
+    if (usingCMD)
+      subSelection = new SubtitleSelectionCLI(settings, videoFile);
+    else
+      subSelection = new SubtitleSelectionGUI(settings, videoFile);
+
     if (videoFile.getMatchingSubs().size() > 0) {
       Logger.instance.debug("determineWhatSubtitleDownload for videoFile: "
           + videoFile.getFilename() + " # found subs: " + videoFile.getMatchingSubs().size());
       if (settings.isOptionsAlwaysConfirm()) {
-        return getSelected(videoFile);
+        return subSelection.getUserInput(videoFile);
       } else if (videoFile.getMatchingSubs().size() == 1
           && videoFile.getMatchingSubs().get(0).getSubtitleMatchType() == SubtitleMatchType.EXACT) {
         Logger.instance.debug("determineWhatSubtitleDownload: Exact Match");
         return 0;
       } else if (settings.isOptionsAutomaticDownloadSelection()) {
         Logger.instance.debug("determineWhatSubtitleDownload: Automatic Download Selection");
-        SubtitleSelection subSelection = new SubtitleSelection(settings, videoFile);
         int selected = subSelection.getAutomatic();
         if (selected >= 0) return selected;
       } else if (videoFile.getMatchingSubs().size() > 1) {
-        // show message for logging
         Logger.instance.debug("determineWhatSubtitleDownload: Multiple subs detected");
         if (subtitleSelectionDialog) {
           Logger.instance.debug("determineWhatSubtitleDownload: Select subtitle with dialog");
-          return getSelected(videoFile);
+          return subSelection.getUserInput(videoFile);
         } else {
           Logger.instance.log("Multiple subs detected for: " + videoFile.getFilename()
               + " Unhandleable for CMD! switch to GUI"
@@ -88,44 +89,7 @@ public class Actions {
         + videoFile.getFilename());
     return -1;
   }
-
-  private int getSelected(VideoFile videoFile) {
-    if (usingCMD) {
-      int selected = getSelectedInCMD(videoFile);
-      if (selected >= 0) return selected;
-    } else {
-      int selected = getSelectedInDialog(null, videoFile);
-      if (selected >= 0) return selected;
-    }
-    return -1;
-  }
-
-  private int getSelectedInCMD(VideoFile videoFile) {
-    System.out.println("Select best subtitle for : " + videoFile.getFilename());
-    for (int i = 0; i < videoFile.getMatchingSubs().size(); i++) {
-      System.out.println("(" + i + ")" + buildDisplayLine(videoFile.getMatchingSubs().get(i)));
-    }
-    System.out.println("(-1) To skip download and/or move!");
-    Console c = System.console();
-    String selectedSubtitle = c.readLine("Enter number of selected subtitle: ");
-    try {
-      Integer.parseInt(selectedSubtitle);
-    } catch (Exception e) {
-      return -1;
-    }
-    return Integer.parseInt(selectedSubtitle);
-  }
-
-  protected static int getSelectedInDialog(JFrame frame, VideoFile videoFile) {
-    final SelectDialog sDialog =
-        new SelectDialog(frame, videoFile.getMatchingSubs(), videoFile.getFilename());
-
-    if (sDialog.getAnswer() == SelectDialog.SelectionType.OK) {
-      return sDialog.getSelection();
-    }
-    return sDialog.getAnswer().getSelectionCode();
-  }
-
+  
   public static String buildDisplayLine(Subtitle subtitle) {
     String hearingImpaired = "";
     if (subtitle.isHearingImpaired()) {
