@@ -12,12 +12,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.lodder.subtools.sublibrary.DetectLanguage;
 import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
-import org.lodder.subtools.sublibrary.control.VideoPatterns;
+import org.lodder.subtools.sublibrary.control.VideoFileParser;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.exception.ControlFactoryException;
 import org.lodder.subtools.sublibrary.exception.VideoControlException;
@@ -208,7 +206,7 @@ public class SortSubtitle implements Listener {
         VideoFile videoFile =
             VideoFileFactory.get(file, inputDir, new ArrayList<MappingTvdbScene>());
         final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter();
-        final String quality = getQualityKeyword(videoFile.getFilename());
+        final String quality = VideoFileParser.getQualityKeyword(videoFile.getFilename());
         Logger.instance.log(videoFile.getFilename() + " Q: " + quality);
         int num = 1;
         if (quality.split(" ").length == 1) {
@@ -485,17 +483,6 @@ public class SortSubtitle implements Listener {
       text = text.substring(0, text.length() - 1);
     }
     return text.trim();
-  }
-
-  public final String getQualityKeyword(final String name) {
-    Logger.instance.trace(this.getClass().toString(), "getQualityKeyword", name);
-    Pattern p = Pattern.compile(VideoPatterns.buildQualityRegex(), Pattern.CASE_INSENSITIVE);
-    Matcher m = p.matcher(name);
-    StringBuilder builder = new StringBuilder();
-    while (m.find()) {
-      builder.append(m.group(0).replace(".", " ") + " ");
-    }
-    return builder.toString().trim();
   }
 
   @Override
