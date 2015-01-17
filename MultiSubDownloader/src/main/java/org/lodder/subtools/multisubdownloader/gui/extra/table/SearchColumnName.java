@@ -2,7 +2,7 @@ package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
 public enum SearchColumnName {
   SERIE("Serie/Movie", String.class, false), FILENAME("Bestandsnaam", String.class, false), FOUND(
-      "# Gevonden", Integer.class, false), SELECT("Selecteer", Boolean.class, true), OBJECT(
+      "# Gevonden/Totaal", String.class, false), SELECT("Selecteer", Boolean.class, true), OBJECT(
       "Episode Object", Object.class, false), SEASON("Seizoen", String.class, false), EPISODE(
       "Aflevering", String.class, false), TYPE("Type", String.class, false), TITLE("Titel",
       String.class, false), SOURCE("Source", String.class, false);

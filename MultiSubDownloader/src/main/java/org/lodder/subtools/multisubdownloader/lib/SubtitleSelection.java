@@ -52,7 +52,7 @@ public abstract class SubtitleSelection {
 
   private int teamCompare(boolean equal) {
     Logger.instance.trace("SubtitleSelection", "teamCompare", "equal: " + equal);
-    List<Subtitle> matchingSubs = videoFile.getMatchingSubs();
+    List<Subtitle> matchingSubs = videoFile.getFilteredSubs();
     Subtitle subtitle;
     Logger.instance.trace("teamCompare", "teamCompare", "videofile team: " + videoFile.getTeam());
     for (int i = 0; i < matchingSubs.size(); i++) {
@@ -73,7 +73,7 @@ public abstract class SubtitleSelection {
 
   private int qualityRuleSelectionCompare(boolean equal) {
     Logger.instance.trace("SubtitleSelection", "qualityRuleSelectionCompare", "equal: " + equal);
-    List<Subtitle> matchingSubs = videoFile.getMatchingSubs();
+    List<Subtitle> matchingSubs = videoFile.getFilteredSubs();
     Subtitle subtitle;
     for (String quality : settings.getQualityRuleList()) {
       Logger.instance.trace("SubtitleSelection", "qualityRuleSelectionCompare",
