@@ -65,8 +65,8 @@ public class SearchPanel extends JPanel {
       public void actionPerformed(ActionEvent e) {
         final DefaultTableModel model = (DefaultTableModel) resultTable.getModel();
         for (int i = 0; i < model.getRowCount(); i++) {
-          final int numFound =
-              (Integer) model.getValueAt(i, resultTable.getColumnIdByName(SearchColumnName.FOUND));
+          String found = (String) model.getValueAt(i, resultTable.getColumnIdByName(SearchColumnName.FOUND));
+          final int numFound = Integer.parseInt(found.split("/")[0]);
           model.setValueAt(false, i, resultTable.getColumnIdByName(SearchColumnName.SELECT));
           if (numFound > 0) {
             model.setValueAt(true, i, resultTable.getColumnIdByName(SearchColumnName.SELECT));
