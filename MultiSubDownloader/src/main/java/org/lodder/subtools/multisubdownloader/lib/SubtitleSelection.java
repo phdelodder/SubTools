@@ -12,18 +12,18 @@ public abstract class SubtitleSelection {
   private Settings settings;
 
   public SubtitleSelection(Settings settings) {
-    this.settings = settings;
+    this.setSettings(settings);
   }
 
   public int getAutomatic(VideoFile videoFile) {
     Logger.instance.debug("getAutomaticSubtitleSelection: # quality rules: "
-        + settings.getQualityRuleList().size());
+        + getSettings().getQualityRuleList().size());
     Logger.instance.debug("getAutomaticSubtitleSelection: quality rules: "
-        + settings.getQualityRuleList().toString());
+        + getSettings().getQualityRuleList().toString());
 
     int result = -1;
 
-    if (settings.isOptionsAutomaticDownloadSelectionQuality()) {
+    if (getSettings().isOptionsAutomaticDownloadSelectionQuality()) {
       result = qualityRuleSelectionCompare(true, videoFile);
       if (result > -1) return result;
 
@@ -31,7 +31,7 @@ public abstract class SubtitleSelection {
       if (result > -1) return result;
     }
 
-    if (settings.isOptionsAutomaticDownloadSelectionReleaseGroup()) {
+    if (getSettings().isOptionsAutomaticDownloadSelectionReleaseGroup()) {
       result = teamCompare(true, videoFile);
       if (result > -1) return result;
 
@@ -39,7 +39,7 @@ public abstract class SubtitleSelection {
       if (result > -1) return result;
     }
 
-    if (settings.isOptionsNoRuleMatchTakeFirst()) {
+    if (getSettings().isOptionsNoRuleMatchTakeFirst()) {
       Logger.instance.debug("getAutomaticSubtitleSelection: Using taking first rule");
       return 0;
     } else {
@@ -73,7 +73,7 @@ public abstract class SubtitleSelection {
     Logger.instance.trace("SubtitleSelection", "qualityRuleSelectionCompare", "equal: " + equal);
     List<Subtitle> matchingSubs = videoFile.getFilteredSubs();
     Subtitle subtitle;
-    for (String quality : settings.getQualityRuleList()) {
+    for (String quality : getSettings().getQualityRuleList()) {
       Logger.instance.trace("SubtitleSelection", "qualityRuleSelectionCompare",
           "Quality Rule checked: " + quality);
       for (int i = 0; i < matchingSubs.size(); i++) {
@@ -94,4 +94,12 @@ public abstract class SubtitleSelection {
   }
   
   protected abstract int getUserInput(VideoFile videoFile);
+
+  public Settings getSettings() {
+    return settings;
+  }
+
+  public void setSettings(Settings settings) {
+    this.settings = settings;
+  }
 }

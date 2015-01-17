@@ -7,19 +7,16 @@ import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.VideoFile;
 
-public class SubtitleFilter {
-
-  private Settings settings;
+public class SubtitleFilter extends SubtitleSelection{
 
   public SubtitleFilter(Settings settings) {
-    this.settings = settings;
+    super(settings);
   }
 
   private void automaticSelection(VideoFile videoFile) {
     Logger.instance.debug("getSubtitlesFiltered: Automatic download selection detected.");
-    SubtitleSelectionCLI subtitleSelection = new SubtitleSelectionCLI(settings);
 
-    int index = subtitleSelection.getAutomatic(videoFile);
+    int index = getAutomatic(videoFile);
 
     if (index >= 0) {
       Logger.instance.debug("getSubtitlesFiltered: Automatic selection made. index: " + index);
@@ -42,7 +39,13 @@ public class SubtitleFilter {
     // We start by allowing all subtitles
     videoFile.setFilteredSubs(new ArrayList<Subtitle>(videoFile.getMatchingSubs()));
 
-    if (settings.isOptionsAutomaticDownloadSelection())
+    if (getSettings().isOptionsAutomaticDownloadSelection())
       automaticSelection(videoFile);
+  }
+
+  @Override
+  protected int getUserInput(VideoFile videoFile) {
+    // TODO Auto-generated method stub
+    return 0;
   }
 }
