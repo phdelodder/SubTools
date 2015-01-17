@@ -7,6 +7,7 @@ import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.Info;
+import org.lodder.subtools.multisubdownloader.lib.SubtitleFilter;
 import org.lodder.subtools.multisubdownloader.lib.control.VideoFileFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.logging.Logger;
@@ -26,13 +27,13 @@ public class SearchFileWorker extends SwingWorker<List<VideoFile>, String> {
   private VideoTable table;
   private boolean forceSubtitleOverwrite;
   private List<VideoFile> list;
-  private SearchWorkerFilter filter;
+  private SubtitleFilter filter;
 
   public SearchFileWorker(VideoTable table, Settings settings) {
     this.table = table;
     this.settings = settings;
     actions = new Actions(settings, false);
-    filter = new SearchWorkerFilter(settings);
+    filter = new SubtitleFilter(settings);
   }
 
   @SuppressWarnings("serial")
