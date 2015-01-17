@@ -125,7 +125,7 @@ public class VideoTableModel extends DefaultTableModel {
         } else if (SearchColumnName.FILENAME.getColumnName().equals(columnName)) {
           row[i] = videoFile.getFilename();
         } else if (SearchColumnName.FOUND.getColumnName().equals(columnName)) {
-          row[i] = videoFile.getMatchingSubs().size();
+          row[i] = "" + videoFile.getFilteredSubs().size() + "/" + videoFile.getMatchingSubs().size();
         } else if (SearchColumnName.SELECT.getColumnName().equals(columnName)) {
           row[i] = false;
         } else if (SearchColumnName.OBJECT.getColumnName().equals(columnName)) {

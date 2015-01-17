@@ -10,38 +10,36 @@ import org.lodder.subtools.sublibrary.model.VideoFile;
 public abstract class SubtitleSelection {
 
   private Settings settings;
-  private VideoFile videoFile;
 
-  public SubtitleSelection(Settings settings, VideoFile videoFile) {
-    this.settings = settings;
-    this.videoFile = videoFile;
+  public SubtitleSelection(Settings settings) {
+    this.setSettings(settings);
   }
 
-  public int getAutomatic() {
+  public int getAutomatic(VideoFile videoFile) {
     Logger.instance.debug("getAutomaticSubtitleSelection: # quality rules: "
-        + settings.getQualityRuleList().size());
+        + getSettings().getQualityRuleList().size());
     Logger.instance.debug("getAutomaticSubtitleSelection: quality rules: "
-        + settings.getQualityRuleList().toString());
+        + getSettings().getQualityRuleList().toString());
 
     int result = -1;
 
-    if (settings.isOptionsAutomaticDownloadSelectionQuality()) {
-      result = qualityRuleSelectionCompare(true);
+    if (getSettings().isOptionsAutomaticDownloadSelectionQuality()) {
+      result = qualityRuleSelectionCompare(true, videoFile);
       if (result > -1) return result;
 
-      result = qualityRuleSelectionCompare(false);
-      if (result > -1) return result;
-    }
-
-    if (settings.isOptionsAutomaticDownloadSelectionReleaseGroup()) {
-      result = teamCompare(true);
-      if (result > -1) return result;
-
-      result = teamCompare(false);
+      result = qualityRuleSelectionCompare(false, videoFile);
       if (result > -1) return result;
     }
 
-    if (settings.isOptionsNoRuleMatchTakeFirst()) {
+    if (getSettings().isOptionsAutomaticDownloadSelectionReleaseGroup()) {
+      result = teamCompare(true, videoFile);
+      if (result > -1) return result;
+
+      result = teamCompare(false, videoFile);
+      if (result > -1) return result;
+    }
+
+    if (getSettings().isOptionsNoRuleMatchTakeFirst()) {
       Logger.instance.debug("getAutomaticSubtitleSelection: Using taking first rule");
       return 0;
     } else {
@@ -50,9 +48,9 @@ public abstract class SubtitleSelection {
     }
   }
 
-  private int teamCompare(boolean equal) {
+  private int teamCompare(boolean equal, VideoFile videoFile) {
     Logger.instance.trace("SubtitleSelection", "teamCompare", "equal: " + equal);
-    List<Subtitle> matchingSubs = videoFile.getMatchingSubs();
+    List<Subtitle> matchingSubs = videoFile.getFilteredSubs();
     Subtitle subtitle;
     Logger.instance.trace("teamCompare", "teamCompare", "videofile team: " + videoFile.getTeam());
     for (int i = 0; i < matchingSubs.size(); i++) {
@@ -71,11 +69,11 @@ public abstract class SubtitleSelection {
     return -1;
   }
 
-  private int qualityRuleSelectionCompare(boolean equal) {
+  private int qualityRuleSelectionCompare(boolean equal, VideoFile videoFile) {
     Logger.instance.trace("SubtitleSelection", "qualityRuleSelectionCompare", "equal: " + equal);
-    List<Subtitle> matchingSubs = videoFile.getMatchingSubs();
+    List<Subtitle> matchingSubs = videoFile.getFilteredSubs();
     Subtitle subtitle;
-    for (String quality : settings.getQualityRuleList()) {
+    for (String quality : getSettings().getQualityRuleList()) {
       Logger.instance.trace("SubtitleSelection", "qualityRuleSelectionCompare",
           "Quality Rule checked: " + quality);
       for (int i = 0; i < matchingSubs.size(); i++) {
@@ -96,4 +94,12 @@ public abstract class SubtitleSelection {
   }
   
   protected abstract int getUserInput(VideoFile videoFile);
+
+  public Settings getSettings() {
+    return settings;
+  }
+
+  public void setSettings(Settings settings) {
+    this.settings = settings;
+  }
 }

@@ -8,6 +8,7 @@ import java.util.List;
 public class VideoFile extends Video{
 
     private List<Subtitle> matchingSubs;
+    private List<Subtitle> filteredSubs;
     private File path;
     private String extension;
     private String filename;
@@ -19,6 +20,7 @@ public class VideoFile extends Video{
         this.setVideoType(videoType);
         extension = "";
         matchingSubs = new ArrayList<Subtitle>();
+        filteredSubs = new ArrayList<Subtitle>();
         filename = "";
         path = new File("");
         quality = "";
@@ -47,8 +49,16 @@ public class VideoFile extends Video{
         return matchingSubs;
     }
 
+    public List<Subtitle> getFilteredSubs() {
+        return filteredSubs;
+    }
+
     public void setMatchingSubs(List<Subtitle> matchingSubs) {
         this.matchingSubs = matchingSubs;
+    }
+
+    public void setFilteredSubs(List<Subtitle> filteredSubs) {
+        this.filteredSubs = filteredSubs;
     }
 
     public String getFilename() {

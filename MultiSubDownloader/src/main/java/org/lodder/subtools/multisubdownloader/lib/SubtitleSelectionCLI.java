@@ -7,8 +7,8 @@ import org.lodder.subtools.sublibrary.model.VideoFile;
 
 public class SubtitleSelectionCLI extends SubtitleSelection {
 
-  public SubtitleSelectionCLI(Settings settings, VideoFile videoFile) {
-    super(settings, videoFile);
+  public SubtitleSelectionCLI(Settings settings) {
+    super(settings);
   }
 
   @Override
