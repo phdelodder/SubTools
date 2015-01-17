@@ -41,20 +41,20 @@ public class Actions {
 
   private final Settings settings;
   private final boolean usingCMD;
+  private final SubtitleSelection subSelection;
 
   public Actions(Settings settings, final boolean usingCMD) {
     this.settings = settings;
     this.usingCMD = usingCMD;
+    
+    if (usingCMD)
+      subSelection = new SubtitleSelectionCLI(settings);
+    else
+      subSelection = new SubtitleSelectionGUI(settings);
   }
 
   public int determineWhatSubtitleDownload(final VideoFile videoFile,
       final boolean subtitleSelectionDialog) {
-
-    SubtitleSelection subSelection;
-    if (usingCMD)
-      subSelection = new SubtitleSelectionCLI(settings, videoFile);
-    else
-      subSelection = new SubtitleSelectionGUI(settings, videoFile);
 
     if (videoFile.getMatchingSubs().size() > 0) {
       Logger.instance.debug("determineWhatSubtitleDownload for videoFile: "
@@ -67,7 +67,7 @@ public class Actions {
         return 0;
       } else if (settings.isOptionsAutomaticDownloadSelection()) {
         Logger.instance.debug("determineWhatSubtitleDownload: Automatic Download Selection");
-        int selected = subSelection.getAutomatic();
+        int selected = subSelection.getAutomatic(videoFile);
         if (selected >= 0) return selected;
       } else if (videoFile.getMatchingSubs().size() > 1) {
         Logger.instance.debug("determineWhatSubtitleDownload: Multiple subs detected");

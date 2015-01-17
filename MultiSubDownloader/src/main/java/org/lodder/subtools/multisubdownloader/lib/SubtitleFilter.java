@@ -17,9 +17,9 @@ public class SubtitleFilter {
 
   private void automaticSelection(VideoFile videoFile) {
     Logger.instance.debug("getSubtitlesFiltered: Automatic download selection detected.");
-    SubtitleSelectionCLI subtitleSelection = new SubtitleSelectionCLI(settings, videoFile);
+    SubtitleSelectionCLI subtitleSelection = new SubtitleSelectionCLI(settings);
 
-    int index = subtitleSelection.getAutomatic();
+    int index = subtitleSelection.getAutomatic(videoFile);
 
     if (index >= 0) {
       Logger.instance.debug("getSubtitlesFiltered: Automatic selection made. index: " + index);

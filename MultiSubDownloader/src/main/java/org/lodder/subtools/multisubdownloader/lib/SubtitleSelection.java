@@ -10,14 +10,12 @@ import org.lodder.subtools.sublibrary.model.VideoFile;
 public abstract class SubtitleSelection {
 
   private Settings settings;
-  private VideoFile videoFile;
 
-  public SubtitleSelection(Settings settings, VideoFile videoFile) {
+  public SubtitleSelection(Settings settings) {
     this.settings = settings;
-    this.videoFile = videoFile;
   }
 
-  public int getAutomatic() {
+  public int getAutomatic(VideoFile videoFile) {
     Logger.instance.debug("getAutomaticSubtitleSelection: # quality rules: "
         + settings.getQualityRuleList().size());
     Logger.instance.debug("getAutomaticSubtitleSelection: quality rules: "
@@ -26,18 +24,18 @@ public abstract class SubtitleSelection {
     int result = -1;
 
     if (settings.isOptionsAutomaticDownloadSelectionQuality()) {
-      result = qualityRuleSelectionCompare(true);
+      result = qualityRuleSelectionCompare(true, videoFile);
       if (result > -1) return result;
 
-      result = qualityRuleSelectionCompare(false);
+      result = qualityRuleSelectionCompare(false, videoFile);
       if (result > -1) return result;
     }
 
     if (settings.isOptionsAutomaticDownloadSelectionReleaseGroup()) {
-      result = teamCompare(true);
+      result = teamCompare(true, videoFile);
       if (result > -1) return result;
 
-      result = teamCompare(false);
+      result = teamCompare(false, videoFile);
       if (result > -1) return result;
     }
 
@@ -50,7 +48,7 @@ public abstract class SubtitleSelection {
     }
   }
 
-  private int teamCompare(boolean equal) {
+  private int teamCompare(boolean equal, VideoFile videoFile) {
     Logger.instance.trace("SubtitleSelection", "teamCompare", "equal: " + equal);
     List<Subtitle> matchingSubs = videoFile.getFilteredSubs();
     Subtitle subtitle;
@@ -71,7 +69,7 @@ public abstract class SubtitleSelection {
     return -1;
   }
 
-  private int qualityRuleSelectionCompare(boolean equal) {
+  private int qualityRuleSelectionCompare(boolean equal, VideoFile videoFile) {
     Logger.instance.trace("SubtitleSelection", "qualityRuleSelectionCompare", "equal: " + equal);
     List<Subtitle> matchingSubs = videoFile.getFilteredSubs();
     Subtitle subtitle;
