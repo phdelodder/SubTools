@@ -26,11 +26,13 @@ public class SearchFileWorker extends SwingWorker<List<VideoFile>, String> {
   private VideoTable table;
   private boolean forceSubtitleOverwrite;
   private List<VideoFile> list;
+  private SearchWorkerFilter filter;
 
   public SearchFileWorker(VideoTable table, Settings settings) {
     this.table = table;
     this.settings = settings;
     actions = new Actions(settings, false);
+    filter = new SearchWorkerFilter(settings);
   }
 
   @SuppressWarnings("serial")
@@ -72,7 +74,10 @@ public class SearchFileWorker extends SwingWorker<List<VideoFile>, String> {
         publish(files.get(i).getName());
         try {
           VideoFile videoFile = VideoFileFactory.get(files.get(i), dir, settings, languagecode);
-          if (videoFile != null) list.add(videoFile);
+          if (videoFile != null) {
+            filter.filter(videoFile);
+            list.add(videoFile);
+          }
         } catch (Exception e) {
           Logger.instance.log("Error processing file " + Logger.stack2String(e));
           if (settings.isOptionsStopOnSearchError())

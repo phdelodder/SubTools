@@ -28,11 +28,13 @@ public class SearchNameWorker extends SwingWorker<List<Subtitle>, String> {
   private String videoText, languagecode, quality;
   private int season, episode;
   private VideoSearchType videoSearchTypeChoice;
+  private SearchWorkerFilter filter;
 
   public SearchNameWorker(VideoTable table, Settings settings) {
     this.table = table;
     this.settings = settings;
     tsc = new NameSearchControl(settings);
+    filter = new SearchWorkerFilter(settings);
   }
 
   public void setParameters(VideoSearchType videoTypeChoice, String videoText, int season,
@@ -61,7 +63,8 @@ public class SearchNameWorker extends SwingWorker<List<Subtitle>, String> {
       VideoFile videoFile =
           VideoFileFactory.get(new File(videoText), new File("/"), settings, languagecode);
       if (videoFile != null) {
-        l = videoFile.getMatchingSubs();
+        filter.filter(videoFile);
+        l = videoFile.getFilteredSubs();
       }
     }
     return l;
