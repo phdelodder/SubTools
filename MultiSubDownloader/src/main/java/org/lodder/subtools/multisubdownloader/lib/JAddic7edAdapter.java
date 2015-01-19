@@ -6,7 +6,7 @@ import java.util.List;
 import org.lodder.subtools.sublibrary.JSubAdapter;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.model.MovieFile;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.subtitlesource.addic7ed.JAddic7edApi;
@@ -68,7 +68,7 @@ public class JAddic7edAdapter implements JSubAdapter {
   }
 
   @Override
-  public List<Subtitle> searchSubtitles(MovieFile movieFile, String... sublanguageids) {
+  public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... sublanguageids) {
     // TODO Auto-generated method stub
     return null;
   }

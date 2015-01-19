@@ -3,7 +3,7 @@ package org.lodder.subtools.multisubdownloader.gui.extra.table;
 import javax.swing.table.DefaultTableModel;
 
 import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.model.MovieFile;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.Release;
 
@@ -119,8 +119,8 @@ public class VideoTableModel extends DefaultTableModel {
         if (SearchColumnName.SERIE.getColumnName().equals(columnName)) {
           if (release instanceof TvRelease) {
             row[i] = ((TvRelease) release).getShow();
-          } else if (release instanceof MovieFile) {
-            row[i] = ((MovieFile) release).getTitle();
+          } else if (release instanceof MovieRelease) {
+            row[i] = ((MovieRelease) release).getTitle();
           }
         } else if (SearchColumnName.FILENAME.getColumnName().equals(columnName)) {
           row[i] = release.getFilename();

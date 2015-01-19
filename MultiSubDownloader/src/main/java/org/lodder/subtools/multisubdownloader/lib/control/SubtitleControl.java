@@ -21,7 +21,7 @@ import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.model.MovieFile;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -113,13 +113,13 @@ public class SubtitleControl {
     return this.getSubtitlesFiltered(listFoundSubtitles, tvRelease, true);
   }
 
-  public List<Subtitle> getSubtitles(MovieFile movieFile, String... languagecode) {
+  public List<Subtitle> getSubtitles(MovieRelease movieRelease, String... languagecode) {
     Logger.instance.trace("SubtitleControl", "getSubtitles", "Movie");
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
-    listFoundSubtitles.addAll(privateRepo.searchSubtitles(movieFile, languagecode[0]));
-    listFoundSubtitles.addAll(jOpenSubAdapter.searchSubtitles(movieFile, languagecode));
-    listFoundSubtitles.addAll(jPodnapisiAdapter.searchSubtitles(movieFile, languagecode[0]));
-    return this.getSubtitlesFiltered(listFoundSubtitles, movieFile, true);
+    listFoundSubtitles.addAll(privateRepo.searchSubtitles(movieRelease, languagecode[0]));
+    listFoundSubtitles.addAll(jOpenSubAdapter.searchSubtitles(movieRelease, languagecode));
+    listFoundSubtitles.addAll(jPodnapisiAdapter.searchSubtitles(movieRelease, languagecode[0]));
+    return this.getSubtitlesFiltered(listFoundSubtitles, movieRelease, true);
   }
 
   private List<Subtitle> addLocalLibrary(TvRelease tvRelease, String languagecode) {

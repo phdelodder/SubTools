@@ -11,7 +11,7 @@ import org.lodder.subtools.sublibrary.exception.VideoControlException;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.model.MovieFile;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 
 public class NameSearchControl {
@@ -27,9 +27,9 @@ public class NameSearchControl {
   }
 
   public List<Subtitle> SearchSubtitles(String movie, String languagecode) {
-    MovieFile movieFile = new MovieFile();
-    movieFile.setTitle(movie);
-    return subtitleControl.getSubtitles(movieFile, languagecode);
+    MovieRelease movieRelease = new MovieRelease();
+    movieRelease.setTitle(movie);
+    return subtitleControl.getSubtitles(movieRelease, languagecode);
   }
 
   @SuppressWarnings("serial")

@@ -10,7 +10,7 @@ import org.lodder.subtools.sublibrary.JSubAdapter;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.model.MovieFile;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.subtitlesource.opensubtitles.JOpenSubtitlesApi;
@@ -54,14 +54,14 @@ public class JOpenSubAdapter implements JSubAdapter {
   }
 
   @Override
-  public List<Subtitle> searchSubtitles(MovieFile movieFile, String... sublanguageids) {
+  public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... sublanguageids) {
     List<OpenSubtitlesSubtitleDescriptor> lSubtitles =
         new ArrayList<OpenSubtitlesSubtitleDescriptor>();
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
     try {
       if (isLoginOk()) {
-        if (!movieFile.getFilename().equals("")) {
-          File file = new File(movieFile.getPath(), movieFile.getFilename());
+        if (!movieRelease.getFilename().equals("")) {
+          File file = new File(movieRelease.getPath(), movieRelease.getFilename());
           if (file.exists())
             try {
               lSubtitles =
@@ -71,16 +71,16 @@ public class JOpenSubAdapter implements JSubAdapter {
               Logger.instance.error("API OPENSUBTITLES searchSubtitles using file hash: " + e);
             }
         }
-        if (movieFile.getImdbid() != 0) {
+        if (movieRelease.getImdbid() != 0) {
           try {
-            lSubtitles.addAll(joapi.searchSubtitles(movieFile.getImdbid(), sublanguageids));
+            lSubtitles.addAll(joapi.searchSubtitles(movieRelease.getImdbid(), sublanguageids));
           } catch (Exception e) {
             Logger.instance.error("API OPENSUBTITLES searchSubtitles using imdbid: " + e);
           }
         }
         if (lSubtitles.size() == 0) {
           try {
-            lSubtitles.addAll(joapi.searchSubtitles(movieFile.getTitle(), sublanguageids));
+            lSubtitles.addAll(joapi.searchSubtitles(movieRelease.getTitle(), sublanguageids));
           } catch (Exception e) {
             Logger.instance.error("API OPENSUBTITLES searchSubtitles using title: " + e);
           }
@@ -98,22 +98,22 @@ public class JOpenSubAdapter implements JSubAdapter {
     return listFoundSubtitles;
   }
 
-  public int searchMovieOnIMDB(MovieFile movieFile) {
+  public int searchMovieOnIMDB(MovieRelease movieRelease) {
     List<OpenSubtitlesMovieDescriptor> losm = new ArrayList<OpenSubtitlesMovieDescriptor>();
     try {
-      if (isLoginOk()) losm = joapi.searchMoviesOnIMDB(movieFile.getTitle());
+      if (isLoginOk()) losm = joapi.searchMoviesOnIMDB(movieRelease.getTitle());
     } catch (Exception e) {
       Logger.instance.error("API OPENSUBTITLES searchMovieOnIMDB: " + e.getCause());
     }
 
-    Pattern p = Pattern.compile(movieFile.getTitle(), Pattern.CASE_INSENSITIVE);
+    Pattern p = Pattern.compile(movieRelease.getTitle(), Pattern.CASE_INSENSITIVE);
     Matcher m;
 
     for (OpenSubtitlesMovieDescriptor osm : losm) {
       m = p.matcher(osm.getName());
       if (m.find()) {
-        if (movieFile.getYear() > 0) {
-          if (osm.getYear() == movieFile.getYear()) return osm.getImdbId();
+        if (movieRelease.getYear() > 0) {
+          if (osm.getYear() == movieRelease.getYear()) return osm.getImdbId();
         } else {
           return osm.getImdbId();
         }
@@ -124,10 +124,10 @@ public class JOpenSubAdapter implements JSubAdapter {
     return 0;
   }
 
-  public OpenSubtitlesMovieDescriptor getIMDBMovieDetails(MovieFile movieFile) {
+  public OpenSubtitlesMovieDescriptor getIMDBMovieDetails(MovieRelease movieRelease) {
     OpenSubtitlesMovieDescriptor osm = null;
     try {
-      if (isLoginOk()) osm = joapi.getIMDBMovieDetails(movieFile.getImdbid());
+      if (isLoginOk()) osm = joapi.getIMDBMovieDetails(movieRelease.getImdbid());
     } catch (Exception e) {
       Logger.instance.error("API OPENSUBTITLES getIMDBMovieDetails: " + e.getCause());
     }

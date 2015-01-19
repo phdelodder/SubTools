@@ -32,7 +32,7 @@ import org.lodder.subtools.sublibrary.exception.VideoControlException;
 import org.lodder.subtools.sublibrary.exception.VideoFileParseException;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.model.MovieFile;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
 
@@ -51,7 +51,7 @@ public class StructureBuilderDialog extends MutliSubDialog implements DocumentLi
   private StrucutureType structureType;
   private JLabel lblPreview;
   private TvRelease ep;
-  private MovieFile mo;
+  private MovieRelease mo;
   private String oldStructure;
 
   public enum StrucutureType {
@@ -66,7 +66,7 @@ public class StructureBuilderDialog extends MutliSubDialog implements DocumentLi
     this.structureType = structureType;
     initializeUi();
     generateVideoFiles();
-    mo = new MovieFile();
+    mo = new MovieRelease();
   }
 
   private void generateVideoFiles() {
@@ -80,7 +80,7 @@ public class StructureBuilderDialog extends MutliSubDialog implements DocumentLi
                 new File(File.separator), new Settings(), "");
       } else if (videoType == VideoType.MOVIE) {
         mo =
-            (MovieFile) VideoFileFactory.get(new File(File.separator
+            (MovieRelease) VideoFileFactory.get(new File(File.separator
                 + "Final.Destination.5.720p.Bluray.x264-TWiZTED"), new File(File.separator),
                 new Settings(), "");
       }

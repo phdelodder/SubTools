@@ -7,7 +7,7 @@ import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.exception.ControlFactoryException;
 import org.lodder.subtools.sublibrary.exception.VideoFileParseException;
 import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.model.MovieFile;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
 
@@ -21,7 +21,7 @@ public class VideoFileControlFactory {
     if (release.getVideoType() == VideoType.EPISODE) {
       return new EpisodeFileControl((TvRelease) release, settings);
     } else if (release.getVideoType() == VideoType.MOVIE) {
-      return new MovieFileControl((MovieFile) release, settings);
+      return new MovieFileControl((MovieRelease) release, settings);
     }
     throw new ControlFactoryException("Can't find controller");
   }

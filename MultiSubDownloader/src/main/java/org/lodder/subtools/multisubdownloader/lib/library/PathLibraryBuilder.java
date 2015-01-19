@@ -5,7 +5,7 @@ import java.io.File;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
 import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.model.MovieFile;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.util.StringUtils;
@@ -23,7 +23,7 @@ public class PathLibraryBuilder extends LibraryBuilder {
       if (release.getVideoType() == VideoType.EPISODE)
         folder = episodeBuildPath((TvRelease) release);
       else if (release.getVideoType() == VideoType.MOVIE)
-        folder = movieBuildPath((MovieFile) release);
+        folder = movieBuildPath((MovieRelease) release);
       return new File(librarySettings.getLibraryFolder(), folder);
     } else {
       return release.getPath();
@@ -67,18 +67,18 @@ public class PathLibraryBuilder extends LibraryBuilder {
     return folder;
   }
 
-  protected String movieBuildPath(MovieFile movieFile) {
+  protected String movieBuildPath(MovieRelease movieRelease) {
     String folder = librarySettings.getLibraryFolderStructure();
-    String title = movieFile.getTitle();
+    String title = movieRelease.getTitle();
 
     if (librarySettings.isLibraryReplaceChars()) {
       title = StringUtils.removeIllegalWindowsChars(title);
     }
 
     folder = folder.replaceAll("%MOVIE TITLE%", title);
-    folder = folder.replaceAll("%YEAR%", Integer.toString(movieFile.getYear()));
+    folder = folder.replaceAll("%YEAR%", Integer.toString(movieRelease.getYear()));
     folder = folder.replaceAll("%SEPARATOR%", File.separator);
-    folder = folder.replaceAll("%QUALITY%", movieFile.getQuality());
+    folder = folder.replaceAll("%QUALITY%", movieRelease.getQuality());
 
     if (librarySettings.isLibraryFolderReplaceSpace()) {
       folder = folder.replaceAll(" ", librarySettings.getLibraryFolderReplacingSpaceSign());

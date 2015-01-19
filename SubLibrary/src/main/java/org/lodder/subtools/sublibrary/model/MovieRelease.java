@@ -3,19 +3,19 @@ package org.lodder.subtools.sublibrary.model;
 import java.io.File;
 
 
-public class MovieFile extends Release {
+public class MovieRelease extends Release {
 
     private String title;
     private int year, imdbid;
 
-    public MovieFile() {
+    public MovieRelease() {
         super(VideoType.MOVIE);
         setTitle("");
         setYear(0);
         this.imdbid = 0;
     }
 
-    public MovieFile(String title, Integer year, File file, String extension, String description, String team) {
+    public MovieRelease(String title, Integer year, File file, String extension, String description, String team) {
         super(VideoType.MOVIE, file, extension, description, team);
         this.title = title;
         this.year = year;

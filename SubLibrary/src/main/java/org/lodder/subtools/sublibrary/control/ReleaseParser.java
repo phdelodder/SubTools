@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import org.lodder.subtools.sublibrary.exception.VideoFileParseException;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.model.MovieFile;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.util.NamedMatcher;
 import org.lodder.subtools.sublibrary.util.NamedPattern;
@@ -45,7 +45,7 @@ public class ReleaseParser {
                       isSpecialEpisode((Integer) parseResults[1], (List<Integer>) parseResults[2]));
             } else if (parseResults.length == 3) {
               vFile =
-                  new MovieFile((String) parseResults[0], (Integer) parseResults[1], file,
+                  new MovieRelease((String) parseResults[0], (Integer) parseResults[1], file,
                       extractFileNameExtension(file.getName()),
                       removeExtension((String) parseResults[2]), extractTeam(file.getName()));
             }

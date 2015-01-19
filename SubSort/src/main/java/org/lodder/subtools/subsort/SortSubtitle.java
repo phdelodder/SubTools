@@ -23,7 +23,7 @@ import org.lodder.subtools.sublibrary.exception.VideoFileParseException;
 import org.lodder.subtools.sublibrary.logging.Listener;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.model.MovieFile;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
@@ -128,7 +128,7 @@ public class SortSubtitle implements Listener {
             }
           }
         } else if (release.getVideoType() == VideoType.MOVIE) {
-          MovieFile movieFile = (MovieFile) release;
+          MovieRelease movieRelease = (MovieRelease) release;
           String language = "";
           try {
             language = DetectLanguage.execute(file);
@@ -136,19 +136,19 @@ public class SortSubtitle implements Listener {
             Logger.instance.error(Logger.stack2String(e));
           }
           final String filename = removeLanguageCode(release.getFilename(), language);
-          String title = replaceWindowsChars(movieFile.getTitle());
+          String title = replaceWindowsChars(movieRelease.getTitle());
 
           final File pathFolder =
               new File(outputDir + File.separator + "movies" + File.separator + title + " "
-                  + movieFile.getYear() + File.separator + language + File.separator);
+                  + movieRelease.getYear() + File.separator + language + File.separator);
 
           File to = new File(pathFolder, filename);
 
           if (to.exists()) {
             index.add(new IndexSubtitle(title, PrivateRepoIndex.extractOriginalFilename(filename),
                 language, PrivateRepoIndex.extractUploader(filename), PrivateRepoIndex
-                    .extractOriginalSource(filename), release.getVideoType(), movieFile
-                    .getImdbid(), movieFile.getYear()));
+                    .extractOriginalSource(filename), release.getVideoType(), movieRelease
+                    .getImdbid(), movieRelease.getYear()));
           } else {
             System.out.println("doesn't exists: " + to.toString());
           }
@@ -287,12 +287,12 @@ public class SortSubtitle implements Listener {
             }
           }
         } else if (release.getVideoType() == VideoType.MOVIE) {
-          MovieFile movieFile = (MovieFile) release;
-          String title = replaceWindowsChars(movieFile.getTitle());
+          MovieRelease movieRelease = (MovieRelease) release;
+          String title = replaceWindowsChars(movieRelease.getTitle());
           String language = DetectLanguage.execute(file);
           final File pathFolder =
               new File(outputDir + File.separator + "movies" + File.separator + title + " "
-                  + movieFile.getYear() + File.separator + language + File.separator);
+                  + movieRelease.getYear() + File.separator + language + File.separator);
 
           if (!pathFolder.exists()) {
             if (!pathFolder.mkdirs()) {
@@ -324,7 +324,7 @@ public class SortSubtitle implements Listener {
                 new IndexSubtitle(title, PrivateRepoIndex.extractOriginalFilename(filename),
                     language, PrivateRepoIndex.extractUploader(filename),
                     PrivateRepoIndex.extractOriginalSource(filename), release.getVideoType(),
-                    movieFile.getImdbid(), movieFile.getYear());
+                    movieRelease.getImdbid(), movieRelease.getYear());
 
             index.add(indexSubtitle);
           }
