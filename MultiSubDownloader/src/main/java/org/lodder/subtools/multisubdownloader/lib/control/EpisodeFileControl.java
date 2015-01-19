@@ -17,7 +17,7 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 
-public class EpisodeFileControl extends VideoFileControl {
+public class EpisodeFileControl extends ReleaseControl {
 
   private JTheTVDBAdapter jtvdba;
   private final JTVRageAdapter tvra;

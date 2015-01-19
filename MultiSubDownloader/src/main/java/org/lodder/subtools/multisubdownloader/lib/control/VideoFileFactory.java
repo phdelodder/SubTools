@@ -15,7 +15,7 @@ public class VideoFileFactory {
       final String languagecode) throws ControlFactoryException, VideoFileParseException,
       VideoControlException {
     Logger.instance.trace("VideoFileFactory", "get", "");
-    VideoFileControl vfc = VideoFileControlFactory.getController(file, basedir, settings);
+    ReleaseControl vfc = VideoFileControlFactory.getController(file, basedir, settings);
     if (vfc instanceof EpisodeFileControl) {
       if (languagecode.isEmpty()) {
         vfc.process(settings.getMappingSettings().getMappingList());

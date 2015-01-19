@@ -12,7 +12,7 @@ import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 
-public class MovieFileControl extends VideoFileControl {
+public class MovieFileControl extends ReleaseControl {
   private final IMDBSearchID imdbSearchID;
   private final IMDBAPI imdbapi;
 
