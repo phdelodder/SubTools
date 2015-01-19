@@ -1,10 +1,12 @@
-package org.lodder.subtools.multisubdownloader.gui.extra;
+package org.lodder.subtools.multisubdownloader.gui.panels;
 
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
 import org.lodder.subtools.multisubdownloader.gui.dialog.StructureBuilderDialog;
+import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
+import org.lodder.subtools.multisubdownloader.gui.extra.PartialDisableComboBox;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;

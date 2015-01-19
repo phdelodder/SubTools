@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader.gui.extra;
+package org.lodder.subtools.multisubdownloader.gui.panels;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.model.VideoType;

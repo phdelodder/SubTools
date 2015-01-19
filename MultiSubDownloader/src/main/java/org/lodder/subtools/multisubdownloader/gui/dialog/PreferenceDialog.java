@@ -8,6 +8,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
 import org.lodder.subtools.multisubdownloader.gui.extra.*;
+import org.lodder.subtools.multisubdownloader.gui.panels.EpisodeLibraryPanel;
+import org.lodder.subtools.multisubdownloader.gui.panels.MovieLibraryPanel;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.SearchSubtitlePriority;

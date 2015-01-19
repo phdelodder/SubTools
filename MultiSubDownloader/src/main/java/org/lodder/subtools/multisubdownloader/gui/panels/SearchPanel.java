@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader.gui.extra;
+package org.lodder.subtools.multisubdownloader.gui.panels;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
