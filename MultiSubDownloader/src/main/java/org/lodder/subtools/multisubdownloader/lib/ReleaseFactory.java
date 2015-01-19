@@ -1,7 +1,10 @@
-package org.lodder.subtools.multisubdownloader.lib.control;
+package org.lodder.subtools.multisubdownloader.lib;
 
 import java.io.File;
 
+import org.lodder.subtools.multisubdownloader.lib.control.MovieReleaseControl;
+import org.lodder.subtools.multisubdownloader.lib.control.ReleaseControl;
+import org.lodder.subtools.multisubdownloader.lib.control.TvReleaseControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.exception.ControlFactoryException;
@@ -21,7 +24,7 @@ public class ReleaseFactory {
       final String languagecode) throws ControlFactoryException, VideoFileParseException,
       VideoControlException {
     Logger.instance.trace("VideoFileFactory", "get", "");
-    ReleaseControl releaseCtrl = ReleaseFactory.getController(file, basedir, settings);
+    ReleaseControl releaseCtrl = getController(file, basedir, settings);
     if (releaseCtrl instanceof TvReleaseControl) {
       if (languagecode.isEmpty()) {
         releaseCtrl.process(settings.getMappingSettings().getMappingList());

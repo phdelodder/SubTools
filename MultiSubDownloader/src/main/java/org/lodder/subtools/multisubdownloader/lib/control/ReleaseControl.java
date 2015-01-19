@@ -20,9 +20,9 @@ public abstract class ReleaseControl {
     this.release = release;
   }
 
-  abstract void process(List<MappingTvdbScene> dict) throws VideoControlException;
+  public abstract void process(List<MappingTvdbScene> dict) throws VideoControlException;
 
-  abstract void processWithSubtitles(List<MappingTvdbScene> dict, String languageCode)
+  public abstract void processWithSubtitles(List<MappingTvdbScene> dict, String languageCode)
       throws VideoControlException;
 
   public void process() throws VideoControlException {

@@ -7,7 +7,7 @@ import javax.swing.SwingWorker;
 
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
-import org.lodder.subtools.multisubdownloader.lib.control.ReleaseFactory;
+import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
