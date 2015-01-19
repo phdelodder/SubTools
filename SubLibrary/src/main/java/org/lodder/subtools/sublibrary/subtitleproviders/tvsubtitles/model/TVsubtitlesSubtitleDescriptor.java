@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.subtitlesource.tvsubtitles.model;
+package org.lodder.subtools.sublibrary.subtitleproviders.tvsubtitles.model;
 
 public class TVsubtitlesSubtitleDescriptor {
 

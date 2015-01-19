@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.subtitlesource.opensubtitles.model;
+package org.lodder.subtools.sublibrary.subtitleproviders.opensubtitles.model;
 
 public class OpenSubtitlesSubtitleDescriptor {
     private String UserNickName;

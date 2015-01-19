@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.subtitlesource.opensubtitles;
+package org.lodder.subtools.sublibrary.subtitleproviders.opensubtitles;
 
 import java.io.*;
 import java.nio.ByteBuffer;

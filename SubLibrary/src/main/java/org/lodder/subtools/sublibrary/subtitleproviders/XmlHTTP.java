@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.subtitlesource;
+package org.lodder.subtools.sublibrary.subtitleproviders;
 
 import org.lodder.subtools.sublibrary.cache.CacheManager;
 import org.lodder.subtools.sublibrary.cache.DiskCacheManager;

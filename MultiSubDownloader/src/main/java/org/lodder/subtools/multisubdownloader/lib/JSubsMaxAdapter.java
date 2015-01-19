@@ -10,8 +10,8 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
-import org.lodder.subtools.sublibrary.subtitlesource.subsmax.JSubsMaxApi;
-import org.lodder.subtools.sublibrary.subtitlesource.subsmax.model.SubMaxSubtitleDescriptor;
+import org.lodder.subtools.sublibrary.subtitleproviders.subsmax.JSubsMaxApi;
+import org.lodder.subtools.sublibrary.subtitleproviders.subsmax.model.SubMaxSubtitleDescriptor;
 
 public class JSubsMaxAdapter implements JSubAdapter {
 

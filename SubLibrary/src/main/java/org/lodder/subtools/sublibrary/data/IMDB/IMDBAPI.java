@@ -1,7 +1,7 @@
 package org.lodder.subtools.sublibrary.data.IMDB;
 
 import org.lodder.subtools.sublibrary.data.IMDB.model.IMDBDetails;
-import org.lodder.subtools.sublibrary.subtitlesource.XmlHTTP;
+import org.lodder.subtools.sublibrary.subtitleproviders.XmlHTTP;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

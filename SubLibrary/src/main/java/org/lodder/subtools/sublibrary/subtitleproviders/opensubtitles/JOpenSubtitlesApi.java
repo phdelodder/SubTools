@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.subtitlesource.opensubtitles;
+package org.lodder.subtools.sublibrary.subtitleproviders.opensubtitles;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -10,9 +10,9 @@ import java.util.Scanner;
 import java.util.Vector;
 
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.subtitlesource.XmlRPC;
-import org.lodder.subtools.sublibrary.subtitlesource.opensubtitles.model.OpenSubtitlesMovieDescriptor;
-import org.lodder.subtools.sublibrary.subtitlesource.opensubtitles.model.OpenSubtitlesSubtitleDescriptor;
+import org.lodder.subtools.sublibrary.subtitleproviders.XmlRPC;
+import org.lodder.subtools.sublibrary.subtitleproviders.opensubtitles.model.OpenSubtitlesMovieDescriptor;
+import org.lodder.subtools.sublibrary.subtitleproviders.opensubtitles.model.OpenSubtitlesSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.util.NamedMatcher;
 import org.lodder.subtools.sublibrary.util.NamedPattern;
 

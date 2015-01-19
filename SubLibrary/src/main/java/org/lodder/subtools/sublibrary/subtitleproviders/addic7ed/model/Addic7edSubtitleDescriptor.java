@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.subtitlesource.addic7ed.model;
+package org.lodder.subtools.sublibrary.subtitleproviders.addic7ed.model;
 
 public class Addic7edSubtitleDescriptor {
 

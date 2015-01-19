@@ -9,7 +9,7 @@ import java.util.StringTokenizer;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.subtitlesource.XmlHTTP;
+import org.lodder.subtools.sublibrary.subtitleproviders.XmlHTTP;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

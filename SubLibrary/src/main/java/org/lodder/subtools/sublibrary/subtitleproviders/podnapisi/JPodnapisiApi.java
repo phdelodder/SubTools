@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.subtitlesource.podnapisi;
+package org.lodder.subtools.sublibrary.subtitleproviders.podnapisi;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -19,8 +19,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.lodder.subtools.sublibrary.cache.CacheManager;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.subtitlesource.XmlRPC;
-import org.lodder.subtools.sublibrary.subtitlesource.podnapisi.model.PodnapisiSubtitleDescriptor;
+import org.lodder.subtools.sublibrary.subtitleproviders.XmlRPC;
+import org.lodder.subtools.sublibrary.subtitleproviders.podnapisi.model.PodnapisiSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

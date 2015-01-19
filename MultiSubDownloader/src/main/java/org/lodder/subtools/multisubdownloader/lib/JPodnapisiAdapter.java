@@ -11,9 +11,9 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
-import org.lodder.subtools.sublibrary.subtitlesource.opensubtitles.OpenSubtitlesHasher;
-import org.lodder.subtools.sublibrary.subtitlesource.podnapisi.JPodnapisiApi;
-import org.lodder.subtools.sublibrary.subtitlesource.podnapisi.model.PodnapisiSubtitleDescriptor;
+import org.lodder.subtools.sublibrary.subtitleproviders.opensubtitles.OpenSubtitlesHasher;
+import org.lodder.subtools.sublibrary.subtitleproviders.podnapisi.JPodnapisiApi;
+import org.lodder.subtools.sublibrary.subtitleproviders.podnapisi.model.PodnapisiSubtitleDescriptor;
 
 public class JPodnapisiAdapter implements JSubAdapter {
 

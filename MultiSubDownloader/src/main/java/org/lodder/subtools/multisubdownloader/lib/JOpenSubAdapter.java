@@ -13,10 +13,10 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
-import org.lodder.subtools.sublibrary.subtitlesource.opensubtitles.JOpenSubtitlesApi;
-import org.lodder.subtools.sublibrary.subtitlesource.opensubtitles.OpenSubtitlesHasher;
-import org.lodder.subtools.sublibrary.subtitlesource.opensubtitles.model.OpenSubtitlesMovieDescriptor;
-import org.lodder.subtools.sublibrary.subtitlesource.opensubtitles.model.OpenSubtitlesSubtitleDescriptor;
+import org.lodder.subtools.sublibrary.subtitleproviders.opensubtitles.JOpenSubtitlesApi;
+import org.lodder.subtools.sublibrary.subtitleproviders.opensubtitles.OpenSubtitlesHasher;
+import org.lodder.subtools.sublibrary.subtitleproviders.opensubtitles.model.OpenSubtitlesMovieDescriptor;
+import org.lodder.subtools.sublibrary.subtitleproviders.opensubtitles.model.OpenSubtitlesSubtitleDescriptor;
 
 public class JOpenSubAdapter implements JSubAdapter {
 

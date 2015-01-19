@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.subtitlesource;
+package org.lodder.subtools.sublibrary.subtitleproviders;
 
 import java.net.MalformedURLException;
 import java.net.URL;

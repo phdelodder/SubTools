@@ -10,8 +10,8 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
-import org.lodder.subtools.sublibrary.subtitlesource.tvsubtitles.JTVSubtitlesApi;
-import org.lodder.subtools.sublibrary.subtitlesource.tvsubtitles.model.TVsubtitlesSubtitleDescriptor;
+import org.lodder.subtools.sublibrary.subtitleproviders.tvsubtitles.JTVSubtitlesApi;
+import org.lodder.subtools.sublibrary.subtitleproviders.tvsubtitles.model.TVsubtitlesSubtitleDescriptor;
 
 public class JTVsubtitlesAdapter implements JSubAdapter {
 

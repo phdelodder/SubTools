@@ -9,8 +9,8 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
-import org.lodder.subtools.sublibrary.subtitlesource.addic7ed.JAddic7edApi;
-import org.lodder.subtools.sublibrary.subtitlesource.addic7ed.model.Addic7edSubtitleDescriptor;
+import org.lodder.subtools.sublibrary.subtitleproviders.addic7ed.JAddic7edApi;
+import org.lodder.subtools.sublibrary.subtitleproviders.addic7ed.model.Addic7edSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.util.StringUtils;
 
 public class JAddic7edAdapter implements JSubAdapter {
