@@ -17,12 +17,12 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 
-public class EpisodeFileControl extends ReleaseControl {
+public class TvReleaseControl extends ReleaseControl {
 
   private JTheTVDBAdapter jtvdba;
   private final JTVRageAdapter tvra;
 
-  public EpisodeFileControl(TvRelease tvRelease, Settings settings) {
+  public TvReleaseControl(TvRelease tvRelease, Settings settings) {
     super(tvRelease, settings);
     jtvdba = JTheTVDBAdapter.getAdapter();
     tvra = new JTVRageAdapter();

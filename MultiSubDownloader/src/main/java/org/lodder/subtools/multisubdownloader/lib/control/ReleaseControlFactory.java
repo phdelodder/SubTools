@@ -19,7 +19,7 @@ public class ReleaseControlFactory {
       throws VideoFileParseException, ControlFactoryException {
     Release release = releaseParser.parse(file, basedir);
     if (release.getVideoType() == VideoType.EPISODE) {
-      return new EpisodeFileControl((TvRelease) release, settings);
+      return new TvReleaseControl((TvRelease) release, settings);
     } else if (release.getVideoType() == VideoType.MOVIE) {
       return new MovieReleaseControl((MovieRelease) release, settings);
     }

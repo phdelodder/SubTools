@@ -16,7 +16,7 @@ public class ReleaseFactory {
       VideoControlException {
     Logger.instance.trace("VideoFileFactory", "get", "");
     ReleaseControl releaseCtrl = ReleaseControlFactory.getController(file, basedir, settings);
-    if (releaseCtrl instanceof EpisodeFileControl) {
+    if (releaseCtrl instanceof TvReleaseControl) {
       if (languagecode.isEmpty()) {
         releaseCtrl.process(settings.getMappingSettings().getMappingList());
       } else {

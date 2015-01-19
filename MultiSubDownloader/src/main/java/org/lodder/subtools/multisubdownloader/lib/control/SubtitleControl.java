@@ -147,7 +147,7 @@ public class SubtitleControl {
           if (((TvRelease) release).getSeason() == tvRelease.getSeason()
               && Utils.containsAll(((TvRelease) release).getEpisodeNumbers(),
                   tvRelease.getEpisodeNumbers())) {
-            EpisodeFileControl epCtrl = new EpisodeFileControl((TvRelease) release, settings);
+            TvReleaseControl epCtrl = new TvReleaseControl((TvRelease) release, settings);
             epCtrl.process(settings.getMappingSettings().getMappingList());
             if (((TvRelease) release).getTvdbid() == tvRelease.getTvdbid()) {
               String detectedLang = DetectLanguage.execute(fileSub);

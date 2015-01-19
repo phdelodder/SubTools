@@ -47,7 +47,7 @@ public class NameSearchControl {
             add(episode);
           }
         });
-        EpisodeFileControl epfctrl = new EpisodeFileControl(ep, this.settings);
+        TvReleaseControl epfctrl = new TvReleaseControl(ep, this.settings);
         epfctrl.process(settings.getMappingSettings().getMappingList());
         subs.addAll(searchSubtitle(ep, languagecode));
       } else {
@@ -79,7 +79,7 @@ public class NameSearchControl {
     episodenumbers.add(tvdbEpisode.getEpisodeNumber());
     ep.setEpisodeNumbers(episodenumbers);
 
-    EpisodeFileControl epfc = new EpisodeFileControl(ep, settings);
+    TvReleaseControl epfc = new TvReleaseControl(ep, settings);
 
     try {
       epfc.process(settings.getMappingSettings().getMappingList());
