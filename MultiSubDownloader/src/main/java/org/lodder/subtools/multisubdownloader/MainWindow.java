@@ -10,8 +10,6 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -62,6 +60,7 @@ import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.LoggingPanel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchPanel;
+import org.lodder.subtools.multisubdownloader.gui.panels.SearchTextInputPanel;
 import org.lodder.subtools.multisubdownloader.gui.workers.DownloadWorker;
 import org.lodder.subtools.multisubdownloader.gui.workers.RenameWorker;
 import org.lodder.subtools.multisubdownloader.gui.workers.SearchFileWorker;
@@ -94,19 +93,12 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   private JTextField txtIncomingPath;
   private JCheckBox chkRecursive;
   private StatusLabel lblStatus;
-  private JComboBox<String> cbxLanguageText;
   private JComboBox<String> cbxLanguageFile;
   private final SettingsControl settingsControl;
   private ProgressDialog progressDialog;
   private JButton btnSearch;
   private JCheckBox chkforceSubtitleOverwrite;
-  private JTextField txtInputEpisode;
-  private JTextField txtInputSeason;
-  private JTextField txtInputVideoName;
-  private JComboBox<VideoSearchType> cbxVideoType;
   private VideoTable subtitleTable;
-  private JButton btnSearchText;
-  private JTextField txtQualityVersion;
   private MyPopupMenu popupMenu;
   private SearchPanel pnlSearchFile;
   private SearchPanel pnlSearchText;
@@ -117,6 +109,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   private JCheckBoxMenuItem chckbxmntmSeason;
   private JCheckBoxMenuItem chckbxmntmEpisode;
   private JPanel pnlLogging;
+  private SearchTextInputPanel pnlSearchTextInput;
 
   /**
    * Create the application.
@@ -134,7 +127,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     pnlSearchText.setEnableDownloadButtons(false);
     checkUpdate(false);
     initPopupMenu();
-    
+
     try {
       if (this.settingsControl.getSettings().isAutoUpdateMapping()) {
         Logger.instance.log("Auto updating mapping ....");
@@ -304,77 +297,13 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     tabbedPane.addTab("Zoeken op naam", null, pnlSearchText, null);
     pnlSearchText.setSelectFoundVisible(false);
 
-    JPanel pnlSearchTextInput = new JPanel();
-    pnlSearchText.setInputPanel(pnlSearchTextInput);
-    pnlSearchTextInput.setLayout(new MigLayout("", "[][][][][][][][grow][]", "[][][][][]"));
-
-    cbxVideoType = new JComboBox<VideoSearchType>();
-    cbxVideoType.setModel(new DefaultComboBoxModel<VideoSearchType>(VideoSearchType.values()));
-    cbxVideoType.addItemListener(new ItemListener() {
-      public void itemStateChanged(ItemEvent arg0) {
-        VideoSearchType videoTypeChoice = (VideoSearchType) cbxVideoType.getSelectedItem();
-        if (videoTypeChoice.equals(VideoSearchType.EPISODE)) {
-          txtInputSeason.setEditable(true);
-          txtInputSeason.setEnabled(true);
-          txtInputEpisode.setEditable(true);
-          txtInputEpisode.setEnabled(true);
-        } else {
-          txtInputSeason.setEditable(false);
-          txtInputSeason.setEnabled(false);
-          txtInputEpisode.setEditable(false);
-          txtInputEpisode.setEnabled(false);
-        }
-        if (videoTypeChoice.equals(VideoSearchType.RELEASE)) {
-          txtQualityVersion.setEditable(false);
-          txtQualityVersion.setEnabled(false);
-        } else {
-          txtQualityVersion.setEditable(true);
-          txtQualityVersion.setEnabled(true);
-        }
-
-      }
-    });
-    pnlSearchTextInput.add(cbxVideoType, "cell 1 0,growx");
-
-    txtInputVideoName = new JTextField();
-    pnlSearchTextInput.add(txtInputVideoName, "cell 2 0 5 1,growx");
-    txtInputVideoName.setColumns(10);
-
-    JLabel lblKwaliteitversie = new JLabel("Kwaliteit\\Versie");
-    pnlSearchTextInput.add(lblKwaliteitversie, "cell 1 1,alignx trailing");
-
-    txtQualityVersion = new JTextField();
-    pnlSearchTextInput.add(txtQualityVersion, "cell 2 1,growx");
-    txtQualityVersion.setColumns(10);
-
-    JLabel lblSeizoen = new JLabel("Seizoen");
-    pnlSearchTextInput.add(lblSeizoen, "cell 3 1,alignx trailing");
-
-    txtInputSeason = new JTextField();
-    pnlSearchTextInput.add(txtInputSeason, "cell 4 1,alignx left");
-    txtInputSeason.setColumns(5);
-
-    JLabel lblAflevering = new JLabel("Aflevering");
-    pnlSearchTextInput.add(lblAflevering, "cell 5 1,alignx trailing");
-
-    txtInputEpisode = new JTextField();
-    pnlSearchTextInput.add(txtInputEpisode, "cell 6 1,growx");
-    txtInputEpisode.setColumns(5);
-
-    JLabel lblSelecteerDeGewenste1 = new JLabel("Selecteer de gewenste ondertitel taal");
-    pnlSearchTextInput.add(lblSelecteerDeGewenste1, "cell 1 2 3 1,alignx trailing");
-
-    cbxLanguageText = new JComboBox<String>();
-    cbxLanguageText.setModel(new DefaultComboBoxModel<String>(languageSelection));
-    pnlSearchTextInput.add(cbxLanguageText, "cell 4 2 2 1,growx");
-
-    btnSearchText = new JButton("Zoeken naar ondertitels");
-    btnSearchText.addActionListener(new ActionListener() {
+    pnlSearchTextInput = new SearchTextInputPanel();
+    pnlSearchTextInput.setBtnSearchTextAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         searchName();
       }
     });
-    pnlSearchTextInput.add(btnSearchText, "cell 2 4 2 1");
+    pnlSearchText.setInputPanel(pnlSearchTextInput);
 
     subtitleTable = new VideoTable();
     pnlSearchText.setTable(subtitleTable);
@@ -797,35 +726,38 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
       progressDialog = new ProgressDialog(searchWorker);
       progressDialog.setVisible(true);
       clearTableName();
-      btnSearchText.setEnabled(false);
-      final VideoSearchType videoTypeChoice = (VideoSearchType) this.cbxVideoType.getSelectedItem();
+      pnlSearchTextInput.getBtnSearchText().setEnabled(false);
+      final VideoSearchType videoTypeChoice =
+          (VideoSearchType) this.pnlSearchTextInput.getCbxVideoType().getSelectedItem();
 
       int season = 0, episode = 0;
-      if (!txtInputSeason.getText().isEmpty())
-        season = Integer.parseInt(this.txtInputSeason.getText().trim());
-      if (!txtInputEpisode.getText().isEmpty())
-        episode = Integer.parseInt(this.txtInputEpisode.getText().trim());
+      if (!pnlSearchTextInput.getTxtInputSeason().getText().isEmpty())
+        season = Integer.parseInt(this.pnlSearchTextInput.getTxtInputSeason().getText().trim());
+      if (!pnlSearchTextInput.getTxtInputEpisode().getText().isEmpty())
+        episode = Integer.parseInt(this.pnlSearchTextInput.getTxtInputEpisode().getText().trim());
 
-      searchWorker.setParameters(videoTypeChoice, txtInputVideoName.getText().trim(), season,
-          episode, getLanguageCodeText(), txtQualityVersion.getText().trim());
+      searchWorker.setParameters(videoTypeChoice, pnlSearchTextInput.getTxtInputVideoName()
+          .getText().trim(), season, episode, pnlSearchTextInput.getLanguageCodeText(),
+          pnlSearchTextInput.getTxtQualityVersion().getText().trim());
       searchWorker.execute();
     }
   }
 
   private boolean inputNameCheck() {
-    VideoSearchType videoTypeChoice = (VideoSearchType) this.cbxVideoType.getSelectedItem();
-    if (txtInputVideoName.getText().isEmpty()) {
+    VideoSearchType videoTypeChoice =
+        (VideoSearchType) this.pnlSearchTextInput.getCbxVideoType().getSelectedItem();
+    if (pnlSearchTextInput.getTxtInputVideoName().getText().isEmpty()) {
       showErrorMessage("Geen Movie/Episode/Release opgegeven");
       return false;
     }
     if (videoTypeChoice.equals(VideoSearchType.EPISODE)) {
-      if (!this.txtInputSeason.getText().isEmpty()
-          && !isInteger(this.txtInputSeason.getText().trim())) {
+      if (!this.pnlSearchTextInput.getTxtInputSeason().getText().isEmpty()
+          && !isInteger(this.pnlSearchTextInput.getTxtInputSeason().getText().trim())) {
         showErrorMessage("Seizoen is niet numeriek");
         return false;
       }
-      if ((!this.txtInputEpisode.getText().isEmpty())
-          && !isInteger(this.txtInputEpisode.getText().trim())) {
+      if ((!this.pnlSearchTextInput.getTxtInputEpisode().getText().isEmpty())
+          && !isInteger(this.pnlSearchTextInput.getTxtInputEpisode().getText().trim())) {
         showErrorMessage("Aflevering is niet numeriek");
         return false;
       }
@@ -846,15 +778,6 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     if (cbxLanguageFile.getSelectedItem().equals("Nederlands")) {
       return "nl";
     } else if (cbxLanguageFile.getSelectedItem().equals("Engels")) {
-      return "en";
-    }
-    return null;
-  }
-
-  private String getLanguageCodeText() {
-    if (cbxLanguageText.getSelectedItem().equals("Nederlands")) {
-      return "nl";
-    } else if (cbxLanguageText.getSelectedItem().equals("Engels")) {
       return "en";
     }
     return null;
@@ -965,7 +888,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         final DefaultTableModel model = (DefaultTableModel) subtitleTable.getModel();
         StatusMessenger.instance.message("Found " + model.getRowCount() + " files");
         pnlSearchText.setEnableDownloadButtons(true);
-        btnSearchText.setEnabled(true);
+        pnlSearchTextInput.getBtnSearchText().setEnabled(true);
       } else {
         final int progress = searchWorker.getProgress();
         progressDialog.updateProgress(progress);
