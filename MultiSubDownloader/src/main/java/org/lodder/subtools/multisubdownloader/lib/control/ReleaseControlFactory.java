@@ -21,7 +21,7 @@ public class ReleaseControlFactory {
     if (release.getVideoType() == VideoType.EPISODE) {
       return new EpisodeFileControl((TvRelease) release, settings);
     } else if (release.getVideoType() == VideoType.MOVIE) {
-      return new MovieFileControl((MovieRelease) release, settings);
+      return new MovieReleaseControl((MovieRelease) release, settings);
     }
     throw new ControlFactoryException("Can't find controller");
   }

@@ -24,7 +24,7 @@ public class ReleaseFactory {
             + releaseCtrl.getVideoFile().getFilename());
         releaseCtrl.processWithSubtitles(settings.getMappingSettings().getMappingList(), languagecode);
       }
-    } else if (releaseCtrl instanceof MovieFileControl) {
+    } else if (releaseCtrl instanceof MovieReleaseControl) {
       if (languagecode.isEmpty()) {
         releaseCtrl.process(settings.getMappingSettings().getMappingList());
       } else {
