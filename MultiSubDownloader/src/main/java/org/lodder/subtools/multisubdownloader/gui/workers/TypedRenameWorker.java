@@ -7,7 +7,7 @@ import javax.swing.SwingWorker;
 
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
-import org.lodder.subtools.multisubdownloader.lib.control.VideoFileFactory;
+import org.lodder.subtools.multisubdownloader.lib.control.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
@@ -59,7 +59,7 @@ public class TypedRenameWorker extends SwingWorker<Void, String> {
           && patterns.accept(file.getAbsoluteFile(), file.getName())) {
         Release release;
         try {
-          release = VideoFileFactory.get(file, basedir, settings, "");
+          release = ReleaseFactory.get(file, basedir, settings, "");
           publish(release.getFilename());
           if (release.getVideoType() == videoType && release != null)
             Actions.rename(librarySettings, file, release);

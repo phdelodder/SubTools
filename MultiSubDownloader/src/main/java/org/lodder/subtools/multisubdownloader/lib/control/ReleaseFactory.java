@@ -9,7 +9,7 @@ import org.lodder.subtools.sublibrary.exception.VideoFileParseException;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
 
-public class VideoFileFactory {
+public class ReleaseFactory {
 
   public static Release get(final File file, final File basedir, final Settings settings,
       final String languagecode) throws ControlFactoryException, VideoFileParseException,

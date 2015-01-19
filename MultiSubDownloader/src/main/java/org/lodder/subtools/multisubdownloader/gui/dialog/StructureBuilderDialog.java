@@ -22,7 +22,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 
-import org.lodder.subtools.multisubdownloader.lib.control.VideoFileFactory;
+import org.lodder.subtools.multisubdownloader.lib.control.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.lib.library.PathLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
@@ -74,13 +74,13 @@ public class StructureBuilderDialog extends MutliSubDialog implements DocumentLi
     try {
       if (videoType == VideoType.EPISODE) {
         ep =
-            (TvRelease) VideoFileFactory.get(
+            (TvRelease) ReleaseFactory.get(
                 // new File(File.separator + "Castle.2009.S04E10.720p.HDTV.X264-DIMENSION.mkv"),
                 new File(File.separator + "Terra.Nova.S01E01E02.720p.HDTV.x264-ORENJI.mkv"),
                 new File(File.separator), new Settings(), "");
       } else if (videoType == VideoType.MOVIE) {
         mo =
-            (MovieRelease) VideoFileFactory.get(new File(File.separator
+            (MovieRelease) ReleaseFactory.get(new File(File.separator
                 + "Final.Destination.5.720p.Bluray.x264-TWiZTED"), new File(File.separator),
                 new Settings(), "");
       }

@@ -7,7 +7,7 @@ import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.Info;
-import org.lodder.subtools.multisubdownloader.lib.control.VideoFileFactory;
+import org.lodder.subtools.multisubdownloader.lib.control.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -71,7 +71,7 @@ public class SearchFileWorker extends SwingWorker<List<Release>, String> {
         setProgress(progress);
         publish(files.get(i).getName());
         try {
-          Release release = VideoFileFactory.get(files.get(i), dir, settings, languagecode);
+          Release release = ReleaseFactory.get(files.get(i), dir, settings, languagecode);
           if (release != null) list.add(release);
         } catch (Exception e) {
           Logger.instance.log("Error processing file " + Logger.stack2String(e));

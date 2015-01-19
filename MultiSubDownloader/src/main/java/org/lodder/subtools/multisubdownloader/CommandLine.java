@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.Info;
-import org.lodder.subtools.multisubdownloader.lib.control.VideoFileFactory;
+import org.lodder.subtools.multisubdownloader.lib.control.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.sublibrary.logging.Listener;
 import org.lodder.subtools.sublibrary.logging.Logger;
@@ -52,7 +52,7 @@ public class CommandLine implements Listener {
       Release release;
       for (File file : files) {
         try {
-          release = VideoFileFactory.get(file, f, prefctrl.getSettings(), languagecode);
+          release = ReleaseFactory.get(file, f, prefctrl.getSettings(), languagecode);
           if (release != null) l.add(release);
         } catch (Exception e) {
           Logger.instance.error("Search Process" + Logger.stack2String(e));
