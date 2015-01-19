@@ -36,8 +36,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -48,11 +46,12 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.lodder.subtools.multisubdownloader.gui.dialog.MappingEpisodeNameDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.PreferenceDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.ProgressDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.RenameDialog;
-import org.lodder.subtools.multisubdownloader.gui.extra.LogTextArea;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.extra.MyPopupMenu;
 import org.lodder.subtools.multisubdownloader.gui.extra.PopupListener;
@@ -61,6 +60,7 @@ import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
+import org.lodder.subtools.multisubdownloader.gui.panels.LoggingPanel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchPanel;
 import org.lodder.subtools.multisubdownloader.gui.workers.DownloadWorker;
 import org.lodder.subtools.multisubdownloader.gui.workers.RenameWorker;
@@ -75,16 +75,14 @@ import org.lodder.subtools.sublibrary.OsCheck.OSType;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.VideoSearchType;
 import org.lodder.subtools.sublibrary.model.VideoType;
-import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.lodder.subtools.sublibrary.util.StringUtils;
 import org.lodder.subtools.sublibrary.util.XmlFileFilter;
 import org.lodder.subtools.sublibrary.util.http.DropBoxClient;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
-
-import net.miginfocom.swing.MigLayout;
 
 public class MainWindow extends JFrame implements PropertyChangeListener {
 
@@ -118,6 +116,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   private JCheckBoxMenuItem chckbxmntmBestandsnaam;
   private JCheckBoxMenuItem chckbxmntmSeason;
   private JCheckBoxMenuItem chckbxmntmEpisode;
+  private JPanel pnlLogging;
 
   /**
    * Create the application.
@@ -391,35 +390,13 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
       }
     });
 
-    final JPanel pnlLogging = new JPanel();
+    pnlLogging = new LoggingPanel();
     final GridBagConstraints gbc_pnlLogging = new GridBagConstraints();
     gbc_pnlLogging.fill = GridBagConstraints.BOTH;
     gbc_pnlLogging.insets = new Insets(0, 0, 5, 0);
     gbc_pnlLogging.gridx = 0;
     gbc_pnlLogging.gridy = 1;
     getContentPane().add(pnlLogging, gbc_pnlLogging);
-    pnlLogging.setLayout(new MigLayout("", "[698px,grow][]", "[][70px,grow]"));
-
-    final JScrollPane scrollPane_1 = new JScrollPane();
-    pnlLogging.add(new JLabel("Logging"), "cell 0 0,alignx right,gaptop 5");
-    pnlLogging.add(new JSeparator(), "cell 0 0,growx,gaptop 5");
-
-    final JComboBox<Level> cbxLogLevel = new JComboBox<Level>();
-    cbxLogLevel.setModel(new DefaultComboBoxModel<Level>(Level.values()));
-    cbxLogLevel.setSelectedItem(Logger.instance.getLogLevel());
-    cbxLogLevel.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        Logger.instance.setLogLevel((Level) cbxLogLevel.getSelectedItem());
-      }
-    });
-    pnlLogging.add(cbxLogLevel, "cell 1 0,alignx right");
-    pnlLogging.add(scrollPane_1, "cell 0 1 2 1,grow");
-
-    final LogTextArea txtLogging = new LogTextArea();
-    Logger.instance.addListener(txtLogging);
-    scrollPane_1.setViewportView(txtLogging);
-    txtLogging.setEditable(false);
-    txtLogging.setAutoScroll(true);
 
     lblStatus = new StatusLabel("");
     StatusMessenger.instance.addListener(lblStatus);
@@ -528,7 +505,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     JMenuItem mntmLoggingWissen = new JMenuItem("Logging wissen");
     mntmLoggingWissen.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        txtLogging.setText("");
+        ((LoggingPanel) pnlLogging).setLogText("");
       }
     });
     mnBeeld.add(mntmLoggingWissen);
