@@ -33,7 +33,7 @@ import org.lodder.subtools.sublibrary.exception.VideoFileParseException;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.EpisodeFile;
 import org.lodder.subtools.sublibrary.model.MovieFile;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
 
 import net.miginfocom.swing.MigLayout;
@@ -188,7 +188,7 @@ public class StructureBuilderDialog extends MutliSubDialog implements DocumentLi
     }
   }
 
-  private VideoFile getGenerateVideoFile() {
+  private Release getGenerateVideoFile() {
     if (videoType == VideoType.EPISODE) {
       return ep;
     } else if (videoType == VideoType.MOVIE) {

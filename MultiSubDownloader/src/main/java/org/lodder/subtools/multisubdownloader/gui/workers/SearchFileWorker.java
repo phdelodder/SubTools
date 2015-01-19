@@ -10,13 +10,13 @@ import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.control.VideoFileFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.Release;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchFileWorker extends SwingWorker<List<VideoFile>, String> {
+public class SearchFileWorker extends SwingWorker<List<Release>, String> {
 
   private boolean recursieve;
   private String languagecode;
@@ -25,7 +25,7 @@ public class SearchFileWorker extends SwingWorker<List<VideoFile>, String> {
   private Settings settings;
   private VideoTable table;
   private boolean forceSubtitleOverwrite;
-  private List<VideoFile> list;
+  private List<Release> list;
 
   public SearchFileWorker(VideoTable table, Settings settings) {
     this.table = table;
@@ -55,13 +55,13 @@ public class SearchFileWorker extends SwingWorker<List<VideoFile>, String> {
   }
 
   @Override
-  protected List<VideoFile> doInBackground() throws Exception {
+  protected List<Release> doInBackground() throws Exception {
     Info.subtitleSources(settings);
     Info.subtitleFiltering(settings);
 
     int progress = 0;
     setProgress(progress);
-    list = new ArrayList<VideoFile>();
+    list = new ArrayList<Release>();
     for (File dir : dirs) {
       List<File> files =
           actions.getFileListing(dir, recursieve, languagecode, forceSubtitleOverwrite);
@@ -71,8 +71,8 @@ public class SearchFileWorker extends SwingWorker<List<VideoFile>, String> {
         setProgress(progress);
         publish(files.get(i).getName());
         try {
-          VideoFile videoFile = VideoFileFactory.get(files.get(i), dir, settings, languagecode);
-          if (videoFile != null) list.add(videoFile);
+          Release release = VideoFileFactory.get(files.get(i), dir, settings, languagecode);
+          if (release != null) list.add(release);
         } catch (Exception e) {
           Logger.instance.log("Error processing file " + Logger.stack2String(e));
           if (settings.isOptionsStopOnSearchError())
@@ -90,7 +90,7 @@ public class SearchFileWorker extends SwingWorker<List<VideoFile>, String> {
 
   @Override
   protected void done() {
-    List<VideoFile> l;
+    List<Release> l;
     try {
       final VideoTableModel model = (VideoTableModel) table.getModel();
       if (isCancelled()) {

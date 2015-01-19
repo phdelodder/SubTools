@@ -3,7 +3,7 @@ package org.lodder.subtools.sublibrary.model;
 import java.io.File;
 
 
-public class MovieFile extends VideoFile {
+public class MovieFile extends Release {
 
     private String title;
     private int year, imdbid;

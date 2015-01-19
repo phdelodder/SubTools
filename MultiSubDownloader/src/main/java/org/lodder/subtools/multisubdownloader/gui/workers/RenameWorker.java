@@ -9,7 +9,7 @@ import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
 
 import java.io.File;
@@ -40,16 +40,16 @@ public class RenameWorker extends SwingWorker<Void, String> {
         if (k > 0) progress = 100 * k / selectedCount;
         if (progress == 0 && selectedCount > 1) progress = 1;
         setProgress(progress);
-        final VideoFile videoFile =
-            (VideoFile) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.OBJECT));
-        if (videoFile.getVideoType() == VideoType.EPISODE) {
+        final Release release =
+            (Release) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.OBJECT));
+        if (release.getVideoType() == VideoType.EPISODE) {
           Logger.instance.debug("Treat as EPISODE");
-          Actions.rename(settings.getEpisodeLibrarySettings(), new File(videoFile.getPath(),
-              videoFile.getFilename()), videoFile);
-        } else if (videoFile.getVideoType() == VideoType.MOVIE) {
+          Actions.rename(settings.getEpisodeLibrarySettings(), new File(release.getPath(),
+              release.getFilename()), release);
+        } else if (release.getVideoType() == VideoType.MOVIE) {
           Logger.instance.debug("Treat as MOVIE");
-          Actions.rename(settings.getMovieLibrarySettings(), new File(videoFile.getPath(),
-              videoFile.getFilename()), videoFile);
+          Actions.rename(settings.getMovieLibrarySettings(), new File(release.getPath(),
+              release.getFilename()), release);
         }
         model.removeRow(i);
         i--;

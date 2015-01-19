@@ -4,7 +4,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
 import org.lodder.subtools.sublibrary.model.EpisodeFile;
 import org.lodder.subtools.sublibrary.model.Subtitle;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.util.StringUtils;
 
 public class FilenameLibraryBuilder extends LibraryBuilder {
@@ -13,13 +13,13 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
     super(librarySettings);
   }
 
-  public String buildFileName(VideoFile videoFile) {
+  public String buildFileName(Release release) {
     String filename = "";
     if (((librarySettings.getLibraryAction().equals(LibraryActionType.RENAME) || librarySettings
         .getLibraryAction().equals(LibraryActionType.MOVEANDRENAME)))
-        && videoFile instanceof EpisodeFile
+        && release instanceof EpisodeFile
         && !librarySettings.getLibraryFilenameStructure().isEmpty()) {
-      EpisodeFile episodeFile = (EpisodeFile) videoFile;
+      EpisodeFile episodeFile = (EpisodeFile) release;
 
       String show = "";
       if (librarySettings.isLibraryUseTVDBNaming()) {
@@ -43,12 +43,12 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
       filename =
           filename.replaceAll("%E%", formatedNumber(episodeFile.getEpisodeNumbers().get(0), false));
       filename = filename.replaceAll("%TITLE%", episodeFile.getTitle());
-      filename = filename.replaceAll("%QUALITY%", videoFile.getQuality());
-      filename = filename.replaceAll("%DESCRIPTION%", videoFile.getDescription());
+      filename = filename.replaceAll("%QUALITY%", release.getQuality());
+      filename = filename.replaceAll("%DESCRIPTION%", release.getDescription());
 
-      filename += "." + videoFile.getExtension();
+      filename += "." + release.getExtension();
     } else {
-      filename = videoFile.getFilename();
+      filename = release.getFilename();
     }
     if (librarySettings.isLibraryReplaceChars()) {
       filename = StringUtils.removeIllegalWindowsChars(filename);
@@ -59,17 +59,17 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
     return filename;
   }
 
-  public String buildSubFileName(VideoFile videoFile, Subtitle sub, String filename, int version) {
-    return buildSubFileName(videoFile, filename, sub.getLanguagecode(), version);
+  public String buildSubFileName(Release release, Subtitle sub, String filename, int version) {
+    return buildSubFileName(release, filename, sub.getLanguagecode(), version);
   }
 
-  public String buildSubFileName(VideoFile videoFile, String filename, String languageCode,
+  public String buildSubFileName(Release release, String filename, String languageCode,
       int version) {
-    final String extension = "." + videoFile.getExtension();
+    final String extension = "." + release.getExtension();
     if (version > 0) {
       filename =
           filename.substring(0, filename.indexOf(extension)) + "-v" + version + "."
-              + videoFile.getExtension();
+              + release.getExtension();
     }
     if (librarySettings.isLibraryIncludeLanguageCode()) {
       if (languageCode.equals("nl")) {

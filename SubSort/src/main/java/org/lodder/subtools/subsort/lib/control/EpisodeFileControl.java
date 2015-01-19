@@ -16,10 +16,10 @@ public class EpisodeFileControl extends VideoFileControl {
   public EpisodeFile process(List<MappingTvdbScene> dict) throws VideoControlException {
     Logger.instance.trace("EpisodeFileControl", "process", "");
 
-    EpisodeFile episodeFile = (EpisodeFile) videoFile;
+    EpisodeFile episodeFile = (EpisodeFile) release;
     // return episodeFile;
     if (episodeFile.getShow().equals("")) {
-      throw new VideoControlException("Unable to extract episode details, check file", videoFile);
+      throw new VideoControlException("Unable to extract episode details, check file", release);
     } else {
       Logger.instance.debug("Showname: " + episodeFile.getShow());
       Logger.instance.debug("Season: " + episodeFile.getSeason());

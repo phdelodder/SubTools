@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class VideoFile extends Video{
+public class Release extends Video{
 
     private List<Subtitle> matchingSubs;
     private File path;
@@ -15,7 +15,7 @@ public class VideoFile extends Video{
     private String description;
     private String team;
 
-    public VideoFile(VideoType videoType) {
+    public Release(VideoType videoType) {
         this.setVideoType(videoType);
         extension = "";
         matchingSubs = new ArrayList<Subtitle>();
@@ -26,7 +26,7 @@ public class VideoFile extends Video{
         team = "";
     }
 
-    public VideoFile(VideoType videoFileType, File file, String extension, String description, String team) {
+    public Release(VideoType videoFileType, File file, String extension, String description, String team) {
         this(videoFileType);
         this.extension = extension;
         filename = file.getName();

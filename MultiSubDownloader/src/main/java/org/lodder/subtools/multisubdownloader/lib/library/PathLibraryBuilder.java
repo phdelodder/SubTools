@@ -6,7 +6,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
 import org.lodder.subtools.sublibrary.model.EpisodeFile;
 import org.lodder.subtools.sublibrary.model.MovieFile;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.util.StringUtils;
 
@@ -16,17 +16,17 @@ public class PathLibraryBuilder extends LibraryBuilder {
     super(librarySettings);
   }
 
-  public File buildPath(VideoFile videoFile) {
+  public File buildPath(Release release) {
     if (librarySettings.getLibraryAction().equals(LibraryActionType.MOVE)
         || librarySettings.getLibraryAction().equals(LibraryActionType.MOVEANDRENAME)) {
       String folder = "";
-      if (videoFile.getVideoType() == VideoType.EPISODE)
-        folder = episodeBuildPath((EpisodeFile) videoFile);
-      else if (videoFile.getVideoType() == VideoType.MOVIE)
-        folder = movieBuildPath((MovieFile) videoFile);
+      if (release.getVideoType() == VideoType.EPISODE)
+        folder = episodeBuildPath((EpisodeFile) release);
+      else if (release.getVideoType() == VideoType.MOVIE)
+        folder = movieBuildPath((MovieFile) release);
       return new File(librarySettings.getLibraryFolder(), folder);
     } else {
-      return videoFile.getPath();
+      return release.getPath();
     }
   }
 

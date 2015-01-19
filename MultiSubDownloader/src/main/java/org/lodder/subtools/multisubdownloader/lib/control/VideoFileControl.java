@@ -5,19 +5,19 @@ import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.exception.VideoControlException;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 
 public abstract class VideoFileControl {
 
-  protected VideoFile videoFile;
+  protected Release release;
   protected SubtitleControl sc;
   protected Settings settings;
 
-  public VideoFileControl(VideoFile videoFile, Settings settings) {
+  public VideoFileControl(Release release, Settings settings) {
     this.settings = settings;
     this.sc = new SubtitleControl(settings);
-    this.videoFile = videoFile;
+    this.release = release;
   }
 
   abstract void process(List<MappingTvdbScene> dict) throws VideoControlException;
@@ -33,11 +33,11 @@ public abstract class VideoFileControl {
     this.processWithSubtitles(new ArrayList<MappingTvdbScene>(), languageCode);
   }
 
-  public void setVideoFile(VideoFile videoFile) {
-    this.videoFile = videoFile;
+  public void setVideoFile(Release release) {
+    this.release = release;
   }
 
-  public VideoFile getVideoFile() {
-    return videoFile;
+  public Release getVideoFile() {
+    return release;
   }
 }

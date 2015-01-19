@@ -8,7 +8,7 @@ import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
 import org.lodder.subtools.sublibrary.logging.Logger;
 
-public class EpisodeFile extends VideoFile {
+public class EpisodeFile extends Release {
 
     private String showname;
     private String title;

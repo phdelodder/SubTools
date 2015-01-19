@@ -11,7 +11,7 @@ import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.Release;
 
 import java.util.List;
 
@@ -44,21 +44,21 @@ public class DownloadWorker extends SwingWorker<Void, String> {
         if (k > 0) progress = 100 * k / selectedCount;
         if (progress == 0 && selectedCount > 1) progress = 1;
         setProgress(progress);
-        final VideoFile videoFile =
-            (VideoFile) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.OBJECT));
-        publish(videoFile.getFilename());
-        int selection = actions.determineWhatSubtitleDownload(videoFile, true);
+        final Release release =
+            (Release) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.OBJECT));
+        publish(release.getFilename());
+        int selection = actions.determineWhatSubtitleDownload(release, true);
         if (selection >= 0) {
           try {
             if (selection == SelectDialog.SelectionType.ALL.getSelectionCode()) {
-              Logger.instance.debug("Downloaded ALL subs for episode: " + videoFile.getFilename());
-              for (int j = 0; j < videoFile.getMatchingSubs().size(); j++) {
-                actions.download(videoFile, videoFile.getMatchingSubs().get(j), j + 1);
+              Logger.instance.debug("Downloaded ALL subs for episode: " + release.getFilename());
+              for (int j = 0; j < release.getMatchingSubs().size(); j++) {
+                actions.download(release, release.getMatchingSubs().get(j), j + 1);
               }
             } else {
-              Logger.instance.debug("Downloaded subs for episode: " + videoFile.getFilename()
-                  + " using these subs: " + videoFile.getMatchingSubs().get(0).getFilename());
-              actions.download(videoFile, videoFile.getMatchingSubs().get(selection));
+              Logger.instance.debug("Downloaded subs for episode: " + release.getFilename()
+                  + " using these subs: " + release.getMatchingSubs().get(0).getFilename());
+              actions.download(release, release.getMatchingSubs().get(selection));
             }
             model.removeRow(i);
             i--;

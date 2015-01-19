@@ -11,11 +11,11 @@ import org.lodder.subtools.sublibrary.exception.VideoFileParseException;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.EpisodeFile;
 import org.lodder.subtools.sublibrary.model.MovieFile;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.util.NamedMatcher;
 import org.lodder.subtools.sublibrary.util.NamedPattern;
 
-public class VideoFileParser {
+public class ReleaseParser {
 
   private NamedMatcher namedMatcher;
 
@@ -24,7 +24,7 @@ public class VideoFileParser {
   }
 
   @SuppressWarnings("unchecked")
-  public final VideoFile parse(final File file, final File basedir) throws VideoFileParseException {
+  public final Release parse(final File file, final File basedir) throws VideoFileParseException {
     String[] parsenames =
         new String[] {file.getName(), file.getAbsolutePath().replace(basedir.getAbsolutePath(), "")};
     for (String fileparsename : parsenames) {
@@ -35,7 +35,7 @@ public class VideoFileParser {
               + fileparsename);
           Object[] parseResults = parsePatternResult();
           if (parseResults != null) {
-            VideoFile vFile = null;
+            Release vFile = null;
             if (parseResults.length == 4) {
               vFile =
                   new EpisodeFile((String) parseResults[0], (Integer) parseResults[1],

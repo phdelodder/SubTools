@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.lodder.subtools.sublibrary.JSubAdapter;
-import org.lodder.subtools.sublibrary.control.VideoFileParser;
+import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.EpisodeFile;
 import org.lodder.subtools.sublibrary.model.MovieFile;
@@ -92,7 +92,7 @@ public class JOpenSubAdapter implements JSubAdapter {
     for (OpenSubtitlesSubtitleDescriptor ossd : lSubtitles) {
       listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.OPENSUBTITLES, ossd
           .getSubFileName(), ossd.getSubDownloadLink(), ossd.getISO639(), "",
-          SubtitleMatchType.EVERYTHING, VideoFileParser.extractTeam(ossd.getSubFileName()), ossd
+          SubtitleMatchType.EVERYTHING, ReleaseParser.extractTeam(ossd.getSubFileName()), ossd
               .getUserNickName(), Boolean.valueOf(ossd.getSubHearingImpaired())));
     }
     return listFoundSubtitles;
@@ -170,7 +170,7 @@ public class JOpenSubAdapter implements JSubAdapter {
           | (originalName.length() > 0 && subFileName.contains(originalName))) {
         listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.OPENSUBTITLES, ossd
             .getSubFileName(), ossd.getSubDownloadLink(), ossd.getISO639(), "",
-            SubtitleMatchType.EVERYTHING, VideoFileParser.extractTeam(ossd.getSubFileName()), ossd
+            SubtitleMatchType.EVERYTHING, ReleaseParser.extractTeam(ossd.getSubFileName()), ossd
                 .getUserNickName(), Boolean.valueOf(ossd.getSubHearingImpaired())));
       }
     }

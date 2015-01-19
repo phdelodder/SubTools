@@ -5,7 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lodder.subtools.sublibrary.control.VideoFileParser;
+import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.EpisodeFile;
 import org.lodder.subtools.sublibrary.model.MovieFile;
@@ -88,7 +88,7 @@ public class PrivateRepo {
 									indexSubtitle.getFilename(), location,
 									indexSubtitle.getLanguage(), "",
 									SubtitleMatchType.EVERYTHING,
-									VideoFileParser.extractTeam(indexSubtitle
+									ReleaseParser.extractTeam(indexSubtitle
 											.getFilename()), "", false);
 							results.add(tempSub);
 						}
@@ -123,7 +123,7 @@ public class PrivateRepo {
 									indexSubtitle.getFilename(), location,
 									indexSubtitle.getLanguage(), "",
 									SubtitleMatchType.EVERYTHING,
-									VideoFileParser.extractTeam(indexSubtitle
+									ReleaseParser.extractTeam(indexSubtitle
 											.getFilename()), "", false);
 							results.add(tempSub);
 						}

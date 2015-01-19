@@ -15,7 +15,7 @@ import java.util.prefs.Preferences;
 
 import org.lodder.subtools.sublibrary.DetectLanguage;
 import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
-import org.lodder.subtools.sublibrary.control.VideoFileParser;
+import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.exception.ControlFactoryException;
 import org.lodder.subtools.sublibrary.exception.VideoControlException;
@@ -24,7 +24,7 @@ import org.lodder.subtools.sublibrary.logging.Listener;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.EpisodeFile;
 import org.lodder.subtools.sublibrary.model.MovieFile;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
 import org.lodder.subtools.sublibrary.privateRepo.model.IndexSubtitle;
@@ -80,11 +80,11 @@ public class SortSubtitle implements Listener {
       try {
         x++;
         System.out.println("threathing file " + x + " of " + files.size() + " " + file.toString());
-        VideoFile videoFile =
+        Release release =
             VideoFileFactory.get(file, outputDir, new ArrayList<MappingTvdbScene>());
         final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter();
-        if (videoFile.getVideoType() == VideoType.EPISODE) {
-          EpisodeFile episodeFile = (EpisodeFile) videoFile;
+        if (release.getVideoType() == VideoType.EPISODE) {
+          EpisodeFile episodeFile = (EpisodeFile) release;
 
           int tvdbid = 0;
           for (MappingTvdbScene mapping : mappingSettingsCtrl.getMappingSettings().getMappingList()) {
@@ -115,27 +115,27 @@ public class SortSubtitle implements Listener {
               final File pathFolder =
                   new File(path + File.separator + episodeFile.getEpisodeNumbers().get(i)
                       + File.separator + language + File.separator);
-              final File to = new File(pathFolder, videoFile.getFilename());
+              final File to = new File(pathFolder, release.getFilename());
               if (to.exists()) {
                 index.add(new IndexSubtitle(show, episodeFile.getSeason(), episodeFile
-                    .getEpisodeNumbers().get(i), PrivateRepoIndex.extractOriginalFilename(videoFile
+                    .getEpisodeNumbers().get(i), PrivateRepoIndex.extractOriginalFilename(release
                     .getFilename()), language, Integer.parseInt(thetvdbserie.getId()),
-                    PrivateRepoIndex.extractUploader(videoFile.getFilename()), PrivateRepoIndex
-                        .extractOriginalSource(videoFile.getFilename()), videoFile.getVideoType()));
+                    PrivateRepoIndex.extractUploader(release.getFilename()), PrivateRepoIndex
+                        .extractOriginalSource(release.getFilename()), release.getVideoType()));
               } else {
                 System.out.println("doesn't exists: " + to.toString());
               }
             }
           }
-        } else if (videoFile.getVideoType() == VideoType.MOVIE) {
-          MovieFile movieFile = (MovieFile) videoFile;
+        } else if (release.getVideoType() == VideoType.MOVIE) {
+          MovieFile movieFile = (MovieFile) release;
           String language = "";
           try {
             language = DetectLanguage.execute(file);
           } catch (Exception e) {
             Logger.instance.error(Logger.stack2String(e));
           }
-          final String filename = removeLanguageCode(videoFile.getFilename(), language);
+          final String filename = removeLanguageCode(release.getFilename(), language);
           String title = replaceWindowsChars(movieFile.getTitle());
 
           final File pathFolder =
@@ -147,7 +147,7 @@ public class SortSubtitle implements Listener {
           if (to.exists()) {
             index.add(new IndexSubtitle(title, PrivateRepoIndex.extractOriginalFilename(filename),
                 language, PrivateRepoIndex.extractUploader(filename), PrivateRepoIndex
-                    .extractOriginalSource(filename), videoFile.getVideoType(), movieFile
+                    .extractOriginalSource(filename), release.getVideoType(), movieFile
                     .getImdbid(), movieFile.getYear()));
           } else {
             System.out.println("doesn't exists: " + to.toString());
@@ -203,11 +203,11 @@ public class SortSubtitle implements Listener {
     }
     for (File file : files) {
       try {
-        VideoFile videoFile =
+        Release release =
             VideoFileFactory.get(file, inputDir, new ArrayList<MappingTvdbScene>());
         final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter();
-        final String quality = VideoFileParser.getQualityKeyword(videoFile.getFilename());
-        Logger.instance.log(videoFile.getFilename() + " Q: " + quality);
+        final String quality = ReleaseParser.getQualityKeyword(release.getFilename());
+        Logger.instance.log(release.getFilename() + " Q: " + quality);
         int num = 1;
         if (quality.split(" ").length == 1) {
           Console c = System.console();
@@ -218,8 +218,8 @@ public class SortSubtitle implements Listener {
             num = -1;
           }
         }
-        if (videoFile.getVideoType() == VideoType.EPISODE && !quality.isEmpty() && num == 1) {
-          EpisodeFile episodeFile = (EpisodeFile) videoFile;
+        if (release.getVideoType() == VideoType.EPISODE && !quality.isEmpty() && num == 1) {
+          EpisodeFile episodeFile = (EpisodeFile) release;
 
           int tvdbid = 0;
           for (MappingTvdbScene mapping : mappingSettingsCtrl.getMappingSettings().getMappingList()) {
@@ -252,7 +252,7 @@ public class SortSubtitle implements Listener {
                       + pathFolder.getAbsolutePath());
                 }
               }
-              final String filename = removeLanguageCode(videoFile.getFilename(), language);
+              final String filename = removeLanguageCode(release.getFilename(), language);
               final File to = new File(pathFolder, filename);
               if (to.exists()) {
                 if (textFilesEqual(to, file)) {
@@ -262,7 +262,7 @@ public class SortSubtitle implements Listener {
                   file.delete();
                 } else {
                   Logger.instance.log("Duplicate file detected but content is different! "
-                      + videoFile.getPath() + " " + videoFile.getFilename());
+                      + release.getPath() + " " + release.getFilename());
                 }
               } else {
                 if (remove & i == episodeFile.getEpisodeNumbers().size() - 1) {
@@ -275,7 +275,7 @@ public class SortSubtitle implements Listener {
                     PrivateRepoIndex.extractOriginalFilename(filename), language, Integer
                         .parseInt(thetvdbserie.getId()),
                     PrivateRepoIndex.extractUploader(filename), PrivateRepoIndex
-                        .extractOriginalSource(filename), videoFile.getVideoType()));
+                        .extractOriginalSource(filename), release.getVideoType()));
               }
             }
           } else {
@@ -286,8 +286,8 @@ public class SortSubtitle implements Listener {
               Logger.instance.log("Skip");
             }
           }
-        } else if (videoFile.getVideoType() == VideoType.MOVIE) {
-          MovieFile movieFile = (MovieFile) videoFile;
+        } else if (release.getVideoType() == VideoType.MOVIE) {
+          MovieFile movieFile = (MovieFile) release;
           String title = replaceWindowsChars(movieFile.getTitle());
           String language = DetectLanguage.execute(file);
           final File pathFolder =
@@ -301,7 +301,7 @@ public class SortSubtitle implements Listener {
             }
           }
 
-          final String filename = removeLanguageCode(videoFile.getFilename(), language);
+          final String filename = removeLanguageCode(release.getFilename(), language);
           File to = new File(pathFolder, filename);
 
           if (to.exists()) {
@@ -311,7 +311,7 @@ public class SortSubtitle implements Listener {
               file.delete();
             } else {
               Logger.instance.log("Duplicate file detected but content is different! "
-                  + videoFile.getPath() + " " + videoFile.getFilename());
+                  + release.getPath() + " " + release.getFilename());
             }
           } else {
             if (remove) {
@@ -323,7 +323,7 @@ public class SortSubtitle implements Listener {
             IndexSubtitle indexSubtitle =
                 new IndexSubtitle(title, PrivateRepoIndex.extractOriginalFilename(filename),
                     language, PrivateRepoIndex.extractUploader(filename),
-                    PrivateRepoIndex.extractOriginalSource(filename), videoFile.getVideoType(),
+                    PrivateRepoIndex.extractOriginalSource(filename), release.getVideoType(),
                     movieFile.getImdbid(), movieFile.getYear());
 
             index.add(indexSubtitle);

@@ -25,9 +25,9 @@ public class MovieFileControl extends VideoFileControl {
   @Override
   public void process(List<MappingTvdbScene> dict) throws VideoControlException {
     Logger.instance.trace("MovieFileControl", "process", "");
-    MovieFile movieFile = (MovieFile) videoFile;
+    MovieFile movieFile = (MovieFile) release;
     if (movieFile.getTitle().equals("")) {
-      throw new VideoControlException("Unable to extract/find title, check file", videoFile);
+      throw new VideoControlException("Unable to extract/find title, check file", release);
     } else {
       int imdbid;
       imdbid = imdbSearchID.getImdbId(movieFile.getTitle(), movieFile.getYear());
@@ -42,14 +42,14 @@ public class MovieFileControl extends VideoFileControl {
           } else {
             Logger.instance
                 .error("Unable to get details from IMDB API, continue with filename info"
-                    + videoFile);
+                    + release);
           }
         } catch (IMDBException e) {
-          throw new VideoControlException("IMDBAPI Failed", videoFile);
+          throw new VideoControlException("IMDBAPI Failed", release);
         }
 
       } else {
-        throw new VideoControlException("Movie not found on IMDB, check file", videoFile);
+        throw new VideoControlException("Movie not found on IMDB, check file", release);
       }
     }
   }
@@ -59,7 +59,7 @@ public class MovieFileControl extends VideoFileControl {
       throws VideoControlException {
     Logger.instance.trace("MovieFileControl", "processWithSubtitles", "");
     process(dict);
-    videoFile.setMatchingSubs(sc.getSubtitles((MovieFile) videoFile, languageCode));
+    release.setMatchingSubs(sc.getSubtitles((MovieFile) release, languageCode));
   }
 
 }

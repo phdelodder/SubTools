@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lodder.subtools.sublibrary.JSubAdapter;
-import org.lodder.subtools.sublibrary.control.VideoFileParser;
+import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.EpisodeFile;
 import org.lodder.subtools.sublibrary.model.MovieFile;
@@ -44,7 +44,7 @@ public class JSubsMaxAdapter implements JSubAdapter {
     
     for (SubMaxSubtitleDescriptor sub:lSubtitles){
       listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.SUBSMAX, sub.getFilename(),
-        sub.getLink(), sublanguageids[0], "", SubtitleMatchType.EVERYTHING, VideoFileParser
+        sub.getLink(), sublanguageids[0], "", SubtitleMatchType.EVERYTHING, ReleaseParser
             .extractTeam(sub.getFilename()), "", false));
     }
     

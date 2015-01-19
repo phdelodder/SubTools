@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lodder.subtools.sublibrary.JSubAdapter;
-import org.lodder.subtools.sublibrary.control.VideoFileParser;
+import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.EpisodeFile;
 import org.lodder.subtools.sublibrary.model.MovieFile;
@@ -86,7 +86,7 @@ public class JPodnapisiAdapter implements JSubAdapter {
         if (downloadlink != null) {
           for (String release : ossd.getReleaseString().split(" ")) {
             listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.PODNAPISI, release,
-                downloadlink, sublanguageid, "", SubtitleMatchType.EVERYTHING, VideoFileParser
+                downloadlink, sublanguageid, "", SubtitleMatchType.EVERYTHING, ReleaseParser
                     .extractTeam(release), ossd.getUploaderName(), ossd.getFlagsString().equals(
                     "nhu")));
           }

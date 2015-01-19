@@ -9,7 +9,7 @@ import org.lodder.subtools.sublibrary.data.IMDB.model.IMDBDetails;
 import org.lodder.subtools.sublibrary.exception.VideoControlException;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.MovieFile;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 
 public class MovieFileControl extends VideoFileControl {
@@ -23,11 +23,11 @@ public class MovieFileControl extends VideoFileControl {
   }
 
   @Override
-  public VideoFile process(List<MappingTvdbScene> dict) throws VideoControlException {
+  public Release process(List<MappingTvdbScene> dict) throws VideoControlException {
     Logger.instance.trace("MovieFileControl", "process", "");
-    MovieFile movieFile = (MovieFile) videoFile;
+    MovieFile movieFile = (MovieFile) release;
     if (movieFile.getTitle().equals("")) {
-      throw new VideoControlException("Unable to extract/find title, check file", videoFile);
+      throw new VideoControlException("Unable to extract/find title, check file", release);
     } else {
       int imdbid;
       imdbid = imdbSearchID.getImdbId(movieFile.getTitle(), movieFile.getYear());
@@ -42,14 +42,14 @@ public class MovieFileControl extends VideoFileControl {
           } else {
             Logger.instance
                 .error("Unable to get details from IMDB API, continue with filename info"
-                    + videoFile);
+                    + release);
           }
         } catch (IMDBException e) {
-          throw new VideoControlException("IMDBAPI Failed", videoFile);
+          throw new VideoControlException("IMDBAPI Failed", release);
         }
 
       } else {
-        throw new VideoControlException("Movie not found on IMDB, check file", videoFile);
+        throw new VideoControlException("Movie not found on IMDB, check file", release);
       }
       return movieFile;
     }

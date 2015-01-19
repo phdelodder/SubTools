@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lodder.subtools.sublibrary.JSubAdapter;
-import org.lodder.subtools.sublibrary.control.VideoFileParser;
+import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.EpisodeFile;
 import org.lodder.subtools.sublibrary.model.MovieFile;
@@ -52,7 +52,7 @@ public class JTVsubtitlesAdapter implements JSubAdapter {
     }
     for (TVsubtitlesSubtitleDescriptor sub : lSubtitles) {
       listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.TVSUBTITLES, sub.Filename,
-          sub.Url, sublanguageids[0], sub.Rip, SubtitleMatchType.EVERYTHING, VideoFileParser
+          sub.Url, sublanguageids[0], sub.Rip, SubtitleMatchType.EVERYTHING, ReleaseParser
               .extractTeam(sub.Filename), sub.Author, false));
     }
     return listFoundSubtitles;

@@ -17,7 +17,7 @@ import org.lodder.subtools.multisubdownloader.lib.control.VideoFileFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Subtitle;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoSearchType;
 
 public class SearchNameWorker extends SwingWorker<List<Subtitle>, String> {
@@ -58,10 +58,10 @@ public class SearchNameWorker extends SwingWorker<List<Subtitle>, String> {
     } else if (videoSearchTypeChoice.equals(VideoSearchType.MOVIE)) {
       l = tsc.SearchSubtitles(videoText, languagecode);
     } else if (videoSearchTypeChoice.equals(VideoSearchType.RELEASE)) {
-      VideoFile videoFile =
+      Release release =
           VideoFileFactory.get(new File(videoText), new File("/"), settings, languagecode);
-      if (videoFile != null) {
-        l = videoFile.getMatchingSubs();
+      if (release != null) {
+        l = release.getMatchingSubs();
       }
     }
     return l;

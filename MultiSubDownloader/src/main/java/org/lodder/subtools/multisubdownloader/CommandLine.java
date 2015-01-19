@@ -10,7 +10,7 @@ import org.lodder.subtools.multisubdownloader.lib.control.VideoFileFactory;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.sublibrary.logging.Listener;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.Release;
 
 public class CommandLine implements Listener {
 
@@ -37,8 +37,8 @@ public class CommandLine implements Listener {
     actions = new Actions(prefctrl.getSettings(), true);
   }
 
-  private List<VideoFile> search() throws Exception {
-    List<VideoFile> l = new ArrayList<VideoFile>();
+  private List<Release> search() throws Exception {
+    List<Release> l = new ArrayList<Release>();
     List<File> folders = new ArrayList<File>();
     if (folder == null) {
       folders.addAll(prefctrl.getSettings().getDefaultIncomingFolders());
@@ -49,11 +49,11 @@ public class CommandLine implements Listener {
     for (File f : folders) {
       List<File> files = actions.getFileListing(f, recursive, languagecode, force);
       Logger.instance.debug("# Files found to process: " + files.size());
-      VideoFile videoFile;
+      Release release;
       for (File file : files) {
         try {
-          videoFile = VideoFileFactory.get(file, f, prefctrl.getSettings(), languagecode);
-          if (videoFile != null) l.add(videoFile);
+          release = VideoFileFactory.get(file, f, prefctrl.getSettings(), languagecode);
+          if (release != null) l.add(release);
         } catch (Exception e) {
           Logger.instance.error("Search Process" + Logger.stack2String(e));
         }
@@ -63,21 +63,21 @@ public class CommandLine implements Listener {
     return l;
   }
 
-  public void download(VideoFile videoFile) throws Exception {
-    int selection = actions.determineWhatSubtitleDownload(videoFile, subtitleSelectionDialog);
+  public void download(Release release) throws Exception {
+    int selection = actions.determineWhatSubtitleDownload(release, subtitleSelectionDialog);
     if (selection >= 0) {
       if (downloadall) {
-        for (int j = 0; j < videoFile.getMatchingSubs().size(); j++) {
-          actions.download(videoFile, videoFile.getMatchingSubs().get(j), j + 1);
+        for (int j = 0; j < release.getMatchingSubs().size(); j++) {
+          actions.download(release, release.getMatchingSubs().get(j), j + 1);
         }
-        Logger.instance.log("Downloaded ALL subs for episode: " + videoFile.getFilename());
+        Logger.instance.log("Downloaded ALL subs for episode: " + release.getFilename());
       } else {
-        actions.download(videoFile, videoFile.getMatchingSubs().get(selection));
-        Logger.instance.log("Downloaded sub for episode: " + videoFile.getFilename()
-            + " using these subs: " + videoFile.getMatchingSubs().get(selection).getFilename());
+        actions.download(release, release.getMatchingSubs().get(selection));
+        Logger.instance.log("Downloaded sub for episode: " + release.getFilename()
+            + " using these subs: " + release.getMatchingSubs().get(selection).getFilename());
       }
     } else {
-      Logger.instance.log("No subs found for: " + videoFile.getFilename());
+      Logger.instance.log("No subs found for: " + release.getFilename());
     }
   }
 
@@ -85,11 +85,11 @@ public class CommandLine implements Listener {
     Info.subtitleSources(prefctrl.getSettings());
     Info.subtitleFiltering(prefctrl.getSettings());
         
-    List<VideoFile> l;
+    List<Release> l;
     try {
       l = search();
       Info.downloadOptions(prefctrl.getSettings());
-      for (VideoFile ef : l) {
+      for (Release ef : l) {
         download(ef);
       }
     } catch (Exception e) {

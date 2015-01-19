@@ -30,41 +30,41 @@ public class EpisodeFileControl extends VideoFileControl {
 
   public void processTvdb(List<MappingTvdbScene> dict) throws VideoControlException {
     setTvdbID(dict);
-    if (((EpisodeFile) videoFile).getTvdbid() > 0) {
-      TheTVDBEpisode thetvdbepisode = jtvdba.getEpisode(((EpisodeFile) videoFile));
+    if (((EpisodeFile) release).getTvdbid() > 0) {
+      TheTVDBEpisode thetvdbepisode = jtvdba.getEpisode(((EpisodeFile) release));
       if (thetvdbepisode != null) {
-        ((EpisodeFile) videoFile).updateTvdbEpisodeInfo(thetvdbepisode);
+        ((EpisodeFile) release).updateTvdbEpisodeInfo(thetvdbepisode);
       } else {
-        throw new VideoControlException("Season " + ((EpisodeFile) videoFile).getSeason()
-            + " Episode " + ((EpisodeFile) videoFile).getEpisodeNumbers().toString()
-            + "not found, check file", videoFile);
+        throw new VideoControlException("Season " + ((EpisodeFile) release).getSeason()
+            + " Episode " + ((EpisodeFile) release).getEpisodeNumbers().toString()
+            + "not found, check file", release);
       }
     } else {
-      throw new VideoControlException("Show not found, check file", videoFile);
+      throw new VideoControlException("Show not found, check file", release);
     }
   }
 
   public void processTVRage() throws VideoControlException {
     setTvrageID();
     TVRageEpisode tvrEpisode =
-        tvra.getEpisodeInfo(((EpisodeFile) videoFile).getTvrageid(), ((EpisodeFile) videoFile)
-            .getSeason(), ((EpisodeFile) videoFile).getEpisodeNumbers().get(0));
+        tvra.getEpisodeInfo(((EpisodeFile) release).getTvrageid(), ((EpisodeFile) release)
+            .getSeason(), ((EpisodeFile) release).getEpisodeNumbers().get(0));
     if (tvrEpisode != null) {
-      ((EpisodeFile) videoFile).updateTVRageEpisodeInfo(tvrEpisode);
+      ((EpisodeFile) release).updateTVRageEpisodeInfo(tvrEpisode);
     } else {
-      throw new VideoControlException("Season " + ((EpisodeFile) videoFile).getSeason()
-          + " Episode " + ((EpisodeFile) videoFile).getEpisodeNumbers().toString()
-          + "not found, check file", videoFile);
+      throw new VideoControlException("Season " + ((EpisodeFile) release).getSeason()
+          + " Episode " + ((EpisodeFile) release).getEpisodeNumbers().toString()
+          + "not found, check file", release);
     }
   }
 
   public void process(List<MappingTvdbScene> dict) throws VideoControlException {
     Logger.instance.trace("EpisodeFileControl", "process", "");
 
-    EpisodeFile episodeFile = (EpisodeFile) videoFile;
+    EpisodeFile episodeFile = (EpisodeFile) release;
     // return episodeFile;
     if (episodeFile.getShow().equals("")) {
-      throw new VideoControlException("Unable to extract episode details, check file", videoFile);
+      throw new VideoControlException("Unable to extract episode details, check file", release);
     } else {
       Logger.instance.debug("Showname: " + episodeFile.getShow());
       Logger.instance.debug("Season: " + episodeFile.getSeason());
@@ -89,20 +89,20 @@ public class EpisodeFileControl extends VideoFileControl {
     TVRageEpisode tvrEpisode = null;
     TheTVDBEpisode thetvdbepisode = null;
     setTvrageID();
-    if (((EpisodeFile) videoFile).getTvrageid() > 0) {
+    if (((EpisodeFile) release).getTvrageid() > 0) {
       tvrEpisode =
-          tvra.getEpisodeInfo(((EpisodeFile) videoFile).getTvrageid(), ((EpisodeFile) videoFile)
-              .getSeason(), ((EpisodeFile) videoFile).getEpisodeNumbers().get(0));
+          tvra.getEpisodeInfo(((EpisodeFile) release).getTvrageid(), ((EpisodeFile) release)
+              .getSeason(), ((EpisodeFile) release).getEpisodeNumbers().get(0));
       if (tvrEpisode != null
           & settings.getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVRAGE)
-        ((EpisodeFile) videoFile).updateTVRageEpisodeInfo(tvrEpisode);
+        ((EpisodeFile) release).updateTVRageEpisodeInfo(tvrEpisode);
     }
     setTvdbID(dict);
-    if (((EpisodeFile) videoFile).getTvdbid() > 0) {
-      thetvdbepisode = jtvdba.getEpisode(((EpisodeFile) videoFile));
+    if (((EpisodeFile) release).getTvdbid() > 0) {
+      thetvdbepisode = jtvdba.getEpisode(((EpisodeFile) release));
       if (thetvdbepisode != null
           & settings.getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVDB)
-        ((EpisodeFile) videoFile).updateTvdbEpisodeInfo(thetvdbepisode);
+        ((EpisodeFile) release).updateTvdbEpisodeInfo(thetvdbepisode);
     }
   }
 
@@ -111,32 +111,32 @@ public class EpisodeFileControl extends VideoFileControl {
     Logger.instance.trace("EpisodeFileControl", "processWithSubtitles", "");
     process(dict);
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
-    listFoundSubtitles.addAll(sc.getSubtitles((EpisodeFile) videoFile, languageCode));
-    videoFile.setMatchingSubs(listFoundSubtitles);
+    listFoundSubtitles.addAll(sc.getSubtitles((EpisodeFile) release, languageCode));
+    release.setMatchingSubs(listFoundSubtitles);
   }
 
   private void setTvdbID(List<MappingTvdbScene> dict) {
     int tvdbid = 0;
     for (MappingTvdbScene mapping : dict) {
       if (mapping.getSceneName().replaceAll("[^A-Za-z]", "")
-          .equalsIgnoreCase(((EpisodeFile) videoFile).getShow().replaceAll("[^A-Za-z]", ""))) {
+          .equalsIgnoreCase(((EpisodeFile) release).getShow().replaceAll("[^A-Za-z]", ""))) {
         tvdbid = mapping.getTvdbId();
       }
     }
 
     TheTVDBSerie thetvdbserie = null;
     if (tvdbid == 0) {
-      thetvdbserie = jtvdba.getSerie((EpisodeFile) videoFile);
+      thetvdbserie = jtvdba.getSerie((EpisodeFile) release);
     } else {
       thetvdbserie = jtvdba.getSerie(tvdbid);
     }
 
-    ((EpisodeFile) videoFile).setOriginalShowName(thetvdbserie.getSerieName());
-    ((EpisodeFile) videoFile).setTvdbid(Integer.parseInt(thetvdbserie.getId()));
+    ((EpisodeFile) release).setOriginalShowName(thetvdbserie.getSerieName());
+    ((EpisodeFile) release).setTvdbid(Integer.parseInt(thetvdbserie.getId()));
   }
 
   private void setTvrageID() {
-    TVRageShowInfo tvrShowInfo = tvra.searchShow((EpisodeFile) videoFile);
-    if (tvrShowInfo != null) ((EpisodeFile) videoFile).setTvrageid(tvrShowInfo.getShowID());
+    TVRageShowInfo tvrShowInfo = tvra.searchShow((EpisodeFile) release);
+    if (tvrShowInfo != null) ((EpisodeFile) release).setTvrageid(tvrShowInfo.getShowID());
   }
 }

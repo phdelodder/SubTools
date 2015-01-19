@@ -17,14 +17,14 @@ import org.lodder.subtools.multisubdownloader.lib.PrivateRepo;
 import org.lodder.subtools.multisubdownloader.settings.model.SearchSubtitlePriority;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.DetectLanguage;
-import org.lodder.subtools.sublibrary.control.VideoFileParser;
+import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.EpisodeFile;
 import org.lodder.subtools.sublibrary.model.MovieFile;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.util.Utils;
 
@@ -126,7 +126,7 @@ public class SubtitleControl {
     Logger.instance.trace("SubtitleControl", "addLocalLibrary", "");
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
     List<File> possibleSubtitles = new ArrayList<File>();
-    VideoFileParser vfp = new VideoFileParser();
+    ReleaseParser vfp = new ReleaseParser();
 
     String filter = "";
     if (episodeFile.getOriginalShowName().length() > 0) {
@@ -141,21 +141,21 @@ public class SubtitleControl {
 
     for (File fileSub : possibleSubtitles) {
       try {
-        VideoFile videoFile = vfp.parse(fileSub, new File(fileSub.getPath()));
-        if (videoFile.getVideoType() == VideoType.EPISODE) {
+        Release release = vfp.parse(fileSub, new File(fileSub.getPath()));
+        if (release.getVideoType() == VideoType.EPISODE) {
 
-          if (((EpisodeFile) videoFile).getSeason() == episodeFile.getSeason()
-              && Utils.containsAll(((EpisodeFile) videoFile).getEpisodeNumbers(),
+          if (((EpisodeFile) release).getSeason() == episodeFile.getSeason()
+              && Utils.containsAll(((EpisodeFile) release).getEpisodeNumbers(),
                   episodeFile.getEpisodeNumbers())) {
-            EpisodeFileControl epCtrl = new EpisodeFileControl((EpisodeFile) videoFile, settings);
+            EpisodeFileControl epCtrl = new EpisodeFileControl((EpisodeFile) release, settings);
             epCtrl.process(settings.getMappingSettings().getMappingList());
-            if (((EpisodeFile) videoFile).getTvdbid() == episodeFile.getTvdbid()) {
+            if (((EpisodeFile) release).getTvdbid() == episodeFile.getTvdbid()) {
               String detectedLang = DetectLanguage.execute(fileSub);
               if (detectedLang.equals(languagecode)) {
                 Logger.instance.debug("Local Sub found, adding " + fileSub.toString());
                 listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub
                     .getName(), fileSub.toString(), "", "", SubtitleMatchType.EVERYTHING,
-                    VideoFileParser.extractTeam(fileSub.getName()), fileSub.getAbsolutePath(),
+                    ReleaseParser.extractTeam(fileSub.getName()), fileSub.getAbsolutePath(),
                     false));
               }
             }
@@ -182,7 +182,7 @@ public class SubtitleControl {
         if (file.isFile()) {
           if (file.getName().replaceAll("[^A-Za-z]", "").toLowerCase()
               .contains(filter.toLowerCase())
-              && VideoFileParser.extractFileNameExtension(file.getName()).equals("srt")) {
+              && ReleaseParser.extractFileNameExtension(file.getName()).equals("srt")) {
             filelist.add(file);
           }
         } else {
@@ -194,7 +194,7 @@ public class SubtitleControl {
   }
 
   protected List<Subtitle> getSubtitlesFiltered(List<Subtitle> listFoundSubtitles,
-      VideoFile videoFile, boolean includeEverytingIfNoResults) {
+      Release release, boolean includeEverytingIfNoResults) {
     Logger.instance.trace("SubtitleControl", "getSubtitlesFiltered", "");
 
     boolean foundExactMatch = false;
@@ -211,9 +211,9 @@ public class SubtitleControl {
     }
 
     String subRequest = " ";
-    if (!(videoFile.getFilename() == null)) {
-      subRequest = videoFile.getFilename().toLowerCase();
-      subRequest = subRequest.replace("." + videoFile.getExtension(), "");
+    if (!(release.getFilename() == null)) {
+      subRequest = release.getFilename().toLowerCase();
+      subRequest = subRequest.replace("." + release.getExtension(), "");
     }
 
     if (settings.isOptionSubtitleExactMatch()) {
@@ -223,7 +223,7 @@ public class SubtitleControl {
         Matcher m = p.matcher(subtitle.getFilename().toLowerCase().replace(".srt", ""));
         if (m.matches()) {
           subtitle.setSubtitleMatchType(SubtitleMatchType.EXACT);
-          subtitle.setQuality(VideoFileParser.getQualityKeyword(subtitle.getFilename()));
+          subtitle.setQuality(ReleaseParser.getQualityKeyword(subtitle.getFilename()));
           Logger.instance.debug("getSubtitlesFiltered: found EXACT match: "
               + subtitle.getFilename());
           addToFoundSubtitleList(listFilteredSubtitles, subtitle);
@@ -234,14 +234,14 @@ public class SubtitleControl {
 
     if (settings.isOptionSubtitleKeywordMatch()) {
       // check keywords
-      String keywordsFile = VideoFileParser.getQualityKeyword(subRequest);
+      String keywordsFile = ReleaseParser.getQualityKeyword(subRequest);
 
       for (Subtitle subtitle : listFoundSubtitles) {
         boolean checkKeywordMatch = checkKeywordSubtitleMatch(subtitle, keywordsFile);
 
         if (checkKeywordMatch) {
           subtitle.setSubtitleMatchType(SubtitleMatchType.KEYWORD);
-          subtitle.setQuality(VideoFileParser.getQualityKeyword(subtitle.getFilename()));
+          subtitle.setQuality(ReleaseParser.getQualityKeyword(subtitle.getFilename()));
           Logger.instance.debug("getSubtitlesFiltered: found KEYWORD match: "
               + subtitle.getFilename());
           addToFoundSubtitleList(listFilteredSubtitles, subtitle);
@@ -252,7 +252,7 @@ public class SubtitleControl {
         // present!
         // Always check for team since some sites only give the team!
         if (!checkKeywordMatch
-            && subtitle.getTeam().toLowerCase().contains(videoFile.getTeam().toLowerCase())) {
+            && subtitle.getTeam().toLowerCase().contains(release.getTeam().toLowerCase())) {
           subtitle.setSubtitleMatchType(SubtitleMatchType.TEAM);
           Logger.instance.debug("getSubtitlesFiltered: found KEYWORD based TEAM match: "
               + subtitle.getFilename());
@@ -261,15 +261,15 @@ public class SubtitleControl {
         }
       }
 
-      if (!foundKeywordMatch && videoFile.getPath() != null && videoFile.getFilename() != null) {
+      if (!foundKeywordMatch && release.getPath() != null && release.getFilename() != null) {
         // check keywords based on filesize if no keywords found in
         // file.
         keywordsFile =
-            VideoFileParser.getQualityKeyword(videoFile.getPath().getAbsolutePath()
-                + videoFile.getFilename());
+            ReleaseParser.getQualityKeyword(release.getPath().getAbsolutePath()
+                + release.getFilename());
         if (keywordsFile.equalsIgnoreCase("")) {
           long size =
-              (new File(videoFile.getPath(), videoFile.getFilename())).length() / 1024 / 1024;
+              (new File(release.getPath(), release.getFilename())).length() / 1024 / 1024;
           if (size < 400) {
             keywordsFile = "dvdrip xvid hdtv";
           } else if (size < 1200) {
@@ -284,7 +284,7 @@ public class SubtitleControl {
 
           if (checkKeywordMatch) {
             subtitle.setSubtitleMatchType(SubtitleMatchType.KEYWORD);
-            subtitle.setQuality(VideoFileParser.getQualityKeyword(subtitle.getFilename()));
+            subtitle.setQuality(ReleaseParser.getQualityKeyword(subtitle.getFilename()));
             Logger.instance.debug("getSubtitlesFiltered: found KEYWORD based FILESIZE match: "
                 + subtitle.getFilename());
             addToFoundSubtitleList(listFilteredSubtitles, subtitle);
@@ -297,7 +297,7 @@ public class SubtitleControl {
     if (!foundKeywordMatch && !foundExactMatch && includeEverytingIfNoResults) {
       for (Subtitle subtitle : listFoundSubtitles) {
         subtitle.setSubtitleMatchType(SubtitleMatchType.EVERYTHING);
-        subtitle.setQuality(VideoFileParser.getQualityKeyword(subtitle.getFilename()));
+        subtitle.setQuality(ReleaseParser.getQualityKeyword(subtitle.getFilename()));
         Logger.instance.debug("getSubtitlesFiltered: found EVERYTHING match: "
             + subtitle.getFilename());
         addToFoundSubtitleList(listFilteredSubtitles, subtitle);
@@ -314,7 +314,7 @@ public class SubtitleControl {
   }
 
   private boolean checkKeywordSubtitleMatch(Subtitle subtitle, String keywordsFile) {
-    String keywordsSub = VideoFileParser.getQualityKeyword(subtitle.getFilename());
+    String keywordsSub = ReleaseParser.getQualityKeyword(subtitle.getFilename());
 
     boolean foundKeywordMatch = false;
     if (keywordsFile.equalsIgnoreCase(keywordsSub)) {
