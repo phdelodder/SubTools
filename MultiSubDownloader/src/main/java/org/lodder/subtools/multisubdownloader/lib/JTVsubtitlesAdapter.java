@@ -6,7 +6,7 @@ import java.util.List;
 import org.lodder.subtools.sublibrary.JSubAdapter;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieFile;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
@@ -26,26 +26,26 @@ public class JTVsubtitlesAdapter implements JSubAdapter {
   }
 
   @Override
-  public List<Subtitle> searchSubtitles(EpisodeFile episodeFile, String... sublanguageids) {
+  public List<Subtitle> searchSubtitles(TvRelease tvRelease, String... sublanguageids) {
     List<TVsubtitlesSubtitleDescriptor> lSubtitles = new ArrayList<TVsubtitlesSubtitleDescriptor>();
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
     try {
       String showName = "";
-      if (episodeFile.getOriginalShowName().length() > 0) {
-        showName = episodeFile.getOriginalShowName();
+      if (tvRelease.getOriginalShowName().length() > 0) {
+        showName = tvRelease.getOriginalShowName();
       } else {
-        showName = episodeFile.getShow();
+        showName = tvRelease.getShow();
       }
 
       if (showName.length() > 0) {
         if (showName.contains("(") && showName.contains(")")) {
           String alterName = showName.substring(0, showName.indexOf("(") - 1).trim();
           lSubtitles =
-              jtvapi.searchSubtitles(alterName, episodeFile.getSeason(), episodeFile
-                  .getEpisodeNumbers().get(0), episodeFile.getTitle(), sublanguageids[0]);
+              jtvapi.searchSubtitles(alterName, tvRelease.getSeason(), tvRelease
+                  .getEpisodeNumbers().get(0), tvRelease.getTitle(), sublanguageids[0]);
         }
-        lSubtitles.addAll(jtvapi.searchSubtitles(showName, episodeFile.getSeason(), episodeFile
-            .getEpisodeNumbers().get(0), episodeFile.getTitle(), sublanguageids[0]));
+        lSubtitles.addAll(jtvapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease
+            .getEpisodeNumbers().get(0), tvRelease.getTitle(), sublanguageids[0]));
       }
     } catch (Exception e) {
       Logger.instance.error("API JTVsubtitles searchSubtitles using title: " + e);

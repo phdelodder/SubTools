@@ -2,7 +2,7 @@ package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
 import javax.swing.table.DefaultTableModel;
 
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieFile;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -117,8 +117,8 @@ public class VideoTableModel extends DefaultTableModel {
       for (int i = 0; i < cCount; i++) {
         columnName = this.getColumnName(i);
         if (SearchColumnName.SERIE.getColumnName().equals(columnName)) {
-          if (release instanceof EpisodeFile) {
-            row[i] = ((EpisodeFile) release).getShow();
+          if (release instanceof TvRelease) {
+            row[i] = ((TvRelease) release).getShow();
           } else if (release instanceof MovieFile) {
             row[i] = ((MovieFile) release).getTitle();
           }
@@ -131,14 +131,14 @@ public class VideoTableModel extends DefaultTableModel {
         } else if (SearchColumnName.OBJECT.getColumnName().equals(columnName)) {
           row[i] = release;
         } else if (SearchColumnName.SEASON.getColumnName().equals(columnName)) {
-          if (release instanceof EpisodeFile) row[i] = ((EpisodeFile) release).getSeason();
+          if (release instanceof TvRelease) row[i] = ((TvRelease) release).getSeason();
         } else if (SearchColumnName.EPISODE.getColumnName().equals(columnName)) {
-          if (release instanceof EpisodeFile)
-            row[i] = ((EpisodeFile) release).getEpisodeNumbers().get(0);
+          if (release instanceof TvRelease)
+            row[i] = ((TvRelease) release).getEpisodeNumbers().get(0);
         } else if (SearchColumnName.TYPE.getColumnName().equals(columnName)) {
           row[i] = release.getVideoType();
         } else if (SearchColumnName.TITLE.getColumnName().equals(columnName)) {
-          if (release instanceof EpisodeFile) row[i] = ((EpisodeFile) release).getTitle();
+          if (release instanceof TvRelease) row[i] = ((TvRelease) release).getTitle();
         }
       }
       this.addRow(row);

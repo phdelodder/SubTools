@@ -6,7 +6,7 @@ import java.util.List;
 import org.lodder.subtools.sublibrary.JSubAdapter;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieFile;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
@@ -28,16 +28,16 @@ public class JSubsMaxAdapter implements JSubAdapter {
   }
 
   @Override
-  public List<Subtitle> searchSubtitles(EpisodeFile episodeFile, String... sublanguageids) {
+  public List<Subtitle> searchSubtitles(TvRelease tvRelease, String... sublanguageids) {
     String showName = "";
-    if (episodeFile.getOriginalShowName().length() > 0) {
-      showName = episodeFile.getOriginalShowName();
+    if (tvRelease.getOriginalShowName().length() > 0) {
+      showName = tvRelease.getOriginalShowName();
     } else {
-      showName = episodeFile.getShow();
+      showName = tvRelease.getShow();
     }
     
     List<SubMaxSubtitleDescriptor> lSubtitles =
-        jsmapi.searchSubtitles(showName, episodeFile.getSeason(), episodeFile
+        jsmapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease
             .getEpisodeNumbers().get(0), sublanguageids[0]);
     
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();

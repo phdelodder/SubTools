@@ -10,7 +10,7 @@ import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.exception.VideoControlException;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieFile;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 
@@ -36,7 +36,7 @@ public class NameSearchControl {
   public List<Subtitle> SearchSubtitles(String serie, int season, final int episode,
       String languagecode) throws Exception {
     List<Subtitle> subs = new ArrayList<Subtitle>();
-    EpisodeFile ep = new EpisodeFile();
+    TvRelease ep = new TvRelease();
     ep.setShow(serie);
 
     if (season > 0) {
@@ -70,7 +70,7 @@ public class NameSearchControl {
     return subs;
   }
 
-  private List<Subtitle> setTVDBAndSearchSubtitle(TheTVDBEpisode tvdbEpisode, EpisodeFile ep,
+  private List<Subtitle> setTVDBAndSearchSubtitle(TheTVDBEpisode tvdbEpisode, TvRelease ep,
       String languagecode) {
     List<Subtitle> subs = new ArrayList<Subtitle>();
 
@@ -83,7 +83,7 @@ public class NameSearchControl {
 
     try {
       epfc.process(settings.getMappingSettings().getMappingList());
-      subs.addAll(searchSubtitle((EpisodeFile) epfc.getVideoFile(), languagecode));
+      subs.addAll(searchSubtitle((TvRelease) epfc.getVideoFile(), languagecode));
     } catch (VideoControlException e) {
       if (Logger.instance.getLogLevel().intValue() < Level.INFO.intValue()) {
         Logger.instance.error(Logger.stack2String(e));
@@ -95,7 +95,7 @@ public class NameSearchControl {
     return subs;
   }
 
-  private List<Subtitle> searchSubtitle(EpisodeFile ep, String languagecode) {
+  private List<Subtitle> searchSubtitle(TvRelease ep, String languagecode) {
     return subtitleControl.getSubtitles(ep, languagecode);
   }
 }

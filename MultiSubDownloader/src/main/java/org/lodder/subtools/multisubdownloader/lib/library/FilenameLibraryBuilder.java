@@ -2,7 +2,7 @@ package org.lodder.subtools.multisubdownloader.lib.library;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.util.StringUtils;
@@ -17,32 +17,32 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
     String filename = "";
     if (((librarySettings.getLibraryAction().equals(LibraryActionType.RENAME) || librarySettings
         .getLibraryAction().equals(LibraryActionType.MOVEANDRENAME)))
-        && release instanceof EpisodeFile
+        && release instanceof TvRelease
         && !librarySettings.getLibraryFilenameStructure().isEmpty()) {
-      EpisodeFile episodeFile = (EpisodeFile) release;
+      TvRelease tvRelease = (TvRelease) release;
 
       String show = "";
       if (librarySettings.isLibraryUseTVDBNaming()) {
         final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter();
-        show = jtvdb.getSerie(episodeFile).getSerieName();
+        show = jtvdb.getSerie(tvRelease).getSerieName();
       } else {
-        show = episodeFile.getShow();
+        show = tvRelease.getShow();
       }
 
       filename = librarySettings.getLibraryFilenameStructure();
       // order is important!
       filename = filename.replaceAll("%SHOW NAME%", show);
       filename =
-          replaceFormatedEpisodeNumber(filename, "%EEX%", episodeFile.getEpisodeNumbers(), true);
+          replaceFormatedEpisodeNumber(filename, "%EEX%", tvRelease.getEpisodeNumbers(), true);
       filename =
-          replaceFormatedEpisodeNumber(filename, "%EX%", episodeFile.getEpisodeNumbers(), false);
-      filename = filename.replaceAll("%SS%", formatedNumber(episodeFile.getSeason(), true));
-      filename = filename.replaceAll("%S%", formatedNumber(episodeFile.getSeason(), false));
+          replaceFormatedEpisodeNumber(filename, "%EX%", tvRelease.getEpisodeNumbers(), false);
+      filename = filename.replaceAll("%SS%", formatedNumber(tvRelease.getSeason(), true));
+      filename = filename.replaceAll("%S%", formatedNumber(tvRelease.getSeason(), false));
       filename =
-          filename.replaceAll("%EE%", formatedNumber(episodeFile.getEpisodeNumbers().get(0), true));
+          filename.replaceAll("%EE%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), true));
       filename =
-          filename.replaceAll("%E%", formatedNumber(episodeFile.getEpisodeNumbers().get(0), false));
-      filename = filename.replaceAll("%TITLE%", episodeFile.getTitle());
+          filename.replaceAll("%E%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), false));
+      filename = filename.replaceAll("%TITLE%", tvRelease.getTitle());
       filename = filename.replaceAll("%QUALITY%", release.getQuality());
       filename = filename.replaceAll("%DESCRIPTION%", release.getDescription());
 

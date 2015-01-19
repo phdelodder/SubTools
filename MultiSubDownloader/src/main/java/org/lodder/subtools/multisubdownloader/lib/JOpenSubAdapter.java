@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import org.lodder.subtools.sublibrary.JSubAdapter;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieFile;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
@@ -135,7 +135,7 @@ public class JOpenSubAdapter implements JSubAdapter {
   }
 
   @Override
-  public List<Subtitle> searchSubtitles(EpisodeFile episodeFile, String... sublanguageids) {
+  public List<Subtitle> searchSubtitles(TvRelease tvRelease, String... sublanguageids) {
     List<OpenSubtitlesSubtitleDescriptor> lSubtitles =
         new ArrayList<OpenSubtitlesSubtitleDescriptor>();
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
@@ -144,16 +144,16 @@ public class JOpenSubAdapter implements JSubAdapter {
         try {
 
           String showName = "";
-          if (episodeFile.getOriginalShowName().length() > 0) {
-            showName = episodeFile.getOriginalShowName();
+          if (tvRelease.getOriginalShowName().length() > 0) {
+            showName = tvRelease.getOriginalShowName();
           } else {
-            showName = episodeFile.getShow();
+            showName = tvRelease.getShow();
           }
 
           if (showName.length() > 0) {
 
-            lSubtitles.addAll(joapi.searchSubtitles(showName, episodeFile.getSeason(),
-                episodeFile.getEpisodeNumbers(), sublanguageids));
+            lSubtitles.addAll(joapi.searchSubtitles(showName, tvRelease.getSeason(),
+                tvRelease.getEpisodeNumbers(), sublanguageids));
           }
         } catch (Exception e) {
           Logger.instance.error("API OPENSUBTITLES searchSubtitles using title: " + e);
@@ -162,8 +162,8 @@ public class JOpenSubAdapter implements JSubAdapter {
     } catch (Exception e) {
       Logger.instance.error("API OPENSUBTITLES searchSubtitles: " + e);
     }
-    String name = episodeFile.getShow().replaceAll("[^A-Za-z]", "").toLowerCase();
-    String originalName = episodeFile.getOriginalShowName().replaceAll("[^A-Za-z]", "").toLowerCase();
+    String name = tvRelease.getShow().replaceAll("[^A-Za-z]", "").toLowerCase();
+    String originalName = tvRelease.getOriginalShowName().replaceAll("[^A-Za-z]", "").toLowerCase();
     for (OpenSubtitlesSubtitleDescriptor ossd : lSubtitles) {
       String subFileName = ossd.getSubFileName().replaceAll("[^A-Za-z]", "").toLowerCase();
       if (subFileName.contains(name)

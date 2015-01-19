@@ -8,7 +8,7 @@ import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
 import org.lodder.subtools.sublibrary.logging.Logger;
 
-public class EpisodeFile extends Release {
+public class TvRelease extends Release {
 
     private String showname;
     private String title;
@@ -17,7 +17,7 @@ public class EpisodeFile extends Release {
     private String originalShowName;
     private boolean special;
     
-    public EpisodeFile() {
+    public TvRelease() {
         super(VideoType.EPISODE);
         showname = "";
         title = "";
@@ -29,7 +29,7 @@ public class EpisodeFile extends Release {
         setSpecial(false);
     }
 
-    public EpisodeFile(String show, int season, List<Integer> episodeNumbers, File file, String extension, String description, String team, boolean special) {
+    public TvRelease(String show, int season, List<Integer> episodeNumbers, File file, String extension, String description, String team, boolean special) {
         super(VideoType.EPISODE, file, extension, description, team);
         this.showname = show;
         title = "";

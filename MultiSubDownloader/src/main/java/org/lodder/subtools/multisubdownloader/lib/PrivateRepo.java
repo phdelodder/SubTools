@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieFile;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
@@ -60,14 +60,14 @@ public class PrivateRepo {
 		return privateRepo;
 	}
 
-	public List<Subtitle> searchSubtitles(EpisodeFile episodeFile,
+	public List<Subtitle> searchSubtitles(TvRelease tvRelease,
 			String languageCode) throws UnsupportedEncodingException {
 		List<Subtitle> results = new ArrayList<Subtitle>();
 		for (IndexSubtitle indexSubtitle : index) {
-			if (indexSubtitle.getVideoType() == episodeFile.getVideoType()) {
-				if (indexSubtitle.getTvdbid() == episodeFile.getTvdbid()) {
-					if (indexSubtitle.getSeason() == episodeFile.getSeason()
-							&& indexSubtitle.getEpisode() == episodeFile
+			if (indexSubtitle.getVideoType() == tvRelease.getVideoType()) {
+				if (indexSubtitle.getTvdbid() == tvRelease.getTvdbid()) {
+					if (indexSubtitle.getSeason() == tvRelease.getSeason()
+							&& indexSubtitle.getEpisode() == tvRelease
 									.getEpisodeNumbers().get(0)) {
 						if (indexSubtitle.getLanguage().equalsIgnoreCase(
 								languageCode)) {

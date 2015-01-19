@@ -22,7 +22,7 @@ import org.lodder.subtools.sublibrary.exception.VideoControlException;
 import org.lodder.subtools.sublibrary.exception.VideoFileParseException;
 import org.lodder.subtools.sublibrary.logging.Listener;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieFile;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
@@ -84,19 +84,19 @@ public class SortSubtitle implements Listener {
             VideoFileFactory.get(file, outputDir, new ArrayList<MappingTvdbScene>());
         final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter();
         if (release.getVideoType() == VideoType.EPISODE) {
-          EpisodeFile episodeFile = (EpisodeFile) release;
+          TvRelease tvRelease = (TvRelease) release;
 
           int tvdbid = 0;
           for (MappingTvdbScene mapping : mappingSettingsCtrl.getMappingSettings().getMappingList()) {
             if (mapping.getSceneName().replaceAll("[^A-Za-z]", "")
-                .equalsIgnoreCase(episodeFile.getShow().replaceAll("[^A-Za-z]", ""))) {
+                .equalsIgnoreCase(tvRelease.getShow().replaceAll("[^A-Za-z]", ""))) {
               tvdbid = mapping.getTvdbId();
             }
           }
 
           TheTVDBSerie thetvdbserie = null;
           if (tvdbid == 0) {
-            thetvdbserie = jtvdb.getSerie(episodeFile);
+            thetvdbserie = jtvdb.getSerie(tvRelease);
           } else {
             thetvdbserie = jtvdb.getSerie(tvdbid);
           }
@@ -104,20 +104,20 @@ public class SortSubtitle implements Listener {
           if (thetvdbserie != null) {
             final String show = replaceWindowsChars(thetvdbserie.getSerieName());
             String path =
-                outputDir + File.separator + show + File.separator + episodeFile.getSeason();
+                outputDir + File.separator + show + File.separator + tvRelease.getSeason();
             String language = "";
             try {
               language = DetectLanguage.execute(file);
             } catch (Exception e) {
               Logger.instance.error(Logger.stack2String(e));
             }
-            for (int i = 0; i < episodeFile.getEpisodeNumbers().size(); i++) {
+            for (int i = 0; i < tvRelease.getEpisodeNumbers().size(); i++) {
               final File pathFolder =
-                  new File(path + File.separator + episodeFile.getEpisodeNumbers().get(i)
+                  new File(path + File.separator + tvRelease.getEpisodeNumbers().get(i)
                       + File.separator + language + File.separator);
               final File to = new File(pathFolder, release.getFilename());
               if (to.exists()) {
-                index.add(new IndexSubtitle(show, episodeFile.getSeason(), episodeFile
+                index.add(new IndexSubtitle(show, tvRelease.getSeason(), tvRelease
                     .getEpisodeNumbers().get(i), PrivateRepoIndex.extractOriginalFilename(release
                     .getFilename()), language, Integer.parseInt(thetvdbserie.getId()),
                     PrivateRepoIndex.extractUploader(release.getFilename()), PrivateRepoIndex
@@ -219,19 +219,19 @@ public class SortSubtitle implements Listener {
           }
         }
         if (release.getVideoType() == VideoType.EPISODE && !quality.isEmpty() && num == 1) {
-          EpisodeFile episodeFile = (EpisodeFile) release;
+          TvRelease tvRelease = (TvRelease) release;
 
           int tvdbid = 0;
           for (MappingTvdbScene mapping : mappingSettingsCtrl.getMappingSettings().getMappingList()) {
             if (mapping.getSceneName().replaceAll("[^A-Za-z]", "")
-                .equalsIgnoreCase(episodeFile.getShow().replaceAll("[^A-Za-z]", ""))) {
+                .equalsIgnoreCase(tvRelease.getShow().replaceAll("[^A-Za-z]", ""))) {
               tvdbid = mapping.getTvdbId();
             }
           }
 
           TheTVDBSerie thetvdbserie = null;
           if (tvdbid == 0) {
-            thetvdbserie = jtvdb.getSerie(episodeFile);
+            thetvdbserie = jtvdb.getSerie(tvRelease);
           } else {
             thetvdbserie = jtvdb.getSerie(tvdbid);
           }
@@ -240,11 +240,11 @@ public class SortSubtitle implements Listener {
 
             final String show = replaceWindowsChars(thetvdbserie.getSerieName());
             String path =
-                outputDir + File.separator + show + File.separator + episodeFile.getSeason();
+                outputDir + File.separator + show + File.separator + tvRelease.getSeason();
             String language = DetectLanguage.execute(file);
-            for (int i = 0; i < episodeFile.getEpisodeNumbers().size(); i++) {
+            for (int i = 0; i < tvRelease.getEpisodeNumbers().size(); i++) {
               final File pathFolder =
-                  new File(path + File.separator + episodeFile.getEpisodeNumbers().get(i)
+                  new File(path + File.separator + tvRelease.getEpisodeNumbers().get(i)
                       + File.separator + language + File.separator);
               if (!pathFolder.exists()) {
                 if (!pathFolder.mkdirs()) {
@@ -265,12 +265,12 @@ public class SortSubtitle implements Listener {
                       + release.getPath() + " " + release.getFilename());
                 }
               } else {
-                if (remove & i == episodeFile.getEpisodeNumbers().size() - 1) {
+                if (remove & i == tvRelease.getEpisodeNumbers().size() - 1) {
                   Files.move(file, to);
                 } else {
                   Files.copy(file, to);
                 }
-                index.add(new IndexSubtitle(show, episodeFile.getSeason(), episodeFile
+                index.add(new IndexSubtitle(show, tvRelease.getSeason(), tvRelease
                     .getEpisodeNumbers().get(i),
                     PrivateRepoIndex.extractOriginalFilename(filename), language, Integer
                         .parseInt(thetvdbserie.getId()),

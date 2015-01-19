@@ -31,7 +31,7 @@ import org.lodder.subtools.sublibrary.exception.ControlFactoryException;
 import org.lodder.subtools.sublibrary.exception.VideoControlException;
 import org.lodder.subtools.sublibrary.exception.VideoFileParseException;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieFile;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
@@ -50,7 +50,7 @@ public class StructureBuilderDialog extends MutliSubDialog implements DocumentLi
   private LibrarySettings librarySettings;
   private StrucutureType structureType;
   private JLabel lblPreview;
-  private EpisodeFile ep;
+  private TvRelease ep;
   private MovieFile mo;
   private String oldStructure;
 
@@ -74,7 +74,7 @@ public class StructureBuilderDialog extends MutliSubDialog implements DocumentLi
     try {
       if (videoType == VideoType.EPISODE) {
         ep =
-            (EpisodeFile) VideoFileFactory.get(
+            (TvRelease) VideoFileFactory.get(
                 // new File(File.separator + "Castle.2009.S04E10.720p.HDTV.X264-DIMENSION.mkv"),
                 new File(File.separator + "Terra.Nova.S01E01E02.720p.HDTV.x264-ORENJI.mkv"),
                 new File(File.separator), new Settings(), "");

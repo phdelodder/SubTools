@@ -7,7 +7,7 @@ import java.util.List;
 import org.lodder.subtools.sublibrary.JSubAdapter;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieFile;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
@@ -53,22 +53,22 @@ public class JPodnapisiAdapter implements JSubAdapter {
   }
 
   @Override
-  public List<Subtitle> searchSubtitles(EpisodeFile episodeFile, String... sublanguageid) {
+  public List<Subtitle> searchSubtitles(TvRelease tvRelease, String... sublanguageid) {
     List<PodnapisiSubtitleDescriptor> lSubtitles = new ArrayList<PodnapisiSubtitleDescriptor>();
 
     try {
       String showName = "";
-      if (episodeFile.getOriginalShowName().length() > 0) {
-        showName = episodeFile.getOriginalShowName();
+      if (tvRelease.getOriginalShowName().length() > 0) {
+        showName = tvRelease.getOriginalShowName();
       } else {
-        showName = episodeFile.getShow();
+        showName = tvRelease.getShow();
       }
 
       if (showName.length() > 0) {
-        for (int episode : episodeFile.getEpisodeNumbers()) {
+        for (int episode : tvRelease.getEpisodeNumbers()) {
           lSubtitles =
               jpapi
-                  .searchSubtitles(showName, 0, episodeFile.getSeason(), episode, sublanguageid[0]);
+                  .searchSubtitles(showName, 0, tvRelease.getSeason(), episode, sublanguageid[0]);
         }
       }
     } catch (Exception e) {

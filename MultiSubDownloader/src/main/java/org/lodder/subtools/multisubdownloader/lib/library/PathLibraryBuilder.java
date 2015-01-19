@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieFile;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
@@ -21,7 +21,7 @@ public class PathLibraryBuilder extends LibraryBuilder {
         || librarySettings.getLibraryAction().equals(LibraryActionType.MOVEANDRENAME)) {
       String folder = "";
       if (release.getVideoType() == VideoType.EPISODE)
-        folder = episodeBuildPath((EpisodeFile) release);
+        folder = episodeBuildPath((TvRelease) release);
       else if (release.getVideoType() == VideoType.MOVIE)
         folder = movieBuildPath((MovieFile) release);
       return new File(librarySettings.getLibraryFolder(), folder);
@@ -30,14 +30,14 @@ public class PathLibraryBuilder extends LibraryBuilder {
     }
   }
 
-  protected String episodeBuildPath(EpisodeFile episodeFile) {
+  protected String episodeBuildPath(TvRelease tvRelease) {
     String folder = librarySettings.getLibraryFolderStructure();
     String show = "";
     if (librarySettings.isLibraryUseTVDBNaming()) {
       final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter();
-      show = jtvdb.getSerie(episodeFile).getSerieName();
+      show = jtvdb.getSerie(tvRelease).getSerieName();
     } else {
-      show = episodeFile.getShow();
+      show = tvRelease.getShow();
     }
     if (librarySettings.isLibraryReplaceChars()) {
       show = StringUtils.removeIllegalWindowsChars(show);
@@ -45,20 +45,20 @@ public class PathLibraryBuilder extends LibraryBuilder {
 
     folder = folder.replaceAll("%SHOW NAME%", show);
     // order is important!
-    folder = replaceFormatedEpisodeNumber(folder, "%EEX%", episodeFile.getEpisodeNumbers(), true);
-    folder = replaceFormatedEpisodeNumber(folder, "%EX%", episodeFile.getEpisodeNumbers(), false);
-    folder = folder.replaceAll("%SS%", formatedNumber(episodeFile.getSeason(), true));
-    folder = folder.replaceAll("%S%", formatedNumber(episodeFile.getSeason(), false));
-    folder = folder.replaceAll("%EE%", formatedNumber(episodeFile.getEpisodeNumbers().get(0), true));
-    folder = folder.replaceAll("%E%", formatedNumber(episodeFile.getEpisodeNumbers().get(0), false));
-    folder = folder.replaceAll("%TITLE%", episodeFile.getTitle());
+    folder = replaceFormatedEpisodeNumber(folder, "%EEX%", tvRelease.getEpisodeNumbers(), true);
+    folder = replaceFormatedEpisodeNumber(folder, "%EX%", tvRelease.getEpisodeNumbers(), false);
+    folder = folder.replaceAll("%SS%", formatedNumber(tvRelease.getSeason(), true));
+    folder = folder.replaceAll("%S%", formatedNumber(tvRelease.getSeason(), false));
+    folder = folder.replaceAll("%EE%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), true));
+    folder = folder.replaceAll("%E%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), false));
+    folder = folder.replaceAll("%TITLE%", tvRelease.getTitle());
     try {
       folder = folder.replaceAll("%SEPARATOR%", File.separator);
     } catch (IndexOutOfBoundsException | IllegalArgumentException ioobe) // windows hack needs "\\" instead of "\"
     {
       folder = folder.replaceAll("%SEPARATOR%", File.separator + File.separator);
     }
-    folder = folder.replaceAll("%QUALITY%", episodeFile.getQuality());
+    folder = folder.replaceAll("%QUALITY%", tvRelease.getQuality());
 
     if (librarySettings.isLibraryFolderReplaceSpace()) {
       folder = folder.replaceAll(" ", librarySettings.getLibraryFolderReplacingSpaceSign());

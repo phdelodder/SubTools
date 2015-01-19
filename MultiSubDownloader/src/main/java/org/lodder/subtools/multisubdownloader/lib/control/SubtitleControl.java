@@ -20,7 +20,7 @@ import org.lodder.subtools.sublibrary.DetectLanguage;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieFile;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
@@ -51,7 +51,7 @@ public class SubtitleControl {
 
   }
 
-  public List<Subtitle> getSubtitles(EpisodeFile episodeFile, String... languagecode) {
+  public List<Subtitle> getSubtitles(TvRelease tvRelease, String... languagecode) {
     Logger.instance.trace("SubtitleControl", "getSubtitles", "Episode");
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
 
@@ -60,25 +60,25 @@ public class SubtitleControl {
       switch (searchSubtitlePriority.getSubtitleSource()) {
         case ADDIC7ED:
           if (settings.isSerieSourceAddic7ed())
-            listSourceSubtitles.addAll(jAddic7edAdapter.searchSubtitles(episodeFile, languagecode));
+            listSourceSubtitles.addAll(jAddic7edAdapter.searchSubtitles(tvRelease, languagecode));
           break;
         case LOCAL:
           if (settings.isSerieSourceLocal())
-            listSourceSubtitles.addAll(addLocalLibrary(episodeFile, languagecode[0]));
+            listSourceSubtitles.addAll(addLocalLibrary(tvRelease, languagecode[0]));
           break;
         case OPENSUBTITLES:
           if (settings.isSerieSourceOpensubtitles())
-            listSourceSubtitles.addAll(jOpenSubAdapter.searchSubtitles(episodeFile, languagecode));
+            listSourceSubtitles.addAll(jOpenSubAdapter.searchSubtitles(tvRelease, languagecode));
           break;
         case PODNAPISI:
           if (settings.isSerieSourcePodnapisi())
-            listSourceSubtitles.addAll(jPodnapisiAdapter.searchSubtitles(episodeFile,
+            listSourceSubtitles.addAll(jPodnapisiAdapter.searchSubtitles(tvRelease,
                 languagecode[0]));
           break;
         case PRIVATEREPO:
           if (settings.isSerieSourcePrivateRepo()) {
             try {
-              listSourceSubtitles.addAll(privateRepo.searchSubtitles(episodeFile, languagecode[0]));
+              listSourceSubtitles.addAll(privateRepo.searchSubtitles(tvRelease, languagecode[0]));
             } catch (UnsupportedEncodingException e) {
               Logger.instance.error(Logger.stack2String(e));
             }
@@ -86,13 +86,13 @@ public class SubtitleControl {
           break;
         case TVSUBTITLES:
           if (settings.isSerieSourceTvSubtitles())
-            listSourceSubtitles.addAll(jTVSubtitlesAdapter.searchSubtitles(episodeFile,
+            listSourceSubtitles.addAll(jTVSubtitlesAdapter.searchSubtitles(tvRelease,
                 languagecode[0]));
           break;
         case SUBSMAX:
           if (settings.isSerieSourceSubsMax())
             listSourceSubtitles.addAll(jSubsMaxAdapter
-                .searchSubtitles(episodeFile, languagecode[0]));
+                .searchSubtitles(tvRelease, languagecode[0]));
           break;
         default:
           break;
@@ -103,14 +103,14 @@ public class SubtitleControl {
         // exact or keyword is checked!
         if (settings.isOptionSubtitleExactMatch() || settings.isOptionSubtitleKeywordMatch()) {
           List<Subtitle> listResultFiltered =
-              this.getSubtitlesFiltered(listSourceSubtitles, episodeFile, false);
+              this.getSubtitlesFiltered(listSourceSubtitles, tvRelease, false);
           if (listResultFiltered.size() > 0) return listResultFiltered;
         }
         listFoundSubtitles.addAll(listSourceSubtitles);
       }
     }
 
-    return this.getSubtitlesFiltered(listFoundSubtitles, episodeFile, true);
+    return this.getSubtitlesFiltered(listFoundSubtitles, tvRelease, true);
   }
 
   public List<Subtitle> getSubtitles(MovieFile movieFile, String... languagecode) {
@@ -122,17 +122,17 @@ public class SubtitleControl {
     return this.getSubtitlesFiltered(listFoundSubtitles, movieFile, true);
   }
 
-  private List<Subtitle> addLocalLibrary(EpisodeFile episodeFile, String languagecode) {
+  private List<Subtitle> addLocalLibrary(TvRelease tvRelease, String languagecode) {
     Logger.instance.trace("SubtitleControl", "addLocalLibrary", "");
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
     List<File> possibleSubtitles = new ArrayList<File>();
     ReleaseParser vfp = new ReleaseParser();
 
     String filter = "";
-    if (episodeFile.getOriginalShowName().length() > 0) {
-      filter = episodeFile.getOriginalShowName().replaceAll("[^A-Za-z]", "").trim();
+    if (tvRelease.getOriginalShowName().length() > 0) {
+      filter = tvRelease.getOriginalShowName().replaceAll("[^A-Za-z]", "").trim();
     } else {
-      filter = episodeFile.getShow().replaceAll("[^A-Za-z]", "").trim();
+      filter = tvRelease.getShow().replaceAll("[^A-Za-z]", "").trim();
     }
 
     for (File local : settings.getLocalSourcesFolders()) {
@@ -144,12 +144,12 @@ public class SubtitleControl {
         Release release = vfp.parse(fileSub, new File(fileSub.getPath()));
         if (release.getVideoType() == VideoType.EPISODE) {
 
-          if (((EpisodeFile) release).getSeason() == episodeFile.getSeason()
-              && Utils.containsAll(((EpisodeFile) release).getEpisodeNumbers(),
-                  episodeFile.getEpisodeNumbers())) {
-            EpisodeFileControl epCtrl = new EpisodeFileControl((EpisodeFile) release, settings);
+          if (((TvRelease) release).getSeason() == tvRelease.getSeason()
+              && Utils.containsAll(((TvRelease) release).getEpisodeNumbers(),
+                  tvRelease.getEpisodeNumbers())) {
+            EpisodeFileControl epCtrl = new EpisodeFileControl((TvRelease) release, settings);
             epCtrl.process(settings.getMappingSettings().getMappingList());
-            if (((EpisodeFile) release).getTvdbid() == episodeFile.getTvdbid()) {
+            if (((TvRelease) release).getTvdbid() == tvRelease.getTvdbid()) {
               String detectedLang = DetectLanguage.execute(fileSub);
               if (detectedLang.equals(languagecode)) {
                 Logger.instance.debug("Local Sub found, adding " + fileSub.toString());
