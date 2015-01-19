@@ -14,13 +14,13 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 
-public class NameSearchControl {
+public class TextualSearchControl {
 
   private final JTheTVDBAdapter jTheTVDBAdapter;
   private final Settings settings;
   private final SubtitleControl subtitleControl;
 
-  public NameSearchControl(Settings settings) {
+  public TextualSearchControl(Settings settings) {
     subtitleControl = new SubtitleControl(settings);
     jTheTVDBAdapter = JTheTVDBAdapter.getAdapter();
     this.settings = settings;

@@ -12,7 +12,7 @@ import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.lib.Info;
-import org.lodder.subtools.multisubdownloader.lib.control.NameSearchControl;
+import org.lodder.subtools.multisubdownloader.lib.control.TextualSearchControl;
 import org.lodder.subtools.multisubdownloader.lib.control.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.logging.Logger;
@@ -24,7 +24,7 @@ public class SearchNameWorker extends SwingWorker<List<Subtitle>, String> {
 
   private Settings settings;
   private VideoTable table;
-  private NameSearchControl tsc;
+  private TextualSearchControl tsc;
   private String videoText, languagecode, quality;
   private int season, episode;
   private VideoSearchType videoSearchTypeChoice;
@@ -32,7 +32,7 @@ public class SearchNameWorker extends SwingWorker<List<Subtitle>, String> {
   public SearchNameWorker(VideoTable table, Settings settings) {
     this.table = table;
     this.settings = settings;
-    tsc = new NameSearchControl(settings);
+    tsc = new TextualSearchControl(settings);
   }
 
   public void setParameters(VideoSearchType videoTypeChoice, String videoText, int season,
