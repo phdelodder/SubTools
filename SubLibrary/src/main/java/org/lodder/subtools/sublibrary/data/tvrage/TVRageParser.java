@@ -34,7 +34,7 @@ import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisodeList;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisodeNumber;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageShowInfo;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.subtitleproviders.XmlHTTP;
+import org.lodder.subtools.sublibrary.data.XmlHTTP;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

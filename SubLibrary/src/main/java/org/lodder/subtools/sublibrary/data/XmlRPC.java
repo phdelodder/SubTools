@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.subtitleproviders;
+package org.lodder.subtools.sublibrary.data;
 
 import java.net.URL;
 import java.util.Map;

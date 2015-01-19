@@ -10,8 +10,8 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import org.lodder.subtools.sublibrary.data.Html;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.subtitleproviders.Html;
 import org.lodder.subtools.sublibrary.subtitleproviders.subsmax.model.SubMaxSubtitleDescriptor;
 
 public class JSubsMaxApi extends Html {

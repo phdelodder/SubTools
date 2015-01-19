@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Vector;
 
+import org.lodder.subtools.sublibrary.data.XmlRPC;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.subtitleproviders.XmlRPC;
 import org.lodder.subtools.sublibrary.subtitleproviders.opensubtitles.model.OpenSubtitlesMovieDescriptor;
 import org.lodder.subtools.sublibrary.subtitleproviders.opensubtitles.model.OpenSubtitlesSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.util.NamedMatcher;

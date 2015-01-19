@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.lodder.subtools.sublibrary.subtitleproviders.XmlHTTP;
+import org.lodder.subtools.sublibrary.data.XmlHTTP;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

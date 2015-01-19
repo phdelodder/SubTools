@@ -10,7 +10,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.lodder.subtools.sublibrary.subtitleproviders.Html;
+import org.lodder.subtools.sublibrary.data.Html;
 import org.lodder.subtools.sublibrary.subtitleproviders.tvsubtitles.model.TVsubtitlesSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
 
