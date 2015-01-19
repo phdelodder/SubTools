@@ -15,26 +15,26 @@ public class VideoFileFactory {
       final String languagecode) throws ControlFactoryException, VideoFileParseException,
       VideoControlException {
     Logger.instance.trace("VideoFileFactory", "get", "");
-    ReleaseControl vfc = VideoFileControlFactory.getController(file, basedir, settings);
-    if (vfc instanceof EpisodeFileControl) {
+    ReleaseControl releaseCtrl = ReleaseControlFactory.getController(file, basedir, settings);
+    if (releaseCtrl instanceof EpisodeFileControl) {
       if (languagecode.isEmpty()) {
-        vfc.process(settings.getMappingSettings().getMappingList());
+        releaseCtrl.process(settings.getMappingSettings().getMappingList());
       } else {
-        Logger.instance.log("Treating As Episode: " + vfc.getVideoFile().getPath() + File.separator
-            + vfc.getVideoFile().getFilename());
-        vfc.processWithSubtitles(settings.getMappingSettings().getMappingList(), languagecode);
+        Logger.instance.log("Treating As Episode: " + releaseCtrl.getVideoFile().getPath() + File.separator
+            + releaseCtrl.getVideoFile().getFilename());
+        releaseCtrl.processWithSubtitles(settings.getMappingSettings().getMappingList(), languagecode);
       }
-    } else if (vfc instanceof MovieFileControl) {
+    } else if (releaseCtrl instanceof MovieFileControl) {
       if (languagecode.isEmpty()) {
-        vfc.process(settings.getMappingSettings().getMappingList());
+        releaseCtrl.process(settings.getMappingSettings().getMappingList());
       } else {
-        Logger.instance.log("Treating As Movie: " + vfc.getVideoFile().getPath() + File.separator
-            + vfc.getVideoFile().getFilename());
+        Logger.instance.log("Treating As Movie: " + releaseCtrl.getVideoFile().getPath() + File.separator
+            + releaseCtrl.getVideoFile().getFilename());
 
-        vfc.processWithSubtitles(languagecode);
+        releaseCtrl.processWithSubtitles(languagecode);
       }
     }
-    return vfc.getVideoFile();
+    return releaseCtrl.getVideoFile();
   }
 
 }

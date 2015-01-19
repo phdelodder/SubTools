@@ -11,7 +11,7 @@ import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
 
-public class VideoFileControlFactory {
+public class ReleaseControlFactory {
 
   private static final ReleaseParser releaseParser = new ReleaseParser();
 
