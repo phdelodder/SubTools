@@ -72,22 +72,26 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
               + release.getExtension();
     }
     if (librarySettings.isLibraryIncludeLanguageCode()) {
-      if (languageCode.equals("nl")) {
-        if (librarySettings.getDefaultNlText().equals("")) {
+      switch (languageCode) {
+        case "nl":
+          if (librarySettings.getDefaultNlText().equals("")) {
+            filename = changeExtension(filename, ".nld.srt");
+          } else {
+            final String ext = "." + librarySettings.getDefaultNlText() + ".srt";
+            filename = changeExtension(filename, ext);
+          }
+          break;
+        case "en":
+          if (librarySettings.getDefaultEnText().equals("")) {
+            filename = changeExtension(filename, ".eng.srt");
+          } else {
+            final String ext = "." + librarySettings.getDefaultEnText() + ".srt";
+            filename = changeExtension(filename, ext);
+          }
+          break;
+        default:
           filename = changeExtension(filename, ".nld.srt");
-        } else {
-          final String ext = "." + librarySettings.getDefaultNlText() + ".srt";
-          filename = changeExtension(filename, ext);
-        }
-      } else if (languageCode.equals("en")) {
-        if (librarySettings.getDefaultEnText().equals("")) {
-          filename = changeExtension(filename, ".eng.srt");
-        } else {
-          final String ext = "." + librarySettings.getDefaultEnText() + ".srt";
-          filename = changeExtension(filename, ext);
-        }
-      } else {
-        filename = changeExtension(filename, ".nld.srt");
+          break;
       }
     } else {
 

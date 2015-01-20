@@ -563,26 +563,27 @@ public class SettingsControl {
   }
 
   private String checkForOldStructure(String oldStructure) {
-    if (oldStructure.equals("Show\\Season")) {
-      return "%SHOW NAME%%SEPARATOR%Season %S%";
-    } else if (oldStructure.equals("Show\\Series")) {
-      return "%SHOW NAME%%SEPARATOR%Series %S%";
-    } else if (oldStructure.equals("\\")) {
-      return "%SEPARATOR%";
-    } else if (oldStructure.equals("Show S00E00.extension")) {
-      return "%SHOW NAME% S%SS%E%EE%";
-    } else if (oldStructure.equals("Show S00E00 Title.extension")) {
-      return "%SHOW NAME% S%SS%E%EE% %TITLE%";
-    } else if (oldStructure.equals("Show 00X00 Title.extension")) {
-      return "%SHOW NAME% %SS%X%EE% %TITLE%";
-    } else if (oldStructure.equals("Show - S00E00.extension")) {
-      return "%SHOW NAME% - S%SS%E%EE%";
-    } else if (oldStructure.equals("Show S00E00 Title Quality.extension")) {
-      return "%SHOW NAME% S%SS%E%EE% %TITLE% %QUALITY%";
-    } else if (oldStructure.equals("Movie (Year)")) {
-      return "%MOVIE TITLE% (%YEAR%)";
-    } else if (oldStructure.equals("Year\\Movie")) {
-      return "%YEAR%%SEPARATOR%%MOVIE TITLE%";
+    switch (oldStructure) {
+      case "Show\\Season":
+        return "%SHOW NAME%%SEPARATOR%Season %S%";
+      case "Show\\Series":
+        return "%SHOW NAME%%SEPARATOR%Series %S%";
+      case "\\":
+        return "%SEPARATOR%";
+      case "Show S00E00.extension":
+        return "%SHOW NAME% S%SS%E%EE%";
+      case "Show S00E00 Title.extension":
+        return "%SHOW NAME% S%SS%E%EE% %TITLE%";
+      case "Show 00X00 Title.extension":
+        return "%SHOW NAME% %SS%X%EE% %TITLE%";
+      case "Show - S00E00.extension":
+        return "%SHOW NAME% - S%SS%E%EE%";
+      case "Show S00E00 Title Quality.extension":
+        return "%SHOW NAME% S%SS%E%EE% %TITLE% %QUALITY%";
+      case "Movie (Year)":
+        return "%MOVIE TITLE% (%YEAR%)";
+      case "Year\\Movie":
+        return "%YEAR%%SEPARATOR%%MOVIE TITLE%";
     }
     return oldStructure;
   }
