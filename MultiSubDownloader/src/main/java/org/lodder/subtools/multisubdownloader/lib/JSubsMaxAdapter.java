@@ -3,6 +3,8 @@ package org.lodder.subtools.multisubdownloader.lib;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax.JSubsMaxApi;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax.model.SubMaxSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.JSubAdapter;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
@@ -10,8 +12,6 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
-import org.lodder.subtools.sublibrary.subtitleproviders.subsmax.JSubsMaxApi;
-import org.lodder.subtools.sublibrary.subtitleproviders.subsmax.model.SubMaxSubtitleDescriptor;
 
 public class JSubsMaxAdapter implements JSubAdapter {
 

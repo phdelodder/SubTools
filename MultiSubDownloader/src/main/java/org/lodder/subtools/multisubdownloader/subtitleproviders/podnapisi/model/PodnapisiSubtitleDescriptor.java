@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.subtitleproviders.podnapisi.model;
+package org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.model;
 
 
 /**

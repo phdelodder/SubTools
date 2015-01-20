@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.subtitleproviders.subsmax.model;
+package org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax.model;
 
 public class SubMaxSubtitleDescriptor {
 

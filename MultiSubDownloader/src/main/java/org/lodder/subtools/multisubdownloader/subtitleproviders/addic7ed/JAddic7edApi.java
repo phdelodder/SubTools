@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.subtitleproviders.addic7ed;
+package org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -18,8 +18,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.model.Addic7edSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.data.Html;
-import org.lodder.subtools.sublibrary.subtitleproviders.addic7ed.model.Addic7edSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
 
 

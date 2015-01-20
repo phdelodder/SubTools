@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.subtitleproviders.opensubtitles.model;
+package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.model;
 
 
 import java.util.Arrays;

@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.subtitleproviders.subsmax;
+package org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax;
 
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
@@ -10,9 +10,9 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax.model.SubMaxSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.data.Html;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.subtitleproviders.subsmax.model.SubMaxSubtitleDescriptor;
 
 public class JSubsMaxApi extends Html {
 
