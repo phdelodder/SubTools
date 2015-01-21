@@ -30,7 +30,7 @@ public class JOpenSubtitlesApi extends XmlRPC {
     Map<String, String> response =
         invoke("LogIn", new Object[] {username, password, language, getUserAgent()});
 
-    setToken(response.get("token").toString());
+    setToken(response.get("token"));
   }
 
   public synchronized void logout() throws MalformedURLException {
