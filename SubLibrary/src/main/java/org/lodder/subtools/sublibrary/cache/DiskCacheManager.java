@@ -11,7 +11,6 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import java.io.*;
 import java.net.URL;
 import java.util.Date;
@@ -198,7 +197,7 @@ public class DiskCacheManager extends CacheManager {
 
   public void removeEntry(String url) {
     super.removeEntry(url);
-    deleteCacheObject(indexList.get(url.toString()));
+    deleteCacheObject(indexList.get(url));
   }
 
   protected void finalize() throws Throwable {
