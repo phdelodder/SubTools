@@ -1,22 +1,5 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi;
 
-import java.io.IOException;
-import java.math.BigInteger;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.model.PodnapisiSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.cache.CacheManager;
 import org.lodder.subtools.sublibrary.data.XmlRPC;
@@ -27,6 +10,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -89,7 +82,9 @@ public class JPodnapisiApi extends XmlRPC{
 
         Map<?, ?> response = invoke("search", new Object[] {getToken(), filehash});
         try {
-            List<Map<String, String>> subtitleData = ((List<Map<String, String>>) response.get("subtitles") == null) ? new ArrayList<Map<String, String>>() : (List<Map<String, String>>) response.get("subtitles");
+            List<Map<String, String>> subtitleData = (response.get("subtitles") == null) ?
+                new ArrayList<Map<String, String>>() :
+                (List<Map<String, String>>) response.get("subtitles");
 
             for (Map<String, String> subtitle : subtitleData) {
                 if (subtitle.get("LanguageCode").equals(PODNAPISI_LANGS.get(sublanguageid)))
@@ -142,9 +137,9 @@ public class JPodnapisiApi extends XmlRPC{
         }
         return null;
     }
-    
-    public String downloadUrl(String subtitleId) throws MalformedURLException, Exception {
-    	String url = "http://simple.podnapisi.net/en/ondertitels-p"+subtitleId;
+
+    public String downloadUrl(String subtitleId) throws Exception {
+        String url = "http://simple.podnapisi.net/en/ondertitels-p"+subtitleId;
     	ucm.setRatelimit(0);
     	String xml = ucm.fetchAsString(new URL(url), 900);
     	int beginIndex = xml.indexOf("/ppodnapisi/predownload/i/");
@@ -191,8 +186,8 @@ public class JPodnapisiApi extends XmlRPC{
         } catch (IOException e) {
             Logger.instance.error(Logger.stack2String(e));
         } catch (Exception e) {
-        	Logger.instance.error(Logger.stack2String(e));;
-		}
+            Logger.instance.error(Logger.stack2String(e));
+        }
         return null;
     }
 

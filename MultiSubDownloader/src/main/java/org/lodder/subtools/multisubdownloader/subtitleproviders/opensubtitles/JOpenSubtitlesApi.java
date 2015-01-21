@@ -1,20 +1,14 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles;
 
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Vector;
-
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.model.OpenSubtitlesMovieDescriptor;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.model.OpenSubtitlesSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.data.XmlRPC;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.util.NamedMatcher;
 import org.lodder.subtools.sublibrary.util.NamedPattern;
+
+import java.net.MalformedURLException;
+import java.util.*;
 
 public class JOpenSubtitlesApi extends XmlRPC {
 
@@ -144,10 +138,10 @@ public class JOpenSubtitlesApi extends XmlRPC {
     StringBuilder result = new StringBuilder();
     String separator = ",";
     if (languages.length > 0) {
-      result.append((String) OS_LANGS.get(languages[0]));
+      result.append(OS_LANGS.get(languages[0]));
       for (int i = 1; i < languages.length; i++) {
         result.append(separator);
-        result.append((String) OS_LANGS.get(languages[i]));
+        result.append(OS_LANGS.get(languages[i]));
       }
     }
 
@@ -169,42 +163,42 @@ public class JOpenSubtitlesApi extends XmlRPC {
 
   private OpenSubtitlesSubtitleDescriptor parseOSSubtitle(Map<String, String> subtitle) {
     OpenSubtitlesSubtitleDescriptor oss = new OpenSubtitlesSubtitleDescriptor();
-    oss.setUserNickName((String) subtitle.get("UserNickName"));
-    oss.setSubFormat((String) subtitle.get("SubFormat"));
-    oss.setIDSubtitle(Integer.parseInt((String) subtitle.get("IDSubtitle")));
-    oss.setIDMovie(Integer.parseInt((String) subtitle.get("IDMovie")));
-    oss.setSubBad((String) subtitle.get("SubBad"));
-    oss.setUserID(Integer.parseInt((String) subtitle.get("UserID")));
-    oss.setZipDownloadLink((String) subtitle.get("ZipDownloadLink"));
-    oss.setSubSize(Long.parseLong((String) subtitle.get("SubSize")));
-    oss.setSubFileName((String) subtitle.get("SubFileName"));
-    oss.setSubDownloadLink((String) subtitle.get("SubDownloadLink"));
-    oss.setUserRank((String) subtitle.get("UserRank"));
-    oss.setSubActualCD((String) subtitle.get("SubActualCD"));
-    oss.setMovieImdbRating((String) subtitle.get("MovieImdbRating"));
-    oss.setSubAuthorComment((String) subtitle.get("SubAuthorComment"));
-    oss.setSubRating((String) subtitle.get("SubRating"));
-    oss.setSubtitlesLink((String) subtitle.get("SubtitlesLink"));
-    oss.setSubHearingImpaired((String) subtitle.get("SubHearingImpaired"));
-    oss.setSubHash((String) subtitle.get("SubHash"));
-    oss.setIDSubMovieFile(Integer.parseInt((String) subtitle.get("IDSubMovieFile")));
-    oss.setISO639((String) subtitle.get("ISO639"));
-    oss.setSubDownloadsCnt(Integer.parseInt((String) subtitle.get("SubDownloadsCnt")));
-    oss.setMovieHash((String) subtitle.get("MovieHash"));
-    oss.setSubSumCD(Integer.parseInt((String) subtitle.get("SubSumCD")));
-    oss.setSubComments((String) subtitle.get("SubComments"));
-    oss.setMovieByteSize(Long.parseLong((String) subtitle.get("MovieByteSize")));
-    oss.setLanguageName((String) subtitle.get("LanguageName"));
-    oss.setMovieYear(Integer.parseInt((String) subtitle.get("MovieYear")));
-    oss.setSubLanguageID((String) subtitle.get("SubLanguageID"));
-    oss.setMovieReleaseName((String) subtitle.get("MovieReleaseName"));
-    oss.setMovieTimeMS((String) subtitle.get("MovieTimeMS"));
-    oss.setMatchedBy((String) subtitle.get("MatchedBy"));
-    oss.setMovieName((String) subtitle.get("MovieName"));
-    oss.setSubAddDate((String) subtitle.get("SubAddDate"));
-    oss.setIDMovieImdb(Integer.parseInt((String) subtitle.get("IDMovieImdb")));
-    oss.setMovieNameEng((String) subtitle.get("MovieNameEng"));
-    oss.setIDSubtitle(Integer.parseInt((String) subtitle.get("IDSubtitleFile")));
+    oss.setUserNickName(subtitle.get("UserNickName"));
+    oss.setSubFormat(subtitle.get("SubFormat"));
+    oss.setIDSubtitle(Integer.parseInt(subtitle.get("IDSubtitle")));
+    oss.setIDMovie(Integer.parseInt(subtitle.get("IDMovie")));
+    oss.setSubBad(subtitle.get("SubBad"));
+    oss.setUserID(Integer.parseInt(subtitle.get("UserID")));
+    oss.setZipDownloadLink(subtitle.get("ZipDownloadLink"));
+    oss.setSubSize(Long.parseLong(subtitle.get("SubSize")));
+    oss.setSubFileName(subtitle.get("SubFileName"));
+    oss.setSubDownloadLink(subtitle.get("SubDownloadLink"));
+    oss.setUserRank(subtitle.get("UserRank"));
+    oss.setSubActualCD(subtitle.get("SubActualCD"));
+    oss.setMovieImdbRating(subtitle.get("MovieImdbRating"));
+    oss.setSubAuthorComment(subtitle.get("SubAuthorComment"));
+    oss.setSubRating(subtitle.get("SubRating"));
+    oss.setSubtitlesLink(subtitle.get("SubtitlesLink"));
+    oss.setSubHearingImpaired(subtitle.get("SubHearingImpaired"));
+    oss.setSubHash(subtitle.get("SubHash"));
+    oss.setIDSubMovieFile(Integer.parseInt(subtitle.get("IDSubMovieFile")));
+    oss.setISO639(subtitle.get("ISO639"));
+    oss.setSubDownloadsCnt(Integer.parseInt(subtitle.get("SubDownloadsCnt")));
+    oss.setMovieHash(subtitle.get("MovieHash"));
+    oss.setSubSumCD(Integer.parseInt(subtitle.get("SubSumCD")));
+    oss.setSubComments(subtitle.get("SubComments"));
+    oss.setMovieByteSize(Long.parseLong(subtitle.get("MovieByteSize")));
+    oss.setLanguageName(subtitle.get("LanguageName"));
+    oss.setMovieYear(Integer.parseInt(subtitle.get("MovieYear")));
+    oss.setSubLanguageID(subtitle.get("SubLanguageID"));
+    oss.setMovieReleaseName(subtitle.get("MovieReleaseName"));
+    oss.setMovieTimeMS(subtitle.get("MovieTimeMS"));
+    oss.setMatchedBy(subtitle.get("MatchedBy"));
+    oss.setMovieName(subtitle.get("MovieName"));
+    oss.setSubAddDate(subtitle.get("SubAddDate"));
+    oss.setIDMovieImdb(Integer.parseInt(subtitle.get("IDMovieImdb")));
+    oss.setMovieNameEng(subtitle.get("MovieNameEng"));
+    oss.setIDSubtitle(Integer.parseInt(subtitle.get("IDSubtitleFile")));
     return oss;
   }
 
