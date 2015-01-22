@@ -17,18 +17,15 @@ import org.lodder.subtools.sublibrary.model.VideoSearchType;
 
 public class SearchTextInputPanel extends JPanel {
 
-  /**
-   * 
-   */
   private static final long serialVersionUID = 7030171360517948253L;
-  private JComboBox<VideoSearchType> cbxVideoType;
-  protected JTextField txtInputSeason;
-  protected JTextField txtInputEpisode;
-  protected JTextField txtQualityVersion;
-  private JTextField txtInputVideoName;
-  private JComboBox<String> cbxLanguageText;
-  private JButton btnSearchText;
-  private final String[] languageSelection = new String[] {"Nederlands", "Engels"};
+  private   JComboBox<VideoSearchType> cbxVideoType;
+  protected JTextField                 txtInputSeason;
+  protected JTextField                 txtInputEpisode;
+  protected JTextField                 txtQualityVersion;
+  private   JTextField                 txtInputVideoName;
+  private   JComboBox<String>          cbxLanguageText;
+  private   JButton                    btnSearchText;
+  private final String[] languageSelection = new String[]{"Nederlands", "Engels"};
 
   public SearchTextInputPanel() {
     this.setLayout(new MigLayout("", "[][][][][][][][grow][]", "[][][][][]"));
