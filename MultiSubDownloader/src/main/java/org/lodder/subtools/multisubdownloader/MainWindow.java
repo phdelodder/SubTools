@@ -726,38 +726,47 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
       progressDialog = new ProgressDialog(searchWorker);
       progressDialog.setVisible(true);
       clearTableName();
-      pnlSearchTextInput.getBtnSearchText().setEnabled(false);
-      final VideoSearchType videoTypeChoice =
-          (VideoSearchType) this.pnlSearchTextInput.getCbxVideoType().getSelectedItem();
+      pnlSearchTextInput.disableSearchButton();
+      final VideoSearchType videoType = this.pnlSearchTextInput.getType();
 
       int season = 0, episode = 0;
-      if (!pnlSearchTextInput.getTxtInputSeason().getText().isEmpty())
-        season = Integer.parseInt(this.pnlSearchTextInput.getTxtInputSeason().getText().trim());
-      if (!pnlSearchTextInput.getTxtInputEpisode().getText().isEmpty())
-        episode = Integer.parseInt(this.pnlSearchTextInput.getTxtInputEpisode().getText().trim());
+      if (!pnlSearchTextInput.getSeason().isEmpty())
+        season = Integer.parseInt(this.pnlSearchTextInput.getSeason());
+      if (!pnlSearchTextInput.getEpisode().isEmpty())
+        episode = Integer.parseInt(this.pnlSearchTextInput.getEpisode());
 
-      searchWorker.setParameters(videoTypeChoice, pnlSearchTextInput.getTxtInputVideoName()
-          .getText().trim(), season, episode, pnlSearchTextInput.getLanguageCodeText(),
-          pnlSearchTextInput.getTxtQualityVersion().getText().trim());
+      String name = pnlSearchTextInput.getName();
+      String languageCode = getLanguageCode(pnlSearchTextInput.getSelectedLanguage());
+      String quality = pnlSearchTextInput.getQuality();
+
+      searchWorker.setParameters(videoType, name, season, episode, languageCode, quality);
       searchWorker.execute();
     }
   }
 
+  private String getLanguageCode(String language) {
+    if (language.equals("Nederlands")) {
+      return "nl";
+    } else if (language.equals("Engels")) {
+      return "en";
+    }
+    return null;
+  }
+
   private boolean inputNameCheck() {
-    VideoSearchType videoTypeChoice =
-        (VideoSearchType) this.pnlSearchTextInput.getCbxVideoType().getSelectedItem();
-    if (pnlSearchTextInput.getTxtInputVideoName().getText().isEmpty()) {
+    VideoSearchType videoTypeChoice = this.pnlSearchTextInput.getType();
+    if (pnlSearchTextInput.getName().isEmpty()) {
       showErrorMessage("Geen Movie/Episode/Release opgegeven");
       return false;
     }
     if (videoTypeChoice.equals(VideoSearchType.EPISODE)) {
-      if (!this.pnlSearchTextInput.getTxtInputSeason().getText().isEmpty()
-          && !isInteger(this.pnlSearchTextInput.getTxtInputSeason().getText().trim())) {
+      if (!this.pnlSearchTextInput.getSeason().isEmpty()
+          && !isInteger(this.pnlSearchTextInput.getSeason())) {
         showErrorMessage("Seizoen is niet numeriek");
         return false;
       }
-      if ((!this.pnlSearchTextInput.getTxtInputEpisode().getText().isEmpty())
-          && !isInteger(this.pnlSearchTextInput.getTxtInputEpisode().getText().trim())) {
+      if ((!this.pnlSearchTextInput.getEpisode().isEmpty())
+          && !isInteger(this.pnlSearchTextInput.getEpisode())) {
         showErrorMessage("Aflevering is niet numeriek");
         return false;
       }
@@ -888,7 +897,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         final DefaultTableModel model = (DefaultTableModel) subtitleTable.getModel();
         StatusMessenger.instance.message("Found " + model.getRowCount() + " files");
         pnlSearchText.setEnableDownloadButtons(true);
-        pnlSearchTextInput.getBtnSearchText().setEnabled(true);
+        pnlSearchTextInput.enableSearchButton();
       } else {
         final int progress = searchWorker.getProgress();
         progressDialog.updateProgress(progress);

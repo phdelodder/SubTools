@@ -109,41 +109,36 @@ public class SearchTextInputPanel extends JPanel {
     this.searchAction = searchAction;
   }
 
-  public JComboBox<VideoSearchType> getCbxVideoType() {
-    return cbxVideoType;
+  public VideoSearchType getType() {
+    return (VideoSearchType) cbxVideoType.getSelectedItem();
   }
 
-  public JTextField getTxtInputSeason() {
-    return txtInputSeason;
+  public String getSeason() {
+    return txtInputSeason.getText().trim();
   }
 
-  public JTextField getTxtInputEpisode() {
-    return txtInputEpisode;
+  public String getEpisode() {
+    return txtInputEpisode.getText().trim();
   }
 
-  public JTextField getTxtQualityVersion() {
-    return txtQualityVersion;
+  public String getQuality() {
+    return txtQualityVersion.getText().trim();
   }
 
-  public JTextField getTxtInputVideoName() {
-    return txtInputVideoName;
+  public String getName() {
+    return txtInputVideoName.getText().trim();
   }
 
-  public JComboBox<String> getCbxLanguageText() {
-    return cbxLanguageText;
+  public void enableSearchButton() {
+    this.btnSearchText.setEnabled(true);
   }
 
-  public JButton getBtnSearchText() {
-    return btnSearchText;
+  public void disableSearchButton() {
+    this.btnSearchText.setEnabled(false);
   }
 
-  public String getLanguageCodeText() {
-    if (cbxLanguageText.getSelectedItem().equals("Nederlands")) {
-      return "nl";
-    } else if (cbxLanguageText.getSelectedItem().equals("Engels")) {
-      return "en";
-    }
-    return null;
+  public String getSelectedLanguage() {
+    return ((String) cbxLanguageText.getSelectedItem()).trim();
   }
 
 }
