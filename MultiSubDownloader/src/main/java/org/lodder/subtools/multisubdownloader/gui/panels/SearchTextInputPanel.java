@@ -25,6 +25,7 @@ public class SearchTextInputPanel extends JPanel {
   private   JTextField                 txtInputVideoName;
   private   JComboBox<String>          cbxLanguageText;
   private   JButton                    btnSearchText;
+  private   ActionListener             searchAction;
   private final String[] languageSelection = new String[]{"Nederlands", "Engels"};
 
   public SearchTextInputPanel() {
@@ -57,6 +58,7 @@ public class SearchTextInputPanel extends JPanel {
         videoTypeChanged();
       }
     });
+    btnSearchText.addActionListener(this.searchAction);
   }
 
   private void createComponents() {
@@ -103,8 +105,8 @@ public class SearchTextInputPanel extends JPanel {
     }
   }
 
-  public void setBtnSearchTextAction(ActionListener actionListener) {
-    btnSearchText.addActionListener(actionListener);
+  public void setSearchAction(ActionListener searchAction) {
+    this.searchAction = searchAction;
   }
 
   public JComboBox<VideoSearchType> getCbxVideoType() {

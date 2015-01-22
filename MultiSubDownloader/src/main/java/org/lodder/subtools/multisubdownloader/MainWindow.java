@@ -298,7 +298,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     pnlSearchText.setSelectFoundVisible(false);
 
     pnlSearchTextInput = new SearchTextInputPanel();
-    pnlSearchTextInput.setBtnSearchTextAction(new ActionListener() {
+    pnlSearchTextInput.setSearchAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         searchName();
       }
