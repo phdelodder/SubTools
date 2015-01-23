@@ -28,7 +28,6 @@ public abstract class InputPanel extends JPanel {
 
   public void setSearchAction(ActionListener searchAction) {
     this.searchAction = searchAction;
-    setupListeners();
   }
 
   public void enableSearchButton() {

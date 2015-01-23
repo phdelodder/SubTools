@@ -95,7 +95,6 @@ public class ResultPanel extends JPanel {
 
   public void setMoveAction(ActionListener moveAction) {
     this.moveAction = moveAction;
-    setupListeners();
   }
 
   private void setupListeners() {

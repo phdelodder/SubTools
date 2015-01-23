@@ -62,7 +62,6 @@ public class SearchFileInputPanel extends InputPanel {
 
   public void setSelectFolderAction(ActionListener selectFolderAction) {
     this.selectFolderAction = selectFolderAction;
-    setupListeners();
   }
 
   public void setIncomingPath(String path) {
