@@ -26,26 +26,21 @@ public abstract class VideoLibraryPanel extends JPanel {
      *
      */
   private static final long serialVersionUID = -9175813173306481849L;
-  protected JTextField txtLibraryFolder;
   private LibrarySettings libSettings;
-  private JPanel pnlStructureFolder;
+  protected StructureFolderPanel pnlStructureFolder;
   private JPanel pnlStructureFile;
-  protected JCheckBox chkFilenameReplaceSpace, chkFolderReplaceSpace;
+  protected JCheckBox chkFilenameReplaceSpace;
   protected JCheckBox chkIncludeLanguageCode;
-  protected JCheckBox chkRemoveEmptyFolder;
   private JTextField txtDefaultNlText;
   private JTextField txtDefaultEnText;
   private VideoType videoType;
-  protected JTextField txtFolderStructure;
   protected JTextField txtFileStructure;
-  private JButton btnBuildStructureFolder;
   private JButton btnBuildStructureFile;
   private JComboBox<LibraryActionType> cbxLibraryAction;
   private JCheckBox chkReplaceWindowsChar;
   private JCheckBox chkUseTVDBNaming;
   private PartialDisableComboBox cbxLibraryOtherFileAction;
   private JComboBox<String> cbxFilenameReplaceSpaceChar;
-  private JComboBox<String> cbxFolderReplaceSpaceChar;
   private SubtitleBackupPanel pnlBackup;
 
   public VideoLibraryPanel(LibrarySettings libSettings, VideoType videoType) {
@@ -112,7 +107,7 @@ public abstract class VideoLibraryPanel extends JPanel {
     for (Component c : panel.getComponents()) {
       if (!(VideoType.MOVIE == videoType && c.equals(chkUseTVDBNaming))) {
         if (c instanceof JTextField && ((JTextField) c).getText().isEmpty()
-            && VideoType.MOVIE == videoType && !c.equals(txtFolderStructure)
+            && VideoType.MOVIE == videoType && !c.equals(pnlStructureFolder.getStructure())
             && !c.equals(txtDefaultNlText) && !c.equals(txtDefaultEnText)) {
           c.setVisible(false);
         } else if (c instanceof JButton && c.equals(btnBuildStructureFile)
@@ -132,8 +127,8 @@ public abstract class VideoLibraryPanel extends JPanel {
     if (libraryActionType != null) {
       if (libraryActionType.equals(LibraryActionType.MOVEANDRENAME)
           || libraryActionType.equals(LibraryActionType.MOVE))
-        if (!txtLibraryFolder.getText().isEmpty()) {
-          File f = new File(txtLibraryFolder.getText());
+        if (!pnlStructureFolder.getLibraryFolder().isEmpty()) {
+          File f = new File(pnlStructureFolder.getLibraryFolder());
           try {
             if (!f.getCanonicalFile().isDirectory()) {
               final String message =
@@ -166,24 +161,24 @@ public abstract class VideoLibraryPanel extends JPanel {
     this.cbxLibraryOtherFileAction.setSelectedItem(libSettings.getLibraryOtherFileAction());
 
     if (libSettings.getLibraryFolder() != null) {
-      this.txtLibraryFolder.setText(libSettings.getLibraryFolder().getAbsolutePath());
+      pnlStructureFolder.setLibraryFolder(libSettings.getLibraryFolder().getAbsolutePath());
     }
-    this.txtFolderStructure.setText(libSettings.getLibraryFolderStructure());
-    this.chkRemoveEmptyFolder.setSelected(libSettings.isLibraryRemoveEmptyFolders());
+    pnlStructureFolder.getStructure().setText(libSettings.getLibraryFolderStructure());
+    pnlStructureFolder.setRemoveEmptyFolderSelected(libSettings.isLibraryRemoveEmptyFolders());
 
     this.txtFileStructure.setText(libSettings.getLibraryFilenameStructure());
     this.chkFilenameReplaceSpace.setSelected(libSettings.isLibraryFilenameReplaceSpace());
     this.cbxFilenameReplaceSpaceChar.setSelectedItem(libSettings
         .getLibraryFilenameReplacingSpaceSign());
-    this.chkFolderReplaceSpace.setSelected(libSettings.isLibraryFolderReplaceSpace());
-    this.cbxFolderReplaceSpaceChar
-        .setSelectedItem(libSettings.getLibraryFolderReplacingSpaceSign());
+    pnlStructureFolder.setFolderReplaceSpaceSelected(libSettings.isLibraryFolderReplaceSpace());
+    pnlStructureFolder.setReplaceSpaceChar(libSettings.getLibraryFolderReplacingSpaceSign());
     this.chkIncludeLanguageCode.setSelected(libSettings.isLibraryIncludeLanguageCode());
     this.txtDefaultEnText.setText(libSettings.getDefaultEnText());
     this.txtDefaultNlText.setText(libSettings.getDefaultNlText());
 
-    if (this.txtLibraryFolder.getText().isEmpty() && this.txtFileStructure.getText().isEmpty()
-        && this.txtFolderStructure.getText().isEmpty()) initializeEmptyValues();
+    if (pnlStructureFolder.getLibraryFolder().isEmpty()
+        && this.txtFileStructure.getText().isEmpty()
+        && pnlStructureFolder.getStructure().getText().isEmpty()) initializeEmptyValues();
     checkEnableStatusPanel();
     checkPosibleOtherFileActions();
   }
@@ -200,9 +195,9 @@ public abstract class VideoLibraryPanel extends JPanel {
         .setLibraryOtherFileAction((LibraryOtherFileActionType) this.cbxLibraryOtherFileAction
             .getSelectedItem());
 
-    this.libSettings.setLibraryFolder(new File(this.txtLibraryFolder.getText()));
-    this.libSettings.setLibraryFolderStructure(this.txtFolderStructure.getText());
-    this.libSettings.setLibraryRemoveEmptyFolders(this.chkRemoveEmptyFolder.isSelected());
+    this.libSettings.setLibraryFolder(new File(pnlStructureFolder.getLibraryFolder()));
+    this.libSettings.setLibraryFolderStructure(pnlStructureFolder.getStructure().getText());
+    this.libSettings.setLibraryRemoveEmptyFolders(pnlStructureFolder.isRemoveEmptyFolderSelected());
 
     this.libSettings.setLibraryFilenameStructure(this.txtFileStructure.getText());
     this.libSettings.setLibraryFilenameReplaceSpace(this.chkFilenameReplaceSpace.isSelected());
@@ -211,10 +206,10 @@ public abstract class VideoLibraryPanel extends JPanel {
           .setLibraryFilenameReplacingSpaceSign((String) this.cbxFilenameReplaceSpaceChar
               .getSelectedItem());
     }
-    this.libSettings.setLibraryFolderReplaceSpace(this.chkFolderReplaceSpace.isSelected());
-    if (this.chkFolderReplaceSpace.isSelected()) {
-      this.libSettings.setLibraryFolderReplacingSpaceSign((String) this.cbxFolderReplaceSpaceChar
-          .getSelectedItem());
+    this.libSettings
+        .setLibraryFolderReplaceSpace(pnlStructureFolder.isFolderReplaceSpaceSelected());
+    if (pnlStructureFolder.isFolderReplaceSpaceSelected()) {
+      this.libSettings.setLibraryFolderReplacingSpaceSign(pnlStructureFolder.getReplaceSpaceChar());
     }
     this.libSettings.setLibraryIncludeLanguageCode(this.chkIncludeLanguageCode.isSelected());
     this.libSettings.setDefaultEnText(this.txtDefaultEnText.getText());
@@ -263,60 +258,8 @@ public abstract class VideoLibraryPanel extends JPanel {
     cbxLibraryOtherFileAction = new PartialDisableComboBox(LibraryOtherFileActionType.values());
     add(cbxLibraryOtherFileAction, "cell 1 5,growx");
 
-    pnlStructureFolder = new JPanel();
+    createStructureFolderPanel();
     add(pnlStructureFolder, "cell 0 6 2 1,grow");
-    pnlStructureFolder.setLayout(new MigLayout("", "[][][][grow][center]", "[][][][][][]"));
-
-    pnlStructureFolder.add(new JLabel("Verplaatsen naar Bibiliotheek"), "cell 0 0 5 1,gapy 5");
-    pnlStructureFolder.add(new JSeparator(), "cell 0 0 5 1,growx,gapy 5");
-
-    JLabel lblLocatie = new JLabel("Locatie");
-    pnlStructureFolder.add(lblLocatie, "cell 1 1,alignx left");
-
-    txtLibraryFolder = new JTextField();
-    pnlStructureFolder.add(txtLibraryFolder, "cell 2 1 2 1,growx");
-    txtLibraryFolder.setColumns(10);
-
-    JButton btnBrowse = new JButton("Bladeren");
-    btnBrowse.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        File path =
-            MemoryFolderChooser.getInstance().selectDirectory(VideoLibraryPanel.this.getRootPane(),
-                "Selecteer Bibiliotheek map");
-        txtLibraryFolder.setText(path.getAbsolutePath());
-      }
-    });
-    pnlStructureFolder.add(btnBrowse, "cell 4 1,alignx center");
-
-    JLabel lblStructuur = new JLabel("Structuur");
-    pnlStructureFolder.add(lblStructuur, "cell 1 2,alignx left");
-
-    txtFolderStructure = new JTextField();
-    pnlStructureFolder.add(txtFolderStructure, "cell 2 2 2 1,growx");
-    txtFolderStructure.setColumns(10);
-
-    btnBuildStructureFolder = new JButton("Structuur");
-    btnBuildStructureFolder.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        final StructureBuilderDialog sDialog =
-            new StructureBuilderDialog(null, "Structure Builder", true, videoType,
-                StructureBuilderDialog.StrucutureType.FOLDER, getLibrarySettings());
-        String value = sDialog.showDialog(txtFolderStructure.getText());
-        if (!value.equals("")) txtFolderStructure.setText(value);
-      }
-    });
-    pnlStructureFolder.add(btnBuildStructureFolder, "cell 4 2,alignx center");
-
-    chkRemoveEmptyFolder = new JCheckBox("Lege mappen verwijderen");
-    pnlStructureFolder.add(chkRemoveEmptyFolder, "cell 1 3 4 1,alignx left");
-
-    chkFolderReplaceSpace = new JCheckBox("Vervangen spatie door: ");
-    pnlStructureFolder.add(chkFolderReplaceSpace, "cell 1 4 2 1");
-
-    cbxFolderReplaceSpaceChar = new JComboBox<String>();
-    cbxFolderReplaceSpaceChar.setModel(new DefaultComboBoxModel<String>(
-        new String[] {"-", ".", "_"}));
-    pnlStructureFolder.add(cbxFolderReplaceSpaceChar, "cell 3 4,growx");
 
     pnlStructureFile = new JPanel();
     pnlStructureFile.setLayout(new MigLayout("", "[][][][grow][]", "[][][][][][]"));
@@ -369,8 +312,8 @@ public abstract class VideoLibraryPanel extends JPanel {
     pnlStructureFile.add(txtDefaultEnText, "cell 2 5");
     txtDefaultEnText.setColumns(10);
   }
-  
-  private void createBackupPanel(){
+
+  private void createBackupPanel() {
     pnlBackup = new SubtitleBackupPanel();
 
     pnlBackup.setBrowseBackupAction(new ActionListener() {
@@ -379,6 +322,29 @@ public abstract class VideoLibraryPanel extends JPanel {
             MemoryFolderChooser.getInstance().selectDirectory(VideoLibraryPanel.this.getRootPane(),
                 "Selecteer Ondertitel Backup map");
         pnlBackup.setBackupSubtitlePath(path.getAbsolutePath());
+      }
+    });
+  }
+
+  private void createStructureFolderPanel() {
+    pnlStructureFolder = new StructureFolderPanel();
+
+    pnlStructureFolder.setBrowseAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        File path =
+            MemoryFolderChooser.getInstance().selectDirectory(VideoLibraryPanel.this.getRootPane(),
+                "Selecteer Bibiliotheek map");
+        pnlStructureFolder.setLibraryFolder(path.getAbsolutePath());
+      }
+    });
+
+    pnlStructureFolder.setBuildStructureAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        final StructureBuilderDialog sDialog =
+            new StructureBuilderDialog(null, "Structure Builder", true, videoType,
+                StructureBuilderDialog.StrucutureType.FOLDER, getLibrarySettings());
+        String value = sDialog.showDialog(pnlStructureFolder.getStructure().getText());
+        if (!value.equals("")) pnlStructureFolder.getStructure().setText(value);
       }
     });
   }

@@ -18,7 +18,7 @@ public class EpisodeLibraryPanel extends VideoLibraryPanel {
   protected void initializeEmptyValues() {
     /** Default values for new setup **/
     txtFileStructure.setText("%SHOW NAME%.S%SS%E%EE%.%TITLE%");
-    txtFolderStructure.setText("%SHOW NAME%%SEPARATOR%Season %S%");
+    pnlStructureFolder.getStructure().setText("%SHOW NAME%%SEPARATOR%Season %S%");
   }
 
 }
