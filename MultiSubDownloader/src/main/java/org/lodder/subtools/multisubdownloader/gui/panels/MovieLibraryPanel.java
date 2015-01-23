@@ -17,7 +17,7 @@ public class MovieLibraryPanel extends VideoLibraryPanel {
 
   protected void initializeEmptyValues() {
     /** Default values for new setup **/
-    txtFileStructure.setText("");
+    pnlStructureFile.setFileStructure("");
     pnlStructureFolder.getStructure().setText("%MOVIE TITLE% (%YEAR%)");
   }
 
