@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 import net.miginfocom.swing.MigLayout;
@@ -33,7 +34,12 @@ public class SearchFileInputPanel extends InputPanel {
   }
 
   private void setupListeners() {
-    btnBrowse.addActionListener(selectFolderAction);
+    btnBrowse.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        selectFolderAction.actionPerformed(e);
+      }
+    });
   }
 
   private void createComponents() {

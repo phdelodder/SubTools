@@ -111,9 +111,19 @@ public class ResultPanel extends JPanel {
       }
     });
 
-    btnDownload.addActionListener(downloadAction);
+    btnDownload.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        downloadAction.actionPerformed(e);
+      }
+    });
 
-    btnMove.addActionListener(moveAction);
+    btnMove.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        moveAction.actionPerformed(e);
+      }
+    });
   }
 
   private void createComponents() {

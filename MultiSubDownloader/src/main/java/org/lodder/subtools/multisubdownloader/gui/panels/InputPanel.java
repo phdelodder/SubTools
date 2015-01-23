@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -8,9 +9,8 @@ import javax.swing.JPanel;
 
 public abstract class InputPanel extends JPanel {
   private JButton           btnSearch;
-  private ActionListener    searchAction;
   private JComboBox<String> cbxLanguage;
-
+  private ActionListener    searchAction;
   private final String[] languageSelection = new String[]{"Nederlands", "Engels"};
 
   public InputPanel() {
@@ -43,7 +43,12 @@ public abstract class InputPanel extends JPanel {
   }
 
   private void setupListeners() {
-    btnSearch.addActionListener(searchAction);
+    btnSearch.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        searchAction.actionPerformed(e);
+      }
+    });
   }
 
   private void createComponents() {
