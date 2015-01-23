@@ -20,15 +20,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -36,15 +31,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.RowSorter;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-
-import net.miginfocom.swing.MigLayout;
 
 import org.lodder.subtools.multisubdownloader.gui.dialog.MappingEpisodeNameDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.PreferenceDialog;
@@ -58,10 +50,7 @@ import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
-import org.lodder.subtools.multisubdownloader.gui.panels.LoggingPanel;
-import org.lodder.subtools.multisubdownloader.gui.panels.ResultPanel;
-import org.lodder.subtools.multisubdownloader.gui.panels.SearchPanel;
-import org.lodder.subtools.multisubdownloader.gui.panels.SearchTextInputPanel;
+import org.lodder.subtools.multisubdownloader.gui.panels.*;
 import org.lodder.subtools.multisubdownloader.gui.workers.DownloadWorker;
 import org.lodder.subtools.multisubdownloader.gui.workers.RenameWorker;
 import org.lodder.subtools.multisubdownloader.gui.workers.SearchFileWorker;
@@ -90,18 +79,12 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
      *
      */
   private static final long serialVersionUID = 1L;
-  private JTextField txtIncomingPath;
-  private JCheckBox chkRecursive;
   private StatusLabel lblStatus;
-  private JComboBox<String> cbxLanguageFile;
   private final SettingsControl settingsControl;
   private ProgressDialog progressDialog;
-  private JButton btnSearch;
-  private JCheckBox chkforceSubtitleOverwrite;
   private MyPopupMenu popupMenu;
   private SearchPanel pnlSearchFile;
   private SearchPanel pnlSearchText;
-  private final String[] languageSelection = new String[] {"Nederlands", "Engels"};
   private JCheckBoxMenuItem chckbxmntmTitle;
   private JCheckBoxMenuItem chckbxmntmType;
   private JCheckBoxMenuItem chckbxmntmBestandsnaam;
@@ -109,6 +92,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   private JCheckBoxMenuItem chckbxmntmEpisode;
   private JPanel pnlLogging;
   private SearchTextInputPanel pnlSearchTextInput;
+  private SearchFileInputPanel pnlSearchFileInput;
 
   /**
    * Create the application.
@@ -481,38 +465,18 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
   private void createFileSearchPanel() {
     ResultPanel resultPanel = new ResultPanel();
-    final JPanel pnlSearchFileInput = new JPanel();
+    pnlSearchFileInput = new SearchFileInputPanel();
     pnlSearchFile = new SearchPanel();
     pnlSearchFile.setResultPanel(resultPanel);
     pnlSearchFile.setInputPanel(pnlSearchFileInput);
 
-    pnlSearchFileInput.setLayout(new MigLayout("", "[][][][][][]", "[][][][][][]"));
-
-    final JLabel lblLocatieNieuweAfleveringen = new JLabel("Locatie nieuwe afleveringen");
-    pnlSearchFileInput.add(lblLocatieNieuweAfleveringen, "cell 1 0,alignx trailing");
-
-    txtIncomingPath = new JTextField();
-    pnlSearchFileInput.add(txtIncomingPath, "cell 2 0,alignx leading");
-    txtIncomingPath.setColumns(20);
-
-    final JButton btnBrowse = new JButton("Bladeren");
-    pnlSearchFileInput.add(btnBrowse, "cell 3 0");
-    btnBrowse.addActionListener(new ActionListener() {
+    pnlSearchFileInput.setSelectFolderAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         selectIncomingFolder();
       }
     });
 
-    chkRecursive = new JCheckBox("Mappen in map doorzoeken");
-    chkRecursive.setSelected(this.settingsControl.getSettings().isOptionRecursive());
-    pnlSearchFileInput.add(chkRecursive, "cell 2 1 2 1");
-
-    chkforceSubtitleOverwrite = new JCheckBox("Negeer bestaande ondertitel bestanden");
-    pnlSearchFileInput.add(chkforceSubtitleOverwrite, "cell 2 3 2 1");
-
-    btnSearch = new JButton("Zoeken naar ondertitels");
-    pnlSearchFileInput.add(btnSearch, "cell 0 5 3 1,alignx center");
-    btnSearch.addActionListener(new ActionListener() {
+    pnlSearchFileInput.setSearchAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         try {
           searchFile();
@@ -522,14 +486,6 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         }
       }
     });
-
-    final JLabel lblSelecteerDeGewenste = new JLabel("Selecteer de gewenste ondertitel taal");
-    pnlSearchFileInput.add(lblSelecteerDeGewenste, "cell 2 2");
-
-    cbxLanguageFile = new JComboBox<String>();
-    pnlSearchFileInput.add(cbxLanguageFile, "cell 3 2");
-    cbxLanguageFile.setModel(new DefaultComboBoxModel<String>(languageSelection));
-    cbxLanguageFile.setSelectedIndex(0);
 
     resultPanel.setDownloadAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
@@ -717,19 +673,19 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
       searchWorker.addPropertyChangeListener(this);
       progressDialog = new ProgressDialog(this, searchWorker);
       progressDialog.setVisible(true);
-      btnSearch.setEnabled(false);
+      pnlSearchFileInput.disableSearchButton();
       StatusMessenger.instance.message("Zoeken...");
       clearTableFile();
-      if (txtIncomingPath.getText().equals("")) {
+      if (pnlSearchFileInput.getIncomingPath().equals("")) {
         if (settingsControl.getSettings().getDefaultIncomingFolders().size() > 0) {
           searchWorker.setParameters(settingsControl.getSettings().getDefaultIncomingFolders(),
-              getLanguageCodeFile(), chkRecursive.isSelected(),
-              chkforceSubtitleOverwrite.isSelected());
+              getLanguageCode(pnlSearchFileInput.getSelectedLanguage()), pnlSearchFileInput.isRecursiveSelected(),
+              pnlSearchFileInput.isForceOverwrite());
           searchWorker.execute();
         }
       } else {
-        searchWorker.setParameters(new File(txtIncomingPath.getText()), getLanguageCodeFile(),
-            chkRecursive.isSelected(), chkforceSubtitleOverwrite.isSelected());
+        searchWorker.setParameters(new File(pnlSearchFileInput.getIncomingPath()), getLanguageCode(pnlSearchFileInput.getSelectedLanguage()),
+            pnlSearchFileInput.isRecursiveSelected(), pnlSearchFileInput.isForceOverwrite());
         searchWorker.execute();
       }
     }
@@ -737,7 +693,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   }
 
   private boolean inputFileCheck() {
-    if (txtIncomingPath.getText().equals("")) {
+    if (pnlSearchFileInput.getIncomingPath().equals("")) {
       if (settingsControl.getSettings().getDefaultIncomingFolders().size() == 0) {
         showErrorMessage("Geen map geselecteerd");
         return false;
@@ -812,15 +768,6 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     }
   }
 
-  private String getLanguageCodeFile() {
-    if (cbxLanguageFile.getSelectedItem().equals("Nederlands")) {
-      return "nl";
-    } else if (cbxLanguageFile.getSelectedItem().equals("Engels")) {
-      return "en";
-    }
-    return null;
-  }
-
   private void clearTableFile() {
     VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
     final VideoTableModel model = (VideoTableModel) videoTable.getModel();
@@ -877,7 +824,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
   private void selectIncomingFolder() {
     File path = MemoryFolderChooser.getInstance().selectDirectory(getThis(), "Selecteer map");
-    txtIncomingPath.setText(path.getAbsolutePath());
+    pnlSearchFileInput.setIncomingPath(path.getAbsolutePath());
   }
 
   @Override
@@ -892,7 +839,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         }
         StatusMessenger.instance.message("Found " + model.getRowCount() + " files");
         progressDialog.setVisible(false);
-        btnSearch.setEnabled(true);
+        pnlSearchFileInput.enableSearchButton();
       } else {
         final int progress = searchWorker.getProgress();
         progressDialog.updateProgress(progress);
@@ -941,7 +888,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
   private void close() {
     Logger.instance.log("MainWindow, close()", Level.TRACE);
-    settingsControl.getSettings().setOptionRecursive(chkRecursive.isSelected());
+    settingsControl.getSettings().setOptionRecursive(pnlSearchFileInput.isRecursiveSelected());
     storeScreenSettings();
     settingsControl.store();
   }
