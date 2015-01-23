@@ -10,13 +10,13 @@ import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 
 public class ResultPanel extends JPanel {
 
-  private JButton     btnMove;
-  private JButton     btnSelectAll;
+  private JButton btnMove;
+  private JButton btnSelectAll;
   private JScrollPane scrollPane;
-  private JButton     btnDownload;
-  private JButton     btnSelectFound;
-  private JButton     btnSelectNone;
-  private VideoTable  resultTable;
+  private JButton btnDownload;
+  private JButton btnSelectFound;
+  private JButton btnSelectNone;
+  private VideoTable resultTable;
 
   private ActionListener downloadAction;
   private ActionListener moveAction;
@@ -86,10 +86,12 @@ public class ResultPanel extends JPanel {
 
   public void setDownloadAction(ActionListener downloadAction) {
     this.downloadAction = downloadAction;
+    setupListeners();
   }
 
   public void setMoveAction(ActionListener moveAction) {
     this.moveAction = moveAction;
+    setupListeners();
   }
 
   private void setupListeners() {
@@ -114,14 +116,14 @@ public class ResultPanel extends JPanel {
     btnDownload.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        downloadAction.actionPerformed(e);
+        if (downloadAction != null) downloadAction.actionPerformed(e);
       }
     });
 
     btnMove.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        moveAction.actionPerformed(e);
+        if (moveAction != null) moveAction.actionPerformed(e);
       }
     });
   }

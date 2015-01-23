@@ -12,11 +12,11 @@ import org.lodder.subtools.sublibrary.model.VideoSearchType;
 public class SearchTextInputPanel extends InputPanel {
 
   private static final long serialVersionUID = 7030171360517948253L;
-  private   JComboBox<VideoSearchType> cbxVideoType;
-  protected JTextField                 txtInputSeason;
-  protected JTextField                 txtInputEpisode;
-  protected JTextField                 txtQualityVersion;
-  private   JTextField                 txtInputVideoName;
+  private JComboBox<VideoSearchType> cbxVideoType;
+  protected JTextField txtInputSeason;
+  protected JTextField txtInputEpisode;
+  protected JTextField txtQualityVersion;
+  private JTextField txtInputVideoName;
 
   public SearchTextInputPanel() {
     super();

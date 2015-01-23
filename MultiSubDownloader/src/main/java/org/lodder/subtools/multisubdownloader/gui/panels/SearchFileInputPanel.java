@@ -7,11 +7,15 @@ import net.miginfocom.swing.MigLayout;
 
 public class SearchFileInputPanel extends InputPanel {
 
-  private JTextField        txtIncomingPath;
-  private JCheckBox         chkRecursive;
-  private JCheckBox         chkforceSubtitleOverwrite;
-  private JButton           btnBrowse;
-  private ActionListener    selectFolderAction;
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 6522020963519514345L;
+  private JTextField txtIncomingPath;
+  private JCheckBox chkRecursive;
+  private JCheckBox chkforceSubtitleOverwrite;
+  private JButton btnBrowse;
+  private ActionListener selectFolderAction;
 
   public SearchFileInputPanel() {
     super();
@@ -37,7 +41,7 @@ public class SearchFileInputPanel extends InputPanel {
     btnBrowse.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        selectFolderAction.actionPerformed(e);
+        if (selectFolderAction != null) selectFolderAction.actionPerformed(e);
       }
     });
   }
@@ -58,6 +62,7 @@ public class SearchFileInputPanel extends InputPanel {
 
   public void setSelectFolderAction(ActionListener selectFolderAction) {
     this.selectFolderAction = selectFolderAction;
+    setupListeners();
   }
 
   public void setIncomingPath(String path) {

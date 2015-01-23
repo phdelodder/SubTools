@@ -8,10 +8,14 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 public abstract class InputPanel extends JPanel {
-  private JButton           btnSearch;
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 7753220002440733463L;
+  private JButton btnSearch;
   private JComboBox<String> cbxLanguage;
-  private ActionListener    searchAction;
-  private final String[] languageSelection = new String[]{"Nederlands", "Engels"};
+  private ActionListener searchAction;
+  private final String[] languageSelection = new String[] {"Nederlands", "Engels"};
 
   public InputPanel() {
     createComponents();
@@ -24,6 +28,7 @@ public abstract class InputPanel extends JPanel {
 
   public void setSearchAction(ActionListener searchAction) {
     this.searchAction = searchAction;
+    setupListeners();
   }
 
   public void enableSearchButton() {
@@ -46,7 +51,7 @@ public abstract class InputPanel extends JPanel {
     btnSearch.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        searchAction.actionPerformed(e);
+        if (searchAction != null) searchAction.actionPerformed(e);
       }
     });
   }
