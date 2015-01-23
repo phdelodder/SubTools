@@ -1,21 +1,15 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
-
 import net.miginfocom.swing.MigLayout;
-
 import org.lodder.subtools.sublibrary.model.VideoSearchType;
 
-public class SearchTextInputPanel extends JPanel {
+public class SearchTextInputPanel extends InputPanel {
 
   private static final long serialVersionUID = 7030171360517948253L;
   private   JComboBox<VideoSearchType> cbxVideoType;
@@ -23,18 +17,13 @@ public class SearchTextInputPanel extends JPanel {
   protected JTextField                 txtInputEpisode;
   protected JTextField                 txtQualityVersion;
   private   JTextField                 txtInputVideoName;
-  private   JComboBox<String>          cbxLanguageText;
-  private   JButton                    btnSearchText;
-  private   ActionListener             searchAction;
-  private final String[] languageSelection = new String[]{"Nederlands", "Engels"};
 
   public SearchTextInputPanel() {
+    super();
     this.setLayout(new MigLayout("", "[][][][][][][][grow][]", "[][][][][]"));
 
     createComponents();
-
     setupListeners();
-
     addComponentsToPanel();
   }
 
@@ -48,8 +37,8 @@ public class SearchTextInputPanel extends JPanel {
     this.add(new JLabel("Aflevering"), "cell 5 1,alignx trailing");
     this.add(txtInputEpisode, "cell 6 1,growx");
     this.add(new JLabel("Selecteer de gewenste ondertitel taal"), "cell 1 2 3 1,alignx trailing");
-    this.add(cbxLanguageText, "cell 4 2 2 1,growx");
-    this.add(btnSearchText, "cell 2 4 2 1");
+    this.add(getLanguageCbx(), "cell 4 2 2 1,growx");
+    this.add(getSearchButton(), "cell 2 4 2 1");
   }
 
   private void setupListeners() {
@@ -58,7 +47,6 @@ public class SearchTextInputPanel extends JPanel {
         videoTypeChanged();
       }
     });
-    btnSearchText.addActionListener(this.searchAction);
   }
 
   private void createComponents() {
@@ -76,11 +64,6 @@ public class SearchTextInputPanel extends JPanel {
 
     txtInputEpisode = new JTextField();
     txtInputEpisode.setColumns(5);
-
-    cbxLanguageText = new JComboBox<String>();
-    cbxLanguageText.setModel(new DefaultComboBoxModel<String>(languageSelection));
-
-    btnSearchText = new JButton("Zoeken naar ondertitels");
   }
 
   private void videoTypeChanged() {
@@ -105,10 +88,6 @@ public class SearchTextInputPanel extends JPanel {
     }
   }
 
-  public void setSearchAction(ActionListener searchAction) {
-    this.searchAction = searchAction;
-  }
-
   public VideoSearchType getType() {
     return (VideoSearchType) cbxVideoType.getSelectedItem();
   }
@@ -127,18 +106,6 @@ public class SearchTextInputPanel extends JPanel {
 
   public String getName() {
     return txtInputVideoName.getText().trim();
-  }
-
-  public void enableSearchButton() {
-    this.btnSearchText.setEnabled(true);
-  }
-
-  public void disableSearchButton() {
-    this.btnSearchText.setEnabled(false);
-  }
-
-  public String getSelectedLanguage() {
-    return ((String) cbxLanguageText.getSelectedItem()).trim();
   }
 
 }

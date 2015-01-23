@@ -4,18 +4,16 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import net.miginfocom.swing.MigLayout;
 
-public class SearchFileInputPanel extends JPanel {
+public class SearchFileInputPanel extends InputPanel {
 
   private JTextField        txtIncomingPath;
   private JCheckBox         chkRecursive;
-  private JComboBox<String> cbxLanguageFile;
   private JCheckBox         chkforceSubtitleOverwrite;
-  private JButton           btnSearch, btnBrowse;
-  private ActionListener    selectFolderAction, searchAction;
-
-  private final String[] languageSelection = new String[]{"Nederlands", "Engels"};
+  private JButton           btnBrowse;
+  private ActionListener    selectFolderAction;
 
   public SearchFileInputPanel() {
+    super();
     setLayout(new MigLayout("", "[][][][][][]", "[][][][][][]"));
 
     createComponents();
@@ -29,14 +27,13 @@ public class SearchFileInputPanel extends JPanel {
     add(btnBrowse, "cell 3 0");
     add(chkRecursive, "cell 2 1 2 1");
     add(chkforceSubtitleOverwrite, "cell 2 3 2 1");
-    add(btnSearch, "cell 0 5 3 1,alignx center");
+    add(getSearchButton(), "cell 0 5 3 1,alignx center");
     add(new JLabel("Selecteer de gewenste ondertitel taal"), "cell 2 2");
-    add(cbxLanguageFile, "cell 3 2");
+    add(getLanguageCbx(), "cell 3 2");
   }
 
   private void setupListeners() {
     btnBrowse.addActionListener(selectFolderAction);
-    btnSearch.addActionListener(searchAction);
   }
 
   private void createComponents() {
@@ -46,12 +43,7 @@ public class SearchFileInputPanel extends JPanel {
     chkRecursive = new JCheckBox("Mappen in map doorzoeken");
     chkforceSubtitleOverwrite = new JCheckBox("Negeer bestaande ondertitel bestanden");
 
-    cbxLanguageFile = new JComboBox<String>();
-    cbxLanguageFile.setModel(new DefaultComboBoxModel<String>(languageSelection));
-    cbxLanguageFile.setSelectedIndex(0);
-
     btnBrowse = new JButton("Bladeren");
-    btnSearch = new JButton("Zoeken naar ondertitels");
   }
 
   public void setRecursiveSelected(boolean selected) {
@@ -78,19 +70,4 @@ public class SearchFileInputPanel extends JPanel {
     return chkforceSubtitleOverwrite.isSelected();
   }
 
-  public String getSelectedLanguage() {
-    return ((String) cbxLanguageFile.getSelectedItem()).trim();
-  }
-
-  public void setSearchAction(ActionListener searchAction) {
-    this.searchAction = searchAction;
-  }
-
-  public void enableSearchButton() {
-    btnSearch.setEnabled(true);
-  }
-
-  public void disableSearchButton() {
-    this.btnSearch.setEnabled(false);
-  }
 }

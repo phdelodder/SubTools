@@ -7,7 +7,7 @@ public class SearchPanel extends JPanel {
 
   private static final long serialVersionUID = -7602822323779710089L;
   private ResultPanel resultPanel;
-  private JPanel      inputPanel;
+  private InputPanel  inputPanel;
 
   public SearchPanel() {
     initialize();
@@ -17,7 +17,7 @@ public class SearchPanel extends JPanel {
     setLayout(new MigLayout("", "[grow,fill]", "[][][]"));
   }
 
-  public JPanel getInputPanel() {
+  public InputPanel getInputPanel() {
     return this.inputPanel;
   }
 
@@ -25,7 +25,7 @@ public class SearchPanel extends JPanel {
     return this.resultPanel;
   }
 
-  public void setInputPanel(JPanel inputPanel) {
+  public void setInputPanel(InputPanel inputPanel) {
     this.inputPanel = inputPanel;
     add(inputPanel, "cell 0 0");
   }
