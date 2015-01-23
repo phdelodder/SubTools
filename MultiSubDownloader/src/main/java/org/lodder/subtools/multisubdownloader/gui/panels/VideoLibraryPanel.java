@@ -231,17 +231,8 @@ public abstract class VideoLibraryPanel extends JPanel {
     add(new JLabel("Bibiliotheek opties"), "cell 0 0 2 1,gapy 5");
     add(new JSeparator(), "cell 0 0 2 1,growx,gapy 5");
 
-    pnlBackup = new SubtitleBackupPanel();
+    createBackupPanel();
     add(pnlBackup, "cell 0 1 2 1,grow");
-
-    pnlBackup.setBrowseBackupAction(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        File path =
-            MemoryFolderChooser.getInstance().selectDirectory(VideoLibraryPanel.this.getRootPane(),
-                "Selecteer Ondertitel Backup map");
-        pnlBackup.setBackupSubtitlePath(path.getAbsolutePath());
-      }
-    });
 
     add(new JLabel("Volgende acties uitvoeren:"), "cell 0 2,alignx left");
 
@@ -377,6 +368,19 @@ public abstract class VideoLibraryPanel extends JPanel {
     txtDefaultEnText = new JTextField();
     pnlStructureFile.add(txtDefaultEnText, "cell 2 5");
     txtDefaultEnText.setColumns(10);
+  }
+  
+  private void createBackupPanel(){
+    pnlBackup = new SubtitleBackupPanel();
+
+    pnlBackup.setBrowseBackupAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        File path =
+            MemoryFolderChooser.getInstance().selectDirectory(VideoLibraryPanel.this.getRootPane(),
+                "Selecteer Ondertitel Backup map");
+        pnlBackup.setBackupSubtitlePath(path.getAbsolutePath());
+      }
+    });
   }
 
 }
