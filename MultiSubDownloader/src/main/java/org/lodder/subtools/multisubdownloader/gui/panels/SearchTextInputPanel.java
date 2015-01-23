@@ -105,6 +105,7 @@ public class SearchTextInputPanel extends InputPanel {
   }
 
   public String getName() {
+    if (txtInputVideoName == null) return "";
     return txtInputVideoName.getText().trim();
   }
 
