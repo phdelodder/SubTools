@@ -1,20 +1,14 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 
-public class StructureFilePanel extends JPanel {
+public class StructureFilePanel extends StructurePanel {
 
   /**
    * 
@@ -22,10 +16,6 @@ public class StructureFilePanel extends JPanel {
   private static final long serialVersionUID = -5458593307643063563L;
   private JLabel lblStructuur_1;
   private JTextField txtFileStructure;
-  private JButton btnBuildStructure;
-  private ActionListener buildStructureAction;
-  private JComboBox<String> cbxFilenameReplaceSpaceChar;
-  private JCheckBox chkFilenameReplaceSpace;
   private JCheckBox chkIncludeLanguageCode;
   private JLabel lblNederlands;
   private JTextField txtDefaultNlText;
@@ -33,6 +23,7 @@ public class StructureFilePanel extends JPanel {
   private JTextField txtDefaultEnText;
 
   public StructureFilePanel() {
+    super();
     setLayout(new MigLayout("", "[][][][grow][]", "[][][][][][]"));
 
     createComponents();
@@ -45,9 +36,9 @@ public class StructureFilePanel extends JPanel {
     add(new JSeparator(), "cell 0 0 5 1,growx,gapy 5");
     add(lblStructuur_1, "cell 1 1,alignx left");
     add(txtFileStructure, "cell 2 1 2 1,growx");
-    add(btnBuildStructure, "cell 4 1");
-    add(chkFilenameReplaceSpace, "cell 1 2 2 1");
-    add(cbxFilenameReplaceSpaceChar, "cell 3 2,growx");
+    add(getBtnBuildStructure(), "cell 4 1");
+    add(this.getChkReplaceSpace(), "cell 1 2 2 1");
+    add(this.getCbxReplaceSpaceChar(), "cell 3 2,growx");
     add(chkIncludeLanguageCode, "cell 1 3 4 1");
     add(lblNederlands, "cell 1 4,alignx trailing");
     add(txtDefaultNlText, "cell 2 4");
@@ -56,11 +47,7 @@ public class StructureFilePanel extends JPanel {
   }
 
   private void setupListeners() {
-    btnBuildStructure.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        if (buildStructureAction != null) buildStructureAction.actionPerformed(arg0);
-      }
-    });
+    
   }
 
   private void createComponents() {
@@ -68,14 +55,6 @@ public class StructureFilePanel extends JPanel {
 
     txtFileStructure = new JTextField();
     txtFileStructure.setColumns(10);
-
-    btnBuildStructure = new JButton("Structuur");
-
-    chkFilenameReplaceSpace = new JCheckBox("Vervangen spatie door: ");
-
-    cbxFilenameReplaceSpaceChar = new JComboBox<String>();
-    cbxFilenameReplaceSpaceChar.setModel(new DefaultComboBoxModel<String>(new String[] {"-", ".",
-        "_"}));
 
     chkIncludeLanguageCode = new JCheckBox("Taal in de bestandsnaam van de ondertitel plaatsen");
 
@@ -90,32 +69,12 @@ public class StructureFilePanel extends JPanel {
     txtDefaultEnText.setColumns(10);
   }
 
-  public void setBuildStructureAction(ActionListener actionListener) {
-    this.buildStructureAction = actionListener;
-  }
-
   public void setFileStructure(String s) {
     this.txtFileStructure.setText(s);
   }
 
   public String getFileStructure() {
     return this.txtFileStructure.getText();
-  }
-
-  public String getReplaceSpaceChar() {
-    return (String) cbxFilenameReplaceSpaceChar.getSelectedItem();
-  }
-
-  public void setReplaceSpaceChar(String s) {
-    cbxFilenameReplaceSpaceChar.setSelectedItem(s);
-  }
-  
-  public boolean isReplaceSpaceSelected() {
-    return chkFilenameReplaceSpace.isSelected();
-  }
-
-  public void setReplaceSpaceSelected(boolean b) {
-    chkFilenameReplaceSpace.setSelected(b);
   }
   
   public boolean isIncludeLanguageCodeSelected() {

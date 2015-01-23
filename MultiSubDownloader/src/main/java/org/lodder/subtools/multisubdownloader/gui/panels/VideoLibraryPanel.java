@@ -162,7 +162,7 @@ public abstract class VideoLibraryPanel extends JPanel {
     pnlStructureFile.setFileStructure(libSettings.getLibraryFilenameStructure());
     pnlStructureFile.setReplaceSpaceSelected(libSettings.isLibraryFilenameReplaceSpace());
     pnlStructureFile.setReplaceSpaceChar(libSettings.getLibraryFilenameReplacingSpaceSign());
-    pnlStructureFolder.setFolderReplaceSpaceSelected(libSettings.isLibraryFolderReplaceSpace());
+    pnlStructureFolder.setReplaceSpaceSelected(libSettings.isLibraryFolderReplaceSpace());
     pnlStructureFolder.setReplaceSpaceChar(libSettings.getLibraryFolderReplacingSpaceSign());
     pnlStructureFile.setIncludeLanguageCodeSelected(libSettings.isLibraryIncludeLanguageCode());
     pnlStructureFile.getTxtDefaultEnText().setText(libSettings.getDefaultEnText());
@@ -197,8 +197,8 @@ public abstract class VideoLibraryPanel extends JPanel {
       this.libSettings.setLibraryFilenameReplacingSpaceSign(pnlStructureFile.getReplaceSpaceChar());
     }
     this.libSettings
-        .setLibraryFolderReplaceSpace(pnlStructureFolder.isFolderReplaceSpaceSelected());
-    if (pnlStructureFolder.isFolderReplaceSpaceSelected()) {
+        .setLibraryFolderReplaceSpace(pnlStructureFolder.isReplaceSpaceSelected());
+    if (pnlStructureFolder.isReplaceSpaceSelected()) {
       this.libSettings.setLibraryFolderReplacingSpaceSign(pnlStructureFolder.getReplaceSpaceChar());
     }
     this.libSettings.setLibraryIncludeLanguageCode(pnlStructureFile.isIncludeLanguageCodeSelected());
