@@ -139,122 +139,122 @@ public class Menu extends JMenuBar {
   private void setupListeners() {
     mntmQuit.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        fileQuitAction.actionPerformed(e);
+        if (fileQuitAction != null) fileQuitAction.actionPerformed(e);
         System.exit(0);
       }
     });
 
     chckbxmntmBestandsnaam.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
-        viewFilenameAction.actionPerformed(actionEvent);
+        if (viewFilenameAction != null) viewFilenameAction.actionPerformed(actionEvent);
       }
     });
 
     chckbxmntmType.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        viewTypeAction.actionPerformed(arg0);
+        if (viewTypeAction != null) viewTypeAction.actionPerformed(arg0);
       }
     });
 
     chckbxmntmTitle.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        viewTitleAction.actionPerformed(arg0);
+        if (viewTitleAction != null) viewTitleAction.actionPerformed(arg0);
       }
     });
 
     chckbxmntmSeason.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        viewSeasonAction.actionPerformed(arg0);
+        if (viewSeasonAction != null) viewSeasonAction.actionPerformed(arg0);
       }
     });
 
     chckbxmntmEpisode.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        viewEpisodeAction.actionPerformed(arg0);
+        if (viewEpisodeAction != null) viewEpisodeAction.actionPerformed(arg0);
       }
     });
 
     chckbxmntmAlleenGevondenTonen.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        viewShowOnlyFoundAction.actionPerformed(arg0);
+        if (viewShowOnlyFoundAction != null) viewShowOnlyFoundAction.actionPerformed(arg0);
       }
     });
 
     mntmLoggingWissen.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        viewClearLogAction.actionPerformed(arg0);
+        if (viewClearLogAction != null) viewClearLogAction.actionPerformed(arg0);
       }
     });
 
     mntmRenameSerieFiles.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        editRenameTVAction.actionPerformed(arg0);
+        if (editRenameTVAction != null) editRenameTVAction.actionPerformed(arg0);
       }
     });
 
     mntmRenameMovieFiles.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        editRenameMovieAction.actionPerformed(arg0);
+        if (editRenameMovieAction != null) editRenameMovieAction.actionPerformed(arg0);
       }
     });
 
     mntmPreferences.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        editPreferencesAction.actionPerformed(arg0);
+        if (editPreferencesAction != null) editPreferencesAction.actionPerformed(arg0);
       }
     });
 
     mntmTranslateShowNames.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        translateShowNamesAction.actionPerformed(arg0);
+        if (translateShowNamesAction != null) translateShowNamesAction.actionPerformed(arg0);
       }
     });
 
     mntmExporteerUistluitingen.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        exportExclusionsAction.actionPerformed(arg0);
+        if (exportExclusionsAction != null) exportExclusionsAction.actionPerformed(arg0);
       }
     });
 
     mntmImporteerUitsluitingen.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        importExclusionsAction.actionPerformed(arg0);
+        if (importExclusionsAction != null) importExclusionsAction.actionPerformed(arg0);
       }
     });
 
     mntmExporteerVoorkeuren.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        exportPreferencesAction.actionPerformed(arg0);
+        if (exportPreferencesAction != null) exportPreferencesAction.actionPerformed(arg0);
       }
     });
 
     mntmImporteerVoorkeuren.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        importPreferencesAction.actionPerformed(arg0);
+        if (importPreferencesAction != null) importPreferencesAction.actionPerformed(arg0);
       }
     });
 
     mntmImportTranslate.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        importTranslationsAction.actionPerformed(arg0);
+        if (importTranslationsAction != null) importTranslationsAction.actionPerformed(arg0);
       }
     });
 
     mntmExportTranslate.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        exportTranslationsAction.actionPerformed(arg0);
+        if (exportTranslationsAction != null) exportTranslationsAction.actionPerformed(arg0);
       }
     });
 
     mntmAbout.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        aboutAction.actionPerformed(arg0);
+        if (aboutAction != null) aboutAction.actionPerformed(arg0);
       }
     });
 
     mntmControlerenVoorUpdate.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        checkUpdateAction.actionPerformed(arg0);
+        if (checkUpdateAction != null) checkUpdateAction.actionPerformed(arg0);
       }
     });
   }
@@ -262,8 +262,8 @@ public class Menu extends JMenuBar {
   public void setShowOnlyFound(boolean show) {
     chckbxmntmAlleenGevondenTonen.setSelected(show);
   }
-  
-  public boolean isShowOnlyFound(){
+
+  public boolean isShowOnlyFound() {
     return chckbxmntmAlleenGevondenTonen.isSelected();
   }
 
@@ -350,11 +350,11 @@ public class Menu extends JMenuBar {
   public void setAboutAction(ActionListener aboutAction) {
     this.aboutAction = aboutAction;
   }
-  
+
   public void setCheckUpdateAction(ActionListener checkUpdateAction) {
     this.checkUpdateAction = checkUpdateAction;
   }
-  
+
   public void setImportTranslationsAction(ActionListener importTranslationsAction) {
     this.importTranslationsAction = importTranslationsAction;
   }
