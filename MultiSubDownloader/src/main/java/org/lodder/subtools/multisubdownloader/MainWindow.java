@@ -59,6 +59,7 @@ import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.LoggingPanel;
+import org.lodder.subtools.multisubdownloader.gui.panels.ResultPanel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchPanel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchTextInputPanel;
 import org.lodder.subtools.multisubdownloader.gui.workers.DownloadWorker;
@@ -89,7 +90,6 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
      *
      */
   private static final long serialVersionUID = 1L;
-  private VideoTable videoTable;
   private JTextField txtIncomingPath;
   private JCheckBox chkRecursive;
   private StatusLabel lblStatus;
@@ -98,7 +98,6 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   private ProgressDialog progressDialog;
   private JButton btnSearch;
   private JCheckBox chkforceSubtitleOverwrite;
-  private VideoTable subtitleTable;
   private MyPopupMenu popupMenu;
   private SearchPanel pnlSearchFile;
   private SearchPanel pnlSearchText;
@@ -123,8 +122,8 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     this.settingsControl = settingsControl;
     initialize();
     restoreScreenSettings();
-    pnlSearchFile.setEnableDownloadButtons(false);
-    pnlSearchText.setEnableDownloadButtons(false);
+    pnlSearchFile.getResultPanel().disableButtons();
+    pnlSearchText.getResultPanel().disableButtons();
     checkUpdate(false);
     initPopupMenu();
 
@@ -202,122 +201,11 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     gbc_tabbedPane.gridy = 0;
     getContentPane().add(tabbedPane, gbc_tabbedPane);
 
-    pnlSearchFile = new SearchPanel();
+    createFileSearchPanel();
     tabbedPane.addTab("Zoeken op bestanden", null, pnlSearchFile, null);
 
-    final JPanel pnlSearchFileInput = new JPanel();
-    pnlSearchFile.setInputPanel(pnlSearchFileInput);
-    pnlSearchFileInput.setLayout(new MigLayout("", "[][][][][][]", "[][][][][][]"));
-
-    final JLabel lblLocatieNieuweAfleveringen = new JLabel("Locatie nieuwe afleveringen");
-    pnlSearchFileInput.add(lblLocatieNieuweAfleveringen, "cell 1 0,alignx trailing");
-
-    txtIncomingPath = new JTextField();
-    pnlSearchFileInput.add(txtIncomingPath, "cell 2 0,alignx leading");
-    txtIncomingPath.setColumns(20);
-
-    final JButton btnBrowse = new JButton("Bladeren");
-    pnlSearchFileInput.add(btnBrowse, "cell 3 0");
-    btnBrowse.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        selectIncomingFolder();
-      }
-    });
-
-    chkRecursive = new JCheckBox("Mappen in map doorzoeken");
-    chkRecursive.setSelected(this.settingsControl.getSettings().isOptionRecursive());
-    pnlSearchFileInput.add(chkRecursive, "cell 2 1 2 1");
-
-    chkforceSubtitleOverwrite = new JCheckBox("Negeer bestaande ondertitel bestanden");
-    pnlSearchFileInput.add(chkforceSubtitleOverwrite, "cell 2 3 2 1");
-
-    btnSearch = new JButton("Zoeken naar ondertitels");
-    pnlSearchFileInput.add(btnSearch, "cell 0 5 3 1,alignx center");
-    btnSearch.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        try {
-          searchFile();
-        } catch (final Exception e) {
-          showErrorMessage(e.getMessage());
-          lblStatus.setText(e.getMessage());
-        }
-      }
-    });
-
-    final JLabel lblSelecteerDeGewenste = new JLabel("Selecteer de gewenste ondertitel taal");
-    pnlSearchFileInput.add(lblSelecteerDeGewenste, "cell 2 2");
-
-    cbxLanguageFile = new JComboBox<String>();
-    pnlSearchFileInput.add(cbxLanguageFile, "cell 3 2");
-    cbxLanguageFile.setModel(new DefaultComboBoxModel<String>(languageSelection));
-    cbxLanguageFile.setSelectedIndex(0);
-
-    pnlSearchFile.setActionDownload(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        download();
-      }
-    });
-
-    pnlSearchFile.setActionMove(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        final int response =
-            JOptionPane.showConfirmDialog(getThis(),
-                "Dit is enkel verplaatsen naar de bibliotheek structuur!", "Bevestigen",
-                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-        if (response == JOptionPane.YES_OPTION) {
-          rename();
-        }
-      }
-    });
-
-    videoTable = new VideoTable();
-    pnlSearchFile.setTable(videoTable);
-    videoTable.setModel(VideoTableModel.getDefaultVideoTableModel());
-    ((VideoTableModel) videoTable.getModel()).setShowOnlyFound(settingsControl.getSettings()
-        .isOptionsShowOnlyFound());
-    final RowSorter<TableModel> sorter = new TableRowSorter<TableModel>(videoTable.getModel());
-    videoTable.setRowSorter(sorter);
-    videoTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-
-    int columnId = videoTable.getColumnIdByName(SearchColumnName.FOUND);
-    videoTable.getColumnModel().getColumn(columnId).setResizable(false);
-    videoTable.getColumnModel().getColumn(columnId).setPreferredWidth(100);
-    videoTable.getColumnModel().getColumn(columnId).setMaxWidth(100);
-    columnId = videoTable.getColumnIdByName(SearchColumnName.SELECT);
-    videoTable.getColumnModel().getColumn(columnId).setResizable(false);
-    videoTable.getColumnModel().getColumn(columnId).setPreferredWidth(85);
-    videoTable.getColumnModel().getColumn(columnId).setMaxWidth(85);
-    videoTable.hideColumn(SearchColumnName.OBJECT);
-    videoTable.hideColumn(SearchColumnName.SEASON);
-    videoTable.hideColumn(SearchColumnName.EPISODE);
-    videoTable.hideColumn(SearchColumnName.TYPE);
-    videoTable.hideColumn(SearchColumnName.TITLE);
-
-    pnlSearchText = new SearchPanel();
+    createTextSearchPanel();
     tabbedPane.addTab("Zoeken op naam", null, pnlSearchText, null);
-    pnlSearchText.setSelectFoundVisible(false);
-
-    pnlSearchTextInput = new SearchTextInputPanel();
-    pnlSearchTextInput.setSearchAction(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        searchName();
-      }
-    });
-    pnlSearchText.setInputPanel(pnlSearchTextInput);
-
-    subtitleTable = new VideoTable();
-    pnlSearchText.setTable(subtitleTable);
-    subtitleTable.setModel(VideoTableModel.getDefaultSubtitleTableModel());
-    final RowSorter<TableModel> sorterSubtitle =
-        new TableRowSorter<TableModel>(subtitleTable.getModel());
-    subtitleTable.setRowSorter(sorterSubtitle);
-    subtitleTable.hideColumn(SearchColumnName.OBJECT);
-
-    pnlSearchText.setActionDownload(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        downloadText();
-      }
-    });
 
     pnlLogging = new LoggingPanel();
     final GridBagConstraints gbc_pnlLogging = new GridBagConstraints();
@@ -360,6 +248,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     chckbxmntmBestandsnaam = new JCheckBoxMenuItem("Bestandsnaam");
     chckbxmntmBestandsnaam.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
+        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
         if (chckbxmntmBestandsnaam.isSelected()) {
           videoTable.unhideColumn(SearchColumnName.FILENAME);
         } else {
@@ -371,6 +260,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     chckbxmntmType = new JCheckBoxMenuItem("Type");
     chckbxmntmType.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
+        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
         if (chckbxmntmType.isSelected()) {
           videoTable.unhideColumn(SearchColumnName.TYPE);
         } else {
@@ -384,6 +274,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     chckbxmntmTitle = new JCheckBoxMenuItem("Titel");
     chckbxmntmTitle.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
+        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
         if (chckbxmntmTitle.isSelected()) {
           videoTable.unhideColumn(SearchColumnName.TITLE);
         } else {
@@ -396,6 +287,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     chckbxmntmSeason = new JCheckBoxMenuItem("Season");
     chckbxmntmSeason.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
+        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
         if (chckbxmntmSeason.isSelected()) {
           videoTable.unhideColumn(SearchColumnName.SEASON);
         } else {
@@ -408,6 +300,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     chckbxmntmEpisode = new JCheckBoxMenuItem("Episode");
     chckbxmntmEpisode.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
+        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
         if (chckbxmntmEpisode.isSelected()) {
           videoTable.unhideColumn(SearchColumnName.EPISODE);
         } else {
@@ -423,6 +316,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         .isOptionsShowOnlyFound());
     chckbxmntmAlleenGevondenTonen.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
+        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
         settingsControl.getSettings().setOptionsShowOnlyFound(
             chckbxmntmAlleenGevondenTonen.isSelected());
         ((VideoTableModel) videoTable.getModel()).setShowOnlyFound(settingsControl.getSettings()
@@ -554,7 +448,135 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     mnHelp.add(mntmAbout);
   }
 
+  private void createTextSearchPanel() {
+    ResultPanel resultPanel = new ResultPanel();
+    pnlSearchTextInput = new SearchTextInputPanel();
+    pnlSearchText = new SearchPanel();
+    pnlSearchText.setResultPanel(resultPanel);
+    pnlSearchText.setInputPanel(pnlSearchTextInput);
+
+    resultPanel.showSelectFoundSubtitlesButton();
+    pnlSearchTextInput.setSearchAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        searchName();
+      }
+    });
+    resultPanel.setTable(createSubtitleTable());
+    resultPanel.setDownloadAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        downloadText();
+      }
+    });
+  }
+
+  private VideoTable createSubtitleTable() {
+    VideoTable subtitleTable = new VideoTable();
+    subtitleTable.setModel(VideoTableModel.getDefaultSubtitleTableModel());
+    final RowSorter<TableModel> sorterSubtitle =
+        new TableRowSorter<TableModel>(subtitleTable.getModel());
+    subtitleTable.setRowSorter(sorterSubtitle);
+    subtitleTable.hideColumn(SearchColumnName.OBJECT);
+    return subtitleTable;
+  }
+
+  private void createFileSearchPanel() {
+    ResultPanel resultPanel = new ResultPanel();
+    final JPanel pnlSearchFileInput = new JPanel();
+    pnlSearchFile = new SearchPanel();
+    pnlSearchFile.setResultPanel(resultPanel);
+    pnlSearchFile.setInputPanel(pnlSearchFileInput);
+
+    pnlSearchFileInput.setLayout(new MigLayout("", "[][][][][][]", "[][][][][][]"));
+
+    final JLabel lblLocatieNieuweAfleveringen = new JLabel("Locatie nieuwe afleveringen");
+    pnlSearchFileInput.add(lblLocatieNieuweAfleveringen, "cell 1 0,alignx trailing");
+
+    txtIncomingPath = new JTextField();
+    pnlSearchFileInput.add(txtIncomingPath, "cell 2 0,alignx leading");
+    txtIncomingPath.setColumns(20);
+
+    final JButton btnBrowse = new JButton("Bladeren");
+    pnlSearchFileInput.add(btnBrowse, "cell 3 0");
+    btnBrowse.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        selectIncomingFolder();
+      }
+    });
+
+    chkRecursive = new JCheckBox("Mappen in map doorzoeken");
+    chkRecursive.setSelected(this.settingsControl.getSettings().isOptionRecursive());
+    pnlSearchFileInput.add(chkRecursive, "cell 2 1 2 1");
+
+    chkforceSubtitleOverwrite = new JCheckBox("Negeer bestaande ondertitel bestanden");
+    pnlSearchFileInput.add(chkforceSubtitleOverwrite, "cell 2 3 2 1");
+
+    btnSearch = new JButton("Zoeken naar ondertitels");
+    pnlSearchFileInput.add(btnSearch, "cell 0 5 3 1,alignx center");
+    btnSearch.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        try {
+          searchFile();
+        } catch (final Exception e) {
+          showErrorMessage(e.getMessage());
+          lblStatus.setText(e.getMessage());
+        }
+      }
+    });
+
+    final JLabel lblSelecteerDeGewenste = new JLabel("Selecteer de gewenste ondertitel taal");
+    pnlSearchFileInput.add(lblSelecteerDeGewenste, "cell 2 2");
+
+    cbxLanguageFile = new JComboBox<String>();
+    pnlSearchFileInput.add(cbxLanguageFile, "cell 3 2");
+    cbxLanguageFile.setModel(new DefaultComboBoxModel<String>(languageSelection));
+    cbxLanguageFile.setSelectedIndex(0);
+
+    resultPanel.setDownloadAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        download();
+      }
+    });
+    resultPanel.setMoveAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        final int response =
+            JOptionPane.showConfirmDialog(getThis(),
+                "Dit is enkel verplaatsen naar de bibliotheek structuur!", "Bevestigen",
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (response == JOptionPane.YES_OPTION) {
+          rename();
+        }
+      }
+    });
+    resultPanel.setTable(createVideoTable());
+  }
+
+  private VideoTable createVideoTable() {
+    VideoTable videoTable = new VideoTable();
+    videoTable.setModel(VideoTableModel.getDefaultVideoTableModel());
+    ((VideoTableModel) videoTable.getModel()).setShowOnlyFound(settingsControl.getSettings()
+        .isOptionsShowOnlyFound());
+    final RowSorter<TableModel> sorter = new TableRowSorter<TableModel>(videoTable.getModel());
+    videoTable.setRowSorter(sorter);
+    videoTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+    int columnId = videoTable.getColumnIdByName(SearchColumnName.FOUND);
+    videoTable.getColumnModel().getColumn(columnId).setResizable(false);
+    videoTable.getColumnModel().getColumn(columnId).setPreferredWidth(100);
+    videoTable.getColumnModel().getColumn(columnId).setMaxWidth(100);
+    columnId = videoTable.getColumnIdByName(SearchColumnName.SELECT);
+    videoTable.getColumnModel().getColumn(columnId).setResizable(false);
+    videoTable.getColumnModel().getColumn(columnId).setPreferredWidth(85);
+    videoTable.getColumnModel().getColumn(columnId).setMaxWidth(85);
+    videoTable.hideColumn(SearchColumnName.OBJECT);
+    videoTable.hideColumn(SearchColumnName.SEASON);
+    videoTable.hideColumn(SearchColumnName.EPISODE);
+    videoTable.hideColumn(SearchColumnName.TYPE);
+    videoTable.hideColumn(SearchColumnName.TITLE);
+    return videoTable;
+  }
+
   private void restoreScreenSettings() {
+    VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
     if (settingsControl.getSettings().getScreenSettings().isHideEpisode()) {
       videoTable.hideColumn(SearchColumnName.EPISODE);
     } else {
@@ -610,6 +632,8 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     // add the listener to the jtable
     MouseListener popupListener = new PopupListener(popupMenu);
     // add the listener specifically to the header
+    VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
+    VideoTable subtitleTable = pnlSearchText.getResultPanel().getTable();
     videoTable.addMouseListener(popupListener);
     videoTable.getTableHeader().addMouseListener(popupListener);
     subtitleTable.addMouseListener(popupListener);
@@ -627,25 +651,28 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   }
 
   protected void rename() {
+    VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
     RenameWorker renameWorker = new RenameWorker(videoTable, settingsControl.getSettings());
     renameWorker.addPropertyChangeListener(this);
-    pnlSearchFile.setEnableDownloadButtons(false);
+    pnlSearchFile.getResultPanel().enableButtons();
     progressDialog = new ProgressDialog(this, renameWorker);
     progressDialog.setVisible(true);
     renameWorker.execute();
   }
 
   private void download() {
+    VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
     Logger.instance.trace(MainWindow.class.toString(), "download", "");
     DownloadWorker downloadWorker = new DownloadWorker(videoTable, settingsControl.getSettings());
     downloadWorker.addPropertyChangeListener(this);
-    pnlSearchFile.setEnableDownloadButtons(false);
+    pnlSearchFile.getResultPanel().disableButtons();
     progressDialog = new ProgressDialog(this, downloadWorker);
     progressDialog.setVisible(true);
     downloadWorker.execute();
   }
 
   private void downloadText() {
+    VideoTable subtitleTable = pnlSearchText.getResultPanel().getTable();
     final VideoTableModel model = (VideoTableModel) subtitleTable.getModel();
     File path =
         MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), "Selecteer map");
@@ -684,6 +711,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
   private void searchFile() {
     if (inputFileCheck()) {
+      VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
       SearchFileWorker searchWorker =
           new SearchFileWorker(videoTable, settingsControl.getSettings());
       searchWorker.addPropertyChangeListener(this);
@@ -720,6 +748,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
   private void searchName() {
     if (inputNameCheck()) {
+      VideoTable subtitleTable = pnlSearchText.getResultPanel().getTable();
       SearchNameWorker searchWorker =
           new SearchNameWorker(subtitleTable, settingsControl.getSettings());
       searchWorker.addPropertyChangeListener(this);
@@ -793,15 +822,17 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   }
 
   private void clearTableFile() {
+    VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
     final VideoTableModel model = (VideoTableModel) videoTable.getModel();
     model.clearTable();
-    pnlSearchFile.setEnableDownloadButtons(false);
+    pnlSearchFile.getResultPanel().disableButtons();
   }
 
   private void clearTableName() {
+    VideoTable subtitleTable = pnlSearchText.getResultPanel().getTable();
     final VideoTableModel model = (VideoTableModel) subtitleTable.getModel();
     model.clearTable();
-    pnlSearchText.setEnableDownloadButtons(false);
+    pnlSearchFile.getResultPanel().disableButtons();
   }
 
   protected JFrame getThis() {
@@ -854,9 +885,10 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     if (event.getSource() instanceof SearchFileWorker) {
       final SearchFileWorker searchWorker = (SearchFileWorker) event.getSource();
       if (searchWorker.isDone()) {
+        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
         final DefaultTableModel model = (DefaultTableModel) videoTable.getModel();
         if (model.getRowCount() > 0) {
-          pnlSearchFile.setEnableDownloadButtons(true);
+          pnlSearchFile.getResultPanel().enableButtons();
         }
         StatusMessenger.instance.message("Found " + model.getRowCount() + " files");
         progressDialog.setVisible(false);
@@ -873,7 +905,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     } else if (event.getSource() instanceof DownloadWorker) {
       final DownloadWorker downloadWorker = (DownloadWorker) event.getSource();
       if (downloadWorker.isDone()) {
-        pnlSearchFile.setEnableDownloadButtons(true);
+        pnlSearchFile.getResultPanel().enableButtons();
         progressDialog.setVisible(false);
       } else {
         final int progress = downloadWorker.getProgress();
@@ -883,7 +915,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     } else if (event.getSource() instanceof RenameWorker) {
       final RenameWorker renameWorker = (RenameWorker) event.getSource();
       if (renameWorker.isDone()) {
-        pnlSearchFile.setEnableDownloadButtons(true);
+        pnlSearchFile.getResultPanel().enableButtons();
         progressDialog.setVisible(false);
       } else {
         final int progress = renameWorker.getProgress();
@@ -894,9 +926,10 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
       final SearchNameWorker searchWorker = (SearchNameWorker) event.getSource();
       if (searchWorker.isDone()) {
         progressDialog.setVisible(false);
+        VideoTable subtitleTable = pnlSearchText.getResultPanel().getTable();
         final DefaultTableModel model = (DefaultTableModel) subtitleTable.getModel();
         StatusMessenger.instance.message("Found " + model.getRowCount() + " files");
-        pnlSearchText.setEnableDownloadButtons(true);
+        pnlSearchText.getResultPanel().enableButtons();
         pnlSearchTextInput.enableSearchButton();
       } else {
         final int progress = searchWorker.getProgress();
@@ -914,6 +947,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   }
 
   private void storeScreenSettings() {
+    VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
     settingsControl.getSettings().getScreenSettings()
         .setHideEpisode(videoTable.isHideColumn(SearchColumnName.EPISODE));
     settingsControl.getSettings().getScreenSettings()
