@@ -46,10 +46,7 @@ public abstract class VideoLibraryPanel extends JPanel {
   private PartialDisableComboBox cbxLibraryOtherFileAction;
   private JComboBox<String> cbxFilenameReplaceSpaceChar;
   private JComboBox<String> cbxFolderReplaceSpaceChar;
-  private JPanel pnlBackup;
-  private JTextField txtBackupSubtitlePath;
-  private JCheckBox chkBackupSubtitle;
-  private JCheckBox chkBackupUseWebsiteFileName;
+  private SubtitleBackupPanel pnlBackup;
 
   public VideoLibraryPanel(LibrarySettings libSettings, VideoType videoType) {
     this.videoType = videoType;
@@ -160,10 +157,9 @@ public abstract class VideoLibraryPanel extends JPanel {
   public void setLibrarySettings(final LibrarySettings libSettings) {
     this.libSettings = libSettings;
 
-    this.chkBackupSubtitle.setSelected(libSettings.isLibraryBackupSubtitle());
-    this.txtBackupSubtitlePath
-        .setText(libSettings.getLibraryBackupSubtitlePath().getAbsolutePath());
-    this.chkBackupUseWebsiteFileName.setSelected(libSettings.isLibraryBackupUseWebsiteFileName());
+    pnlBackup.setBackupSubtitleSelected(libSettings.isLibraryBackupSubtitle());
+    pnlBackup.setBackupSubtitlePath(libSettings.getLibraryBackupSubtitlePath().getAbsolutePath());
+    pnlBackup.setBackupUseWebsiteFilenameSelected(libSettings.isLibraryBackupUseWebsiteFileName());
     this.cbxLibraryAction.setSelectedItem(libSettings.getLibraryAction());
     this.chkUseTVDBNaming.setSelected(libSettings.isLibraryUseTVDBNaming());
     this.chkReplaceWindowsChar.setSelected(libSettings.isLibraryReplaceChars());
@@ -193,10 +189,10 @@ public abstract class VideoLibraryPanel extends JPanel {
   }
 
   public LibrarySettings getLibrarySettings() {
-    this.libSettings.setLibraryBackupSubtitle(this.chkBackupSubtitle.isSelected());
-    this.libSettings.setLibraryBackupSubtitlePath(new File(this.txtBackupSubtitlePath.getText()));
-    this.libSettings.setLibraryBackupUseWebsiteFileName(this.chkBackupUseWebsiteFileName
-        .isSelected());
+    this.libSettings.setLibraryBackupSubtitle(pnlBackup.isBackupSubtitleSelected());
+    this.libSettings.setLibraryBackupSubtitlePath(new File(pnlBackup.getBackupSubtitlePath()));
+    this.libSettings.setLibraryBackupUseWebsiteFileName(pnlBackup
+        .isBackupUseWebsiteFilenameSelected());
     this.libSettings.setLibraryAction((LibraryActionType) this.cbxLibraryAction.getSelectedItem());
     this.libSettings.setLibraryUseTVDBNaming(this.chkUseTVDBNaming.isSelected());
     this.libSettings.setLibraryReplaceChars(this.chkReplaceWindowsChar.isSelected());
@@ -235,36 +231,17 @@ public abstract class VideoLibraryPanel extends JPanel {
     add(new JLabel("Bibiliotheek opties"), "cell 0 0 2 1,gapy 5");
     add(new JSeparator(), "cell 0 0 2 1,growx,gapy 5");
 
-    pnlBackup = new JPanel();
+    pnlBackup = new SubtitleBackupPanel();
     add(pnlBackup, "cell 0 1 2 1,grow");
-    pnlBackup.setLayout(new MigLayout("", "[][][][grow][center]", "[][][][][]"));
 
-    pnlBackup.add(new JLabel("Ondertitel Backup"), "cell 0 0 5 1,gapy 5");
-    pnlBackup.add(new JSeparator(), "cell 0 0 5 1,growx,gapy 5");
-
-    chkBackupSubtitle = new JCheckBox("Backup ondertitels?");
-    pnlBackup.add(chkBackupSubtitle, "cell 1 1 4 1");
-
-    JLabel lblBackupLocatie = new JLabel("Locatie");
-    pnlBackup.add(lblBackupLocatie, "cell 1 2,alignx left");
-
-    txtBackupSubtitlePath = new JTextField();
-    pnlBackup.add(txtBackupSubtitlePath, "cell 2 2 2 1,growx");
-    txtBackupSubtitlePath.setColumns(10);
-
-    JButton btnBrowseBackup = new JButton("Bladeren");
-    btnBrowseBackup.addActionListener(new ActionListener() {
+    pnlBackup.setBrowseBackupAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         File path =
             MemoryFolderChooser.getInstance().selectDirectory(VideoLibraryPanel.this.getRootPane(),
                 "Selecteer Ondertitel Backup map");
-        txtBackupSubtitlePath.setText(path.getAbsolutePath());
+        pnlBackup.setBackupSubtitlePath(path.getAbsolutePath());
       }
     });
-    pnlBackup.add(btnBrowseBackup, "cell 4 2,alignx center");
-
-    chkBackupUseWebsiteFileName = new JCheckBox("Naam gebruik van de ondertitel bron?");
-    pnlBackup.add(chkBackupUseWebsiteFileName, "cell 1 3 4 1");
 
     add(new JLabel("Volgende acties uitvoeren:"), "cell 0 2,alignx left");
 
