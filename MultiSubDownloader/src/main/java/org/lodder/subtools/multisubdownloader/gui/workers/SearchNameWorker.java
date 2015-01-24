@@ -103,8 +103,8 @@ public class SearchNameWorker extends SwingWorker<List<Subtitle>, String> {
     this.season = season;
   }
 
-  public void setEpisode(int season) {
-    this.season = season;
+  public void setEpisode(int episode) {
+    this.episode = episode;
   }
 
   public void setLanguageCode(String languageCode) {
