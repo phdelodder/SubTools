@@ -92,12 +92,30 @@ public class SearchTextInputPanel extends InputPanel {
     return (VideoSearchType) cbxVideoType.getSelectedItem();
   }
 
-  public String getSeason() {
-    return txtInputSeason.getText().trim();
+  public int getSeason() {
+    int season;
+    String strSeason = txtInputSeason.getText().trim();
+    try{
+      season = strSeason.isEmpty() ? 0 : Integer.parseInt(strSeason);
+    }catch (Exception e){
+      season = 0;
+    }
+    txtInputSeason.setText("" + season);
+
+    return season;
   }
 
-  public String getEpisode() {
-    return txtInputEpisode.getText().trim();
+  public int getEpisode() {
+    int episode;
+    String strEpisode = txtInputEpisode.getText().trim();
+    try{
+      episode = strEpisode.isEmpty() ? 0 : Integer.parseInt(strEpisode);
+    }catch (Exception e){
+      episode = 0;
+    }
+    txtInputEpisode.setText("" + episode);
+
+    return episode;
   }
 
   public String getQuality() {
