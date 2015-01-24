@@ -51,6 +51,8 @@ public abstract class SearchAction {
   public void search() throws ActionException {
     inputCheck();
 
+    createSearchWorker();
+
     showProgressDialog();
 
     this.searchPanel.getInputPanel().disableSearchButton();
@@ -59,7 +61,6 @@ public abstract class SearchAction {
 
     this.searchPanel.getResultPanel().clearTable();
 
-    createSearchWorker();
     this.worker.execute();
   }
 
