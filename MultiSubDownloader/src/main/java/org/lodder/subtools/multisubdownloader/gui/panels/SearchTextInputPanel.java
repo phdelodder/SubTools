@@ -122,7 +122,7 @@ public class SearchTextInputPanel extends InputPanel {
     return txtQualityVersion.getText().trim();
   }
 
-  public String getName() {
+  public String getReleaseName() {
     if (txtInputVideoName == null) return "";
     return txtInputVideoName.getText().trim();
   }

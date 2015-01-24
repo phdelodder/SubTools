@@ -24,7 +24,7 @@ public class TextSearchAction extends SearchAction {
     Logger.instance.trace(this.getClass().toString(), "createSearchWorker", "Setting parameters for searchWorker");
 
     VideoSearchType type = inputPanel.getType();
-    String releaseName = inputPanel.getName();
+    String releaseName = inputPanel.getReleaseName();
     int season = inputPanel.getSeason();
     int episode = inputPanel.getEpisode();
     String languageCode = getLanguageCode(inputPanel.getSelectedLanguage());
@@ -47,7 +47,7 @@ public class TextSearchAction extends SearchAction {
 
   @Override
   protected void inputCheck() throws SearchSetupException {
-    if (getInputPanel().getName().isEmpty()) {
+    if (getInputPanel().getReleaseName().isEmpty()) {
       throw new SearchSetupException("Geen Movie/Episode/Release opgegeven");
     }
   }
