@@ -82,7 +82,7 @@ public class StringUtils {
 	           j = source.indexOf(";", i);
 	           if (j > i) {
 	             String entityToLookFor = source.substring(i, j + 1);
-	             String value = (String) htmlEntities.get(entityToLookFor);
+	             String value = htmlEntities.get(entityToLookFor);
 	             if (value != null) {
 	               source = source.substring(0, i)
 	                        + value + source.substring(j + 1);
