@@ -18,7 +18,7 @@ import java.util.zip.GZIPInputStream;
 
 public class HttpClient {
 
-  private static volatile Object myLock = new Object();
+  private static final Object myLock = new Object();
   private volatile static HttpClient hc;
   private final CookieManager cookieManager;
 
