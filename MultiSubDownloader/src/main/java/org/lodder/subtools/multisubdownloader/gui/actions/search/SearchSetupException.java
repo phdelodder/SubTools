@@ -4,6 +4,11 @@ import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
 
 public class SearchSetupException extends ActionException {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 7068109511106327509L;
+
   public SearchSetupException() {
     super();
   }
