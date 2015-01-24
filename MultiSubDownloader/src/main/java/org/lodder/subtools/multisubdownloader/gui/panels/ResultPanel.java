@@ -7,6 +7,7 @@ import javax.swing.table.DefaultTableModel;
 import net.miginfocom.swing.MigLayout;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
+import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 
 public class ResultPanel extends JPanel {
 
@@ -148,8 +149,8 @@ public class ResultPanel extends JPanel {
     this.btnMove.setEnabled(enabled);
   }
 
-  private DefaultTableModel getTableModel() {
-    return (DefaultTableModel) resultTable.getModel();
+  private VideoTableModel getTableModel() {
+    return (VideoTableModel) resultTable.getModel();
   }
 
   private void setRowsSelection(boolean selected) {
@@ -185,5 +186,9 @@ public class ResultPanel extends JPanel {
 
   public VideoTable getTable() {
     return this.resultTable;
+  }
+
+  public void clearTable() {
+    getTableModel().clearTable();
   }
 }

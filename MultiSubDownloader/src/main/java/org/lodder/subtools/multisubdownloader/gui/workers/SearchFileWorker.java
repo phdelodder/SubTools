@@ -103,4 +103,25 @@ public class SearchFileWorker extends SwingWorker<List<Release>, String> {
       Logger.instance.error(e.getMessage());
     }
   }
+
+  public void setDirs(File dirs) {
+    this.dirs = new ArrayList<>();
+    this.dirs.add(dirs);
+  }
+
+  public void setDirs(List<File> folders) {
+    this.dirs = new ArrayList<>(folders);
+  }
+
+  public void setLanguageCode(String languageCode) {
+    this.languagecode = languageCode;
+  }
+
+  public void setRecursive(boolean recursive) {
+    this.recursieve = recursive;
+  }
+
+  public void setOverwrite(boolean overwrite) {
+    this.forceSubtitleOverwrite = overwrite;
+  }
 }

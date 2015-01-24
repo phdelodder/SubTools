@@ -6,6 +6,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import org.lodder.subtools.multisubdownloader.gui.actions.search.SearchAction;
 
 public abstract class InputPanel extends JPanel {
   /**
@@ -14,7 +15,7 @@ public abstract class InputPanel extends JPanel {
   private static final long serialVersionUID = 7753220002440733463L;
   private JButton btnSearch;
   private JComboBox<String> cbxLanguage;
-  private ActionListener searchAction;
+  private SearchAction searchAction;
   private final String[] languageSelection = new String[] {"Nederlands", "Engels"};
 
   public InputPanel() {
@@ -26,7 +27,7 @@ public abstract class InputPanel extends JPanel {
     return ((String) cbxLanguage.getSelectedItem()).trim();
   }
 
-  public void setSearchAction(ActionListener searchAction) {
+  public void setSearchAction(SearchAction searchAction) {
     this.searchAction = searchAction;
   }
 
@@ -50,7 +51,7 @@ public abstract class InputPanel extends JPanel {
     btnSearch.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (searchAction != null) searchAction.actionPerformed(e);
+        if (searchAction != null) searchAction.execute();
       }
     });
   }
