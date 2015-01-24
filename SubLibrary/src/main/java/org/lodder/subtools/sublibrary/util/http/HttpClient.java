@@ -234,10 +234,7 @@ public class HttpClient {
                 "((https?|ftp|gopher|telnet|file):((//)|(\\\\\\\\))+[\\\\w\\\\d:#@%/;$()~_?\\\\+-=\\\\\\\\\\\\.&]*)",
                 Pattern.CASE_INSENSITIVE);
     Matcher matcher = urlPattern.matcher(str);
-    if (matcher.find())
-      return true;
-    else
-      return false;
+    return matcher.find();
   }
 
   public String downloadText(URL url) throws IOException {

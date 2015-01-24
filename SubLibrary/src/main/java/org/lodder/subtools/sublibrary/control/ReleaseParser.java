@@ -263,7 +263,6 @@ public class ReleaseParser {
 
   public static boolean isSpecialEpisode(final int season, final List<Integer> episodeNumbers) {
     if (season == 0) return true;
-    if (episodeNumbers.size() == 1 & episodeNumbers.get(0) == 0) return true;
-    return false;
+    return episodeNumbers.size() == 1 & episodeNumbers.get(0) == 0;
   }
 }

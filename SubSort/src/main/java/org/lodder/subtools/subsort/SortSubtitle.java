@@ -438,9 +438,8 @@ public class SortSubtitle implements Listener {
     final String ext = filename.substring(mid + 1, filename.length());
 
     String allowedExtension = "srt";
-    if (ext.equalsIgnoreCase(allowedExtension)) return true;
+    return ext.equalsIgnoreCase(allowedExtension);
 
-    return false;
   }
 
   private boolean textFilesEqual(File f1, File f2) {

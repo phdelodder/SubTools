@@ -176,10 +176,7 @@ public class TVRageEpisodeNumber implements Comparable<TVRageEpisodeNumber>, Ser
             return false;
         }
 
-        if (episode != other.episode) {
-            return false;
-        }
+        return episode == other.episode;
 
-        return true;
     }
 }
