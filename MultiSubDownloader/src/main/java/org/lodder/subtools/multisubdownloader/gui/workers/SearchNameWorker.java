@@ -90,4 +90,28 @@ public class SearchNameWorker extends SwingWorker<List<Subtitle>, String> {
       Logger.instance.error(e.getMessage());
     }
   }
+
+  public void setReleaseType(VideoSearchType releaseType) {
+    this.videoSearchTypeChoice = releaseType;
+  }
+
+  public void setReleaseName(String releaseName) {
+    this.videoText = releaseName;
+  }
+
+  public void setSeason(int season) {
+    this.season = season;
+  }
+
+  public void setEpisode(int season) {
+    this.season = season;
+  }
+
+  public void setLanguageCode(String languageCode) {
+    this.languagecode = languageCode;
+  }
+
+  public void setQuality(String quality) {
+    this.quality = quality;
+  }
 }
