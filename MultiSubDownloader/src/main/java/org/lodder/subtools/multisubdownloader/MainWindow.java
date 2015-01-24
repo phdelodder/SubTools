@@ -20,15 +20,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.swing.JEditorPane;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.RowSorter;
+import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.table.DefaultTableModel;
@@ -36,6 +28,8 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import org.lodder.subtools.multisubdownloader.gui.Menu;
+import org.lodder.subtools.multisubdownloader.gui.actions.search.FileSearchAction;
+import org.lodder.subtools.multisubdownloader.gui.actions.search.TextSearchAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.MappingEpisodeNameDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.PreferenceDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.ProgressDialog;
@@ -55,9 +49,8 @@ import org.lodder.subtools.multisubdownloader.gui.panels.SearchPanel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchTextInputPanel;
 import org.lodder.subtools.multisubdownloader.gui.workers.DownloadWorker;
 import org.lodder.subtools.multisubdownloader.gui.workers.RenameWorker;
-import org.lodder.subtools.multisubdownloader.gui.workers.SearchFileWorker;
-import org.lodder.subtools.multisubdownloader.gui.workers.SearchNameWorker;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
+import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.util.Export;
 import org.lodder.subtools.multisubdownloader.util.Import;
 import org.lodder.subtools.sublibrary.ConfigProperties;
@@ -67,7 +60,6 @@ import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
-import org.lodder.subtools.sublibrary.model.VideoSearchType;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.lodder.subtools.sublibrary.util.StringUtils;
@@ -369,19 +361,21 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   }
 
   private void createTextSearchPanel() {
+    Settings settings = this.settingsControl.getSettings();
+    TextSearchAction searchAction = new TextSearchAction(this, settings);
     ResultPanel resultPanel = new ResultPanel();
     pnlSearchTextInput = new SearchTextInputPanel();
+
     pnlSearchText = new SearchPanel();
     pnlSearchText.setResultPanel(resultPanel);
     pnlSearchText.setInputPanel(pnlSearchTextInput);
 
     resultPanel.showSelectFoundSubtitlesButton();
-    pnlSearchTextInput.setSearchAction(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        searchName();
-      }
-    });
     resultPanel.setTable(createSubtitleTable());
+
+    searchAction.setSearchPanel(pnlSearchText);
+
+    pnlSearchTextInput.setSearchAction(searchAction);
     resultPanel.setDownloadAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         downloadText();
@@ -400,28 +394,25 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   }
 
   private void createFileSearchPanel() {
+    Settings settings = this.settingsControl.getSettings();
+    FileSearchAction searchAction = new FileSearchAction(this, settings);
     ResultPanel resultPanel = new ResultPanel();
     pnlSearchFileInput = new SearchFileInputPanel();
     pnlSearchFile = new SearchPanel();
+
     pnlSearchFile.setResultPanel(resultPanel);
     pnlSearchFile.setInputPanel(pnlSearchFileInput);
+
+    resultPanel.setTable(createVideoTable());
+
+    searchAction.setSearchPanel(pnlSearchFile);
 
     pnlSearchFileInput.setSelectFolderAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         selectIncomingFolder();
       }
     });
-
-    pnlSearchFileInput.setSearchAction(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        try {
-          searchFile();
-        } catch (final Exception e) {
-          showErrorMessage(e.getMessage());
-          lblStatus.setText(e.getMessage());
-        }
-      }
-    });
+    pnlSearchFileInput.setSearchAction(searchAction);
 
     resultPanel.setDownloadAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
@@ -439,7 +430,6 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         }
       }
     });
-    resultPanel.setTable(createVideoTable());
   }
 
   private VideoTable createVideoTable() {
@@ -601,129 +591,11 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     }
   }
 
-  private void searchFile() {
-    if (inputFileCheck()) {
-      VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
-      SearchFileWorker searchWorker =
-          new SearchFileWorker(videoTable, settingsControl.getSettings());
-      searchWorker.addPropertyChangeListener(this);
-      progressDialog = new ProgressDialog(this, searchWorker);
-      progressDialog.setVisible(true);
-      pnlSearchFileInput.disableSearchButton();
-      StatusMessenger.instance.message("Zoeken...");
-      clearTableFile();
-      if (pnlSearchFileInput.getIncomingPath().equals("")) {
-        if (settingsControl.getSettings().getDefaultIncomingFolders().size() > 0) {
-          searchWorker.setParameters(settingsControl.getSettings().getDefaultIncomingFolders(),
-              getLanguageCode(pnlSearchFileInput.getSelectedLanguage()),
-              pnlSearchFileInput.isRecursiveSelected(), pnlSearchFileInput.isForceOverwrite());
-          searchWorker.execute();
-        }
-      } else {
-        searchWorker.setParameters(new File(pnlSearchFileInput.getIncomingPath()),
-            getLanguageCode(pnlSearchFileInput.getSelectedLanguage()),
-            pnlSearchFileInput.isRecursiveSelected(), pnlSearchFileInput.isForceOverwrite());
-        searchWorker.execute();
-      }
-    }
-
-  }
-
-  private boolean inputFileCheck() {
-    if (pnlSearchFileInput.getIncomingPath().equals("")) {
-      if (settingsControl.getSettings().getDefaultIncomingFolders().size() == 0) {
-        showErrorMessage("Geen map geselecteerd");
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private void searchName() {
-    if (inputNameCheck()) {
-      VideoTable subtitleTable = pnlSearchText.getResultPanel().getTable();
-      SearchNameWorker searchWorker =
-          new SearchNameWorker(subtitleTable, settingsControl.getSettings());
-      searchWorker.addPropertyChangeListener(this);
-      progressDialog = new ProgressDialog(searchWorker);
-      progressDialog.setVisible(true);
-      clearTableName();
-      pnlSearchTextInput.disableSearchButton();
-      final VideoSearchType videoType = this.pnlSearchTextInput.getType();
-
-      int season = 0, episode = 0;
-      if (!pnlSearchTextInput.getSeason().isEmpty())
-        season = Integer.parseInt(this.pnlSearchTextInput.getSeason());
-      if (!pnlSearchTextInput.getEpisode().isEmpty())
-        episode = Integer.parseInt(this.pnlSearchTextInput.getEpisode());
-
-      String name = pnlSearchTextInput.getName();
-      String languageCode = getLanguageCode(pnlSearchTextInput.getSelectedLanguage());
-      String quality = pnlSearchTextInput.getQuality();
-
-      searchWorker.setParameters(videoType, name, season, episode, languageCode, quality);
-      searchWorker.execute();
-    }
-  }
-
-  private String getLanguageCode(String language) {
-    if (language.equals("Nederlands")) {
-      return "nl";
-    } else if (language.equals("Engels")) {
-      return "en";
-    }
-    return null;
-  }
-
-  private boolean inputNameCheck() {
-    VideoSearchType videoTypeChoice = this.pnlSearchTextInput.getType();
-    if (pnlSearchTextInput.getName().isEmpty()) {
-      showErrorMessage("Geen Movie/Episode/Release opgegeven");
-      return false;
-    }
-    if (videoTypeChoice.equals(VideoSearchType.EPISODE)) {
-      if (!this.pnlSearchTextInput.getSeason().isEmpty()
-          && !isInteger(this.pnlSearchTextInput.getSeason())) {
-        showErrorMessage("Seizoen is niet numeriek");
-        return false;
-      }
-      if ((!this.pnlSearchTextInput.getEpisode().isEmpty())
-          && !isInteger(this.pnlSearchTextInput.getEpisode())) {
-        showErrorMessage("Aflevering is niet numeriek");
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private boolean isInteger(String input) {
-    try {
-      Integer.parseInt(input);
-      return true;
-    } catch (Exception e) {
-      return false;
-    }
-  }
-
-  private void clearTableFile() {
-    VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
-    final VideoTableModel model = (VideoTableModel) videoTable.getModel();
-    model.clearTable();
-    pnlSearchFile.getResultPanel().disableButtons();
-  }
-
-  private void clearTableName() {
-    VideoTable subtitleTable = pnlSearchText.getResultPanel().getTable();
-    final VideoTableModel model = (VideoTableModel) subtitleTable.getModel();
-    model.clearTable();
-    pnlSearchFile.getResultPanel().disableButtons();
-  }
-
   protected JFrame getThis() {
     return this;
   }
 
-  private void showErrorMessage(String message) {
+  public void showErrorMessage(String message) {
     JOptionPane.showConfirmDialog(this, message, "MultiSubDownloader", JOptionPane.CLOSED_OPTION,
         JOptionPane.ERROR_MESSAGE);
   }
@@ -766,27 +638,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
   @Override
   public void propertyChange(PropertyChangeEvent event) {
-    if (event.getSource() instanceof SearchFileWorker) {
-      final SearchFileWorker searchWorker = (SearchFileWorker) event.getSource();
-      if (searchWorker.isDone()) {
-        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
-        final DefaultTableModel model = (DefaultTableModel) videoTable.getModel();
-        if (model.getRowCount() > 0) {
-          pnlSearchFile.getResultPanel().enableButtons();
-        }
-        StatusMessenger.instance.message("Found " + model.getRowCount() + " files");
-        progressDialog.setVisible(false);
-        pnlSearchFileInput.enableSearchButton();
-      } else {
-        final int progress = searchWorker.getProgress();
-        progressDialog.updateProgress(progress);
-        if (progress == 0) {
-          StatusMessenger.instance.message("Bestanden lijst aan het opbouwen");
-        } else {
-          StatusMessenger.instance.message("Bestanden aan het verwerken");
-        }
-      }
-    } else if (event.getSource() instanceof DownloadWorker) {
+    if (event.getSource() instanceof DownloadWorker) {
       final DownloadWorker downloadWorker = (DownloadWorker) event.getSource();
       if (downloadWorker.isDone()) {
         pnlSearchFile.getResultPanel().enableButtons();
@@ -805,20 +657,6 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         final int progress = renameWorker.getProgress();
         progressDialog.updateProgress(progress);
         StatusMessenger.instance.message("Hernoemen ....");
-      }
-    } else if (event.getSource() instanceof SearchNameWorker) {
-      final SearchNameWorker searchWorker = (SearchNameWorker) event.getSource();
-      if (searchWorker.isDone()) {
-        progressDialog.setVisible(false);
-        VideoTable subtitleTable = pnlSearchText.getResultPanel().getTable();
-        final DefaultTableModel model = (DefaultTableModel) subtitleTable.getModel();
-        StatusMessenger.instance.message("Found " + model.getRowCount() + " files");
-        pnlSearchText.getResultPanel().enableButtons();
-        pnlSearchTextInput.enableSearchButton();
-      } else {
-        final int progress = searchWorker.getProgress();
-        progressDialog.updateProgress(progress);
-        StatusMessenger.instance.message("Zoeken ....");
       }
     }
   }
@@ -845,4 +683,24 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
   }
 
+  public ProgressDialog setProgressDialog(SwingWorker<?, ?> worker) {
+    progressDialog = new ProgressDialog(this, worker);
+    return progressDialog;
+  }
+
+  public void showProgressDialog() {
+    this.progressDialog.setVisible(true);
+  }
+
+  public void hideProgressDialog() {
+    this.progressDialog.setVisible(false);
+  }
+
+  public void setStatusMessage(String message) {
+    StatusMessenger.instance.message(message);
+  }
+
+  public void updateProgressDialog(int progress) {
+    progressDialog.updateProgress(progress);
+  }
 }
