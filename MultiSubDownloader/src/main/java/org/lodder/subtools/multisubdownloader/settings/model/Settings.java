@@ -441,4 +441,11 @@ public class Settings {
     this.optionsAutomaticDownloadSelectionReleaseGroup = optionsAutomaticDownloadSelectionReleaseGroup;
   }
 
+  public List<File> getDefaultFolders() {
+    return getDefaultIncomingFolders();
+  }
+
+  public boolean hasDefaultFolders() {
+    return getDefaultIncomingFolders().size() > 0;
+  }
 }

@@ -8,50 +8,50 @@ import org.lodder.subtools.sublibrary.data.IMDB.IMDBSearchID;
 import org.lodder.subtools.sublibrary.data.IMDB.model.IMDBDetails;
 import org.lodder.subtools.sublibrary.exception.VideoControlException;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.MovieFile;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
+import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 
 public class MovieFileControl extends VideoFileControl {
   private final IMDBSearchID imdbSearchID;
   private final IMDBAPI imdbapi;
 
-  public MovieFileControl(MovieFile movieFile) {
-    super(movieFile);
+  public MovieFileControl(MovieRelease movieRelease) {
+    super(movieRelease);
     imdbapi = new IMDBAPI();
     imdbSearchID = new IMDBSearchID();
   }
 
   @Override
-  public VideoFile process(List<MappingTvdbScene> dict) throws VideoControlException {
+  public Release process(List<MappingTvdbScene> dict) throws VideoControlException {
     Logger.instance.trace("MovieFileControl", "process", "");
-    MovieFile movieFile = (MovieFile) videoFile;
-    if (movieFile.getTitle().equals("")) {
-      throw new VideoControlException("Unable to extract/find title, check file", videoFile);
+    MovieRelease movieRelease = (MovieRelease) release;
+    if (movieRelease.getTitle().equals("")) {
+      throw new VideoControlException("Unable to extract/find title, check file", release);
     } else {
       int imdbid;
-      imdbid = imdbSearchID.getImdbId(movieFile.getTitle(), movieFile.getYear());
+      imdbid = imdbSearchID.getImdbId(movieRelease.getTitle(), movieRelease.getYear());
       if (imdbid > 0) {
-        movieFile.setImdbid(imdbid);
+        movieRelease.setImdbid(imdbid);
         IMDBDetails imdbinfo;
         try {
-          imdbinfo = imdbapi.getIMDBMovieDetails(movieFile.getImdbidAsString());
+          imdbinfo = imdbapi.getIMDBMovieDetails(movieRelease.getImdbidAsString());
           if (imdbinfo != null) {
-            movieFile.setYear(imdbinfo.getYear());
-            movieFile.setTitle(imdbinfo.getTitle());
+            movieRelease.setYear(imdbinfo.getYear());
+            movieRelease.setTitle(imdbinfo.getTitle());
           } else {
             Logger.instance
                 .error("Unable to get details from IMDB API, continue with filename info"
-                    + videoFile);
+                    + release);
           }
         } catch (IMDBException e) {
-          throw new VideoControlException("IMDBAPI Failed", videoFile);
+          throw new VideoControlException("IMDBAPI Failed", release);
         }
 
       } else {
-        throw new VideoControlException("Movie not found on IMDB, check file", videoFile);
+        throw new VideoControlException("Movie not found on IMDB, check file", release);
       }
-      return movieFile;
+      return movieRelease;
     }
   }
 }

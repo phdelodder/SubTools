@@ -1,8 +1,8 @@
 package org.lodder.subtools.multisubdownloader.lib.library;
 
-import java.util.List;
-
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
+
+import java.util.List;
 
 public class LibraryBuilder {
 
@@ -24,7 +24,7 @@ public class LibraryBuilder {
 
       StringBuilder builder = new StringBuilder();
       for (final int epNum : episodeNumbers) {
-        builder.append(seperator + formatedNumber(epNum, leadingZero));
+        builder.append(seperator).append(formatedNumber(epNum, leadingZero));
       }
       formatedEpisodeNumber += builder.toString();
       

@@ -5,16 +5,16 @@ import java.util.List;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Subtitle;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.Release;
 
 public abstract class SubtitleSelection {
 
   private Settings settings;
-  private VideoFile videoFile;
+  private Release release;
 
-  public SubtitleSelection(Settings settings, VideoFile videoFile) {
+  public SubtitleSelection(Settings settings, Release release) {
     this.settings = settings;
-    this.videoFile = videoFile;
+    this.release = release;
   }
 
   public int getAutomatic() {
@@ -52,18 +52,18 @@ public abstract class SubtitleSelection {
 
   private int teamCompare(boolean equal) {
     Logger.instance.trace("SubtitleSelection", "teamCompare", "equal: " + equal);
-    List<Subtitle> matchingSubs = videoFile.getMatchingSubs();
+    List<Subtitle> matchingSubs = release.getMatchingSubs();
     Subtitle subtitle;
-    Logger.instance.trace("teamCompare", "teamCompare", "videofile team: " + videoFile.getTeam());
+    Logger.instance.trace("teamCompare", "teamCompare", "videofile team: " + release.getTeam());
     for (int i = 0; i < matchingSubs.size(); i++) {
       subtitle = matchingSubs.get(i);
       Logger.instance.trace("SubtitleSelection", "qualityRuleSelectionCompare", "subtitle team: "
           + subtitle.getTeam());
       if (equal) {
-        if (subtitle.getTeam().equalsIgnoreCase(videoFile.getTeam())) return i;
+        if (subtitle.getTeam().equalsIgnoreCase(release.getTeam())) return i;
       } else {
         for (String t : subtitle.getTeam().split(" ")) {
-          if (videoFile.getTeam().toLowerCase().contains(t.toLowerCase())) return i;
+          if (release.getTeam().toLowerCase().contains(t.toLowerCase())) return i;
         }
       }
     }
@@ -73,7 +73,7 @@ public abstract class SubtitleSelection {
 
   private int qualityRuleSelectionCompare(boolean equal) {
     Logger.instance.trace("SubtitleSelection", "qualityRuleSelectionCompare", "equal: " + equal);
-    List<Subtitle> matchingSubs = videoFile.getMatchingSubs();
+    List<Subtitle> matchingSubs = release.getMatchingSubs();
     Subtitle subtitle;
     for (String quality : settings.getQualityRuleList()) {
       Logger.instance.trace("SubtitleSelection", "qualityRuleSelectionCompare",
@@ -95,5 +95,5 @@ public abstract class SubtitleSelection {
     return -1;
   }
   
-  protected abstract int getUserInput(VideoFile videoFile);
+  protected abstract int getUserInput(Release release);
 }

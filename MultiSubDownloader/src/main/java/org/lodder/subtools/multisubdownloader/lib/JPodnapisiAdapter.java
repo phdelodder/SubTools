@@ -4,16 +4,16 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesHasher;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.JPodnapisiApi;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.model.PodnapisiSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.JSubAdapter;
-import org.lodder.subtools.sublibrary.control.VideoFileParser;
+import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
-import org.lodder.subtools.sublibrary.model.MovieFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
-import org.lodder.subtools.sublibrary.subtitlesource.opensubtitles.OpenSubtitlesHasher;
-import org.lodder.subtools.sublibrary.subtitlesource.podnapisi.JPodnapisiApi;
-import org.lodder.subtools.sublibrary.subtitlesource.podnapisi.model.PodnapisiSubtitleDescriptor;
 
 public class JPodnapisiAdapter implements JSubAdapter {
 
@@ -28,10 +28,10 @@ public class JPodnapisiAdapter implements JSubAdapter {
   }
 
   @Override
-  public List<Subtitle> searchSubtitles(MovieFile movieFile, String... sublanguageid) {
+  public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... sublanguageid) {
     List<PodnapisiSubtitleDescriptor> lSubtitles = new ArrayList<PodnapisiSubtitleDescriptor>();
-    if (!movieFile.getFilename().equals("")) {
-      File file = new File(movieFile.getPath(), movieFile.getFilename());
+    if (!movieRelease.getFilename().equals("")) {
+      File file = new File(movieRelease.getPath(), movieRelease.getFilename());
       if (file.exists())
         try {
           lSubtitles =
@@ -43,7 +43,7 @@ public class JPodnapisiAdapter implements JSubAdapter {
     }
     if (lSubtitles.size() == 0) {
       try {
-        lSubtitles.addAll(jpapi.searchSubtitles(movieFile.getTitle(), movieFile.getYear(), 0, 0,
+        lSubtitles.addAll(jpapi.searchSubtitles(movieRelease.getTitle(), movieRelease.getYear(), 0, 0,
             sublanguageid[0]));
       } catch (Exception e) {
         Logger.instance.error("API PODNAPISI searchSubtitles using title: " + e);
@@ -53,22 +53,22 @@ public class JPodnapisiAdapter implements JSubAdapter {
   }
 
   @Override
-  public List<Subtitle> searchSubtitles(EpisodeFile episodeFile, String... sublanguageid) {
+  public List<Subtitle> searchSubtitles(TvRelease tvRelease, String... sublanguageid) {
     List<PodnapisiSubtitleDescriptor> lSubtitles = new ArrayList<PodnapisiSubtitleDescriptor>();
 
     try {
       String showName = "";
-      if (episodeFile.getOriginalShowName().length() > 0) {
-        showName = episodeFile.getOriginalShowName();
+      if (tvRelease.getOriginalShowName().length() > 0) {
+        showName = tvRelease.getOriginalShowName();
       } else {
-        showName = episodeFile.getShow();
+        showName = tvRelease.getShow();
       }
 
       if (showName.length() > 0) {
-        for (int episode : episodeFile.getEpisodeNumbers()) {
+        for (int episode : tvRelease.getEpisodeNumbers()) {
           lSubtitles =
               jpapi
-                  .searchSubtitles(showName, 0, episodeFile.getSeason(), episode, sublanguageid[0]);
+                  .searchSubtitles(showName, 0, tvRelease.getSeason(), episode, sublanguageid[0]);
         }
       }
     } catch (Exception e) {
@@ -86,7 +86,7 @@ public class JPodnapisiAdapter implements JSubAdapter {
         if (downloadlink != null) {
           for (String release : ossd.getReleaseString().split(" ")) {
             listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.PODNAPISI, release,
-                downloadlink, sublanguageid, "", SubtitleMatchType.EVERYTHING, VideoFileParser
+                downloadlink, sublanguageid, "", SubtitleMatchType.EVERYTHING, ReleaseParser
                     .extractTeam(release), ossd.getUploaderName(), ossd.getFlagsString().equals(
                     "nhu")));
           }

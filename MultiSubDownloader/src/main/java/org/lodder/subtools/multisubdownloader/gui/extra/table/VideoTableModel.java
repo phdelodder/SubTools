@@ -2,10 +2,10 @@ package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
 import javax.swing.table.DefaultTableModel;
 
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
-import org.lodder.subtools.sublibrary.model.MovieFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.Release;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ public class VideoTableModel extends DefaultTableModel {
   private Class<?>[] columnTypes;
   final boolean[] columnEditables;
   private boolean showOnlyFound = false;
-  private List<VideoFile> rowList = new ArrayList<VideoFile>();
+  private List<Release> rowList = new ArrayList<Release>();
 
   public VideoTableModel(Object[][] data, Object[] columnNames) {
     super(data, columnNames);
@@ -99,46 +99,46 @@ public class VideoTableModel extends DefaultTableModel {
         SearchColumnName.SELECT.getColumnName(), SearchColumnName.OBJECT.getColumnName()});
   }
 
-  public void addRows(List<VideoFile> l) {
-    for (VideoFile e : l) {
+  public void addRows(List<Release> l) {
+    for (Release e : l) {
       addRow(e);
     }
   }
 
-  public void addRow(VideoFile videoFile) {
-    if (!rowList.contains(videoFile)) {
-      rowList.add(videoFile);
+  public void addRow(Release release) {
+    if (!rowList.contains(release)) {
+      rowList.add(release);
     }
 
-    if ((showOnlyFound && videoFile.getMatchingSubs().size() > 0) || (!showOnlyFound)) {
+    if ((showOnlyFound && release.getMatchingSubs().size() > 0) || (!showOnlyFound)) {
       int cCount = getColumnCount();
       Object[] row = new Object[cCount];
       String columnName;
       for (int i = 0; i < cCount; i++) {
         columnName = this.getColumnName(i);
         if (SearchColumnName.SERIE.getColumnName().equals(columnName)) {
-          if (videoFile instanceof EpisodeFile) {
-            row[i] = ((EpisodeFile) videoFile).getShow();
-          } else if (videoFile instanceof MovieFile) {
-            row[i] = ((MovieFile) videoFile).getTitle();
+          if (release instanceof TvRelease) {
+            row[i] = ((TvRelease) release).getShow();
+          } else if (release instanceof MovieRelease) {
+            row[i] = ((MovieRelease) release).getTitle();
           }
         } else if (SearchColumnName.FILENAME.getColumnName().equals(columnName)) {
-          row[i] = videoFile.getFilename();
+          row[i] = release.getFilename();
         } else if (SearchColumnName.FOUND.getColumnName().equals(columnName)) {
-          row[i] = videoFile.getMatchingSubs().size();
+          row[i] = release.getMatchingSubs().size();
         } else if (SearchColumnName.SELECT.getColumnName().equals(columnName)) {
           row[i] = false;
         } else if (SearchColumnName.OBJECT.getColumnName().equals(columnName)) {
-          row[i] = videoFile;
+          row[i] = release;
         } else if (SearchColumnName.SEASON.getColumnName().equals(columnName)) {
-          if (videoFile instanceof EpisodeFile) row[i] = ((EpisodeFile) videoFile).getSeason();
+          if (release instanceof TvRelease) row[i] = ((TvRelease) release).getSeason();
         } else if (SearchColumnName.EPISODE.getColumnName().equals(columnName)) {
-          if (videoFile instanceof EpisodeFile)
-            row[i] = ((EpisodeFile) videoFile).getEpisodeNumbers().get(0);
+          if (release instanceof TvRelease)
+            row[i] = ((TvRelease) release).getEpisodeNumbers().get(0);
         } else if (SearchColumnName.TYPE.getColumnName().equals(columnName)) {
-          row[i] = videoFile.getVideoType();
+          row[i] = release.getVideoType();
         } else if (SearchColumnName.TITLE.getColumnName().equals(columnName)) {
-          if (videoFile instanceof EpisodeFile) row[i] = ((EpisodeFile) videoFile).getTitle();
+          if (release instanceof TvRelease) row[i] = ((TvRelease) release).getTitle();
         }
       }
       this.addRow(row);
@@ -183,7 +183,7 @@ public class VideoTableModel extends DefaultTableModel {
   }
 
   private void updateTable() {
-    List<VideoFile> newRowList = new ArrayList<VideoFile>();
+    List<Release> newRowList = new ArrayList<Release>();
     newRowList.addAll(rowList);
     clearTable();
     addRows(newRowList);

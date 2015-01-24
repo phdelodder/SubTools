@@ -81,8 +81,8 @@ public class TVRageEpisodeNumber implements Comparable<TVRageEpisodeNumber>, Ser
 
     @Override
     public int compareTo(TVRageEpisodeNumber anotherEpisodeNumber) {
-        int otherSeason = ((TVRageEpisodeNumber) anotherEpisodeNumber).getSeason();
-        int otherEpisode = ((TVRageEpisodeNumber) anotherEpisodeNumber).getEpisode();
+        int otherSeason = anotherEpisodeNumber.getSeason();
+        int otherEpisode = anotherEpisodeNumber.getEpisode();
 
         return calculateAbsolute(season, episode) - calculateAbsolute(otherSeason, otherEpisode);
     }
@@ -176,10 +176,7 @@ public class TVRageEpisodeNumber implements Comparable<TVRageEpisodeNumber>, Ser
             return false;
         }
 
-        if (episode != other.episode) {
-            return false;
-        }
+        return episode == other.episode;
 
-        return true;
     }
 }

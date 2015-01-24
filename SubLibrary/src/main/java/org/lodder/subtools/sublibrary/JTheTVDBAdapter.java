@@ -8,7 +8,7 @@ import org.lodder.subtools.sublibrary.data.thetvdb.TheTVDBApi;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
 
 public class JTheTVDBAdapter {
@@ -29,7 +29,7 @@ public class JTheTVDBAdapter {
     }
   }
 
-  public TheTVDBSerie searchSerie(EpisodeFile episode) {
+  public TheTVDBSerie searchSerie(TvRelease episode) {
     int tvdbid = this.jtvapi.searchSerie(episode.getShow(), null);
     if (tvdbid == 0) {
       Logger.instance.error("Unknown serie name in tvdb: " + episode.getShow());
@@ -38,12 +38,12 @@ public class JTheTVDBAdapter {
     return this.jtvapi.getSerie(tvdbid, null);
   }
 
-  public TheTVDBEpisode getEpisode(EpisodeFile episode) {
+  public TheTVDBEpisode getEpisode(TvRelease episode) {
     return this.jtvapi.getEpisode(episode.getTvdbid(), episode.getSeason(), episode
         .getEpisodeNumbers().get(0), "en");
   }
 
-  public TheTVDBSerie getSerie(EpisodeFile episode) {
+  public TheTVDBSerie getSerie(TvRelease episode) {
     if (episode.getTvdbid() > 0) {
       return this.jtvapi.getSerie(episode.getTvdbid(), null);
     } else {

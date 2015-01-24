@@ -1,31 +1,21 @@
 package org.lodder.subtools.multisubdownloader.settings;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
+import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
+import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
+import org.lodder.subtools.multisubdownloader.settings.model.*;
+import org.lodder.subtools.sublibrary.logging.Level;
+import org.lodder.subtools.sublibrary.logging.Logger;
+import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
+import org.lodder.subtools.sublibrary.settings.MappingSettingsControl;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
 import java.util.prefs.Preferences;
-
-import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
-import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
-import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
-import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
-import org.lodder.subtools.multisubdownloader.settings.model.SearchSubtitlePriority;
-import org.lodder.subtools.multisubdownloader.settings.model.Settings;
-import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
-import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
-import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
-import org.lodder.subtools.sublibrary.logging.Level;
-import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
-import org.lodder.subtools.sublibrary.settings.MappingSettingsControl;
 
 public class SettingsControl {
 
@@ -526,22 +516,22 @@ public class SettingsControl {
         new SearchSubtitlePriority(SubtitleSource.ADDIC7ED, preferences.getInt(
             "serieSourceAddic7edPrio", 2));
     SearchSubtitlePriority prioLocal =
-        new SearchSubtitlePriority(SubtitleSource.LOCAL, (Integer) preferences.getInt(
+        new SearchSubtitlePriority(SubtitleSource.LOCAL, preferences.getInt(
             "serieSourceLocalPrio", 2));
     SearchSubtitlePriority prioOpensubtitles =
-        new SearchSubtitlePriority(SubtitleSource.OPENSUBTITLES, (Integer) preferences.getInt(
+        new SearchSubtitlePriority(SubtitleSource.OPENSUBTITLES, preferences.getInt(
             "serieSourceOpensubtitlesPrio", 2));
     SearchSubtitlePriority prioPodnapisi =
-        new SearchSubtitlePriority(SubtitleSource.PODNAPISI, (Integer) preferences.getInt(
+        new SearchSubtitlePriority(SubtitleSource.PODNAPISI, preferences.getInt(
             "serieSourcePodnapisiPrio", 2));
     SearchSubtitlePriority prioPrivateRepo =
-        new SearchSubtitlePriority(SubtitleSource.PRIVATEREPO, (Integer) preferences.getInt(
+        new SearchSubtitlePriority(SubtitleSource.PRIVATEREPO, preferences.getInt(
             "serieSourcePrivateRepoPrio", 1));
     SearchSubtitlePriority prioTvSubtitles =
-        new SearchSubtitlePriority(SubtitleSource.TVSUBTITLES, (Integer) preferences.getInt(
+        new SearchSubtitlePriority(SubtitleSource.TVSUBTITLES, preferences.getInt(
             "serieSourceTvSubtitlesPrio", 2));
     SearchSubtitlePriority prioSubsMax =
-        new SearchSubtitlePriority(SubtitleSource.SUBSMAX, (Integer) preferences.getInt(
+        new SearchSubtitlePriority(SubtitleSource.SUBSMAX, preferences.getInt(
             "serieSourceSubsMaxPrio", 2));
     List<SearchSubtitlePriority> lPrio = new ArrayList<SearchSubtitlePriority>();
 
@@ -563,26 +553,27 @@ public class SettingsControl {
   }
 
   private String checkForOldStructure(String oldStructure) {
-    if (oldStructure.equals("Show\\Season")) {
-      return "%SHOW NAME%%SEPARATOR%Season %S%";
-    } else if (oldStructure.equals("Show\\Series")) {
-      return "%SHOW NAME%%SEPARATOR%Series %S%";
-    } else if (oldStructure.equals("\\")) {
-      return "%SEPARATOR%";
-    } else if (oldStructure.equals("Show S00E00.extension")) {
-      return "%SHOW NAME% S%SS%E%EE%";
-    } else if (oldStructure.equals("Show S00E00 Title.extension")) {
-      return "%SHOW NAME% S%SS%E%EE% %TITLE%";
-    } else if (oldStructure.equals("Show 00X00 Title.extension")) {
-      return "%SHOW NAME% %SS%X%EE% %TITLE%";
-    } else if (oldStructure.equals("Show - S00E00.extension")) {
-      return "%SHOW NAME% - S%SS%E%EE%";
-    } else if (oldStructure.equals("Show S00E00 Title Quality.extension")) {
-      return "%SHOW NAME% S%SS%E%EE% %TITLE% %QUALITY%";
-    } else if (oldStructure.equals("Movie (Year)")) {
-      return "%MOVIE TITLE% (%YEAR%)";
-    } else if (oldStructure.equals("Year\\Movie")) {
-      return "%YEAR%%SEPARATOR%%MOVIE TITLE%";
+    switch (oldStructure) {
+      case "Show\\Season":
+        return "%SHOW NAME%%SEPARATOR%Season %S%";
+      case "Show\\Series":
+        return "%SHOW NAME%%SEPARATOR%Series %S%";
+      case "\\":
+        return "%SEPARATOR%";
+      case "Show S00E00.extension":
+        return "%SHOW NAME% S%SS%E%EE%";
+      case "Show S00E00 Title.extension":
+        return "%SHOW NAME% S%SS%E%EE% %TITLE%";
+      case "Show 00X00 Title.extension":
+        return "%SHOW NAME% %SS%X%EE% %TITLE%";
+      case "Show - S00E00.extension":
+        return "%SHOW NAME% - S%SS%E%EE%";
+      case "Show S00E00 Title Quality.extension":
+        return "%SHOW NAME% S%SS%E%EE% %TITLE% %QUALITY%";
+      case "Movie (Year)":
+        return "%MOVIE TITLE% (%YEAR%)";
+      case "Year\\Movie":
+        return "%YEAR%%SEPARATOR%%MOVIE TITLE%";
     }
     return oldStructure;
   }

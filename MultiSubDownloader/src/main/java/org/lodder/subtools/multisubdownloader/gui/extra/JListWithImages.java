@@ -1,9 +1,8 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
-import javax.swing.*;
-
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 
+import javax.swing.*;
 import java.awt.*;
 
 public class JListWithImages extends JList<JPanel> {
@@ -43,12 +42,12 @@ public class JListWithImages extends JList<JPanel> {
   }
 
   public String getDescription(int index) {
-    JPanel p = (JPanel) getModel().getElementAt(index);
+    JPanel p = getModel().getElementAt(index);
     return ((JLabel) p.getComponent(0)).getText();
   }
 
   public SettingsExcludeType getType(int index) {
-    JPanel p = (JPanel) getModel().getElementAt(index);
+    JPanel p = getModel().getElementAt(index);
     ImageIcon i = (ImageIcon) ((JLabel) p.getComponent(0)).getIcon();
     return SettingsExcludeType.valueOf(i.getDescription());
   }

@@ -3,15 +3,15 @@ package org.lodder.subtools.multisubdownloader.lib;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax.JSubsMaxApi;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax.model.SubMaxSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.JSubAdapter;
-import org.lodder.subtools.sublibrary.control.VideoFileParser;
+import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
-import org.lodder.subtools.sublibrary.model.MovieFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
-import org.lodder.subtools.sublibrary.subtitlesource.subsmax.JSubsMaxApi;
-import org.lodder.subtools.sublibrary.subtitlesource.subsmax.model.SubMaxSubtitleDescriptor;
 
 public class JSubsMaxAdapter implements JSubAdapter {
 
@@ -28,23 +28,23 @@ public class JSubsMaxAdapter implements JSubAdapter {
   }
 
   @Override
-  public List<Subtitle> searchSubtitles(EpisodeFile episodeFile, String... sublanguageids) {
+  public List<Subtitle> searchSubtitles(TvRelease tvRelease, String... sublanguageids) {
     String showName = "";
-    if (episodeFile.getOriginalShowName().length() > 0) {
-      showName = episodeFile.getOriginalShowName();
+    if (tvRelease.getOriginalShowName().length() > 0) {
+      showName = tvRelease.getOriginalShowName();
     } else {
-      showName = episodeFile.getShow();
+      showName = tvRelease.getShow();
     }
     
     List<SubMaxSubtitleDescriptor> lSubtitles =
-        jsmapi.searchSubtitles(showName, episodeFile.getSeason(), episodeFile
+        jsmapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease
             .getEpisodeNumbers().get(0), sublanguageids[0]);
     
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
     
     for (SubMaxSubtitleDescriptor sub:lSubtitles){
       listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.SUBSMAX, sub.getFilename(),
-        sub.getLink(), sublanguageids[0], "", SubtitleMatchType.EVERYTHING, VideoFileParser
+        sub.getLink(), sublanguageids[0], "", SubtitleMatchType.EVERYTHING, ReleaseParser
             .extractTeam(sub.getFilename()), "", false));
     }
     
@@ -52,7 +52,7 @@ public class JSubsMaxAdapter implements JSubAdapter {
   }
 
   @Override
-  public List<Subtitle> searchSubtitles(MovieFile movieFile, String... sublanguageids) {
+  public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... sublanguageids) {
     // TODO Auto-generated method stub
     return null;
   }

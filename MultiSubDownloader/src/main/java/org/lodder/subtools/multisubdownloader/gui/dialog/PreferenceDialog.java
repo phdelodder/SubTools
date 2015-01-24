@@ -1,23 +1,19 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
 import net.miginfocom.swing.MigLayout;
+import org.lodder.subtools.multisubdownloader.gui.extra.*;
+import org.lodder.subtools.multisubdownloader.gui.panels.EpisodeLibraryPanel;
+import org.lodder.subtools.multisubdownloader.gui.panels.MovieLibraryPanel;
+import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
+import org.lodder.subtools.multisubdownloader.settings.model.*;
+import org.lodder.subtools.sublibrary.control.VideoPatterns;
+import org.lodder.subtools.sublibrary.logging.Logger;
+import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
-
-import org.lodder.subtools.multisubdownloader.gui.extra.*;
-import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
-import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
-import org.lodder.subtools.multisubdownloader.settings.model.SearchSubtitlePriority;
-import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
-import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
-import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
-import org.lodder.subtools.sublibrary.control.VideoPatterns;
-import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -94,7 +90,7 @@ public class PreferenceDialog extends MutliSubDialog {
     Collections.addAll(both, VideoPatterns.GROUPEDQUALITYKEYWORDS);
     // keywords
     Collections.addAll(both, VideoPatterns.QUALITYKEYWORDS);
-    String[] values = both.toArray(new String[] {});
+    String[] values = both.toArray(new String[both.size()]);
 
     // Set the combobox editor on the 1st visible column
     int vColIndex = 1;

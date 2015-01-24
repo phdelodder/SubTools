@@ -74,7 +74,7 @@ public class DOMHelper {
             if (tagNodeList == null || tagNodeList.getLength() == 0) {
                 return "";
             }
-            return ((Node) tagNodeList.item(0)).getNodeValue();
+            return tagNodeList.item(0).getNodeValue();
         }
     }
 

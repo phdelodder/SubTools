@@ -19,13 +19,13 @@ import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.sublibrary.DetectLanguage;
-import org.lodder.subtools.sublibrary.control.VideoFileParser;
+import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
 import org.lodder.subtools.sublibrary.util.FilenameContainsFilter;
@@ -47,46 +47,46 @@ public class Actions {
     this.usingCMD = usingCMD;
   }
 
-  public int determineWhatSubtitleDownload(final VideoFile videoFile,
+  public int determineWhatSubtitleDownload(final Release release,
       final boolean subtitleSelectionDialog) {
 
     SubtitleSelection subSelection;
     if (usingCMD)
-      subSelection = new SubtitleSelectionCLI(settings, videoFile);
+      subSelection = new SubtitleSelectionCLI(settings, release);
     else
-      subSelection = new SubtitleSelectionGUI(settings, videoFile);
+      subSelection = new SubtitleSelectionGUI(settings, release);
 
-    if (videoFile.getMatchingSubs().size() > 0) {
+    if (release.getMatchingSubs().size() > 0) {
       Logger.instance.debug("determineWhatSubtitleDownload for videoFile: "
-          + videoFile.getFilename() + " # found subs: " + videoFile.getMatchingSubs().size());
+          + release.getFilename() + " # found subs: " + release.getMatchingSubs().size());
       if (settings.isOptionsAlwaysConfirm()) {
-        return subSelection.getUserInput(videoFile);
-      } else if (videoFile.getMatchingSubs().size() == 1
-          && videoFile.getMatchingSubs().get(0).getSubtitleMatchType() == SubtitleMatchType.EXACT) {
+        return subSelection.getUserInput(release);
+      } else if (release.getMatchingSubs().size() == 1
+          && release.getMatchingSubs().get(0).getSubtitleMatchType() == SubtitleMatchType.EXACT) {
         Logger.instance.debug("determineWhatSubtitleDownload: Exact Match");
         return 0;
       } else if (settings.isOptionsAutomaticDownloadSelection()) {
         Logger.instance.debug("determineWhatSubtitleDownload: Automatic Download Selection");
         int selected = subSelection.getAutomatic();
         if (selected >= 0) return selected;
-      } else if (videoFile.getMatchingSubs().size() > 1) {
+      } else if (release.getMatchingSubs().size() > 1) {
         Logger.instance.debug("determineWhatSubtitleDownload: Multiple subs detected");
         if (subtitleSelectionDialog) {
           Logger.instance.debug("determineWhatSubtitleDownload: Select subtitle with dialog");
-          return subSelection.getUserInput(videoFile);
+          return subSelection.getUserInput(release);
         } else {
-          Logger.instance.log("Multiple subs detected for: " + videoFile.getFilename()
+          Logger.instance.log("Multiple subs detected for: " + release.getFilename()
               + " Unhandleable for CMD! switch to GUI"
               + " or use '--selection' as switch in de CMD");
 
         }
-      } else if (videoFile.getMatchingSubs().size() == 1) {
+      } else if (release.getMatchingSubs().size() == 1) {
         Logger.instance.debug("determineWhatSubtitleDownload: only one sub taking it!!!!");
         return 0;
       }
     }
     Logger.instance.debug("determineWhatSubtitleDownload: No subs found for: "
-        + videoFile.getFilename());
+        + release.getFilename());
     return -1;
   }
   
@@ -182,18 +182,18 @@ public class Actions {
   }
 
   /**
-   * @param videoFile
+   * @param release
    * @param subtitle
    * @param librarySettings
    * @param version
    * @throws Exception
    */
-  public static void download(VideoFile videoFile, Subtitle subtitle,
+  public static void download(Release release, Subtitle subtitle,
       LibrarySettings librarySettings, int version) throws Exception {
     Logger.instance.trace("Actions", "download",
         "LibraryAction" + librarySettings.getLibraryAction());
     PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings);
-    final File path = pathLibraryBuilder.buildPath(videoFile);
+    final File path = pathLibraryBuilder.buildPath(release);
     if (!path.exists()) {
       Logger.instance.debug("Download creating folder: " + path.getAbsolutePath());
       if (!path.mkdirs()) {
@@ -202,9 +202,9 @@ public class Actions {
     }
 
     FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings);
-    final String videoFileName = filenameLibraryBuilder.buildFileName(videoFile);
+    final String videoFileName = filenameLibraryBuilder.buildFileName(release);
     final String subFileName =
-        filenameLibraryBuilder.buildSubFileName(videoFile, subtitle, videoFileName, version);
+        filenameLibraryBuilder.buildSubFileName(release, subtitle, videoFileName, version);
     final File subFile = new File(path, subFileName);
 
     boolean success;
@@ -221,17 +221,17 @@ public class Actions {
         Files.copy(new File(subtitle.getDownloadlink()), subFile);
         success = true;
       }
-      if (VideoFileParser.getQualityKeyword(videoFile.getFilename()).split(" ").length > 1) {
+      if (ReleaseParser.getQualityKeyword(release.getFilename()).split(" ").length > 1) {
         String dropBoxName = "";
         if (subtitle.getSubtitleSource() == SubtitleSource.LOCAL) {
           dropBoxName =
               PrivateRepoIndex.getFullFilename(
-                  FilenameLibraryBuilder.changeExtension(videoFile.getFilename(), ".srt"), "?",
+                  FilenameLibraryBuilder.changeExtension(release.getFilename(), ".srt"), "?",
                   subtitle.getSubtitleSource().toString());
         } else {
           dropBoxName =
               PrivateRepoIndex.getFullFilename(
-                  FilenameLibraryBuilder.changeExtension(videoFile.getFilename(), ".srt"),
+                  FilenameLibraryBuilder.changeExtension(release.getFilename(), ".srt"),
                   subtitle.getUploader(), subtitle.getSubtitleSource().toString());
         }
         DropBoxClient.getDropBoxClient().put(subFile, dropBoxName, subtitle.getLanguagecode());
@@ -240,7 +240,7 @@ public class Actions {
 
     if (success) {
       if (!librarySettings.getLibraryAction().equals(LibraryActionType.NOTHING)) {
-        final File oldLocationFile = new File(videoFile.getPath(), videoFile.getFilename());
+        final File oldLocationFile = new File(release.getPath(), release.getFilename());
         if (oldLocationFile.exists()) {
           final File newLocationFile = new File(path, videoFileName);
           Logger.instance.log("Moving/Renaming " + videoFileName + " to folder " + path.getPath()
@@ -248,11 +248,11 @@ public class Actions {
           Files.move(oldLocationFile, newLocationFile);
           if (!librarySettings.getLibraryOtherFileAction().equals(
               LibraryOtherFileActionType.NOTHING)) {
-            cleanUpFiles(librarySettings, videoFile, path, videoFileName);
+            cleanUpFiles(librarySettings, release, path, videoFileName);
           }
           if (librarySettings.isLibraryRemoveEmptyFolders()
-              && videoFile.getPath().listFiles().length == 0) {
-            videoFile.getPath().delete();
+              && release.getPath().listFiles().length == 0) {
+            release.getPath().delete();
           }
         }
       }
@@ -282,15 +282,15 @@ public class Actions {
     }
   }
 
-  public static void rename(LibrarySettings librarySettings, File f, VideoFile videoFile) {
+  public static void rename(LibrarySettings librarySettings, File f, Release release) {
     Logger.instance
         .trace("Actions", "rename", "LibraryAction" + librarySettings.getLibraryAction());
     String filename = "";
     if (librarySettings.getLibraryAction().equals(LibraryActionType.RENAME)
         || librarySettings.getLibraryAction().equals(LibraryActionType.MOVEANDRENAME)) {
       FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings);
-      filename = filenameLibraryBuilder.buildFileName(videoFile);
-      if (videoFile.getExtension().equals("srt")) {
+      filename = filenameLibraryBuilder.buildFileName(release);
+      if (release.getExtension().equals("srt")) {
         String languageCode = "";
         try {
           if (librarySettings.isLibraryIncludeLanguageCode()) {
@@ -300,7 +300,7 @@ public class Actions {
           Logger.instance.error("Unable to detect language, leaving language code blank");
         }
 
-        filename = filenameLibraryBuilder.buildSubFileName(videoFile, filename, languageCode, 0);
+        filename = filenameLibraryBuilder.buildSubFileName(release, filename, languageCode, 0);
       }
     } else {
       filename = f.getName();
@@ -308,7 +308,7 @@ public class Actions {
     Logger.instance.trace("Actions", "rename", "filename" + filename);
 
     PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings);
-    final File newDir = pathLibraryBuilder.buildPath(videoFile);
+    final File newDir = pathLibraryBuilder.buildPath(release);
     boolean status = true;
     if (!newDir.exists()) {
       Logger.instance.debug("Creating dir: " + newDir.getAbsolutePath());
@@ -318,7 +318,7 @@ public class Actions {
     Logger.instance.trace("Actions", "rename", "newDir" + newDir);
 
     if (status) {
-      final File file = new File(videoFile.getPath(), videoFile.getFilename());
+      final File file = new File(release.getPath(), release.getFilename());
 
       try {
 
@@ -329,15 +329,15 @@ public class Actions {
           Files.move(file, new File(newDir, filename));
         } else {
           Logger.instance.log("Moving " + filename + " to the library folder "
-              + videoFile.getPath() + " , this might take a while... ");
-          Files.move(file, new File(videoFile.getPath(), filename));
+              + release.getPath() + " , this might take a while... ");
+          Files.move(file, new File(release.getPath(), filename));
         }
         if (!librarySettings.getLibraryOtherFileAction().equals(LibraryOtherFileActionType.NOTHING)) {
-          cleanUpFiles(librarySettings, videoFile, newDir, filename);
+          cleanUpFiles(librarySettings, release, newDir, filename);
         }
         if (librarySettings.isLibraryRemoveEmptyFolders()
-            && videoFile.getPath().listFiles().length == 0) {
-          videoFile.getPath().delete();
+            && release.getPath().listFiles().length == 0) {
+          release.getPath().delete();
         }
       } catch (IOException e) {
         Logger.instance.error("Unsuccessfull in moving the file to the libary");
@@ -346,7 +346,7 @@ public class Actions {
     }
   }
 
-  private static void cleanUpFiles(LibrarySettings librarySettings, VideoFile videoFile, File path,
+  private static void cleanUpFiles(LibrarySettings librarySettings, Release release, File path,
       String videoFileName) throws IOException {
     Logger.instance.trace("Actions", "cleanUpFiles",
         "LibraryOtherFileAction" + librarySettings.getLibraryOtherFileAction());
@@ -360,14 +360,14 @@ public class Actions {
     fileFilters.add("torrent");
     fileFilters.add("txt");
     final String[] files =
-        videoFile.getPath().list(
+        release.getPath().list(
             new FilenameExtensionFilter(fileFilters.toArray(new String[fileFilters.size()])));
 
     final List<String> folderFilters = new ArrayList<String>();
     folderFilters.add("sample");
     folderFilters.add("Sample");
     final String[] folders =
-        videoFile.getPath().list(
+        release.getPath().list(
             new FilenameContainsFilter(folderFilters.toArray(new String[folderFilters.size()])));
 
     // remove duplicates using set
@@ -376,7 +376,7 @@ public class Actions {
 
     if (librarySettings.getLibraryOtherFileAction().equals(LibraryOtherFileActionType.REMOVE)) {
       for (String s : list) {
-        final File file = new File(videoFile.getPath(), s);
+        final File file = new File(release.getPath(), s);
         if (file.isDirectory()) {
           FileUtils.deleteDirectory(file);
         } else {
@@ -385,14 +385,14 @@ public class Actions {
       }
     } else if (librarySettings.getLibraryOtherFileAction().equals(LibraryOtherFileActionType.MOVE)) {
       for (String s : list) {
-        Files.move(new File(videoFile.getPath(), s), new File(path, s));
+        Files.move(new File(release.getPath(), s), new File(path, s));
       }
     } else if (librarySettings.getLibraryOtherFileAction().equals(
         LibraryOtherFileActionType.MOVEANDRENAME)) {
       for (String s : list) {
-        String extension = VideoFileParser.extractFileNameExtension(s);
+        String extension = ReleaseParser.extractFileNameExtension(s);
 
-        File f = new File(videoFile.getPath(), s);
+        File f = new File(release.getPath(), s);
 
         if (s.contains("sample") && !f.isDirectory()) {
           extension = "sample." + extension;
@@ -409,9 +409,9 @@ public class Actions {
     } else if (librarySettings.getLibraryOtherFileAction()
         .equals(LibraryOtherFileActionType.RENAME)) {
       for (String s : files) {
-        String extension = VideoFileParser.extractFileNameExtension(s);
+        String extension = ReleaseParser.extractFileNameExtension(s);
 
-        File f = new File(videoFile.getPath(), s);
+        File f = new File(release.getPath(), s);
 
         if (s.contains("sample") && !f.isDirectory()) {
           extension = "sample." + extension;
@@ -420,7 +420,7 @@ public class Actions {
         if (f.isFile()) {
           final String filename =
               videoFileName.substring(0, videoFileName.lastIndexOf(".")).concat("." + extension);
-          Files.move(f, new File(videoFile.getPath(), filename));
+          Files.move(f, new File(release.getPath(), filename));
         } else {
           Files.move(f, new File(path, s));
         }
@@ -478,15 +478,15 @@ public class Actions {
     return false;
   }
 
-  public void download(VideoFile videoFile, Subtitle subtitle, int version) throws Exception {
-    if (videoFile.getVideoType().equals(VideoType.EPISODE)) {
-      download(videoFile, subtitle, settings.getEpisodeLibrarySettings(), version);
-    } else if (videoFile.getVideoType().equals(VideoType.MOVIE)) {
-      download(videoFile, subtitle, settings.getMovieLibrarySettings(), version);
+  public void download(Release release, Subtitle subtitle, int version) throws Exception {
+    if (release.getVideoType().equals(VideoType.EPISODE)) {
+      download(release, subtitle, settings.getEpisodeLibrarySettings(), version);
+    } else if (release.getVideoType().equals(VideoType.MOVIE)) {
+      download(release, subtitle, settings.getMovieLibrarySettings(), version);
     }
   }
 
-  public void download(VideoFile videoFile, Subtitle subtitle) throws Exception {
-    download(videoFile, subtitle, 0);
+  public void download(Release release, Subtitle subtitle) throws Exception {
+    download(release, subtitle, 0);
   }
 }

@@ -7,12 +7,12 @@ import javax.swing.SwingWorker;
 
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
-import org.lodder.subtools.multisubdownloader.lib.control.VideoFileFactory;
+import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.util.FilenameExtensionFilter;
 import org.lodder.subtools.sublibrary.util.StringUtils;
@@ -57,12 +57,12 @@ public class TypedRenameWorker extends SwingWorker<Void, String> {
     for (final File file : contents) {
       if (file.isFile() && !file.getName().contains("sample")
           && patterns.accept(file.getAbsoluteFile(), file.getName())) {
-        VideoFile videoFile;
+        Release release;
         try {
-          videoFile = VideoFileFactory.get(file, basedir, settings, "");
-          publish(videoFile.getFilename());
-          if (videoFile.getVideoType() == videoType && videoFile != null)
-            Actions.rename(librarySettings, file, videoFile);
+          release = ReleaseFactory.get(file, basedir, settings, "");
+          publish(release.getFilename());
+          if (release.getVideoType() == videoType && release != null)
+            Actions.rename(librarySettings, file, release);
 
         } catch (Exception e) {
           Logger.instance.log("Series Rename " + e.getMessage());

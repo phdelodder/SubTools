@@ -10,8 +10,6 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -22,51 +20,37 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComboBox;
-import javax.swing.JEditorPane;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.RowSorter;
+import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.lodder.subtools.multisubdownloader.gui.Menu;
+import org.lodder.subtools.multisubdownloader.gui.actions.search.FileSearchAction;
+import org.lodder.subtools.multisubdownloader.gui.actions.search.TextSearchAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.MappingEpisodeNameDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.PreferenceDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.ProgressDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.RenameDialog;
-import org.lodder.subtools.multisubdownloader.gui.extra.LogTextArea;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.extra.MyPopupMenu;
 import org.lodder.subtools.multisubdownloader.gui.extra.PopupListener;
-import org.lodder.subtools.multisubdownloader.gui.extra.SearchPanel;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusLabel;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
+import org.lodder.subtools.multisubdownloader.gui.panels.LoggingPanel;
+import org.lodder.subtools.multisubdownloader.gui.panels.ResultPanel;
+import org.lodder.subtools.multisubdownloader.gui.panels.SearchFileInputPanel;
+import org.lodder.subtools.multisubdownloader.gui.panels.SearchPanel;
+import org.lodder.subtools.multisubdownloader.gui.panels.SearchTextInputPanel;
 import org.lodder.subtools.multisubdownloader.gui.workers.DownloadWorker;
 import org.lodder.subtools.multisubdownloader.gui.workers.RenameWorker;
-import org.lodder.subtools.multisubdownloader.gui.workers.SearchFileWorker;
-import org.lodder.subtools.multisubdownloader.gui.workers.SearchNameWorker;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
+import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.util.Export;
 import org.lodder.subtools.multisubdownloader.util.Import;
 import org.lodder.subtools.sublibrary.ConfigProperties;
@@ -75,16 +59,13 @@ import org.lodder.subtools.sublibrary.OsCheck.OSType;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Subtitle;
-import org.lodder.subtools.sublibrary.model.VideoSearchType;
-import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
+import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.lodder.subtools.sublibrary.util.StringUtils;
 import org.lodder.subtools.sublibrary.util.XmlFileFilter;
 import org.lodder.subtools.sublibrary.util.http.DropBoxClient;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
-
-import net.miginfocom.swing.MigLayout;
 
 public class MainWindow extends JFrame implements PropertyChangeListener {
 
@@ -92,32 +73,16 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
      *
      */
   private static final long serialVersionUID = 1L;
-  private VideoTable videoTable;
-  private JTextField txtIncomingPath;
-  private JCheckBox chkRecursive;
   private StatusLabel lblStatus;
-  private JComboBox<String> cbxLanguageText;
-  private JComboBox<String> cbxLanguageFile;
   private final SettingsControl settingsControl;
   private ProgressDialog progressDialog;
-  private JButton btnSearch;
-  private JCheckBox chkforceSubtitleOverwrite;
-  private JTextField txtInputEpisode;
-  private JTextField txtInputSeason;
-  private JTextField txtInputVideoName;
-  private JComboBox<VideoSearchType> cbxVideoType;
-  private VideoTable subtitleTable;
-  private JButton btnSearchText;
-  private JTextField txtQualityVersion;
   private MyPopupMenu popupMenu;
   private SearchPanel pnlSearchFile;
   private SearchPanel pnlSearchText;
-  private final String[] languageSelection = new String[] {"Nederlands", "Engels"};
-  private JCheckBoxMenuItem chckbxmntmTitle;
-  private JCheckBoxMenuItem chckbxmntmType;
-  private JCheckBoxMenuItem chckbxmntmBestandsnaam;
-  private JCheckBoxMenuItem chckbxmntmSeason;
-  private JCheckBoxMenuItem chckbxmntmEpisode;
+  private JPanel pnlLogging;
+  private SearchTextInputPanel pnlSearchTextInput;
+  private SearchFileInputPanel pnlSearchFileInput;
+  private Menu menuBar;
 
   /**
    * Create the application.
@@ -131,11 +96,11 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     this.settingsControl = settingsControl;
     initialize();
     restoreScreenSettings();
-    pnlSearchFile.setEnableDownloadButtons(false);
-    pnlSearchText.setEnableDownloadButtons(false);
+    pnlSearchFile.getResultPanel().disableButtons();
+    pnlSearchText.getResultPanel().disableButtons();
     checkUpdate(false);
     initPopupMenu();
-    
+
     try {
       if (this.settingsControl.getSettings().isAutoUpdateMapping()) {
         Logger.instance.log("Auto updating mapping ....");
@@ -210,63 +175,251 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     gbc_tabbedPane.gridy = 0;
     getContentPane().add(tabbedPane, gbc_tabbedPane);
 
-    pnlSearchFile = new SearchPanel();
+    createFileSearchPanel();
     tabbedPane.addTab("Zoeken op bestanden", null, pnlSearchFile, null);
 
-    final JPanel pnlSearchFileInput = new JPanel();
-    pnlSearchFile.setInputPanel(pnlSearchFileInput);
-    pnlSearchFileInput.setLayout(new MigLayout("", "[][][][][][]", "[][][][][][]"));
+    createTextSearchPanel();
+    tabbedPane.addTab("Zoeken op naam", null, pnlSearchText, null);
 
-    final JLabel lblLocatieNieuweAfleveringen = new JLabel("Locatie nieuwe afleveringen");
-    pnlSearchFileInput.add(lblLocatieNieuweAfleveringen, "cell 1 0,alignx trailing");
+    pnlLogging = new LoggingPanel();
+    final GridBagConstraints gbc_pnlLogging = new GridBagConstraints();
+    gbc_pnlLogging.fill = GridBagConstraints.BOTH;
+    gbc_pnlLogging.insets = new Insets(0, 0, 5, 0);
+    gbc_pnlLogging.gridx = 0;
+    gbc_pnlLogging.gridy = 1;
+    getContentPane().add(pnlLogging, gbc_pnlLogging);
 
-    txtIncomingPath = new JTextField();
-    pnlSearchFileInput.add(txtIncomingPath, "cell 2 0,alignx leading");
-    txtIncomingPath.setColumns(20);
+    lblStatus = new StatusLabel("");
+    StatusMessenger.instance.addListener(lblStatus);
+    final GridBagConstraints gbc_lblStatus = new GridBagConstraints();
+    gbc_lblStatus.anchor = GridBagConstraints.SOUTHWEST;
+    gbc_lblStatus.gridx = 0;
+    gbc_lblStatus.gridy = 2;
+    getContentPane().add(lblStatus, gbc_lblStatus);
 
-    final JButton btnBrowse = new JButton("Bladeren");
-    pnlSearchFileInput.add(btnBrowse, "cell 3 0");
-    btnBrowse.addActionListener(new ActionListener() {
+    createMenu();
+    setJMenuBar(menuBar);
+  }
+
+  private void createMenu() {
+    menuBar = new Menu();
+
+    menuBar.setShowOnlyFound(settingsControl.getSettings().isOptionsShowOnlyFound());
+
+    menuBar.setFileQuitAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        selectIncomingFolder();
+        close();
       }
     });
-
-    chkRecursive = new JCheckBox("Mappen in map doorzoeken");
-    chkRecursive.setSelected(this.settingsControl.getSettings().isOptionRecursive());
-    pnlSearchFileInput.add(chkRecursive, "cell 2 1 2 1");
-
-    chkforceSubtitleOverwrite = new JCheckBox("Negeer bestaande ondertitel bestanden");
-    pnlSearchFileInput.add(chkforceSubtitleOverwrite, "cell 2 3 2 1");
-
-    btnSearch = new JButton("Zoeken naar ondertitels");
-    pnlSearchFileInput.add(btnSearch, "cell 0 5 3 1,alignx center");
-    btnSearch.addActionListener(new ActionListener() {
+    
+    menuBar.setViewFilenameAction(new ActionListener() {
+      public void actionPerformed(ActionEvent actionEvent) {
+        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
+        if (menuBar.isViewFilenameSelected()) {
+          videoTable.unhideColumn(SearchColumnName.FILENAME);
+        } else {
+          videoTable.hideColumn(SearchColumnName.FILENAME);
+        }
+      }
+    });
+    
+    menuBar.setViewTypeAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        try {
-          searchFile();
-        } catch (final Exception e) {
-          showErrorMessage(e.getMessage());
-          lblStatus.setText(e.getMessage());
+        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
+        if (menuBar.isViewTitleSelected()) {
+          videoTable.unhideColumn(SearchColumnName.TYPE);
+        } else {
+          videoTable.hideColumn(SearchColumnName.TYPE);
+        }
+      }
+    });
+    
+    menuBar.setViewTitleAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
+        if (menuBar.isViewTitleSelected()) {
+          videoTable.unhideColumn(SearchColumnName.TITLE);
+        } else {
+          videoTable.hideColumn(SearchColumnName.TITLE);
+        }
+      }
+    });
+    
+    menuBar.setViewSeasonAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
+        if (menuBar.isViewSeasonSelected()) {
+          videoTable.unhideColumn(SearchColumnName.SEASON);
+        } else {
+          videoTable.hideColumn(SearchColumnName.SEASON);
+        }
+      }
+    });
+    
+    menuBar.setViewEpisodeAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
+        if (menuBar.isViewEpisodeSelected()) {
+          videoTable.unhideColumn(SearchColumnName.EPISODE);
+        } else {
+          videoTable.hideColumn(SearchColumnName.EPISODE);
         }
       }
     });
 
-    final JLabel lblSelecteerDeGewenste = new JLabel("Selecteer de gewenste ondertitel taal");
-    pnlSearchFileInput.add(lblSelecteerDeGewenste, "cell 2 2");
+    menuBar.setViewShowOnlyFoundAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
+        settingsControl.getSettings().setOptionsShowOnlyFound(menuBar.isShowOnlyFound());
+        ((VideoTableModel) videoTable.getModel()).setShowOnlyFound(settingsControl.getSettings()
+            .isOptionsShowOnlyFound());
+      }
+    });
 
-    cbxLanguageFile = new JComboBox<String>();
-    pnlSearchFileInput.add(cbxLanguageFile, "cell 3 2");
-    cbxLanguageFile.setModel(new DefaultComboBoxModel<String>(languageSelection));
-    cbxLanguageFile.setSelectedIndex(0);
+    menuBar.setViewClearLogAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        ((LoggingPanel) pnlLogging).setLogText("");
+      }
+    });
 
-    pnlSearchFile.setActionDownload(new ActionListener() {
+    menuBar.setEditRenameTVAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        final RenameDialog rDialog =
+            new RenameDialog(getThis(), settingsControl.getSettings(), VideoType.EPISODE);
+        rDialog.setVisible(true);
+      }
+    });
+
+    menuBar.setEditRenameMovieAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        final RenameDialog rDialog =
+            new RenameDialog(getThis(), settingsControl.getSettings(), VideoType.MOVIE);
+        rDialog.setVisible(true);
+      }
+    });
+
+    menuBar.setEditPreferencesAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        final PreferenceDialog pDialog = new PreferenceDialog(getThis(), settingsControl);
+        pDialog.setVisible(true);
+      }
+    });
+
+    menuBar.setTranslateShowNamesAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        showTranslateShowNames();
+      }
+    });
+
+    menuBar.setExportExclusionsAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        exportList(Export.ExportListType.EXCLUDE);
+      }
+    });
+
+    menuBar.setImportExclusionsAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        importList(Import.ImportListType.EXCLUDE);
+      }
+    });
+
+    menuBar.setExportPreferencesAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        exportList(Export.ExportListType.PREFERENCES);
+      }
+    });
+
+    menuBar.setImportPreferencesAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        importList(Import.ImportListType.PREFERENCES);
+      }
+    });
+
+    menuBar.setImportTranslationsAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        importList(Import.ImportListType.TRANSLATE);
+      }
+    });
+
+    menuBar.setExportTranslationsAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        exportList(Export.ExportListType.TRANSLATE);
+      }
+    });
+
+    menuBar.setCheckUpdateAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        checkUpdate(true);
+      }
+    });
+
+    menuBar.setAboutAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        showAbout();
+      }
+    });
+  }
+
+  private void createTextSearchPanel() {
+    Settings settings = this.settingsControl.getSettings();
+    TextSearchAction searchAction = new TextSearchAction(this, settings);
+    ResultPanel resultPanel = new ResultPanel();
+    pnlSearchTextInput = new SearchTextInputPanel();
+
+    pnlSearchText = new SearchPanel();
+    pnlSearchText.setResultPanel(resultPanel);
+    pnlSearchText.setInputPanel(pnlSearchTextInput);
+
+    resultPanel.showSelectFoundSubtitlesButton();
+    resultPanel.setTable(createSubtitleTable());
+
+    searchAction.setSearchPanel(pnlSearchText);
+
+    pnlSearchTextInput.setSearchAction(searchAction);
+    resultPanel.setDownloadAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        downloadText();
+      }
+    });
+  }
+
+  private VideoTable createSubtitleTable() {
+    VideoTable subtitleTable = new VideoTable();
+    subtitleTable.setModel(VideoTableModel.getDefaultSubtitleTableModel());
+    final RowSorter<TableModel> sorterSubtitle =
+        new TableRowSorter<TableModel>(subtitleTable.getModel());
+    subtitleTable.setRowSorter(sorterSubtitle);
+    subtitleTable.hideColumn(SearchColumnName.OBJECT);
+    return subtitleTable;
+  }
+
+  private void createFileSearchPanel() {
+    Settings settings = this.settingsControl.getSettings();
+    FileSearchAction searchAction = new FileSearchAction(this, settings);
+    ResultPanel resultPanel = new ResultPanel();
+    pnlSearchFileInput = new SearchFileInputPanel();
+    pnlSearchFile = new SearchPanel();
+
+    pnlSearchFile.setResultPanel(resultPanel);
+    pnlSearchFile.setInputPanel(pnlSearchFileInput);
+
+    resultPanel.setTable(createVideoTable());
+
+    searchAction.setSearchPanel(pnlSearchFile);
+
+    pnlSearchFileInput.setSelectFolderAction(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        selectIncomingFolder();
+      }
+    });
+    pnlSearchFileInput.setSearchAction(searchAction);
+
+    resultPanel.setDownloadAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         download();
       }
     });
-
-    pnlSearchFile.setActionMove(new ActionListener() {
+    resultPanel.setMoveAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         final int response =
             JOptionPane.showConfirmDialog(getThis(),
@@ -277,9 +430,10 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         }
       }
     });
+  }
 
-    videoTable = new VideoTable();
-    pnlSearchFile.setTable(videoTable);
+  private VideoTable createVideoTable() {
+    VideoTable videoTable = new VideoTable();
     videoTable.setModel(VideoTableModel.getDefaultVideoTableModel());
     ((VideoTableModel) videoTable.getModel()).setShowOnlyFound(settingsControl.getSettings()
         .isOptionsShowOnlyFound());
@@ -300,383 +454,39 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     videoTable.hideColumn(SearchColumnName.EPISODE);
     videoTable.hideColumn(SearchColumnName.TYPE);
     videoTable.hideColumn(SearchColumnName.TITLE);
-
-    pnlSearchText = new SearchPanel();
-    tabbedPane.addTab("Zoeken op naam", null, pnlSearchText, null);
-    pnlSearchText.setSelectFoundVisible(false);
-
-    JPanel pnlSearchTextInput = new JPanel();
-    pnlSearchText.setInputPanel(pnlSearchTextInput);
-    pnlSearchTextInput.setLayout(new MigLayout("", "[][][][][][][][grow][]", "[][][][][]"));
-
-    cbxVideoType = new JComboBox<VideoSearchType>();
-    cbxVideoType.setModel(new DefaultComboBoxModel<VideoSearchType>(VideoSearchType.values()));
-    cbxVideoType.addItemListener(new ItemListener() {
-      public void itemStateChanged(ItemEvent arg0) {
-        VideoSearchType videoTypeChoice = (VideoSearchType) cbxVideoType.getSelectedItem();
-        if (videoTypeChoice.equals(VideoSearchType.EPISODE)) {
-          txtInputSeason.setEditable(true);
-          txtInputSeason.setEnabled(true);
-          txtInputEpisode.setEditable(true);
-          txtInputEpisode.setEnabled(true);
-        } else {
-          txtInputSeason.setEditable(false);
-          txtInputSeason.setEnabled(false);
-          txtInputEpisode.setEditable(false);
-          txtInputEpisode.setEnabled(false);
-        }
-        if (videoTypeChoice.equals(VideoSearchType.RELEASE)) {
-          txtQualityVersion.setEditable(false);
-          txtQualityVersion.setEnabled(false);
-        } else {
-          txtQualityVersion.setEditable(true);
-          txtQualityVersion.setEnabled(true);
-        }
-
-      }
-    });
-    pnlSearchTextInput.add(cbxVideoType, "cell 1 0,growx");
-
-    txtInputVideoName = new JTextField();
-    pnlSearchTextInput.add(txtInputVideoName, "cell 2 0 5 1,growx");
-    txtInputVideoName.setColumns(10);
-
-    JLabel lblKwaliteitversie = new JLabel("Kwaliteit\\Versie");
-    pnlSearchTextInput.add(lblKwaliteitversie, "cell 1 1,alignx trailing");
-
-    txtQualityVersion = new JTextField();
-    pnlSearchTextInput.add(txtQualityVersion, "cell 2 1,growx");
-    txtQualityVersion.setColumns(10);
-
-    JLabel lblSeizoen = new JLabel("Seizoen");
-    pnlSearchTextInput.add(lblSeizoen, "cell 3 1,alignx trailing");
-
-    txtInputSeason = new JTextField();
-    pnlSearchTextInput.add(txtInputSeason, "cell 4 1,alignx left");
-    txtInputSeason.setColumns(5);
-
-    JLabel lblAflevering = new JLabel("Aflevering");
-    pnlSearchTextInput.add(lblAflevering, "cell 5 1,alignx trailing");
-
-    txtInputEpisode = new JTextField();
-    pnlSearchTextInput.add(txtInputEpisode, "cell 6 1,growx");
-    txtInputEpisode.setColumns(5);
-
-    JLabel lblSelecteerDeGewenste1 = new JLabel("Selecteer de gewenste ondertitel taal");
-    pnlSearchTextInput.add(lblSelecteerDeGewenste1, "cell 1 2 3 1,alignx trailing");
-
-    cbxLanguageText = new JComboBox<String>();
-    cbxLanguageText.setModel(new DefaultComboBoxModel<String>(languageSelection));
-    pnlSearchTextInput.add(cbxLanguageText, "cell 4 2 2 1,growx");
-
-    btnSearchText = new JButton("Zoeken naar ondertitels");
-    btnSearchText.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        searchName();
-      }
-    });
-    pnlSearchTextInput.add(btnSearchText, "cell 2 4 2 1");
-
-    subtitleTable = new VideoTable();
-    pnlSearchText.setTable(subtitleTable);
-    subtitleTable.setModel(VideoTableModel.getDefaultSubtitleTableModel());
-    final RowSorter<TableModel> sorterSubtitle =
-        new TableRowSorter<TableModel>(subtitleTable.getModel());
-    subtitleTable.setRowSorter(sorterSubtitle);
-    subtitleTable.hideColumn(SearchColumnName.OBJECT);
-
-    pnlSearchText.setActionDownload(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        downloadText();
-      }
-    });
-
-    final JPanel pnlLogging = new JPanel();
-    final GridBagConstraints gbc_pnlLogging = new GridBagConstraints();
-    gbc_pnlLogging.fill = GridBagConstraints.BOTH;
-    gbc_pnlLogging.insets = new Insets(0, 0, 5, 0);
-    gbc_pnlLogging.gridx = 0;
-    gbc_pnlLogging.gridy = 1;
-    getContentPane().add(pnlLogging, gbc_pnlLogging);
-    pnlLogging.setLayout(new MigLayout("", "[698px,grow][]", "[][70px,grow]"));
-
-    final JScrollPane scrollPane_1 = new JScrollPane();
-    pnlLogging.add(new JLabel("Logging"), "cell 0 0,alignx right,gaptop 5");
-    pnlLogging.add(new JSeparator(), "cell 0 0,growx,gaptop 5");
-
-    final JComboBox<Level> cbxLogLevel = new JComboBox<Level>();
-    cbxLogLevel.setModel(new DefaultComboBoxModel<Level>(Level.values()));
-    cbxLogLevel.setSelectedItem(Logger.instance.getLogLevel());
-    cbxLogLevel.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        Logger.instance.setLogLevel((Level) cbxLogLevel.getSelectedItem());
-      }
-    });
-    pnlLogging.add(cbxLogLevel, "cell 1 0,alignx right");
-    pnlLogging.add(scrollPane_1, "cell 0 1 2 1,grow");
-
-    final LogTextArea txtLogging = new LogTextArea();
-    Logger.instance.addListener(txtLogging);
-    scrollPane_1.setViewportView(txtLogging);
-    txtLogging.setEditable(false);
-    txtLogging.setAutoScroll(true);
-
-    lblStatus = new StatusLabel("");
-    StatusMessenger.instance.addListener(lblStatus);
-    final GridBagConstraints gbc_lblStatus = new GridBagConstraints();
-    gbc_lblStatus.anchor = GridBagConstraints.SOUTHWEST;
-    gbc_lblStatus.gridx = 0;
-    gbc_lblStatus.gridy = 2;
-    getContentPane().add(lblStatus, gbc_lblStatus);
-
-    final JMenuBar menuBar = new JMenuBar();
-    setJMenuBar(menuBar);
-
-    final JMenu mnFile = new JMenu("Bestand");
-    menuBar.add(mnFile);
-
-    final JMenuItem mntmQuit = new JMenuItem("Afsluiten");
-    mntmQuit.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        close();
-        System.exit(0);
-      }
-    });
-
-    mnFile.add(mntmQuit);
-
-    JMenu mnBeeld = new JMenu("Beeld");
-    menuBar.add(mnBeeld);
-
-    JMenu mnZoekResulaten = new JMenu("Zoek Resulaten ");
-    mnBeeld.add(mnZoekResulaten);
-
-    chckbxmntmBestandsnaam = new JCheckBoxMenuItem("Bestandsnaam");
-    chckbxmntmBestandsnaam.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent actionEvent) {
-        if (chckbxmntmBestandsnaam.isSelected()) {
-          videoTable.unhideColumn(SearchColumnName.FILENAME);
-        } else {
-          videoTable.hideColumn(SearchColumnName.FILENAME);
-        }
-      }
-    });
-
-    chckbxmntmType = new JCheckBoxMenuItem("Type");
-    chckbxmntmType.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        if (chckbxmntmType.isSelected()) {
-          videoTable.unhideColumn(SearchColumnName.TYPE);
-        } else {
-          videoTable.hideColumn(SearchColumnName.TYPE);
-        }
-      }
-    });
-    mnZoekResulaten.add(chckbxmntmType);
-    mnZoekResulaten.add(chckbxmntmBestandsnaam);
-
-    chckbxmntmTitle = new JCheckBoxMenuItem("Titel");
-    chckbxmntmTitle.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        if (chckbxmntmTitle.isSelected()) {
-          videoTable.unhideColumn(SearchColumnName.TITLE);
-        } else {
-          videoTable.hideColumn(SearchColumnName.TITLE);
-        }
-      }
-    });
-    mnZoekResulaten.add(chckbxmntmTitle);
-
-    chckbxmntmSeason = new JCheckBoxMenuItem("Season");
-    chckbxmntmSeason.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        if (chckbxmntmSeason.isSelected()) {
-          videoTable.unhideColumn(SearchColumnName.SEASON);
-        } else {
-          videoTable.hideColumn(SearchColumnName.SEASON);
-        }
-      }
-    });
-    mnZoekResulaten.add(chckbxmntmSeason);
-
-    chckbxmntmEpisode = new JCheckBoxMenuItem("Episode");
-    chckbxmntmEpisode.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        if (chckbxmntmEpisode.isSelected()) {
-          videoTable.unhideColumn(SearchColumnName.EPISODE);
-        } else {
-          videoTable.hideColumn(SearchColumnName.EPISODE);
-        }
-      }
-    });
-    mnZoekResulaten.add(chckbxmntmEpisode);
-
-    final JCheckBoxMenuItem chckbxmntmAlleenGevondenTonen =
-        new JCheckBoxMenuItem("Alleen gevonden tonen");
-    chckbxmntmAlleenGevondenTonen.setSelected(settingsControl.getSettings()
-        .isOptionsShowOnlyFound());
-    chckbxmntmAlleenGevondenTonen.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        settingsControl.getSettings().setOptionsShowOnlyFound(
-            chckbxmntmAlleenGevondenTonen.isSelected());
-        ((VideoTableModel) videoTable.getModel()).setShowOnlyFound(settingsControl.getSettings()
-            .isOptionsShowOnlyFound());
-      }
-    });
-    mnBeeld.add(chckbxmntmAlleenGevondenTonen);
-
-    JMenuItem mntmLoggingWissen = new JMenuItem("Logging wissen");
-    mntmLoggingWissen.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        txtLogging.setText("");
-      }
-    });
-    mnBeeld.add(mntmLoggingWissen);
-
-    final JMenu mnEdit = new JMenu("Bewerken");
-    menuBar.add(mnEdit);
-
-    final JMenuItem mntmRenameSerieFiles = new JMenuItem("Series Hernoemen...");
-    mntmRenameSerieFiles.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        final RenameDialog rDialog =
-            new RenameDialog(getThis(), settingsControl.getSettings(), VideoType.EPISODE);
-        rDialog.setVisible(true);
-      }
-    });
-    mnEdit.add(mntmRenameSerieFiles);
-
-    JMenuItem mntmRenameMovieFiles = new JMenuItem("Films Hernoemen...");
-    mntmRenameMovieFiles.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        final RenameDialog rDialog =
-            new RenameDialog(getThis(), settingsControl.getSettings(), VideoType.MOVIE);
-        rDialog.setVisible(true);
-      }
-    });
-    mnEdit.add(mntmRenameMovieFiles);
-
-    final JMenuItem mntmPreferences = new JMenuItem("Voorkeuren");
-    mnEdit.add(mntmPreferences);
-    mntmPreferences.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        final PreferenceDialog pDialog = new PreferenceDialog(getThis(), settingsControl);
-        pDialog.setVisible(true);
-      }
-    });
-
-    final JMenu mnImportexport = new JMenu("Serie Namen");
-    menuBar.add(mnImportexport);
-
-    final JMenuItem mntmTranslateShowNames = new JMenuItem("Mapping Tvdb/Scene");
-    mnImportexport.add(mntmTranslateShowNames);
-    mntmTranslateShowNames.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        showTranslateShowNames();
-      }
-    });
-
-    final JMenu mnImporteerexporteer = new JMenu("Importeer/Exporteer");
-    menuBar.add(mnImporteerexporteer);
-
-    final JMenuItem mntmExportTranslate = new JMenuItem("Exporteer Mapping Tvdb/Scene");
-    mnImporteerexporteer.add(mntmExportTranslate);
-
-    final JMenuItem mntmImportTranslate = new JMenuItem("Importeer Mapping Tvdb/Scene");
-    mnImporteerexporteer.add(mntmImportTranslate);
-
-    final JMenuItem mntmExporteerUistluitingen = new JMenuItem("Exporteer Uitsluitingen");
-    mntmExporteerUistluitingen.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        exportList(Export.ExportListType.EXCLUDE);
-      }
-    });
-    mnImporteerexporteer.add(mntmExporteerUistluitingen);
-
-    final JMenuItem mntmImporteerUitsluitingen = new JMenuItem("Importeer Uitsluitingen");
-    mntmImporteerUitsluitingen.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        importList(Import.ImportListType.EXCLUDE);
-      }
-    });
-    mnImporteerexporteer.add(mntmImporteerUitsluitingen);
-
-    JMenuItem mntmExporteerVoorkeuren = new JMenuItem("Exporteer Voorkeuren");
-    mntmExporteerVoorkeuren.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        exportList(Export.ExportListType.PREFERENCES);
-      }
-
-    });
-    mnImporteerexporteer.add(mntmExporteerVoorkeuren);
-
-    JMenuItem mntmImporteerVoorkeuren = new JMenuItem("Importeer Voorkeuren");
-    mntmImporteerVoorkeuren.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        importList(Import.ImportListType.PREFERENCES);
-      }
-    });
-    mnImporteerexporteer.add(mntmImporteerVoorkeuren);
-    mntmImportTranslate.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        importList(Import.ImportListType.TRANSLATE);
-      }
-    });
-    mntmExportTranslate.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        exportList(Export.ExportListType.TRANSLATE);
-      }
-    });
-
-    final JMenu mnHelp = new JMenu("Help");
-    menuBar.add(mnHelp);
-
-    final JMenuItem mntmAbout = new JMenuItem("About");
-    mntmAbout.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        showAbout();
-      }
-    });
-
-    JMenuItem mntmControlerenVoorUpdate = new JMenuItem("Controleer voor update");
-    mntmControlerenVoorUpdate.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent arg0) {
-        checkUpdate(true);
-      }
-    });
-    mnHelp.add(mntmControlerenVoorUpdate);
-    mnHelp.add(mntmAbout);
+    return videoTable;
   }
 
   private void restoreScreenSettings() {
+    VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
     if (settingsControl.getSettings().getScreenSettings().isHideEpisode()) {
       videoTable.hideColumn(SearchColumnName.EPISODE);
     } else {
-      chckbxmntmEpisode.setSelected(true);
+      menuBar.setViewEpisodeSelected(true);
       videoTable.unhideColumn(SearchColumnName.EPISODE);
     }
     if (settingsControl.getSettings().getScreenSettings().isHideFilename()) {
       videoTable.hideColumn(SearchColumnName.FILENAME);
     } else {
-      chckbxmntmBestandsnaam.setSelected(true);
+      menuBar.setViewFileNameSelected(true);
       videoTable.unhideColumn(SearchColumnName.FILENAME);
     }
     if (settingsControl.getSettings().getScreenSettings().isHideSeason()) {
       videoTable.hideColumn(SearchColumnName.SEASON);
     } else {
-      chckbxmntmSeason.setSelected(true);
+      menuBar.setViewSeasonSelected(true);
       videoTable.unhideColumn(SearchColumnName.SEASON);
     }
     if (settingsControl.getSettings().getScreenSettings().isHideType()) {
       videoTable.hideColumn(SearchColumnName.TYPE);
     } else {
-      chckbxmntmType.setSelected(true);
+      menuBar.setViewTitleSelected(true);
       videoTable.unhideColumn(SearchColumnName.TYPE);
     }
     if (settingsControl.getSettings().getScreenSettings().isHideTitle()) {
       videoTable.hideColumn(SearchColumnName.TITLE);
     } else {
-      chckbxmntmTitle.setSelected(true);
+      menuBar.setViewTitleSelected(true);
       videoTable.unhideColumn(SearchColumnName.TITLE);
     }
   }
@@ -704,6 +514,8 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     // add the listener to the jtable
     MouseListener popupListener = new PopupListener(popupMenu);
     // add the listener specifically to the header
+    VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
+    VideoTable subtitleTable = pnlSearchText.getResultPanel().getTable();
     videoTable.addMouseListener(popupListener);
     videoTable.getTableHeader().addMouseListener(popupListener);
     subtitleTable.addMouseListener(popupListener);
@@ -721,25 +533,28 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   }
 
   protected void rename() {
+    VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
     RenameWorker renameWorker = new RenameWorker(videoTable, settingsControl.getSettings());
     renameWorker.addPropertyChangeListener(this);
-    pnlSearchFile.setEnableDownloadButtons(false);
+    pnlSearchFile.getResultPanel().enableButtons();
     progressDialog = new ProgressDialog(this, renameWorker);
     progressDialog.setVisible(true);
     renameWorker.execute();
   }
 
   private void download() {
+    VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
     Logger.instance.trace(MainWindow.class.toString(), "download", "");
     DownloadWorker downloadWorker = new DownloadWorker(videoTable, settingsControl.getSettings());
     downloadWorker.addPropertyChangeListener(this);
-    pnlSearchFile.setEnableDownloadButtons(false);
+    pnlSearchFile.getResultPanel().disableButtons();
     progressDialog = new ProgressDialog(this, downloadWorker);
     progressDialog.setVisible(true);
     downloadWorker.execute();
   }
 
   private void downloadText() {
+    VideoTable subtitleTable = pnlSearchText.getResultPanel().getTable();
     final VideoTableModel model = (VideoTableModel) subtitleTable.getModel();
     File path =
         MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), "Selecteer map");
@@ -776,130 +591,11 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     }
   }
 
-  private void searchFile() {
-    if (inputFileCheck()) {
-      SearchFileWorker searchWorker =
-          new SearchFileWorker(videoTable, settingsControl.getSettings());
-      searchWorker.addPropertyChangeListener(this);
-      progressDialog = new ProgressDialog(this, searchWorker);
-      progressDialog.setVisible(true);
-      btnSearch.setEnabled(false);
-      StatusMessenger.instance.message("Zoeken...");
-      clearTableFile();
-      if (txtIncomingPath.getText().equals("")) {
-        if (settingsControl.getSettings().getDefaultIncomingFolders().size() > 0) {
-          searchWorker.setParameters(settingsControl.getSettings().getDefaultIncomingFolders(),
-              getLanguageCodeFile(), chkRecursive.isSelected(),
-              chkforceSubtitleOverwrite.isSelected());
-          searchWorker.execute();
-        }
-      } else {
-        searchWorker.setParameters(new File(txtIncomingPath.getText()), getLanguageCodeFile(),
-            chkRecursive.isSelected(), chkforceSubtitleOverwrite.isSelected());
-        searchWorker.execute();
-      }
-    }
-
-  }
-
-  private boolean inputFileCheck() {
-    if (txtIncomingPath.getText().equals("")) {
-      if (settingsControl.getSettings().getDefaultIncomingFolders().size() == 0) {
-        showErrorMessage("Geen map geselecteerd");
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private void searchName() {
-    if (inputNameCheck()) {
-      SearchNameWorker searchWorker =
-          new SearchNameWorker(subtitleTable, settingsControl.getSettings());
-      searchWorker.addPropertyChangeListener(this);
-      progressDialog = new ProgressDialog(searchWorker);
-      progressDialog.setVisible(true);
-      clearTableName();
-      btnSearchText.setEnabled(false);
-      final VideoSearchType videoTypeChoice = (VideoSearchType) this.cbxVideoType.getSelectedItem();
-
-      int season = 0, episode = 0;
-      if (!txtInputSeason.getText().isEmpty())
-        season = Integer.parseInt(this.txtInputSeason.getText().trim());
-      if (!txtInputEpisode.getText().isEmpty())
-        episode = Integer.parseInt(this.txtInputEpisode.getText().trim());
-
-      searchWorker.setParameters(videoTypeChoice, txtInputVideoName.getText().trim(), season,
-          episode, getLanguageCodeText(), txtQualityVersion.getText().trim());
-      searchWorker.execute();
-    }
-  }
-
-  private boolean inputNameCheck() {
-    VideoSearchType videoTypeChoice = (VideoSearchType) this.cbxVideoType.getSelectedItem();
-    if (txtInputVideoName.getText().isEmpty()) {
-      showErrorMessage("Geen Movie/Episode/Release opgegeven");
-      return false;
-    }
-    if (videoTypeChoice.equals(VideoSearchType.EPISODE)) {
-      if (!this.txtInputSeason.getText().isEmpty()
-          && !isInteger(this.txtInputSeason.getText().trim())) {
-        showErrorMessage("Seizoen is niet numeriek");
-        return false;
-      }
-      if ((!this.txtInputEpisode.getText().isEmpty())
-          && !isInteger(this.txtInputEpisode.getText().trim())) {
-        showErrorMessage("Aflevering is niet numeriek");
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private boolean isInteger(String input) {
-    try {
-      Integer.parseInt(input);
-      return true;
-    } catch (Exception e) {
-      return false;
-    }
-  }
-
-  private String getLanguageCodeFile() {
-    if (cbxLanguageFile.getSelectedItem().equals("Nederlands")) {
-      return "nl";
-    } else if (cbxLanguageFile.getSelectedItem().equals("Engels")) {
-      return "en";
-    }
-    return null;
-  }
-
-  private String getLanguageCodeText() {
-    if (cbxLanguageText.getSelectedItem().equals("Nederlands")) {
-      return "nl";
-    } else if (cbxLanguageText.getSelectedItem().equals("Engels")) {
-      return "en";
-    }
-    return null;
-  }
-
-  private void clearTableFile() {
-    final VideoTableModel model = (VideoTableModel) videoTable.getModel();
-    model.clearTable();
-    pnlSearchFile.setEnableDownloadButtons(false);
-  }
-
-  private void clearTableName() {
-    final VideoTableModel model = (VideoTableModel) subtitleTable.getModel();
-    model.clearTable();
-    pnlSearchText.setEnableDownloadButtons(false);
-  }
-
   protected JFrame getThis() {
     return this;
   }
 
-  private void showErrorMessage(String message) {
+  public void showErrorMessage(String message) {
     JOptionPane.showConfirmDialog(this, message, "MultiSubDownloader", JOptionPane.CLOSED_OPTION,
         JOptionPane.ERROR_MESSAGE);
   }
@@ -937,34 +633,15 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
   private void selectIncomingFolder() {
     File path = MemoryFolderChooser.getInstance().selectDirectory(getThis(), "Selecteer map");
-    txtIncomingPath.setText(path.getAbsolutePath());
+    pnlSearchFileInput.setIncomingPath(path.getAbsolutePath());
   }
 
   @Override
   public void propertyChange(PropertyChangeEvent event) {
-    if (event.getSource() instanceof SearchFileWorker) {
-      final SearchFileWorker searchWorker = (SearchFileWorker) event.getSource();
-      if (searchWorker.isDone()) {
-        final DefaultTableModel model = (DefaultTableModel) videoTable.getModel();
-        if (model.getRowCount() > 0) {
-          pnlSearchFile.setEnableDownloadButtons(true);
-        }
-        StatusMessenger.instance.message("Found " + model.getRowCount() + " files");
-        progressDialog.setVisible(false);
-        btnSearch.setEnabled(true);
-      } else {
-        final int progress = searchWorker.getProgress();
-        progressDialog.updateProgress(progress);
-        if (progress == 0) {
-          StatusMessenger.instance.message("Bestanden lijst aan het opbouwen");
-        } else {
-          StatusMessenger.instance.message("Bestanden aan het verwerken");
-        }
-      }
-    } else if (event.getSource() instanceof DownloadWorker) {
+    if (event.getSource() instanceof DownloadWorker) {
       final DownloadWorker downloadWorker = (DownloadWorker) event.getSource();
       if (downloadWorker.isDone()) {
-        pnlSearchFile.setEnableDownloadButtons(true);
+        pnlSearchFile.getResultPanel().enableButtons();
         progressDialog.setVisible(false);
       } else {
         final int progress = downloadWorker.getProgress();
@@ -974,37 +651,25 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     } else if (event.getSource() instanceof RenameWorker) {
       final RenameWorker renameWorker = (RenameWorker) event.getSource();
       if (renameWorker.isDone()) {
-        pnlSearchFile.setEnableDownloadButtons(true);
+        pnlSearchFile.getResultPanel().enableButtons();
         progressDialog.setVisible(false);
       } else {
         final int progress = renameWorker.getProgress();
         progressDialog.updateProgress(progress);
         StatusMessenger.instance.message("Hernoemen ....");
       }
-    } else if (event.getSource() instanceof SearchNameWorker) {
-      final SearchNameWorker searchWorker = (SearchNameWorker) event.getSource();
-      if (searchWorker.isDone()) {
-        progressDialog.setVisible(false);
-        final DefaultTableModel model = (DefaultTableModel) subtitleTable.getModel();
-        StatusMessenger.instance.message("Found " + model.getRowCount() + " files");
-        pnlSearchText.setEnableDownloadButtons(true);
-        btnSearchText.setEnabled(true);
-      } else {
-        final int progress = searchWorker.getProgress();
-        progressDialog.updateProgress(progress);
-        StatusMessenger.instance.message("Zoeken ....");
-      }
     }
   }
 
   private void close() {
     Logger.instance.log("MainWindow, close()", Level.TRACE);
-    settingsControl.getSettings().setOptionRecursive(chkRecursive.isSelected());
+    settingsControl.getSettings().setOptionRecursive(pnlSearchFileInput.isRecursiveSelected());
     storeScreenSettings();
     settingsControl.store();
   }
 
   private void storeScreenSettings() {
+    VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
     settingsControl.getSettings().getScreenSettings()
         .setHideEpisode(videoTable.isHideColumn(SearchColumnName.EPISODE));
     settingsControl.getSettings().getScreenSettings()
@@ -1018,4 +683,24 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
   }
 
+  public ProgressDialog setProgressDialog(SwingWorker<?, ?> worker) {
+    progressDialog = new ProgressDialog(this, worker);
+    return progressDialog;
+  }
+
+  public void showProgressDialog() {
+    this.progressDialog.setVisible(true);
+  }
+
+  public void hideProgressDialog() {
+    this.progressDialog.setVisible(false);
+  }
+
+  public void setStatusMessage(String message) {
+    StatusMessenger.instance.message(message);
+  }
+
+  public void updateProgressDialog(int progress) {
+    progressDialog.updateProgress(progress);
+  }
 }

@@ -21,11 +21,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import org.lodder.subtools.multisubdownloader.gui.extra.EpisodeLibraryPanel;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
-import org.lodder.subtools.multisubdownloader.gui.extra.MovieLibraryPanel;
-import org.lodder.subtools.multisubdownloader.gui.extra.VideoLibraryPanel;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
+import org.lodder.subtools.multisubdownloader.gui.panels.EpisodeLibraryPanel;
+import org.lodder.subtools.multisubdownloader.gui.panels.MovieLibraryPanel;
+import org.lodder.subtools.multisubdownloader.gui.panels.VideoLibraryPanel;
 import org.lodder.subtools.multisubdownloader.gui.workers.TypedRenameWorker;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;

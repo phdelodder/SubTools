@@ -5,10 +5,10 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lodder.subtools.sublibrary.control.VideoFileParser;
+import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
-import org.lodder.subtools.sublibrary.model.MovieFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
@@ -60,14 +60,14 @@ public class PrivateRepo {
 		return privateRepo;
 	}
 
-	public List<Subtitle> searchSubtitles(EpisodeFile episodeFile,
+	public List<Subtitle> searchSubtitles(TvRelease tvRelease,
 			String languageCode) throws UnsupportedEncodingException {
 		List<Subtitle> results = new ArrayList<Subtitle>();
 		for (IndexSubtitle indexSubtitle : index) {
-			if (indexSubtitle.getVideoType() == episodeFile.getVideoType()) {
-				if (indexSubtitle.getTvdbid() == episodeFile.getTvdbid()) {
-					if (indexSubtitle.getSeason() == episodeFile.getSeason()
-							&& indexSubtitle.getEpisode() == episodeFile
+			if (indexSubtitle.getVideoType() == tvRelease.getVideoType()) {
+				if (indexSubtitle.getTvdbid() == tvRelease.getTvdbid()) {
+					if (indexSubtitle.getSeason() == tvRelease.getSeason()
+							&& indexSubtitle.getEpisode() == tvRelease
 									.getEpisodeNumbers().get(0)) {
 						if (indexSubtitle.getLanguage().equalsIgnoreCase(
 								languageCode)) {
@@ -88,7 +88,7 @@ public class PrivateRepo {
 									indexSubtitle.getFilename(), location,
 									indexSubtitle.getLanguage(), "",
 									SubtitleMatchType.EVERYTHING,
-									VideoFileParser.extractTeam(indexSubtitle
+									ReleaseParser.extractTeam(indexSubtitle
 											.getFilename()), "", false);
 							results.add(tempSub);
 						}
@@ -99,13 +99,13 @@ public class PrivateRepo {
 		return results;
 	}
 
-	public List<Subtitle> searchSubtitles(MovieFile movieFile,
+	public List<Subtitle> searchSubtitles(MovieRelease movieRelease,
 			String languageCode) {
 		List<Subtitle> results = new ArrayList<Subtitle>();
 		for (IndexSubtitle indexSubtitle : index) {
-			if (indexSubtitle.getVideoType() == movieFile.getVideoType()) {
-				if (indexSubtitle.getImdbid() == movieFile.getImdbid()) {
-					if (indexSubtitle.getYear() == movieFile.getYear()) {
+			if (indexSubtitle.getVideoType() == movieRelease.getVideoType()) {
+				if (indexSubtitle.getImdbid() == movieRelease.getImdbid()) {
+					if (indexSubtitle.getYear() == movieRelease.getYear()) {
 						if (indexSubtitle.getLanguage().equalsIgnoreCase(
 								languageCode)) {
 							String location = "/movies/"
@@ -123,7 +123,7 @@ public class PrivateRepo {
 									indexSubtitle.getFilename(), location,
 									indexSubtitle.getLanguage(), "",
 									SubtitleMatchType.EVERYTHING,
-									VideoFileParser.extractTeam(indexSubtitle
+									ReleaseParser.extractTeam(indexSubtitle
 											.getFilename()), "", false);
 							results.add(tempSub);
 						}

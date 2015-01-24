@@ -1,19 +1,12 @@
 package org.lodder.subtools.sublibrary.util.http;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.BOMInputStream;
+import org.lodder.subtools.sublibrary.logging.Logger;
+import org.lodder.subtools.sublibrary.util.Files;
+
+import java.io.*;
+import java.net.*;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -22,15 +15,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.BOMInputStream;
-import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.util.Files;
-
 
 public class HttpClient {
 
-  private static volatile Object myLock = new Object();
+  private static final Object myLock = new Object();
   private volatile static HttpClient hc;
   private final CookieManager cookieManager;
 
@@ -97,7 +85,7 @@ public class HttpClient {
         if (i != 0) {
           urlParameters.append("&");
         }
-        urlParameters.append(key + "=" + URLEncoder.encode(data.get(key), "UTF-8"));
+        urlParameters.append(key).append("=").append(URLEncoder.encode(data.get(key), "UTF-8"));
       }
 
       conn = (HttpURLConnection) url.openConnection();
@@ -246,10 +234,7 @@ public class HttpClient {
                 "((https?|ftp|gopher|telnet|file):((//)|(\\\\\\\\))+[\\\\w\\\\d:#@%/;$()~_?\\\\+-=\\\\\\\\\\\\.&]*)",
                 Pattern.CASE_INSENSITIVE);
     Matcher matcher = urlPattern.matcher(str);
-    if (matcher.find())
-      return true;
-    else
-      return false;
+    return matcher.find();
   }
 
   public String downloadText(URL url) throws IOException {

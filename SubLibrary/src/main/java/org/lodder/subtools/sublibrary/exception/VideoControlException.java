@@ -1,12 +1,12 @@
 package org.lodder.subtools.sublibrary.exception;
 
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.Release;
 
 public class VideoControlException extends Exception {
 
-    public VideoControlException(String string, VideoFile videoFile) {
-        super(string + ": " + videoFile.getFilename());
+    public VideoControlException(String string, Release release) {
+        super(string + ": " + release.getFilename());
         Logger.instance.trace("VideoControlException", "VideoControlException", "");
     }
 

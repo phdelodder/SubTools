@@ -12,19 +12,19 @@ import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.lib.Info;
-import org.lodder.subtools.multisubdownloader.lib.control.NameSearchControl;
-import org.lodder.subtools.multisubdownloader.lib.control.VideoFileFactory;
+import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
+import org.lodder.subtools.multisubdownloader.lib.control.TextualSearchControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Subtitle;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoSearchType;
 
 public class SearchNameWorker extends SwingWorker<List<Subtitle>, String> {
 
   private Settings settings;
   private VideoTable table;
-  private NameSearchControl tsc;
+  private TextualSearchControl tsc;
   private String videoText, languagecode, quality;
   private int season, episode;
   private VideoSearchType videoSearchTypeChoice;
@@ -32,7 +32,7 @@ public class SearchNameWorker extends SwingWorker<List<Subtitle>, String> {
   public SearchNameWorker(VideoTable table, Settings settings) {
     this.table = table;
     this.settings = settings;
-    tsc = new NameSearchControl(settings);
+    tsc = new TextualSearchControl(settings);
   }
 
   public void setParameters(VideoSearchType videoTypeChoice, String videoText, int season,
@@ -58,10 +58,10 @@ public class SearchNameWorker extends SwingWorker<List<Subtitle>, String> {
     } else if (videoSearchTypeChoice.equals(VideoSearchType.MOVIE)) {
       l = tsc.SearchSubtitles(videoText, languagecode);
     } else if (videoSearchTypeChoice.equals(VideoSearchType.RELEASE)) {
-      VideoFile videoFile =
-          VideoFileFactory.get(new File(videoText), new File("/"), settings, languagecode);
-      if (videoFile != null) {
-        l = videoFile.getMatchingSubs();
+      Release release =
+          ReleaseFactory.get(new File(videoText), new File("/"), settings, languagecode);
+      if (release != null) {
+        l = release.getMatchingSubs();
       }
     }
     return l;
@@ -89,5 +89,29 @@ public class SearchNameWorker extends SwingWorker<List<Subtitle>, String> {
     } catch (Exception e) {
       Logger.instance.error(e.getMessage());
     }
+  }
+
+  public void setReleaseType(VideoSearchType releaseType) {
+    this.videoSearchTypeChoice = releaseType;
+  }
+
+  public void setReleaseName(String releaseName) {
+    this.videoText = releaseName;
+  }
+
+  public void setSeason(int season) {
+    this.season = season;
+  }
+
+  public void setEpisode(int episode) {
+    this.episode = episode;
+  }
+
+  public void setLanguageCode(String languageCode) {
+    this.languagecode = languageCode;
+  }
+
+  public void setQuality(String quality) {
+    this.quality = quality;
   }
 }

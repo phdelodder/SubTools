@@ -22,7 +22,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 
-import org.lodder.subtools.multisubdownloader.lib.control.VideoFileFactory;
+import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.lib.library.PathLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
@@ -31,9 +31,9 @@ import org.lodder.subtools.sublibrary.exception.ControlFactoryException;
 import org.lodder.subtools.sublibrary.exception.VideoControlException;
 import org.lodder.subtools.sublibrary.exception.VideoFileParseException;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
-import org.lodder.subtools.sublibrary.model.MovieFile;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
+import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
 
 import net.miginfocom.swing.MigLayout;
@@ -50,8 +50,8 @@ public class StructureBuilderDialog extends MutliSubDialog implements DocumentLi
   private LibrarySettings librarySettings;
   private StrucutureType structureType;
   private JLabel lblPreview;
-  private EpisodeFile ep;
-  private MovieFile mo;
+  private TvRelease ep;
+  private MovieRelease mo;
   private String oldStructure;
 
   public enum StrucutureType {
@@ -66,7 +66,7 @@ public class StructureBuilderDialog extends MutliSubDialog implements DocumentLi
     this.structureType = structureType;
     initializeUi();
     generateVideoFiles();
-    mo = new MovieFile();
+    mo = new MovieRelease();
   }
 
   private void generateVideoFiles() {
@@ -74,13 +74,13 @@ public class StructureBuilderDialog extends MutliSubDialog implements DocumentLi
     try {
       if (videoType == VideoType.EPISODE) {
         ep =
-            (EpisodeFile) VideoFileFactory.get(
+            (TvRelease) ReleaseFactory.get(
                 // new File(File.separator + "Castle.2009.S04E10.720p.HDTV.X264-DIMENSION.mkv"),
                 new File(File.separator + "Terra.Nova.S01E01E02.720p.HDTV.x264-ORENJI.mkv"),
                 new File(File.separator), new Settings(), "");
       } else if (videoType == VideoType.MOVIE) {
         mo =
-            (MovieFile) VideoFileFactory.get(new File(File.separator
+            (MovieRelease) ReleaseFactory.get(new File(File.separator
                 + "Final.Destination.5.720p.Bluray.x264-TWiZTED"), new File(File.separator),
                 new Settings(), "");
       }
@@ -188,7 +188,7 @@ public class StructureBuilderDialog extends MutliSubDialog implements DocumentLi
     }
   }
 
-  private VideoFile getGenerateVideoFile() {
+  private Release getGenerateVideoFile() {
     if (videoType == VideoType.EPISODE) {
       return ep;
     } else if (videoType == VideoType.MOVIE) {
