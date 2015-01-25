@@ -54,16 +54,16 @@ public abstract class SubtitleSelection {
     Logger.instance.trace("SubtitleSelection", "teamCompare", "equal: " + equal);
     List<Subtitle> matchingSubs = release.getMatchingSubs();
     Subtitle subtitle;
-    Logger.instance.trace("teamCompare", "teamCompare", "videofile team: " + release.getTeam());
+    Logger.instance.trace("teamCompare", "teamCompare", "videofile team: " + release.getReleasegroup());
     for (int i = 0; i < matchingSubs.size(); i++) {
       subtitle = matchingSubs.get(i);
       Logger.instance.trace("SubtitleSelection", "qualityRuleSelectionCompare", "subtitle team: "
           + subtitle.getTeam());
       if (equal) {
-        if (subtitle.getTeam().equalsIgnoreCase(release.getTeam())) return i;
+        if (subtitle.getTeam().equalsIgnoreCase(release.getReleasegroup())) return i;
       } else {
         for (String t : subtitle.getTeam().split(" ")) {
-          if (release.getTeam().toLowerCase().contains(t.toLowerCase())) return i;
+          if (release.getReleasegroup().toLowerCase().contains(t.toLowerCase())) return i;
         }
       }
     }

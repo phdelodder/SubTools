@@ -6,6 +6,7 @@ public class Subtitle {
     private SubtitleMatchType subtitleMatchType;
     private SubtitleSource subtitleSource;
     private boolean hearingImpaired;
+    private int score;
 
     public enum SubtitleSource {
         OPENSUBTITLES, PODNAPISI, ADDIC7ED, TVSUBTITLES, LOCAL, PRIVATEREPO, SUBSMAX
@@ -108,5 +109,13 @@ public class Subtitle {
 	public void setHearingImpaired(boolean hearingImpaired) {
 		this.hearingImpaired = hearingImpaired;
 	}
+
+  public int getScore() {
+    return score;
+  }
+
+  public void setScore(int score) {
+    this.score = score;
+  }
 
 }
