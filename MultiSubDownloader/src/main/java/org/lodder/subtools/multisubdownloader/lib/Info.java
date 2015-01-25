@@ -16,9 +16,6 @@ public class Info {
 
   public static void subtitleFiltering(Settings settings) {
     Logger.instance.log("----- Subtitle Filtering ------");
-    Logger.instance.log(" - OptionSubtitleExactMatch : " + settings.isOptionSubtitleExactMatch());
-    Logger.instance.log(" - OptionSubtitleKeywordMatch : "
-        + settings.isOptionSubtitleKeywordMatch());
     Logger.instance.log(" - OptionSubtitleExcludeHearingImpaired : "
         + settings.isOptionSubtitleExcludeHearingImpaired());
     Logger.instance.log("-------------------------------");
