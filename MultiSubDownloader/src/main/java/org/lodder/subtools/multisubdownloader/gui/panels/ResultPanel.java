@@ -88,7 +88,6 @@ public class ResultPanel extends JPanel {
 
   public void setDownloadAction(ActionListener downloadAction) {
     this.downloadAction = downloadAction;
-    setupListeners();
   }
 
   public void setMoveAction(ActionListener moveAction) {
