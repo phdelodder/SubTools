@@ -30,7 +30,8 @@ public class PreferenceDialog extends MutliSubDialog {
      */
   private static final long serialVersionUID = -5730220264781738564L;
   private final JPanel contentPanel = new JPanel();
-  private JCheckBox chkOnlyFound, chkAlwaysConfirm;
+  private JCheckBox chkOnlyFound, chkAlwaysConfirm, chkSubtitleExactMethod,
+      chkSubtitleKeywordMethod;
   private SettingsControl settingsCtrl;
   private EpisodeLibraryPanel pnlEpisodeLibrary;
   private JListWithImages excludeList;
@@ -262,7 +263,8 @@ public class PreferenceDialog extends MutliSubDialog {
       {
         JPanel pnlOptions = new JPanel();
         tabbedPane.addTab("Opties", null, pnlOptions, null);
-        pnlOptions.setLayout(new MigLayout("", "[][433px,grow][433px][100px,grow][]", "[][][][][][grow][grow][][][][][][][23px][][23px][][]"));
+        pnlOptions.setLayout(new MigLayout("", "[][433px,grow][433px][100px,grow][]",
+            "[][][][][][grow][grow][][][][][25px][][][][][23px][][23px][][]"));
         pnlOptions.add(new JLabel("Download opties"), "cell 0 0 5 1");
         pnlOptions.add(new JSeparator(), "cell 0 0 5 1,growx");
         chkAlwaysConfirm = new JCheckBox("Controleer altijd voor het downloaden");
@@ -327,29 +329,39 @@ public class PreferenceDialog extends MutliSubDialog {
         }
         pnlOptions.add(new JLabel("Zoek filter"), "cell 0 10 5 1");
         pnlOptions.add(new JSeparator(), "cell 0 10 5 1,growx");
+        chkSubtitleExactMethod =
+            new JCheckBox(
+                "Exacte (werkt enkel als naamgeving identiek is) [werkte niet met Addic7ed]");
+        pnlOptions.add(chkSubtitleExactMethod, "cell 1 11 3 1,grow");
+        {
+          chkSubtitleKeywordMethod =
+              new JCheckBox(
+                  "Keywords (op basis van woorden zoals 720p, xvid, ...) [werkt met iedere source]");
+          pnlOptions.add(chkSubtitleKeywordMethod, "cell 1 12 3 1");
+        }
         {
           chkExcludeHearingImpaired = new JCheckBox("Hearing Impaired uitsluiten");
-          pnlOptions.add(chkExcludeHearingImpaired, "cell 1 11 3 1");
+          pnlOptions.add(chkExcludeHearingImpaired, "cell 1 14 3 1");
         }
-        pnlOptions.add(new JLabel("Tabel opties"), "cell 0 12 5 1");
-        pnlOptions.add(new JSeparator(), "cell 0 12 5 1,growx");
+        pnlOptions.add(new JLabel("Tabel opties"), "cell 0 15 5 1");
+        pnlOptions.add(new JSeparator(), "cell 0 15 5 1,growx");
         chkOnlyFound = new JCheckBox("Alleen gevonden tonen");
-        pnlOptions.add(chkOnlyFound, "cell 1 13 3 1,growx,aligny center");
-        pnlOptions.add(new JLabel("Fout afhandeling opties"), "cell 0 14 5 1");
-        pnlOptions.add(new JSeparator(), "cell 0 14 5 1,growx");
+        pnlOptions.add(chkOnlyFound, "cell 1 16 3 1,growx,aligny center");
+        pnlOptions.add(new JLabel("Fout afhandeling opties"), "cell 0 17 5 1");
+        pnlOptions.add(new JSeparator(), "cell 0 17 5 1,growx");
         chkStopOnSearchError = new JCheckBox("Stop zoeken na fout");
-        pnlOptions.add(chkStopOnSearchError, "cell 1 15 3 1,alignx left,aligny center");
+        pnlOptions.add(chkStopOnSearchError, "cell 1 18 3 1,alignx left,aligny center");
         {
           JLabel label = new JLabel("Serie database source");
-          pnlOptions.add(label, "cell 0 16 5 1");
-          pnlOptions.add(new JSeparator(), "cell 0 16 5 1,growx");
+          pnlOptions.add(label, "cell 0 19 5 1");
+          pnlOptions.add(new JSeparator(), "cell 0 19 5 1,growx");
         }
         {
-          //cbxEpisodeProcessSource =
-          //    new JComboBox<SettingsProcessEpisodeSource>(SettingsProcessEpisodeSource.values());
-          cbxEpisodeProcessSource = new JComboBox<SettingsProcessEpisodeSource>();
+          cbxEpisodeProcessSource =
+              new JComboBox<SettingsProcessEpisodeSource>(SettingsProcessEpisodeSource.values());
+          // cbxEpisodeProcessSource = new JComboBox<SettingsProcessEpisodeSource>();
           cbxEpisodeProcessSource.setEnabled(false);
-          pnlOptions.add(cbxEpisodeProcessSource, "cell 1 17,growx");
+          pnlOptions.add(cbxEpisodeProcessSource, "cell 1 20,growx");
         }
       }
       {
@@ -566,6 +578,8 @@ public class PreferenceDialog extends MutliSubDialog {
     txtProxyHost.setText(settingsCtrl.getSettings().getGeneralProxyHost());
     txtProxyPort.setText(String.valueOf(settingsCtrl.getSettings().getGeneralProxyPort()));
     chkAlwaysConfirm.setSelected(settingsCtrl.getSettings().isOptionsAlwaysConfirm());
+    chkSubtitleExactMethod.setSelected(settingsCtrl.getSettings().isOptionSubtitleExactMatch());
+    chkSubtitleKeywordMethod.setSelected(settingsCtrl.getSettings().isOptionSubtitleKeywordMatch());
     chkExcludeHearingImpaired.setSelected(settingsCtrl.getSettings()
         .isOptionSubtitleExcludeHearingImpaired());
     chkOnlyFound.setSelected(settingsCtrl.getSettings().isOptionsShowOnlyFound());
@@ -725,6 +739,9 @@ public class PreferenceDialog extends MutliSubDialog {
     }
     if (testOptionsTab()) {
       settingsCtrl.getSettings().setOptionsAlwaysConfirm(chkAlwaysConfirm.isSelected());
+      settingsCtrl.getSettings().setOptionSubtitleExactMatch(chkSubtitleExactMethod.isSelected());
+      settingsCtrl.getSettings().setOptionSubtitleKeywordMatch(
+          chkSubtitleKeywordMethod.isSelected());
       settingsCtrl.getSettings().setOptionSubtitleExcludeHearingImpaired(
           chkExcludeHearingImpaired.isSelected());
       settingsCtrl.getSettings().setOptionsShowOnlyFound(chkOnlyFound.isSelected());

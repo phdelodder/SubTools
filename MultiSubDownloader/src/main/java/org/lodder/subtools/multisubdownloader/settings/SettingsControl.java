@@ -69,6 +69,8 @@ public class SettingsControl {
       storeProxySettings();
 
       preferences.putBoolean("OptionsAlwaysConfirm", settings.isOptionsAlwaysConfirm());
+      preferences.putBoolean("OptionSubtitleExactMatch", settings.isOptionSubtitleExactMatch());
+      preferences.putBoolean("OptionSubtitleKeywordMatch", settings.isOptionSubtitleKeywordMatch());
       preferences.putBoolean("OptionSubtitleExcludeHearingImpaired",
           settings.isOptionSubtitleExcludeHearingImpaired());
       preferences.putBoolean("OptionsShowOnlyFound", settings.isOptionsShowOnlyFound());
@@ -308,6 +310,9 @@ public class SettingsControl {
     // settings
     settings.setLastOutputDir(new File(preferences.get("LastOutputDir", "")));
     settings.setOptionsAlwaysConfirm(preferences.getBoolean("OptionsAlwaysConfirm", false));
+    settings.setOptionSubtitleExactMatch(preferences.getBoolean("OptionSubtitleExactMatch", true));
+    settings.setOptionSubtitleKeywordMatch(preferences.getBoolean("OptionSubtitleKeywordMatch",
+        true));
     settings.setOptionSubtitleExcludeHearingImpaired(preferences.getBoolean(
         "OptionSubtitleExcludeHearingImpaired", false));
     settings.setOptionsShowOnlyFound(preferences.getBoolean("OptionsShowOnlyFound", false));

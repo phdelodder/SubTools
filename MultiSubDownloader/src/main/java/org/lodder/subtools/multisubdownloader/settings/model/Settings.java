@@ -12,7 +12,8 @@ import org.lodder.subtools.sublibrary.settings.model.MappingSettings;
 public class Settings {
 
   private File lastOutputDir;
-  private boolean optionsAlwaysConfirm, optionSubtitleExcludeHearingImpaired;
+  private boolean optionsAlwaysConfirm, optionSubtitleExactMatch, optionSubtitleKeywordMatch,
+      optionSubtitleExcludeHearingImpaired;
   private boolean optionsShowOnlyFound, optionsStopOnSearchError;
   private boolean optionsNoRuleMatchTakeFirst, optionsAutomaticDownloadSelection,
       optionsAutomaticDownloadSelectionQuality, optionsAutomaticDownloadSelectionReleaseGroup;
@@ -64,6 +65,8 @@ public class Settings {
     serieSourceLocal = true;
     serieSourcePrivateRepo = true;
     autoUpdateMapping = false;
+    setOptionSubtitleExactMatch(true);
+    setOptionSubtitleKeywordMatch(true);
     setProcessEpisodeSource(SettingsProcessEpisodeSource.TVDB);
     setMappingSettings(new MappingSettings());
     listSearchSubtitlePriority = new ArrayList<SearchSubtitlePriority>();
@@ -320,6 +323,34 @@ public class Settings {
   }
 
   /**
+   * @return the optionSubtitleExactMatch
+   */
+  public boolean isOptionSubtitleExactMatch() {
+    return optionSubtitleExactMatch;
+  }
+
+  /**
+   * @param optionSubtitleExactMatch the optionSubtitleExactMatch to set
+   */
+  public void setOptionSubtitleExactMatch(boolean optionSubtitleExactMatch) {
+    this.optionSubtitleExactMatch = optionSubtitleExactMatch;
+  }
+
+  /**
+   * @return the optionSubtitleKeywordMatch
+   */
+  public boolean isOptionSubtitleKeywordMatch() {
+    return optionSubtitleKeywordMatch;
+  }
+
+  /**
+   * @param optionSubtitleKeywordMatch the optionSubtitleKeywordMatch to set
+   */
+  public void setOptionSubtitleKeywordMatch(boolean optionSubtitleKeywordMatch) {
+    this.optionSubtitleKeywordMatch = optionSubtitleKeywordMatch;
+  }
+
+  /**
    * @return the processEpisodeSource
    */
   public SettingsProcessEpisodeSource getProcessEpisodeSource() {
@@ -410,10 +441,8 @@ public class Settings {
     return optionsAutomaticDownloadSelectionReleaseGroup;
   }
 
-  public void setOptionsAutomaticDownloadSelectionReleaseGroup(
-      boolean optionsAutomaticDownloadSelectionReleaseGroup) {
-    this.optionsAutomaticDownloadSelectionReleaseGroup =
-        optionsAutomaticDownloadSelectionReleaseGroup;
+  public void setOptionsAutomaticDownloadSelectionReleaseGroup(boolean optionsAutomaticDownloadSelectionReleaseGroup) {
+    this.optionsAutomaticDownloadSelectionReleaseGroup = optionsAutomaticDownloadSelectionReleaseGroup;
   }
 
   public List<File> getDefaultFolders() {
