@@ -13,10 +13,7 @@ public class Release extends Video{
     private String filename;
     private String quality;
     private String description;
-    private String releasegroup;
-    private List<Subtitle> subtitles;
-    private List <String> tags;
-    private int maxScore;
+    private String team;
 
     public Release(VideoType videoType) {
         this.setVideoType(videoType);
@@ -26,20 +23,16 @@ public class Release extends Video{
         path = new File("");
         quality = "";
         description = "";
-        releasegroup = "";
-        subtitles = new ArrayList<Subtitle>();
-        tags = new ArrayList<String>();
+        team = "";
     }
 
-    public Release(VideoType videoFileType, File file, String extension, String description, String releasegroup) {
+    public Release(VideoType videoFileType, File file, String extension, String description, String team) {
         this(videoFileType);
         this.extension = extension;
         filename = file.getName();
         path = file.getParentFile();
         this.setDescription(description);
-        this.setReleasegroup(releasegroup);
-        subtitles = new ArrayList<Subtitle>();
-        tags = new ArrayList<String>();
+        this.setTeam(team);
     }
 
     public String getExtension() {
@@ -97,41 +90,17 @@ public class Release extends Video{
     }
 
 	/**
-	 * @return the releasegroup
+	 * @return the team
 	 */
-	public String getReleasegroup() {
-		return releasegroup;
+	public String getTeam() {
+		return team;
 	}
 
 	/**
-	 * @param releasegroup the releasegroup to set
+	 * @param team the team to set
 	 */
-	public void setReleasegroup(String releasegroup) {
-		this.releasegroup = releasegroup;
+	public void setTeam(String team) {
+		this.team = team;
 	}
-
-  public List<Subtitle> getSubtitles() {
-    return subtitles;
-  }
-
-  public void setSubtitles(List<Subtitle> subtitles) {
-    this.subtitles = subtitles;
-  }
-
-  public List <String> getTags() {
-    return tags;
-  }
-
-  public void setTags(List <String> tags) {
-    this.tags = tags;
-  }
-
-  public int getMaxScore() {
-    return maxScore;
-  }
-
-  public void setMaxScore(int maxScore) {
-    this.maxScore = maxScore;
-  }
 
 }

@@ -278,7 +278,7 @@ public class SubtitleControl {
         // present!
         // Always check for team since some sites only give the team!
         if (!checkKeywordMatch
-            && subtitle.getTeam().toLowerCase().contains(release.getReleasegroup().toLowerCase())) {
+            && subtitle.getTeam().toLowerCase().contains(release.getTeam().toLowerCase())) {
           subtitle.setSubtitleMatchType(SubtitleMatchType.TEAM);
           Logger.instance.debug("getSubtitlesFiltered: found KEYWORD based TEAM match: "
               + subtitle.getFilename());
