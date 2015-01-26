@@ -10,8 +10,8 @@ import org.lodder.subtools.multisubdownloader.lib.JPodnapisiAdapter;
 import org.lodder.subtools.multisubdownloader.lib.JSubsMaxAdapter;
 import org.lodder.subtools.multisubdownloader.lib.JTVsubtitlesAdapter;
 import org.lodder.subtools.multisubdownloader.lib.PrivateRepo;
+import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.LocalFileRepo;
-import org.lodder.subtools.multisubdownloader.lib.control.subtitles.filtering.Filter;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.ScoreCalculator;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.SortWeight;
 import org.lodder.subtools.multisubdownloader.settings.model.SearchSubtitlePriority;
@@ -31,7 +31,7 @@ public class SubtitleControl {
   private final JSubsMaxAdapter jSubsMaxAdapter;
   private final PrivateRepo privateRepo;
   private final Settings settings;
-  private final Filter filter;
+  private final Filtering filtering;
   private final LocalFileRepo localFileRepo;
 
   public SubtitleControl(Settings settings) {
@@ -44,7 +44,7 @@ public class SubtitleControl {
     jTVSubtitlesAdapter = new JTVsubtitlesAdapter();
     privateRepo = PrivateRepo.getPrivateRepo();
     jSubsMaxAdapter = new JSubsMaxAdapter();
-    filter = new Filter(settings);
+    filtering = new Filtering(settings);
     localFileRepo= new LocalFileRepo(settings);
   }
 
@@ -97,19 +97,22 @@ public class SubtitleControl {
       }
 
       if (listSourceSubtitles.size() > 0) {
-        calculateScore(listSourceSubtitles, calculator);
         // After each search source, check if matching subtitles have been found! Only works if
         // exact or keyword is checked!
         if (settings.isOptionSubtitleExactMatch() || settings.isOptionSubtitleKeywordMatch()) {
           List<Subtitle> listResultFiltered =
-              filter.getFiltered(listSourceSubtitles, tvRelease, false);
-          if (listResultFiltered.size() > 0) return listResultFiltered;
+              filtering.getFiltered(listSourceSubtitles, tvRelease);
+          if (listResultFiltered.size() > 0) {
+            calculateScore(listSourceSubtitles, calculator);
+            return listResultFiltered;
+          }
         }
         listFoundSubtitles.addAll(listSourceSubtitles);
       }
     }
 
-    return filter.getFiltered(listFoundSubtitles, tvRelease, true);
+    calculateScore(listFoundSubtitles, calculator);
+    return filtering.getFiltered(listFoundSubtitles, tvRelease);
   }
 
   public List<Subtitle> getSubtitles(MovieRelease movieRelease, String... languagecode) {
@@ -120,7 +123,7 @@ public class SubtitleControl {
     listFoundSubtitles.addAll(jOpenSubAdapter.searchSubtitles(movieRelease, languagecode));
     listFoundSubtitles.addAll(jPodnapisiAdapter.searchSubtitles(movieRelease, languagecode[0]));
     calculateScore(listFoundSubtitles, calculator);
-    return filter.getFiltered(listFoundSubtitles, movieRelease, true);
+    return filtering.getFiltered(listFoundSubtitles, movieRelease);
   }
 
   protected ScoreCalculator createScoreCalculator(Release release) {
