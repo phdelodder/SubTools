@@ -108,6 +108,7 @@ public class SubtitleControl {
     ScoreCalculator calculator = createScoreCalculator(movieRelease);
     listFoundSubtitles.addAll(jOpenSubAdapter.searchSubtitles(movieRelease, languagecode));
     listFoundSubtitles.addAll(jPodnapisiAdapter.searchSubtitles(movieRelease, languagecode[0]));
+    listFoundSubtitles.addAll(localFileRepo.search(movieRelease, languagecode[0]));
     calculateScore(listFoundSubtitles, calculator);
     return filtering.getFiltered(listFoundSubtitles, movieRelease);
   }

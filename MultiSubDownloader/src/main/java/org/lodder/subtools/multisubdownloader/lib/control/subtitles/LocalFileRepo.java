@@ -4,12 +4,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lodder.subtools.multisubdownloader.lib.control.MovieReleaseControl;
 import org.lodder.subtools.multisubdownloader.lib.control.TvReleaseControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.DetectLanguage;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
@@ -21,14 +23,23 @@ public class LocalFileRepo {
 
   private Settings settings;
 
-  public LocalFileRepo(Settings settings){
+  public LocalFileRepo(Settings settings) {
     this.settings = settings;
   }
-  
+
+  private List<File> getPossibleSubtitles(String filter) {
+    List<File> possibleSubtitles = new ArrayList<File>();
+    for (File local : settings.getLocalSourcesFolders()) {
+      possibleSubtitles.addAll(getAllSubtitlesFiles(local, filter));
+    }
+
+    return possibleSubtitles;
+  }
+
+
   public List<Subtitle> search(TvRelease tvRelease, String languagecode) {
     Logger.instance.trace("SubtitleControl", "addLocalLibrary", "");
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
-    List<File> possibleSubtitles = new ArrayList<File>();
     ReleaseParser vfp = new ReleaseParser();
 
     String filter = "";
@@ -38,11 +49,7 @@ public class LocalFileRepo {
       filter = tvRelease.getShow().replaceAll("[^A-Za-z]", "").trim();
     }
 
-    for (File local : settings.getLocalSourcesFolders()) {
-      possibleSubtitles.addAll(getAllSubtitlesFiles(local, filter));
-    }
-
-    for (File fileSub : possibleSubtitles) {
+    for (File fileSub : getPossibleSubtitles(filter)) {
       try {
         Release release = vfp.parse(fileSub, new File(fileSub.getPath()));
         if (release.getVideoType() == VideoType.EPISODE) {
@@ -61,6 +68,42 @@ public class LocalFileRepo {
                         .toString(), "", "", SubtitleMatchType.EVERYTHING, ReleaseParser
                         .extractTeam(fileSub.getName()), fileSub.getAbsolutePath(), false));
               }
+            }
+          }
+        }
+      } catch (Exception e) {
+        if (Logger.instance.getLogLevel().intValue() < Level.INFO.intValue()) {
+          Logger.instance.error(Logger.stack2String(e));
+        } else {
+          Logger.instance.error(e.getMessage());
+        }
+      }
+    }
+
+    return listFoundSubtitles;
+  }
+
+  public List<Subtitle> search(MovieRelease movieRelease, String languagecode) {
+    Logger.instance.trace("SubtitleControl", "addLocalLibrary", "");
+    List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
+    ReleaseParser releaseParser = new ReleaseParser();
+
+    String filter = movieRelease.getTitle();
+
+    for (File fileSub : getPossibleSubtitles(filter)) {
+      try {
+        Release release = releaseParser.parse(fileSub, new File(fileSub.getPath()));
+        if (release.getVideoType() == VideoType.MOVIE) {
+          MovieReleaseControl movieCtrl = new MovieReleaseControl((MovieRelease) release, settings);
+          movieCtrl.process(settings.getMappingSettings().getMappingList());
+          if (((MovieRelease)release).getImdbid() == movieRelease.getImdbid()){
+            String detectedLang = DetectLanguage.execute(fileSub);
+            if (detectedLang.equals(languagecode)) {
+              Logger.instance.debug("Local Sub found, adding " + fileSub.toString());
+              listFoundSubtitles
+                  .add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub.getName(), fileSub
+                      .toString(), "", "", SubtitleMatchType.EVERYTHING, ReleaseParser
+                      .extractTeam(fileSub.getName()), fileSub.getAbsolutePath(), false));
             }
           }
         }
