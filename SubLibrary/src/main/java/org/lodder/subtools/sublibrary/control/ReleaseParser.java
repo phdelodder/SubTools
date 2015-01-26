@@ -237,6 +237,17 @@ public class ReleaseParser {
     return builder.toString().trim();
   }
 
+  public static List<String> getQualityKeyWords(String name) {
+    Logger.instance.trace("VideoFileParser", "getQualityKeywords", name);
+    name = name.trim().toLowerCase();
+    List<String> keywords = new ArrayList<>();
+    for(String keyword : VideoPatterns.QUALITYKEYWORDS) {
+      if(name.contains(keyword))
+        keywords.add(keyword);
+    }
+    return keywords;
+  }
+
   public static String extractFileNameExtension(final String fileName) {
     int mid = fileName.lastIndexOf(".");
     return fileName.substring(mid + 1, fileName.length());
