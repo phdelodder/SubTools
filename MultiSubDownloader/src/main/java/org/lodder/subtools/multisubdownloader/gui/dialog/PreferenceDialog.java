@@ -1,27 +1,43 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
-import net.miginfocom.swing.MigLayout;
-import org.lodder.subtools.multisubdownloader.gui.extra.*;
-import org.lodder.subtools.multisubdownloader.gui.panels.EpisodeLibraryPanel;
-import org.lodder.subtools.multisubdownloader.gui.panels.MovieLibraryPanel;
-import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
-import org.lodder.subtools.multisubdownloader.settings.model.*;
-import org.lodder.subtools.sublibrary.control.VideoPatterns;
-import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+
+import net.miginfocom.swing.MigLayout;
+
+import org.lodder.subtools.multisubdownloader.gui.extra.JListWithImages;
+import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
+import org.lodder.subtools.multisubdownloader.gui.panels.EpisodeLibraryPanel;
+import org.lodder.subtools.multisubdownloader.gui.panels.MovieLibraryPanel;
+import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
+import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
+import org.lodder.subtools.multisubdownloader.settings.model.SearchSubtitlePriority;
+import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
+import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
+import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
+import org.lodder.subtools.sublibrary.logging.Logger;
+import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 
 public class PreferenceDialog extends MutliSubDialog {
 
@@ -36,9 +52,6 @@ public class PreferenceDialog extends MutliSubDialog {
   private EpisodeLibraryPanel pnlEpisodeLibrary;
   private JListWithImages excludeList;
   private JCheckBox chkStopOnSearchError;
-  private JCheckBox chkAutomaticDownloadSelection;
-  private JTable table;
-  private JCheckBox chkNoRuleMatchTakeFirst;
   private MovieLibraryPanel pnlMovieLibrary;
   private JTextField txtProxyHost, txtAddic7edUsername;
   private JTextField txtProxyPort, txtAddic7edPassword;
@@ -50,13 +63,6 @@ public class PreferenceDialog extends MutliSubDialog {
   private JComboBox<SettingsProcessEpisodeSource> cbxEpisodeProcessSource;
   private JComboBox<Integer> cbxPriorityLocal, cbxPriorityPodnapisi, cbxPriorityAddic7ed,
       cbxPriorityTvSubtitles, cbxPriorityOpensubtitles, cbxPriorityPrivateRepo, cbxPrioritySubsMax;
-  private JCheckBox chkAutomaticSelectionQuality;
-  private JCheckBox chkAutomaticSelectionTeam;
-  private JButton btnAddExtraRule;
-  private JButton btnRemoveSelected;
-  private JScrollPane scrollPane_1;
-  private ArrowButton btnNaarBovenPlaatsen;
-  private ArrowButton btnNaarBenedenPlaatsen;
 
   /**
    * Create the dialog.
@@ -65,48 +71,8 @@ public class PreferenceDialog extends MutliSubDialog {
     super(frame, "Voorkeuren", true);
     this.settingsCtrl = settingsCtrl;
     initialize();
-    initializeTable();
     setPreferenceSettings();
     repaint();
-  }
-
-  private void initializeTable() {
-    DefaultTableModel model = (DefaultTableModel) table.getModel();
-
-    // Add some columns
-    model.addColumn("Regel Nummer");
-    model.addColumn("Kwaliteit");
-  }
-
-  private void addRuleRow(String q) {
-    DefaultTableModel model = (DefaultTableModel) table.getModel();
-    model.addRow(new Object[] {model.getRowCount() + 1, q});
-    // These are the combobox values
-    List<String> both =
-        new ArrayList<String>(1 + VideoPatterns.QUALITYKEYWORDS.length
-            + VideoPatterns.GROUPEDQUALITYKEYWORDS.length);
-    Collections.addAll(both, "Selecteer...");
-    // additional grouped keywords
-    Collections.addAll(both, VideoPatterns.GROUPEDQUALITYKEYWORDS);
-    // keywords
-    Collections.addAll(both, VideoPatterns.QUALITYKEYWORDS);
-    String[] values = both.toArray(new String[both.size()]);
-
-    // Set the combobox editor on the 1st visible column
-    int vColIndex = 1;
-    TableColumn col = table.getColumnModel().getColumn(vColIndex);
-    col.setCellEditor(new MyComboBoxEditor(values));
-    // If the cell should appear like a combobox in its
-    // non-editing state, also set the combobox renderer
-    col.setCellRenderer(new MyComboBoxRenderer(values));
-  }
-
-  private void removeRuleRow() {
-    DefaultTableModel model = (DefaultTableModel) table.getModel();
-    if (table.getSelectedRow() >= 0) {
-      model.removeRow(table.getSelectedRow());
-    }
-
   }
 
   private void initialize() {
@@ -263,105 +229,46 @@ public class PreferenceDialog extends MutliSubDialog {
       {
         JPanel pnlOptions = new JPanel();
         tabbedPane.addTab("Opties", null, pnlOptions, null);
-        pnlOptions.setLayout(new MigLayout("", "[][433px,grow][433px][100px,grow][]",
-            "[][][][][][grow][grow][][][][][25px][][][][][23px][][23px][][]"));
+        pnlOptions.setLayout(new MigLayout("", "[][433px,grow][433px][100px,grow][]", "[][][][][25px][][][][][23px][][23px][][]"));
         pnlOptions.add(new JLabel("Download opties"), "cell 0 0 5 1");
         pnlOptions.add(new JSeparator(), "cell 0 0 5 1,growx");
         chkAlwaysConfirm = new JCheckBox("Controleer altijd voor het downloaden");
         pnlOptions.add(chkAlwaysConfirm, "cell 1 1 3 1,grow");
-        chkAutomaticDownloadSelection = new JCheckBox("Automatische selectie regels");
-        chkAutomaticDownloadSelection.addActionListener(new ActionListener() {
-          public void actionPerformed(ActionEvent arg0) {}
-        });
-        pnlOptions.add(chkAutomaticDownloadSelection, "cell 1 2 3 1");
-        {
-          btnAddExtraRule = new JButton("Extra regel toevoegen");
-          btnAddExtraRule.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-              addRuleRow("");
-            }
-          });
-          {
-            chkAutomaticSelectionQuality = new JCheckBox("Op basis van kwaliteit");
-            pnlOptions.add(chkAutomaticSelectionQuality, "cell 2 3 2 1");
-          }
-          pnlOptions.add(btnAddExtraRule, "cell 2 4,alignx right");
-        }
-        btnRemoveSelected = new JButton("Geselecteerde regel verwijderen");
-        btnRemoveSelected.addActionListener(new ActionListener() {
-          public void actionPerformed(ActionEvent arg0) {
-            removeRuleRow();
-          }
-        });
-        pnlOptions.add(btnRemoveSelected, "cell 3 4");
-        {
-          scrollPane_1 = new JScrollPane();
-          pnlOptions.add(scrollPane_1, "cell 2 5 2 2,grow");
-          table = new JTable();
-          scrollPane_1.setViewportView(table);
-        }
-        {
-          btnNaarBovenPlaatsen = new ArrowButton(SwingConstants.NORTH, 1, 10);
-          btnNaarBovenPlaatsen.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-              moveRuleRowUp();
-            }
-          });
-          pnlOptions.add(btnNaarBovenPlaatsen, "cell 4 5");
-        }
-        {
-          btnNaarBenedenPlaatsen = new ArrowButton(SwingConstants.SOUTH, 1, 10);
-          btnNaarBenedenPlaatsen.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-              moveRuleRowDown();
-            }
-          });
-          pnlOptions.add(btnNaarBenedenPlaatsen, "cell 4 6");
-        }
-        {
-          chkAutomaticSelectionTeam = new JCheckBox("Op basis van release group");
-          pnlOptions.add(chkAutomaticSelectionTeam, "cell 2 7 2 1");
-        }
-        {
-          chkNoRuleMatchTakeFirst =
-              new JCheckBox("Neem de eerste ondertitel als geen enkel regel resultaat heeft.");
-          pnlOptions.add(chkNoRuleMatchTakeFirst, "cell 2 8 3 1");
-        }
-        pnlOptions.add(new JLabel("Zoek filter"), "cell 0 10 5 1");
-        pnlOptions.add(new JSeparator(), "cell 0 10 5 1,growx");
+        pnlOptions.add(new JLabel("Zoek filter"), "cell 0 3 5 1");
+        pnlOptions.add(new JSeparator(), "cell 0 3 5 1,growx");
         chkSubtitleExactMethod =
             new JCheckBox(
                 "Exacte (werkt enkel als naamgeving identiek is) [werkte niet met Addic7ed]");
-        pnlOptions.add(chkSubtitleExactMethod, "cell 1 11 3 1,grow");
+        pnlOptions.add(chkSubtitleExactMethod, "cell 1 4 3 1,grow");
         {
           chkSubtitleKeywordMethod =
               new JCheckBox(
                   "Keywords (op basis van woorden zoals 720p, xvid, ...) [werkt met iedere source]");
-          pnlOptions.add(chkSubtitleKeywordMethod, "cell 1 12 3 1");
+          pnlOptions.add(chkSubtitleKeywordMethod, "cell 1 5 3 1");
         }
         {
           chkExcludeHearingImpaired = new JCheckBox("Hearing Impaired uitsluiten");
-          pnlOptions.add(chkExcludeHearingImpaired, "cell 1 14 3 1");
+          pnlOptions.add(chkExcludeHearingImpaired, "cell 1 7 3 1");
         }
-        pnlOptions.add(new JLabel("Tabel opties"), "cell 0 15 5 1");
-        pnlOptions.add(new JSeparator(), "cell 0 15 5 1,growx");
+        pnlOptions.add(new JLabel("Tabel opties"), "cell 0 8 5 1");
+        pnlOptions.add(new JSeparator(), "cell 0 8 5 1,growx");
         chkOnlyFound = new JCheckBox("Alleen gevonden tonen");
-        pnlOptions.add(chkOnlyFound, "cell 1 16 3 1,growx,aligny center");
-        pnlOptions.add(new JLabel("Fout afhandeling opties"), "cell 0 17 5 1");
-        pnlOptions.add(new JSeparator(), "cell 0 17 5 1,growx");
+        pnlOptions.add(chkOnlyFound, "cell 1 9 3 1,growx,aligny center");
+        pnlOptions.add(new JLabel("Fout afhandeling opties"), "cell 0 10 5 1");
+        pnlOptions.add(new JSeparator(), "cell 0 10 5 1,growx");
         chkStopOnSearchError = new JCheckBox("Stop zoeken na fout");
-        pnlOptions.add(chkStopOnSearchError, "cell 1 18 3 1,alignx left,aligny center");
+        pnlOptions.add(chkStopOnSearchError, "cell 1 11 3 1,alignx left,aligny center");
         {
           JLabel label = new JLabel("Serie database source");
-          pnlOptions.add(label, "cell 0 19 5 1");
-          pnlOptions.add(new JSeparator(), "cell 0 19 5 1,growx");
+          pnlOptions.add(label, "cell 0 12 5 1");
+          pnlOptions.add(new JSeparator(), "cell 0 12 5 1,growx");
         }
         {
           cbxEpisodeProcessSource =
               new JComboBox<SettingsProcessEpisodeSource>(SettingsProcessEpisodeSource.values());
-          // cbxEpisodeProcessSource = new JComboBox<SettingsProcessEpisodeSource>();
+          //cbxEpisodeProcessSource = new JComboBox<SettingsProcessEpisodeSource>();
           cbxEpisodeProcessSource.setEnabled(false);
-          pnlOptions.add(cbxEpisodeProcessSource, "cell 1 20,growx");
+          pnlOptions.add(cbxEpisodeProcessSource, "cell 1 13,growx");
         }
       }
       {
@@ -541,26 +448,6 @@ public class PreferenceDialog extends MutliSubDialog {
     }
   }
 
-  protected void moveRuleRowDown() {
-    DefaultTableModel model = (DefaultTableModel) table.getModel();
-    if (table.getSelectedRow() >= 0 && table.getSelectedRow() < model.getRowCount()) {
-      Object oSelected = model.getValueAt(table.getSelectedRow(), 1);
-      Object oDown = model.getValueAt(table.getSelectedRow() + 1, 1);
-      model.setValueAt(oSelected, table.getSelectedRow() + 1, 1);
-      model.setValueAt(oDown, table.getSelectedRow(), 1);
-    }
-  }
-
-  protected void moveRuleRowUp() {
-    DefaultTableModel model = (DefaultTableModel) table.getModel();
-    if (table.getSelectedRow() >= 0) {
-      Object oSelected = model.getValueAt(table.getSelectedRow(), 1);
-      Object oUp = model.getValueAt(table.getSelectedRow() - 1, 1);
-      model.setValueAt(oSelected, table.getSelectedRow() - 1, 1);
-      model.setValueAt(oUp, table.getSelectedRow(), 1);
-    }
-  }
-
   private void setPreferenceSettings() {
     for (int i = 0; i < settingsCtrl.getSettings().getExcludeList().size(); i++) {
       excludeList.addItem(settingsCtrl.getSettings().getExcludeList().get(i).getType(),
@@ -587,16 +474,6 @@ public class PreferenceDialog extends MutliSubDialog {
     cbxEpisodeProcessSource.setSelectedItem(settingsCtrl.getSettings().getProcessEpisodeSource());
     pnlEpisodeLibrary.setLibrarySettings(settingsCtrl.getSettings().getEpisodeLibrarySettings());
     pnlMovieLibrary.setLibrarySettings(settingsCtrl.getSettings().getMovieLibrarySettings());
-    chkAutomaticDownloadSelection.setSelected(settingsCtrl.getSettings()
-        .isOptionsAutomaticDownloadSelection());
-    chkAutomaticSelectionQuality.setSelected(settingsCtrl.getSettings()
-        .isOptionsAutomaticDownloadSelectionQuality());
-    chkAutomaticSelectionTeam.setSelected(settingsCtrl.getSettings()
-        .isOptionsAutomaticDownloadSelectionReleaseGroup());
-    chkNoRuleMatchTakeFirst.setSelected(settingsCtrl.getSettings().isOptionsNoRuleMatchTakeFirst());
-    for (String q : settingsCtrl.getSettings().getQualityRuleList()) {
-      addRuleRow(q);
-    }
     chkUserAddic7edLogin.setSelected(settingsCtrl.getSettings().isLoginAddic7edEnabled());
     txtAddic7edUsername.setText(settingsCtrl.getSettings().getLoginAddic7edUsername());
     txtAddic7edPassword.setText(settingsCtrl.getSettings().getLoginAddic7edPassword());
@@ -641,17 +518,6 @@ public class PreferenceDialog extends MutliSubDialog {
   }
 
   protected boolean testOptionsTab() {
-    DefaultTableModel model = (DefaultTableModel) table.getModel();
-    for (int i = 0; i < model.getRowCount(); i++) {
-      if (model.getValueAt(i, 1).equals("") || model.getValueAt(i, 1).equals("Selecteer...")) {
-        String message = "Opties: op regel " + i + 1 + " is er geen waarde geselecteerd";
-        JOptionPane.showConfirmDialog(this, message, "MultiSubDownloader",
-            JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
-        Logger.instance.debug("testOptionsTab: " + "Opties: op regel " + i + 1
-            + " is er geen waarde geselecteerd");
-        return false;
-      }
-    }
     return true;
   }
 
@@ -748,20 +614,6 @@ public class PreferenceDialog extends MutliSubDialog {
       settingsCtrl.getSettings().setOptionsStopOnSearchError(chkStopOnSearchError.isSelected());
       settingsCtrl.getSettings().setProcessEpisodeSource(
           (SettingsProcessEpisodeSource) cbxEpisodeProcessSource.getSelectedItem());
-      settingsCtrl.getSettings().setOptionsAutomaticDownloadSelection(
-          chkAutomaticDownloadSelection.isSelected());
-      settingsCtrl.getSettings().setOptionsAutomaticDownloadSelectionQuality(
-          chkAutomaticSelectionQuality.isSelected());
-      settingsCtrl.getSettings().setOptionsAutomaticDownloadSelectionReleaseGroup(
-          chkAutomaticSelectionTeam.isSelected());
-      settingsCtrl.getSettings().setOptionsNoRuleMatchMatchTakeFirst(
-          chkNoRuleMatchTakeFirst.isSelected());
-      DefaultTableModel model = (DefaultTableModel) table.getModel();
-      ArrayList<String> list = new ArrayList<String>();
-      for (int i = 0; i < model.getRowCount(); i++) {
-        list.add((String) model.getValueAt(i, 1));
-      }
-      settingsCtrl.getSettings().setQualityRuleList(list);
     } else {
       status = false;
     }

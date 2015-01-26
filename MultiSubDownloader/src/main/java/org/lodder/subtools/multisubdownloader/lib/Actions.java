@@ -65,10 +65,6 @@ public class Actions {
           && release.getMatchingSubs().get(0).getSubtitleMatchType() == SubtitleMatchType.EXACT) {
         Logger.instance.debug("determineWhatSubtitleDownload: Exact Match");
         return 0;
-      } else if (settings.isOptionsAutomaticDownloadSelection()) {
-        Logger.instance.debug("determineWhatSubtitleDownload: Automatic Download Selection");
-        int selected = subSelection.getAutomatic();
-        if (selected >= 0) return selected;
       } else if (release.getMatchingSubs().size() > 1) {
         Logger.instance.debug("determineWhatSubtitleDownload: Multiple subs detected");
         if (subtitleSelectionDialog) {

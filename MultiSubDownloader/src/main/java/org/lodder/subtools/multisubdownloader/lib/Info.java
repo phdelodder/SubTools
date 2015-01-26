@@ -27,18 +27,6 @@ public class Info {
   public static void downloadOptions(Settings settings) {
     Logger.instance.log("----- Download Options ------");
     Logger.instance.log(" - OptionsAlwaysConfirm : " + settings.isOptionsAlwaysConfirm());
-    Logger.instance.log(" - OptionsAutomaticDownloadSelection : "
-        + settings.isOptionsAutomaticDownloadSelection());
-    Logger.instance.log(" - OptionsAutomaticDownloadSelectionQuality : "
-        + settings.isOptionsAutomaticDownloadSelectionQuality());
-    Logger.instance.log(" - QualityRuleList : " + settings.getQualityRuleList());
-    for (String q : settings.getQualityRuleList()) {
-      Logger.instance.log("    - Rule : " + q);
-    }
-    Logger.instance.log(" - OptionsAutomaticDownloadSelectionReleaseGroup : "
-        + settings.isOptionsAutomaticDownloadSelectionReleaseGroup());
-    Logger.instance.log(" - OptionsNoRuleMatchTakeFirst : "
-        + settings.isOptionsNoRuleMatchTakeFirst());
     Logger.instance.log("-----------------------------");
   }
 }

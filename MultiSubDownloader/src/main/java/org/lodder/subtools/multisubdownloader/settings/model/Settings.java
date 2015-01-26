@@ -15,10 +15,7 @@ public class Settings {
   private boolean optionsAlwaysConfirm, optionSubtitleExactMatch, optionSubtitleKeywordMatch,
       optionSubtitleExcludeHearingImpaired;
   private boolean optionsShowOnlyFound, optionsStopOnSearchError;
-  private boolean optionsNoRuleMatchTakeFirst, optionsAutomaticDownloadSelection,
-      optionsAutomaticDownloadSelectionQuality, optionsAutomaticDownloadSelectionReleaseGroup;
   private List<SettingsExcludeItem> excludeList;
-  private List<String> qualityRuleList;
   private LibrarySettings movieLibrarySettings;
   private LibrarySettings episodeLibrarySettings;
   private String generalProxyHost;
@@ -46,9 +43,6 @@ public class Settings {
     optionsAlwaysConfirm = false;
     optionsShowOnlyFound = false;
     optionsStopOnSearchError = false;
-    optionsNoRuleMatchTakeFirst = false;
-    optionsAutomaticDownloadSelection = false;
-    qualityRuleList = new ArrayList<String>();
     setExcludeList(new ArrayList<SettingsExcludeItem>());
     movieLibrarySettings = new LibrarySettings();
     episodeLibrarySettings = new LibrarySettings();
@@ -110,30 +104,6 @@ public class Settings {
 
   public boolean isOptionsStopOnSearchError() {
     return optionsStopOnSearchError;
-  }
-
-  public void setQualityRuleList(List<String> qualityRuleList) {
-    this.qualityRuleList = qualityRuleList;
-  }
-
-  public List<String> getQualityRuleList() {
-    return qualityRuleList;
-  }
-
-  public void setOptionsNoRuleMatchMatchTakeFirst(boolean optionsNoRuleMatchMatchTakeFirst) {
-    this.optionsNoRuleMatchTakeFirst = optionsNoRuleMatchMatchTakeFirst;
-  }
-
-  public boolean isOptionsNoRuleMatchTakeFirst() {
-    return optionsNoRuleMatchTakeFirst;
-  }
-
-  public void setOptionsAutomaticDownloadSelection(boolean optionsAutomaticDownloadSelection) {
-    this.optionsAutomaticDownloadSelection = optionsAutomaticDownloadSelection;
-  }
-
-  public boolean isOptionsAutomaticDownloadSelection() {
-    return optionsAutomaticDownloadSelection;
   }
 
   public void setEpisodeLibrarySettings(LibrarySettings episodeLibrarySettings) {
@@ -426,23 +396,6 @@ public class Settings {
 
   public void setSerieSourceSubsMax(boolean serieSourceSubsMax) {
     this.serieSourceSubsMax = serieSourceSubsMax;
-  }
-
-  public boolean isOptionsAutomaticDownloadSelectionQuality() {
-    return optionsAutomaticDownloadSelectionQuality;
-  }
-
-  public void setOptionsAutomaticDownloadSelectionQuality(
-      boolean optionsAutomaticDownloadSelectionQuality) {
-    this.optionsAutomaticDownloadSelectionQuality = optionsAutomaticDownloadSelectionQuality;
-  }
-
-  public boolean isOptionsAutomaticDownloadSelectionReleaseGroup() {
-    return optionsAutomaticDownloadSelectionReleaseGroup;
-  }
-
-  public void setOptionsAutomaticDownloadSelectionReleaseGroup(boolean optionsAutomaticDownloadSelectionReleaseGroup) {
-    this.optionsAutomaticDownloadSelectionReleaseGroup = optionsAutomaticDownloadSelectionReleaseGroup;
   }
 
   public List<File> getDefaultFolders() {

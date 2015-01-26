@@ -64,8 +64,6 @@ public class SettingsControl {
 
       storeExcludeSettings();
 
-      storeQualityRuleSettings();
-
       storeProxySettings();
 
       preferences.putBoolean("OptionsAlwaysConfirm", settings.isOptionsAlwaysConfirm());
@@ -75,14 +73,6 @@ public class SettingsControl {
           settings.isOptionSubtitleExcludeHearingImpaired());
       preferences.putBoolean("OptionsShowOnlyFound", settings.isOptionsShowOnlyFound());
       preferences.putBoolean("OptionsStopOnSearchError", settings.isOptionsStopOnSearchError());
-      preferences.putBoolean("OptionsAutomaticDownloadSelection",
-          settings.isOptionsAutomaticDownloadSelection());
-      preferences.putBoolean("OptionsAutomaticDownloadSelectionQuality",
-          settings.isOptionsAutomaticDownloadSelectionQuality());
-      preferences.putBoolean("OptionsAutomaticDownloadSelectionTeam",
-          settings.isOptionsAutomaticDownloadSelectionReleaseGroup());
-      preferences.putBoolean("OptionsNoRuleMatchTakeFirst",
-          settings.isOptionsNoRuleMatchTakeFirst());
       preferences.putBoolean("OptionRecursive", settings.isOptionRecursive());
       preferences.putBoolean("AutoUpdateMapping", settings.isAutoUpdateMapping());
       preferences.put("ProcessEpisodeSource", settings.getProcessEpisodeSource().toString());
@@ -252,17 +242,6 @@ public class SettingsControl {
     preferences.putInt("lastItemExclude", last);
   }
 
-  private void storeQualityRuleSettings() {
-    Logger.instance.log("SettingsControl, storeQualityRuleSettings()", Level.TRACE);
-    int last;
-    last = 0;
-    for (int i = 0; i < settings.getQualityRuleList().size(); i++) {
-      preferences.put("Quality" + i, settings.getQualityRuleList().get(i));
-      last++;
-    }
-    preferences.putInt("lastItemQuality", last);
-  }
-
   private void storeSerieSourcesSettings() {
     Logger.instance.log("SettingsControl, storeAddic7edLoginSettings()", Level.TRACE);
     preferences.putBoolean("loginAddic7edEnabled", settings.isLoginAddic7edEnabled());
@@ -317,14 +296,6 @@ public class SettingsControl {
         "OptionSubtitleExcludeHearingImpaired", false));
     settings.setOptionsShowOnlyFound(preferences.getBoolean("OptionsShowOnlyFound", false));
     settings.setOptionsStopOnSearchError(preferences.getBoolean("OptionsStopOnSearchError", false));
-    settings.setOptionsAutomaticDownloadSelection(preferences.getBoolean(
-        "OptionsAutomaticDownloadSelection", false));
-    settings.setOptionsAutomaticDownloadSelectionQuality(preferences.getBoolean(
-        "OptionsAutomaticDownloadSelectionQuality", false));
-    settings.setOptionsAutomaticDownloadSelectionReleaseGroup(preferences.getBoolean(
-        "OptionsAutomaticDownloadSelectionTeam", false));
-    settings.setOptionsNoRuleMatchMatchTakeFirst(preferences.getBoolean(
-        "OptionsNoRuleMatchTakeFirst", false));
     settings.setOptionRecursive(preferences.getBoolean("OptionRecursive", false));
     settings.setAutoUpdateMapping(preferences.getBoolean("AutoUpdateMapping", false));
     settings.setProcessEpisodeSource(SettingsProcessEpisodeSource.valueOf(preferences.get(
@@ -340,8 +311,6 @@ public class SettingsControl {
     settings.setMappingSettings(mappingSettingsCtrl.getMappingSettings());
     // exclude settings
     loadExcludeSettings();
-    // quality rules
-    loadQualityRuleSettings();
     // proxy settings
     loadProxySettings();
     loadScreenSettings();
@@ -386,18 +355,7 @@ public class SettingsControl {
     settings.setGeneralProxyPort(preferences.getInt("generalProxyPort", 80));
     updateProxySettings();
   }
-
-  private void loadQualityRuleSettings() {
-    Logger.instance.log("SettingsControl, loadQualityRuleSettings()", Level.TRACE);
-    int last;
-
-    last = preferences.getInt("lastItemQuality", 0);
-
-    for (int i = 0; i < last; i++) {
-      settings.getQualityRuleList().add(preferences.get("Quality" + i, ""));
-    }
-  }
-
+  
   private void loadExcludeSettings() {
     Logger.instance.log("SettingsControl, loadExcludeSettings()", Level.TRACE);
     int last;
