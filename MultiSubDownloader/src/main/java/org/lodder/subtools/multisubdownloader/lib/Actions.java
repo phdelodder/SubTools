@@ -100,7 +100,7 @@ public class Actions {
       if (!subtitle.getUploader().isEmpty())
         uploader = " (Uploader: " + subtitle.getUploader() + ") ";
     }
-    return subtitle.getFilename() + hearingImpaired + uploader + " (Source: "
+    return "Scrore:" + subtitle.getScore() +"% " + subtitle.getFilename() + hearingImpaired + uploader + " (Source: "
         + subtitle.getSubtitleSource() + ") ";
   }
 
