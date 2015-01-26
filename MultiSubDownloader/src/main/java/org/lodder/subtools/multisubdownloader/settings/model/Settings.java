@@ -29,7 +29,7 @@ public class Settings {
   private String loginAddic7edUsername;
   private String loginAddic7edPassword;
   private boolean serieSourceAddic7ed, serieSourceTvSubtitles, serieSourcePodnapisi,
-      serieSourceOpensubtitles, serieSourceLocal, serieSourcePrivateRepo, serieSourceSubsMax;
+      serieSourceOpensubtitles, serieSourceLocal, serieSourceSubsMax;
   private boolean autoUpdateMapping;
   private SettingsProcessEpisodeSource processEpisodeSource;
   private MappingSettings mappingSettings;
@@ -57,7 +57,6 @@ public class Settings {
     serieSourcePodnapisi = true;
     serieSourceOpensubtitles = true;
     serieSourceLocal = true;
-    serieSourcePrivateRepo = true;
     autoUpdateMapping = false;
     setOptionSubtitleExactMatch(true);
     setOptionSubtitleKeywordMatch(true);
@@ -332,20 +331,6 @@ public class Settings {
    */
   public void setProcessEpisodeSource(SettingsProcessEpisodeSource processEpisodeSource) {
     this.processEpisodeSource = processEpisodeSource;
-  }
-
-  /**
-   * @return the serieSourcePrivateRepo
-   */
-  public boolean isSerieSourcePrivateRepo() {
-    return serieSourcePrivateRepo;
-  }
-
-  /**
-   * @param serieSourcePrivateRepo the serieSourcePrivateRepo to set
-   */
-  public void setSerieSourcePrivateRepo(boolean serieSourcePrivateRepo) {
-    this.serieSourcePrivateRepo = serieSourcePrivateRepo;
   }
 
   /**

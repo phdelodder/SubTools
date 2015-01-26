@@ -252,7 +252,6 @@ public class SettingsControl {
     preferences.putBoolean("serieSourceOpensubtitles", settings.isSerieSourceOpensubtitles());
     preferences.putBoolean("serieSourcePodnapisi", settings.isSerieSourcePodnapisi());
     preferences.putBoolean("serieSourceTvSubtitles", settings.isSerieSourceTvSubtitles());
-    preferences.putBoolean("serieSourcePrivateRepo", settings.isSerieSourcePrivateRepo());
     preferences.putBoolean("serieSourceSubsMax", settings.isSerieSourceSubsMax());
 
     for (SearchSubtitlePriority prio : settings.getListSearchSubtitlePriority()) {
@@ -268,9 +267,6 @@ public class SettingsControl {
           break;
         case PODNAPISI:
           preferences.putInt("serieSourcePodnapisiPrio", prio.getPriority());
-          break;
-        case PRIVATEREPO:
-          preferences.putInt("serieSourcePrivateRepoPrio", prio.getPriority());
           break;
         case TVSUBTITLES:
           preferences.putInt("serieSourceTvSubtitlesPrio", prio.getPriority());
@@ -467,7 +463,6 @@ public class SettingsControl {
     settings.setSerieSourceOpensubtitles(preferences.getBoolean("serieSourceOpensubtitles", true));
     settings.setSerieSourcePodnapisi(preferences.getBoolean("serieSourcePodnapisi", true));
     settings.setSerieSourceTvSubtitles(preferences.getBoolean("serieSourceTvSubtitles", true));
-    settings.setSerieSourcePrivateRepo(preferences.getBoolean("serieSourcePrivateRepo", true));
     settings.setSerieSourceSubsMax(preferences.getBoolean("serieSourceSubsMax", true));
 
     SearchSubtitlePriority prioAddic7ed =
@@ -482,9 +477,6 @@ public class SettingsControl {
     SearchSubtitlePriority prioPodnapisi =
         new SearchSubtitlePriority(SubtitleSource.PODNAPISI, preferences.getInt(
             "serieSourcePodnapisiPrio", 2));
-    SearchSubtitlePriority prioPrivateRepo =
-        new SearchSubtitlePriority(SubtitleSource.PRIVATEREPO, preferences.getInt(
-            "serieSourcePrivateRepoPrio", 1));
     SearchSubtitlePriority prioTvSubtitles =
         new SearchSubtitlePriority(SubtitleSource.TVSUBTITLES, preferences.getInt(
             "serieSourceTvSubtitlesPrio", 2));
@@ -497,7 +489,6 @@ public class SettingsControl {
     lPrio.add(prioLocal);
     lPrio.add(prioOpensubtitles);
     lPrio.add(prioPodnapisi);
-    lPrio.add(prioPrivateRepo);
     lPrio.add(prioTvSubtitles);
     lPrio.add(prioSubsMax);
 

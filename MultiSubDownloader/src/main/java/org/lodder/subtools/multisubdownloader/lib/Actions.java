@@ -57,8 +57,8 @@ public class Actions {
       subSelection = new SubtitleSelectionGUI(settings, release);
 
     if (release.getMatchingSubs().size() > 0) {
-      Logger.instance.debug("determineWhatSubtitleDownload for videoFile: "
-          + release.getFilename() + " # found subs: " + release.getMatchingSubs().size());
+      Logger.instance.debug("determineWhatSubtitleDownload for videoFile: " + release.getFilename()
+          + " # found subs: " + release.getMatchingSubs().size());
       if (settings.isOptionsAlwaysConfirm()) {
         return subSelection.getUserInput(release);
       } else if (release.getMatchingSubs().size() == 1
@@ -85,19 +85,17 @@ public class Actions {
         + release.getFilename());
     return -1;
   }
-  
+
   public static String buildDisplayLine(Subtitle subtitle) {
     String hearingImpaired = "";
     if (subtitle.isHearingImpaired()) {
       hearingImpaired = " Hearing Impaired";
     }
     String uploader = "";
-    if (subtitle.getSubtitleSource() != SubtitleSource.PRIVATEREPO) {
-      if (!subtitle.getUploader().isEmpty())
-        uploader = " (Uploader: " + subtitle.getUploader() + ") ";
-    }
-    return "Scrore:" + subtitle.getScore() +"% " + subtitle.getFilename() + hearingImpaired + uploader + " (Source: "
-        + subtitle.getSubtitleSource() + ") ";
+    if (!subtitle.getUploader().isEmpty())
+      uploader = " (Uploader: " + subtitle.getUploader() + ") ";
+    return "Scrore:" + subtitle.getScore() + "% " + subtitle.getFilename() + hearingImpaired
+        + uploader + " (Source: " + subtitle.getSubtitleSource() + ") ";
   }
 
   public List<File> getFileListing(File dir, boolean recursieve, String languagecode,
@@ -184,8 +182,8 @@ public class Actions {
    * @param version
    * @throws Exception
    */
-  public static void download(Release release, Subtitle subtitle,
-      LibrarySettings librarySettings, int version) throws Exception {
+  public static void download(Release release, Subtitle subtitle, LibrarySettings librarySettings,
+      int version) throws Exception {
     Logger.instance.trace("Actions", "download",
         "LibraryAction" + librarySettings.getLibraryAction());
     PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings);
@@ -205,33 +203,28 @@ public class Actions {
 
     boolean success;
 
-    if (subtitle.getSubtitleSource() == SubtitleSource.PRIVATEREPO) {
+    if (HttpClient.isUrl(subtitle.getDownloadlink())) {
       success =
-          DropBoxClient.getDropBoxClient().doDownloadFile(subtitle.getDownloadlink(), subFile);
+          HttpClient.getHttpClient().doDownloadFile(new URL(subtitle.getDownloadlink()), subFile);
+      Logger.instance.debug("doDownload file was: " + success);
     } else {
-      if (HttpClient.isUrl(subtitle.getDownloadlink())) {
-        success =
-            HttpClient.getHttpClient().doDownloadFile(new URL(subtitle.getDownloadlink()), subFile);
-        Logger.instance.debug("doDownload file was: " + success);
+      Files.copy(new File(subtitle.getDownloadlink()), subFile);
+      success = true;
+    }
+    if (ReleaseParser.getQualityKeyword(release.getFilename()).split(" ").length > 1) {
+      String dropBoxName = "";
+      if (subtitle.getSubtitleSource() == SubtitleSource.LOCAL) {
+        dropBoxName =
+            PrivateRepoIndex.getFullFilename(
+                FilenameLibraryBuilder.changeExtension(release.getFilename(), ".srt"), "?",
+                subtitle.getSubtitleSource().toString());
       } else {
-        Files.copy(new File(subtitle.getDownloadlink()), subFile);
-        success = true;
+        dropBoxName =
+            PrivateRepoIndex.getFullFilename(
+                FilenameLibraryBuilder.changeExtension(release.getFilename(), ".srt"),
+                subtitle.getUploader(), subtitle.getSubtitleSource().toString());
       }
-      if (ReleaseParser.getQualityKeyword(release.getFilename()).split(" ").length > 1) {
-        String dropBoxName = "";
-        if (subtitle.getSubtitleSource() == SubtitleSource.LOCAL) {
-          dropBoxName =
-              PrivateRepoIndex.getFullFilename(
-                  FilenameLibraryBuilder.changeExtension(release.getFilename(), ".srt"), "?",
-                  subtitle.getSubtitleSource().toString());
-        } else {
-          dropBoxName =
-              PrivateRepoIndex.getFullFilename(
-                  FilenameLibraryBuilder.changeExtension(release.getFilename(), ".srt"),
-                  subtitle.getUploader(), subtitle.getSubtitleSource().toString());
-        }
-        DropBoxClient.getDropBoxClient().put(subFile, dropBoxName, subtitle.getLanguagecode());
-      }
+      DropBoxClient.getDropBoxClient().put(subFile, dropBoxName, subtitle.getLanguagecode());
     }
 
     if (success) {
@@ -324,8 +317,8 @@ public class Actions {
               + " , this might take a while... ");
           Files.move(file, new File(newDir, filename));
         } else {
-          Logger.instance.log("Moving " + filename + " to the library folder "
-              + release.getPath() + " , this might take a while... ");
+          Logger.instance.log("Moving " + filename + " to the library folder " + release.getPath()
+              + " , this might take a while... ");
           Files.move(file, new File(release.getPath(), filename));
         }
         if (!librarySettings.getLibraryOtherFileAction().equals(LibraryOtherFileActionType.NOTHING)) {

@@ -9,7 +9,7 @@ public class Subtitle {
     private int score;
 
     public enum SubtitleSource {
-        OPENSUBTITLES, PODNAPISI, ADDIC7ED, TVSUBTITLES, LOCAL, PRIVATEREPO, SUBSMAX
+        OPENSUBTITLES, PODNAPISI, ADDIC7ED, TVSUBTITLES, LOCAL, SUBSMAX
     }
 
     public Subtitle(SubtitleSource subtitleSource, String filename, String downloadlink, String languagecode, String quality, SubtitleMatchType subtitleMatchType, String team, String uploader, boolean hearingImp) {

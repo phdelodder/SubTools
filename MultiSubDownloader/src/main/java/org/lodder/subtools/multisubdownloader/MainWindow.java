@@ -20,7 +20,16 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.swing.*;
+import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.RowSorter;
+import javax.swing.SwingWorker;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.table.DefaultTableModel;
@@ -59,12 +68,10 @@ import org.lodder.subtools.sublibrary.OsCheck.OSType;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Subtitle;
-import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.lodder.subtools.sublibrary.util.StringUtils;
 import org.lodder.subtools.sublibrary.util.XmlFileFilter;
-import org.lodder.subtools.sublibrary.util.http.DropBoxClient;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
 
 public class MainWindow extends JFrame implements PropertyChangeListener {
@@ -211,7 +218,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         close();
       }
     });
-    
+
     menuBar.setViewFilenameAction(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
@@ -222,7 +229,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         }
       }
     });
-    
+
     menuBar.setViewTypeAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
@@ -233,7 +240,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         }
       }
     });
-    
+
     menuBar.setViewTitleAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
@@ -244,7 +251,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         }
       }
     });
-    
+
     menuBar.setViewSeasonAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
@@ -255,7 +262,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         }
       }
     });
-    
+
     menuBar.setViewEpisodeAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
@@ -570,18 +577,15 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
           filename = StringUtils.removeIllegalWindowsChars(filename);
 
         try {
-          if (subtitle.getSubtitleSource() == SubtitleSource.PRIVATEREPO) {
-            DropBoxClient.getDropBoxClient().doDownloadFile(subtitle.getDownloadlink(),
-                new File(path, subtitle.getFilename()));
+
+          if (HttpClient.isUrl(subtitle.getDownloadlink())) {
+            HttpClient.getHttpClient().doDownloadFile(new URL(subtitle.getDownloadlink()),
+                new File(path, filename));
           } else {
-            if (HttpClient.isUrl(subtitle.getDownloadlink())) {
-              HttpClient.getHttpClient().doDownloadFile(new URL(subtitle.getDownloadlink()),
-                  new File(path, filename));
-            } else {
-              Files.copy(new File(subtitle.getDownloadlink()),
-                  new File(path, subtitle.getFilename()));
-            }
+            Files
+                .copy(new File(subtitle.getDownloadlink()), new File(path, subtitle.getFilename()));
           }
+
         } catch (MalformedURLException e) {
           Logger.instance.error("downloadText : " + Logger.stack2String(e));
         } catch (IOException e) {

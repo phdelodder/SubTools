@@ -1,6 +1,5 @@
 package org.lodder.subtools.multisubdownloader.lib.control;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +8,6 @@ import org.lodder.subtools.multisubdownloader.lib.JOpenSubAdapter;
 import org.lodder.subtools.multisubdownloader.lib.JPodnapisiAdapter;
 import org.lodder.subtools.multisubdownloader.lib.JSubsMaxAdapter;
 import org.lodder.subtools.multisubdownloader.lib.JTVsubtitlesAdapter;
-import org.lodder.subtools.multisubdownloader.lib.PrivateRepo;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.LocalFileRepo;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.ScoreCalculator;
@@ -29,7 +27,6 @@ public class SubtitleControl {
   private final JAddic7edAdapter jAddic7edAdapter;
   private final JTVsubtitlesAdapter jTVSubtitlesAdapter;
   private final JSubsMaxAdapter jSubsMaxAdapter;
-  private final PrivateRepo privateRepo;
   private final Settings settings;
   private final Filtering filtering;
   private final LocalFileRepo localFileRepo;
@@ -42,7 +39,6 @@ public class SubtitleControl {
         new JAddic7edAdapter(settings.isLoginAddic7edEnabled(),
             settings.getLoginAddic7edUsername(), settings.getLoginAddic7edPassword());
     jTVSubtitlesAdapter = new JTVsubtitlesAdapter();
-    privateRepo = PrivateRepo.getPrivateRepo();
     jSubsMaxAdapter = new JSubsMaxAdapter();
     filtering = new Filtering(settings);
     localFileRepo= new LocalFileRepo(settings);
@@ -73,15 +69,6 @@ public class SubtitleControl {
           if (settings.isSerieSourcePodnapisi())
             listSourceSubtitles.addAll(jPodnapisiAdapter
                 .searchSubtitles(tvRelease, languagecode[0]));
-          break;
-        case PRIVATEREPO:
-          if (settings.isSerieSourcePrivateRepo()) {
-            try {
-              listSourceSubtitles.addAll(privateRepo.searchSubtitles(tvRelease, languagecode[0]));
-            } catch (UnsupportedEncodingException e) {
-              Logger.instance.error(Logger.stack2String(e));
-            }
-          }
           break;
         case TVSUBTITLES:
           if (settings.isSerieSourceTvSubtitles())
@@ -119,7 +106,6 @@ public class SubtitleControl {
     Logger.instance.trace("SubtitleControl", "getSubtitles", "Movie");
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
     ScoreCalculator calculator = createScoreCalculator(movieRelease);
-    listFoundSubtitles.addAll(privateRepo.searchSubtitles(movieRelease, languagecode[0]));
     listFoundSubtitles.addAll(jOpenSubAdapter.searchSubtitles(movieRelease, languagecode));
     listFoundSubtitles.addAll(jPodnapisiAdapter.searchSubtitles(movieRelease, languagecode[0]));
     calculateScore(listFoundSubtitles, calculator);
