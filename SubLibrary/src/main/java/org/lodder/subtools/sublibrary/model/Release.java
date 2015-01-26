@@ -13,7 +13,7 @@ public class Release extends Video{
     private String filename;
     private String quality;
     private String description;
-    private String team;
+    private String releasegroup;
 
     public Release(VideoType videoType) {
         this.setVideoType(videoType);
@@ -23,16 +23,16 @@ public class Release extends Video{
         path = new File("");
         quality = "";
         description = "";
-        team = "";
+        releasegroup = "";
     }
 
-    public Release(VideoType videoFileType, File file, String extension, String description, String team) {
+    public Release(VideoType videoFileType, File file, String extension, String description, String releasegroup) {
         this(videoFileType);
         this.extension = extension;
         filename = file.getName();
         path = file.getParentFile();
         this.setDescription(description);
-        this.setTeam(team);
+        this.setReleasegroup(releasegroup);
     }
 
     public String getExtension() {
@@ -90,17 +90,17 @@ public class Release extends Video{
     }
 
 	/**
-	 * @return the team
+	 * @return the Releasegroup
 	 */
-	public String getTeam() {
-		return team;
+	public String getReleasegroup() {
+		return releasegroup;
 	}
 
 	/**
-	 * @param team the team to set
+	 * @param Releasegroup the Releasegroup to set
 	 */
-	public void setTeam(String team) {
-		this.team = team;
+	public void setReleasegroup(String releasegroup) {
+		this.releasegroup = releasegroup;
 	}
 
 }
