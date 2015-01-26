@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.gui.workers;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,6 +15,7 @@ import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.control.TextualSearchControl;
+import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.SubtitleComparator;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -64,6 +66,7 @@ public class SearchNameWorker extends SwingWorker<List<Subtitle>, String> {
         l = release.getMatchingSubs();
       }
     }
+    Collections.sort(l, new SubtitleComparator());
     return l;
   }
 

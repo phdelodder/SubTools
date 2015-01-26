@@ -1,9 +1,11 @@
 package org.lodder.subtools.multisubdownloader.lib.control;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.lib.JTVRageAdapter;
+import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.SubtitleComparator;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
 import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
@@ -112,6 +114,7 @@ public class TvReleaseControl extends ReleaseControl {
     process(dict);
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
     listFoundSubtitles.addAll(sc.getSubtitles((TvRelease) release, languageCode));
+    Collections.sort(listFoundSubtitles, new SubtitleComparator());
     release.setMatchingSubs(listFoundSubtitles);
   }
 
