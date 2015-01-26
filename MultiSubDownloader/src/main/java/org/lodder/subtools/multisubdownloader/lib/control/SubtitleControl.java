@@ -14,6 +14,8 @@ import org.lodder.subtools.multisubdownloader.lib.JPodnapisiAdapter;
 import org.lodder.subtools.multisubdownloader.lib.JSubsMaxAdapter;
 import org.lodder.subtools.multisubdownloader.lib.JTVsubtitlesAdapter;
 import org.lodder.subtools.multisubdownloader.lib.PrivateRepo;
+import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.ScoreCalculator;
+import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.SortWeight;
 import org.lodder.subtools.multisubdownloader.settings.model.SearchSubtitlePriority;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.DetectLanguage;
@@ -54,6 +56,8 @@ public class SubtitleControl {
   public List<Subtitle> getSubtitles(TvRelease tvRelease, String... languagecode) {
     Logger.instance.trace("SubtitleControl", "getSubtitles", "Episode");
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
+
+    ScoreCalculator calculator = createScoreCalculator(tvRelease);
 
     for (SearchSubtitlePriority searchSubtitlePriority : settings.getListSearchSubtitlePriority()) {
       List<Subtitle> listSourceSubtitles = new ArrayList<Subtitle>();
@@ -98,6 +102,7 @@ public class SubtitleControl {
       }
 
       if (listSourceSubtitles.size() > 0) {
+        calculateScore(listSourceSubtitles, calculator);
         // After each search source, check if matching subtitles have been found! Only works if
         // exact or keyword is checked!
         List<Subtitle> listResultFiltered =
@@ -113,9 +118,11 @@ public class SubtitleControl {
   public List<Subtitle> getSubtitles(MovieRelease movieRelease, String... languagecode) {
     Logger.instance.trace("SubtitleControl", "getSubtitles", "Movie");
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
+    ScoreCalculator calculator = createScoreCalculator(movieRelease);
     listFoundSubtitles.addAll(privateRepo.searchSubtitles(movieRelease, languagecode[0]));
     listFoundSubtitles.addAll(jOpenSubAdapter.searchSubtitles(movieRelease, languagecode));
     listFoundSubtitles.addAll(jPodnapisiAdapter.searchSubtitles(movieRelease, languagecode[0]));
+    calculateScore(listFoundSubtitles, calculator);
     return this.getSubtitlesFiltered(listFoundSubtitles, movieRelease, true);
   }
 
@@ -188,6 +195,20 @@ public class SubtitleControl {
       }
     }
     return filelist;
+  }
+
+  protected ScoreCalculator createScoreCalculator(Release release) {
+    SortWeight weights = new SortWeight(release, this.settings.getSortWeights());
+    return new ScoreCalculator(weights);
+  }
+
+  protected void calculateScore(List<Subtitle> subtitles, ScoreCalculator calculator) {
+    Logger.instance.trace("SubtitleControl", "calculateScore", "");
+    for(Subtitle subtitle : subtitles) {
+      int score = calculator.calculate(subtitle);
+      Logger.instance.debug("Subtitle '"+subtitle.getFilename()+"' has a score of "+score);
+      subtitle.setScore(score);
+    }
   }
 
   protected List<Subtitle> getSubtitlesFiltered(List<Subtitle> listFoundSubtitles, Release release,

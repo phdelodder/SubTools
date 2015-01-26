@@ -2,8 +2,11 @@ package org.lodder.subtools.multisubdownloader.settings.model;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import java.util.Map;
+import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.settings.model.MappingSettings;
 
 public class Settings {
@@ -33,6 +36,7 @@ public class Settings {
   private SettingsProcessEpisodeSource processEpisodeSource;
   private MappingSettings mappingSettings;
   private List<SearchSubtitlePriority> listSearchSubtitlePriority;
+  private Map<String, Integer> sortWeights;
 
   public Settings() {
     super();
@@ -418,5 +422,15 @@ public class Settings {
 
   public boolean hasDefaultFolders() {
     return getDefaultIncomingFolders().size() > 0;
+  }
+
+  public Map<String, Integer> getSortWeights() {
+    // TODO: user should be able to edit/add these through a panel
+    sortWeights = new HashMap<>();
+    sortWeights.put("%GROUP%",5);
+    for (String keyword : VideoPatterns.QUALITYKEYWORDS) {
+      sortWeights.put(keyword, 1);
+    }
+    return sortWeights;
   }
 }

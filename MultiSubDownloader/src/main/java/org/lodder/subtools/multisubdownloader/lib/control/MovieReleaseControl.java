@@ -1,7 +1,9 @@
 package org.lodder.subtools.multisubdownloader.lib.control;
 
+import java.util.Collections;
 import java.util.List;
 
+import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.SubtitleComparator;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.data.IMDB.IMDBAPI;
 import org.lodder.subtools.sublibrary.data.IMDB.IMDBException;
@@ -10,6 +12,7 @@ import org.lodder.subtools.sublibrary.data.IMDB.model.IMDBDetails;
 import org.lodder.subtools.sublibrary.exception.VideoControlException;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
+import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 
 public class MovieReleaseControl extends ReleaseControl {
@@ -59,7 +62,9 @@ public class MovieReleaseControl extends ReleaseControl {
       throws VideoControlException {
     Logger.instance.trace("MovieFileControl", "processWithSubtitles", "");
     process(dict);
-    release.setMatchingSubs(sc.getSubtitles((MovieRelease) release, languageCode));
+    List<Subtitle> subtitles = sc.getSubtitles((MovieRelease) release, languageCode);
+    Collections.sort(subtitles, new SubtitleComparator());
+    release.setMatchingSubs(subtitles);
   }
 
 }
