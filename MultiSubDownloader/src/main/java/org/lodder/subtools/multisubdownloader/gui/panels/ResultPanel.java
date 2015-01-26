@@ -32,9 +32,6 @@ public class ResultPanel extends JPanel {
     createComponents();
     setupListeners();
     addComponentsToPanel();
-
-    hideDownloadButton();
-    hideMoveButton();
   }
 
   private void addComponentsToPanel() {
