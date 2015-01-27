@@ -32,4 +32,12 @@ public class Emitter {
 
     handlers.add(handler);
   }
+
+  public void unlisten(String eventName, Handler handler) {
+    if(!this.eventListeners.containsKey(eventName))
+      return;
+
+    ArrayList<Handler> handlers = this.eventListeners.get(eventName);
+    handlers.remove(handler);
+  }
 }
