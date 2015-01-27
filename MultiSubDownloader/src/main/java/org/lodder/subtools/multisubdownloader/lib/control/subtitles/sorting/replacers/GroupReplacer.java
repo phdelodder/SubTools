@@ -16,7 +16,7 @@ public class GroupReplacer implements KeywordReplacer {
     weights.remove(reservedKey);
 
     /* add replaced value */
-    String group = release.getReleasegroup();
+    String group = release.getReleasegroup().toLowerCase();
     weights.put(group, weight);
   }
 }
