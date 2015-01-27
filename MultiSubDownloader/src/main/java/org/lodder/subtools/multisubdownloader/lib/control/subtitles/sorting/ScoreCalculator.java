@@ -27,7 +27,7 @@ public class ScoreCalculator {
         score += weights.getWeights().get(keyname);
     }
 
-    score = (score / weights.getMaxScore()) * 100;
+    score = (int) Math.ceil(((float) score / weights.getMaxScore()) * 100);
     return score;
   }
 }
