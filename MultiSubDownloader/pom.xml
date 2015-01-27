@@ -45,6 +45,11 @@
 			<version>2.0.3-beta</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.reflections</groupId>
+			<artifactId>reflections</artifactId>
+			<version>0.9.9</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources>
