@@ -3,7 +3,7 @@ package org.lodder.subtools.multisubdownloader;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
+import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
@@ -23,7 +23,7 @@ public class CommandLine implements Listener {
   private final Actions actions;
   private boolean subtitleSelectionDialog = false;
 
-  public CommandLine(final SettingsControl prefctrl) {
+  public CommandLine(final SettingsControl prefctrl, Container app) {
     Logger.instance.addListener(this);
     this.prefctrl = prefctrl;
     try {
