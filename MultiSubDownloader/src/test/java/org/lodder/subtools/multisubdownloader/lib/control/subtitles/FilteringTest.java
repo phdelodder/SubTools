@@ -23,8 +23,7 @@ public class FilteringTest {
   }
   
   @Test
-  public void testFiltering() {
-    //test exlude hearing impaired
+  public void testExcudeImpairedHearingFiltering() {
     Settings settings = createSettings(false, false, true);
     
     filtering = new Filtering(settings);
