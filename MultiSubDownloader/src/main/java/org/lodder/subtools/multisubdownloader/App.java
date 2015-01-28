@@ -11,6 +11,8 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.lodder.subtools.multisubdownloader.framework.Bootstrapper;
+import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
@@ -36,6 +38,10 @@ public class App {
     } catch (ParseException e) {
       Logger.instance.error(Logger.stack2String(e));
     }
+
+    final Container app = new Container();
+    Bootstrapper bootstrapper = new Bootstrapper(app);
+    bootstrapper.initialize();
 
     if (line != null) {
       if (line.hasOption("help")) {
@@ -72,7 +78,7 @@ public class App {
             Logger.instance.error("executeArgs: updateFromOnlineMapping" + Logger.stack2String(e));
           }
         } else if (line.hasOption("nogui")) {
-          CommandLine cmd = new CommandLine(prefctrl);
+          CommandLine cmd = new CommandLine(prefctrl, app);
           if (line.hasOption("folder")) cmd.setFolder(new File(line.getOptionValue("folder")));
 
           if (line.hasOption("language")) {
@@ -98,7 +104,7 @@ public class App {
             public void run() {
               try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                MainWindow window = new MainWindow(prefctrl);
+                MainWindow window = new MainWindow(prefctrl, app);
                 window.setVisible(true);
               } catch (Exception e) {
                 Logger.instance.error(Logger.stack2String(e));

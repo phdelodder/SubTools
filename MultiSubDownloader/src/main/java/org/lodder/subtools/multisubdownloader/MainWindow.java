@@ -35,7 +35,7 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-
+import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.gui.Menu;
 import org.lodder.subtools.multisubdownloader.gui.actions.search.FileSearchAction;
 import org.lodder.subtools.multisubdownloader.gui.actions.search.TextSearchAction;
@@ -94,7 +94,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   /**
    * Create the application.
    */
-  public MainWindow(final SettingsControl settingsControl) {
+  public MainWindow(final SettingsControl settingsControl, Container app) {
     setTitle("Multi Sub Downloader");
     /*
      * setIconImage(Toolkit.getDefaultToolkit().getImage(
