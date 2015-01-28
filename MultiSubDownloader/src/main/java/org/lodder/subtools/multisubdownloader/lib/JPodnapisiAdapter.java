@@ -87,7 +87,7 @@ public class JPodnapisiAdapter implements JSubAdapter {
           for (String release : ossd.getReleaseString().split(" ")) {
             listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.PODNAPISI, release,
                 downloadlink, sublanguageid, "", SubtitleMatchType.EVERYTHING, ReleaseParser
-                    .extractTeam(release), ossd.getUploaderName(), ossd.getFlagsString().equals(
+                    .extractReleasegroup(release), ossd.getUploaderName(), ossd.getFlagsString().equals(
                     "nhu")));
           }
         }

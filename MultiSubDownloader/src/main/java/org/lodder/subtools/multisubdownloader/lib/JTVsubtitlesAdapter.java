@@ -53,7 +53,7 @@ public class JTVsubtitlesAdapter implements JSubAdapter {
     for (TVsubtitlesSubtitleDescriptor sub : lSubtitles) {
       listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.TVSUBTITLES, sub.Filename,
           sub.Url, sublanguageids[0], sub.Rip, SubtitleMatchType.EVERYTHING, ReleaseParser
-              .extractTeam(sub.Filename), sub.Author, false));
+              .extractReleasegroup(sub.Filename), sub.Author, false));
     }
     return listFoundSubtitles;
   }

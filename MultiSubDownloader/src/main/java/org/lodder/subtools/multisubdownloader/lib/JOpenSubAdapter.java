@@ -92,7 +92,7 @@ public class JOpenSubAdapter implements JSubAdapter {
     for (OpenSubtitlesSubtitleDescriptor ossd : lSubtitles) {
       listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.OPENSUBTITLES, ossd
           .getSubFileName(), ossd.getSubDownloadLink(), ossd.getISO639(), "",
-          SubtitleMatchType.EVERYTHING, ReleaseParser.extractTeam(ossd.getSubFileName()), ossd
+          SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(ossd.getSubFileName()), ossd
               .getUserNickName(), Boolean.valueOf(ossd.getSubHearingImpaired())));
     }
     return listFoundSubtitles;
@@ -170,7 +170,7 @@ public class JOpenSubAdapter implements JSubAdapter {
           | (originalName.length() > 0 && subFileName.contains(originalName))) {
         listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.OPENSUBTITLES, ossd
             .getSubFileName(), ossd.getSubDownloadLink(), ossd.getISO639(), "",
-            SubtitleMatchType.EVERYTHING, ReleaseParser.extractTeam(ossd.getSubFileName()), ossd
+            SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(ossd.getSubFileName()), ossd
                 .getUserNickName(), Boolean.valueOf(ossd.getSubHearingImpaired())));
       }
     }

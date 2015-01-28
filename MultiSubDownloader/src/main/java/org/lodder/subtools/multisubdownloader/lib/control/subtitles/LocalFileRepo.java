@@ -66,7 +66,7 @@ public class LocalFileRepo {
                 listFoundSubtitles
                     .add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub.getName(), fileSub
                         .toString(), "", "", SubtitleMatchType.EVERYTHING, ReleaseParser
-                        .extractTeam(fileSub.getName()), fileSub.getAbsolutePath(), false));
+                        .extractReleasegroup(fileSub.getName()), fileSub.getAbsolutePath(), false));
               }
             }
           }
@@ -103,7 +103,7 @@ public class LocalFileRepo {
               listFoundSubtitles
                   .add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub.getName(), fileSub
                       .toString(), "", "", SubtitleMatchType.EVERYTHING, ReleaseParser
-                      .extractTeam(fileSub.getName()), fileSub.getAbsolutePath(), false));
+                      .extractReleasegroup(fileSub.getName()), fileSub.getAbsolutePath(), false));
             }
           }
         }

@@ -88,7 +88,7 @@ public class PrivateRepo {
 									indexSubtitle.getFilename(), location,
 									indexSubtitle.getLanguage(), "",
 									SubtitleMatchType.EVERYTHING,
-									ReleaseParser.extractTeam(indexSubtitle
+									ReleaseParser.extractReleasegroup(indexSubtitle
 											.getFilename()), "", false);
 							results.add(tempSub);
 						}
@@ -123,7 +123,7 @@ public class PrivateRepo {
 									indexSubtitle.getFilename(), location,
 									indexSubtitle.getLanguage(), "",
 									SubtitleMatchType.EVERYTHING,
-									ReleaseParser.extractTeam(indexSubtitle
+									ReleaseParser.extractReleasegroup(indexSubtitle
 											.getFilename()), "", false);
 							results.add(tempSub);
 						}
