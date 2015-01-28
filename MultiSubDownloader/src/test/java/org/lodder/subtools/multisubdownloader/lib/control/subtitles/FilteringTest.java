@@ -70,6 +70,35 @@ public class FilteringTest {
     assertEquals(filtered.size(), 1);
   }
 
+  @Test
+  public void testExactMatchFilter() {
+    Release release =
+        createRelease("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv", "DIMENSION");
+    List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
+    listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.HDTV.XviD-AFG.avi", "AFG", false));
+    listFoundSubtitles.add(createSubtitle("criminal.minds.1012.hdtv-lol.mp4", "lol", false));
+    listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv",
+        "DIMENSION", true));
+    listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv",
+        "DIMENSION", false));
+    listFoundSubtitles.add(createSubtitle(
+        "Criminal.Minds.S10E12.Anonymous.1080p.WEB-DL.DD5.1.H.264-CtrlHD", "CtrlHD", false));
+
+    // only exact match
+    Settings settings = createSettings(false, true, false);
+    filtering = new Filtering(settings);
+    List<Subtitle> filtered = filtering.getFiltered(listFoundSubtitles, release);
+
+    assertEquals(filtered.size(), 2);
+
+    // exact match and exclude hearing impaired
+    settings = createSettings(false, true, true);
+    filtering = new Filtering(settings);
+    filtered = filtering.getFiltered(listFoundSubtitles, release);
+
+    assertEquals(filtered.size(), 1);
+  }
+
   private Settings createSettings(boolean keyword, boolean exact, boolean excludehearing) {
     Settings settings = mock(Settings.class);
 
