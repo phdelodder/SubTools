@@ -7,6 +7,7 @@ import java.io.File;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoType;
@@ -85,6 +86,55 @@ public class ReleaseParserTest {
     assertEquals(tvrelease.getSeason(), 4);
     assertEquals(tvrelease.getEpisodeNumbers().size(), 1);
     assertEquals((int) tvrelease.getEpisodeNumbers().get(0), 10);
+
+  }
+  
+  @Test
+  public void testMovie() throws Exception{
+    releaseparser = new ReleaseParser();
+
+    File basedir = new File("/tmp/Movie/");
+    File file = new File("Back.to.the.Future.Part.II.1989.720p.BluRay.X264-AMIABLE.mkv");
+    Release release = releaseparser.parse(file, basedir);
+
+    assertSame(release.getVideoType(), VideoType.MOVIE);
+    assertEquals(release.getExtension(), "mkv");
+    assertEquals(release.getFilename(), "Back.to.the.Future.Part.II.1989.720p.BluRay.X264-AMIABLE.mkv");
+    assertEquals(release.getReleasegroup(), "AMIABLE");
+    assertEquals(release.getQuality(), "720p BluRay X264");
+    
+    MovieRelease movieRelease = (MovieRelease) release;
+
+    assertEquals(movieRelease.getYear(), 1989);
+    assertEquals(movieRelease.getTitle(), "Back to the Future Part II");
+    
+    file = new File("The.Equalizer.2014.720p.BluRay.x264-SPARKS.mkv");
+    release = releaseparser.parse(file, basedir);
+
+    assertSame(release.getVideoType(), VideoType.MOVIE);
+    assertEquals(release.getExtension(), "mkv");
+    assertEquals(release.getFilename(), "The.Equalizer.2014.720p.BluRay.x264-SPARKS.mkv");
+    assertEquals(release.getReleasegroup(), "SPARKS");
+    assertEquals(release.getQuality(), "720p BluRay x264");
+    
+    movieRelease = (MovieRelease) release;
+
+    assertEquals(movieRelease.getYear(), 2014);
+    assertEquals(movieRelease.getTitle(), "The Equalizer");
+    
+    file = new File("The.Trip.to.Italy.2014.LIMITED.720p.BluRay.x264-GECKOS.mkv");
+    release = releaseparser.parse(file, basedir);
+
+    assertSame(release.getVideoType(), VideoType.MOVIE);
+    assertEquals(release.getExtension(), "mkv");
+    assertEquals(release.getFilename(), "The.Trip.to.Italy.2014.LIMITED.720p.BluRay.x264-GECKOS.mkv");
+    assertEquals(release.getReleasegroup(), "GECKOS");
+    assertEquals(release.getQuality(), "720p BluRay x264");
+    
+    movieRelease = (MovieRelease) release;
+
+    assertEquals(movieRelease.getYear(), 2014);
+    assertEquals(movieRelease.getTitle(), "The Trip to Italy");
 
   }
 
