@@ -66,7 +66,7 @@ public class ScoreCalculatorTest {
     Subtitle subtitle = mock(Subtitle.class);
     when(subtitle.getFilename()).thenReturn(filename);
     when(subtitle.getQuality()).thenReturn(quality);
-    when(subtitle.getTeam()).thenReturn(team);
+    when(subtitle.getReleasegroup()).thenReturn(team);
     return subtitle;
   }
 

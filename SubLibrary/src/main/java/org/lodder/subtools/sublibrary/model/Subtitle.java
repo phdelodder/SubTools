@@ -2,7 +2,7 @@ package org.lodder.subtools.sublibrary.model;
 
 public class Subtitle {
 
-    private String filename, downloadlink, languagecode, quality, team, uploader;
+    private String filename, downloadlink, languagecode, quality, releasegroup, uploader;
     private SubtitleMatchType subtitleMatchType;
     private SubtitleSource subtitleSource;
     private boolean hearingImpaired;
@@ -12,14 +12,14 @@ public class Subtitle {
         OPENSUBTITLES, PODNAPISI, ADDIC7ED, TVSUBTITLES, LOCAL, SUBSMAX
     }
 
-    public Subtitle(SubtitleSource subtitleSource, String filename, String downloadlink, String languagecode, String quality, SubtitleMatchType subtitleMatchType, String team, String uploader, boolean hearingImp) {
+    public Subtitle(SubtitleSource subtitleSource, String filename, String downloadlink, String languagecode, String quality, SubtitleMatchType subtitleMatchType, String releasegroup, String uploader, boolean hearingImp) {
         this.subtitleSource = subtitleSource;
         this.filename = filename;
         this.downloadlink = downloadlink;
         this.languagecode = languagecode;
         this.quality = quality;
         this.subtitleMatchType = subtitleMatchType;
-        this.setTeam(team);
+        this.setReleasegroup(releasegroup);
         this.setUploader(uploader);
         this.setHearingImpaired(hearingImp);
     }
@@ -69,17 +69,17 @@ public class Subtitle {
     }
 
 	/**
-	 * @return the team
+	 * @return the releasegroup
 	 */
-	public String getTeam() {
-		return team;
+	public String getReleasegroup() {
+		return releasegroup;
 	}
 
 	/**
-	 * @param team the team to set
+	 * @param releasegroup the releasegroup to set
 	 */
-	public void setTeam(String team) {
-		this.team = team;
+	public void setReleasegroup(String releasegroup) {
+		this.releasegroup = releasegroup;
 	}
 
 	/**

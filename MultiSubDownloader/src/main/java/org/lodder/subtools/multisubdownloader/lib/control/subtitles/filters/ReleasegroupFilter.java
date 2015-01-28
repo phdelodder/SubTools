@@ -16,7 +16,7 @@ public class ReleasegroupFilter extends Filter {
     List<Subtitle> filteredList = new ArrayList<Subtitle>();
 
     for (Subtitle subtitle : Subtitles) {
-      if (subtitle.getTeam().toLowerCase().contains(release.getReleasegroup().toLowerCase())) {
+      if (subtitle.getReleasegroup().toLowerCase().contains(release.getReleasegroup().toLowerCase())) {
         Logger.instance.debug("getSubtitlesFiltered: found KEYWORD based TEAM match: "
             + subtitle.getFilename());
         
