@@ -396,8 +396,21 @@ public class Settings {
     sortWeights = new HashMap<>();
     sortWeights.put("%GROUP%",5);
     for (String keyword : VideoPatterns.QUALITYKEYWORDS) {
-      sortWeights.put(keyword, 1);
+      sortWeights.put(keyword, 2);
     }
+     /* overwrite keywords that should have low weight */
+    // keywords that tend to have a lot of different sources:
+    sortWeights.put("ts", 1);
+    sortWeights.put("dvdscreener", 1);
+    sortWeights.put("r5", 1);
+    sortWeights.put("cam", 1);
+    // encoding says little about the release:
+    sortWeights.put("xvid", 1);
+    sortWeights.put("divx", 1);
+    sortWeights.put("x264", 1);
+    // keywords that might get matched too easily
+    sortWeights.remove("dl");
+
     return sortWeights;
   }
 }
