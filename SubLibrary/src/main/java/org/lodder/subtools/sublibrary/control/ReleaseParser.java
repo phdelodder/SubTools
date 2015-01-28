@@ -41,13 +41,15 @@ public class ReleaseParser {
                   new TvRelease((String) parseResults[0], (Integer) parseResults[1],
                       (List<Integer>) parseResults[2], file,
                       extractFileNameExtension(file.getName()),
-                      removeExtension((String) parseResults[3]), extractReleasegroup(file.getName()),
-                      isSpecialEpisode((Integer) parseResults[1], (List<Integer>) parseResults[2]));
+                      removeExtension((String) parseResults[3]),
+                      extractReleasegroup(file.getName()), isSpecialEpisode(
+                          (Integer) parseResults[1], (List<Integer>) parseResults[2]));
             } else if (parseResults.length == 3) {
               vFile =
                   new MovieRelease((String) parseResults[0], (Integer) parseResults[1], file,
                       extractFileNameExtension(file.getName()),
-                      removeExtension((String) parseResults[2]), extractReleasegroup(file.getName()));
+                      removeExtension((String) parseResults[2]),
+                      extractReleasegroup(file.getName()));
             }
             vFile.setQuality(getQualityKeyword(fileparsename));
             return vFile;
@@ -181,6 +183,9 @@ public class ReleaseParser {
       text = text.replace("-", ""); // remove space dash "altiplano-cd1"
     }
 
+    // remove multiple spaces between text Back to the Future[][]Part II
+    text = text.replaceAll(" +", " ");
+
     return text.trim();
   }
 
@@ -241,9 +246,8 @@ public class ReleaseParser {
     Logger.instance.trace("VideoFileParser", "getQualityKeywords", name);
     name = name.trim().toLowerCase();
     List<String> keywords = new ArrayList<>();
-    for(String keyword : VideoPatterns.QUALITYKEYWORDS) {
-      if(name.contains(keyword))
-        keywords.add(keyword);
+    for (String keyword : VideoPatterns.QUALITYKEYWORDS) {
+      if (name.contains(keyword)) keywords.add(keyword);
     }
     return keywords;
   }
@@ -256,8 +260,7 @@ public class ReleaseParser {
   public static String extractReleasegroup(final String fileName) {
     Pattern releaseGroupPattern = Pattern.compile("-([\\w]+).[\\w]+$");
     Matcher matcher = releaseGroupPattern.matcher(fileName);
-    if(!matcher.find())
-      return "";
+    if (!matcher.find()) return "";
 
     return matcher.group(1);
   }
