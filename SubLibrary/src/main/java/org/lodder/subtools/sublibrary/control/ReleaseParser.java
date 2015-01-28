@@ -254,12 +254,12 @@ public class ReleaseParser {
   }
 
   public static String extractTeam(final String fileName) {
-    int end = fileName.lastIndexOf(".");
-    int start = fileName.lastIndexOf("-");
-    if (start < end) {
-      return fileName.substring(start + 1, end);
-    }
-    return "";
+    Pattern releaseGroupPattern = Pattern.compile("-([\\w]+).[\\w]+$");
+    Matcher matcher = releaseGroupPattern.matcher(fileName);
+    if(!matcher.find())
+      return "";
+
+    return matcher.group(1);
   }
 
   public static String removeExtension(final String fileName) {
