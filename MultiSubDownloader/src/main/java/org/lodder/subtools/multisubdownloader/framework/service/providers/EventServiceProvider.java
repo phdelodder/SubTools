@@ -2,7 +2,7 @@ package org.lodder.subtools.multisubdownloader.framework.service.providers;
 
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
-import org.lodder.subtools.multisubdownloader.framework.service.ServiceResolver;
+import org.lodder.subtools.multisubdownloader.framework.Resolver;
 
 public class EventServiceProvider implements ServiceProvider {
   @Override
@@ -11,7 +11,7 @@ public class EventServiceProvider implements ServiceProvider {
     final Emitter eventEmitter = new Emitter();
 
     // EventEmitter toevoegen aan container
-    app.bind("EventEmitter", new ServiceResolver() {
+    app.bind("EventEmitter", new Resolver() {
       @Override
       public Object resolve() {
         return eventEmitter;
