@@ -19,13 +19,13 @@ public class ProgressDialog extends MutliSubDialog implements Messenger {
   private static final long serialVersionUID = -2320149791421648965L;
   private JProgressBar progressBar;
   private JLabel label;
-  private SwingWorker<?, ?> worker;
+  private Cancelable worker;
 
   /**
    * @param sft
    * @wbp.parser.constructor
    */
-  public ProgressDialog(JFrame frame, SwingWorker<?, ?> sft) {
+  public ProgressDialog(JFrame frame, Cancelable sft) {
     super(frame, "Progress", false);
     worker = sft;
     StatusMessenger.instance.addListener(this);
@@ -34,7 +34,7 @@ public class ProgressDialog extends MutliSubDialog implements Messenger {
     repaint();
   }
 
-  public ProgressDialog(SwingWorker<?, ?> sft) {
+  public ProgressDialog(Cancelable sft) {
     super("Progress", false);
     worker = sft;
     StatusMessenger.instance.addListener(this);

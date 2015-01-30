@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.gui.workers;
 
 import javax.swing.*;
 
+import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
@@ -16,7 +17,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchFileWorker extends SwingWorker<List<Release>, String> {
+public class SearchFileWorker extends SwingWorker<List<Release>, String> implements Cancelable {
 
   private boolean recursieve;
   private String languagecode;

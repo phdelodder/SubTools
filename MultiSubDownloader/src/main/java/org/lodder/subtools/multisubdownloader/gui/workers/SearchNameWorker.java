@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.SwingWorker;
 
+import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
@@ -22,7 +23,7 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoSearchType;
 
-public class SearchNameWorker extends SwingWorker<List<Subtitle>, String> {
+public class SearchNameWorker extends SwingWorker<List<Subtitle>, String> implements Cancelable {
 
   private Settings settings;
   private VideoTable table;
