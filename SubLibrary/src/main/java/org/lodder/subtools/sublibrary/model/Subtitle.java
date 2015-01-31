@@ -93,6 +93,7 @@ public class Subtitle {
 	 * @param uploader the uploader to set
 	 */
 	public void setUploader(String uploader) {
+    if(uploader == null) uploader = "";
 		this.uploader = uploader;
 	}
 
