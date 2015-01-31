@@ -13,7 +13,7 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
     super(librarySettings);
   }
 
-  public String buildFileName(Release release) {
+  public String build(Release release) {
     String filename = "";
     if (((librarySettings.getLibraryAction().equals(LibraryActionType.RENAME) || librarySettings
         .getLibraryAction().equals(LibraryActionType.MOVEANDRENAME)))
@@ -59,11 +59,11 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
     return filename;
   }
 
-  public String buildSubFileName(Release release, Subtitle sub, String filename, int version) {
-    return buildSubFileName(release, filename, sub.getLanguagecode(), version);
+  public String buildSubtitle(Release release, Subtitle sub, String filename, int version) {
+    return buildSubtitle(release, filename, sub.getLanguagecode(), version);
   }
 
-  public String buildSubFileName(Release release, String filename, String languageCode,
+  public String buildSubtitle(Release release, String filename, String languageCode,
       int version) {
     final String extension = "." + release.getExtension();
     if (version > 0) {

@@ -180,11 +180,11 @@ public class StructureBuilderDialog extends MutliSubDialog implements DocumentLi
     if (structureType == StrucutureType.FILE) {
       librarySettings.setLibraryFilenameStructure(txtStructure.getText());
       FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings);
-      lblPreview.setText(filenameLibraryBuilder.buildFileName(getGenerateVideoFile()));
+      lblPreview.setText(filenameLibraryBuilder.build(getGenerateVideoFile()));
     } else if (structureType == StrucutureType.FOLDER) {
       librarySettings.setLibraryFolderStructure(txtStructure.getText());
       PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings);
-      lblPreview.setText(pathLibraryBuilder.buildPath(getGenerateVideoFile()).getAbsolutePath());
+      lblPreview.setText(pathLibraryBuilder.build(getGenerateVideoFile()));
     }
   }
 

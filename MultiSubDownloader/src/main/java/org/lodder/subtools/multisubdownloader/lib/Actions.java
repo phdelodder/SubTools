@@ -187,7 +187,7 @@ public class Actions {
     Logger.instance.trace("Actions", "download",
         "LibraryAction" + librarySettings.getLibraryAction());
     PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings);
-    final File path = pathLibraryBuilder.buildPath(release);
+    final File path = new File(pathLibraryBuilder.build(release));
     if (!path.exists()) {
       Logger.instance.debug("Download creating folder: " + path.getAbsolutePath());
       if (!path.mkdirs()) {
@@ -196,9 +196,9 @@ public class Actions {
     }
 
     FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings);
-    final String videoFileName = filenameLibraryBuilder.buildFileName(release);
+    final String videoFileName = filenameLibraryBuilder.build(release);
     final String subFileName =
-        filenameLibraryBuilder.buildSubFileName(release, subtitle, videoFileName, version);
+        filenameLibraryBuilder.buildSubtitle(release, subtitle, videoFileName, version);
     final File subFile = new File(path, subFileName);
 
     boolean success;
@@ -278,7 +278,7 @@ public class Actions {
     if (librarySettings.getLibraryAction().equals(LibraryActionType.RENAME)
         || librarySettings.getLibraryAction().equals(LibraryActionType.MOVEANDRENAME)) {
       FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings);
-      filename = filenameLibraryBuilder.buildFileName(release);
+      filename = filenameLibraryBuilder.build(release);
       if (release.getExtension().equals("srt")) {
         String languageCode = "";
         try {
@@ -289,7 +289,7 @@ public class Actions {
           Logger.instance.error("Unable to detect language, leaving language code blank");
         }
 
-        filename = filenameLibraryBuilder.buildSubFileName(release, filename, languageCode, 0);
+        filename = filenameLibraryBuilder.buildSubtitle(release, filename, languageCode, 0);
       }
     } else {
       filename = f.getName();
@@ -297,7 +297,7 @@ public class Actions {
     Logger.instance.trace("Actions", "rename", "filename" + filename);
 
     PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings);
-    final File newDir = pathLibraryBuilder.buildPath(release);
+    final File newDir = new File(pathLibraryBuilder.build(release));
     boolean status = true;
     if (!newDir.exists()) {
       Logger.instance.debug("Creating dir: " + newDir.getAbsolutePath());

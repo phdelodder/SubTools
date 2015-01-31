@@ -16,21 +16,21 @@ public class PathLibraryBuilder extends LibraryBuilder {
     super(librarySettings);
   }
 
-  public File buildPath(Release release) {
+  public String build(Release release) {
     if (librarySettings.getLibraryAction().equals(LibraryActionType.MOVE)
         || librarySettings.getLibraryAction().equals(LibraryActionType.MOVEANDRENAME)) {
       String folder = "";
       if (release.getVideoType() == VideoType.EPISODE)
-        folder = episodeBuildPath((TvRelease) release);
+        folder = buildEpisode((TvRelease) release);
       else if (release.getVideoType() == VideoType.MOVIE)
-        folder = movieBuildPath((MovieRelease) release);
-      return new File(librarySettings.getLibraryFolder(), folder);
+        folder = buildMovie((MovieRelease) release);
+      return new File(librarySettings.getLibraryFolder(), folder).toString();
     } else {
-      return release.getPath();
+      return release.getPath().toString();
     }
   }
 
-  protected String episodeBuildPath(TvRelease tvRelease) {
+  protected String buildEpisode(TvRelease tvRelease) {
     String folder = librarySettings.getLibraryFolderStructure();
     String show = "";
     if (librarySettings.isLibraryUseTVDBNaming()) {
@@ -67,7 +67,7 @@ public class PathLibraryBuilder extends LibraryBuilder {
     return folder;
   }
 
-  protected String movieBuildPath(MovieRelease movieRelease) {
+  protected String buildMovie(MovieRelease movieRelease) {
     String folder = librarySettings.getLibraryFolderStructure();
     String title = movieRelease.getTitle();
 

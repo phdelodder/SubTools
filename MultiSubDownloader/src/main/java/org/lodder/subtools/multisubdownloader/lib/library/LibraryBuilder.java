@@ -1,18 +1,21 @@
 package org.lodder.subtools.multisubdownloader.lib.library;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
+import org.lodder.subtools.sublibrary.model.Release;
 
 import java.util.List;
 
-public class LibraryBuilder {
+public abstract class LibraryBuilder {
 
   protected final LibrarySettings librarySettings;
 
   public LibraryBuilder(LibrarySettings librarySettings) {
     this.librarySettings = librarySettings;
   }
+  
+  public abstract String build(Release release);
 
-  public String replaceFormatedEpisodeNumber(String structure, String tag,
+  protected String replaceFormatedEpisodeNumber(String structure, String tag,
       List<Integer> episodeNumbers, boolean leadingZero) {
 
     String formatedEpisodeNumber = "";
@@ -35,7 +38,7 @@ public class LibraryBuilder {
 
   }
 
-  public String formatedNumber(int number, boolean leadingZero) {
+  protected String formatedNumber(int number, boolean leadingZero) {
     if (number < 10 && leadingZero) {
       return "0" + number;
     }
