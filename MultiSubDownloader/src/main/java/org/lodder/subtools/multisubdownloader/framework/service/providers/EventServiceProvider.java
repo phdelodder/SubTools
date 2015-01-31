@@ -5,6 +5,12 @@ import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
 import org.lodder.subtools.multisubdownloader.framework.Resolver;
 
 public class EventServiceProvider implements ServiceProvider {
+  
+  @Override
+  public int getPriority() {
+    return 0;
+  }
+
   @Override
   public void register(Container app) {
     // Aanmaken EvenEmitter

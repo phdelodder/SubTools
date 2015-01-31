@@ -2,9 +2,11 @@ package org.lodder.subtools.multisubdownloader.framework;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.lodder.subtools.multisubdownloader.framework.service.providers.ServiceProvider;
+import org.lodder.subtools.multisubdownloader.framework.service.providers.ServiceProviderComparator;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.reflections.Reflections;
 
@@ -21,6 +23,9 @@ public class Bootstrapper {
 
     // Verzamel alle serviceproviders
     List<ServiceProvider> providers = this.getProviders();
+
+    // Sorteer volgens prioriteit
+    Collections.sort(providers, new ServiceProviderComparator());
 
     // Registreer de serviceproviders
     this.registerProviders(providers);
