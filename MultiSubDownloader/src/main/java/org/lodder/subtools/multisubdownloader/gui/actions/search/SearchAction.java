@@ -99,6 +99,8 @@ public abstract class SearchAction implements Cancelable, SearchHandler {
 
   @Override
   public boolean cancel(boolean mayInterruptIfRunning) {
+    mainWindow.hideProgressDialog();
+    searchPanel.getInputPanel().enableSearchButton();
     return this.searchManager.cancel(mayInterruptIfRunning);
   }
 

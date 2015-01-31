@@ -12,6 +12,7 @@ public class SearchWorker extends Thread {
   protected final SubtitleProvider provider;
   private final SearchManager scheduler;
   private boolean busy = false;
+  private boolean isInterrupted = false;
 
   public SearchWorker(SubtitleProvider provider, SearchManager scheduler) {
     this.provider = provider;
@@ -46,6 +47,18 @@ public class SearchWorker extends Thread {
         this.scheduler.onCompleted(release, subtitles);
       }
     }
+  }
+
+  @Override
+  public boolean isInterrupted() {
+    /* bugfix? interupt-state isn't being held */
+    return super.isInterrupted() || this.isInterrupted;
+  }
+
+  @Override
+  public void interrupt() {
+    this.isInterrupted = true;
+    super.interrupt();
   }
 
   public boolean isBusy() {
