@@ -89,18 +89,21 @@ public class Release extends Video{
         this.description = description;
     }
 
-	/**
+	  /**
 	 * @return the Releasegroup
 	 */
-	public String getReleasegroup() {
+	  public String getReleasegroup() {
 		return releasegroup;
 	}
 
-	/**
+	  /**
 	 * @param Releasegroup the Releasegroup to set
 	 */
-	public void setReleasegroup(String releasegroup) {
+	  public void setReleasegroup(String releasegroup) {
 		this.releasegroup = releasegroup;
 	}
 
+    public String toString() {
+        return this.getClass().getSimpleName() + ": " + this.getFilename() + " " + this.getQuality();
+    }
 }

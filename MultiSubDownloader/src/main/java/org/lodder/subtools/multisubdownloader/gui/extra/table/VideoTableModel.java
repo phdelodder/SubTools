@@ -1,5 +1,7 @@
 package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.table.DefaultTableModel;
 
 import org.lodder.subtools.sublibrary.model.TvRelease;
@@ -20,7 +22,7 @@ public class VideoTableModel extends DefaultTableModel {
   private Class<?>[] columnTypes;
   final boolean[] columnEditables;
   private boolean showOnlyFound = false;
-  private List<Release> rowList = new ArrayList<Release>();
+  private Map<Release, Integer> rowMap = new HashMap<>();
 
   public VideoTableModel(Object[][] data, Object[] columnNames) {
     super(data, columnNames);
@@ -106,43 +108,52 @@ public class VideoTableModel extends DefaultTableModel {
   }
 
   public void addRow(Release release) {
-    if (!rowList.contains(release)) {
-      rowList.add(release);
+    /* If we try to add an existing release, we just have to update that row */
+    if (rowMap.containsKey(release)) {
+      updateRow(release);
+      return;
     }
 
     if ((showOnlyFound && release.getMatchingSubs().size() > 0) || (!showOnlyFound)) {
-      int cCount = getColumnCount();
-      Object[] row = new Object[cCount];
-      String columnName;
-      for (int i = 0; i < cCount; i++) {
-        columnName = this.getColumnName(i);
-        if (SearchColumnName.SERIE.getColumnName().equals(columnName)) {
-          if (release instanceof TvRelease) {
-            row[i] = ((TvRelease) release).getShow();
-          } else if (release instanceof MovieRelease) {
-            row[i] = ((MovieRelease) release).getTitle();
-          }
-        } else if (SearchColumnName.FILENAME.getColumnName().equals(columnName)) {
-          row[i] = release.getFilename();
-        } else if (SearchColumnName.FOUND.getColumnName().equals(columnName)) {
-          row[i] = release.getMatchingSubs().size();
-        } else if (SearchColumnName.SELECT.getColumnName().equals(columnName)) {
-          row[i] = false;
-        } else if (SearchColumnName.OBJECT.getColumnName().equals(columnName)) {
-          row[i] = release;
-        } else if (SearchColumnName.SEASON.getColumnName().equals(columnName)) {
-          if (release instanceof TvRelease) row[i] = ((TvRelease) release).getSeason();
-        } else if (SearchColumnName.EPISODE.getColumnName().equals(columnName)) {
-          if (release instanceof TvRelease)
-            row[i] = ((TvRelease) release).getEpisodeNumbers().get(0);
-        } else if (SearchColumnName.TYPE.getColumnName().equals(columnName)) {
-          row[i] = release.getVideoType();
-        } else if (SearchColumnName.TITLE.getColumnName().equals(columnName)) {
-          if (release instanceof TvRelease) row[i] = ((TvRelease) release).getTitle();
-        }
-      }
+      rowMap.put(release, this.getRowCount());
+
+      Object[] row = createRow(release);
       this.addRow(row);
     }
+  }
+
+  private Object[] createRow(Release release) {
+    int cCount = getColumnCount();
+    Object[] row = new Object[cCount];
+    String columnName;
+    for (int i = 0; i < cCount; i++) {
+      columnName = this.getColumnName(i);
+      if (SearchColumnName.SERIE.getColumnName().equals(columnName)) {
+        if (release instanceof TvRelease) {
+          row[i] = ((TvRelease) release).getShow();
+        } else if (release instanceof MovieRelease) {
+          row[i] = ((MovieRelease) release).getTitle();
+        }
+      } else if (SearchColumnName.FILENAME.getColumnName().equals(columnName)) {
+        row[i] = release.getFilename();
+      } else if (SearchColumnName.FOUND.getColumnName().equals(columnName)) {
+        row[i] = release.getMatchingSubs().size();
+      } else if (SearchColumnName.SELECT.getColumnName().equals(columnName)) {
+        row[i] = false;
+      } else if (SearchColumnName.OBJECT.getColumnName().equals(columnName)) {
+        row[i] = release;
+      } else if (SearchColumnName.SEASON.getColumnName().equals(columnName)) {
+        if (release instanceof TvRelease) row[i] = ((TvRelease) release).getSeason();
+      } else if (SearchColumnName.EPISODE.getColumnName().equals(columnName)) {
+        if (release instanceof TvRelease)
+          row[i] = ((TvRelease) release).getEpisodeNumbers().get(0);
+      } else if (SearchColumnName.TYPE.getColumnName().equals(columnName)) {
+        row[i] = release.getVideoType();
+      } else if (SearchColumnName.TITLE.getColumnName().equals(columnName)) {
+        if (release instanceof TvRelease) row[i] = ((TvRelease) release).getTitle();
+      }
+    }
+    return row;
   }
 
   public void addRow(Subtitle subtitle) {
@@ -183,17 +194,28 @@ public class VideoTableModel extends DefaultTableModel {
   }
 
   private void updateTable() {
-    List<Release> newRowList = new ArrayList<Release>();
-    newRowList.addAll(rowList);
+    List<Release> newRowList = new ArrayList<>(this.rowMap.keySet());
     clearTable();
     addRows(newRowList);
+  }
+
+  private void updateRow(Release release) {
+    int rowNr = this.rowMap.get(release);
+    Object[] row = this.createRow(release);
+
+    for (int columnNr = 0; columnNr < row.length; columnNr++) {
+      Object rowData = row[columnNr];
+      if (rowData == null) continue;
+
+      this.setValueAt(rowData, rowNr, columnNr);
+    }
   }
 
   public void clearTable() {
     while (getRowCount() > 0) {
       removeRow(0);
     }
-    rowList.clear();
+    rowMap.clear();
   }
 
   public void setShowOnlyFound(boolean showOnlyFound) {

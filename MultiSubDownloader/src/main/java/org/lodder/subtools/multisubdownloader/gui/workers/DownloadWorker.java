@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.gui.workers;
 
 import javax.swing.*;
 
+import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.dialog.SelectDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
@@ -19,7 +20,7 @@ import java.util.List;
  * Created by IntelliJ IDEA. User: lodder Date: 4/12/11 Time: 8:52 AM To change this template use
  * File | Settings | File Templates.
  */
-public class DownloadWorker extends SwingWorker<Void, String> {
+public class DownloadWorker extends SwingWorker<Void, String> implements Cancelable {
 
   private final VideoTable table;
   private final Actions actions;

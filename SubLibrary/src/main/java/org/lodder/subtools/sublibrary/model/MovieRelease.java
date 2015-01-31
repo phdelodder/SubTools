@@ -53,4 +53,9 @@ public class MovieRelease extends Release {
         }
         return "tt" + imdbidstr;
     }
+
+    public String toString() {
+        return this.getClass().getSimpleName() + ": " + this.getTitle() + " " + this.getQuality() + " "
+          + this.getReleasegroup();
+    }
 }

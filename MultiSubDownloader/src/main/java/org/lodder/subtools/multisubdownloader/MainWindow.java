@@ -29,7 +29,6 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
-import javax.swing.SwingWorker;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.table.DefaultTableModel;
@@ -39,10 +38,7 @@ import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.gui.Menu;
 import org.lodder.subtools.multisubdownloader.gui.actions.search.FileSearchAction;
 import org.lodder.subtools.multisubdownloader.gui.actions.search.TextSearchAction;
-import org.lodder.subtools.multisubdownloader.gui.dialog.MappingEpisodeNameDialog;
-import org.lodder.subtools.multisubdownloader.gui.dialog.PreferenceDialog;
-import org.lodder.subtools.multisubdownloader.gui.dialog.ProgressDialog;
-import org.lodder.subtools.multisubdownloader.gui.dialog.RenameDialog;
+import org.lodder.subtools.multisubdownloader.gui.dialog.*;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.extra.MyPopupMenu;
 import org.lodder.subtools.multisubdownloader.gui.extra.PopupListener;
@@ -58,13 +54,16 @@ import org.lodder.subtools.multisubdownloader.gui.panels.SearchPanel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchTextInputPanel;
 import org.lodder.subtools.multisubdownloader.gui.workers.DownloadWorker;
 import org.lodder.subtools.multisubdownloader.gui.workers.RenameWorker;
+import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.multisubdownloader.util.Export;
 import org.lodder.subtools.multisubdownloader.util.Import;
 import org.lodder.subtools.sublibrary.ConfigProperties;
 import org.lodder.subtools.sublibrary.OsCheck;
 import org.lodder.subtools.sublibrary.OsCheck.OSType;
+import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -80,6 +79,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
      *
      */
   private static final long serialVersionUID = 1L;
+  private final Container app;
   private StatusLabel lblStatus;
   private final SettingsControl settingsControl;
   private ProgressDialog progressDialog;
@@ -95,6 +95,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
    * Create the application.
    */
   public MainWindow(final SettingsControl settingsControl, Container app) {
+    this.app = app;
     setTitle("Multi Sub Downloader");
     /*
      * setIconImage(Toolkit.getDefaultToolkit().getImage(
@@ -369,7 +370,11 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
   private void createTextSearchPanel() {
     Settings settings = this.settingsControl.getSettings();
-    TextSearchAction searchAction = new TextSearchAction(this, settings);
+
+    /* resolve the SubtitleProviderStore from the Container */
+    SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
+
+    TextSearchAction searchAction = new TextSearchAction(this, settings, subtitleProviderStore);
     ResultPanel resultPanel = new ResultPanel();
     pnlSearchTextInput = new SearchTextInputPanel();
 
@@ -381,6 +386,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     resultPanel.setTable(createSubtitleTable());
 
     searchAction.setSearchPanel(pnlSearchText);
+    searchAction.setReleaseParser(new ReleaseParser());
 
     pnlSearchTextInput.setSearchAction(searchAction);
     resultPanel.setDownloadAction(new ActionListener() {
@@ -402,7 +408,11 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
   private void createFileSearchPanel() {
     Settings settings = this.settingsControl.getSettings();
-    FileSearchAction searchAction = new FileSearchAction(this, settings);
+
+    /* resolve the SubtitleProviderStore from the Container */
+    SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
+
+    FileSearchAction searchAction = new FileSearchAction(this, settings, subtitleProviderStore);
     ResultPanel resultPanel = new ResultPanel();
     pnlSearchFileInput = new SearchFileInputPanel();
     pnlSearchFile = new SearchPanel();
@@ -412,6 +422,8 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
     resultPanel.setTable(createVideoTable());
 
+    searchAction.setActions(new Actions(this.settingsControl.getSettings(), false));
+    searchAction.setReleaseParser(new ReleaseParser());
     searchAction.setSearchPanel(pnlSearchFile);
 
     pnlSearchFileInput.setSelectFolderAction(new ActionListener() {
@@ -687,7 +699,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
   }
 
-  public ProgressDialog setProgressDialog(SwingWorker<?, ?> worker) {
+  public ProgressDialog setProgressDialog(Cancelable worker) {
     progressDialog = new ProgressDialog(this, worker);
     return progressDialog;
   }
