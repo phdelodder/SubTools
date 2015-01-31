@@ -4,26 +4,41 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesHasher;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.JPodnapisiApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.model.PodnapisiSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.JSubAdapter;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
+import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 
-public class JPodnapisiAdapter implements JSubAdapter {
+public class JPodnapisiAdapter implements JSubAdapter, SubtitleProvider {
 
   private static JPodnapisiApi jpapi;
-
   public JPodnapisiAdapter() {
     try {
       if (jpapi == null) jpapi = new JPodnapisiApi("JBierSubDownloader");
     } catch (Exception e) {
       Logger.instance.error("API PODNAPISI INIT: " + e.getCause());
+    }
+  }
+  
+  @Override
+  public String getName() {
+    return "Podnapisi";
+  }
+
+  @Override
+  public List<Subtitle> search(Release release, String languageCode) {
+    if (release instanceof MovieRelease) {
+      return this.searchSubtitles((MovieRelease) release, languageCode);
+    } else {
+      return this.searchSubtitles((TvRelease) release, languageCode);
     }
   }
 
