@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader.gui.workers;
+package org.lodder.subtools.multisubdownloader.workers;
 
 import java.util.List;
 import org.lodder.subtools.sublibrary.model.Release;
