@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader.lib;
+package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -2,9 +2,9 @@ package org.lodder.subtools.multisubdownloader.serviceproviders;
 
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.framework.service.providers.ServiceProvider;
-import org.lodder.subtools.multisubdownloader.lib.JTVsubtitlesAdapter;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.adapters.JTVsubtitlesAdapter;
 
 public class TvSubtitlesServiceProvider implements ServiceProvider {
   @Override
