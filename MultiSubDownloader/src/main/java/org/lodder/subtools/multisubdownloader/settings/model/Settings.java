@@ -413,4 +413,22 @@ public class Settings {
 
     return sortWeights;
   }
+
+  public boolean isSerieSource(String subtitleProviderName) {
+    // TODO: dynamically inject SubtitleProvider to settings
+    switch (subtitleProviderName) {
+      case "Addic7ed":
+        return this.isSerieSourceAddic7ed();
+      case "OpenSubtitles":
+        return this.isSerieSourceOpensubtitles();
+      case "Podnapisi":
+        return this.isSerieSourceOpensubtitles();
+      case "SubsMax":
+        return this.isSerieSourceSubsMax();
+      case "TvSubtitles":
+        return this.isSerieSourceSubsMax();
+      default:
+        return false;
+    }
+  }
 }
