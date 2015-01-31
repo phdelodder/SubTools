@@ -1,16 +1,17 @@
 package org.lodder.subtools.multisubdownloader.gui.actions.search;
 
 import java.util.List;
+
 import org.lodder.subtools.multisubdownloader.MainWindow;
 import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchPanel;
-import org.lodder.subtools.multisubdownloader.gui.workers.SearchHandler;
-import org.lodder.subtools.multisubdownloader.gui.workers.SearchManager;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
+import org.lodder.subtools.multisubdownloader.workers.SearchHandler;
+import org.lodder.subtools.multisubdownloader.workers.SearchManager;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
