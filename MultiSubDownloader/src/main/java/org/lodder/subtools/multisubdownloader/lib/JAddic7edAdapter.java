@@ -3,17 +3,15 @@ package org.lodder.subtools.multisubdownloader.lib;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.JAddic7edApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.model.Addic7edSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.JSubAdapter;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.model.MovieRelease;
-import org.lodder.subtools.sublibrary.model.Subtitle;
-import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
+import org.lodder.subtools.sublibrary.model.*;
 import org.lodder.subtools.sublibrary.util.StringUtils;
 
-public class JAddic7edAdapter implements JSubAdapter {
+public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider{
 
   private static JAddic7edApi jaapi;
 
@@ -28,6 +26,20 @@ public class JAddic7edAdapter implements JSubAdapter {
       }
     } catch (Exception e) {
       Logger.instance.error("API JAddic7ed INIT: " + e.getCause());
+    }
+  }
+
+  @Override
+  public String getName() {
+    return "Addic7ed";
+  }
+
+  @Override
+  public List<Subtitle> search(Release release, String languageCode) {
+    if (release instanceof MovieRelease) {
+      return this.searchSubtitles((MovieRelease) release, languageCode);
+    } else {
+      return this.searchSubtitles((TvRelease) release, languageCode);
     }
   }
 
