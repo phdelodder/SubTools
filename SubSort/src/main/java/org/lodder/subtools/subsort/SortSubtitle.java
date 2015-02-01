@@ -1,18 +1,12 @@
 package org.lodder.subtools.subsort;
 
-import java.io.BufferedReader;
-import java.io.Console;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
-
 import org.lodder.subtools.sublibrary.DetectLanguage;
 import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
@@ -22,9 +16,9 @@ import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.exception.ReleaseParseException;
 import org.lodder.subtools.sublibrary.logging.Listener;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
 import org.lodder.subtools.sublibrary.privateRepo.model.IndexSubtitle;
@@ -80,8 +74,7 @@ public class SortSubtitle implements Listener {
       try {
         x++;
         System.out.println("threathing file " + x + " of " + files.size() + " " + file.toString());
-        Release release =
-            VideoFileFactory.get(file, outputDir, new ArrayList<MappingTvdbScene>());
+        Release release = VideoFileFactory.get(file, new ArrayList<MappingTvdbScene>());
         final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter();
         if (release.getVideoType() == VideoType.EPISODE) {
           TvRelease tvRelease = (TvRelease) release;
@@ -203,8 +196,7 @@ public class SortSubtitle implements Listener {
     }
     for (File file : files) {
       try {
-        Release release =
-            VideoFileFactory.get(file, inputDir, new ArrayList<MappingTvdbScene>());
+        Release release = VideoFileFactory.get(file, new ArrayList<MappingTvdbScene>());
         final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter();
         final String quality = ReleaseParser.getQualityKeyword(release.getFilename());
         Logger.instance.log(release.getFilename() + " Q: " + quality);
