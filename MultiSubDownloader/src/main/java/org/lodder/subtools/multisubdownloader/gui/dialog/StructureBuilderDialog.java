@@ -22,21 +22,17 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.lib.library.PathLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
-import org.lodder.subtools.sublibrary.exception.ControlFactoryException;
-import org.lodder.subtools.sublibrary.exception.VideoControlException;
-import org.lodder.subtools.sublibrary.exception.VideoFileParseException;
-import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoType;
-
-import net.miginfocom.swing.MigLayout;
 
 public class StructureBuilderDialog extends MutliSubDialog implements DocumentListener {
 
@@ -70,26 +66,16 @@ public class StructureBuilderDialog extends MutliSubDialog implements DocumentLi
   }
 
   private void generateVideoFiles() {
-    // Used as an preview
-    try {
-      if (videoType == VideoType.EPISODE) {
-        ep =
-            (TvRelease) ReleaseFactory.get(
-                // new File(File.separator + "Castle.2009.S04E10.720p.HDTV.X264-DIMENSION.mkv"),
-                new File(File.separator + "Terra.Nova.S01E01E02.720p.HDTV.x264-ORENJI.mkv"),
-                new File(File.separator), new Settings(), "");
-      } else if (videoType == VideoType.MOVIE) {
-        mo =
-            (MovieRelease) ReleaseFactory.get(new File(File.separator
-                + "Final.Destination.5.720p.Bluray.x264-TWiZTED"), new File(File.separator),
-                new Settings(), "");
-      }
-    } catch (ControlFactoryException e) {
-      Logger.instance.error(Logger.stack2String(e));
-    } catch (VideoControlException e) {
-      Logger.instance.error(Logger.stack2String(e));
-    } catch (VideoFileParseException e) {
-      Logger.instance.error(Logger.stack2String(e));
+    if (videoType == VideoType.EPISODE) {
+      ep =
+          (TvRelease) ReleaseFactory.createRelease(
+              // new File(File.separator + "Castle.2009.S04E10.720p.HDTV.X264-DIMENSION.mkv"),
+              new File(File.separator + "Terra.Nova.S01E01E02.720p.HDTV.x264-ORENJI.mkv"),
+              new Settings());
+    } else if (videoType == VideoType.MOVIE) {
+      mo =
+          (MovieRelease) ReleaseFactory.createRelease(new File(File.separator
+              + "Final.Destination.5.720p.Bluray.x264-TWiZTED"), new Settings());
     }
   }
 

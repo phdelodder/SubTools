@@ -18,8 +18,8 @@ import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.exception.ControlFactoryException;
-import org.lodder.subtools.sublibrary.exception.VideoControlException;
-import org.lodder.subtools.sublibrary.exception.VideoFileParseException;
+import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
+import org.lodder.subtools.sublibrary.exception.ReleaseParseException;
 import org.lodder.subtools.sublibrary.logging.Listener;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.TvRelease;
@@ -155,9 +155,9 @@ public class SortSubtitle implements Listener {
         }
       } catch (ControlFactoryException e) {
         Logger.instance.error(Logger.stack2String(e));
-      } catch (VideoFileParseException e) {
+      } catch (ReleaseParseException e) {
         Logger.instance.error(Logger.stack2String(e));
-      } catch (VideoControlException e) {
+      } catch (ReleaseControlException e) {
         Logger.instance.error(Logger.stack2String(e));
       }
     }

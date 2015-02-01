@@ -3,7 +3,7 @@ package org.lodder.subtools.subsort.lib.control;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lodder.subtools.sublibrary.exception.VideoControlException;
+import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 
@@ -15,9 +15,9 @@ public abstract class VideoFileControl {
         this.release = release;
     }
 
-    abstract Release process(List<MappingTvdbScene> dict) throws VideoControlException;
+    abstract Release process(List<MappingTvdbScene> dict) throws ReleaseControlException;
 
-    public Release process() throws VideoControlException {
+    public Release process() throws ReleaseControlException {
         return this.process(new ArrayList<MappingTvdbScene>());
     }
     

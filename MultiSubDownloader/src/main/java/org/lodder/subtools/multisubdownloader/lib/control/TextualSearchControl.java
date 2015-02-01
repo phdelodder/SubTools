@@ -7,7 +7,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
-import org.lodder.subtools.sublibrary.exception.VideoControlException;
+import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.TvRelease;
@@ -84,7 +84,7 @@ public class TextualSearchControl {
     try {
       epfc.process(settings.getMappingSettings().getMappingList());
       subs.addAll(searchSubtitle((TvRelease) epfc.getVideoFile(), languagecode));
-    } catch (VideoControlException e) {
+    } catch (ReleaseControlException e) {
       if (Logger.instance.getLogLevel().intValue() < Level.INFO.intValue()) {
         Logger.instance.error(Logger.stack2String(e));
       } else {

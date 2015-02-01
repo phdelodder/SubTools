@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
-import org.lodder.subtools.sublibrary.exception.VideoControlException;
+import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 
@@ -20,17 +20,10 @@ public abstract class ReleaseControl {
     this.release = release;
   }
 
-  public abstract void process(List<MappingTvdbScene> dict) throws VideoControlException;
+  public abstract void process(List<MappingTvdbScene> dict) throws ReleaseControlException;
 
-  public abstract void processWithSubtitles(List<MappingTvdbScene> dict, String languageCode)
-      throws VideoControlException;
-
-  public void process() throws VideoControlException {
+  public void process() throws ReleaseControlException {
     this.process(new ArrayList<MappingTvdbScene>());
-  }
-
-  public void processWithSubtitles(String languageCode) throws VideoControlException {
-    this.processWithSubtitles(new ArrayList<MappingTvdbScene>(), languageCode);
   }
 
   public void setVideoFile(Release release) {

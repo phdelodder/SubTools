@@ -3,15 +3,20 @@ package org.lodder.subtools.multisubdownloader.gui.actions.search;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.lodder.subtools.multisubdownloader.MainWindow;
 import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchTextInputPanel;
+import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
-import org.lodder.subtools.sublibrary.exception.VideoFileParseException;
-import org.lodder.subtools.sublibrary.model.*;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
+import org.lodder.subtools.sublibrary.model.Release;
+import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.lodder.subtools.sublibrary.model.VideoSearchType;
 
 public class TextSearchAction extends SearchAction {
 
@@ -43,15 +48,11 @@ public class TextSearchAction extends SearchAction {
 
       release = createMovieRelease(name, quality);
     } else {
-      try {
-        release = releaseParser.parse(new File(name), new File("/"));
-      } catch (VideoFileParseException e) {
-        throw new ActionException(e);
-      }
+        release = ReleaseFactory.createRelease(new File(name), settings);
     }
 
     List<Release> releases = new ArrayList<>();
-    releases.add(release);
+    if (release != null) releases.add(release);
 
     return releases;
   }

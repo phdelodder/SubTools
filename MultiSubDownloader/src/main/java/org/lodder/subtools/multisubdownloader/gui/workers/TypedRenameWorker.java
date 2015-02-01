@@ -60,7 +60,7 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
           && patterns.accept(file.getAbsoluteFile(), file.getName())) {
         Release release;
         try {
-          release = ReleaseFactory.get(file, basedir, settings, "");
+          release = ReleaseFactory.createRelease(file, settings);
           publish(release.getFilename());
           if (release.getVideoType() == videoType && release != null)
             Actions.rename(librarySettings, file, release);

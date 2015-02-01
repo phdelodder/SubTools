@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.lodder.subtools.sublibrary.exception.VideoFileParseException;
+import org.lodder.subtools.sublibrary.exception.ReleaseParseException;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -24,7 +24,7 @@ public class ReleaseParser {
   }
 
   @SuppressWarnings("unchecked")
-  public final Release parse(final File file, final File basedir) throws VideoFileParseException {
+  public final Release parse(final File file, final File basedir) throws ReleaseParseException {
     String[] parsenames =
         new String[] {file.getName(), file.getAbsolutePath().replace(basedir.getAbsolutePath(), "")};
     for (String fileparsename : parsenames) {
@@ -57,10 +57,10 @@ public class ReleaseParser {
         }
       }
     }
-    throw new VideoFileParseException("Unknow format, can't be parsed: " + file.getAbsolutePath());
+    throw new ReleaseParseException("Unknow format, can't be parsed: " + file.getAbsolutePath());
   }
 
-  protected final Object[] parsePatternResult() throws VideoFileParseException {
+  protected final Object[] parsePatternResult() throws ReleaseParseException {
     List<String> namedgroups = namedMatcher.namedPattern().groupNames();
     String seriesname = "";
     List<Integer> episodenumbers = new ArrayList<Integer>();
@@ -159,7 +159,7 @@ public class ReleaseParser {
       // No season number specified, usually for Anime
       // need to implement
     }
-    throw new VideoFileParseException("Unable to parse the namedmatcher");
+    throw new ReleaseParseException("Unable to parse the namedmatcher");
   }
 
   protected final String cleanUnwantedChars(String text) {

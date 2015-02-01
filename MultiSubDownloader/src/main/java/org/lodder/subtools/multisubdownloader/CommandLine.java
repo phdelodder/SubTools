@@ -3,9 +3,11 @@ package org.lodder.subtools.multisubdownloader;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.Info;
+import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
@@ -67,7 +69,7 @@ public class CommandLine implements Listener, SearchHandler {
 
     releases = new ArrayList<>();
     for (File file : files) {
-      Release release = releaseParser.parse(file, file.getParentFile());
+      Release release = ReleaseFactory.createRelease(file, prefctrl.getSettings());
       if (release == null)
         continue;
 

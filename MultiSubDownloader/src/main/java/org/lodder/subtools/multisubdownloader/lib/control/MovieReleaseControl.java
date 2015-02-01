@@ -1,18 +1,15 @@
 package org.lodder.subtools.multisubdownloader.lib.control;
 
-import java.util.Collections;
 import java.util.List;
 
-import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.SubtitleComparator;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.data.IMDB.IMDBAPI;
 import org.lodder.subtools.sublibrary.data.IMDB.IMDBException;
 import org.lodder.subtools.sublibrary.data.IMDB.IMDBSearchID;
 import org.lodder.subtools.sublibrary.data.IMDB.model.IMDBDetails;
-import org.lodder.subtools.sublibrary.exception.VideoControlException;
+import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
-import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 
 public class MovieReleaseControl extends ReleaseControl {
@@ -26,11 +23,11 @@ public class MovieReleaseControl extends ReleaseControl {
   }
 
   @Override
-  public void process(List<MappingTvdbScene> dict) throws VideoControlException {
+  public void process(List<MappingTvdbScene> dict) throws ReleaseControlException {
     Logger.instance.trace("MovieFileControl", "process", "");
     MovieRelease movieRelease = (MovieRelease) release;
     if (movieRelease.getTitle().equals("")) {
-      throw new VideoControlException("Unable to extract/find title, check file", release);
+      throw new ReleaseControlException("Unable to extract/find title, check file", release);
     } else {
       int imdbid;
       imdbid = imdbSearchID.getImdbId(movieRelease.getTitle(), movieRelease.getYear());
@@ -48,23 +45,14 @@ public class MovieReleaseControl extends ReleaseControl {
                     + release);
           }
         } catch (IMDBException e) {
-          throw new VideoControlException("IMDBAPI Failed", release);
+          throw new ReleaseControlException("IMDBAPI Failed", release);
         }
 
       } else {
-        throw new VideoControlException("Movie not found on IMDB, check file", release);
+        throw new ReleaseControlException("Movie not found on IMDB, check file", release);
       }
     }
   }
 
-  @Override
-  public void processWithSubtitles(List<MappingTvdbScene> dict, String languageCode)
-      throws VideoControlException {
-    Logger.instance.trace("MovieFileControl", "processWithSubtitles", "");
-    process(dict);
-    List<Subtitle> subtitles = sc.getSubtitles((MovieRelease) release, languageCode);
-    Collections.sort(subtitles, new SubtitleComparator());
-    release.setMatchingSubs(subtitles);
-  }
 
 }
