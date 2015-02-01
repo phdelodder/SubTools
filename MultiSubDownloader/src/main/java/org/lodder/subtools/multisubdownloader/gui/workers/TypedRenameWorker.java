@@ -28,6 +28,7 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
   private VideoType videoType;
   private final FilenameExtensionFilter patterns;
   private boolean isRecursive;
+  private ReleaseFactory releaseFactory;
 
   public TypedRenameWorker(File dir, File basedir, Settings settings,
       LibrarySettings librarySettings, VideoType videoType, boolean isRecursive) {
@@ -47,6 +48,10 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
     this.isRecursive = isRecursive;
   }
 
+  public void setReleaseFactory(ReleaseFactory releaseFactory) {
+    this.releaseFactory = releaseFactory;
+  }
+  
   @Override
   protected Void doInBackground() throws Exception {
     rename(dir);
@@ -60,7 +65,7 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
           && patterns.accept(file.getAbsoluteFile(), file.getName())) {
         Release release;
         try {
-          release = ReleaseFactory.createRelease(file, settings);
+          release = releaseFactory.createRelease(file);
           publish(release.getFilename());
           if (release.getVideoType() == videoType && release != null)
             Actions.rename(librarySettings, file, release);

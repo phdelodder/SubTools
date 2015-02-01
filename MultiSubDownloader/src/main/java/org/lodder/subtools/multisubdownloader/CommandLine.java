@@ -13,7 +13,6 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.multisubdownloader.workers.SearchHandler;
 import org.lodder.subtools.multisubdownloader.workers.SearchManager;
-import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Listener;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -32,7 +31,7 @@ public class CommandLine implements Listener, SearchHandler {
   private boolean subtitleSelectionDialog = false;
   private List<Release> releases;
   private SearchManager searchManager;
-  private ReleaseParser releaseParser;
+  private ReleaseFactory releaseFactory;
 
   public CommandLine(final SettingsControl prefctrl, Container app) {
     Logger.instance.addListener(this);
@@ -49,8 +48,8 @@ public class CommandLine implements Listener, SearchHandler {
     actions = new Actions(prefctrl.getSettings(), true);
   }
 
-  public void setReleaseParser(ReleaseParser releaseParser) {
-    this.releaseParser = releaseParser;
+  public void setReleaseFactory(ReleaseFactory releaseFactory) {
+    this.releaseFactory = releaseFactory;
   }
 
   private void search() throws Exception {
@@ -69,7 +68,7 @@ public class CommandLine implements Listener, SearchHandler {
 
     releases = new ArrayList<>();
     for (File file : files) {
-      Release release = ReleaseFactory.createRelease(file, prefctrl.getSettings());
+      Release release = releaseFactory.createRelease(file);
       if (release == null)
         continue;
 

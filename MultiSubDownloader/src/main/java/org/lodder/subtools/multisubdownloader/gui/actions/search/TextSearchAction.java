@@ -11,7 +11,6 @@ import org.lodder.subtools.multisubdownloader.gui.panels.SearchTextInputPanel;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
-import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -20,14 +19,14 @@ import org.lodder.subtools.sublibrary.model.VideoSearchType;
 
 public class TextSearchAction extends SearchAction {
 
-  private ReleaseParser releaseParser;
+  private ReleaseFactory releaseFactory;
 
   public TextSearchAction(MainWindow mainWindow, Settings settings, SubtitleProviderStore subtitleProviderStore) {
     super(mainWindow, settings, subtitleProviderStore);
   }
 
-  public void setReleaseParser(ReleaseParser releaseParser) {
-    this.releaseParser = releaseParser;
+  public void setReleaseFactory(ReleaseFactory releaseFactory) {
+    this.releaseFactory = releaseFactory;
   }
 
   @Override
@@ -48,7 +47,7 @@ public class TextSearchAction extends SearchAction {
 
       release = createMovieRelease(name, quality);
     } else {
-        release = ReleaseFactory.createRelease(new File(name), settings);
+        release = releaseFactory.createRelease(new File(name));
     }
 
     List<Release> releases = new ArrayList<>();

@@ -15,10 +15,16 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 
 public class ReleaseFactory {
 
-  static final ReleaseParser releaseParser = new ReleaseParser();
-  static ReleaseControl releaseControl;
+  private ReleaseParser releaseParser;
+  private ReleaseControl releaseControl;
+  private Settings settings;
   
-  public static Release createRelease(final File file, final Settings settings){
+  public ReleaseFactory(Settings settings){
+    releaseParser = new ReleaseParser();
+    this.settings = settings;
+  }
+  
+  public Release createRelease(final File file){
     Release r = null;
     
     try {

@@ -34,11 +34,16 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.gui.Menu;
 import org.lodder.subtools.multisubdownloader.gui.actions.search.FileSearchAction;
 import org.lodder.subtools.multisubdownloader.gui.actions.search.TextSearchAction;
-import org.lodder.subtools.multisubdownloader.gui.dialog.*;
+import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
+import org.lodder.subtools.multisubdownloader.gui.dialog.MappingEpisodeNameDialog;
+import org.lodder.subtools.multisubdownloader.gui.dialog.PreferenceDialog;
+import org.lodder.subtools.multisubdownloader.gui.dialog.ProgressDialog;
+import org.lodder.subtools.multisubdownloader.gui.dialog.RenameDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.extra.MyPopupMenu;
 import org.lodder.subtools.multisubdownloader.gui.extra.PopupListener;
@@ -55,6 +60,7 @@ import org.lodder.subtools.multisubdownloader.gui.panels.SearchTextInputPanel;
 import org.lodder.subtools.multisubdownloader.gui.workers.DownloadWorker;
 import org.lodder.subtools.multisubdownloader.gui.workers.RenameWorker;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
+import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
@@ -63,7 +69,6 @@ import org.lodder.subtools.multisubdownloader.util.Import;
 import org.lodder.subtools.sublibrary.ConfigProperties;
 import org.lodder.subtools.sublibrary.OsCheck;
 import org.lodder.subtools.sublibrary.OsCheck.OSType;
-import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -372,7 +377,8 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     Settings settings = this.settingsControl.getSettings();
 
     /* resolve the SubtitleProviderStore from the Container */
-    SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
+    SubtitleProviderStore subtitleProviderStore =
+        (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
 
     TextSearchAction searchAction = new TextSearchAction(this, settings, subtitleProviderStore);
     ResultPanel resultPanel = new ResultPanel();
@@ -386,7 +392,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     resultPanel.setTable(createSubtitleTable());
 
     searchAction.setSearchPanel(pnlSearchText);
-    searchAction.setReleaseParser(new ReleaseParser());
+    searchAction.setReleaseFactory(new ReleaseFactory(settings));
 
     pnlSearchTextInput.setSearchAction(searchAction);
     resultPanel.setDownloadAction(new ActionListener() {
@@ -410,7 +416,8 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     Settings settings = this.settingsControl.getSettings();
 
     /* resolve the SubtitleProviderStore from the Container */
-    SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
+    SubtitleProviderStore subtitleProviderStore =
+        (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
 
     FileSearchAction searchAction = new FileSearchAction(this, settings, subtitleProviderStore);
     ResultPanel resultPanel = new ResultPanel();
@@ -423,7 +430,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     resultPanel.setTable(createVideoTable());
 
     searchAction.setActions(new Actions(this.settingsControl.getSettings(), false));
-    searchAction.setReleaseParser(new ReleaseParser());
+    searchAction.setReleaseFactory(new ReleaseFactory(this.settingsControl.getSettings()));
     searchAction.setSearchPanel(pnlSearchFile);
 
     pnlSearchFileInput.setSelectFolderAction(new ActionListener() {

@@ -66,16 +66,15 @@ public class StructureBuilderDialog extends MutliSubDialog implements DocumentLi
   }
 
   private void generateVideoFiles() {
+    ReleaseFactory releaseFactory = new ReleaseFactory(new Settings());
     if (videoType == VideoType.EPISODE) {
-      ep =
-          (TvRelease) ReleaseFactory.createRelease(
-              // new File(File.separator + "Castle.2009.S04E10.720p.HDTV.X264-DIMENSION.mkv"),
-              new File(File.separator + "Terra.Nova.S01E01E02.720p.HDTV.x264-ORENJI.mkv"),
-              new Settings());
+      ep = (TvRelease) releaseFactory.createRelease(
+      // new File(File.separator + "Castle.2009.S04E10.720p.HDTV.X264-DIMENSION.mkv"),
+          new File(File.separator + "Terra.Nova.S01E01E02.720p.HDTV.x264-ORENJI.mkv"));
     } else if (videoType == VideoType.MOVIE) {
       mo =
-          (MovieRelease) ReleaseFactory.createRelease(new File(File.separator
-              + "Final.Destination.5.720p.Bluray.x264-TWiZTED"), new Settings());
+          (MovieRelease) releaseFactory.createRelease(new File(File.separator
+              + "Final.Destination.5.720p.Bluray.x264-TWiZTED"));
     }
   }
 

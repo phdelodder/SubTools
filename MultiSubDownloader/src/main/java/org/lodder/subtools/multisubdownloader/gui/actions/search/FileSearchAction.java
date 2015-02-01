@@ -12,14 +12,13 @@ import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
-import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 
 public class FileSearchAction extends SearchAction {
 
   private Actions actions;
-  private ReleaseParser releaseParser;
+  private ReleaseFactory releaseFactory;
 
   public FileSearchAction(MainWindow mainWindow, Settings settings,
       SubtitleProviderStore subtitleProviderStore) {
@@ -30,8 +29,8 @@ public class FileSearchAction extends SearchAction {
     this.actions = actions;
   }
 
-  public void setReleaseParser(ReleaseParser releaseParser) {
-    this.releaseParser = releaseParser;
+  public void setReleaseFactory(ReleaseFactory releaseFactory) {
+    this.releaseFactory = releaseFactory;
   }
 
   @Override
@@ -53,7 +52,7 @@ public class FileSearchAction extends SearchAction {
     /* parse every videofile */
     List<Release> releases = new ArrayList<>();
     for (File file : files) {
-      Release r = ReleaseFactory.createRelease(file, settings);
+      Release r = releaseFactory.createRelease(file);
       if (r != null) releases.add(r);
     }
 

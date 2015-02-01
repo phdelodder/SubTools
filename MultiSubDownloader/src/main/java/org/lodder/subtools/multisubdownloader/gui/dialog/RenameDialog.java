@@ -27,6 +27,7 @@ import org.lodder.subtools.multisubdownloader.gui.panels.EpisodeLibraryPanel;
 import org.lodder.subtools.multisubdownloader.gui.panels.MovieLibraryPanel;
 import org.lodder.subtools.multisubdownloader.gui.panels.VideoLibraryPanel;
 import org.lodder.subtools.multisubdownloader.gui.workers.TypedRenameWorker;
+import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.model.VideoType;
@@ -186,6 +187,7 @@ public class RenameDialog extends MutliSubDialog implements PropertyChangeListen
         new TypedRenameWorker(dir, basedir, settings, librarySettings, VideoType.EPISODE,
             this.chkRecursive.isSelected());
     renameWorker.addPropertyChangeListener(this);
+    renameWorker.setReleaseFactory(new ReleaseFactory(settings));
     progressDialog = new ProgressDialog(renameWorker);
     progressDialog.setVisible(true);
     renameWorker.execute();
