@@ -184,7 +184,7 @@ public class RenameDialog extends MutliSubDialog implements PropertyChangeListen
   protected void rename(File dir, File basedir, Settings settings, LibrarySettings librarySettings,
       ArrayList<MappingTvdbScene> list) {
     TypedRenameWorker renameWorker =
-        new TypedRenameWorker(dir, basedir, settings, librarySettings, VideoType.EPISODE,
+        new TypedRenameWorker(dir, librarySettings, VideoType.EPISODE,
             this.chkRecursive.isSelected());
     renameWorker.addPropertyChangeListener(this);
     renameWorker.setReleaseFactory(new ReleaseFactory(settings));

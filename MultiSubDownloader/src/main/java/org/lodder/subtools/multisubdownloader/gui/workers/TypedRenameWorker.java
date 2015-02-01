@@ -10,7 +10,6 @@ import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger
 import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
-import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -22,27 +21,23 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
 
 
   private File dir;
-  private File basedir;
-  private Settings settings;
   private LibrarySettings librarySettings;
   private VideoType videoType;
   private final FilenameExtensionFilter patterns;
   private boolean isRecursive;
   private ReleaseFactory releaseFactory;
 
-  public TypedRenameWorker(File dir, File basedir, Settings settings,
-      LibrarySettings librarySettings, VideoType videoType, boolean isRecursive) {
-    setParameters(dir, basedir, settings, librarySettings, videoType, isRecursive);
+  public TypedRenameWorker(File dir, LibrarySettings librarySettings, VideoType videoType,
+      boolean isRecursive) {
+    setParameters(dir, librarySettings, videoType, isRecursive);
     patterns =
         new FilenameExtensionFilter(
             StringUtils.join(VideoPatterns.EXTENSIONS, new String[] {"srt"}));
   }
 
-  public void setParameters(File dir, File basedir, Settings settings,
-      LibrarySettings librarySettings, VideoType videoType, boolean isRecursive) {
+  public void setParameters(File dir, LibrarySettings librarySettings, VideoType videoType,
+      boolean isRecursive) {
     this.dir = dir;
-    this.basedir = basedir;
-    this.settings = settings;
     this.librarySettings = librarySettings;
     this.videoType = videoType;
     this.isRecursive = isRecursive;
@@ -51,7 +46,7 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
   public void setReleaseFactory(ReleaseFactory releaseFactory) {
     this.releaseFactory = releaseFactory;
   }
-  
+
   @Override
   protected Void doInBackground() throws Exception {
     rename(dir);
