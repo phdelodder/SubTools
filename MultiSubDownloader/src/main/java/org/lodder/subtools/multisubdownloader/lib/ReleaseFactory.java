@@ -22,7 +22,7 @@ public class ReleaseFactory {
     Release r = null;
     
     try {
-      r = releaseParser.parse(file, file.getParentFile());
+      r = releaseParser.parse(file);
       
       switch (r.getVideoType()){
         case EPISODE:

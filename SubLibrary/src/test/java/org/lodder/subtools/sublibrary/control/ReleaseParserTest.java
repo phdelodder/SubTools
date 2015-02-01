@@ -25,9 +25,8 @@ public class ReleaseParserTest {
   public void testTV() throws Exception {
     releaseparser = new ReleaseParser();
 
-    File basedir = new File("/tmp/Serie/");
     File file = new File("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv");
-    Release release = releaseparser.parse(file, basedir);
+    Release release = releaseparser.parse(file);
 
     assertSame(release.getVideoType(), VideoType.EPISODE);
     assertEquals(release.getExtension(), "mkv");
@@ -42,7 +41,7 @@ public class ReleaseParserTest {
     assertEquals((int) tvrelease.getEpisodeNumbers().get(0), 12);
 
     file = new File("S04E02 - White Collar - Most Wanted.mkv");
-    release = releaseparser.parse(file, basedir);
+    release = releaseparser.parse(file);
 
     assertSame(release.getVideoType(), VideoType.EPISODE);
     assertEquals(release.getExtension(), "mkv");
@@ -57,7 +56,7 @@ public class ReleaseParserTest {
     assertEquals((int) tvrelease.getEpisodeNumbers().get(0), 2);
 
     file = new File("Spartacus.Gods.of.The.Arena.Pt.I.720p.HDTV.X264-DIMENSION.mkv");
-    release = releaseparser.parse(file, basedir);
+    release = releaseparser.parse(file);
 
     assertSame(release.getVideoType(), VideoType.EPISODE);
     assertEquals(release.getExtension(), "mkv");
@@ -73,7 +72,7 @@ public class ReleaseParserTest {
     assertEquals((int) tvrelease.getEpisodeNumbers().get(0), 1);
 
     file = new File("hawaii.five-0.2010.410.hdtv-lol.mp4");
-    release = releaseparser.parse(file, basedir);
+    release = releaseparser.parse(file);
 
     assertSame(release.getVideoType(), VideoType.EPISODE);
     assertEquals(release.getExtension(), "mp4");
@@ -93,9 +92,8 @@ public class ReleaseParserTest {
   public void testMovie() throws Exception{
     releaseparser = new ReleaseParser();
 
-    File basedir = new File("/tmp/Movie/");
     File file = new File("Back.to.the.Future.Part.II.1989.720p.BluRay.X264-AMIABLE.mkv");
-    Release release = releaseparser.parse(file, basedir);
+    Release release = releaseparser.parse(file);
 
     assertSame(release.getVideoType(), VideoType.MOVIE);
     assertEquals(release.getExtension(), "mkv");
@@ -109,7 +107,7 @@ public class ReleaseParserTest {
     assertEquals(movieRelease.getTitle(), "Back to the Future Part II");
     
     file = new File("The.Equalizer.2014.720p.BluRay.x264-SPARKS.mkv");
-    release = releaseparser.parse(file, basedir);
+    release = releaseparser.parse(file);
 
     assertSame(release.getVideoType(), VideoType.MOVIE);
     assertEquals(release.getExtension(), "mkv");
@@ -123,7 +121,7 @@ public class ReleaseParserTest {
     assertEquals(movieRelease.getTitle(), "The Equalizer");
     
     file = new File("The.Trip.to.Italy.2014.LIMITED.720p.BluRay.x264-GECKOS.mkv");
-    release = releaseparser.parse(file, basedir);
+    release = releaseparser.parse(file);
 
     assertSame(release.getVideoType(), VideoType.MOVIE);
     assertEquals(release.getExtension(), "mkv");

@@ -24,9 +24,11 @@ public class ReleaseParser {
   }
 
   @SuppressWarnings("unchecked")
-  public final Release parse(final File file, final File basedir) throws ReleaseParseException {
-    String[] parsenames =
-        new String[] {file.getName(), file.getAbsolutePath().replace(basedir.getAbsolutePath(), "")};
+  public final Release parse(final File file) throws ReleaseParseException {
+    String foldername = "";
+    if (file.getParentFile() != null) foldername = file.getParentFile().getName();
+    String[] parsenames = new String[] {file.getName(), foldername};
+    
     for (String fileparsename : parsenames) {
       for (NamedPattern np : VideoPatterns.getCompiledPatterns()) {
         namedMatcher = np.matcher(fileparsename);

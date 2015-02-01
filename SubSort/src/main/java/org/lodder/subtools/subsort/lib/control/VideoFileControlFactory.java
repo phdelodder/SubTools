@@ -15,7 +15,7 @@ public class VideoFileControlFactory {
     private static final ReleaseParser releaseParser = new ReleaseParser();
 
     public static VideoFileControl getController(File file, File basedir) throws ReleaseParseException, ControlFactoryException {
-        Release release = releaseParser.parse(file, basedir);
+        Release release = releaseParser.parse(file);
         if (release.getVideoType() == VideoType.EPISODE) {
             return new EpisodeFileControl((TvRelease) release);
         } else if (release.getVideoType() == VideoType.MOVIE) {

@@ -51,7 +51,7 @@ public class LocalFileRepo {
 
     for (File fileSub : getPossibleSubtitles(filter)) {
       try {
-        Release release = vfp.parse(fileSub, new File(fileSub.getPath()));
+        Release release = vfp.parse(fileSub);
         if (release.getVideoType() == VideoType.EPISODE) {
 
           if (((TvRelease) release).getSeason() == tvRelease.getSeason()
@@ -92,7 +92,7 @@ public class LocalFileRepo {
 
     for (File fileSub : getPossibleSubtitles(filter)) {
       try {
-        Release release = releaseParser.parse(fileSub, new File(fileSub.getPath()));
+        Release release = releaseParser.parse(fileSub);
         if (release.getVideoType() == VideoType.MOVIE) {
           MovieReleaseControl movieCtrl = new MovieReleaseControl((MovieRelease) release, settings);
           movieCtrl.process(settings.getMappingSettings().getMappingList());
