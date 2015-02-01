@@ -6,15 +6,21 @@ import java.util.List;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.Info;
-import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
+import org.lodder.subtools.multisubdownloader.workers.SearchHandler;
+import org.lodder.subtools.multisubdownloader.workers.SearchManager;
+import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Listener;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
+import org.lodder.subtools.sublibrary.model.Subtitle;
 
-public class CommandLine implements Listener {
+public class CommandLine implements Listener, SearchHandler {
 
   private final SettingsControl prefctrl;
+  private final Container app;
   private boolean recursive = false;
   private String languagecode = "";
   private boolean force = false;
@@ -22,9 +28,13 @@ public class CommandLine implements Listener {
   private boolean downloadall = false;
   private final Actions actions;
   private boolean subtitleSelectionDialog = false;
+  private List<Release> releases;
+  private SearchManager searchManager;
+  private ReleaseParser releaseParser;
 
   public CommandLine(final SettingsControl prefctrl, Container app) {
     Logger.instance.addListener(this);
+    this.app = app;
     this.prefctrl = prefctrl;
     try {
       if (this.prefctrl.getSettings().isAutoUpdateMapping()) {
@@ -37,8 +47,11 @@ public class CommandLine implements Listener {
     actions = new Actions(prefctrl.getSettings(), true);
   }
 
-  private List<Release> search() throws Exception {
-    List<Release> l = new ArrayList<Release>();
+  public void setReleaseParser(ReleaseParser releaseParser) {
+    this.releaseParser = releaseParser;
+  }
+
+  private void search() throws Exception {
     List<File> folders = new ArrayList<File>();
     if (folder == null) {
       folders.addAll(prefctrl.getSettings().getDefaultIncomingFolders());
@@ -46,21 +59,60 @@ public class CommandLine implements Listener {
       folders.add(folder);
     }
 
-    for (File f : folders) {
-      List<File> files = actions.getFileListing(f, recursive, languagecode, force);
-      Logger.instance.debug("# Files found to process: " + files.size());
-      Release release;
-      for (File file : files) {
-        try {
-          release = ReleaseFactory.get(file, f, prefctrl.getSettings(), languagecode);
-          if (release != null) l.add(release);
-        } catch (Exception e) {
-          Logger.instance.error("Search Process" + Logger.stack2String(e));
-        }
+    List<File> files = new ArrayList<>();
+    for (File folder : folders) {
+      files.addAll(actions.getFileListing(folder, recursive, languagecode, force));
+    }
+    Logger.instance.debug("# Files found to process: " + files.size());
+
+    releases = new ArrayList<>();
+    for (File file : files) {
+      Release release = releaseParser.parse(file, file.getParentFile());
+      if (release == null)
+        continue;
+
+      releases.add(release);
+    }
+
+    SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
+
+    searchManager = new SearchManager(this.prefctrl.getSettings());
+    searchManager.setLanguage(this.getLanguagecode());
+
+    for (SubtitleProvider subtitleProvider : subtitleProviderStore.getAllProviders()) {
+      if (!this.prefctrl.getSettings().isSerieSource(subtitleProvider.getName()))
+        continue;
+
+      searchManager.addProvider(subtitleProvider);
+    }
+
+    for (Release release : releases) {
+      searchManager.addRelease(release);
+    }
+
+    searchManager.onFound(this);
+
+    searchManager.start();
+  }
+
+  @Override
+  public void onFound(Release release, List<Subtitle> subtitles) {
+    release.getMatchingSubs().addAll(subtitles);
+    if (searchManager.getProgress() < 100) return;
+
+    Logger.instance.debug("found files for doDownload: " + releases.size());
+    this.download();
+  }
+
+  public void download() {
+    Info.downloadOptions(prefctrl.getSettings());
+    for(Release release : releases) {
+      try {
+        this.download(release);
+      } catch (Exception e) {
+        Logger.instance.error("executeArgs: search" + Logger.stack2String(e));
       }
     }
-    Logger.instance.debug("found files for doDownload: " + l.size());
-    return l;
   }
 
   public void download(Release release) throws Exception {
@@ -84,14 +136,9 @@ public class CommandLine implements Listener {
   public void Run() {
     Info.subtitleSources(prefctrl.getSettings());
     Info.subtitleFiltering(prefctrl.getSettings());
-        
-    List<Release> l;
+
     try {
-      l = search();
-      Info.downloadOptions(prefctrl.getSettings());
-      for (Release ef : l) {
-        download(ef);
-      }
+      search();
     } catch (Exception e) {
       Logger.instance.error("executeArgs: search" + Logger.stack2String(e));
     }
