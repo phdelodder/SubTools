@@ -76,6 +76,8 @@ public class Actions {
           // update to show only the short list!
           release.setMatchingSubs(shortlist);
           if (shortlist.size() == 1) return 0;
+          // nothing match the minimum automatic selection value
+          if (shortlist.size() == 0) return -1;
         }
         //still more then 1 subtitle, let the user decide!
         if (subtitleSelectionDialog) {
