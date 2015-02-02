@@ -273,9 +273,9 @@ public class PreferenceDialog extends MutliSubDialog {
           pnlOptions.add(new JSeparator(), "cell 0 11 5 1,growx");
         }
         {
-          //cbxEpisodeProcessSource =
-          //    new JComboBox<SettingsProcessEpisodeSource>(SettingsProcessEpisodeSource.values());
-          cbxEpisodeProcessSource = new JComboBox<SettingsProcessEpisodeSource>();
+          cbxEpisodeProcessSource =
+              new JComboBox<SettingsProcessEpisodeSource>(SettingsProcessEpisodeSource.values());
+          //cbxEpisodeProcessSource = new JComboBox<SettingsProcessEpisodeSource>();
           cbxEpisodeProcessSource.setEnabled(false);
           pnlOptions.add(cbxEpisodeProcessSource, "cell 1 12,growx");
         }
