@@ -69,20 +69,19 @@ public class CommandLine implements Listener, SearchHandler {
     releases = new ArrayList<>();
     for (File file : files) {
       Release release = releaseFactory.createRelease(file);
-      if (release == null)
-        continue;
+      if (release == null) continue;
 
       releases.add(release);
     }
 
-    SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
+    SubtitleProviderStore subtitleProviderStore =
+        (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
 
     searchManager = new SearchManager(this.prefctrl.getSettings());
     searchManager.setLanguage(this.getLanguagecode());
 
     for (SubtitleProvider subtitleProvider : subtitleProviderStore.getAllProviders()) {
-      if (!this.prefctrl.getSettings().isSerieSource(subtitleProvider.getName()))
-        continue;
+      if (!this.prefctrl.getSettings().isSerieSource(subtitleProvider.getName())) continue;
 
       searchManager.addProvider(subtitleProvider);
     }
@@ -107,7 +106,7 @@ public class CommandLine implements Listener, SearchHandler {
 
   public void download() {
     Info.downloadOptions(prefctrl.getSettings());
-    for(Release release : releases) {
+    for (Release release : releases) {
       try {
         this.download(release);
       } catch (Exception e) {
@@ -120,14 +119,18 @@ public class CommandLine implements Listener, SearchHandler {
     int selection = actions.determineWhatSubtitleDownload(release, subtitleSelectionDialog);
     if (selection >= 0) {
       if (downloadall) {
+        Logger.instance
+            .log("Downloading ALL found subtitles for release: " + release.getFilename());
         for (int j = 0; j < release.getMatchingSubs().size(); j++) {
+          Logger.instance.log("Downloading subtitle: "
+              + release.getMatchingSubs().get(0).getFilename());
           actions.download(release, release.getMatchingSubs().get(j), j + 1);
         }
-        Logger.instance.log("Downloaded ALL subs for episode: " + release.getFilename());
       } else {
+        Logger.instance.log("Downloading subtitle: "
+            + release.getMatchingSubs().get(0).getFilename() + " for release: "
+            + release.getFilename());
         actions.download(release, release.getMatchingSubs().get(selection));
-        Logger.instance.log("Downloaded sub for episode: " + release.getFilename()
-            + " using these subs: " + release.getMatchingSubs().get(selection).getFilename());
       }
     } else {
       Logger.instance.log("No subs found for: " + release.getFilename());
