@@ -33,7 +33,8 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
   }
 
   protected Void doInBackground() throws Exception {
-    Logger.instance.trace(DownloadWorker.class.toString(), "doInBackground", "Rows to thread: " + table.getModel().getRowCount());
+    Logger.instance.trace(DownloadWorker.class.toString(), "doInBackground", "Rows to thread: "
+        + table.getModel().getRowCount());
     Info.downloadOptions(settings);
     final VideoTableModel model = (VideoTableModel) table.getModel();
     int selectedCount = model.getSelectedCount(table.getColumnIdByName(SearchColumnName.SELECT));
@@ -52,13 +53,17 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
         if (selection >= 0) {
           try {
             if (selection == SelectDialog.SelectionType.ALL.getSelectionCode()) {
-              Logger.instance.debug("Downloaded ALL subs for episode: " + release.getFilename());
+              Logger.instance.log("Downloading ALL found subtitles for release: "
+                  + release.getFilename());
               for (int j = 0; j < release.getMatchingSubs().size(); j++) {
+                Logger.instance.log("Downloading subtitle: "
+                    + release.getMatchingSubs().get(0).getFilename());
                 actions.download(release, release.getMatchingSubs().get(j), j + 1);
               }
             } else {
-              Logger.instance.debug("Downloaded subs for episode: " + release.getFilename()
-                  + " using these subs: " + release.getMatchingSubs().get(0).getFilename());
+              Logger.instance.log("Downloading subtitle: "
+                  + release.getMatchingSubs().get(0).getFilename() + " for release: "
+                  + release.getFilename());
               actions.download(release, release.getMatchingSubs().get(selection));
             }
             model.removeRow(i);
