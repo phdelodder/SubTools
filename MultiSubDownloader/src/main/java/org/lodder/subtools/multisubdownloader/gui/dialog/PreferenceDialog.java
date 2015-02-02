@@ -467,6 +467,8 @@ public class PreferenceDialog extends MutliSubDialog {
     txtProxyHost.setText(settingsCtrl.getSettings().getGeneralProxyHost());
     txtProxyPort.setText(String.valueOf(settingsCtrl.getSettings().getGeneralProxyPort()));
     chkAlwaysConfirm.setSelected(settingsCtrl.getSettings().isOptionsAlwaysConfirm());
+    chkMinScoreSelection.setSelected(settingsCtrl.getSettings().isOptionsMinAutomaticSelection());
+    cbxMinScoreSelection.setSelectedItem(settingsCtrl.getSettings().getOptionsMinAutomaticSelectionValue());
     chkSubtitleExactMethod.setSelected(settingsCtrl.getSettings().isOptionSubtitleExactMatch());
     chkSubtitleKeywordMethod.setSelected(settingsCtrl.getSettings().isOptionSubtitleKeywordMatch());
     chkExcludeHearingImpaired.setSelected(settingsCtrl.getSettings()
