@@ -167,7 +167,7 @@ public class CacheManager {
 		return uce;
 	}
 
-	synchronized CacheEntry getCacheEntry(URL url, long timeout)
+	CacheEntry getCacheEntry(URL url, long timeout)
 			throws Exception {
 		Logger.instance.trace("CacheManager", "getCacheEntry", "");
 		if (!ucList.containsKey(url.toString())) {
