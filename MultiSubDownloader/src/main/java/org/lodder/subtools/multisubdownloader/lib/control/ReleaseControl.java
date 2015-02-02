@@ -11,12 +11,10 @@ import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 public abstract class ReleaseControl {
 
   protected Release release;
-  protected SubtitleControl sc;
   protected Settings settings;
 
   public ReleaseControl(Release release, Settings settings) {
     this.settings = settings;
-    this.sc = new SubtitleControl(settings);
     this.release = release;
   }
 
