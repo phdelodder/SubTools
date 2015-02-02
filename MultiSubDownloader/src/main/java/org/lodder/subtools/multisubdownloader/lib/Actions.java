@@ -69,13 +69,15 @@ public class Actions {
         Logger.instance.debug("determineWhatSubtitleDownload: Multiple subs detected");
         if (settings.isOptionsMinAutomaticSelection()) {
           List<Subtitle> shortlist = release.getMatchingSubs();
-          for (int i = shortlist.size(); i >= 0; i--) {
+          for (int i = shortlist.size() - 1; i >= 0; i--) {
             if (shortlist.get(i).getScore() < settings.getOptionsMinAutomaticSelectionValue())
               shortlist.remove(i);
           }
-          //update to show only the short list!
+          // update to show only the short list!
           release.setMatchingSubs(shortlist);
+          if (shortlist.size() == 1) return 0;
         }
+        //still more then 1 subtitle, let the user decide!
         if (subtitleSelectionDialog) {
           Logger.instance.debug("determineWhatSubtitleDownload: Select subtitle with dialog");
           return subSelection.getUserInput(release);
