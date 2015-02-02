@@ -67,6 +67,15 @@ public class Actions {
         return 0;
       } else if (release.getMatchingSubs().size() > 1) {
         Logger.instance.debug("determineWhatSubtitleDownload: Multiple subs detected");
+        if (settings.isOptionsMinAutomaticSelection()) {
+          List<Subtitle> shortlist = release.getMatchingSubs();
+          for (int i = shortlist.size(); i >= 0; i--) {
+            if (shortlist.get(i).getScore() < settings.getOptionsMinAutomaticSelectionValue())
+              shortlist.remove(i);
+          }
+          //update to show only the short list!
+          release.setMatchingSubs(shortlist);
+        }
         if (subtitleSelectionDialog) {
           Logger.instance.debug("determineWhatSubtitleDownload: Select subtitle with dialog");
           return subSelection.getUserInput(release);
@@ -74,7 +83,6 @@ public class Actions {
           Logger.instance.log("Multiple subs detected for: " + release.getFilename()
               + " Unhandleable for CMD! switch to GUI"
               + " or use '--selection' as switch in de CMD");
-
         }
       } else if (release.getMatchingSubs().size() == 1) {
         Logger.instance.debug("determineWhatSubtitleDownload: only one sub taking it!!!!");

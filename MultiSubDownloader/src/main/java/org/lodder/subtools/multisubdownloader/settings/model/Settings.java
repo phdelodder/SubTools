@@ -35,6 +35,8 @@ public class Settings {
   private MappingSettings mappingSettings;
   private List<SearchSubtitlePriority> listSearchSubtitlePriority;
   private Map<String, Integer> sortWeights;
+  private boolean optionsMinAutomaticSelection;
+  private int optionsMinAutomaticSelectionValue;
 
   public Settings() {
     super();
@@ -63,6 +65,8 @@ public class Settings {
     setProcessEpisodeSource(SettingsProcessEpisodeSource.TVDB);
     setMappingSettings(new MappingSettings());
     listSearchSubtitlePriority = new ArrayList<SearchSubtitlePriority>();
+    optionsMinAutomaticSelection = false;
+    optionsMinAutomaticSelectionValue = 0;
   }
 
   public boolean isOptionsAlwaysConfirm() {
@@ -430,5 +434,21 @@ public class Settings {
       default:
         return false;
     }
+  }
+
+  public boolean isOptionsMinAutomaticSelection() {
+    return optionsMinAutomaticSelection;
+  }
+
+  public void setOptionsMinAutomaticSelection(boolean optionsMinAutomaticSelection) {
+    this.optionsMinAutomaticSelection = optionsMinAutomaticSelection;
+  }
+
+  public int getOptionsMinAutomaticSelectionValue() {
+    return optionsMinAutomaticSelectionValue;
+  }
+
+  public void setOptionsMinAutomaticSelectionValue(int optionsMinAutomaticSelectionValue) {
+    this.optionsMinAutomaticSelectionValue = optionsMinAutomaticSelectionValue;
   }
 }
