@@ -41,8 +41,7 @@ public class App {
     }
 
     final Container app = new Container();
-    Bootstrapper bootstrapper = new Bootstrapper(app);
-    bootstrapper.initialize();
+    Bootstrapper bootstrapper = new Bootstrapper(app, prefctrl.getSettings());
 
     if (line != null) {
       if (line.hasOption("help")) {
@@ -101,8 +100,10 @@ public class App {
           cmd.setSubtitleSelectionDialog(line.hasOption("selection"));
 
           cmd.CheckUpdate();
+          bootstrapper.initialize();
           cmd.Run();
         } else {
+          bootstrapper.initialize();
           EventQueue.invokeLater(new Runnable() {
             public void run() {
               try {

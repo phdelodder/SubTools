@@ -26,6 +26,8 @@ import javax.swing.border.EmptyBorder;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
+import org.lodder.subtools.multisubdownloader.framework.event.Event;
 import org.lodder.subtools.multisubdownloader.gui.extra.JListWithImages;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.panels.EpisodeLibraryPanel;
@@ -46,6 +48,7 @@ public class PreferenceDialog extends MutliSubDialog {
      */
   private static final long serialVersionUID = -5730220264781738564L;
   private final JPanel contentPanel = new JPanel();
+  private final Emitter eventEmitter;
   private JCheckBox chkOnlyFound, chkAlwaysConfirm, chkSubtitleExactMethod,
       chkSubtitleKeywordMethod;
   private SettingsControl settingsCtrl;
@@ -68,9 +71,10 @@ public class PreferenceDialog extends MutliSubDialog {
   /**
    * Create the dialog.
    */
-  public PreferenceDialog(JFrame frame, final SettingsControl settingsCtrl) {
+  public PreferenceDialog(JFrame frame, final SettingsControl settingsCtrl, Emitter eventEmitter) {
     super(frame, "Voorkeuren", true);
     this.settingsCtrl = settingsCtrl;
+    this.eventEmitter = eventEmitter;
     initialize();
     setPreferenceSettings();
     repaint();
@@ -679,5 +683,6 @@ public class PreferenceDialog extends MutliSubDialog {
       setVisible(false);
       settingsCtrl.store();
     }
+    this.eventEmitter.fire(new Event("providers.settings.change"));
   }
 }
