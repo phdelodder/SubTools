@@ -15,4 +15,12 @@ public class SubtitleProviderStore {
       this.subtitleProviders.add(provider);
     }
   }
+
+  public void deleteProvider(SubtitleProvider subtitleProvider) {
+    if (!this.subtitleProviders.contains(subtitleProvider)) {
+      return;
+    }
+
+    this.subtitleProviders.remove(subtitleProvider);
+  }
 }
