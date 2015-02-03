@@ -53,6 +53,8 @@ public class VideoTableModel extends DefaultTableModel {
         columnTypes[i] = SearchColumnName.TITLE.getC();
       } else if (SearchColumnName.SOURCE.getColumnName().equals(columnNames[i])) {
         columnTypes[i] = SearchColumnName.SOURCE.getC();
+      }else if (SearchColumnName.SCORE.getColumnName().equals(columnNames[i])) {
+        columnTypes[i] = SearchColumnName.SCORE.getC();
       }
     }
     return columnTypes;
@@ -81,6 +83,8 @@ public class VideoTableModel extends DefaultTableModel {
         columnEditables[i] = SearchColumnName.TITLE.isEditable();
       } else if (SearchColumnName.SOURCE.getColumnName().equals(columnNames[i])) {
         columnEditables[i] = SearchColumnName.SOURCE.isEditable();
+      } else if (SearchColumnName.SCORE.getColumnName().equals(columnNames[i])) {
+        columnEditables[i] = SearchColumnName.SCORE.isEditable();
       }
     }
     return columnEditables;
@@ -98,7 +102,8 @@ public class VideoTableModel extends DefaultTableModel {
   public static VideoTableModel getDefaultSubtitleTableModel() {
     return new VideoTableModel(new Object[][] {}, new String[] {
         SearchColumnName.FILENAME.getColumnName(), SearchColumnName.SOURCE.getColumnName(),
-        SearchColumnName.SELECT.getColumnName(), SearchColumnName.OBJECT.getColumnName()});
+        SearchColumnName.SCORE.getColumnName(), SearchColumnName.SELECT.getColumnName(),
+        SearchColumnName.OBJECT.getColumnName()});
   }
 
   public void addRows(List<Release> l) {
@@ -170,6 +175,8 @@ public class VideoTableModel extends DefaultTableModel {
         row[i] = subtitle;
       } else if (SearchColumnName.SOURCE.getColumnName().equals(columnName)) {
         row[i] = subtitle.getSubtitleSource();
+      } else if (SearchColumnName.SCORE.getColumnName().equals(columnName)) {
+        row[i] = subtitle.getScore();
       }
     }
     this.addRow(row);

@@ -5,7 +5,8 @@ public enum SearchColumnName {
       "# Gevonden", Integer.class, false), SELECT("Selecteer", Boolean.class, true), OBJECT(
       "Episode Object", Object.class, false), SEASON("Seizoen", String.class, false), EPISODE(
       "Aflevering", String.class, false), TYPE("Type", String.class, false), TITLE("Titel",
-      String.class, false), SOURCE("Source", String.class, false);
+      String.class, false), SOURCE("Source", String.class, false), SCORE("Score %", Integer.class,
+      false);
 
   private final String columnName;
   private final Class<?> c;
