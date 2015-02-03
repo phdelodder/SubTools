@@ -6,8 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
@@ -34,12 +32,10 @@ import org.lodder.subtools.multisubdownloader.gui.panels.EpisodeLibraryPanel;
 import org.lodder.subtools.multisubdownloader.gui.panels.MovieLibraryPanel;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
-import org.lodder.subtools.multisubdownloader.settings.model.SearchSubtitlePriority;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 
 public class PreferenceDialog extends MutliSubDialog {
 
@@ -63,8 +59,6 @@ public class PreferenceDialog extends MutliSubDialog {
   private JCheckBox chkSerieSourceAddic7ed, chkSerieSourceTvSubtitles, chkSerieSourcePodnapisi,
       chkSerieSourceOpensubtitles, chkSerieSourceLocal, chkSerieSourceSubsMax;
   private JComboBox<SettingsProcessEpisodeSource> cbxEpisodeProcessSource;
-  private JComboBox<Integer> cbxPriorityLocal, cbxPriorityPodnapisi, cbxPriorityAddic7ed,
-      cbxPriorityTvSubtitles, cbxPriorityOpensubtitles, cbxPrioritySubsMax;
   private JCheckBox chkMinScoreSelection;
   private JComboBox<Integer> cbxMinScoreSelection;
 
@@ -244,7 +238,8 @@ public class PreferenceDialog extends MutliSubDialog {
           pnlOptions.add(chkMinScoreSelection, "cell 1 2");
         }
         {
-          cbxMinScoreSelection = new JComboBox<Integer>(new Integer[] {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100});
+          cbxMinScoreSelection = new JComboBox<Integer>();
+          cbxMinScoreSelection.setModel(new DefaultComboBoxModel<Integer>(new Integer[] {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100}));
           pnlOptions.add(cbxMinScoreSelection, "cell 2 2,growx");
         }
         pnlOptions.add(new JLabel("Zoek filter"), "cell 0 3 5 1");
@@ -277,68 +272,35 @@ public class PreferenceDialog extends MutliSubDialog {
           pnlOptions.add(new JSeparator(), "cell 0 11 5 1,growx");
         }
         {
-          cbxEpisodeProcessSource =
-              new JComboBox<SettingsProcessEpisodeSource>(SettingsProcessEpisodeSource.values());
-          //cbxEpisodeProcessSource = new JComboBox<SettingsProcessEpisodeSource>();
+          cbxEpisodeProcessSource = new JComboBox<SettingsProcessEpisodeSource>();
+          cbxEpisodeProcessSource.setModel(new DefaultComboBoxModel<SettingsProcessEpisodeSource>(SettingsProcessEpisodeSource.values()));
           cbxEpisodeProcessSource.setEnabled(false);
           pnlOptions.add(cbxEpisodeProcessSource, "cell 1 12,growx");
         }
       }
       {
         JPanel pnlSerieSources = new JPanel();
-        Integer[] prio = new Integer[] {1, 2, 3, 4, 5, 6, 7};
         tabbedPane.addTab("Serie Sources", null, pnlSerieSources, null);
         pnlSerieSources.setLayout(new MigLayout("", "[grow]", "[][top][]"));
         JPanel pnlSerieSourcesSelectionSettings = new JPanel();
         pnlSerieSources.add(pnlSerieSourcesSelectionSettings, "cell 0 0 3 1,grow");
-        pnlSerieSourcesSelectionSettings.setLayout(new MigLayout("",
-            "[50px:n][][100.00,grow][grow][grow]", "[][][][][][][][]"));
+        pnlSerieSourcesSelectionSettings.setLayout(new MigLayout("", "[50px:n][][100.00,grow][grow][grow]", "[][][][][][][]"));
         pnlSerieSourcesSelectionSettings.add(new JLabel(
-            "Selecteer de gewenste sources en bepaalde volgorde"), "cell 0 0 5 1,gapy 5");
+            "Selecteer de gewenste providers"), "cell 0 0 5 1,gapy 5");
         pnlSerieSourcesSelectionSettings.add(new JSeparator(), "cell 0 0 5 1,growx,gapy 5");
         chkSerieSourceAddic7ed = new JCheckBox("Addic7ed");
         pnlSerieSourcesSelectionSettings.add(chkSerieSourceAddic7ed, "cell 0 1 2 1");
-        {
-          cbxPriorityAddic7ed = new JComboBox<Integer>();
-          cbxPriorityAddic7ed.setModel(new DefaultComboBoxModel<Integer>(prio));
-          pnlSerieSourcesSelectionSettings.add(cbxPriorityAddic7ed, "cell 2 1,growx");
-        }
         chkSerieSourceTvSubtitles = new JCheckBox("Tv Subtitles");
         pnlSerieSourcesSelectionSettings.add(chkSerieSourceTvSubtitles, "cell 0 2 2 1");
-        {
-          cbxPriorityTvSubtitles = new JComboBox<Integer>();
-          cbxPriorityTvSubtitles.setModel(new DefaultComboBoxModel<Integer>(prio));
-          pnlSerieSourcesSelectionSettings.add(cbxPriorityTvSubtitles, "cell 2 2,growx");
-        }
         chkSerieSourcePodnapisi = new JCheckBox("Podnapisi");
         pnlSerieSourcesSelectionSettings.add(chkSerieSourcePodnapisi, "cell 0 3 2 1");
-        {
-          cbxPriorityPodnapisi = new JComboBox<Integer>();
-          cbxPriorityPodnapisi.setModel(new DefaultComboBoxModel<Integer>(prio));
-          pnlSerieSourcesSelectionSettings.add(cbxPriorityPodnapisi, "cell 2 3,growx");
-        }
         chkSerieSourceOpensubtitles = new JCheckBox("Opensubtitles");
         pnlSerieSourcesSelectionSettings.add(chkSerieSourceOpensubtitles, "cell 0 4 2 1");
-        {
-          cbxPriorityOpensubtitles = new JComboBox<Integer>();
-          cbxPriorityOpensubtitles.setModel(new DefaultComboBoxModel<Integer>(prio));
-          pnlSerieSourcesSelectionSettings.add(cbxPriorityOpensubtitles, "cell 2 4,growx");
-        }
         chkSerieSourceLocal = new JCheckBox("Lokaal");
-        pnlSerieSourcesSelectionSettings.add(chkSerieSourceLocal, "cell 0 6 2 1");
-        {
-          cbxPriorityLocal = new JComboBox<Integer>();
-          cbxPriorityLocal.setModel(new DefaultComboBoxModel<Integer>(prio));
-          pnlSerieSourcesSelectionSettings.add(cbxPriorityLocal, "cell 2 6,growx");
-        }
+        pnlSerieSourcesSelectionSettings.add(chkSerieSourceLocal, "cell 0 5 2 1");
         {
           chkSerieSourceSubsMax = new JCheckBox("SubsMax");
-          pnlSerieSourcesSelectionSettings.add(chkSerieSourceSubsMax, "cell 0 7");
-        }
-        {
-          cbxPrioritySubsMax = new JComboBox<Integer>();
-          cbxPrioritySubsMax.setModel(new DefaultComboBoxModel<Integer>(prio));
-          pnlSerieSourcesSelectionSettings.add(cbxPrioritySubsMax, "cell 2 7,growx");
+          pnlSerieSourcesSelectionSettings.add(chkSerieSourceSubsMax, "cell 0 6");
         }
         JPanel pnlAddic7edLoginSettings = new JPanel();
         pnlSerieSources.add(pnlAddic7edLoginSettings, "cell 0 1 3 1,grow");
@@ -492,33 +454,6 @@ public class PreferenceDialog extends MutliSubDialog {
         .setSelected(settingsCtrl.getSettings().isSerieSourceOpensubtitles());
     chkSerieSourceLocal.setSelected(settingsCtrl.getSettings().isSerieSourceLocal());
     chkSerieSourceSubsMax.setSelected(settingsCtrl.getSettings().isSerieSourceSubsMax());
-
-    for (SearchSubtitlePriority prio : settingsCtrl.getSettings().getListSearchSubtitlePriority()) {
-      switch (prio.getSubtitleSource()) {
-        case ADDIC7ED:
-          cbxPriorityAddic7ed.setSelectedItem(prio.getPriority());
-          break;
-        case LOCAL:
-          cbxPriorityLocal.setSelectedItem(prio.getPriority());
-          break;
-        case OPENSUBTITLES:
-          cbxPriorityOpensubtitles.setSelectedItem(prio.getPriority());
-          break;
-        case PODNAPISI:
-          cbxPriorityPodnapisi.setSelectedItem(prio.getPriority());
-          break;
-        case TVSUBTITLES:
-          cbxPriorityTvSubtitles.setSelectedItem(prio.getPriority());
-          break;
-        case SUBSMAX:
-          cbxPrioritySubsMax.setSelectedItem(prio.getPriority());
-          break;
-        default:
-          break;
-      }
-
-    }
-
   }
 
   protected boolean testOptionsTab() {
@@ -639,42 +574,6 @@ public class PreferenceDialog extends MutliSubDialog {
           chkSerieSourceOpensubtitles.isSelected());
       settingsCtrl.getSettings().setSerieSourceLocal(chkSerieSourceLocal.isSelected());
       settingsCtrl.getSettings().setSerieSourceSubsMax(chkSerieSourceSubsMax.isSelected());
-
-      // Save priority
-      SearchSubtitlePriority prioAddic7ed =
-          new SearchSubtitlePriority(SubtitleSource.ADDIC7ED,
-              (Integer) cbxPriorityAddic7ed.getSelectedItem());
-      SearchSubtitlePriority prioLocal =
-          new SearchSubtitlePriority(SubtitleSource.LOCAL,
-              (Integer) cbxPriorityLocal.getSelectedItem());
-      SearchSubtitlePriority prioOpensubtitles =
-          new SearchSubtitlePriority(SubtitleSource.OPENSUBTITLES,
-              (Integer) cbxPriorityOpensubtitles.getSelectedItem());
-      SearchSubtitlePriority prioPodnapisi =
-          new SearchSubtitlePriority(SubtitleSource.PODNAPISI,
-              (Integer) cbxPriorityPodnapisi.getSelectedItem());
-      SearchSubtitlePriority prioTvSubtitles =
-          new SearchSubtitlePriority(SubtitleSource.TVSUBTITLES,
-              (Integer) cbxPriorityTvSubtitles.getSelectedItem());
-      SearchSubtitlePriority prioSubsMax =
-          new SearchSubtitlePriority(SubtitleSource.SUBSMAX,
-              (Integer) cbxPrioritySubsMax.getSelectedItem());
-      List<SearchSubtitlePriority> lPrio = new ArrayList<SearchSubtitlePriority>();
-
-      lPrio.add(prioAddic7ed);
-      lPrio.add(prioLocal);
-      lPrio.add(prioOpensubtitles);
-      lPrio.add(prioPodnapisi);
-      lPrio.add(prioTvSubtitles);
-      lPrio.add(prioSubsMax);
-
-      java.util.Collections.sort(lPrio, new Comparator<SearchSubtitlePriority>() {
-        public int compare(SearchSubtitlePriority t1, SearchSubtitlePriority t2) {
-          return t1.getPriority() - t2.getPriority();
-        }
-      });
-
-      settingsCtrl.getSettings().setListSearchSubtitlePriority(lPrio);
     } else {
       status = false;
     }

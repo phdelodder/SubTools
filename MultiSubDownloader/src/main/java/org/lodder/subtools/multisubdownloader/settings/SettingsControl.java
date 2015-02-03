@@ -1,21 +1,26 @@
 package org.lodder.subtools.multisubdownloader.settings;
 
-import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
-import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
-import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
-import org.lodder.subtools.multisubdownloader.settings.model.*;
-import org.lodder.subtools.sublibrary.logging.Level;
-import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
-import org.lodder.subtools.sublibrary.settings.MappingSettingsControl;
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
 import java.util.prefs.Preferences;
+
+import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
+import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
+import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
+import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
+import org.lodder.subtools.multisubdownloader.settings.model.Settings;
+import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
+import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
+import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
+import org.lodder.subtools.sublibrary.logging.Level;
+import org.lodder.subtools.sublibrary.logging.Logger;
+import org.lodder.subtools.sublibrary.settings.MappingSettingsControl;
 
 public class SettingsControl {
 
@@ -255,31 +260,6 @@ public class SettingsControl {
     preferences.putBoolean("serieSourcePodnapisi", settings.isSerieSourcePodnapisi());
     preferences.putBoolean("serieSourceTvSubtitles", settings.isSerieSourceTvSubtitles());
     preferences.putBoolean("serieSourceSubsMax", settings.isSerieSourceSubsMax());
-
-    for (SearchSubtitlePriority prio : settings.getListSearchSubtitlePriority()) {
-      switch (prio.getSubtitleSource()) {
-        case ADDIC7ED:
-          preferences.putInt("serieSourceAddic7edPrio", prio.getPriority());
-          break;
-        case LOCAL:
-          preferences.putInt("serieSourceLocalPrio", prio.getPriority());
-          break;
-        case OPENSUBTITLES:
-          preferences.putInt("serieSourceOpensubtitlesPrio", prio.getPriority());
-          break;
-        case PODNAPISI:
-          preferences.putInt("serieSourcePodnapisiPrio", prio.getPriority());
-          break;
-        case TVSUBTITLES:
-          preferences.putInt("serieSourceTvSubtitlesPrio", prio.getPriority());
-          break;
-        case SUBSMAX:
-          preferences.putInt("serieSourceSubsMaxPrio", prio.getPriority());
-          break;
-        default:
-          break;
-      }
-    }
   }
 
   public void load() {
@@ -468,41 +448,6 @@ public class SettingsControl {
     settings.setSerieSourcePodnapisi(preferences.getBoolean("serieSourcePodnapisi", true));
     settings.setSerieSourceTvSubtitles(preferences.getBoolean("serieSourceTvSubtitles", true));
     settings.setSerieSourceSubsMax(preferences.getBoolean("serieSourceSubsMax", true));
-
-    SearchSubtitlePriority prioAddic7ed =
-        new SearchSubtitlePriority(SubtitleSource.ADDIC7ED, preferences.getInt(
-            "serieSourceAddic7edPrio", 2));
-    SearchSubtitlePriority prioLocal =
-        new SearchSubtitlePriority(SubtitleSource.LOCAL, preferences.getInt(
-            "serieSourceLocalPrio", 2));
-    SearchSubtitlePriority prioOpensubtitles =
-        new SearchSubtitlePriority(SubtitleSource.OPENSUBTITLES, preferences.getInt(
-            "serieSourceOpensubtitlesPrio", 2));
-    SearchSubtitlePriority prioPodnapisi =
-        new SearchSubtitlePriority(SubtitleSource.PODNAPISI, preferences.getInt(
-            "serieSourcePodnapisiPrio", 2));
-    SearchSubtitlePriority prioTvSubtitles =
-        new SearchSubtitlePriority(SubtitleSource.TVSUBTITLES, preferences.getInt(
-            "serieSourceTvSubtitlesPrio", 2));
-    SearchSubtitlePriority prioSubsMax =
-        new SearchSubtitlePriority(SubtitleSource.SUBSMAX, preferences.getInt(
-            "serieSourceSubsMaxPrio", 2));
-    List<SearchSubtitlePriority> lPrio = new ArrayList<SearchSubtitlePriority>();
-
-    lPrio.add(prioAddic7ed);
-    lPrio.add(prioLocal);
-    lPrio.add(prioOpensubtitles);
-    lPrio.add(prioPodnapisi);
-    lPrio.add(prioTvSubtitles);
-    lPrio.add(prioSubsMax);
-
-    java.util.Collections.sort(lPrio, new Comparator<SearchSubtitlePriority>() {
-      public int compare(SearchSubtitlePriority t1, SearchSubtitlePriority t2) {
-        return t1.getPriority() - t2.getPriority();
-      }
-    });
-
-    settings.setListSearchSubtitlePriority(lPrio);
   }
 
   private String checkForOldStructure(String oldStructure) {

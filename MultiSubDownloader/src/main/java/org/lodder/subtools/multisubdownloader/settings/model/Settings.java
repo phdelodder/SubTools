@@ -33,7 +33,6 @@ public class Settings {
   private boolean autoUpdateMapping;
   private SettingsProcessEpisodeSource processEpisodeSource;
   private MappingSettings mappingSettings;
-  private List<SearchSubtitlePriority> listSearchSubtitlePriority;
   private Map<String, Integer> sortWeights;
   private boolean optionsMinAutomaticSelection;
   private int optionsMinAutomaticSelectionValue;
@@ -64,7 +63,6 @@ public class Settings {
     setOptionSubtitleKeywordMatch(true);
     setProcessEpisodeSource(SettingsProcessEpisodeSource.TVDB);
     setMappingSettings(new MappingSettings());
-    listSearchSubtitlePriority = new ArrayList<SearchSubtitlePriority>();
     optionsMinAutomaticSelection = false;
     optionsMinAutomaticSelectionValue = 0;
   }
@@ -363,20 +361,6 @@ public class Settings {
    */
   public void setOptionSubtitleExcludeHearingImpaired(boolean optionSubtitleExcludeHearingImpaired) {
     this.optionSubtitleExcludeHearingImpaired = optionSubtitleExcludeHearingImpaired;
-  }
-
-  /**
-   * @return the listSearchSubtitlePriority
-   */
-  public List<SearchSubtitlePriority> getListSearchSubtitlePriority() {
-    return listSearchSubtitlePriority;
-  }
-
-  /**
-   * @param listSearchSubtitlePriority the listSearchSubtitlePriority to set
-   */
-  public void setListSearchSubtitlePriority(List<SearchSubtitlePriority> listSearchSubtitlePriority) {
-    this.listSearchSubtitlePriority = listSearchSubtitlePriority;
   }
 
   public boolean isSerieSourceSubsMax() {

@@ -1,15 +1,39 @@
 package org.lodder.subtools.multisubdownloader.lib;
 
-import org.lodder.subtools.multisubdownloader.settings.model.SearchSubtitlePriority;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.logging.Logger;
+import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 
 public class Info {
 
   public static void subtitleSources(Settings settings) {
-    Logger.instance.log("----- Subtitle Sources ------");
-    for (SearchSubtitlePriority prio : settings.getListSearchSubtitlePriority()) {
-      Logger.instance.log(" - Source : " + prio.getSubtitleSource().toString() + " , Prio : " + prio.getPriority());
+    Logger.instance.log("----- Subtitle Providers ------");
+    for (SubtitleSource source : SubtitleSource.values()) {
+      boolean enabled = false;
+      switch (source){
+        case ADDIC7ED:
+          enabled = settings.isSerieSourceAddic7ed();
+          break;
+        case LOCAL:
+          enabled = settings.isSerieSourceLocal();
+          break;
+        case OPENSUBTITLES:
+          enabled = settings.isSerieSourceOpensubtitles();
+          break;
+        case PODNAPISI:
+          enabled = settings.isSerieSourcePodnapisi();
+          break;
+        case SUBSMAX:
+          enabled = settings.isSerieSourceSubsMax();
+          break;
+        case TVSUBTITLES:
+          enabled = settings.isSerieSourceTvSubtitles();
+          break;
+        default:
+          break;
+        
+      }
+      Logger.instance.log(" - provider : " + source.toString() + " enabled: " + enabled);
     }
     Logger.instance.log("-----------------------------");
   }
