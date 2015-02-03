@@ -102,10 +102,12 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
       Logger.instance.error("API OPENSUBTITLES searchSubtitles: " + e);
     }
     for (OpenSubtitlesSubtitleDescriptor ossd : lSubtitles) {
-      listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.OPENSUBTITLES, ossd
-          .getSubFileName(), ossd.getSubDownloadLink(), ossd.getISO639(), "",
-          SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(ossd.getSubFileName()), ossd
-              .getUserNickName(), Boolean.valueOf(ossd.getSubHearingImpaired())));
+      if (movieRelease.getYear() == ossd.getMovieYear()) {
+        listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.OPENSUBTITLES, ossd
+            .getSubFileName(), ossd.getSubDownloadLink(), ossd.getISO639(), "",
+            SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(ossd.getSubFileName()),
+            ossd.getUserNickName(), Boolean.valueOf(ossd.getSubHearingImpaired())));
+      }
     }
     return listFoundSubtitles;
   }
@@ -182,8 +184,8 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
           | (originalName.length() > 0 && subFileName.contains(originalName))) {
         listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.OPENSUBTITLES, ossd
             .getSubFileName(), ossd.getSubDownloadLink(), ossd.getISO639(), "",
-            SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(ossd.getSubFileName()), ossd
-                .getUserNickName(), Boolean.valueOf(ossd.getSubHearingImpaired())));
+            SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(ossd.getSubFileName()),
+            ossd.getUserNickName(), Boolean.valueOf(ossd.getSubHearingImpaired())));
       }
     }
     return listFoundSubtitles;
