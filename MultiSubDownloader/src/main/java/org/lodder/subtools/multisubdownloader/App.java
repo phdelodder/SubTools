@@ -41,7 +41,7 @@ public class App {
     }
 
     final Container app = new Container();
-    Bootstrapper bootstrapper = new Bootstrapper(app);
+    Bootstrapper bootstrapper = new Bootstrapper(app, prefctrl.getSettings());
     bootstrapper.initialize();
 
     if (line != null) {

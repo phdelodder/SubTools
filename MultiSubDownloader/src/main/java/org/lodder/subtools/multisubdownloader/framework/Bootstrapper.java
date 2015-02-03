@@ -7,31 +7,40 @@ import java.util.List;
 import java.util.Set;
 import org.lodder.subtools.multisubdownloader.framework.service.providers.ServiceProvider;
 import org.lodder.subtools.multisubdownloader.framework.service.providers.ServiceProviderComparator;
+import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.reflections.Reflections;
 
 public class Bootstrapper {
 
-  private Container app;
+  private final Container app;
+  private final Settings settings;
 
-  public Bootstrapper(Container app){
+  public Bootstrapper(Container app, Settings settings) {
     this.app = app;
+    this.settings = settings;
   }
 
   public void initialize() {
-    // TODO: laad settings
+    /* Bind Settings to IoC Container */
+    this.app.bind("Settings", new Resolver() {
+      @Override
+      public Object resolve() {
+        return settings;
+      }
+    });
 
-    // Verzamel alle serviceproviders
+    // Collect ServiceProviders
     List<ServiceProvider> providers = this.getProviders();
 
-    // Sorteer volgens prioriteit
+    // Sort according to priority
     Collections.sort(providers, new ServiceProviderComparator());
 
-    // Registreer de serviceproviders
+    // Register ServiceProviders
     this.registerProviders(providers);
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public List<ServiceProvider> getProviders() {
 
     Reflections reflections = new Reflections("org.lodder.subtools.multisubdownloader");
@@ -47,7 +56,8 @@ public class Bootstrapper {
         Constructor constructor = serviceProviderClass.getConstructor();
         serviceProvider = (ServiceProvider) constructor.newInstance();
       } catch (Exception e) {
-        Logger.instance.error("ServiceProvider: '" + serviceProviderClass.getClass().getName() + "' failed to create instance.");
+        Logger.instance.error(
+          "ServiceProvider: '" + serviceProviderClass.getClass().getName() + "' failed to create instance.");
       }
 
       if (serviceProvider == null)
@@ -63,7 +73,7 @@ public class Bootstrapper {
     for (ServiceProvider provider : providers) {
       provider.register(this.app);
 
-      Logger.instance.log("ServiceProvider: '"+ provider.getClass().getName() + "' registered.");
+      Logger.instance.log("ServiceProvider: '" + provider.getClass().getName() + "' registered.");
     }
   }
 }
