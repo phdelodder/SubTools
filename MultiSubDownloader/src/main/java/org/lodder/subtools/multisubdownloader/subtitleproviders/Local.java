@@ -19,12 +19,26 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.util.Utils;
 
-public class Local {
+public class Local implements SubtitleProvider {
 
   private Settings settings;
 
   public Local(Settings settings) {
     this.settings = settings;
+  }
+
+  @Override
+  public String getName() {
+    return "Local";
+  }
+
+  @Override
+  public List<Subtitle> search(Release release, String languageCode) {
+    if (release instanceof MovieRelease) {
+      return this.search((MovieRelease) release, languageCode);
+    } else {
+      return this.search((TvRelease) release, languageCode);
+    }
   }
 
   private List<File> getPossibleSubtitles(String filter) {
@@ -63,10 +77,10 @@ public class Local {
               String detectedLang = DetectLanguage.execute(fileSub);
               if (detectedLang.equals(languagecode)) {
                 Logger.instance.debug("Local Sub found, adding " + fileSub.toString());
-                listFoundSubtitles
-                    .add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub.getName(), fileSub
-                        .toString(), "", "", SubtitleMatchType.EVERYTHING, ReleaseParser
-                        .extractReleasegroup(fileSub.getName()), fileSub.getAbsolutePath(), false));
+                listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub
+                    .getName(), fileSub.toString(), "", "", SubtitleMatchType.EVERYTHING,
+                    ReleaseParser.extractReleasegroup(fileSub.getName()),
+                    fileSub.getAbsolutePath(), false));
               }
             }
           }
@@ -96,13 +110,12 @@ public class Local {
         if (release.getVideoType() == VideoType.MOVIE) {
           MovieReleaseControl movieCtrl = new MovieReleaseControl((MovieRelease) release, settings);
           movieCtrl.process(settings.getMappingSettings().getMappingList());
-          if (((MovieRelease)release).getImdbid() == movieRelease.getImdbid()){
+          if (((MovieRelease) release).getImdbid() == movieRelease.getImdbid()) {
             String detectedLang = DetectLanguage.execute(fileSub);
             if (detectedLang.equals(languagecode)) {
               Logger.instance.debug("Local Sub found, adding " + fileSub.toString());
-              listFoundSubtitles
-                  .add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub.getName(), fileSub
-                      .toString(), "", "", SubtitleMatchType.EVERYTHING, ReleaseParser
+              listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub.getName(),
+                  fileSub.toString(), "", "", SubtitleMatchType.EVERYTHING, ReleaseParser
                       .extractReleasegroup(fileSub.getName()), fileSub.getAbsolutePath(), false));
             }
           }
