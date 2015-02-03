@@ -36,6 +36,7 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import org.lodder.subtools.multisubdownloader.framework.Container;
+import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
 import org.lodder.subtools.multisubdownloader.gui.Menu;
 import org.lodder.subtools.multisubdownloader.gui.actions.search.FileSearchAction;
 import org.lodder.subtools.multisubdownloader.gui.actions.search.TextSearchAction;
@@ -313,7 +314,8 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
     menuBar.setEditPreferencesAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        final PreferenceDialog pDialog = new PreferenceDialog(getThis(), settingsControl);
+        final PreferenceDialog pDialog =
+          new PreferenceDialog(getThis(), settingsControl, (Emitter) app.make("EventEmitter"));
         pDialog.setVisible(true);
       }
     });
