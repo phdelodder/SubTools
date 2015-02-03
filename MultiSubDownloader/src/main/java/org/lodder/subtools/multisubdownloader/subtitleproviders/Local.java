@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader.lib.control.subtitles;
+package org.lodder.subtools.multisubdownloader.subtitleproviders;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -19,11 +19,11 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.util.Utils;
 
-public class LocalFileRepo {
+public class Local {
 
   private Settings settings;
 
-  public LocalFileRepo(Settings settings) {
+  public Local(Settings settings) {
     this.settings = settings;
   }
 
