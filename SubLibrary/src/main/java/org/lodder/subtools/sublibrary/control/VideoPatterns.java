@@ -14,7 +14,7 @@ public class VideoPatterns {
 
   public static final String[] QUALITYKEYWORDS = new String[] {"hdtv", "web-dl", "web dl",
       "dvdrip", "bluray", "1080p", "ts", "dvdscreener", "r5", "bdrip", "brrip", "720p", "xvid",
-      "cam", "480p", "webdl", "web", "dl", "x264", "1080i", "pdtv", "divx"};
+      "cam", "480p", "webdl", "web", "dl", "x264", "1080i", "pdtv", "divx", "webrip"};
 
   public static final String[] GROUPEDQUALITYKEYWORDS = new String[] {"hdtv 720p", "hdtv xvid",
       "hdtv x264"};
