@@ -128,7 +128,7 @@ public class CommandLine implements Listener, SearchHandler {
         }
       } else {
         Logger.instance.log("Downloading subtitle: "
-            + release.getMatchingSubs().get(0).getFilename() + " for release: "
+            + release.getMatchingSubs().get(selection).getFilename() + " for release: "
             + release.getFilename());
         actions.download(release, release.getMatchingSubs().get(selection));
       }
