@@ -102,7 +102,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
    */
   public MainWindow(final SettingsControl settingsControl, Container app) {
     this.app = app;
-    setTitle("Multi Sub Downloader");
+    setTitle(ConfigProperties.getInstance().getProperty("name"));
     /*
      * setIconImage(Toolkit.getDefaultToolkit().getImage(
      * getClass().getResource("/resources/Bierdopje_bigger.png")));
@@ -117,7 +117,6 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
     try {
       if (this.settingsControl.getSettings().isAutoUpdateMapping()) {
-        Logger.instance.log("Auto updating mapping ....");
         this.settingsControl.updateMappingFromOnline();
       }
     } catch (Throwable e) {
@@ -132,8 +131,18 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
       editorPane.setPreferredSize(new Dimension(800, 50));
       editorPane.setEditable(false);
       editorPane.setContentType("text/html");
-      editorPane.setText("<html>Update available!: </br><A HREF=" + u.getUpdateUrl() + ">"
-          + u.getUpdateUrl() + "</a</html>");
+
+      StringBuilder sb = new StringBuilder();
+      sb.append("<html>");
+      sb.append(Messages.getString("UpdateAppAvailable"));
+      sb.append("!: </br><A HREF=");
+      sb.append(u.getUpdateUrl());
+      sb.append(">");
+      sb.append(u.getUpdateUrl());
+      sb.append("</a></html>");
+
+      editorPane.setText(sb.toString());
+
       editorPane.addHyperlinkListener(new HyperlinkListener() {
         @Override
         public void hyperlinkUpdate(final HyperlinkEvent hyperlinkEvent) {
@@ -147,12 +156,13 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
           }
         }
       });
-      JOptionPane.showMessageDialog(this, editorPane, "MultiSubDownloader",
-          JOptionPane.INFORMATION_MESSAGE);
+      JOptionPane.showMessageDialog(this, editorPane,
+          ConfigProperties.getInstance().getProperty("name"), JOptionPane.INFORMATION_MESSAGE);
     } else if (showNoUpdate) {
-      JOptionPane.showMessageDialog(this, "Geen nieuwe update beschikbaar" + ", huidige versie: "
-          + ConfigProperties.getInstance().getProperty("version"), "MultiSubDownloader",
-          JOptionPane.INFORMATION_MESSAGE);
+      JOptionPane.showMessageDialog(this, Messages.getString("MainWindow.NoUpdateAvailable")
+          + ConfigProperties.getInstance().getProperty("version")
+          + ConfigProperties.getInstance().getProperty(Messages.getString("MainWindow.Version")),
+          ConfigProperties.getInstance().getProperty("name"), JOptionPane.INFORMATION_MESSAGE);
     }
   }
 
@@ -190,10 +200,10 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     getContentPane().add(tabbedPane, gbc_tabbedPane);
 
     createFileSearchPanel();
-    tabbedPane.addTab("Zoeken op bestanden", null, pnlSearchFile, null);
+    tabbedPane.addTab(Messages.getString("MainWindow.SearchOnFile"), null, pnlSearchFile, null);
 
     createTextSearchPanel();
-    tabbedPane.addTab("Zoeken op naam", null, pnlSearchText, null);
+    tabbedPane.addTab(Messages.getString("MainWindow.SearchOnName"), null, pnlSearchText, null);
 
     pnlLogging = new LoggingPanel();
     final GridBagConstraints gbc_pnlLogging = new GridBagConstraints();
@@ -450,8 +460,9 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     resultPanel.setMoveAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         final int response =
-            JOptionPane.showConfirmDialog(getThis(),
-                "Dit is enkel verplaatsen naar de bibliotheek structuur!", "Bevestigen",
+            JOptionPane.showConfirmDialog(
+                getThis(),
+                Messages.getString("MainWindow.OnlyMoveToLibraryStructure"), Messages.getString("MainWindow.Confirm"), //$NON-NLS-2$
                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
         if (response == JOptionPane.YES_OPTION) {
           rename();
@@ -521,7 +532,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
   private void initPopupMenu() {
     popupMenu = new MyPopupMenu();
-    JMenuItem menuItem = new JMenuItem("Kopiëren");
+    JMenuItem menuItem = new JMenuItem(Messages.getString("MainWindow.Copy"));
     menuItem.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         final VideoTable t = (VideoTable) popupMenu.getInvoker();
@@ -556,8 +567,8 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   }
 
   private void showAbout() {
-    JOptionPane.showConfirmDialog(this, "Sub download tool", "MultiSubDownloader",
-        JOptionPane.CLOSED_OPTION);
+    JOptionPane.showConfirmDialog(this, Messages.getString("MainWindow.AboutTitle"),
+        ConfigProperties.getInstance().getProperty("name"), JOptionPane.CLOSED_OPTION);
   }
 
   protected void rename() {
@@ -585,7 +596,8 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     VideoTable subtitleTable = pnlSearchText.getResultPanel().getTable();
     final VideoTableModel model = (VideoTableModel) subtitleTable.getModel();
     File path =
-        MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), "Selecteer map");
+        MemoryFolderChooser.getInstance().selectDirectory(getContentPane(),
+            Messages.getString("MainWindow.SelectFolder"));
 
     for (int i = 0; i < model.getRowCount(); i++) {
       if ((Boolean) model.getValueAt(i, subtitleTable.getColumnIdByName(SearchColumnName.SELECT))) {
@@ -621,7 +633,8 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   }
 
   public void showErrorMessage(String message) {
-    JOptionPane.showConfirmDialog(this, message, "MultiSubDownloader", JOptionPane.CLOSED_OPTION,
+    JOptionPane.showConfirmDialog(this, message,
+        ConfigProperties.getInstance().getProperty("name"), JOptionPane.CLOSED_OPTION,
         JOptionPane.ERROR_MESSAGE);
   }
 
@@ -657,7 +670,9 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   }
 
   private void selectIncomingFolder() {
-    File path = MemoryFolderChooser.getInstance().selectDirectory(getThis(), "Selecteer map");
+    File path =
+        MemoryFolderChooser.getInstance().selectDirectory(getThis(),
+            Messages.getString("MainWindow.SelectFolder"));
     pnlSearchFileInput.setIncomingPath(path.getAbsolutePath());
   }
 
@@ -671,7 +686,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
       } else {
         final int progress = downloadWorker.getProgress();
         progressDialog.updateProgress(progress);
-        StatusMessenger.instance.message("Downloaden ....");
+        StatusMessenger.instance.message(Messages.getString("MainWindow.StatusDownload"));
       }
     } else if (event.getSource() instanceof RenameWorker) {
       final RenameWorker renameWorker = (RenameWorker) event.getSource();
@@ -681,13 +696,13 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
       } else {
         final int progress = renameWorker.getProgress();
         progressDialog.updateProgress(progress);
-        StatusMessenger.instance.message("Hernoemen ....");
+        StatusMessenger.instance.message(Messages.getString("MainWindow.StatusRename"));
       }
     }
   }
 
   private void close() {
-    Logger.instance.log("MainWindow, close()", Level.TRACE);
+    Logger.instance.log("close", Level.TRACE);
     settingsControl.getSettings().setOptionRecursive(pnlSearchFileInput.isRecursiveSelected());
     storeScreenSettings();
     settingsControl.store();

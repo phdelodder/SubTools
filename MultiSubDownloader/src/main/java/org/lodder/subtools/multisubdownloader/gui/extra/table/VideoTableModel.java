@@ -33,8 +33,8 @@ public class VideoTableModel extends DefaultTableModel {
   private Class<?>[] getColumnTypes(Object[] columnNames) {
     Class<?>[] columnTypes = new Class[columnNames.length];
     for (int i = 0; i < columnNames.length; i++) {
-      if (SearchColumnName.SERIE.getColumnName().equals(columnNames[i])) {
-        columnTypes[i] = SearchColumnName.SERIE.getC();
+      if (SearchColumnName.RELEASE.getColumnName().equals(columnNames[i])) {
+        columnTypes[i] = SearchColumnName.RELEASE.getC();
       } else if (SearchColumnName.FILENAME.getColumnName().equals(columnNames[i])) {
         columnTypes[i] = SearchColumnName.FILENAME.getC();
       } else if (SearchColumnName.FOUND.getColumnName().equals(columnNames[i])) {
@@ -63,8 +63,8 @@ public class VideoTableModel extends DefaultTableModel {
   private boolean[] getColumnEditables(Object[] columnNames) {
     boolean[] columnEditables = new boolean[columnNames.length];
     for (int i = 0; i < columnNames.length; i++) {
-      if (SearchColumnName.SERIE.getColumnName().equals(columnNames[i])) {
-        columnEditables[i] = SearchColumnName.SERIE.isEditable();
+      if (SearchColumnName.RELEASE.getColumnName().equals(columnNames[i])) {
+        columnEditables[i] = SearchColumnName.RELEASE.isEditable();
       } else if (SearchColumnName.FILENAME.getColumnName().equals(columnNames[i])) {
         columnEditables[i] = SearchColumnName.FILENAME.isEditable();
       } else if (SearchColumnName.FOUND.getColumnName().equals(columnNames[i])) {
@@ -92,7 +92,7 @@ public class VideoTableModel extends DefaultTableModel {
 
   public static VideoTableModel getDefaultVideoTableModel() {
     return new VideoTableModel(new Object[][] {}, new String[] {
-        SearchColumnName.TYPE.getColumnName(), SearchColumnName.SERIE.getColumnName(),
+        SearchColumnName.TYPE.getColumnName(), SearchColumnName.RELEASE.getColumnName(),
         SearchColumnName.FILENAME.getColumnName(), SearchColumnName.TITLE.getColumnName(),
         SearchColumnName.SEASON.getColumnName(), SearchColumnName.EPISODE.getColumnName(),
         SearchColumnName.FOUND.getColumnName(), SearchColumnName.SELECT.getColumnName(),
@@ -133,7 +133,7 @@ public class VideoTableModel extends DefaultTableModel {
     String columnName;
     for (int i = 0; i < cCount; i++) {
       columnName = this.getColumnName(i);
-      if (SearchColumnName.SERIE.getColumnName().equals(columnName)) {
+      if (SearchColumnName.RELEASE.getColumnName().equals(columnName)) {
         if (release instanceof TvRelease) {
           row[i] = ((TvRelease) release).getShow();
         } else if (release instanceof MovieRelease) {

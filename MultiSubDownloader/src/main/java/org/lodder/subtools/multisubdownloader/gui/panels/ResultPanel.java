@@ -2,9 +2,13 @@ package org.lodder.subtools.multisubdownloader.gui.panels;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+
 import net.miginfocom.swing.MigLayout;
+
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
@@ -40,7 +44,7 @@ public class ResultPanel extends JPanel {
     actionButtonsPanel.add(btnDownload, "cell 0 0,alignx right,aligny top");
     actionButtonsPanel.add(btnMove, "cell 1 0,alignx left,aligny top");
 
-    add(new JLabel("Zoek Resultaten"), "cell 0 0 2 1,gapy 5");
+    add(new JLabel(Messages.getString("ResultPanel.SearchResults")), "cell 0 0 2 1,gapy 5");
     add(new JSeparator(), "cell 0 0 2 1,growx,gaptop 5");
     add(scrollPane, "cell 0 1 1 4,grow");
     add(btnSelectNone, "cell 1 1,aligny bottom");
@@ -130,11 +134,11 @@ public class ResultPanel extends JPanel {
 
   private void createComponents() {
     scrollPane = new JScrollPane();
-    btnSelectNone = new JButton("Selecteer niets");
-    btnSelectFound = new JButton("Selecteer gevonden");
-    btnSelectAll = new JButton("Selecteer alles");
-    btnDownload = new JButton("Download geselecteerde");
-    btnMove = new JButton("Verplaats geselecteerde");
+    btnSelectNone = new JButton(Messages.getString("ResultPanel.SelectNothing"));
+    btnSelectFound = new JButton(Messages.getString("ResultPanel.SelectFound"));
+    btnSelectAll = new JButton(Messages.getString("ResultPanel.SelectEverything"));
+    btnDownload = new JButton(Messages.getString("ResultPanel.DownloadSelected"));
+    btnMove = new JButton(Messages.getString("ResultPanel.MoveSelected"));
   }
 
   private void setEnableButtons(boolean enabled) {

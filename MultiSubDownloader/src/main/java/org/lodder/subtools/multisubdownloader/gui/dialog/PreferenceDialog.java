@@ -26,6 +26,7 @@ import net.miginfocom.swing.MigLayout;
 
 import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
 import org.lodder.subtools.multisubdownloader.framework.event.Event;
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.extra.JListWithImages;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.panels.EpisodeLibraryPanel;
@@ -66,7 +67,7 @@ public class PreferenceDialog extends MutliSubDialog {
    * Create the dialog.
    */
   public PreferenceDialog(JFrame frame, final SettingsControl settingsCtrl, Emitter eventEmitter) {
-    super(frame, "Voorkeuren", true);
+    super(frame, Messages.getString("PreferenceDialog.Title"), true);
     this.settingsCtrl = settingsCtrl;
     this.eventEmitter = eventEmitter;
     initialize();
@@ -88,20 +89,22 @@ public class PreferenceDialog extends MutliSubDialog {
       contentPanel.add(tabbedPane);
       {
         JPanel pnlGeneral = new JPanel();
-        tabbedPane.addTab("Algmeen", null, pnlGeneral, null);
+        tabbedPane
+            .addTab(Messages.getString("PreferenceDialog.TabGeneral"), null, pnlGeneral, null);
         pnlGeneral.setLayout(new MigLayout("", "[127px,grow][grow][grow]",
             "[23px][grow][][][grow,center][grow]"));
         {
-          JLabel lblDefaultIncomingFolder = new JLabel("Standaard inkomende map");
+          JLabel lblDefaultIncomingFolder =
+              new JLabel(Messages.getString("PreferenceDialog.DefaultIncomingFolder"));
           pnlGeneral.add(lblDefaultIncomingFolder, "cell 0 0,alignx left,aligny center");
         }
         {
-          JButton btnBrowse = new JButton("map toevoegen");
+          JButton btnBrowse = new JButton(Messages.getString("PreferenceDialog.AddFolder"));
           btnBrowse.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
               File path =
                   MemoryFolderChooser.getInstance().selectDirectory(getContentPane(),
-                      "Selecteer map");
+                      Messages.getString("PreferenceDialog.SelectFolder"));
               if (defaultIncomingFoldersList.getModel().getSize() == 0) {
                 defaultIncomingFoldersList.addItem(SettingsExcludeType.FOLDER,
                     path.getAbsolutePath());
@@ -122,7 +125,7 @@ public class PreferenceDialog extends MutliSubDialog {
           pnlGeneral.add(btnBrowse, "cell 1 0,alignx left,aligny top");
         }
         {
-          JButton button = new JButton("map verwijderen");
+          JButton button = new JButton(Messages.getString("PreferenceDialog.DeleteFolder"));
           button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
               DefaultListModel<JPanel> model =
@@ -144,11 +147,11 @@ public class PreferenceDialog extends MutliSubDialog {
           }
         }
         {
-          JLabel lblUitsluitLijst = new JLabel("Uitsluit lijst");
+          JLabel lblUitsluitLijst = new JLabel(Messages.getString("PreferenceDialog.ExcludeList"));
           pnlGeneral.add(lblUitsluitLijst, "cell 0 2,alignx right,gaptop 10");
         }
         {
-          JButton btnAddUitsluitMap = new JButton("map toevoegen");
+          JButton btnAddUitsluitMap = new JButton(Messages.getString("PreferenceDialog.AddFolder"));
           btnAddUitsluitMap.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
               addExcludeItem(SettingsExcludeType.FOLDER);
@@ -157,7 +160,8 @@ public class PreferenceDialog extends MutliSubDialog {
           pnlGeneral.add(btnAddUitsluitMap, "cell 1 2,alignx center,gaptop 10");
         }
         {
-          JButton btnVerwijderUitsluitMap = new JButton("item verwijderen");
+          JButton btnVerwijderUitsluitMap =
+              new JButton(Messages.getString("PreferenceDialog.DeleteItem"));
           btnVerwijderUitsluitMap.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
               removeExcludeItem();
@@ -166,7 +170,8 @@ public class PreferenceDialog extends MutliSubDialog {
           pnlGeneral.add(btnVerwijderUitsluitMap, "cell 2 2,alignx center,gaptop 10");
         }
         {
-          JButton btnAddUitsluitRegex = new JButton("regex toevoegen");
+          JButton btnAddUitsluitRegex =
+              new JButton(Messages.getString("PreferenceDialog.RegexToevoegen"));
           btnAddUitsluitRegex.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
               addExcludeItem(SettingsExcludeType.REGEX);
@@ -187,14 +192,16 @@ public class PreferenceDialog extends MutliSubDialog {
           JPanel pnlProxySettings = new JPanel();
           pnlGeneral.add(pnlProxySettings, "cell 0 5 3 1,grow");
           pnlProxySettings.setLayout(new MigLayout("", "[50px:n][][grow][grow]", "[][][][]"));
-          pnlProxySettings.add(new JLabel("Proxy Instellingen"), "cell 0 0 4 1,gapy 5");
+          pnlProxySettings.add(new JLabel(Messages.getString("PreferenceDialog.ConfigureProxy")),
+              "cell 0 0 4 1,gapy 5");
           pnlProxySettings.add(new JSeparator(), "cell 0 0 4 1,growx,gapy 5");
           {
-            chkProxyserverGebruiken = new JCheckBox("Proxyserver gebruiken");
+            chkProxyserverGebruiken =
+                new JCheckBox(Messages.getString("PreferenceDialog.UseProxyServer"));
             pnlProxySettings.add(chkProxyserverGebruiken, "cell 0 1 3 1");
           }
           {
-            JLabel lblProxyHost = new JLabel("Adres");
+            JLabel lblProxyHost = new JLabel(Messages.getString("PreferenceDialog.Hostname"));
             pnlProxySettings.add(lblProxyHost, "cell 1 2,alignx trailing");
           }
           {
@@ -203,7 +210,7 @@ public class PreferenceDialog extends MutliSubDialog {
             txtProxyHost.setColumns(10);
           }
           {
-            JLabel lblProxyPoort = new JLabel("Poort");
+            JLabel lblProxyPoort = new JLabel(Messages.getString("PreferenceDialog.Port"));
             pnlProxySettings.add(lblProxyPoort, "cell 1 3,alignx trailing");
           }
           {
@@ -218,76 +225,91 @@ public class PreferenceDialog extends MutliSubDialog {
       {
         pnlEpisodeLibrary =
             new EpisodeLibraryPanel(settingsCtrl.getSettings().getEpisodeLibrarySettings());
-        tabbedPane.addTab("Serie Bibliotheek", null, pnlEpisodeLibrary, null);
+        tabbedPane.addTab(Messages.getString("PreferenceDialog.SerieLibrary"), null,
+            pnlEpisodeLibrary, null);
       }
       {
         pnlMovieLibrary =
             new MovieLibraryPanel(settingsCtrl.getSettings().getMovieLibrarySettings());
-        tabbedPane.addTab("Film Bibliotheek", null, pnlMovieLibrary, null);
+        tabbedPane.addTab(Messages.getString("PreferenceDialog.MovieLibrary"), null,
+            pnlMovieLibrary, null);
       }
       {
         JPanel pnlOptions = new JPanel();
-        tabbedPane.addTab("Opties", null, pnlOptions, null);
-        pnlOptions.setLayout(new MigLayout("", "[][433px,grow][433px,grow][100px,grow][]", "[][][][][25px][][][][23px][][23px][][]"));
-        pnlOptions.add(new JLabel("Download opties"), "cell 0 0 5 1");
+        tabbedPane.addTab(Messages.getString("PreferenceDialog.Options"), null, pnlOptions, null);
+        pnlOptions.setLayout(new MigLayout("", "[][433px,grow][433px,grow][100px,grow][]",
+            "[][][][][25px][][][][23px][][23px][][]"));
+        pnlOptions.add(new JLabel(Messages.getString("PreferenceDialog.DownloadOptions")),
+            "cell 0 0 5 1");
         pnlOptions.add(new JSeparator(), "cell 0 0 5 1,growx");
-        chkAlwaysConfirm = new JCheckBox("Controleer altijd voor het downloaden");
+        chkAlwaysConfirm =
+            new JCheckBox(Messages.getString("PreferenceDialog.CheckBeforeDownloading"));
         pnlOptions.add(chkAlwaysConfirm, "cell 1 1 3 1,grow");
         {
-          chkMinScoreSelection = new JCheckBox("Minimum Automatic score selection");
+          chkMinScoreSelection =
+              new JCheckBox(Messages.getString("PreferenceDialog.MinAutomaticScoreSelection"));
           pnlOptions.add(chkMinScoreSelection, "cell 1 2");
         }
         {
           cbxMinScoreSelection = new JComboBox<Integer>();
-          cbxMinScoreSelection.setModel(new DefaultComboBoxModel<Integer>(new Integer[] {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100}));
+          cbxMinScoreSelection.setModel(new DefaultComboBoxModel<Integer>(new Integer[] {0, 10, 20,
+              30, 40, 50, 60, 70, 80, 90, 100}));
           pnlOptions.add(cbxMinScoreSelection, "cell 2 2,growx");
         }
-        pnlOptions.add(new JLabel("Zoek filter"), "cell 0 3 5 1");
+        pnlOptions.add(new JLabel(Messages.getString("PreferenceDialog.SearchFilter")),
+            "cell 0 3 5 1");
         pnlOptions.add(new JSeparator(), "cell 0 3 5 1,growx");
         chkSubtitleExactMethod =
-            new JCheckBox(
-                "Exacte (werkt enkel als naamgeving identiek is) [werkte niet met Addic7ed]");
+            new JCheckBox(Messages.getString("PreferenceDialog.SearchFilterExact"));
         pnlOptions.add(chkSubtitleExactMethod, "cell 1 4 3 1,grow");
         {
           chkSubtitleKeywordMethod =
-              new JCheckBox(
-                  "Keywords (op basis van woorden zoals 720p, xvid, ...) [werkt met iedere source]");
+              new JCheckBox(Messages.getString("PreferenceDialog.SearchFilterKeyword"));
           pnlOptions.add(chkSubtitleKeywordMethod, "cell 1 5 3 1");
         }
         {
-          chkExcludeHearingImpaired = new JCheckBox("Hearing Impaired uitsluiten");
+          chkExcludeHearingImpaired =
+              new JCheckBox(Messages.getString("PreferenceDialog.ExcludeHearingImpaired"));
           pnlOptions.add(chkExcludeHearingImpaired, "cell 1 6 3 1");
         }
-        pnlOptions.add(new JLabel("Tabel opties"), "cell 0 7 5 1");
+        pnlOptions.add(new JLabel(Messages.getString("PreferenceDialog.TableOptions")),
+            "cell 0 7 5 1");
         pnlOptions.add(new JSeparator(), "cell 0 7 5 1,growx");
-        chkOnlyFound = new JCheckBox("Alleen gevonden tonen");
+        chkOnlyFound = new JCheckBox(Messages.getString("PreferenceDialog.ShowOnlyFound"));
         pnlOptions.add(chkOnlyFound, "cell 1 8 3 1,growx,aligny center");
-        pnlOptions.add(new JLabel("Fout afhandeling opties"), "cell 0 9 5 1");
+        pnlOptions.add(new JLabel(Messages.getString("PreferenceDialog.ErrorHandlingOption")),
+            "cell 0 9 5 1");
         pnlOptions.add(new JSeparator(), "cell 0 9 5 1,growx");
-        chkStopOnSearchError = new JCheckBox("Stop zoeken na fout");
+        chkStopOnSearchError = new JCheckBox(Messages.getString("PreferenceDialog.StopAfterError"));
         pnlOptions.add(chkStopOnSearchError, "cell 1 10 3 1,alignx left,aligny center");
         {
-          JLabel label = new JLabel("Serie database source");
+          JLabel label = new JLabel(Messages.getString("PreferenceDialog.SerieDatabaseSource"));
           pnlOptions.add(label, "cell 0 11 5 1");
           pnlOptions.add(new JSeparator(), "cell 0 11 5 1,growx");
         }
         {
           cbxEpisodeProcessSource = new JComboBox<SettingsProcessEpisodeSource>();
-          cbxEpisodeProcessSource.setModel(new DefaultComboBoxModel<SettingsProcessEpisodeSource>(SettingsProcessEpisodeSource.values()));
+          cbxEpisodeProcessSource.setModel(new DefaultComboBoxModel<SettingsProcessEpisodeSource>(
+              SettingsProcessEpisodeSource.values()));
           cbxEpisodeProcessSource.setEnabled(false);
           pnlOptions.add(cbxEpisodeProcessSource, "cell 1 12,growx");
         }
       }
       {
+
         JPanel pnlSerieSources = new JPanel();
-        tabbedPane.addTab("Serie Sources", null, pnlSerieSources, null);
+        tabbedPane.addTab(Messages.getString("PreferenceDialog.SerieSources"), null,
+            pnlSerieSources, null);
         pnlSerieSources.setLayout(new MigLayout("", "[grow]", "[][top][]"));
         JPanel pnlSerieSourcesSelectionSettings = new JPanel();
         pnlSerieSources.add(pnlSerieSourcesSelectionSettings, "cell 0 0 3 1,grow");
-        pnlSerieSourcesSelectionSettings.setLayout(new MigLayout("", "[50px:n][][100.00,grow][grow][grow]", "[][][][][][][]"));
-        pnlSerieSourcesSelectionSettings.add(new JLabel(
-            "Selecteer de gewenste providers"), "cell 0 0 5 1,gapy 5");
+        pnlSerieSourcesSelectionSettings.setLayout(new MigLayout("",
+            "[50px:n][][100.00,grow][grow][grow]", "[][][][][][][]"));
+        pnlSerieSourcesSelectionSettings.add(new JLabel("Selecteer de gewenste providers"),
+            "cell 0 0 5 1,gapy 5");
+        pnlSerieSources.add(pnlSerieSourcesSelectionSettings, "cell 0 0 3 1,grow");
         pnlSerieSourcesSelectionSettings.add(new JSeparator(), "cell 0 0 5 1,growx,gapy 5");
+
         chkSerieSourceAddic7ed = new JCheckBox("Addic7ed");
         pnlSerieSourcesSelectionSettings.add(chkSerieSourceAddic7ed, "cell 0 1 2 1");
         chkSerieSourceTvSubtitles = new JCheckBox("Tv Subtitles");
@@ -305,14 +327,17 @@ public class PreferenceDialog extends MutliSubDialog {
         JPanel pnlAddic7edLoginSettings = new JPanel();
         pnlSerieSources.add(pnlAddic7edLoginSettings, "cell 0 1 3 1,grow");
         pnlAddic7edLoginSettings.setLayout(new MigLayout("", "[50px:n][][grow][grow]", "[][][][]"));
-        pnlAddic7edLoginSettings.add(new JLabel("Addic7ed Login"), "cell 0 0 4 1,gapy 5");
+        pnlAddic7edLoginSettings
+            .add(new JLabel(Messages.getString("PreferenceDialog.Addic7edLogin")),
+                "cell 0 0 4 1,gapy 5");
         pnlAddic7edLoginSettings.add(new JSeparator(), "cell 0 0 4 1,growx,gapy 5");
         {
-          chkUserAddic7edLogin = new JCheckBox("Addic7ed login gebruiken");
+          chkUserAddic7edLogin =
+              new JCheckBox(Messages.getString("PreferenceDialog.UseAddic7edLogin"));
           pnlAddic7edLoginSettings.add(chkUserAddic7edLogin, "cell 0 1 3 1");
         }
         {
-          JLabel lblUsername = new JLabel("Gebruikersnaam");
+          JLabel lblUsername = new JLabel(Messages.getString("PreferenceDialog.Username"));
           pnlAddic7edLoginSettings.add(lblUsername, "cell 1 2,alignx trailing");
         }
         {
@@ -321,7 +346,7 @@ public class PreferenceDialog extends MutliSubDialog {
           txtAddic7edUsername.setColumns(10);
         }
         {
-          JLabel lblAddic7edPassword = new JLabel("Paswoord");
+          JLabel lblAddic7edPassword = new JLabel(Messages.getString("PreferenceDialog.Password"));
           pnlAddic7edLoginSettings.add(lblAddic7edPassword, "cell 1 3,alignx trailing");
         }
         {
@@ -332,20 +357,23 @@ public class PreferenceDialog extends MutliSubDialog {
         JPanel pnlLocalSourcesSettings = new JPanel();
         pnlSerieSources.add(pnlLocalSourcesSettings, "cell 0 2 3 1,grow");
         pnlLocalSourcesSettings.setLayout(new MigLayout("", "[][][][grow]", "[][][]"));
-        pnlLocalSourcesSettings.add(new JLabel("Lokale folders"), "cell 0 0 5 1,gapy 5");
+        pnlLocalSourcesSettings.add(
+            new JLabel(Messages.getString("PreferenceDialog.LocalFolders")), "cell 0 0 5 1,gapy 5");
         pnlLocalSourcesSettings.add(new JSeparator(), "cell 0 0 5 1,growx,gapy 5");
 
         {
-          JLabel lblLocalSources = new JLabel("Lokale mappen met ondertitels");
+          JLabel lblLocalSources =
+              new JLabel(Messages.getString("PreferenceDialog.LocalFolderWithSubtitles"));
           pnlLocalSourcesSettings.add(lblLocalSources, "cell 0 1,alignx left,aligny center");
         }
         {
-          JButton btnBrowseLocalSources = new JButton("map toevoegen");
+          JButton btnBrowseLocalSources =
+              new JButton(Messages.getString("PreferenceDialog.AddFolder"));
           btnBrowseLocalSources.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
               File path =
                   MemoryFolderChooser.getInstance().selectDirectory(getContentPane(),
-                      "Selecteer map");
+                      Messages.getString("PreferenceDialog.SelectFolder"));
               if (localSourcesFoldersList.getModel().getSize() == 0) {
                 localSourcesFoldersList.addItem(SettingsExcludeType.FOLDER, path.getAbsolutePath());
               } else {
@@ -365,7 +393,8 @@ public class PreferenceDialog extends MutliSubDialog {
           pnlLocalSourcesSettings.add(btnBrowseLocalSources, "cell 1 1,alignx left,aligny top");
         }
         {
-          JButton btnRemoveLocalSources = new JButton("map verwijderen");
+          JButton btnRemoveLocalSources =
+              new JButton(Messages.getString("PreferenceDialog.DeleteFolder"));
           btnRemoveLocalSources.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
               DefaultListModel<JPanel> model =
@@ -393,18 +422,18 @@ public class PreferenceDialog extends MutliSubDialog {
       buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
       getContentPane().add(buttonPane, BorderLayout.SOUTH);
       {
-        JButton okButton = new JButton(" OK ");
+        JButton okButton = new JButton(Messages.getString("PreferenceDialog.OK"));
         okButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent arg0) {
             testAndSaveValues();
           }
         });
-        okButton.setActionCommand("OK");
+        okButton.setActionCommand(Messages.getString("PreferenceDialog.OK"));
         buttonPane.add(okButton);
         getRootPane().setDefaultButton(okButton);
       }
       {
-        JButton cancelButton = new JButton("Annuleren");
+        JButton cancelButton = new JButton(Messages.getString("PreferenceDialog.Cancel"));
         cancelButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent arg0) {
             setVisible(false);
@@ -434,7 +463,8 @@ public class PreferenceDialog extends MutliSubDialog {
     txtProxyPort.setText(String.valueOf(settingsCtrl.getSettings().getGeneralProxyPort()));
     chkAlwaysConfirm.setSelected(settingsCtrl.getSettings().isOptionsAlwaysConfirm());
     chkMinScoreSelection.setSelected(settingsCtrl.getSettings().isOptionsMinAutomaticSelection());
-    cbxMinScoreSelection.setSelectedItem(settingsCtrl.getSettings().getOptionsMinAutomaticSelectionValue());
+    cbxMinScoreSelection.setSelectedItem(settingsCtrl.getSettings()
+        .getOptionsMinAutomaticSelectionValue());
     chkSubtitleExactMethod.setSelected(settingsCtrl.getSettings().isOptionSubtitleExactMatch());
     chkSubtitleKeywordMethod.setSelected(settingsCtrl.getSettings().isOptionSubtitleKeywordMatch());
     chkExcludeHearingImpaired.setSelected(settingsCtrl.getSettings()
@@ -464,9 +494,9 @@ public class PreferenceDialog extends MutliSubDialog {
     try {
       Integer.parseInt(txtProxyPort.getText());
     } catch (Exception e) {
-      String message = "De proxy poort moet een numerische waarde zijn!";
-      JOptionPane.showConfirmDialog(this, message, "MultiSubDownloader", JOptionPane.CLOSED_OPTION,
-          JOptionPane.ERROR_MESSAGE);
+      String message = Messages.getString("PreferenceDialog.ProxyPortNumericRequired");
+      JOptionPane.showConfirmDialog(this, message, Messages.getString("PreferenceDialog.Name"),
+          JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
       Logger.instance.debug("testGeneralTab: De proxy poort moet een numerische waarde zijn!");
       return false;
     }
@@ -477,8 +507,8 @@ public class PreferenceDialog extends MutliSubDialog {
     if (chkUserAddic7edLogin.isSelected()) {
       if (txtAddic7edUsername.getText().isEmpty() | txtAddic7edPassword.getText().isEmpty()) {
         String message =
-            "Addic7ed login geselecteerd! Gelieve een username en pasword in te vullen.";
-        JOptionPane.showConfirmDialog(this, message, "MultiSubDownloader",
+            Messages.getString("PreferenceDialog.Addic7edLoginSelectEnterUsernamePassword");
+        JOptionPane.showConfirmDialog(this, message, Messages.getString("PreferenceDialog.Name"),
             JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
         Logger.instance
             .debug("testSerieSourcesTab: Addic7ed login geselecteerd! Gelieve een username en pasword in te vullen.");
@@ -492,10 +522,10 @@ public class PreferenceDialog extends MutliSubDialog {
     if (seType == SettingsExcludeType.FOLDER) {
       File path =
           MemoryFolderChooser.getInstance().selectDirectory(getContentPane(),
-              "Selecteer uitsluit map");
+              Messages.getString("PreferenceDialog.SelectExcludeFolder"));
       excludeList.addItem(seType, path.getAbsolutePath());
     } else if (seType == SettingsExcludeType.REGEX) {
-      String regex = JOptionPane.showInputDialog("Geef een REGEX op: (VB: S0*)");
+      String regex = JOptionPane.showInputDialog(Messages.getString("PreferenceDialog.EnterRegex"));
       excludeList.addItem(seType, regex);
     }
   }
@@ -545,7 +575,8 @@ public class PreferenceDialog extends MutliSubDialog {
     if (testOptionsTab()) {
       settingsCtrl.getSettings().setOptionsAlwaysConfirm(chkAlwaysConfirm.isSelected());
       settingsCtrl.getSettings().setOptionsMinAutomaticSelection(chkMinScoreSelection.isSelected());
-      settingsCtrl.getSettings().setOptionsMinAutomaticSelectionValue((Integer)cbxMinScoreSelection.getSelectedItem());
+      settingsCtrl.getSettings().setOptionsMinAutomaticSelectionValue(
+          (Integer) cbxMinScoreSelection.getSelectedItem());
       settingsCtrl.getSettings().setOptionSubtitleExactMatch(chkSubtitleExactMethod.isSelected());
       settingsCtrl.getSettings().setOptionSubtitleKeywordMatch(
           chkSubtitleKeywordMethod.isSelected());

@@ -9,6 +9,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import org.lodder.subtools.multisubdownloader.Messages;
+
 public class Menu extends JMenuBar {
 
   /**
@@ -70,33 +72,33 @@ public class Menu extends JMenuBar {
   }
 
   private void createComponents() {
-    mnFile = new JMenu("Bestand");
-    mntmQuit = new JMenuItem("Afsluiten");
-    mnBeeld = new JMenu("Beeld");
-    mnZoekResulaten = new JMenu("Zoek Resulaten ");
-    chckbxmntmBestandsnaam = new JCheckBoxMenuItem("Bestandsnaam");
-    chckbxmntmType = new JCheckBoxMenuItem("Type");
-    chckbxmntmTitle = new JCheckBoxMenuItem("Titel");
-    chckbxmntmSeason = new JCheckBoxMenuItem("Season");
-    chckbxmntmEpisode = new JCheckBoxMenuItem("Episode");
-    chckbxmntmAlleenGevondenTonen = new JCheckBoxMenuItem("Alleen gevonden tonen");
-    mntmLoggingWissen = new JMenuItem("Logging wissen");
-    mntmRenameSerieFiles = new JMenuItem("Series Hernoemen...");
-    mntmRenameMovieFiles = new JMenuItem("Films Hernoemen...");
-    mntmPreferences = new JMenuItem("Voorkeuren");
-    mnImportexport = new JMenu("Serie Namen");
-    mntmTranslateShowNames = new JMenuItem("Mapping Tvdb/Scene");
-    mnImporteerexporteer = new JMenu("Importeer/Exporteer");
-    mnEdit = new JMenu("Bewerken");
-    mnHelp = new JMenu("Help");
-    mntmExportTranslate = new JMenuItem("Exporteer Mapping Tvdb/Scene");
-    mntmImportTranslate = new JMenuItem("Importeer Mapping Tvdb/Scene");
-    mntmExporteerUistluitingen = new JMenuItem("Exporteer Uitsluitingen");
-    mntmImporteerUitsluitingen = new JMenuItem("Importeer Uitsluitingen");
-    mntmExporteerVoorkeuren = new JMenuItem("Exporteer Voorkeuren");
-    mntmImporteerVoorkeuren = new JMenuItem("Importeer Voorkeuren");
-    mntmAbout = new JMenuItem("About");
-    mntmControlerenVoorUpdate = new JMenuItem("Controleer voor update");
+    mnFile = new JMenu(Messages.getString("Menu.File")); 
+    mntmQuit = new JMenuItem(Messages.getString("Menu.Close")); 
+    mnBeeld = new JMenu(Messages.getString("Menu.View")); 
+    mnZoekResulaten = new JMenu(Messages.getString("Menu.SearchResults")); 
+    chckbxmntmBestandsnaam = new JCheckBoxMenuItem(Messages.getString("Menu.Filename")); 
+    chckbxmntmType = new JCheckBoxMenuItem(Messages.getString("Menu.Type")); 
+    chckbxmntmTitle = new JCheckBoxMenuItem(Messages.getString("Menu.Title")); 
+    chckbxmntmSeason = new JCheckBoxMenuItem(Messages.getString("Menu.Season")); 
+    chckbxmntmEpisode = new JCheckBoxMenuItem(Messages.getString("Menu.Episode")); 
+    chckbxmntmAlleenGevondenTonen = new JCheckBoxMenuItem(Messages.getString("Menu.OnlyShowFound")); 
+    mntmLoggingWissen = new JMenuItem(Messages.getString("Menu.EraseLogging")); 
+    mntmRenameSerieFiles = new JMenuItem(Messages.getString("Menu.RenameSerie")); 
+    mntmRenameMovieFiles = new JMenuItem(Messages.getString("Menu.RenameMovie")); 
+    mntmPreferences = new JMenuItem(Messages.getString("Menu.Preferences")); 
+    mnImportexport = new JMenu(Messages.getString("Menu.SerieNames")); 
+    mntmTranslateShowNames = new JMenuItem(Messages.getString("Menu.MappingTvdbScene")); 
+    mnImporteerexporteer = new JMenu(Messages.getString("Menu.ImportExport")); 
+    mnEdit = new JMenu(Messages.getString("Menu.Edit")); 
+    mnHelp = new JMenu(Messages.getString("Menu.Help")); 
+    mntmExportTranslate = new JMenuItem(Messages.getString("Menu.ExportMappingTvdbScene")); 
+    mntmImportTranslate = new JMenuItem(Messages.getString("Menu.ImportMappingTvdbScene")); 
+    mntmExporteerUistluitingen = new JMenuItem(Messages.getString("Menu.ExportExclusions")); 
+    mntmImporteerUitsluitingen = new JMenuItem(Messages.getString("Menu.ImportExclusions")); 
+    mntmExporteerVoorkeuren = new JMenuItem(Messages.getString("Menu.ExportPreferences")); 
+    mntmImporteerVoorkeuren = new JMenuItem(Messages.getString("Menu.ImportPreferences")); 
+    mntmAbout = new JMenuItem(Messages.getString("Menu.About")); 
+    mntmControlerenVoorUpdate = new JMenuItem(Messages.getString("Menu.CheckForUpdate")); 
   }
 
   private void addComponentsToMenu() {

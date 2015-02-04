@@ -79,7 +79,7 @@ public class Actions {
           // nothing match the minimum automatic selection value
           if (shortlist.size() == 0) return -1;
         }
-        //still more then 1 subtitle, let the user decide!
+        // still more then 1 subtitle, let the user decide!
         if (subtitleSelectionDialog) {
           Logger.instance.debug("determineWhatSubtitleDownload: Select subtitle with dialog");
           return subSelection.getUserInput(release);
@@ -488,6 +488,8 @@ public class Actions {
   }
 
   public void download(Release release, Subtitle subtitle) throws Exception {
+    Logger.instance.log("Downloading subtitle" + ": " + subtitle.getFilename() + " for release"
+        + ": " + release.getFilename());
     download(release, subtitle, 0);
   }
 }

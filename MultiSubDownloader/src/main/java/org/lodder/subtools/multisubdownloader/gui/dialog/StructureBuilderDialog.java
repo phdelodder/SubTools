@@ -24,6 +24,7 @@ import javax.swing.text.BadLocationException;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.lib.library.PathLibraryBuilder;
@@ -88,7 +89,7 @@ public class StructureBuilderDialog extends MutliSubDialog implements DocumentLi
     tagPanel.setLayout(new MigLayout("", "[150px][150px]", "[15px]"));
 
     // add header label
-    tagPanel.add(new JLabel("Beschikbare tags (klik erop om ze in te voegen)."),
+    tagPanel.add(new JLabel(Messages.getString("StructureBuilderDialog.AvailableTagsClickToAdd")),
         "cell 0 0 2 1,alignx left,aligny top");
     if (videoType == VideoType.EPISODE) {
       // add tv show tags
@@ -100,20 +101,20 @@ public class StructureBuilderDialog extends MutliSubDialog implements DocumentLi
     }
 
     contentPanel.add(tagPanel, "cell 0 0 2 1,grow");
-    JLabel lblNewLabel = new JLabel("Structure");
+    JLabel lblNewLabel = new JLabel(Messages.getString("StructureBuilderDialog.Structure"));
     contentPanel.add(lblNewLabel, "cell 0 1,alignx left");
     txtStructure = new JTextField();
     contentPanel.add(txtStructure, "cell 1 1,growx");
     txtStructure.setColumns(10);
     txtStructure.getDocument().addDocumentListener(this);
-    JLabel lblNewLabel_1 = new JLabel("Preview");
+    JLabel lblNewLabel_1 = new JLabel(Messages.getString("StructureBuilderDialog.Preview"));
     contentPanel.add(lblNewLabel_1, "cell 0 2");
     lblPreview = new JLabel("");
     contentPanel.add(lblPreview, "cell 1 2");
     JPanel buttonPane = new JPanel();
     buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
     getContentPane().add(buttonPane, BorderLayout.SOUTH);
-    JButton okButton = new JButton("OK");
+    JButton okButton = new JButton(Messages.getString("StructureBuilderDialog.OK"));
     okButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         setVisible(false);
@@ -123,7 +124,7 @@ public class StructureBuilderDialog extends MutliSubDialog implements DocumentLi
     okButton.setActionCommand("OK");
     buttonPane.add(okButton);
     getRootPane().setDefaultButton(okButton);
-    JButton cancelButton = new JButton("Cancel");
+    JButton cancelButton = new JButton(Messages.getString("StructureBuilderDialog.Cancel"));
     cancelButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         setVisible(false);
@@ -258,19 +259,19 @@ public class StructureBuilderDialog extends MutliSubDialog implements DocumentLi
         private static final long serialVersionUID = 3313041588123263612L;
 
         {
-          put("%SHOW NAME%", "Naam van de tv serie.");
-          put("%TITLE%", "Titel van de aflevering.");
-          put("%EE%", "Nummer van de aflevering (met 0).");
-          put("%EEX%", "Nummer van de aflevering (met 0) voor multi episode.");
-          put("%E%", "Nummer van de aflevering (zonder 0).");
-          put("%EX%", "Nummer van de aflevering (zonder 0) voor multi episode.");
-          put("%SS%", "Nummer van het seizoen (met 0).");
-          put("%S%", "Nummer van het seizoen (zonder 0).");
-          put("%QUALITY%", "Kwaliteit van het filmbestand, bijv. HDTV 720p.");
-          put("%DESCRIPTION%",
-              "Overige info uit de bestandsnaam van het filmbestand, bijv. de release group.");
-          put("%SEPARATOR%",
-              "Systeemonafhankelijk scheidingsteken voor nieuwe directory, bijv. \\.");
+          put("%SHOW NAME%", Messages.getString("StructureBuilderDialog.NameTvShow"));
+          put("%TITLE%", Messages.getString("StructureBuilderDialog.EpisodeTitle"));
+          put("%EE%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZero"));
+          put("%EEX%",
+              Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZeroForMultipe"));
+          put("%E%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeWithoutLeadingZero"));
+          put("%EX%",
+              Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZeroMultiple"));
+          put("%SS%", Messages.getString("StructureBuilderDialog.NumberOfSeasonLeading"));
+          put("%S%", Messages.getString("StructureBuilderDialog.NumberOfSeasonsWithoutLeading"));
+          put("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfRelease"));
+          put("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.Description"));
+          put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
         }
       });
 
@@ -282,13 +283,11 @@ public class StructureBuilderDialog extends MutliSubDialog implements DocumentLi
         private static final long serialVersionUID = 5943868685951628245L;
 
         {
-          put("%MOVIE NAME%", "Naam van de film.");
-          put("%YEAR%", "Jaartal wanneer de film is uitgekomen.");
-          put("%QUALITY%", "Kwaliteit van het filmbestand, bijv. BluRay 720p.");
-          put("%DESCRIPTION%",
-              "Overige info uit de bestandsnaam van het filmbestand, bijv. de release group.");
-          put("%SEPARATOR%",
-              "Systeemonafhankelijk scheidingsteken voor nieuwe directory, bijv. \\.");
+          put("%MOVIE NAME%", Messages.getString("StructureBuilderDialog.MovieName"));
+          put("%YEAR%", Messages.getString("StructureBuilderDialog.MovieYear"));
+          put("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfMovie"));
+          put("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.MovieDescription"));
+          put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
 
         }
       });

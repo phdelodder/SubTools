@@ -15,6 +15,7 @@ import org.lodder.subtools.multisubdownloader.framework.Bootstrapper;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
+import org.lodder.subtools.sublibrary.ConfigProperties;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
 
@@ -44,60 +45,60 @@ public class App {
     Bootstrapper bootstrapper = new Bootstrapper(app, prefctrl.getSettings());
 
     if (line != null) {
-      if (line.hasOption("help")) {
-        formatter.printHelp("MultiSubDownloader", getCLIOptions());
+      if (line.hasOption("help")) { 
+        formatter.printHelp(ConfigProperties.getInstance().getProperty("name"), getCLIOptions()); 
       } else {
-        if (line.hasOption("debug")) {
+        if (line.hasOption("debug")) { 
           Logger.instance.setLogLevel(Level.DEBUG);
         }
-        if (line.hasOption("trace")) {
+        if (line.hasOption("trace")) { 
           Logger.instance.setLogLevel(Level.ALL);
         }
-        if (line.hasOption("speedy")) {
+        if (line.hasOption("speedy")) { 
           Preferences preferences = Preferences.userRoot();
-          preferences.putBoolean("speedy", true);
+          preferences.putBoolean("speedy", true); 
         } else {
           Preferences preferences = Preferences.userRoot();
-          preferences.putBoolean("speedy", false);
+          preferences.putBoolean("speedy", false); 
         }
 
-        if (line.hasOption("importpreferences")) {
-          File file = new File(line.getOptionValue("importpreferences"));
+        if (line.hasOption("importpreferences")) { 
+          File file = new File(line.getOptionValue("importpreferences")); 
           try {
             if (file.isFile()) {
               prefctrl.importPreferences(file);
             }
           } catch (Exception e) {
-            Logger.instance.error("executeArgs: importPreferences" + Logger.stack2String(e));
+            Logger.instance.error("executeArgs: importPreferences" + Logger.stack2String(e)); 
           }
-        } else if (line.hasOption("updatefromonlinemapping")) {
+        } else if (line.hasOption("updatefromonlinemapping")) { 
           try {
             prefctrl.updateMappingFromOnline();
             prefctrl.store();
           } catch (Throwable e) {
-            Logger.instance.error("executeArgs: updateFromOnlineMapping" + Logger.stack2String(e));
+            Logger.instance.error("executeArgs: updateFromOnlineMapping" + Logger.stack2String(e)); 
           }
-        } else if (line.hasOption("nogui")) {
+        } else if (line.hasOption("nogui")) { 
           CommandLine cmd = new CommandLine(prefctrl, app);
           cmd.setReleaseFactory(new ReleaseFactory(prefctrl.getSettings()));
 
-          if (line.hasOption("folder")) cmd.setFolder(new File(line.getOptionValue("folder")));
+          if (line.hasOption("folder")) cmd.setFolder(new File(line.getOptionValue("folder")));  
 
-          if (line.hasOption("language")) {
-            if (line.getOptionValue("language").equals("nl")
-                || line.getOptionValue("language").equals("en")) {
-              cmd.setLanguagecode(line.getOptionValue("language"));
+          if (line.hasOption("language")) { 
+            if (line.getOptionValue("language").equals("nl")  
+                || line.getOptionValue("language").equals("en")) {  
+              cmd.setLanguagecode(line.getOptionValue("language")); 
             } else {
-              throw new Exception("Language code not valid must be 'en' or 'nl' ");
+              throw new Exception(Messages.getString("App.NoValidLanguage")); 
             }
           } else {
-            Logger.instance.log("No language given using default: 'nl' ");
-            cmd.setLanguagecode("nl");
+            Logger.instance.log(Messages.getString("App.NoLanguageUseDefault")); 
+            cmd.setLanguagecode("nl"); 
           }
-          cmd.setForce(line.hasOption("force"));
-          cmd.setDownloadall(line.hasOption("downloadall"));
-          cmd.setRecursive(line.hasOption("recursive"));
-          cmd.setSubtitleSelectionDialog(line.hasOption("selection"));
+          cmd.setForce(line.hasOption("force")); 
+          cmd.setDownloadall(line.hasOption("downloadall")); 
+          cmd.setRecursive(line.hasOption("recursive")); 
+          cmd.setSubtitleSelectionDialog(line.hasOption("selection")); 
 
           cmd.CheckUpdate();
           bootstrapper.initialize();
@@ -125,21 +126,21 @@ public class App {
      * CLI Options
      */
     Options options = new Options();
-    options.addOption("help", false, "print this message");
-    options.addOption("nogui", false, "run in cli mode");
-    options.addOption("R", "recursive", false, "search every folder found in the folder");
-    options.addOption("language", true,
-        "gives the language to search for example: --language nl only nl or en");
-    options.addOption("debug", false, "enables logging");
-    options.addOption("trace", false, "more logging");
-    options.addOption("importpreferences", true, "import preferences");
-    options.addOption("force", false, "force to overwrite the subtitle on disk");
-    options.addOption("folder", true, "folder to search");
-    options.addOption("downloadall", false, "Download all found subs using '-v1' system ");
-    options.addOption("updatefromonlinemapping", false, "Update with the Mappings from online");
-    options.addOption("selection", false,
-        "Subtitle selection possible if multiple subtitles detected");
-    options.addOption("speedy", false, "speed somethings up");
+    options.addOption("help", false, Messages.getString("App.OptionHelpMsg"));  
+    options.addOption("nogui", false, Messages.getString("App.OptionNoGuiMsg"));  
+    options.addOption("R", "recursive", false, Messages.getString("App.OptionOptionRecursiveMsg"));   
+    options.addOption("language", true, 
+        Messages.getString("App.OptionOptionLanguageMsg")); 
+    options.addOption("debug", false, Messages.getString("App.OptionOptionDebugMsg"));  
+    options.addOption("trace", false, Messages.getString("App.OptionOptionTraceMsg"));  
+    options.addOption("importpreferences", true, Messages.getString("App.OptionOptionImportPreferencesMsg"));  
+    options.addOption("force", false, Messages.getString("App.OptionOptionForceMsg"));  
+    options.addOption("folder", true, Messages.getString("App.OptionOptionFolderMsg"));  
+    options.addOption("downloadall", false, Messages.getString("App.OptionOptionDownloadAllMsg"));  
+    options.addOption("updatefromonlinemapping", false, Messages.getString("App.OptionOptionUpdateMappingMsg"));  
+    options.addOption("selection", false, 
+        Messages.getString("App.OptionOptionSelectionMsg")); 
+    options.addOption("speedy", false, Messages.getString("App.OptionOptionSpeedyMsg"));  
 
     return options;
   }

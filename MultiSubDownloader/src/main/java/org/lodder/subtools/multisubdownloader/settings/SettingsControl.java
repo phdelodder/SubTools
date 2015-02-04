@@ -10,6 +10,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
 import java.util.prefs.Preferences;
 
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
@@ -526,6 +527,7 @@ public class SettingsControl {
    * 
    */
   public void updateMappingFromOnline() throws Throwable {
+    Logger.instance.log(Messages.getString("SettingsControl.UpdateMapping"));
     mappingSettingsCtrl.updateMappingFromOnline();
     settings.setMappingSettings(mappingSettingsCtrl.getMappingSettings());
   }

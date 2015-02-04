@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.gui.panels.EpisodeLibraryPanel;
@@ -49,7 +50,7 @@ public class RenameDialog extends MutliSubDialog implements PropertyChangeListen
    * Create the dialog.
    */
   public RenameDialog(JFrame frame, final Settings settings, final VideoType videoType) {
-    super(frame, videoType + " Hernoemen ...", false);
+    super(frame, videoType + Messages.getString("RenameDialog.Rename"), false);
     listTranslate = settings.getMappingSettings().getMappingList();
     setResizable(false);
     setBounds(100, 100, 650, 680);
@@ -78,7 +79,8 @@ public class RenameDialog extends MutliSubDialog implements PropertyChangeListen
       gbl_panel.rowWeights = new double[] {0.0, 0.0, Double.MIN_VALUE};
       panel.setLayout(gbl_panel);
       {
-        JLabel lblFolderToRenamemove = new JLabel("Map voor Hernoemen/Verplaatsen");
+        JLabel lblFolderToRenamemove =
+            new JLabel(Messages.getString("RenameDialog.FolderForRename/Move"));
         GridBagConstraints gbc_lblFolderToRenamemove = new GridBagConstraints();
         gbc_lblFolderToRenamemove.fill = GridBagConstraints.BOTH;
         gbc_lblFolderToRenamemove.insets = new Insets(0, 0, 5, 5);
@@ -87,12 +89,12 @@ public class RenameDialog extends MutliSubDialog implements PropertyChangeListen
         panel.add(lblFolderToRenamemove, gbc_lblFolderToRenamemove);
       }
       {
-        JButton btnBrowser = new JButton("Bladeren");
+        JButton btnBrowser = new JButton(Messages.getString("RenameDialog.Browse"));
         btnBrowser.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent arg0) {
             File path =
                 MemoryFolderChooser.getInstance().selectDirectory(getContentPane(),
-                    "Selecteer map voor Hernoemen/Verplaatsen");
+                    Messages.getString("RenameDialog.SelectFolderForRenameReplace"));
             txtRenameLocation.setText(path.getAbsolutePath());
           }
         });
@@ -113,7 +115,7 @@ public class RenameDialog extends MutliSubDialog implements PropertyChangeListen
         panel.add(btnBrowser, gbc_btnBrowser);
       }
       {
-        chkRecursive = new JCheckBox("Mappen in map doorzoeken");
+        chkRecursive = new JCheckBox(Messages.getString("RenameDialog.RecursiveSearch"));
         GridBagConstraints gbc_chkRecursive = new GridBagConstraints();
         gbc_chkRecursive.insets = new Insets(0, 0, 0, 5);
         gbc_chkRecursive.gridx = 1;
@@ -139,7 +141,7 @@ public class RenameDialog extends MutliSubDialog implements PropertyChangeListen
       buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
       getContentPane().add(buttonPane, BorderLayout.SOUTH);
       {
-        JButton renameButton = new JButton("Hernoem");
+        JButton renameButton = new JButton(Messages.getString("RenameDialog.Rename"));
         renameButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent arg0) {
             ArrayList<MappingTvdbScene> list = new ArrayList<MappingTvdbScene>();
@@ -161,7 +163,7 @@ public class RenameDialog extends MutliSubDialog implements PropertyChangeListen
         getRootPane().setDefaultButton(renameButton);
       }
       {
-        JButton cancelButton = new JButton("Annuleren");
+        JButton cancelButton = new JButton(Messages.getString("RenameDialog.Cancel"));
         cancelButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent arg0) {
             setVisible(false);
@@ -202,7 +204,7 @@ public class RenameDialog extends MutliSubDialog implements PropertyChangeListen
       } else {
         final int progress = renameWorker.getProgress();
         progressDialog.updateProgress(progress);
-        StatusMessenger.instance.message("Hernoemen ....");
+        StatusMessenger.instance.message(Messages.getString("RenameDialog.StatusRename"));
       }
     }
   }

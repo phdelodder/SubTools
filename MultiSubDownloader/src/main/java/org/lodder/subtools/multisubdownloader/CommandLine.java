@@ -39,7 +39,6 @@ public class CommandLine implements Listener, SearchHandler {
     this.prefctrl = prefctrl;
     try {
       if (this.prefctrl.getSettings().isAutoUpdateMapping()) {
-        Logger.instance.log("Auto updating mapping ....");
         this.prefctrl.updateMappingFromOnline();
       }
     } catch (Throwable e) {
@@ -127,9 +126,6 @@ public class CommandLine implements Listener, SearchHandler {
           actions.download(release, release.getMatchingSubs().get(j), j + 1);
         }
       } else {
-        Logger.instance.log("Downloading subtitle: "
-            + release.getMatchingSubs().get(selection).getFilename() + " for release: "
-            + release.getFilename());
         actions.download(release, release.getMatchingSubs().get(selection));
       }
     } else {
@@ -156,7 +152,7 @@ public class CommandLine implements Listener, SearchHandler {
   public void CheckUpdate() {
     UpdateAvailableDropbox u = new UpdateAvailableDropbox();
     if (u.checkProgram()) {
-      Logger.instance.log("Update available! : " + u.getUpdateUrl());
+      Logger.instance.log(Messages.getString("UpdateAppAvailable") + ": " + u.getUpdateUrl());
     }
   }
 

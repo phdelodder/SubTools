@@ -1,12 +1,19 @@
 package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
+import org.lodder.subtools.multisubdownloader.Messages;
+
 public enum SearchColumnName {
-  SERIE("Serie/Movie", String.class, false), FILENAME("Bestandsnaam", String.class, false), FOUND(
-      "# Gevonden", Integer.class, false), SELECT("Selecteer", Boolean.class, true), OBJECT(
-      "Episode Object", Object.class, false), SEASON("Seizoen", String.class, false), EPISODE(
-      "Aflevering", String.class, false), TYPE("Type", String.class, false), TITLE("Titel",
-      String.class, false), SOURCE("Source", String.class, false), SCORE("Score %", Integer.class,
-      false);
+  RELEASE(Messages.getString("SearchColumnName.Release"), String.class, false), FILENAME(Messages
+      .getString("SearchColumnName.Filename"), String.class, false), FOUND(Messages
+      .getString("SearchColumnName.NumberFound"), Integer.class, false), SELECT(Messages
+      .getString("SearchColumnName.Select"), Boolean.class, true), OBJECT(Messages
+      .getString("SearchColumnName.EpisodeObject"), Object.class, false), SEASON(Messages
+      .getString("SearchColumnName.Season"), String.class, false), EPISODE(Messages
+      .getString("SearchColumnName.Episode"), String.class, false), TYPE(Messages
+      .getString("SearchColumnName.Type"), String.class, false), TITLE(Messages
+      .getString("SearchColumnName.Title"), String.class, false), SOURCE(Messages
+      .getString("SearchColumnName.Source"), String.class, false), SCORE(Messages
+      .getString("SearchColumnName.Score"), Integer.class, false);
 
   private final String columnName;
   private final Class<?> c;

@@ -2,10 +2,13 @@ package org.lodder.subtools.multisubdownloader.gui.panels;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.actions.search.SearchAction;
 
 public abstract class InputPanel extends JPanel {
@@ -16,7 +19,8 @@ public abstract class InputPanel extends JPanel {
   private JButton btnSearch;
   private JComboBox<String> cbxLanguage;
   private SearchAction searchAction;
-  private final String[] languageSelection = new String[] {"Nederlands", "Engels"};
+  private final String[] languageSelection = new String[] {Messages.getString("InputPanel.Dutch"),
+      Messages.getString("InputPanel.English")};
 
   public InputPanel() {
     createComponents();
@@ -61,7 +65,7 @@ public abstract class InputPanel extends JPanel {
     cbxLanguage.setModel(new DefaultComboBoxModel<String>(languageSelection));
     cbxLanguage.setSelectedIndex(0);
 
-    btnSearch = new JButton("Zoeken naar ondertitels");
+    btnSearch = new JButton(Messages.getString("InputPanel.SearchForSubtitles"));
   }
 
 }
