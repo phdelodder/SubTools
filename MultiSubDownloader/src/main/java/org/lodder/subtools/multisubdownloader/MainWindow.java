@@ -132,16 +132,9 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
       editorPane.setEditable(false);
       editorPane.setContentType("text/html");
 
-      StringBuilder sb = new StringBuilder();
-      sb.append("<html>");
-      sb.append(Messages.getString("UpdateAppAvailable"));
-      sb.append("!: </br><A HREF=");
-      sb.append(u.getUpdateUrl());
-      sb.append(">");
-      sb.append(u.getUpdateUrl());
-      sb.append("</a></html>");
-
-      editorPane.setText(sb.toString());
+      editorPane.setText(
+        "<html>" + Messages.getString("UpdateAppAvailable") + "!: </br><A HREF=" + u.getUpdateUrl() + ">"
+          + u.getUpdateUrl() + "</a></html>");
 
       editorPane.addHyperlinkListener(new HyperlinkListener() {
         @Override

@@ -2,6 +2,7 @@ package org.lodder.subtools.sublibrary.control;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -76,9 +77,7 @@ public class VideoPatterns {
   public static List<String> getQualityKeywords() {
     List<String> keys = new ArrayList<String>();
 
-    for (String s : QUALITYKEYWORDS) {
-      keys.add(s);
-    }
+    Collections.addAll(keys, QUALITYKEYWORDS);
 
     keys.addAll(getQualityRegexKeywords());
 
