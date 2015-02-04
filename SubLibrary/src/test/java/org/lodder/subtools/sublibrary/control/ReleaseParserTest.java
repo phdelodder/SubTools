@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
 import java.io.File;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -21,6 +22,30 @@ public class ReleaseParserTest {
     releaseparser = null;
   }
 
+  @Test
+  public void testListGetQualityKeyWords() throws Exception{
+    releaseparser = new ReleaseParser();
+    
+    File file = new File("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv");
+    Release release = releaseparser.parse(file);
+    
+    List<String> q = ReleaseParser.getQualityKeyWords(release.getQuality());
+    
+    assertEquals(q.get(0), "720p");
+    assertEquals(q.get(1), "hdtv");
+    assertEquals(q.get(2), "x264");
+    
+    file = new File("The.Drop.2014.1080p.WEB-DL.DD5.1.H264-RARBG.mkv");
+    release = releaseparser.parse(file);
+    
+    q = ReleaseParser.getQualityKeyWords(release.getQuality());
+    
+    assertEquals(q.get(0), "1080p");
+    assertEquals(q.get(1), "web-dl");
+    assertEquals(q.get(2), "dd5 1");
+    assertEquals(q.get(3), "h264");
+  }
+  
   @Test
   public void testTV() throws Exception {
     releaseparser = new ReleaseParser();

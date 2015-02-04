@@ -383,7 +383,7 @@ public class Settings {
     // TODO: user should be able to edit/add these through a panel
     sortWeights = new HashMap<>();
     sortWeights.put("%GROUP%",5);
-    for (String keyword : VideoPatterns.QUALITYKEYWORDS) {
+    for (String keyword : VideoPatterns.getQualityKeywords()) {
       sortWeights.put(keyword, 2);
     }
      /* overwrite keywords that should have low weight */
@@ -397,7 +397,7 @@ public class Settings {
     sortWeights.put("divx", 1);
     sortWeights.put("x264", 1);
     // keywords that might get matched too easily
-    sortWeights.remove("dl");
+    //sortWeights.remove("dl");
 
     return sortWeights;
   }

@@ -247,9 +247,11 @@ public class ReleaseParser {
   public static List<String> getQualityKeyWords(String name) {
     Logger.instance.trace("VideoFileParser", "getQualityKeywords", name);
     name = name.trim().toLowerCase();
+    Pattern p = Pattern.compile(VideoPatterns.buildQualityRegex(), Pattern.CASE_INSENSITIVE);
+    Matcher m = p.matcher(name);
     List<String> keywords = new ArrayList<>();
-    for (String keyword : VideoPatterns.QUALITYKEYWORDS) {
-      if (name.contains(keyword)) keywords.add(keyword);
+    while (m.find()) {
+      keywords.add(m.group(0));
     }
     return keywords;
   }

@@ -79,6 +79,11 @@
 			<version>2.0.3-beta</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.github.mkolisnyk</groupId>
+			<artifactId>generex</artifactId>
+			<version>0.0.2</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
