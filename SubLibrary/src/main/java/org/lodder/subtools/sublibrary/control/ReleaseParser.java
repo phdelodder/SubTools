@@ -18,6 +18,7 @@ import org.lodder.subtools.sublibrary.util.NamedPattern;
 public class ReleaseParser {
 
   private NamedMatcher namedMatcher;
+  private static VideoPatterns videoPatterns= new VideoPatterns();
 
   public final NamedMatcher getNamedMatcher() {
     return namedMatcher;
@@ -30,7 +31,7 @@ public class ReleaseParser {
     String[] parsenames = new String[] {file.getName(), foldername};
     
     for (String fileparsename : parsenames) {
-      for (NamedPattern np : VideoPatterns.getCompiledPatterns()) {
+      for (NamedPattern np : videoPatterns.getCompiledPatterns()) {
         namedMatcher = np.matcher(fileparsename);
         if (namedMatcher.find()) {
           Logger.instance.trace(this.getClass().toString(), "parse", "using file name: "
@@ -235,7 +236,7 @@ public class ReleaseParser {
 
   public static final String getQualityKeyword(final String name) {
     Logger.instance.trace("VideoFileParser", "getQualityKeyword", name);
-    Pattern p = Pattern.compile(VideoPatterns.buildQualityRegex(), Pattern.CASE_INSENSITIVE);
+    Pattern p = Pattern.compile(videoPatterns.getQualityKeysRegex(), Pattern.CASE_INSENSITIVE);
     Matcher m = p.matcher(name);
     StringBuilder builder = new StringBuilder();
     while (m.find()) {
@@ -247,7 +248,7 @@ public class ReleaseParser {
   public static List<String> getQualityKeyWords(String name) {
     Logger.instance.trace("VideoFileParser", "getQualityKeywords", name);
     name = name.trim().toLowerCase();
-    Pattern p = Pattern.compile(VideoPatterns.buildQualityRegex(), Pattern.CASE_INSENSITIVE);
+    Pattern p = Pattern.compile(videoPatterns.getQualityKeysRegex(), Pattern.CASE_INSENSITIVE);
     Matcher m = p.matcher(name);
     List<String> keywords = new ArrayList<>();
     while (m.find()) {

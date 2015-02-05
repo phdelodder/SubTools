@@ -383,7 +383,8 @@ public class Settings {
     // TODO: user should be able to edit/add these through a panel
     sortWeights = new HashMap<>();
     sortWeights.put("%GROUP%",5);
-    for (String keyword : VideoPatterns.getQualityKeywords()) {
+    VideoPatterns videoPatterns = new VideoPatterns();
+    for (String keyword : videoPatterns.getQualityKeywords()) {
       sortWeights.put(keyword, 2);
     }
      /* overwrite keywords that should have low weight */

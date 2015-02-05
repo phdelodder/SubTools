@@ -6,15 +6,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.util.NamedPattern;
 
 import com.mifmif.common.regex.Generex;
 
 public class VideoPatterns {
 
-  private volatile static List<NamedPattern> plist = null;
-  private volatile static List<String> keys = null;
+  private List<NamedPattern> compiledPatterns = null;
+  private List<String> keys = null;
+  private String qualityRegex = null;
 
   protected static final String[] QUALITYKEYWORDS = new String[] {"hdtv", "dvdrip", "bluray",
       "1080p", "ts", "dvdscreener", "r5", "bdrip", "brrip", "720p", "xvid", "cam", "480p", "x264",
@@ -60,28 +60,63 @@ public class VideoPatterns {
 
       };
 
-  public synchronized static List<NamedPattern> getCompiledPatterns() {
-    if (plist == null) {
-      plist = new ArrayList<NamedPattern>();
-      for (String p : PATTERNS) {
-        plist.add(NamedPattern.compile(p, Pattern.CASE_INSENSITIVE));
-      }
-    }
-    return plist;
+  public VideoPatterns() {
+    buildQualityKeywordsList();
+    buildCompiledPatternList();
+    buildQualityKeywordsRegex();
   }
 
-  public synchronized static List<String> getQualityKeywords() {
-    if (keys == null) {
-      keys = new ArrayList<String>();
+  public List<NamedPattern> getCompiledPatterns() {
+    return compiledPatterns;
+  }
 
-      Collections.addAll(keys, QUALITYKEYWORDS);
+  public String getQualityKeysRegex() {
+    return qualityRegex;
+  }
 
-      keys.addAll(getQualityRegexKeywords());
-    }
+  public List<String> getQualityKeywords() {
     return keys;
   }
 
-  protected static List<String> getQualityRegexKeywords() {
+  private void buildQualityKeywordsList() {
+    keys = new ArrayList<String>();
+    Collections.addAll(keys, QUALITYKEYWORDS);
+    keys.addAll(getQualityRegexKeywords());
+  }
+
+  private void buildCompiledPatternList() {
+    compiledPatterns = new ArrayList<NamedPattern>();
+    for (String p : PATTERNS) {
+      compiledPatterns.add(NamedPattern.compile(p, Pattern.CASE_INSENSITIVE));
+    }
+  }
+
+  private void buildQualityKeywordsRegex() {
+    StringBuilder sb = new StringBuilder();
+    String separator = "|";
+
+    sb.append("(");
+
+    if (VideoPatterns.QUALITYKEYWORDS.length > 0) {
+      sb.append(VideoPatterns.QUALITYKEYWORDS[0]);
+      for (int i = 1; i < VideoPatterns.QUALITYKEYWORDS.length; i++) {
+        sb.append(separator);
+        sb.append(VideoPatterns.QUALITYKEYWORDS[i]);
+      }
+    }
+
+    if (VideoPatterns.QUALITYREGEXKEYWORDS.length > 0) {
+      for (int i = 0; i < VideoPatterns.QUALITYREGEXKEYWORDS.length; i++) {
+        sb.append(separator);
+        sb.append(VideoPatterns.QUALITYREGEXKEYWORDS[i]);
+      }
+    }
+
+    sb.append(")");
+    qualityRegex = sb.toString();
+  }
+
+  private List<String> getQualityRegexKeywords() {
     List<String> keys;
 
     StringBuilder regex = new StringBuilder();
@@ -101,31 +136,6 @@ public class VideoPatterns {
     return keys;
   }
 
-  public static String buildQualityRegex() {
-    Logger.instance.trace("VideoPatterns", "buildQualityRegex", "");
-    StringBuilder regex = new StringBuilder();
-    String separator = "|";
 
-    regex.append("(");
-
-    if (VideoPatterns.QUALITYKEYWORDS.length > 0) {
-      regex.append(VideoPatterns.QUALITYKEYWORDS[0]);
-      for (int i = 1; i < VideoPatterns.QUALITYKEYWORDS.length; i++) {
-        regex.append(separator);
-        regex.append(VideoPatterns.QUALITYKEYWORDS[i]);
-      }
-    }
-
-    if (VideoPatterns.QUALITYREGEXKEYWORDS.length > 0) {
-      for (int i = 0; i < VideoPatterns.QUALITYREGEXKEYWORDS.length; i++) {
-        regex.append(separator);
-        regex.append(VideoPatterns.QUALITYREGEXKEYWORDS[i]);
-      }
-    }
-
-    regex.append(")");
-
-    return regex.toString();
-  }
 
 }
