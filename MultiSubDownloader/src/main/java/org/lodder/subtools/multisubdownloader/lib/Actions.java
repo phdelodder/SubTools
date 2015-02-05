@@ -5,12 +5,14 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
+import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.SubtitleComparator;
 import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
@@ -56,6 +58,9 @@ public class Actions {
     else
       subSelection = new SubtitleSelectionGUI(settings, release);
 
+    // Sort subtitles by score
+    Collections.sort(release.getMatchingSubs(), new SubtitleComparator());
+
     if (release.getMatchingSubs().size() > 0) {
       Logger.instance.debug("determineWhatSubtitleDownload for videoFile: " + release.getFilename()
           + " # found subs: " + release.getMatchingSubs().size());
@@ -79,6 +84,7 @@ public class Actions {
           // nothing match the minimum automatic selection value
           if (shortlist.size() == 0) return -1;
         }
+
         // still more then 1 subtitle, let the user decide!
         if (subtitleSelectionDialog) {
           Logger.instance.debug("determineWhatSubtitleDownload: Select subtitle with dialog");
