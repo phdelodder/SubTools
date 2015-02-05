@@ -73,7 +73,7 @@ public class Bootstrapper {
     for (ServiceProvider provider : providers) {
       provider.register(this.app);
 
-      Logger.instance.log("ServiceProvider: '" + provider.getClass().getName() + "' registered.");
+      Logger.instance.debug("ServiceProvider: '" + provider.getClass().getName() + "' registered.");
     }
   }
 }
