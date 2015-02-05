@@ -15,21 +15,16 @@ public class VideoPatterns {
 
   private volatile static List<NamedPattern> plist = null;
 
-  public static final String[] QUALITYKEYWORDS = new String[] {"hdtv", "dvdrip", "bluray", "1080p",
+  protected static final String[] QUALITYKEYWORDS = new String[] {"hdtv", "dvdrip", "bluray", "1080p",
       "ts", "dvdscreener", "r5", "bdrip", "brrip", "720p", "xvid", "cam", "480p", "x264", "1080i",
       "pdtv", "divx", "webrip", "h264"};
 
-  public static final String[] QUALITYREGEXKEYWORDS = new String[] {"web[ .-]dl", "dd5[ .]1"};
-
-  public static final String[] GROUPEDQUALITYKEYWORDS = new String[] {"hdtv 720p", "hdtv xvid",
-      "hdtv x264"};
-
-  public static final String[] CODECKEYWORDS = new String[] {"X264", "XVID", "divx"};
+  protected static final String[] QUALITYREGEXKEYWORDS = new String[] {"web[ .-]dl", "dd5[ .]1"};
 
   public static final String[] EXTENSIONS = new String[] {"avi", "mkv", "wmv", "ts", "mp4"};
 
   // order is important!!!!!!
-  public final static String[] PATTERNS =
+  protected final static String[] PATTERNS =
       new String[] {
           // example:
           // Back.to.the.Future.Part.II.1989.720p.BluRay.X264-AMIABLE.mkv
