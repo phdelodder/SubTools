@@ -15,7 +15,6 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.multisubdownloader.workers.SearchHandler;
 import org.lodder.subtools.multisubdownloader.workers.SearchManager;
-import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Listener;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -101,10 +100,8 @@ public class CommandLine implements Listener, SearchHandler {
     searchManager.onFound(this);
 
     searchProgress = new CLISearchProgress();
-    /* If debug enabled, show more info */
-    if (Logger.instance.getLogLevel().intValue() <= Level.DEBUG.intValue()) {
-      searchProgress.setVerbose(true);
-    }
+    //TODO: check if verbose is wanted
+    searchProgress.setVerbose(false);
 
     searchManager.setProgressListener(searchProgress);
 
