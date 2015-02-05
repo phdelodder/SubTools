@@ -54,9 +54,10 @@ public class Actions {
 
     SubtitleSelection subSelection;
     if (usingCMD)
-      subSelection = new SubtitleSelectionCLI(settings, release);
+      subSelection = new SubtitleSelectionCLI(settings);
     else
-      subSelection = new SubtitleSelectionGUI(settings, release);
+      subSelection = new SubtitleSelectionGUI(settings);
+    
 
     // Sort subtitles by score
     Collections.sort(release.getMatchingSubs(), new SubtitleComparator());
@@ -72,18 +73,14 @@ public class Actions {
         return 0;
       } else if (release.getMatchingSubs().size() > 1) {
         Logger.instance.debug("determineWhatSubtitleDownload: Multiple subs detected");
-        if (settings.isOptionsMinAutomaticSelection()) {
-          List<Subtitle> shortlist = release.getMatchingSubs();
-          for (int i = shortlist.size() - 1; i >= 0; i--) {
-            if (shortlist.get(i).getScore() < settings.getOptionsMinAutomaticSelectionValue())
-              shortlist.remove(i);
-          }
-          // update to show only the short list!
-          release.setMatchingSubs(shortlist);
-          if (shortlist.size() == 1) return 0;
-          // nothing match the minimum automatic selection value
-          if (shortlist.size() == 0) return -1;
-        }
+        
+        //Automatic selection
+        List<Subtitle> shortlist = subSelection.getAutomaticSelection(release.getMatchingSubs());
+        release.setMatchingSubs(shortlist);
+        // automatic selection results in 1 result
+        if (shortlist.size() == 1) return 0;
+        // nothing match the minimum automatic selection value
+        if (shortlist.size() == 0) return -1;
 
         // still more then 1 subtitle, let the user decide!
         if (subtitleSelectionDialog) {

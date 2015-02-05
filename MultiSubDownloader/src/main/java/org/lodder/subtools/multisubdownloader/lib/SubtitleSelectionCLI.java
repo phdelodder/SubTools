@@ -7,8 +7,8 @@ import org.lodder.subtools.sublibrary.model.Release;
 
 public class SubtitleSelectionCLI extends SubtitleSelection {
 
-  public SubtitleSelectionCLI(Settings settings, Release release) {
-    super(settings, release);
+  public SubtitleSelectionCLI(Settings settings) {
+    super(settings);
   }
 
   @Override

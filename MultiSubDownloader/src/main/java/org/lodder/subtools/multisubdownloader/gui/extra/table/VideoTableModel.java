@@ -2,8 +2,10 @@ package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.swing.table.DefaultTableModel;
 
+import org.lodder.subtools.multisubdownloader.lib.SubtitleSelection;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -23,11 +25,16 @@ public class VideoTableModel extends DefaultTableModel {
   final boolean[] columnEditables;
   private boolean showOnlyFound = false;
   private Map<Release, Integer> rowMap = new HashMap<>();
+  private SubtitleSelection subtitleSelection;
 
   public VideoTableModel(Object[][] data, Object[] columnNames) {
     super(data, columnNames);
     this.columnTypes = getColumnTypes(columnNames);
     this.columnEditables = getColumnEditables(columnNames);
+  }
+
+  public void setSubtitleSelection(SubtitleSelection subtitleSeletion) {
+    this.subtitleSelection = subtitleSeletion;
   }
 
   private Class<?>[] getColumnTypes(Object[] columnNames) {
@@ -53,7 +60,7 @@ public class VideoTableModel extends DefaultTableModel {
         columnTypes[i] = SearchColumnName.TITLE.getC();
       } else if (SearchColumnName.SOURCE.getColumnName().equals(columnNames[i])) {
         columnTypes[i] = SearchColumnName.SOURCE.getC();
-      }else if (SearchColumnName.SCORE.getColumnName().equals(columnNames[i])) {
+      } else if (SearchColumnName.SCORE.getColumnName().equals(columnNames[i])) {
         columnTypes[i] = SearchColumnName.SCORE.getC();
       }
     }
@@ -142,7 +149,14 @@ public class VideoTableModel extends DefaultTableModel {
       } else if (SearchColumnName.FILENAME.getColumnName().equals(columnName)) {
         row[i] = release.getFilename();
       } else if (SearchColumnName.FOUND.getColumnName().equals(columnName)) {
-        row[i] = release.getMatchingSubs().size();
+        int selectionSize = release.getMatchingSubs().size();
+        if (subtitleSelection != null)
+          selectionSize = subtitleSelection.getAutomaticSelection(release.getMatchingSubs()).size();
+        if (selectionSize == release.getMatchingSubs().size()) {
+          row[i] = release.getMatchingSubs().size();
+        } else {
+          row[i] = selectionSize;
+        }
       } else if (SearchColumnName.SELECT.getColumnName().equals(columnName)) {
         row[i] = false;
       } else if (SearchColumnName.OBJECT.getColumnName().equals(columnName)) {
