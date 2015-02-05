@@ -62,6 +62,8 @@ public abstract class SearchAction implements Cancelable, SearchHandler {
 
     /* Tell the manager which providers to use */
     for (SubtitleProvider subtitleProvider : this.subtitleProviderStore.getAllProviders()) {
+      if (!settings.isSerieSource(subtitleProvider.getName())) continue;
+      
       this.searchManager.addProvider(subtitleProvider);
     }
 
