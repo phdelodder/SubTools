@@ -101,7 +101,7 @@ public class TextSearchAction extends SearchAction {
 
     // use automatic selection to reduce the selection for the user
     if (subtitleSelection != null)
-      subtitles = subtitleSelection.getAutomaticSelection(release.getMatchingSubs());
+      subtitles = subtitleSelection.getAutomaticSelection(subtitles);
 
     // TODO: re-sort table without losing states ( selected/unselected )
     /* add the found subtitles to the table */
