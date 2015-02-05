@@ -8,6 +8,7 @@ import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
+import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
@@ -32,6 +33,7 @@ public class CommandLine implements Listener, SearchHandler {
   private List<Release> releases;
   private SearchManager searchManager;
   private ReleaseFactory releaseFactory;
+  private Filtering filtering;
 
   public CommandLine(final SettingsControl prefctrl, Container app) {
     Logger.instance.addListener(this);
@@ -49,6 +51,10 @@ public class CommandLine implements Listener, SearchHandler {
 
   public void setReleaseFactory(ReleaseFactory releaseFactory) {
     this.releaseFactory = releaseFactory;
+  }
+  
+  public void setFiltering(Filtering filtering){
+    this.filtering = filtering;
   }
 
   private void search() throws Exception {
@@ -96,6 +102,8 @@ public class CommandLine implements Listener, SearchHandler {
 
   @Override
   public void onFound(Release release, List<Subtitle> subtitles) {
+    if (filtering != null) subtitles = filtering.getFiltered(subtitles, release);
+    
     release.getMatchingSubs().addAll(subtitles);
     if (searchManager.getProgress() < 100) return;
 

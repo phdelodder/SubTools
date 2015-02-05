@@ -14,6 +14,7 @@ import org.apache.commons.cli.ParseException;
 import org.lodder.subtools.multisubdownloader.framework.Bootstrapper;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
+import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.sublibrary.ConfigProperties;
 import org.lodder.subtools.sublibrary.logging.Level;
@@ -81,7 +82,7 @@ public class App {
         } else if (line.hasOption("nogui")) { 
           CommandLine cmd = new CommandLine(prefctrl, app);
           cmd.setReleaseFactory(new ReleaseFactory(prefctrl.getSettings()));
-
+          cmd.setFiltering(new Filtering(prefctrl.getSettings()));
           if (line.hasOption("folder")) cmd.setFolder(new File(line.getOptionValue("folder")));  
 
           if (line.hasOption("language")) { 

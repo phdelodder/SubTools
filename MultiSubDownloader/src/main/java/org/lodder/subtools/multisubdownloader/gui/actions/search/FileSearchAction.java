@@ -10,6 +10,7 @@ import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchFileInputPanel;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
+import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -19,6 +20,7 @@ public class FileSearchAction extends SearchAction {
 
   private Actions actions;
   private ReleaseFactory releaseFactory;
+  private Filtering filtering;
 
   public FileSearchAction(MainWindow mainWindow, Settings settings,
       SubtitleProviderStore subtitleProviderStore) {
@@ -31,6 +33,10 @@ public class FileSearchAction extends SearchAction {
 
   public void setReleaseFactory(ReleaseFactory releaseFactory) {
     this.releaseFactory = releaseFactory;
+  }
+  
+  public void setFiltering(Filtering filtering){
+    this.filtering = filtering;
   }
 
   @Override
@@ -82,6 +88,8 @@ public class FileSearchAction extends SearchAction {
   public void onFoundSubtitles(Release release, List<Subtitle> subtitles) {
     VideoTableModel model =
         (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
+    
+    if (filtering != null) subtitles = filtering.getFiltered(subtitles, release);
 
     release.getMatchingSubs().addAll(subtitles);
 
