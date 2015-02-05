@@ -62,6 +62,7 @@ import org.lodder.subtools.multisubdownloader.gui.workers.DownloadWorker;
 import org.lodder.subtools.multisubdownloader.gui.workers.RenameWorker;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
+import org.lodder.subtools.multisubdownloader.lib.SubtitleSelectionGUI;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
@@ -400,6 +401,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     searchAction.setSearchPanel(pnlSearchText);
     searchAction.setReleaseFactory(new ReleaseFactory(settings));
     searchAction.setFiltering(new Filtering(settings));
+    searchAction.setSubtitleSelection(new SubtitleSelectionGUI(settings));
 
     pnlSearchTextInput.setSearchAction(searchAction);
     resultPanel.setDownloadAction(new ActionListener() {
@@ -472,6 +474,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     videoTable.setModel(VideoTableModel.getDefaultVideoTableModel());
     ((VideoTableModel) videoTable.getModel()).setShowOnlyFound(settingsControl.getSettings()
         .isOptionsShowOnlyFound());
+    ((VideoTableModel) videoTable.getModel()).setSubtitleSelection(new SubtitleSelectionGUI(settingsControl.getSettings()));
     final RowSorter<TableModel> sorter = new TableRowSorter<TableModel>(videoTable.getModel());
     videoTable.setRowSorter(sorter);
     videoTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
