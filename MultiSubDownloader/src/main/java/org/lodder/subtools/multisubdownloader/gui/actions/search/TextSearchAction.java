@@ -9,6 +9,7 @@ import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchTextInputPanel;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
+import org.lodder.subtools.multisubdownloader.lib.SubtitleSelection;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
@@ -22,17 +23,23 @@ public class TextSearchAction extends SearchAction {
 
   private ReleaseFactory releaseFactory;
   private Filtering filtering;
+  private SubtitleSelection subtitleSelection;
 
-  public TextSearchAction(MainWindow mainWindow, Settings settings, SubtitleProviderStore subtitleProviderStore) {
+  public TextSearchAction(MainWindow mainWindow, Settings settings,
+      SubtitleProviderStore subtitleProviderStore) {
     super(mainWindow, settings, subtitleProviderStore);
   }
 
   public void setReleaseFactory(ReleaseFactory releaseFactory) {
     this.releaseFactory = releaseFactory;
   }
-  
-  public void setFiltering(Filtering filtering){
+
+  public void setFiltering(Filtering filtering) {
     this.filtering = filtering;
+  }
+
+  public void setSubtitleSelection(SubtitleSelection subtitleSelection) {
+    this.subtitleSelection = subtitleSelection;
   }
 
   @Override
@@ -53,7 +60,7 @@ public class TextSearchAction extends SearchAction {
 
       release = createMovieRelease(name, quality);
     } else {
-        release = releaseFactory.createRelease(new File(name));
+      release = releaseFactory.createRelease(new File(name));
     }
 
     List<Release> releases = new ArrayList<>();
@@ -85,11 +92,16 @@ public class TextSearchAction extends SearchAction {
 
   @Override
   protected void onFoundSubtitles(Release release, List<Subtitle> subtitles) {
-    VideoTableModel model = (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
+    VideoTableModel model =
+        (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
 
     if (filtering != null) subtitles = filtering.getFiltered(subtitles, release);
-    
+
     release.getMatchingSubs().addAll(subtitles);
+
+    // use automatic selection to reduce the selection for the user
+    if (subtitleSelection != null)
+      subtitles = subtitleSelection.getAutomaticSelection(release.getMatchingSubs());
 
     // TODO: re-sort table without losing states ( selected/unselected )
     /* add the found subtitles to the table */
