@@ -1,6 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.actions;
 
-public class ActionException extends Throwable {
+public class ActionException extends Exception {
 
   public ActionException() {
     super();
