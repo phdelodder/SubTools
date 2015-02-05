@@ -14,7 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-public class SelectDialog extends MutliSubDialog {
+public class SelectDialog extends MultiSubDialog {
 
   public enum SelectionType {
     OK(1), ALL(999999), CANCEL(-1);

@@ -31,7 +31,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 
-public class MappingEpisodeNameDialog extends MutliSubDialog {
+public class MappingEpisodeNameDialog extends MultiSubDialog {
 
   /**
      *

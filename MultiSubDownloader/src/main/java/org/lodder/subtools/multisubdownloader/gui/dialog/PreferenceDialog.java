@@ -38,7 +38,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
 import org.lodder.subtools.sublibrary.logging.Logger;
 
-public class PreferenceDialog extends MutliSubDialog {
+public class PreferenceDialog extends MultiSubDialog {
 
   /**
      *
