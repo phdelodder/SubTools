@@ -45,6 +45,7 @@ import org.lodder.subtools.multisubdownloader.gui.dialog.MappingEpisodeNameDialo
 import org.lodder.subtools.multisubdownloader.gui.dialog.PreferenceDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.ProgressDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.RenameDialog;
+import org.lodder.subtools.multisubdownloader.gui.dialog.progress.search.SearchProgressDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.extra.MyPopupMenu;
 import org.lodder.subtools.multisubdownloader.gui.extra.PopupListener;
@@ -98,6 +99,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   private SearchTextInputPanel pnlSearchTextInput;
   private SearchFileInputPanel pnlSearchFileInput;
   private Menu menuBar;
+  private SearchProgressDialog searchProgressDialog;
 
   /**
    * Create the application.
@@ -741,5 +743,14 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
   public void updateProgressDialog(int progress) {
     progressDialog.updateProgress(progress);
+  }
+
+  public SearchProgressDialog createSearchProgressDialog(Cancelable searchAction) {
+    searchProgressDialog = new SearchProgressDialog(this, searchAction);
+    return searchProgressDialog;
+  }
+
+  public void hideSearchProgressDialog() {
+    searchProgressDialog.setVisible(false);
   }
 }
