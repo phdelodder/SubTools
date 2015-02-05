@@ -14,10 +14,11 @@ import com.mifmif.common.regex.Generex;
 public class VideoPatterns {
 
   private volatile static List<NamedPattern> plist = null;
+  private volatile static List<String> keys = null;
 
-  protected static final String[] QUALITYKEYWORDS = new String[] {"hdtv", "dvdrip", "bluray", "1080p",
-      "ts", "dvdscreener", "r5", "bdrip", "brrip", "720p", "xvid", "cam", "480p", "x264", "1080i",
-      "pdtv", "divx", "webrip", "h264"};
+  protected static final String[] QUALITYKEYWORDS = new String[] {"hdtv", "dvdrip", "bluray",
+      "1080p", "ts", "dvdscreener", "r5", "bdrip", "brrip", "720p", "xvid", "cam", "480p", "x264",
+      "1080i", "pdtv", "divx", "webrip", "h264"};
 
   protected static final String[] QUALITYREGEXKEYWORDS = new String[] {"web[ .-]dl", "dd5[ .]1"};
 
@@ -69,13 +70,14 @@ public class VideoPatterns {
     return plist;
   }
 
-  public static List<String> getQualityKeywords() {
-    List<String> keys = new ArrayList<String>();
+  public synchronized static List<String> getQualityKeywords() {
+    if (keys == null) {
+      keys = new ArrayList<String>();
 
-    Collections.addAll(keys, QUALITYKEYWORDS);
+      Collections.addAll(keys, QUALITYKEYWORDS);
 
-    keys.addAll(getQualityRegexKeywords());
-
+      keys.addAll(getQualityRegexKeywords());
+    }
     return keys;
   }
 
