@@ -62,6 +62,7 @@ import org.lodder.subtools.multisubdownloader.gui.workers.DownloadWorker;
 import org.lodder.subtools.multisubdownloader.gui.workers.RenameWorker;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
+import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
@@ -436,6 +437,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
     searchAction.setActions(new Actions(this.settingsControl.getSettings(), false));
     searchAction.setReleaseFactory(new ReleaseFactory(this.settingsControl.getSettings()));
+    searchAction.setFiltering(new Filtering(this.settingsControl.getSettings()));
     searchAction.setSearchPanel(pnlSearchFile);
 
     pnlSearchFileInput.setSelectFolderAction(new ActionListener() {
