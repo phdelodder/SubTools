@@ -416,6 +416,8 @@ public class Settings {
         return this.isSerieSourceSubsMax();
       case "TvSubtitles":
         return this.isSerieSourceSubsMax();
+      case "Local":
+        return this.isSerieSourceLocal();
       default:
         return false;
     }
