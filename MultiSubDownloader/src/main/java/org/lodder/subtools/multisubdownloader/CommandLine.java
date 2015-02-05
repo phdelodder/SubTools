@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.framework.Container;
+import org.lodder.subtools.multisubdownloader.gui.dialog.progress.search.CLISearchProgress;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
@@ -14,6 +15,7 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.multisubdownloader.workers.SearchHandler;
 import org.lodder.subtools.multisubdownloader.workers.SearchManager;
+import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Listener;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -34,6 +36,7 @@ public class CommandLine implements Listener, SearchHandler {
   private SearchManager searchManager;
   private ReleaseFactory releaseFactory;
   private Filtering filtering;
+  private CLISearchProgress searchProgress;
 
   public CommandLine(final SettingsControl prefctrl, Container app) {
     Logger.instance.addListener(this);
@@ -52,7 +55,7 @@ public class CommandLine implements Listener, SearchHandler {
   public void setReleaseFactory(ReleaseFactory releaseFactory) {
     this.releaseFactory = releaseFactory;
   }
-  
+
   public void setFiltering(Filtering filtering){
     this.filtering = filtering;
   }
@@ -97,15 +100,26 @@ public class CommandLine implements Listener, SearchHandler {
 
     searchManager.onFound(this);
 
+    searchProgress = new CLISearchProgress();
+    /* If debug enabled, show more info */
+    if (Logger.instance.getLogLevel().intValue() <= Level.DEBUG.intValue()) {
+      searchProgress.setVerbose(true);
+    }
+
+    searchManager.setProgressListener(searchProgress);
+
     searchManager.start();
   }
 
   @Override
   public void onFound(Release release, List<Subtitle> subtitles) {
     if (filtering != null) subtitles = filtering.getFiltered(subtitles, release);
-    
+
     release.getMatchingSubs().addAll(subtitles);
     if (searchManager.getProgress() < 100) return;
+
+    /* stop printing progress */
+    searchProgress.disable();
 
     Logger.instance.debug("found files for doDownload: " + releases.size());
     this.download();
