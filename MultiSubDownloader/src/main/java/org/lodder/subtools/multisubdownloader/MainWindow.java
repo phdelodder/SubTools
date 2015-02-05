@@ -399,6 +399,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
     searchAction.setSearchPanel(pnlSearchText);
     searchAction.setReleaseFactory(new ReleaseFactory(settings));
+    searchAction.setFiltering(new Filtering(settings));
 
     pnlSearchTextInput.setSearchAction(searchAction);
     resultPanel.setDownloadAction(new ActionListener() {
