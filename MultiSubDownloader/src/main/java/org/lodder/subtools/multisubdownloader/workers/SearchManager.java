@@ -147,7 +147,7 @@ public class SearchManager implements Cancelable {
       progress = 100;
     } else {
       int jobsDone = this.totalJobs - this.jobsLeft();
-      progress = (int) Math.ceil((float) jobsDone / this.totalJobs * 100);
+      progress = (int) Math.floor((float) jobsDone / this.totalJobs * 100);
     }
   }
 }
