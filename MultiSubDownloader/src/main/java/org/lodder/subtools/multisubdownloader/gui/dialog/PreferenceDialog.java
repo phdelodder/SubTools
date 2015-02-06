@@ -37,6 +37,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
 import org.lodder.subtools.sublibrary.logging.Logger;
+import javax.swing.JSlider;
 
 public class PreferenceDialog extends MultiSubDialog {
 
@@ -61,7 +62,7 @@ public class PreferenceDialog extends MultiSubDialog {
       chkSerieSourceOpensubtitles, chkSerieSourceLocal, chkSerieSourceSubsMax;
   private JComboBox<SettingsProcessEpisodeSource> cbxEpisodeProcessSource;
   private JCheckBox chkMinScoreSelection;
-  private JComboBox<Integer> cbxMinScoreSelection;
+  private JSlider sldMinScoreSelection;
 
   /**
    * Create the dialog.
@@ -251,10 +252,10 @@ public class PreferenceDialog extends MultiSubDialog {
           pnlOptions.add(chkMinScoreSelection, "cell 1 2");
         }
         {
-          cbxMinScoreSelection = new JComboBox<Integer>();
-          cbxMinScoreSelection.setModel(new DefaultComboBoxModel<Integer>(new Integer[] {0, 10, 20,
-              30, 40, 50, 60, 70, 80, 90, 100}));
-          pnlOptions.add(cbxMinScoreSelection, "cell 2 2,growx");
+          sldMinScoreSelection = new JSlider();
+          sldMinScoreSelection.setMinimum(0);
+          sldMinScoreSelection.setMaximum(100);
+          pnlOptions.add(sldMinScoreSelection, "cell 2 2");
         }
         pnlOptions.add(new JLabel(Messages.getString("PreferenceDialog.SearchFilter")),
             "cell 0 3 5 1");
@@ -463,8 +464,7 @@ public class PreferenceDialog extends MultiSubDialog {
     txtProxyPort.setText(String.valueOf(settingsCtrl.getSettings().getGeneralProxyPort()));
     chkAlwaysConfirm.setSelected(settingsCtrl.getSettings().isOptionsAlwaysConfirm());
     chkMinScoreSelection.setSelected(settingsCtrl.getSettings().isOptionsMinAutomaticSelection());
-    cbxMinScoreSelection.setSelectedItem(settingsCtrl.getSettings()
-        .getOptionsMinAutomaticSelectionValue());
+    sldMinScoreSelection.setValue(settingsCtrl.getSettings().getOptionsMinAutomaticSelectionValue());
     chkSubtitleExactMethod.setSelected(settingsCtrl.getSettings().isOptionSubtitleExactMatch());
     chkSubtitleKeywordMethod.setSelected(settingsCtrl.getSettings().isOptionSubtitleKeywordMatch());
     chkExcludeHearingImpaired.setSelected(settingsCtrl.getSettings()
@@ -576,7 +576,7 @@ public class PreferenceDialog extends MultiSubDialog {
       settingsCtrl.getSettings().setOptionsAlwaysConfirm(chkAlwaysConfirm.isSelected());
       settingsCtrl.getSettings().setOptionsMinAutomaticSelection(chkMinScoreSelection.isSelected());
       settingsCtrl.getSettings().setOptionsMinAutomaticSelectionValue(
-          (Integer) cbxMinScoreSelection.getSelectedItem());
+          (Integer) sldMinScoreSelection.getValue());
       settingsCtrl.getSettings().setOptionSubtitleExactMatch(chkSubtitleExactMethod.isSelected());
       settingsCtrl.getSettings().setOptionSubtitleKeywordMatch(
           chkSubtitleKeywordMethod.isSelected());
