@@ -34,7 +34,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 
-public class RenameDialog extends MutliSubDialog implements PropertyChangeListener {
+public class RenameDialog extends MultiSubDialog implements PropertyChangeListener {
 
   /**
      *

@@ -3,20 +3,20 @@ package org.lodder.subtools.multisubdownloader.gui.dialog;
 import javax.swing.*;
 import java.awt.*;
 
-public class MutliSubDialog extends JDialog {
+public class MultiSubDialog extends JDialog {
 
   /**
      *
      */
   private static final long serialVersionUID = -2357021997104425566L;
 
-  public MutliSubDialog(JFrame frame, String title, boolean modal) {
+  public MultiSubDialog(JFrame frame, String title, boolean modal) {
     super(frame);
     setTitle(title);
     setModal(modal);
   }
 
-  public MutliSubDialog(String title, boolean modal) {
+  public MultiSubDialog(String title, boolean modal) {
     super();
     setTitle(title);
     setModal(modal);

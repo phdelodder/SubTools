@@ -10,6 +10,10 @@
 			<name>JLangDetect Maven repository</name>
 			<url>https://jlangdetect.googlecode.com/svn/repo</url>
 		</repository>
+		<repository>
+			<id>d-maven</id>
+			<url>http://d-maven.googlecode.com/svn/trunk/repo</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -49,6 +53,11 @@
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
 			<version>0.9.9</version>
+		</dependency>
+		<dependency>
+			<groupId>dnl.utils</groupId>
+			<artifactId>j-text-utils</artifactId>
+			<version>0.3.3</version>
 		</dependency>
 	</dependencies>
 	<build>

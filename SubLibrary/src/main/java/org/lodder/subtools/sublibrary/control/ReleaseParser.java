@@ -34,7 +34,7 @@ public class ReleaseParser {
       for (NamedPattern np : videoPatterns.getCompiledPatterns()) {
         namedMatcher = np.matcher(fileparsename);
         if (namedMatcher.find()) {
-          Logger.instance.trace(this.getClass().toString(), "parse", "using file name: "
+          Logger.instance.trace(this.getClass().getSimpleName(), "parse", "using file name: "
               + fileparsename);
           Object[] parseResults = parsePatternResult();
           if (parseResults != null) {
@@ -91,7 +91,7 @@ public class ReleaseParser {
     }
 
     if (namedgroups.contains("episodenumber1")) {
-      Logger.instance.trace(this.getClass().toString(), "parsePatternResult", "episodenumber1 '"
+      Logger.instance.trace(this.getClass().getSimpleName(), "parsePatternResult", "episodenumber1 '"
           + namedMatcher.group("episodenumber1") + "'");
       // Multiple episodes, have episodenumber1, 2 ....
       for (String group : namedgroups) {
@@ -103,7 +103,7 @@ public class ReleaseParser {
       }
       Collections.sort(episodenumbers);
     } else if (namedgroups.contains("episodenumberstart")) {
-      Logger.instance.trace(this.getClass().toString(), "parsePatternResult",
+      Logger.instance.trace(this.getClass().getSimpleName(), "parsePatternResult",
           "episodenumberstart '" + namedMatcher.group("episodenumberstart") + "'");
       // Multiple episodes, regex specifies start and end number
       int start = Integer.parseInt(namedMatcher.group("episodenumberstart"));
@@ -117,7 +117,7 @@ public class ReleaseParser {
         episodenumbers.add(i);
       }
     } else if (namedgroups.contains("episodenumber")) {
-      Logger.instance.trace(this.getClass().toString(), "parsePatternResult", "episodenumber '"
+      Logger.instance.trace(this.getClass().getSimpleName(), "parsePatternResult", "episodenumber '"
           + namedMatcher.group("episodenumber") + "'");
       episodenumbers.add(Integer.parseInt(namedMatcher.group("episodenumber")));
     } else if (namedgroups.contains("year") || namedgroups.contains("month")
@@ -128,7 +128,7 @@ public class ReleaseParser {
     }
 
     if (namedgroups.contains("seriesname")) {
-      Logger.instance.trace(this.getClass().toString(), "parsePatternResult", "seriesname '"
+      Logger.instance.trace(this.getClass().getSimpleName(), "parsePatternResult", "seriesname '"
           + namedMatcher.group("seriesname") + "'");
       seriesname = cleanUnwantedChars(namedMatcher.group("seriesname"));
       if (namedgroups.contains("year")) {
@@ -137,7 +137,7 @@ public class ReleaseParser {
     }
 
     if (namedgroups.contains("seasonnumber")) {
-      Logger.instance.trace(this.getClass().toString(), "parsePatternResult", "seasonnumber '"
+      Logger.instance.trace(this.getClass().getSimpleName(), "parsePatternResult", "seasonnumber '"
           + namedMatcher.group("seasonnumber") + "'");
       seasonnumber = Integer.parseInt(namedMatcher.group("seasonnumber"));
       return new Object[] {seriesname, seasonnumber, episodenumbers, description};
@@ -148,7 +148,7 @@ public class ReleaseParser {
         && namedgroups.contains("day")) {
       // need to implement
     } else if (namedgroups.contains("season_episode")) {
-      Logger.instance.trace(this.getClass().toString(), "parsePatternResult", "season_episode '"
+      Logger.instance.trace(this.getClass().getSimpleName(), "parsePatternResult", "season_episode '"
           + namedMatcher.group("season_episode") + "'");
       if (namedMatcher.group("season_episode").length() == 3) {
         episodenumbers.add(Integer.parseInt(namedMatcher.group("season_episode").substring(1, 3)));

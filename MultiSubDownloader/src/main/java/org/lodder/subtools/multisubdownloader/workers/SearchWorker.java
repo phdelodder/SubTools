@@ -13,6 +13,8 @@ public class SearchWorker extends Thread {
   private final SearchManager scheduler;
   private boolean busy = false;
   private boolean isInterrupted = false;
+  private Release release;
+  private List<Subtitle> subtitles;
 
   public SearchWorker(SubtitleProvider provider, SearchManager scheduler) {
     this.provider = provider;
@@ -25,11 +27,12 @@ public class SearchWorker extends Thread {
     this.busy = false;
     while (!this.isInterrupted()) {
       this.busy = true;
-      Release release = this.scheduler.getNextRelease(provider.getName());
+      Release release = this.scheduler.getNextRelease(provider);
       if (release == null) {
         this.busy = false;
         break;
       }
+      this.release = release;
       Logger.instance.debug("[Search] " + this.provider.getName() + " searching " + release.toString());
 
       List<Subtitle> subtitles = this.provider.search(release, language);
@@ -38,13 +41,15 @@ public class SearchWorker extends Thread {
       }
 
       /* clone to prevent other threads from ever messing with it */
-      subtitles = new ArrayList<>(subtitles);
+      this.subtitles = new ArrayList<>(subtitles);
 
       this.busy = false;
-      Logger.instance.debug("[Search] " + this.provider.getName() + " found " + subtitles.size() + " subtitles for " + release.toString());
+      Logger.instance.debug(
+        "[Search] " + this.provider.getName() + " found " + subtitles.size() + " subtitles for "
+          + release.toString());
 
       if (!this.isInterrupted()) {
-        this.scheduler.onCompleted(release, subtitles);
+        this.scheduler.onCompleted(this);
       }
     }
   }
@@ -63,5 +68,17 @@ public class SearchWorker extends Thread {
 
   public boolean isBusy() {
     return busy;
+  }
+
+  public Release getRelease() {
+    return release;
+  }
+
+  public List<Subtitle> getSubtitles() {
+    return subtitles;
+  }
+
+  public SubtitleProvider getProvider() {
+    return provider;
   }
 }

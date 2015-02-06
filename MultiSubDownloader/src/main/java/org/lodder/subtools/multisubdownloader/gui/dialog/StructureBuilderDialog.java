@@ -35,7 +35,7 @@ import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoType;
 
-public class StructureBuilderDialog extends MutliSubDialog implements DocumentListener {
+public class StructureBuilderDialog extends MultiSubDialog implements DocumentListener {
 
   /**
      * 

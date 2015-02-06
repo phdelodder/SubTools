@@ -75,7 +75,8 @@ public abstract class SearchAction implements Cancelable, SearchHandler {
     /* Listen for when the manager tells us Subtitles are found */
     this.searchManager.onFound(this);
 
-    showProgressDialog();
+    /* Tell the manager where to push progressUpdates */
+    this.searchManager.setProgressListener(this.mainWindow.createSearchProgressDialog(this));
 
     this.searchPanel.getInputPanel().disableSearchButton();
 
@@ -118,7 +119,7 @@ public abstract class SearchAction implements Cancelable, SearchHandler {
     }
 
     if (this.searchManager.getProgress() == 100) {
-      mainWindow.hideProgressDialog();
+      this.mainWindow.hideSearchProgressDialog();
       searchPanel.getInputPanel().enableSearchButton();
     }
 

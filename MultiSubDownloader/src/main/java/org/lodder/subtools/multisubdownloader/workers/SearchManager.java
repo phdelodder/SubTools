@@ -1,7 +1,9 @@
 package org.lodder.subtools.multisubdownloader.workers;
 
 import java.util.*;
+import org.lodder.subtools.multisubdownloader.gui.actions.search.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
+import org.lodder.subtools.multisubdownloader.gui.dialog.progress.search.SearchProgressListener;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.ScoreCalculator;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.SortWeight;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
@@ -11,14 +13,15 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 
 public class SearchManager implements Cancelable {
 
-  protected Map<String, Queue<Release>> queue = new HashMap<>();
-  protected Map<String, SearchWorker> workers = new HashMap<>();
+  protected Map<SubtitleProvider, Queue<Release>> queue = new HashMap<>();
+  protected Map<SubtitleProvider, SearchWorker> workers = new HashMap<>();
   protected Map<Release, ScoreCalculator> scoreCalculators = new HashMap<>();
   protected Settings settings;
   protected int progress = 0;
   protected int totalJobs;
   protected SearchHandler onFound;
   protected String language;
+  private SearchProgressListener progressListener;
 
   public SearchManager(Settings settings) {
     this.settings = settings;
@@ -33,16 +36,16 @@ public class SearchManager implements Cancelable {
   }
 
   public void addProvider(SubtitleProvider provider) {
-    if (this.workers.containsKey(provider.getName()))
+    if (this.workers.containsKey(provider))
       return;
 
-    this.workers.put(provider.getName(), new SearchWorker(provider, this));
-    this.queue.put(provider.getName(), new LinkedList<Release>());
+    this.workers.put(provider, new SearchWorker(provider, this));
+    this.queue.put(provider, new LinkedList<Release>());
   }
 
   public void addRelease(Release release) {
-    for (String providerName : this.queue.keySet())
-      queue.get(providerName).add(release);
+    for (SubtitleProvider provider : this.queue.keySet())
+      queue.get(provider).add(release);
 
     /* Create a scoreCalculator so we can score subtitles for this release */
     // TODO: extract to factory
@@ -50,7 +53,16 @@ public class SearchManager implements Cancelable {
     this.scoreCalculators.put(release, new ScoreCalculator(weights));
   }
 
-  public void start() {
+  public void setProgressListener(SearchProgressListener listener) {
+    this.progressListener = listener;
+  }
+
+  public void start() throws SearchSetupException {
+    if(this.progressListener == null)
+      throw new SearchSetupException("ProgressListener cannot be null");
+    if(this.onFound == null)
+      throw new SearchSetupException("SearchHandler cannot be null");
+
     totalJobs = this.jobsLeft();
 
     if (totalJobs <= 0) {
@@ -58,39 +70,54 @@ public class SearchManager implements Cancelable {
     }
 
 
-    for (String providerName : workers.keySet())
-      workers.get(providerName).start();
+    for (SubtitleProvider provider : workers.keySet())
+      workers.get(provider).start();
   }
 
-  public synchronized void onCompleted(Release release, List<Subtitle> subtitles) {
+  public synchronized void onCompleted(SearchWorker worker) {
+    Release release = worker.getRelease();
+    List<Subtitle> subtitles = new ArrayList<>(worker.getSubtitles());
+
     calculateProgress();
 
     /* set the score of the found subtitles */
     ScoreCalculator calculator = this.scoreCalculators.get(release);
-    for(Subtitle subtitle : subtitles) {
+    for (Subtitle subtitle : subtitles) {
       subtitle.setScore(calculator.calculate(subtitle));
     }
+
+    /* Tell the progresslistener our total progress */
+    this.progressListener.progress(this.getProgress());
 
     onFound.onFound(release, subtitles);
   }
 
   @Override
   public boolean cancel(boolean mayInterruptIfRunning) {
-    for (String providerName : workers.keySet())
-      workers.get(providerName).interrupt();
+    for (SubtitleProvider provider : workers.keySet())
+      workers.get(provider).interrupt();
 
     return true;
   }
 
-  public synchronized Release getNextRelease(String providerName) {
-    if (!this.hasNextRelease(providerName))
+  public synchronized Release getNextRelease(SubtitleProvider provider) {
+    if (!this.hasNextRelease(provider)) {
+      /* Tell the progressListener this provider is finished */
+      this.progressListener.progress(provider, queue.get(provider).size(), null);
       return null;
+    }
 
-    return queue.get(providerName).poll();
+
+    Release release = queue.get(provider).poll();
+
+    /* Tell the progressListener we are starting on a new Release */
+    this.progressListener.progress(provider, queue.get(provider).size(), release);
+
+    return release;
   }
 
-  public boolean hasNextRelease(String providerName) {
-    return !queue.get(providerName).isEmpty();
+  public boolean hasNextRelease(SubtitleProvider provider) {
+    return !queue.get(provider).isEmpty();
   }
 
   public String getLanguage() {
@@ -103,10 +130,10 @@ public class SearchManager implements Cancelable {
 
   private int jobsLeft() {
     int jobsLeft = 0;
-    for (String providerName : this.queue.keySet()) {
-      jobsLeft += this.queue.get(providerName).size();
-      SearchWorker worker = this.workers.get(providerName);
-      if(worker.isAlive() && worker.isBusy()) {
+    for (SubtitleProvider provider : this.queue.keySet()) {
+      jobsLeft += this.queue.get(provider).size();
+      SearchWorker worker = this.workers.get(provider);
+      if (worker.isAlive() && worker.isBusy()) {
         jobsLeft++;
       }
     }

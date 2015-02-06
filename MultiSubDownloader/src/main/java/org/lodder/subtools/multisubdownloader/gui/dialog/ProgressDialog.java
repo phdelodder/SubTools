@@ -12,7 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class ProgressDialog extends MutliSubDialog implements Messenger {
+public class ProgressDialog extends MultiSubDialog implements Messenger {
   /**
      *
      */
