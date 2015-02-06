@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.framework.Container;
+import org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer.CLIFileindexerProgressDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.progress.search.CLISearchProgress;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.Info;
@@ -36,6 +37,7 @@ public class CommandLine implements Listener, SearchHandler {
   private ReleaseFactory releaseFactory;
   private Filtering filtering;
   private CLISearchProgress searchProgress;
+  private CLIFileindexerProgressDialog fileindexerProgress;
   private boolean verboseProgress = false;
 
   public CommandLine(final SettingsControl prefctrl, Container app) {
@@ -61,6 +63,11 @@ public class CommandLine implements Listener, SearchHandler {
   }
 
   private void search() throws Exception {
+    Logger.instance.log("Indexing files");
+
+    this.fileindexerProgress = new CLIFileindexerProgressDialog();
+    this.fileindexerProgress.setVerbose(this.isVerboseProgress());
+
     List<File> folders = new ArrayList<File>();
     if (folder == null) {
       folders.addAll(prefctrl.getSettings().getDefaultIncomingFolders());
@@ -68,19 +75,44 @@ public class CommandLine implements Listener, SearchHandler {
       folders.add(folder);
     }
 
+    actions.setFileIndexerProgressListener(this.fileindexerProgress);
+
     List<File> files = new ArrayList<>();
     for (File folder : folders) {
       files.addAll(actions.getFileListing(folder, recursive, languagecode, force));
     }
+
+    /* fix: remove carriage return from progressbar */
+    System.out.println("");
+
     Logger.instance.debug("# Files found to process: " + files.size());
+
+    int total = files.size();
+    int index = 0;
+    int progress = 0;
+
+    Logger.instance.log("Parsing found files");
+    this.fileindexerProgress.progress(progress);
 
     releases = new ArrayList<>();
     for (File file : files) {
+      index++;
+      progress = (int) Math.floor((float) index / total * 100);
+
+      /* Tell progressListener which file we are processing */
+      this.fileindexerProgress.progress(file.getName());
+
       Release release = releaseFactory.createRelease(file);
       if (release == null) continue;
 
       releases.add(release);
+
+      /* Update progressListener */
+      this.fileindexerProgress.progress(progress);
     }
+
+    /* fix: remove carriage return from progressbar */
+    System.out.println("");
 
     SubtitleProviderStore subtitleProviderStore =
         (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
@@ -105,6 +137,7 @@ public class CommandLine implements Listener, SearchHandler {
 
     searchManager.setProgressListener(searchProgress);
 
+    Logger.instance.log("Searching subtitles");
     searchManager.start();
   }
 
