@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>multisubdownloader</artifactId>
 	<name>MultiSubDownloader</name>
@@ -35,7 +34,7 @@
 		<dependency>
 			<groupId>org.lodder.subtools</groupId>
 			<artifactId>sublibrary</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
+			<version>1.0.0-BETA1</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -132,6 +131,6 @@
 	<parent>
 		<groupId>org.lodder.subtools</groupId>
 		<artifactId>subtools</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.0.0-BETA1</version>
 	</parent>
 </project>
