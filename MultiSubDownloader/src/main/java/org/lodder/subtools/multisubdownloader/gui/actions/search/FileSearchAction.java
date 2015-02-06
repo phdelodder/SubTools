@@ -57,9 +57,25 @@ public class FileSearchAction extends SearchAction {
   private List<Release> createReleases(List<File> files) throws ActionException {
     /* parse every videofile */
     List<Release> releases = new ArrayList<>();
+
+    int total = files.size();
+    int index = 0;
+    int progress = 0;
+
+    this.fileIndexerProgressListener.progress(progress);
+
     for (File file : files) {
+      index++;
+      progress = (int) Math.floor((float) index / total * 100);
+
+      /* Tell progressListener which file we are processing */
+      this.fileIndexerProgressListener.progress(file.getName());
+
       Release r = releaseFactory.createRelease(file);
       if (r != null) releases.add(r);
+
+      /* Update progressListener */
+      this.fileIndexerProgressListener.progress(progress);
     }
 
     return releases;
@@ -77,6 +93,11 @@ public class FileSearchAction extends SearchAction {
 
     /* Scan directories for videofiles */
     List<File> files = new ArrayList<>();
+
+    /* Tell Action where to send progressUpdates */
+    this.actions.setFileIndexerProgressListener(this.fileIndexerProgressListener);
+
+    /* Start the getFileListing Action */
     for (File dir : dirs) {
       files.addAll(this.actions.getFileListing(dir, recursive, languageCode,
           overwriteExistingSubtitles));

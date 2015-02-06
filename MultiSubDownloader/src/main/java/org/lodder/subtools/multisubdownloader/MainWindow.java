@@ -45,6 +45,7 @@ import org.lodder.subtools.multisubdownloader.gui.dialog.MappingEpisodeNameDialo
 import org.lodder.subtools.multisubdownloader.gui.dialog.PreferenceDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.ProgressDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.RenameDialog;
+import org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer.FileIndexerProgressDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.progress.search.SearchProgressDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.extra.MyPopupMenu;
@@ -100,6 +101,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   private SearchFileInputPanel pnlSearchFileInput;
   private Menu menuBar;
   private SearchProgressDialog searchProgressDialog;
+  private FileIndexerProgressDialog fileIndexerProgressDialog;
 
   /**
    * Create the application.
@@ -751,6 +753,18 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   }
 
   public void hideSearchProgressDialog() {
+    if(searchProgressDialog == null) return;
     searchProgressDialog.setVisible(false);
+  }
+
+  public FileIndexerProgressDialog createFileIndexerProgressDialog(Cancelable searchAction) {
+    fileIndexerProgressDialog = new FileIndexerProgressDialog(this, searchAction);
+    fileIndexerProgressDialog.setVisible(true);
+    return fileIndexerProgressDialog;
+  }
+
+  public void hideFileIndexerProgressDialog() {
+    if(fileIndexerProgressDialog == null) return;
+    fileIndexerProgressDialog.setVisible(false);
   }
 }

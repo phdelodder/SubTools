@@ -5,6 +5,7 @@ import java.util.List;
 import org.lodder.subtools.multisubdownloader.MainWindow;
 import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
+import org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer.FileIndexerProgressListener;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchPanel;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
@@ -24,6 +25,7 @@ public abstract class SearchAction implements Cancelable, SearchHandler {
   protected SearchPanel searchPanel;
   protected SearchManager searchManager;
   protected List<Release> releases;
+  protected FileIndexerProgressListener fileIndexerProgressListener;
 
   public SearchAction(MainWindow mainWindow, Settings settings, SubtitleProviderStore subtitleProviderStore) {
     this.mainWindow = mainWindow;
@@ -49,7 +51,13 @@ public abstract class SearchAction implements Cancelable, SearchHandler {
 
     String languageCode = this.getLanguageCode(this.searchPanel.getInputPanel().getSelectedLanguage());
 
+    this.fileIndexerProgressListener = this.mainWindow.createFileIndexerProgressDialog(this);
+
+    setStatusMessage("Indexing...");
+
     this.releases = createReleases();
+
+    this.mainWindow.hideFileIndexerProgressDialog();
 
     if (this.releases.size() <= 0)
       return;
@@ -96,14 +104,10 @@ public abstract class SearchAction implements Cancelable, SearchHandler {
     this.mainWindow.setStatusMessage(message);
   }
 
-  protected void showProgressDialog() {
-    this.mainWindow.setProgressDialog(this);
-    this.mainWindow.showProgressDialog();
-  }
-
   @Override
   public boolean cancel(boolean mayInterruptIfRunning) {
-    mainWindow.hideProgressDialog();
+    mainWindow.hideFileIndexerProgressDialog();
+    mainWindow.hideSearchProgressDialog();
     searchPanel.getInputPanel().enableSearchButton();
     return this.searchManager.cancel(mayInterruptIfRunning);
   }
