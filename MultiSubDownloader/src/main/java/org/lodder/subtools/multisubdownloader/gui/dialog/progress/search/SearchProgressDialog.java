@@ -60,7 +60,9 @@ public class SearchProgressDialog extends MultiSubDialog implements SearchProgre
     this.tableModel = new SearchProgressTableModel();
     JTable table = new JTable(tableModel);
 
+    table.getColumnModel().getColumn(0).setMinWidth(120);
     table.getColumnModel().getColumn(0).setMaxWidth(150);
+    table.getColumnModel().getColumn(0).setMinWidth(50);
     table.getColumnModel().getColumn(1).setMaxWidth(50);
 
     JScrollPane tablePane = new JScrollPane(table);
