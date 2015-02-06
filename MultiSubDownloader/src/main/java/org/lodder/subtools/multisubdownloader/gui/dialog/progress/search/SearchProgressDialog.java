@@ -4,8 +4,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
 import javax.swing.*;
+
 import net.miginfocom.swing.MigLayout;
+
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.dialog.MultiSubDialog;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
@@ -18,7 +22,7 @@ public class SearchProgressDialog extends MultiSubDialog implements SearchProgre
   private JProgressBar progressBar;
 
   public SearchProgressDialog(JFrame frame, Cancelable searchAction) {
-    super(frame, "Searching", false);
+    super(frame, Messages.getString("SearchProgressDialog.Title"), false);
     this.searchAction = searchAction;
 
     initialize_ui();
@@ -67,7 +71,7 @@ public class SearchProgressDialog extends MultiSubDialog implements SearchProgre
     progressBar.setIndeterminate(true);
     getContentPane().add(progressBar, "cell 0 1 2 1,grow");
     
-        JButton btnStop = new JButton("Stop!");
+        JButton btnStop = new JButton(Messages.getString("SearchProgressDialog.Stop"));
         btnStop.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent arg0) {
             searchAction.cancel(true);

@@ -2,11 +2,16 @@ package org.lodder.subtools.multisubdownloader.gui.dialog.progress.search;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.swing.table.DefaultTableModel;
+
+import org.lodder.subtools.multisubdownloader.Messages;
 
 public class SearchProgressTableModel extends DefaultTableModel {
 
-  private String[] columnNames = {"Source", "Queue", "Release"};
+  private String[] columnNames = {Messages.getString("SearchProgressTableModel.Source"),
+      Messages.getString("SearchProgressTableModel.Queue"),
+      Messages.getString("SearchProgressTableModel.Release")};
   private Map<String, Integer> rowMap = new HashMap<>();
 
   public SearchProgressTableModel() {
