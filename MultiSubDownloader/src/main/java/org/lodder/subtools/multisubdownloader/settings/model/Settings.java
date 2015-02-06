@@ -411,11 +411,11 @@ public class Settings {
       case "OpenSubtitles":
         return this.isSerieSourceOpensubtitles();
       case "Podnapisi":
-        return this.isSerieSourceOpensubtitles();
+        return this.isSerieSourcePodnapisi();
       case "SubsMax":
         return this.isSerieSourceSubsMax();
       case "TvSubtitles":
-        return this.isSerieSourceSubsMax();
+        return this.isSerieSourceTvSubtitles();
       case "Local":
         return this.isSerieSourceLocal();
       default:
