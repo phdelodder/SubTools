@@ -99,7 +99,8 @@ public class App {
           cmd.setForce(line.hasOption("force")); 
           cmd.setDownloadall(line.hasOption("downloadall")); 
           cmd.setRecursive(line.hasOption("recursive")); 
-          cmd.setSubtitleSelectionDialog(line.hasOption("selection")); 
+          cmd.setSubtitleSelectionDialog(line.hasOption("selection"));
+          cmd.setVerboseProgress(line.hasOption("verboseprogress"));
 
           cmd.CheckUpdate();
           bootstrapper.initialize();
@@ -141,7 +142,8 @@ public class App {
     options.addOption("updatefromonlinemapping", false, Messages.getString("App.OptionOptionUpdateMappingMsg"));  
     options.addOption("selection", false, 
         Messages.getString("App.OptionOptionSelectionMsg")); 
-    options.addOption("speedy", false, Messages.getString("App.OptionOptionSpeedyMsg"));  
+    options.addOption("speedy", false, Messages.getString("App.OptionOptionSpeedyMsg"));
+    options.addOption("verboseprogress", false, Messages.getString("App.OptionVerboseProgressCLI"));
 
     return options;
   }

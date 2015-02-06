@@ -36,6 +36,7 @@ public class CommandLine implements Listener, SearchHandler {
   private ReleaseFactory releaseFactory;
   private Filtering filtering;
   private CLISearchProgress searchProgress;
+  private boolean verboseProgress = false;
 
   public CommandLine(final SettingsControl prefctrl, Container app) {
     Logger.instance.addListener(this);
@@ -100,8 +101,7 @@ public class CommandLine implements Listener, SearchHandler {
     searchManager.onFound(this);
 
     searchProgress = new CLISearchProgress();
-    //TODO: check if verbose is wanted
-    searchProgress.setVerbose(false);
+    searchProgress.setVerbose(this.isVerboseProgress());
 
     searchManager.setProgressListener(searchProgress);
 
@@ -221,6 +221,14 @@ public class CommandLine implements Listener, SearchHandler {
 
   public void setSubtitleSelectionDialog(boolean subtitleSelectionDialog) {
     this.subtitleSelectionDialog = subtitleSelectionDialog;
+  }
+
+  public boolean isVerboseProgress() {
+    return verboseProgress;
+  }
+
+  public void setVerboseProgress(boolean verboseProgress) {
+    this.verboseProgress = verboseProgress;
   }
 
 }
