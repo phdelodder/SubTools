@@ -1,8 +1,10 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog.progress.search;
 
-import dnl.utils.text.table.TextTable;
+import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.sublibrary.model.Release;
+
+import dnl.utils.text.table.TextTable;
 
 public class CLISearchProgress implements SearchProgressListener {
 
@@ -22,7 +24,8 @@ public class CLISearchProgress implements SearchProgressListener {
 
   @Override
   public void progress(SubtitleProvider provider, int jobsLeft, Release release) {
-    this.tableModel.update(provider.getName(), jobsLeft, (release == null ? "Done" : release.getFilename()));
+    this.tableModel
+        .update(provider.getName(), jobsLeft, (release == null ? "Done" : release.getFilename()));
     this.printProgress();
   }
 
@@ -32,9 +35,44 @@ public class CLISearchProgress implements SearchProgressListener {
     this.printProgress();
   }
 
-  private void printProgress() {
-    if (!isEnabled)
+  @Override
+  public void completed() {
+    if (!this.isEnabled) {
       return;
+    }
+    this.disable();
+  }
+
+  @Override
+  public void onError(ActionException exception) {
+    if (!isEnabled) {
+      return;
+    }
+    System.out.println("Error: " + exception.getMessage());
+  }
+
+  @Override
+  public void onStatus(String message) {
+    if (!isEnabled) {
+      return;
+    }
+    System.out.println(message);
+  }
+
+  public void disable() {
+    this.isEnabled = false;
+    /* Print a line */
+    System.out.println("");
+  }
+
+  public void setVerbose(boolean isVerbose) {
+    this.isVerbose = isVerbose;
+  }
+
+  private void printProgress() {
+    if (!isEnabled) {
+      return;
+    }
 
     /* print table */
     if (isVerbose) {
@@ -46,7 +84,7 @@ public class CLISearchProgress implements SearchProgressListener {
     this.printProgBar(this.progress);
   }
 
-  public void printProgBar(int percent) {
+  private void printProgBar(int percent) {
     // http://nakkaya.com/2009/11/08/command-line-progress-bar/
     StringBuilder bar = new StringBuilder("[");
 
@@ -62,15 +100,5 @@ public class CLISearchProgress implements SearchProgressListener {
 
     bar.append("]   " + percent + "%     ");
     System.out.print("\r" + bar.toString());
-  }
-
-  public void disable() {
-    this.isEnabled = false;
-    /* Print a line */
-    System.out.println("");
-  }
-
-  public void setVerbose(boolean isVerbose) {
-    this.isVerbose = isVerbose;
   }
 }
