@@ -120,14 +120,6 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     pnlSearchText.getResultPanel().disableButtons();
     checkUpdate(false);
     initPopupMenu();
-
-    try {
-      if (this.settingsControl.getSettings().isAutoUpdateMapping()) {
-        this.settingsControl.updateMappingFromOnline();
-  }
-    } catch (Throwable e) {
-      Logger.instance.error(Logger.stack2String(e));
-    }
   }
 
   private void checkUpdate(final boolean showNoUpdate) {
