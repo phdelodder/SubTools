@@ -4,13 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lodder.subtools.multisubdownloader.MainWindow;
 import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchTextInputPanel;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.SubtitleSelection;
-import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
@@ -19,23 +17,19 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoSearchType;
 
-public class TextSearchAction extends SearchAction {
+public class TextSearchAction extends GuiSearchAction {
 
   private ReleaseFactory releaseFactory;
-  private Filtering filtering;
   private SubtitleSelection subtitleSelection;
 
-  public TextSearchAction(MainWindow mainWindow, Settings settings,
-      SubtitleProviderStore subtitleProviderStore) {
-    super(mainWindow, settings, subtitleProviderStore);
+  public TextSearchAction(Settings settings, SubtitleProviderStore subtitleProviderStore) {
+    super();
+    this.setSettings(settings);
+    this.setProviderStore(subtitleProviderStore);
   }
 
   public void setReleaseFactory(ReleaseFactory releaseFactory) {
     this.releaseFactory = releaseFactory;
-  }
-
-  public void setFiltering(Filtering filtering) {
-    this.filtering = filtering;
   }
 
   public void setSubtitleSelection(SubtitleSelection subtitleSelection) {
@@ -64,7 +58,9 @@ public class TextSearchAction extends SearchAction {
     }
 
     List<Release> releases = new ArrayList<>();
-    if (release != null) releases.add(release);
+    if (release != null) {
+      releases.add(release);
+    }
 
     return releases;
   }
@@ -91,36 +87,36 @@ public class TextSearchAction extends SearchAction {
   }
 
   @Override
-  protected void onFoundSubtitles(Release release, List<Subtitle> subtitles) {
+  public void onFound(Release release, List<Subtitle> subtitles) {
     VideoTableModel model =
         (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
 
-    if (filtering != null) subtitles = filtering.getFiltered(subtitles, release);
+    if (filtering != null) {
+      subtitles = filtering.getFiltered(subtitles, release);
+    }
 
     release.getMatchingSubs().addAll(subtitles);
 
     // use automatic selection to reduce the selection for the user
-    if (subtitleSelection != null)
+    if (subtitleSelection != null) {
       subtitles = subtitleSelection.getAutomaticSelection(subtitles);
+    }
 
-    // TODO: re-sort table without losing states ( selected/unselected )
-    /* add the found subtitles to the table */
     for (Subtitle subtitle : subtitles) {
       model.addRow(subtitle);
     }
+
+    /* Let GuiSearchAction also make some decisions */
+    super.onFound(release, subtitles);
   }
 
   @Override
-  protected void postFound() {
-    /* never show the getSelected button for text-based search */
-    this.searchPanel.getResultPanel().hideSelectFoundSubtitlesButton();
-  }
-
-  @Override
-  protected void inputCheck() throws SearchSetupException {
+  protected void validate() throws SearchSetupException {
     if (getInputPanel().getReleaseName().isEmpty()) {
       throw new SearchSetupException("Geen Movie/Episode/Release opgegeven");
     }
+
+    super.validate();
   }
 
   private SearchTextInputPanel getInputPanel() {

@@ -406,6 +406,8 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     searchAction.setReleaseFactory(new ReleaseFactory(settings));
     searchAction.setFiltering(new Filtering(settings));
     searchAction.setSubtitleSelection(new SubtitleSelectionGUI(settings));
+    searchAction.setIndexingProgressListener(this.createFileIndexerProgressDialog(searchAction));
+    searchAction.setSearchProgressListener(this.createSearchProgressDialog(searchAction));
 
     pnlSearchTextInput.setSearchAction(searchAction);
     resultPanel.setDownloadAction(new ActionListener() {
@@ -446,6 +448,8 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     searchAction.setReleaseFactory(new ReleaseFactory(this.settingsControl.getSettings()));
     searchAction.setFiltering(new Filtering(this.settingsControl.getSettings()));
     searchAction.setSearchPanel(pnlSearchFile);
+    searchAction.setIndexingProgressListener(this.createFileIndexerProgressDialog(searchAction));
+    searchAction.setSearchProgressListener(this.createSearchProgressDialog(searchAction));
 
     pnlSearchFileInput.setSelectFolderAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
