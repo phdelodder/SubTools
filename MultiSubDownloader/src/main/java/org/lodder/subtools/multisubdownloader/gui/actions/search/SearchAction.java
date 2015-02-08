@@ -2,11 +2,11 @@ package org.lodder.subtools.multisubdownloader.gui.actions.search;
 
 import java.util.List;
 
-import org.lodder.subtools.multisubdownloader.MainWindow;
 import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
-import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
-import org.lodder.subtools.multisubdownloader.gui.panels.SearchPanel;
+import org.lodder.subtools.multisubdownloader.gui.dialog.progress.StatusListener;
+import org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer.IndexingProgressListener;
+import org.lodder.subtools.multisubdownloader.gui.dialog.progress.search.SearchProgressListener;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
@@ -14,45 +14,70 @@ import org.lodder.subtools.multisubdownloader.workers.SearchHandler;
 import org.lodder.subtools.multisubdownloader.workers.SearchManager;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
-import org.lodder.subtools.sublibrary.model.Subtitle;
 
-public abstract class SearchAction implements Cancelable, SearchHandler {
+public abstract class SearchAction extends Thread implements Cancelable, SearchHandler {
 
-  protected MainWindow mainWindow;
   protected Settings settings;
   protected SubtitleProviderStore subtitleProviderStore;
-  protected SearchPanel searchPanel;
   protected SearchManager searchManager;
   protected List<Release> releases;
+  protected IndexingProgressListener indexingProgressListener;
+  protected SearchProgressListener searchProgressListener;
+  protected StatusListener statusListener;
 
-  public SearchAction(MainWindow mainWindow, Settings settings, SubtitleProviderStore subtitleProviderStore) {
-    this.mainWindow = mainWindow;
+  public void setSettings(Settings settings) {
     this.settings = settings;
-    this.subtitleProviderStore = subtitleProviderStore;
   }
 
-  public void setSearchPanel(SearchPanel searchPanel) {
-    this.searchPanel = searchPanel;
+  public void setProviderStore(SubtitleProviderStore store) {
+    this.subtitleProviderStore = store;
   }
 
-  public void execute() {
-    Logger.instance.trace(this.getClass().toString(), "execute", "SearchAction is being executed");
+  public void setStatusListener(StatusListener listener) {
+    this.statusListener = listener;
+  }
+
+  public void setSearchProgressListener(SearchProgressListener listener) {
+    this.searchProgressListener = listener;
+  }
+
+  public void setIndexingProgressListener(IndexingProgressListener listener) {
+    this.indexingProgressListener = listener;
+  }
+
+  @Override
+  public void run() {
+    Logger.instance
+        .trace(this.getClass().getSimpleName(), "run", "SearchAction is being executed");
     try {
       this.search();
     } catch (ActionException e) {
-      this.mainWindow.showErrorMessage(e.getMessage());
+      Logger.instance.error(e.getMessage());
+      if (this.statusListener != null) {
+        this.statusListener.onError(e);
+      }
     }
   }
 
-  public void search() throws ActionException {
-    inputCheck();
+  private void search() throws ActionException {
+    this.setStatusListener(this.indexingProgressListener);
 
-    String languageCode = this.getLanguageCode(this.searchPanel.getInputPanel().getSelectedLanguage());
+    validate();
+
+    String languageCode = this.getLanguageCode();
+
+    setStatusMessage("Indexing...");
 
     this.releases = createReleases();
 
-    if (this.releases.size() <= 0)
+    if (this.releases.size() <= 0) {
+      this.cancel(true);
       return;
+    }
+
+    this.indexingProgressListener.completed();
+
+    this.setStatusListener(this.searchProgressListener);
 
     /* Create a new SearchManager. */
     this.searchManager = new SearchManager(this.settings);
@@ -62,8 +87,10 @@ public abstract class SearchAction implements Cancelable, SearchHandler {
 
     /* Tell the manager which providers to use */
     for (SubtitleProvider subtitleProvider : this.subtitleProviderStore.getAllProviders()) {
-      if (!settings.isSerieSource(subtitleProvider.getName())) continue;
-      
+      if (!settings.isSerieSource(subtitleProvider.getName())) {
+        continue;
+      }
+
       this.searchManager.addProvider(subtitleProvider);
     }
 
@@ -76,13 +103,9 @@ public abstract class SearchAction implements Cancelable, SearchHandler {
     this.searchManager.onFound(this);
 
     /* Tell the manager where to push progressUpdates */
-    this.searchManager.setProgressListener(this.mainWindow.createSearchProgressDialog(this));
-
-    this.searchPanel.getInputPanel().disableSearchButton();
+    this.searchManager.setProgressListener(this.searchProgressListener);
 
     setStatusMessage("Zoeken...");
-
-    this.searchPanel.getResultPanel().clearTable();
 
     /* Tell the manager to start searching */
     this.searchManager.start();
@@ -90,43 +113,20 @@ public abstract class SearchAction implements Cancelable, SearchHandler {
 
   protected abstract List<Release> createReleases() throws ActionException;
 
-  protected abstract void onFoundSubtitles(Release release, List<Subtitle> subtitles);
-
   protected void setStatusMessage(String message) {
-    this.mainWindow.setStatusMessage(message);
-  }
-
-  protected void showProgressDialog() {
-    this.mainWindow.setProgressDialog(this);
-    this.mainWindow.showProgressDialog();
+    this.statusListener.onStatus(message);
   }
 
   @Override
   public boolean cancel(boolean mayInterruptIfRunning) {
-    mainWindow.hideProgressDialog();
-    searchPanel.getInputPanel().enableSearchButton();
-    return this.searchManager.cancel(mayInterruptIfRunning);
+    this.searchManager.cancel(mayInterruptIfRunning);
+    this.interrupt();
+    this.indexingProgressListener.completed();
+    this.searchProgressListener.completed();
+    return true;
   }
 
-  @Override
-  public void onFound(Release release, List<Subtitle> subtitles) {
-    this.onFoundSubtitles(release, subtitles);
-
-    VideoTableModel model = (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
-
-    if(model.getRowCount() > 0) {
-      searchPanel.getResultPanel().enableButtons();
-    }
-
-    if (this.searchManager.getProgress() == 100) {
-      this.mainWindow.hideSearchProgressDialog();
-      searchPanel.getInputPanel().enableSearchButton();
-    }
-
-    this.postFound();
-  }
-
-  protected abstract void postFound();
+  protected abstract String getLanguageCode();
 
   protected String getLanguageCode(String language) {
     if (language.equals("Nederlands")) {
@@ -137,6 +137,22 @@ public abstract class SearchAction implements Cancelable, SearchHandler {
     return null;
   }
 
-  protected abstract void inputCheck() throws SearchSetupException;
+  protected void validate() throws SearchSetupException {
+    if (this.settings == null) {
+      throw new SearchSetupException("Settings must be set.");
+    }
+    if (this.subtitleProviderStore == null) {
+      throw new SearchSetupException("SubtitleProviderStore must be set.");
+    }
+    if (this.searchProgressListener == null) {
+      throw new SearchSetupException("SearchProgressListener must be set.");
+    }
+    if (this.indexingProgressListener == null) {
+      throw new SearchSetupException("IndexingProgressListener must be set.");
+    }
+    if (this.statusListener == null) {
+      throw new SearchSetupException("StatusListener must be set.");
+    }
+  }
 
 }

@@ -6,12 +6,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
+import org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer.IndexingProgressListener;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.SubtitleComparator;
 import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
@@ -19,6 +21,7 @@ import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileAction
 import org.lodder.subtools.multisubdownloader.lib.library.PathLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
+import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.sublibrary.DetectLanguage;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
@@ -43,6 +46,9 @@ public class Actions {
 
   private final Settings settings;
   private final boolean usingCMD;
+  private IndexingProgressListener indexingProgressListener;
+  private int progressFileIndex;
+  private int progressFilesTotal;
 
   public Actions(Settings settings, final boolean usingCMD) {
     this.settings = settings;
@@ -114,43 +120,68 @@ public class Actions {
   }
 
   public List<File> getFileListing(File dir, boolean recursieve, String languagecode,
+                                 boolean forceSubtitleOverwrite) {
+    /* Reset progress counters */
+    this.progressFileIndex = 0;
+    this.progressFilesTotal = 0;
+
+    /* Start listing process */
+    return this._getFileListing(dir, recursieve, languagecode, forceSubtitleOverwrite);
+  }
+
+  private List<File> _getFileListing(File dir, boolean recursieve, String languagecode,
       boolean forceSubtitleOverwrite) {
     Logger.instance.trace("Actions", "getFileListing", "dir: " + dir + " recursieve: " + recursieve
         + " languagecode: " + languagecode + " forceSubtitleOverwrite: " + forceSubtitleOverwrite);
     final List<File> filelist = new ArrayList<File>();
     final File[] contents = dir.listFiles();
-    if (contents != null) {
-      for (final File file : contents) {
-        if (file.isFile()) {
-          if (isValidVideoFile(file)
-              && (!fileHasSubtitles(file, languagecode) || forceSubtitleOverwrite)
-              && isNotExcluded(file)) {
-            filelist.add(file);
-          }
-        } else if (recursieve) {
-          if (settings.getExcludeList().size() == 0) {
-            filelist.addAll(getFileListing(file, recursieve, languagecode, forceSubtitleOverwrite));
-          } else {
-            Boolean status = true;
-            for (int j = 0; j < settings.getExcludeList().size(); j++) {
-              if (settings.getExcludeList().get(j).getType() == SettingsExcludeType.FOLDER) {
-                File excludeFile = new File(settings.getExcludeList().get(j).getDescription());
-                if (excludeFile.equals(file)) {
-                  Logger.instance.trace("Actions", "getFileListing", "Skipping: " + file);
-                  status = false;
-                  j = settings.getExcludeList().size();
-                }
-              }
-            }
-            if (status) {
-              filelist
-                  .addAll(getFileListing(file, recursieve, languagecode, forceSubtitleOverwrite));
-            }
-          }
-        }
+
+    if(contents == null) return filelist;
+
+    /* Increase progressTotalFiles count */
+    this.progressFilesTotal += contents.length;
+
+    for (final File file : contents) {
+      /* Increase progressFileIndex */
+      this.progressFileIndex++;
+
+      /* Update progressListener */
+      if (this.indexingProgressListener != null) {
+        /* Tell the progresslistener which directory we are handling */
+        this.indexingProgressListener.progress(dir.getPath());
+        /* Tell the progresslistener the overall progress */
+        int progress = (int) Math.floor((float) this.progressFileIndex / this.progressFilesTotal * 100);
+        this.indexingProgressListener.progress(progress);
+      }
+
+      if (file.isFile()
+        && isValidVideoFile(file)
+        && (!fileHasSubtitles(file, languagecode) || forceSubtitleOverwrite)
+        && isNotExcluded(file)) {
+        filelist.add(file);
+      } else if (file.isDirectory() && recursieve && !isExcludedDir(file)) {
+        filelist.addAll(getFileListing(file, recursieve, languagecode, forceSubtitleOverwrite));
       }
     }
     return filelist;
+  }
+
+  private Boolean isExcludedDir(File file) {
+    Boolean status = false;
+
+    Iterator<SettingsExcludeItem> itemIterator = settings.getExcludeList().iterator();
+    while (!status && itemIterator.hasNext()) {
+      SettingsExcludeItem item = itemIterator.next();
+      if (item.getType() != SettingsExcludeType.FOLDER) continue;
+
+      File excludeFile = new File(item.getDescription());
+      if (!excludeFile.equals(file)) continue;
+
+      Logger.instance.trace("Actions", "getFileListing", "Skipping: " + file);
+      status = true;
+    }
+
+    return status;
   }
 
   private boolean isNotExcluded(File file) {
@@ -494,5 +525,9 @@ public class Actions {
     Logger.instance.log("Downloading subtitle" + ": " + subtitle.getFilename() + " for release"
         + ": " + release.getFilename());
     download(release, subtitle, 0);
+  }
+
+  public void setIndexingProgressListener(IndexingProgressListener indexingProgressListener) {
+    this.indexingProgressListener = indexingProgressListener;
   }
 }

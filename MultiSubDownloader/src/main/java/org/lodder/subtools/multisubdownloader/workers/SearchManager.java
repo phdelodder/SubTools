@@ -62,6 +62,8 @@ public class SearchManager implements Cancelable {
       throw new SearchSetupException("ProgressListener cannot be null");
     if(this.onFound == null)
       throw new SearchSetupException("SearchHandler cannot be null");
+    if(this.language == null)
+      throw new SearchSetupException("Language cannot be null");
 
     totalJobs = this.jobsLeft();
 

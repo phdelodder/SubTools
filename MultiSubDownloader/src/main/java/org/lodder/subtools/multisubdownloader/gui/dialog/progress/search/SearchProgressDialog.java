@@ -9,7 +9,9 @@ import javax.swing.*;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.lodder.subtools.multisubdownloader.MainWindow;
 import org.lodder.subtools.multisubdownloader.Messages;
+import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.dialog.MultiSubDialog;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
@@ -18,26 +20,32 @@ import org.lodder.subtools.sublibrary.model.Release;
 public class SearchProgressDialog extends MultiSubDialog implements SearchProgressListener {
 
   private final Cancelable searchAction;
+  private final MainWindow window;
   private SearchProgressTableModel tableModel;
   private JProgressBar progressBar;
+  private boolean completed;
 
-  public SearchProgressDialog(JFrame frame, Cancelable searchAction) {
-    super(frame, Messages.getString("SearchProgressDialog.Title"), false);
+  public SearchProgressDialog(MainWindow window, Cancelable searchAction) {
+    super(window, Messages.getString("SearchProgressDialog.Title"), false);
     this.searchAction = searchAction;
+    this.window = window;
+    this.completed = false;
 
     initialize_ui();
-    setDialogLocation(frame);
+    setDialogLocation(window);
     repaint();
-    this.setVisible(true);
   }
 
   @Override
   public void progress(SubtitleProvider provider, int jobsLeft, Release release) {
-    this.tableModel.update(provider.getName(), jobsLeft, (release == null ? "Done" : release.getFilename()));
+    this.setVisible();
+    this.tableModel
+        .update(provider.getName(), jobsLeft, (release == null ? "Done" : release.getFilename()));
   }
 
   @Override
   public void progress(int progress) {
+    this.setVisible();
     if (progress == 0) {
       this.progressBar.setIndeterminate(true);
     } else {
@@ -45,6 +53,23 @@ public class SearchProgressDialog extends MultiSubDialog implements SearchProgre
       this.progressBar.setValue(progress);
       this.progressBar.setString(Integer.toString(progress));
     }
+  }
+
+  @Override
+  public void completed() {
+    this.completed = true;
+    this.setVisible(false);
+  }
+
+  @Override
+  public void onError(ActionException exception) {
+    this.setVisible(false);
+    this.window.showErrorMessage(exception.getMessage());
+  }
+
+  @Override
+  public void onStatus(String message) {
+    this.window.setStatusMessage(message);
   }
 
   private void initialize_ui() {
@@ -72,13 +97,20 @@ public class SearchProgressDialog extends MultiSubDialog implements SearchProgre
     progressBar = new JProgressBar(0, 100);
     progressBar.setIndeterminate(true);
     getContentPane().add(progressBar, "cell 0 1 2 1,grow");
-    
-        JButton btnStop = new JButton(Messages.getString("SearchProgressDialog.Stop"));
-        btnStop.addActionListener(new ActionListener() {
-          public void actionPerformed(ActionEvent arg0) {
-            searchAction.cancel(true);
-          }
-        });
-        getContentPane().add(btnStop, "cell 1 2,alignx left");
+
+    JButton btnStop = new JButton(Messages.getString("SearchProgressDialog.Stop"));
+    btnStop.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        searchAction.cancel(true);
+      }
+    });
+    getContentPane().add(btnStop, "cell 1 2,alignx left");
+  }
+
+  private void setVisible() {
+    if (this.completed) {
+      return;
+    }
+    this.setVisible(true);
   }
 }

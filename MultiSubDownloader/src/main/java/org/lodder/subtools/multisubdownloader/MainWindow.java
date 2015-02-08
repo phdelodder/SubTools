@@ -45,6 +45,7 @@ import org.lodder.subtools.multisubdownloader.gui.dialog.MappingEpisodeNameDialo
 import org.lodder.subtools.multisubdownloader.gui.dialog.PreferenceDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.ProgressDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.RenameDialog;
+import org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer.IndexingProgressDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.progress.search.SearchProgressDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.extra.MyPopupMenu;
@@ -100,6 +101,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   private SearchFileInputPanel pnlSearchFileInput;
   private Menu menuBar;
   private SearchProgressDialog searchProgressDialog;
+  private IndexingProgressDialog fileIndexerProgressDialog;
 
   /**
    * Create the application.
@@ -118,14 +120,6 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     pnlSearchText.getResultPanel().disableButtons();
     checkUpdate(false);
     initPopupMenu();
-
-    try {
-      if (this.settingsControl.getSettings().isAutoUpdateMapping()) {
-        this.settingsControl.updateMappingFromOnline();
-      }
-    } catch (Throwable e) {
-      Logger.instance.error(Logger.stack2String(e));
-    }
   }
 
   private void checkUpdate(final boolean showNoUpdate) {
@@ -389,7 +383,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     SubtitleProviderStore subtitleProviderStore =
         (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
 
-    TextSearchAction searchAction = new TextSearchAction(this, settings, subtitleProviderStore);
+    TextSearchAction searchAction = new TextSearchAction(settings, subtitleProviderStore);
     ResultPanel resultPanel = new ResultPanel();
     pnlSearchTextInput = new SearchTextInputPanel();
 
@@ -404,6 +398,8 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     searchAction.setReleaseFactory(new ReleaseFactory(settings));
     searchAction.setFiltering(new Filtering(settings));
     searchAction.setSubtitleSelection(new SubtitleSelectionGUI(settings));
+    searchAction.setIndexingProgressListener(this.createFileIndexerProgressDialog(searchAction));
+    searchAction.setSearchProgressListener(this.createSearchProgressDialog(searchAction));
 
     pnlSearchTextInput.setSearchAction(searchAction);
     resultPanel.setDownloadAction(new ActionListener() {
@@ -430,7 +426,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     SubtitleProviderStore subtitleProviderStore =
         (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
 
-    FileSearchAction searchAction = new FileSearchAction(this, settings, subtitleProviderStore);
+    FileSearchAction searchAction = new FileSearchAction(settings, subtitleProviderStore);
     ResultPanel resultPanel = new ResultPanel();
     pnlSearchFileInput = new SearchFileInputPanel();
     pnlSearchFile = new SearchPanel();
@@ -444,6 +440,8 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     searchAction.setReleaseFactory(new ReleaseFactory(this.settingsControl.getSettings()));
     searchAction.setFiltering(new Filtering(this.settingsControl.getSettings()));
     searchAction.setSearchPanel(pnlSearchFile);
+    searchAction.setIndexingProgressListener(this.createFileIndexerProgressDialog(searchAction));
+    searchAction.setSearchProgressListener(this.createSearchProgressDialog(searchAction));
 
     pnlSearchFileInput.setSelectFolderAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
@@ -751,6 +749,17 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   }
 
   public void hideSearchProgressDialog() {
+    if(searchProgressDialog == null) return;
     searchProgressDialog.setVisible(false);
+  }
+
+  public IndexingProgressDialog createFileIndexerProgressDialog(Cancelable searchAction) {
+    fileIndexerProgressDialog = new IndexingProgressDialog(this, searchAction);
+    return fileIndexerProgressDialog;
+  }
+
+  public void hideFileIndexerProgressDialog() {
+    if(fileIndexerProgressDialog == null) return;
+    fileIndexerProgressDialog.setVisible(false);
   }
 }
