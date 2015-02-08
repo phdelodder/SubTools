@@ -45,7 +45,7 @@ import org.lodder.subtools.multisubdownloader.gui.dialog.MappingEpisodeNameDialo
 import org.lodder.subtools.multisubdownloader.gui.dialog.PreferenceDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.ProgressDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.RenameDialog;
-import org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer.FileIndexerProgressDialog;
+import org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer.IndexingProgressDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.progress.search.SearchProgressDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.extra.MyPopupMenu;
@@ -101,7 +101,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   private SearchFileInputPanel pnlSearchFileInput;
   private Menu menuBar;
   private SearchProgressDialog searchProgressDialog;
-  private FileIndexerProgressDialog fileIndexerProgressDialog;
+  private IndexingProgressDialog fileIndexerProgressDialog;
 
   /**
    * Create the application.
@@ -124,7 +124,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     try {
       if (this.settingsControl.getSettings().isAutoUpdateMapping()) {
         this.settingsControl.updateMappingFromOnline();
-      }
+  }
     } catch (Throwable e) {
       Logger.instance.error(Logger.stack2String(e));
     }
@@ -391,7 +391,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     SubtitleProviderStore subtitleProviderStore =
         (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
 
-    TextSearchAction searchAction = new TextSearchAction(this, settings, subtitleProviderStore);
+    TextSearchAction searchAction = new TextSearchAction(settings, subtitleProviderStore);
     ResultPanel resultPanel = new ResultPanel();
     pnlSearchTextInput = new SearchTextInputPanel();
 
@@ -432,7 +432,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     SubtitleProviderStore subtitleProviderStore =
         (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
 
-    FileSearchAction searchAction = new FileSearchAction(this, settings, subtitleProviderStore);
+    FileSearchAction searchAction = new FileSearchAction(settings, subtitleProviderStore);
     ResultPanel resultPanel = new ResultPanel();
     pnlSearchFileInput = new SearchFileInputPanel();
     pnlSearchFile = new SearchPanel();
@@ -757,9 +757,8 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     searchProgressDialog.setVisible(false);
   }
 
-  public FileIndexerProgressDialog createFileIndexerProgressDialog(Cancelable searchAction) {
-    fileIndexerProgressDialog = new FileIndexerProgressDialog(this, searchAction);
-    fileIndexerProgressDialog.setVisible(true);
+  public IndexingProgressDialog createFileIndexerProgressDialog(Cancelable searchAction) {
+    fileIndexerProgressDialog = new IndexingProgressDialog(this, searchAction);
     return fileIndexerProgressDialog;
   }
 

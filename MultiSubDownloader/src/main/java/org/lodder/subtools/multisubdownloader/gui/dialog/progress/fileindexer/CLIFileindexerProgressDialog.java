@@ -1,9 +1,11 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer;
 
-public class CLIFileindexerProgressDialog implements FileIndexerProgressListener {
+import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
+
+public class CLIFileindexerProgressDialog implements IndexingProgressListener {
 
   String currentFile;
-  int    progress;
+  int progress;
   boolean isEnabled = true;
   boolean isVerbose;
 
@@ -26,8 +28,44 @@ public class CLIFileindexerProgressDialog implements FileIndexerProgressListener
     this.printProgress();
   }
 
+  @Override
+  public void completed() {
+    if (!this.isEnabled) {
+      return;
+    }
+    this.disable();
+  }
+
+  @Override
+  public void onError(ActionException exception) {
+    if (!this.isEnabled) {
+      return;
+    }
+    System.out.println("Error: " + exception.getMessage());
+  }
+
+  @Override
+  public void onStatus(String message) {
+    if (!this.isEnabled) {
+      return;
+    }
+    System.out.println(message);
+  }
+
+  public void disable() {
+    this.isEnabled = false;
+    /* Print a line */
+    System.out.println("");
+  }
+
+  public void setVerbose(boolean isVerbose) {
+    this.isVerbose = isVerbose;
+  }
+
   private void printProgress() {
-    if (!isEnabled) return;
+    if (!isEnabled) {
+      return;
+    }
 
     if (isVerbose) {
       /* newlines to counter the return carriage from printProgBar() */
@@ -39,7 +77,7 @@ public class CLIFileindexerProgressDialog implements FileIndexerProgressListener
     this.printProgBar(this.progress);
   }
 
-  public void printProgBar(int percent) {
+  private void printProgBar(int percent) {
     // http://nakkaya.com/2009/11/08/command-line-progress-bar/
     StringBuilder bar = new StringBuilder("[");
 
@@ -55,15 +93,5 @@ public class CLIFileindexerProgressDialog implements FileIndexerProgressListener
 
     bar.append("]   " + percent + "%     ");
     System.out.print("\r" + bar.toString());
-  }
-
-  public void disable() {
-    this.isEnabled = false;
-    /* Print a line */
-    System.out.println("");
-  }
-
-  public void setVerbose(boolean isVerbose) {
-    this.isVerbose = isVerbose;
   }
 }

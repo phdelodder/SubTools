@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer.FileIndexerProgressListener;
+import org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer.IndexingProgressListener;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.SubtitleComparator;
 import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
@@ -46,7 +46,7 @@ public class Actions {
 
   private final Settings settings;
   private final boolean usingCMD;
-  private FileIndexerProgressListener fileIndexerProgressListener;
+  private IndexingProgressListener indexingProgressListener;
   private int progressFileIndex;
   private int progressFilesTotal;
 
@@ -146,12 +146,12 @@ public class Actions {
       this.progressFileIndex++;
 
       /* Update progressListener */
-      if (this.fileIndexerProgressListener != null) {
+      if (this.indexingProgressListener != null) {
         /* Tell the progresslistener which directory we are handling */
-        this.fileIndexerProgressListener.progress(dir.getPath());
+        this.indexingProgressListener.progress(dir.getPath());
         /* Tell the progresslistener the overall progress */
         int progress = (int) Math.floor((float) this.progressFileIndex / this.progressFilesTotal * 100);
-        this.fileIndexerProgressListener.progress(progress);
+        this.indexingProgressListener.progress(progress);
       }
 
       if (file.isFile()
@@ -527,7 +527,7 @@ public class Actions {
     download(release, subtitle, 0);
   }
 
-  public void setFileIndexerProgressListener(FileIndexerProgressListener fileIndexerProgressListener) {
-    this.fileIndexerProgressListener = fileIndexerProgressListener;
+  public void setIndexingProgressListener(IndexingProgressListener indexingProgressListener) {
+    this.indexingProgressListener = indexingProgressListener;
   }
 }
