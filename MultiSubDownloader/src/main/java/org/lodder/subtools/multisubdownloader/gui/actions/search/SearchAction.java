@@ -48,8 +48,7 @@ public abstract class SearchAction extends Thread implements Cancelable, SearchH
 
   @Override
   public void run() {
-    Logger.instance
-        .trace(this.getClass().getSimpleName(), "run", "SearchAction is being executed");
+    Logger.instance.trace(this.getClass().getSimpleName(), "run", "SearchAction is being executed");
     try {
       this.search();
     } catch (ActionException e) {
@@ -120,7 +119,7 @@ public abstract class SearchAction extends Thread implements Cancelable, SearchH
 
   @Override
   public boolean cancel(boolean mayInterruptIfRunning) {
-    this.searchManager.cancel(mayInterruptIfRunning);
+    if (searchManager != null) this.searchManager.cancel(mayInterruptIfRunning);
     this.interrupt();
     this.indexingProgressListener.completed();
     this.searchProgressListener.completed();
