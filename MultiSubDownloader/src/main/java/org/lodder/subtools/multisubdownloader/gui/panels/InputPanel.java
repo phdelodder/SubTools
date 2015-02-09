@@ -55,7 +55,7 @@ public abstract class InputPanel extends JPanel {
     btnSearch.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (searchAction != null) searchAction.run();
+        if (searchAction != null) searchAction.start();
       }
     });
   }
