@@ -7,7 +7,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
-import javax.swing.SwingWorker;
 
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.actions.search.SearchAction;
@@ -56,20 +55,7 @@ public abstract class InputPanel extends JPanel {
     btnSearch.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        /* use a swingworker here, otherwise the indexer progress is locked */
-        SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
-          @Override
-          protected Void doInBackground() throws Exception {
-            if (searchAction != null) searchAction.run();
-          return null;
-          }
-
-          @Override
-          protected void done() {
-          
-          }
-         };
-        sw.execute();
+        if (searchAction != null) searchAction.start();
       }
     });
   }

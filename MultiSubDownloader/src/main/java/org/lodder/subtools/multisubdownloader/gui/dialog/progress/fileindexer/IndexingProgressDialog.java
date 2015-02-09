@@ -1,7 +1,5 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer;
 
-import java.awt.Color;
-
 import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
@@ -12,7 +10,6 @@ public class IndexingProgressDialog extends ProgressDialog implements IndexingPr
 
   private final GUI window;
   private boolean completed;
-  private Color bg;
 
   public IndexingProgressDialog(GUI window, Cancelable sft) {
     super(window, sft);
