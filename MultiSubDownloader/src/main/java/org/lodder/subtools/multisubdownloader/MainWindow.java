@@ -130,9 +130,8 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
       editorPane.setEditable(false);
       editorPane.setContentType("text/html");
 
-      editorPane.setText(
-        "<html>" + Messages.getString("UpdateAppAvailable") + "!: </br><A HREF=" + u.getUpdateUrl() + ">"
-          + u.getUpdateUrl() + "</a></html>");
+      editorPane.setText("<html>" + Messages.getString("UpdateAppAvailable") + "!: </br><A HREF="
+          + u.getUpdateUrl() + ">" + u.getUpdateUrl() + "</a></html>");
 
       editorPane.addHyperlinkListener(new HyperlinkListener() {
         @Override
@@ -316,7 +315,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     menuBar.setEditPreferencesAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         final PreferenceDialog pDialog =
-          new PreferenceDialog(getThis(), settingsControl, (Emitter) app.make("EventEmitter"));
+            new PreferenceDialog(getThis(), settingsControl, (Emitter) app.make("EventEmitter"));
         pDialog.setVisible(true);
       }
     });
@@ -429,6 +428,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     FileSearchAction searchAction = new FileSearchAction(settings, subtitleProviderStore);
     ResultPanel resultPanel = new ResultPanel();
     pnlSearchFileInput = new SearchFileInputPanel();
+    pnlSearchFileInput.setRecursiveSelected(settings.isOptionRecursive());
     pnlSearchFile = new SearchPanel();
 
     pnlSearchFile.setResultPanel(resultPanel);
@@ -474,7 +474,8 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     videoTable.setModel(VideoTableModel.getDefaultVideoTableModel());
     ((VideoTableModel) videoTable.getModel()).setShowOnlyFound(settingsControl.getSettings()
         .isOptionsShowOnlyFound());
-    ((VideoTableModel) videoTable.getModel()).setSubtitleSelection(new SubtitleSelectionGUI(settingsControl.getSettings()));
+    ((VideoTableModel) videoTable.getModel()).setSubtitleSelection(new SubtitleSelectionGUI(
+        settingsControl.getSettings()));
     final RowSorter<TableModel> sorter = new TableRowSorter<TableModel>(videoTable.getModel());
     videoTable.setRowSorter(sorter);
     videoTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
@@ -749,7 +750,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   }
 
   public void hideSearchProgressDialog() {
-    if(searchProgressDialog == null) return;
+    if (searchProgressDialog == null) return;
     searchProgressDialog.setVisible(false);
   }
 
@@ -759,7 +760,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   }
 
   public void hideFileIndexerProgressDialog() {
-    if(fileIndexerProgressDialog == null) return;
+    if (fileIndexerProgressDialog == null) return;
     fileIndexerProgressDialog.setVisible(false);
   }
 }
