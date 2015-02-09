@@ -4,6 +4,7 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.Messenger;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 
@@ -26,7 +27,7 @@ public class ProgressDialog extends MultiSubDialog implements Messenger {
    * @wbp.parser.constructor
    */
   public ProgressDialog(JFrame frame, Cancelable sft) {
-    super(frame, "Progress", false);
+    super(frame, Messages.getString("ProgressDialog.Title"), false);
     worker = sft;
     StatusMessenger.instance.addListener(this);
     initialize_ui();
@@ -35,7 +36,7 @@ public class ProgressDialog extends MultiSubDialog implements Messenger {
   }
 
   public ProgressDialog(Cancelable sft) {
-    super("Progress", false);
+    super(Messages.getString("ProgressDialog.Title"), false);
     worker = sft;
     StatusMessenger.instance.addListener(this);
     initialize_ui();
@@ -52,7 +53,7 @@ public class ProgressDialog extends MultiSubDialog implements Messenger {
     setBounds(100, 100, 501, 151);
     getContentPane().setLayout(new MigLayout("", "[][475px,center][]", "[][40px:n][][]"));
 
-    label = new JLabel("New label");
+    label = new JLabel("");
     getContentPane().add(label, "cell 1 0 2 1,alignx left");
 
     progressBar = new JProgressBar(0, 100);
