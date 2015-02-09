@@ -56,7 +56,6 @@ public abstract class InputPanel extends JPanel {
     btnSearch.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        /* use a swingworker here, otherwise the indexer progress is locked */
         SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
           @Override
           protected Void doInBackground() throws Exception {
