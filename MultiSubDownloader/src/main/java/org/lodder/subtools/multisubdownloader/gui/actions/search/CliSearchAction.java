@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.CLI;
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
@@ -71,7 +72,7 @@ public class CliSearchAction extends SearchAction {
     int index = 0;
     int progress = 0;
 
-    Logger.instance.log("Parsing found files");
+    Logger.instance.log(Messages.getString("CliSearchAction.ParsingFoundFiles"));
     this.indexingProgressListener.progress(progress);
 
     List<Release> releases = new ArrayList<>();

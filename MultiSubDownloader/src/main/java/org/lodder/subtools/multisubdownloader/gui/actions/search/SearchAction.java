@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.gui.actions.search;
 
 import java.util.List;
 
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.dialog.progress.StatusListener;
@@ -66,7 +67,7 @@ public abstract class SearchAction extends Thread implements Cancelable, SearchH
 
     String languageCode = this.getLanguageCode();
 
-    setStatusMessage("Indexing...");
+    setStatusMessage(Messages.getString("SearchAction.StatusIndexing"));
 
     this.releases = createReleases();
 
@@ -105,7 +106,7 @@ public abstract class SearchAction extends Thread implements Cancelable, SearchH
     /* Tell the manager where to push progressUpdates */
     this.searchManager.setProgressListener(this.searchProgressListener);
 
-    setStatusMessage("Zoeken...");
+    setStatusMessage(Messages.getString("SearchAction.StatusSearching"));
 
     /* Tell the manager to start searching */
     this.searchManager.start();
