@@ -40,6 +40,10 @@ public class TextSearchAction extends GuiSearchAction {
   protected List<Release> createReleases() throws ActionException {
     String name = getInputPanel().getReleaseName();
     VideoSearchType type = getInputPanel().getType();
+    
+    VideoTableModel model =
+        (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
+    model.clearTable();
 
     // TODO: Redefine what a "release" is.
     Release release;

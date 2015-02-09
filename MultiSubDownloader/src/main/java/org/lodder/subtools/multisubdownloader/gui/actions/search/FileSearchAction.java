@@ -63,6 +63,10 @@ public class FileSearchAction extends GuiSearchAction {
     String languageCode = getLanguageCode(inputPanel.getSelectedLanguage());
     boolean recursive = inputPanel.isRecursiveSelected();
     boolean overwriteExistingSubtitles = inputPanel.isForceOverwrite();
+    
+    VideoTableModel model =
+        (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
+    model.clearTable();
 
     /* get a list of videofiles */
     List<File> files = getFiles(filePath, languageCode, recursive, overwriteExistingSubtitles);
