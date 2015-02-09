@@ -138,12 +138,9 @@ public class DiskCacheManager extends CacheManager {
   }
 
   private void storeCacheObject(URL url, CacheEntry ce) {
-    FileOutputStream fos = null;
-    ObjectOutputStream out = null;
     final File location = new File(path, UUID.randomUUID().toString());
-    try {
-      fos = new FileOutputStream(location);
-      out = new ObjectOutputStream(fos);
+    try (FileOutputStream fos = new FileOutputStream(location);
+        ObjectOutputStream out = new ObjectOutputStream(fos)) {
       out.writeObject(ce);
       indexList.put(url.toString(), location);
       storeIndex();
@@ -151,40 +148,19 @@ public class DiskCacheManager extends CacheManager {
       Logger.instance.error(Logger.stack2String(e));
     } catch (IOException e) {
       Logger.instance.error(Logger.stack2String(e));
-    } finally {
-      try {
-        if (out != null) {
-          out.close();
-        }
-        if (fos != null) {
-          fos.close();
-        }
-      } catch (IOException e) {
-        Logger.instance.error(Logger.stack2String(e));
-      }
     }
   }
 
   private CacheEntry loadCacheObject(File location) {
     CacheEntry ce = null;
-    FileInputStream fis = null;
-    ObjectInputStream in = null;
     if (!location.exists()) return null;
-    try {
-      fis = new FileInputStream(location);
-      in = new ObjectInputStream(fis);
+    try (FileInputStream fis = new FileInputStream(location);
+        ObjectInputStream in = new ObjectInputStream(fis)) {
       ce = (CacheEntry) in.readObject();
     } catch (IOException ex) {
       Logger.instance.error(Logger.stack2String(ex));
     } catch (ClassNotFoundException ex) {
       Logger.instance.log(Logger.stack2String(ex));
-    } finally {
-      try {
-        if (in != null) in.close();
-        if (fis != null) fis.close();
-      } catch (IOException e) {
-        Logger.instance.log(Logger.stack2String(e));
-      }
     }
     return ce;
   }

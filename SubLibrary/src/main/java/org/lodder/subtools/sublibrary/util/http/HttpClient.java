@@ -100,11 +100,12 @@ public class HttpClient {
       conn.setDoOutput(true);
       conn.setInstanceFollowRedirects(false);
 
-      DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+      try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
 
-      out.writeBytes(urlParameters.toString());
-      out.flush();
-      out.close();
+        out.writeBytes(urlParameters.toString());
+        out.flush();
+        out.close();
+      }
 
       cookieManager.storeCookies(conn);
       if (conn.getResponseCode() == 302) {
@@ -129,27 +130,16 @@ public class HttpClient {
   }
 
   private static String getStringFromInputStream(InputStream is) {
-    BufferedReader br = null;
     StringBuilder sb = new StringBuilder();
-
     String line;
-    try {
 
-      br = new BufferedReader(new InputStreamReader(is));
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
       while ((line = br.readLine()) != null) {
         sb.append(line);
       }
 
     } catch (IOException e) {
       e.printStackTrace();
-    } finally {
-      if (br != null) {
-        try {
-          br.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
     }
 
     return sb.toString();
