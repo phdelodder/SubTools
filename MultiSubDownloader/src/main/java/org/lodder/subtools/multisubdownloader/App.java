@@ -85,7 +85,7 @@ public class App {
         public void run() {
           try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            MainWindow window = new MainWindow(prefctrl, app);
+            GUI window = new GUI(prefctrl, app);
             window.setVisible(true);
           } catch (Exception e) {
             Logger.instance.error(Logger.stack2String(e));

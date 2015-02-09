@@ -9,7 +9,7 @@ import javax.swing.*;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.lodder.subtools.multisubdownloader.MainWindow;
+import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
@@ -20,12 +20,12 @@ import org.lodder.subtools.sublibrary.model.Release;
 public class SearchProgressDialog extends MultiSubDialog implements SearchProgressListener {
 
   private final Cancelable searchAction;
-  private final MainWindow window;
+  private final GUI window;
   private SearchProgressTableModel tableModel;
   private JProgressBar progressBar;
   private boolean completed;
 
-  public SearchProgressDialog(MainWindow window, Cancelable searchAction) {
+  public SearchProgressDialog(GUI window, Cancelable searchAction) {
     super(window, Messages.getString("SearchProgressDialog.Title"), false);
     this.searchAction = searchAction;
     this.window = window;

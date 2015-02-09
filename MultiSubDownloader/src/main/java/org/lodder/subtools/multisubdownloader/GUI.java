@@ -83,7 +83,7 @@ import org.lodder.subtools.sublibrary.util.StringUtils;
 import org.lodder.subtools.sublibrary.util.XmlFileFilter;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
 
-public class MainWindow extends JFrame implements PropertyChangeListener {
+public class GUI extends JFrame implements PropertyChangeListener {
 
   /**
      *
@@ -106,7 +106,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
   /**
    * Create the application.
    */
-  public MainWindow(final SettingsControl settingsControl, Container app) {
+  public GUI(final SettingsControl settingsControl, Container app) {
     this.app = app;
     setTitle(ConfigProperties.getInstance().getProperty("name"));
     /*
@@ -583,7 +583,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
   private void download() {
     VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
-    Logger.instance.trace(MainWindow.class.toString(), "download", "");
+    Logger.instance.trace(GUI.class.toString(), "download", "");
     DownloadWorker downloadWorker = new DownloadWorker(videoTable, settingsControl.getSettings());
     downloadWorker.addPropertyChangeListener(this);
     pnlSearchFile.getResultPanel().disableButtons();
