@@ -4,10 +4,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchTextInputPanel;
-import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.SubtitleSelection;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
@@ -19,17 +19,13 @@ import org.lodder.subtools.sublibrary.model.VideoSearchType;
 
 public class TextSearchAction extends GuiSearchAction {
 
-  private ReleaseFactory releaseFactory;
   private SubtitleSelection subtitleSelection;
 
-  public TextSearchAction(Settings settings, SubtitleProviderStore subtitleProviderStore) {
+  public TextSearchAction(GUI mainWindow, Settings settings, SubtitleProviderStore subtitleProviderStore) {
     super();
+    this.setGUI(mainWindow);
     this.setSettings(settings);
     this.setProviderStore(subtitleProviderStore);
-  }
-
-  public void setReleaseFactory(ReleaseFactory releaseFactory) {
-    this.releaseFactory = releaseFactory;
   }
 
   public void setSubtitleSelection(SubtitleSelection subtitleSelection) {

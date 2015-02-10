@@ -382,7 +382,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     SubtitleProviderStore subtitleProviderStore =
         (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
 
-    TextSearchAction searchAction = new TextSearchAction(settings, subtitleProviderStore);
+    TextSearchAction searchAction = new TextSearchAction(this, settings, subtitleProviderStore);
     ResultPanel resultPanel = new ResultPanel();
     pnlSearchTextInput = new SearchTextInputPanel();
 
@@ -397,8 +397,6 @@ public class GUI extends JFrame implements PropertyChangeListener {
     searchAction.setReleaseFactory(new ReleaseFactory(settings));
     searchAction.setFiltering(new Filtering(settings));
     searchAction.setSubtitleSelection(new SubtitleSelectionGUI(settings));
-    searchAction.setIndexingProgressListener(this.createFileIndexerProgressDialog(searchAction));
-    searchAction.setSearchProgressListener(this.createSearchProgressDialog(searchAction));
 
     pnlSearchTextInput.setSearchAction(searchAction);
     resultPanel.setDownloadAction(new ActionListener() {
@@ -425,7 +423,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     SubtitleProviderStore subtitleProviderStore =
         (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
 
-    FileSearchAction searchAction = new FileSearchAction(settings, subtitleProviderStore);
+    FileSearchAction searchAction = new FileSearchAction(this, settings, subtitleProviderStore);
     ResultPanel resultPanel = new ResultPanel();
     pnlSearchFileInput = new SearchFileInputPanel();
     pnlSearchFileInput.setRecursiveSelected(settings.isOptionRecursive());
@@ -440,8 +438,6 @@ public class GUI extends JFrame implements PropertyChangeListener {
     searchAction.setReleaseFactory(new ReleaseFactory(this.settingsControl.getSettings()));
     searchAction.setFiltering(new Filtering(this.settingsControl.getSettings()));
     searchAction.setSearchPanel(pnlSearchFile);
-    searchAction.setIndexingProgressListener(this.createFileIndexerProgressDialog(searchAction));
-    searchAction.setSearchProgressListener(this.createSearchProgressDialog(searchAction));
 
     pnlSearchFileInput.setSelectFolderAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
