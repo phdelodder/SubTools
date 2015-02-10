@@ -43,8 +43,8 @@ public abstract class GuiSearchAction extends SearchAction {
   public void onFound(Release release, List<Subtitle> subtitles) {
     if (Thread.currentThread().isInterrupted()) return;
 
-    VideoTableModel
-        model = (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
+    VideoTableModel model =
+        (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
 
     if (model.getRowCount() > 0) {
       searchPanel.getResultPanel().enableButtons();
@@ -63,8 +63,14 @@ public abstract class GuiSearchAction extends SearchAction {
     }
 
     /* Create ProgressListeners */
+    /*
+     * The progressDialogs were re-used after the completed()-call and thus not shown. A
+     * reset()-method might get implemented. But for now the GuiSearchAction will get a reference to
+     * GUI and creates the listeners.
+     */
     this.setSearchProgressListener(this.mainwindow.createSearchProgressDialog(this));
     this.setIndexingProgressListener(this.mainwindow.createFileIndexerProgressDialog(this));
+    
     this.setStatusListener(this.indexingProgressListener);
 
     if (this.searchPanel == null) {
