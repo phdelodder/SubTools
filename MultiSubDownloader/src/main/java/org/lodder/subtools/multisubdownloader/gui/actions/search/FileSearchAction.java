@@ -4,12 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchFileInputPanel;
 import org.lodder.subtools.multisubdownloader.lib.Actions;
-import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
-import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -18,25 +17,16 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 public class FileSearchAction extends GuiSearchAction {
 
   private Actions actions;
-  private ReleaseFactory releaseFactory;
-  private Filtering filtering;
 
-  public FileSearchAction(Settings settings, SubtitleProviderStore subtitleProviderStore) {
+  public FileSearchAction(GUI mainWindow, Settings settings, SubtitleProviderStore subtitleProviderStore) {
     super();
+    this.setGUI(mainWindow);
     this.setSettings(settings);
     this.setProviderStore(subtitleProviderStore);
   }
 
   public void setActions(Actions actions) {
     this.actions = actions;
-  }
-
-  public void setReleaseFactory(ReleaseFactory releaseFactory) {
-    this.releaseFactory = releaseFactory;
-  }
-
-  public void setFiltering(Filtering filtering){
-    this.filtering = filtering;
   }
 
   @Override
@@ -129,12 +119,16 @@ public class FileSearchAction extends GuiSearchAction {
   }
 
   protected void validate() throws SearchSetupException {
-    super.validate();
-    String path = getInputPanel().getIncomingPath();
+    if (this.actions == null) {
+      throw new SearchSetupException("Actions-object must be set.");
+    }
 
+    String path = getInputPanel().getIncomingPath();
     if (path.equals("") && !this.settings.hasDefaultFolders()) {
       throw new SearchSetupException("Geen map geselecteerd");
     }
+
+    super.validate();
   }
 
   private SearchFileInputPanel getInputPanel() {
