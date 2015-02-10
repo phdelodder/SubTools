@@ -90,7 +90,8 @@ public class CLI implements Listener {
     searchAction.setIndexingProgressListener(progressDialog);
     searchAction.setSearchProgressListener(searchProgress);
 
-    searchAction.start();
+    /* CLI has no benefit of running this in a separate Thread */
+    searchAction.run();
   }
 
   @Override

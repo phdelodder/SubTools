@@ -16,7 +16,7 @@ import org.lodder.subtools.multisubdownloader.workers.SearchManager;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
 
-public abstract class SearchAction extends Thread implements Cancelable, SearchHandler {
+public abstract class SearchAction implements Runnable, Cancelable, SearchHandler {
 
   protected Settings settings;
   protected SubtitleProviderStore subtitleProviderStore;
@@ -70,6 +70,8 @@ public abstract class SearchAction extends Thread implements Cancelable, SearchH
 
     this.releases = createReleases();
 
+    if (Thread.currentThread().isInterrupted()) return;
+
     if (this.releases.size() <= 0) {
       this.cancel(true);
       return;
@@ -120,7 +122,7 @@ public abstract class SearchAction extends Thread implements Cancelable, SearchH
   @Override
   public boolean cancel(boolean mayInterruptIfRunning) {
     if (searchManager != null) this.searchManager.cancel(mayInterruptIfRunning);
-    this.interrupt();
+    Thread.currentThread().interrupt();
     this.indexingProgressListener.completed();
     this.searchProgressListener.completed();
     return true;
@@ -149,9 +151,6 @@ public abstract class SearchAction extends Thread implements Cancelable, SearchH
     }
     if (this.indexingProgressListener == null) {
       throw new SearchSetupException("IndexingProgressListener must be set.");
-    }
-    if (this.statusListener == null) {
-      throw new SearchSetupException("StatusListener must be set.");
     }
   }
 
