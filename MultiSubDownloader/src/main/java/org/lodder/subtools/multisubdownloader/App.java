@@ -23,6 +23,7 @@ import org.lodder.subtools.sublibrary.logging.Logger;
 public class App {
 
   private final static SettingsControl prefctrl = new SettingsControl();
+  private static Splash splash;
 
   /**
    * @param args
@@ -31,7 +32,9 @@ public class App {
   public static void main(String[] args) throws Exception {
     // Default log level for the program
     Logger.instance.setLogLevel(Level.INFO);
-
+    
+    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    
     CommandLineParser parser = new GnuParser();
     HelpFormatter formatter = new HelpFormatter();
 
@@ -44,6 +47,11 @@ public class App {
 
     if (line == null) {
       return;
+    }
+    
+    if (!line.hasOption("nogui")){
+      splash = new Splash();
+      splash.showSplash();
     }
 
     final Container app = new Container();
@@ -84,9 +92,10 @@ public class App {
       EventQueue.invokeLater(new Runnable() {
         public void run() {
           try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             GUI window = new GUI(prefctrl, app);
             window.setVisible(true);
+            splash.setVisible(false);
+            splash.dispose();
           } catch (Exception e) {
             Logger.instance.error(Logger.stack2String(e));
           }
@@ -100,6 +109,7 @@ public class App {
     if (!line.hasOption("updatefromonlinemapping") && !settings.isAutoUpdateMapping()) {
       return;
     }
+    Logger.instance.log("Updating mapping");
     try {
       prefctrl.updateMappingFromOnline();
       prefctrl.store();
