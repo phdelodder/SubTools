@@ -17,11 +17,11 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoSearchType;
 
-public class TextSearchAction extends GuiSearchAction {
+public class TextGuiSearchAction extends GuiSearchAction {
 
   private SubtitleSelection subtitleSelection;
 
-  public TextSearchAction(GUI mainWindow, Settings settings, SubtitleProviderStore subtitleProviderStore) {
+  public TextGuiSearchAction(GUI mainWindow, Settings settings, SubtitleProviderStore subtitleProviderStore) {
     super();
     this.setGUI(mainWindow);
     this.setSettings(settings);

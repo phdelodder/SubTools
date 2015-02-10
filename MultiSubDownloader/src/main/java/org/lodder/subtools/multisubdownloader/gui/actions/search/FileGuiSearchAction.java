@@ -14,11 +14,11 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 
-public class FileSearchAction extends GuiSearchAction {
+public class FileGuiSearchAction extends GuiSearchAction {
 
   private Actions actions;
 
-  public FileSearchAction(GUI mainWindow, Settings settings, SubtitleProviderStore subtitleProviderStore) {
+  public FileGuiSearchAction(GUI mainWindow, Settings settings, SubtitleProviderStore subtitleProviderStore) {
     super();
     this.setGUI(mainWindow);
     this.setSettings(settings);

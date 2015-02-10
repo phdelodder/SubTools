@@ -38,8 +38,8 @@ import javax.swing.table.TableRowSorter;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
 import org.lodder.subtools.multisubdownloader.gui.Menu;
-import org.lodder.subtools.multisubdownloader.gui.actions.search.FileSearchAction;
-import org.lodder.subtools.multisubdownloader.gui.actions.search.TextSearchAction;
+import org.lodder.subtools.multisubdownloader.gui.actions.search.FileGuiSearchAction;
+import org.lodder.subtools.multisubdownloader.gui.actions.search.TextGuiSearchAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.dialog.MappingEpisodeNameDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.PreferenceDialog;
@@ -382,7 +382,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     SubtitleProviderStore subtitleProviderStore =
         (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
 
-    TextSearchAction searchAction = new TextSearchAction(this, settings, subtitleProviderStore);
+    TextGuiSearchAction searchAction = new TextGuiSearchAction(this, settings, subtitleProviderStore);
     ResultPanel resultPanel = new ResultPanel();
     pnlSearchTextInput = new SearchTextInputPanel();
 
@@ -423,7 +423,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     SubtitleProviderStore subtitleProviderStore =
         (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
 
-    FileSearchAction searchAction = new FileSearchAction(this, settings, subtitleProviderStore);
+    FileGuiSearchAction searchAction = new FileGuiSearchAction(this, settings, subtitleProviderStore);
     ResultPanel resultPanel = new ResultPanel();
     pnlSearchFileInput = new SearchFileInputPanel();
     pnlSearchFileInput.setRecursiveSelected(settings.isOptionRecursive());
