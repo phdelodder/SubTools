@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader;
+package org.lodder.subtools.multisubdownloader.gui;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
