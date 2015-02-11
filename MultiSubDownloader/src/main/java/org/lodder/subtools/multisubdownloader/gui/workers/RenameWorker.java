@@ -1,20 +1,20 @@
 package org.lodder.subtools.multisubdownloader.gui.workers;
 
-import javax.swing.*;
+import java.io.File;
+import java.util.List;
 
+import javax.swing.SwingWorker;
+
+import org.lodder.subtools.multisubdownloader.actions.RenameAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
-import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
-
-import java.io.File;
-import java.util.List;
 
 /**
  * Created by IntelliJ IDEA. User: lodder Date: 4/12/11 Time: 8:52 AM To change this template use
@@ -24,6 +24,7 @@ public class RenameWorker extends SwingWorker<Void, String> implements Cancelabl
 
   private VideoTable table;
   private Settings settings;
+  private RenameAction renameAction;
 
   public RenameWorker(VideoTable table, Settings settings) {
     this.table = table;
@@ -45,13 +46,13 @@ public class RenameWorker extends SwingWorker<Void, String> implements Cancelabl
             (Release) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.OBJECT));
         if (release.getVideoType() == VideoType.EPISODE) {
           Logger.instance.debug("Treat as EPISODE");
-          Actions.rename(settings.getEpisodeLibrarySettings(), new File(release.getPath(),
-              release.getFilename()), release);
+          renameAction = new RenameAction(settings.getEpisodeLibrarySettings());
         } else if (release.getVideoType() == VideoType.MOVIE) {
           Logger.instance.debug("Treat as MOVIE");
-          Actions.rename(settings.getMovieLibrarySettings(), new File(release.getPath(),
-              release.getFilename()), release);
+          renameAction = new RenameAction(settings.getMovieLibrarySettings());
         }
+        if (renameAction != null)
+          renameAction.rename(new File(release.getPath(), release.getFilename()), release);
         model.removeRow(i);
         i--;
       }
