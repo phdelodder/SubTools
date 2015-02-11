@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
+import org.lodder.subtools.multisubdownloader.actions.DownloadAction;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.gui.actions.search.CliSearchAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer.CLIFileindexerProgressDialog;
@@ -31,12 +32,14 @@ public class CLI implements Listener {
   private boolean downloadall = false;
   private boolean subtitleSelection = false;
   private boolean verboseProgress = false;
+  private DownloadAction downloadAction;
 
   public CLI(Settings settings, Container app) {
     Logger.instance.addListener(this);
     this.app = app;
     this.settings = settings;
     actions = new Actions(settings, true);
+    downloadAction = new DownloadAction(settings);
   }
 
   public void setUp(CommandLine line) throws Exception {
@@ -108,10 +111,10 @@ public class CLI implements Listener {
         for (int j = 0; j < release.getMatchingSubs().size(); j++) {
           Logger.instance.log("Downloading subtitle: "
                               + release.getMatchingSubs().get(0).getFilename());
-          actions.download(release, release.getMatchingSubs().get(j), j + 1);
+          downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
         }
       } else {
-        actions.download(release, release.getMatchingSubs().get(selection));
+        downloadAction.download(release, release.getMatchingSubs().get(selection));
       }
     } else {
       Logger.instance.log("No subs found for: " + release.getFilename());

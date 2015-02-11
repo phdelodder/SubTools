@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.gui.workers;
 
 import javax.swing.*;
 
+import org.lodder.subtools.multisubdownloader.actions.DownloadAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.dialog.SelectDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
@@ -25,11 +26,13 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
   private final VideoTable table;
   private final Actions actions;
   private final Settings settings;
+  private DownloadAction downloadAction;
 
   public DownloadWorker(VideoTable table, Settings settings) {
     this.table = table;
     actions = new Actions(settings, false);
     this.settings = settings;
+    downloadAction = new DownloadAction(settings);
   }
 
   protected Void doInBackground() throws Exception {
@@ -58,13 +61,13 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
               for (int j = 0; j < release.getMatchingSubs().size(); j++) {
                 Logger.instance.log("Downloading subtitle: "
                     + release.getMatchingSubs().get(0).getFilename());
-                actions.download(release, release.getMatchingSubs().get(j), j + 1);
+                downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
               }
             } else {
               Logger.instance.log("Downloading subtitle: "
                   + release.getMatchingSubs().get(selection).getFilename() + " for release: "
                   + release.getFilename());
-              actions.download(release, release.getMatchingSubs().get(selection));
+              downloadAction.download(release, release.getMatchingSubs().get(selection));
             }
             model.removeRow(i);
             i--;
