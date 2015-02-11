@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.lodder.subtools.multisubdownloader.actions.DownloadAction;
+import org.lodder.subtools.multisubdownloader.actions.FileListAction;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.gui.actions.search.CliSearchAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer.CLIFileindexerProgressDialog;
@@ -81,7 +82,7 @@ public class CLI implements Listener {
     searchAction.setOverwriteSubtitles(this.force);
     searchAction.setLanguageCode(this.languagecode);
 
-    searchAction.setActions(this.actions);
+    searchAction.setFileListAction(new FileListAction(this.settings));
     searchAction.setFiltering(new Filtering(this.settings));
     searchAction.setReleaseFactory(new ReleaseFactory(this.settings));
 
