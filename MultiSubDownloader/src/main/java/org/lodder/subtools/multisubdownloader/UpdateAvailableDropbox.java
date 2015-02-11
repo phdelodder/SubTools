@@ -28,6 +28,7 @@ public class UpdateAvailableDropbox {
   }
 
   public boolean checkProgram() {
+    Logger.instance.log(Messages.getString("UpdateAvailableDropbox.CheckingForUpdate"));
     try {
       return check(programName, extension);
     } catch (Exception e) {

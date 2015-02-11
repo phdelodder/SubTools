@@ -14,6 +14,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.lodder.subtools.multisubdownloader.framework.Bootstrapper;
 import org.lodder.subtools.multisubdownloader.framework.Container;
+import org.lodder.subtools.multisubdownloader.gui.Splash;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.ConfigProperties;
@@ -23,6 +24,7 @@ import org.lodder.subtools.sublibrary.logging.Logger;
 public class App {
 
   private final static SettingsControl prefctrl = new SettingsControl();
+  private static Splash splash;
 
   /**
    * @param args
@@ -31,7 +33,9 @@ public class App {
   public static void main(String[] args) throws Exception {
     // Default log level for the program
     Logger.instance.setLogLevel(Level.INFO);
-
+    
+    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    
     CommandLineParser parser = new GnuParser();
     HelpFormatter formatter = new HelpFormatter();
 
@@ -44,6 +48,11 @@ public class App {
 
     if (line == null) {
       return;
+    }
+    
+    if (!line.hasOption("nogui")){
+      splash = new Splash();
+      splash.showSplash();
     }
 
     final Container app = new Container();
@@ -63,12 +72,13 @@ public class App {
     Preferences preferences = Preferences.userRoot();
     preferences.putBoolean("speedy", line.hasOption("speedy"));
 
-    checkUpdate();
-    importPreferences(line);
-    updateMapping(line);
-
     if (line.hasOption("nogui")) {
       CLI cmd = new CLI(prefctrl.getSettings(), app);
+      
+      /* Defined here so there is output on console */
+      checkUpdate();
+      importPreferences(line);
+      updateMapping(line);
 
       try {
         cmd.setUp(line);
@@ -80,13 +90,19 @@ public class App {
       bootstrapper.initialize();
       cmd.run();
     } else {
+      /* Defined here so there is output in the splash */
+      checkUpdate();
+      importPreferences(line);
+      updateMapping(line);
+      
       bootstrapper.initialize();
       EventQueue.invokeLater(new Runnable() {
         public void run() {
           try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             GUI window = new GUI(prefctrl, app);
             window.setVisible(true);
+            splash.setVisible(false);
+            splash.dispose();
           } catch (Exception e) {
             Logger.instance.error(Logger.stack2String(e));
           }
