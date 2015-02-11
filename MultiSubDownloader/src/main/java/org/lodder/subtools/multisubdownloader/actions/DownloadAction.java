@@ -3,7 +3,6 @@ package org.lodder.subtools.multisubdownloader.actions;
 import java.io.File;
 import java.net.URL;
 
-import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
@@ -14,8 +13,8 @@ import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
-import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
+import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.lodder.subtools.sublibrary.util.http.DropBoxClient;
@@ -122,7 +121,8 @@ public class DownloadAction {
           Files.move(oldLocationFile, newLocationFile);
           if (!librarySettings.getLibraryOtherFileAction().equals(
               LibraryOtherFileActionType.NOTHING)) {
-            Actions.cleanUpFiles(librarySettings, release, path, videoFileName);
+            CleanAction cleanAction = new CleanAction(librarySettings);
+            cleanAction.cleanUpFiles(release, path, videoFileName);
           }
           if (librarySettings.isLibraryRemoveEmptyFolders()
               && release.getPath().listFiles().length == 0) {
