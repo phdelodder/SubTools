@@ -71,12 +71,13 @@ public class App {
     Preferences preferences = Preferences.userRoot();
     preferences.putBoolean("speedy", line.hasOption("speedy"));
 
-    checkUpdate();
-    importPreferences(line);
-    updateMapping(line);
-
     if (line.hasOption("nogui")) {
       CLI cmd = new CLI(prefctrl.getSettings(), app);
+      
+      /* Defined here so there is output on console */
+      checkUpdate();
+      importPreferences(line);
+      updateMapping(line);
 
       try {
         cmd.setUp(line);
@@ -88,6 +89,11 @@ public class App {
       bootstrapper.initialize();
       cmd.run();
     } else {
+      /* Defined here so there is output in the splash */
+      checkUpdate();
+      importPreferences(line);
+      updateMapping(line);
+      
       bootstrapper.initialize();
       EventQueue.invokeLater(new Runnable() {
         public void run() {
@@ -109,7 +115,6 @@ public class App {
     if (!line.hasOption("updatefromonlinemapping") && !settings.isAutoUpdateMapping()) {
       return;
     }
-    Logger.instance.log("Updating mapping");
     try {
       prefctrl.updateMappingFromOnline();
       prefctrl.store();
