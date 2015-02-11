@@ -1,6 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.actions.search;
 
-import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
+import org.lodder.subtools.multisubdownloader.actions.ActionException;
 
 public class SearchSetupException extends ActionException {
 

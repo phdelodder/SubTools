@@ -11,7 +11,7 @@ import net.miginfocom.swing.MigLayout;
 
 import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.Messages;
-import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
+import org.lodder.subtools.multisubdownloader.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.dialog.MultiSubDialog;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;

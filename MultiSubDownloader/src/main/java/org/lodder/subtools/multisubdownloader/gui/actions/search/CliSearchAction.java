@@ -6,9 +6,9 @@ import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.CLI;
 import org.lodder.subtools.multisubdownloader.Messages;
+import org.lodder.subtools.multisubdownloader.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.actions.FileListAction;
 import org.lodder.subtools.multisubdownloader.actions.SearchAction;
-import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.sublibrary.logging.Logger;
