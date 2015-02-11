@@ -30,5 +30,5 @@ public abstract class SubtitleSelection {
     return shortlist;
   }
 
-  protected abstract int getUserInput(Release release);
+  public abstract int getUserInput(Release release);
 }

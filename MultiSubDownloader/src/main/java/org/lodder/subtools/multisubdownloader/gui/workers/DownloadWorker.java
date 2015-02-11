@@ -1,21 +1,23 @@
 package org.lodder.subtools.multisubdownloader.gui.workers;
 
-import javax.swing.*;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 
 import org.lodder.subtools.multisubdownloader.actions.DownloadAction;
+import org.lodder.subtools.multisubdownloader.actions.SubtitleSelectionAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.dialog.SelectDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
-import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.Info;
+import org.lodder.subtools.multisubdownloader.lib.SubtitleSelectionGUI;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
-
-import java.util.List;
 
 /**
  * Created by IntelliJ IDEA. User: lodder Date: 4/12/11 Time: 8:52 AM To change this template use
@@ -24,15 +26,16 @@ import java.util.List;
 public class DownloadWorker extends SwingWorker<Void, String> implements Cancelable {
 
   private final VideoTable table;
-  private final Actions actions;
   private final Settings settings;
   private DownloadAction downloadAction;
+  private SubtitleSelectionAction subtitleSelectionAction;
 
   public DownloadWorker(VideoTable table, Settings settings) {
     this.table = table;
-    actions = new Actions(settings, false);
     this.settings = settings;
     downloadAction = new DownloadAction(settings);
+    subtitleSelectionAction = new SubtitleSelectionAction(settings);
+    subtitleSelectionAction.setSubtitleSelection(new SubtitleSelectionGUI(settings));
   }
 
   protected Void doInBackground() throws Exception {
@@ -52,7 +55,7 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
         final Release release =
             (Release) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.OBJECT));
         publish(release.getFilename());
-        int selection = actions.determineWhatSubtitleDownload(release, true);
+        int selection = subtitleSelectionAction.subtitleSelection(release, true);
         if (selection >= 0) {
           try {
             if (selection == SelectDialog.SelectionType.ALL.getSelectionCode()) {

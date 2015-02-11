@@ -4,13 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.SubtitleComparator;
 import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
@@ -22,7 +20,6 @@ import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
-import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.util.FilenameContainsFilter;
 import org.lodder.subtools.sublibrary.util.FilenameExtensionFilter;
 import org.lodder.subtools.sublibrary.util.Files;
@@ -36,58 +33,6 @@ public class Actions {
   public Actions(Settings settings, final boolean usingCMD) {
     this.settings = settings;
     this.usingCMD = usingCMD;
-  }
-
-  public int determineWhatSubtitleDownload(final Release release,
-      final boolean subtitleSelectionDialog) {
-
-    SubtitleSelection subSelection;
-    if (usingCMD)
-      subSelection = new SubtitleSelectionCLI(settings);
-    else
-      subSelection = new SubtitleSelectionGUI(settings);
-    
-
-    // Sort subtitles by score
-    Collections.sort(release.getMatchingSubs(), new SubtitleComparator());
-
-    if (release.getMatchingSubs().size() > 0) {
-      Logger.instance.debug("determineWhatSubtitleDownload for videoFile: " + release.getFilename()
-          + " # found subs: " + release.getMatchingSubs().size());
-      if (settings.isOptionsAlwaysConfirm()) {
-        return subSelection.getUserInput(release);
-      } else if (release.getMatchingSubs().size() == 1
-          && release.getMatchingSubs().get(0).getSubtitleMatchType() == SubtitleMatchType.EXACT) {
-        Logger.instance.debug("determineWhatSubtitleDownload: Exact Match");
-        return 0;
-      } else if (release.getMatchingSubs().size() > 1) {
-        Logger.instance.debug("determineWhatSubtitleDownload: Multiple subs detected");
-        
-        //Automatic selection
-        List<Subtitle> shortlist = subSelection.getAutomaticSelection(release.getMatchingSubs());
-        release.setMatchingSubs(shortlist);
-        // automatic selection results in 1 result
-        if (shortlist.size() == 1) return 0;
-        // nothing match the minimum automatic selection value
-        if (shortlist.size() == 0) return -1;
-
-        // still more then 1 subtitle, let the user decide!
-        if (subtitleSelectionDialog) {
-          Logger.instance.debug("determineWhatSubtitleDownload: Select subtitle with dialog");
-          return subSelection.getUserInput(release);
-        } else {
-          Logger.instance.log("Multiple subs detected for: " + release.getFilename()
-              + " Unhandleable for CMD! switch to GUI"
-              + " or use '--selection' as switch in de CMD");
-        }
-      } else if (release.getMatchingSubs().size() == 1) {
-        Logger.instance.debug("determineWhatSubtitleDownload: only one sub taking it!!!!");
-        return 0;
-      }
-    }
-    Logger.instance.debug("determineWhatSubtitleDownload: No subs found for: "
-        + release.getFilename());
-    return -1;
   }
 
   public static String buildDisplayLine(Subtitle subtitle) {

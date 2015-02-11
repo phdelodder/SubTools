@@ -11,7 +11,7 @@ public class SubtitleSelectionGUI extends SubtitleSelection {
   }
 
   @Override
-  protected int getUserInput(Release release) {
+  public int getUserInput(Release release) {
     final SelectDialog sDialog =
         new SelectDialog(null, release.getMatchingSubs(), release.getFilename());
 

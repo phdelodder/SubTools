@@ -12,7 +12,7 @@ public class SubtitleSelectionCLI extends SubtitleSelection {
   }
 
   @Override
-  protected int getUserInput(Release release) {
+  public int getUserInput(Release release) {
     System.out.println("Select best subtitle for : " + release.getFilename());
     for (int i = 0; i < release.getMatchingSubs().size(); i++) {
       System.out.println("(" + i + ")" + Actions.buildDisplayLine(release.getMatchingSubs().get(i)));
