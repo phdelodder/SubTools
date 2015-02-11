@@ -9,7 +9,7 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 import org.lodder.subtools.multisubdownloader.Messages;
-import org.lodder.subtools.multisubdownloader.gui.actions.search.SearchAction;
+import org.lodder.subtools.multisubdownloader.actions.SearchAction;
 
 public abstract class InputPanel extends JPanel {
   /**

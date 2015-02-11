@@ -1,6 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog.progress;
 
-import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
+import org.lodder.subtools.multisubdownloader.actions.ActionException;
 
 public interface StatusListener {
 

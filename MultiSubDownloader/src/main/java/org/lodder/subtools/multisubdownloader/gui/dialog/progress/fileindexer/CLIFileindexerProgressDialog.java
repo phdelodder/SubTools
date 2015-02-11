@@ -1,6 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer;
 
-import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
+import org.lodder.subtools.multisubdownloader.actions.ActionException;
 
 public class CLIFileindexerProgressDialog implements IndexingProgressListener {
 

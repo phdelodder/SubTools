@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader.gui.actions;
+package org.lodder.subtools.multisubdownloader.actions;
 
 public class ActionException extends Exception {
 

@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.GUI;
-import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
+import org.lodder.subtools.multisubdownloader.actions.ActionException;
+import org.lodder.subtools.multisubdownloader.actions.FileListAction;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchFileInputPanel;
-import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -16,7 +16,7 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 
 public class FileGuiSearchAction extends GuiSearchAction {
 
-  private Actions actions;
+  private FileListAction filelistAction;
 
   public FileGuiSearchAction(GUI mainWindow, Settings settings, SubtitleProviderStore subtitleProviderStore) {
     super();
@@ -25,8 +25,8 @@ public class FileGuiSearchAction extends GuiSearchAction {
     this.setProviderStore(subtitleProviderStore);
   }
 
-  public void setActions(Actions actions) {
-    this.actions = actions;
+  public void setFileListAction(FileListAction filelistAction) {
+    this.filelistAction = filelistAction;
   }
 
   @Override
@@ -108,18 +108,18 @@ public class FileGuiSearchAction extends GuiSearchAction {
     List<File> files = new ArrayList<>();
 
     /* Tell Action where to send progressUpdates */
-    this.actions.setIndexingProgressListener(this.indexingProgressListener);
+    this.filelistAction.setIndexingProgressListener(this.indexingProgressListener);
 
     /* Start the getFileListing Action */
     for (File dir : dirs) {
       files.addAll(
-          this.actions.getFileListing(dir, recursive, languageCode, overwriteExistingSubtitles));
+          this.filelistAction.getFileListing(dir, recursive, languageCode, overwriteExistingSubtitles));
     }
     return files;
   }
 
   protected void validate() throws SearchSetupException {
-    if (this.actions == null) {
+    if (this.filelistAction == null) {
       throw new SearchSetupException("Actions-object must be set.");
     }
 

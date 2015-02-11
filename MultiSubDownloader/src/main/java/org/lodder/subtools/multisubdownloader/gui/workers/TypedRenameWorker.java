@@ -5,9 +5,9 @@ import java.util.List;
 
 import javax.swing.SwingWorker;
 
+import org.lodder.subtools.multisubdownloader.actions.RenameAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
-import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
@@ -21,11 +21,11 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
 
 
   private File dir;
-  private LibrarySettings librarySettings;
   private VideoType videoType;
   private final FilenameExtensionFilter patterns;
   private boolean isRecursive;
   private ReleaseFactory releaseFactory;
+  private RenameAction renameAction;
 
   public TypedRenameWorker(File dir, LibrarySettings librarySettings, VideoType videoType,
       boolean isRecursive) {
@@ -38,9 +38,9 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
   public void setParameters(File dir, LibrarySettings librarySettings, VideoType videoType,
       boolean isRecursive) {
     this.dir = dir;
-    this.librarySettings = librarySettings;
     this.videoType = videoType;
     this.isRecursive = isRecursive;
+    this.renameAction = new RenameAction(librarySettings);
   }
 
   public void setReleaseFactory(ReleaseFactory releaseFactory) {
@@ -63,8 +63,7 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
           release = releaseFactory.createRelease(file);
           publish(release.getFilename());
           if (release.getVideoType() == videoType && release != null)
-            Actions.rename(librarySettings, file, release);
-
+            renameAction.rename(file, release);
         } catch (Exception e) {
           Logger.instance.log("Series Rename " + e.getMessage());
         }

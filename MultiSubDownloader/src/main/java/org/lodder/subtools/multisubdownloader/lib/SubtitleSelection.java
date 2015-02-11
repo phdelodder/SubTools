@@ -19,7 +19,7 @@ public abstract class SubtitleSelection {
     List<Subtitle> shortlist = new ArrayList<Subtitle>();
 
     shortlist = subtitles;
-    
+
     if (settings.isOptionsMinAutomaticSelection()) {
       for (int i = shortlist.size() - 1; i >= 0; i--) {
         if (shortlist.get(i).getScore() < settings.getOptionsMinAutomaticSelectionValue())
@@ -30,5 +30,25 @@ public abstract class SubtitleSelection {
     return shortlist;
   }
 
-  protected abstract int getUserInput(Release release);
+  public abstract int getUserInput(Release release);
+
+  public List<String> buildDisplayLines(Release release) {
+    List<String> lines = new ArrayList<String>();
+    for (Subtitle subtitle : release.getMatchingSubs()) {
+      lines.add(this.buildDisplayLine(subtitle));
+    }
+    return lines;
+  }
+
+  public String buildDisplayLine(Subtitle subtitle) {
+    String hearingImpaired = "";
+    if (subtitle.isHearingImpaired()) {
+      hearingImpaired = " Hearing Impaired";
+    }
+    String uploader = "";
+    if (!subtitle.getUploader().isEmpty())
+      uploader = " (Uploader: " + subtitle.getUploader() + ") ";
+    return "Scrore:" + subtitle.getScore() + "% " + subtitle.getFilename() + hearingImpaired
+        + uploader + " (Source: " + subtitle.getSubtitleSource() + ") ";
+  }
 }

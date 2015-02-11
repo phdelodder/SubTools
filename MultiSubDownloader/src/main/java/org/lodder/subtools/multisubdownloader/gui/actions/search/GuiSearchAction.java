@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader.gui.actions.search;
 import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.GUI;
+import org.lodder.subtools.multisubdownloader.actions.SearchAction;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchPanel;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;

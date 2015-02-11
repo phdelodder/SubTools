@@ -5,13 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
+import org.lodder.subtools.multisubdownloader.actions.DownloadAction;
+import org.lodder.subtools.multisubdownloader.actions.FileListAction;
+import org.lodder.subtools.multisubdownloader.actions.SubtitleSelectionAction;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.gui.actions.search.CliSearchAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer.CLIFileindexerProgressDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.progress.search.CLISearchProgress;
-import org.lodder.subtools.multisubdownloader.lib.Actions;
 import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
+import org.lodder.subtools.multisubdownloader.lib.SubtitleSelectionCLI;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
@@ -22,7 +25,6 @@ import org.lodder.subtools.sublibrary.model.Release;
 public class CLI implements Listener {
 
   private final Container app;
-  private final Actions actions;
   private Settings settings;
   private boolean recursive = false;
   private String languagecode = "";
@@ -31,12 +33,16 @@ public class CLI implements Listener {
   private boolean downloadall = false;
   private boolean subtitleSelection = false;
   private boolean verboseProgress = false;
+  private DownloadAction downloadAction;
+  private SubtitleSelectionAction subtitleSelectionAction;
 
   public CLI(Settings settings, Container app) {
     Logger.instance.addListener(this);
     this.app = app;
     this.settings = settings;
-    actions = new Actions(settings, true);
+    downloadAction = new DownloadAction(settings);
+    subtitleSelectionAction = new SubtitleSelectionAction(settings);
+    subtitleSelectionAction.setSubtitleSelection(new SubtitleSelectionCLI(settings));
   }
 
   public void setUp(CommandLine line) throws Exception {
@@ -78,7 +84,7 @@ public class CLI implements Listener {
     searchAction.setOverwriteSubtitles(this.force);
     searchAction.setLanguageCode(this.languagecode);
 
-    searchAction.setActions(this.actions);
+    searchAction.setFileListAction(new FileListAction(this.settings));
     searchAction.setFiltering(new Filtering(this.settings));
     searchAction.setReleaseFactory(new ReleaseFactory(this.settings));
 
@@ -100,7 +106,7 @@ public class CLI implements Listener {
   }
 
   private void download(Release release) throws Exception {
-    int selection = actions.determineWhatSubtitleDownload(release, subtitleSelection);
+    int selection = subtitleSelectionAction.subtitleSelection(release, subtitleSelection);
     if (selection >= 0) {
       if (downloadall) {
         Logger.instance
@@ -108,10 +114,10 @@ public class CLI implements Listener {
         for (int j = 0; j < release.getMatchingSubs().size(); j++) {
           Logger.instance.log("Downloading subtitle: "
                               + release.getMatchingSubs().get(0).getFilename());
-          actions.download(release, release.getMatchingSubs().get(j), j + 1);
+          downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
         }
       } else {
-        actions.download(release, release.getMatchingSubs().get(selection));
+        downloadAction.download(release, release.getMatchingSubs().get(selection));
       }
     } else {
       Logger.instance.log("No subs found for: " + release.getFilename());

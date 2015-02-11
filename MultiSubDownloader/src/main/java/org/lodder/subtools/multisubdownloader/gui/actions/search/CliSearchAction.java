@@ -6,8 +6,9 @@ import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.CLI;
 import org.lodder.subtools.multisubdownloader.Messages;
-import org.lodder.subtools.multisubdownloader.gui.actions.ActionException;
-import org.lodder.subtools.multisubdownloader.lib.Actions;
+import org.lodder.subtools.multisubdownloader.actions.ActionException;
+import org.lodder.subtools.multisubdownloader.actions.FileListAction;
+import org.lodder.subtools.multisubdownloader.actions.SearchAction;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.sublibrary.logging.Logger;
@@ -17,7 +18,7 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 public class CliSearchAction extends SearchAction {
 
   private CLI cmd;
-  private Actions actions;
+  private FileListAction filelistAction;
   private List<File> folders;
   private boolean isRecursive;
   private String languageCode;
@@ -29,8 +30,8 @@ public class CliSearchAction extends SearchAction {
     this.cmd = cmd;
   }
 
-  public void setActions(Actions actions) {
-    this.actions = actions;
+  public void setFileListAction(FileListAction filelistAction) {
+    this.filelistAction = filelistAction;
   }
 
   public void setFolders(List<File> folders) {
@@ -55,12 +56,12 @@ public class CliSearchAction extends SearchAction {
 
   @Override
   protected List<Release> createReleases() throws ActionException {
-    actions.setIndexingProgressListener(this.indexingProgressListener);
+    filelistAction.setIndexingProgressListener(this.indexingProgressListener);
 
     List<File> files = new ArrayList<>();
     for (File folder : this.folders) {
-      files.addAll(actions.getFileListing(folder, this.isRecursive, this.languageCode,
-                                          this.overwriteSubtitles));
+      files.addAll(filelistAction.getFileListing(folder, this.isRecursive, this.languageCode,
+          this.overwriteSubtitles));
     }
 
     /* fix: remove carriage return from progressbar */
@@ -127,22 +128,22 @@ public class CliSearchAction extends SearchAction {
 
   @Override
   protected void validate() throws SearchSetupException {
-    if(this.cmd == null) {
+    if (this.cmd == null) {
       throw new SearchSetupException("Cmd must be set.");
     }
-    if(this.languageCode == null) {
+    if (this.languageCode == null) {
       throw new SearchSetupException("LanguageCode must be set.");
     }
-    if(this.actions == null) {
+    if (this.filelistAction == null) {
       throw new SearchSetupException("Actions must be set.");
     }
-    if(this.folders == null || this.folders.size() <= 0) {
+    if (this.folders == null || this.folders.size() <= 0) {
       throw new SearchSetupException("Folders must be set.");
     }
-    if(this.releaseFactory == null) {
+    if (this.releaseFactory == null) {
       throw new SearchSetupException("releaseFactory must be set.");
     }
-    if(this.filtering == null) {
+    if (this.filtering == null) {
       throw new SearchSetupException("Filtering must be set.");
     }
     super.validate();
