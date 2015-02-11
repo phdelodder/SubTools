@@ -22,6 +22,9 @@ public class FileListAction {
   private int progressFileIndex;
   private int progressFilesTotal;
   private Settings settings;
+  private final String[] dutchFilters = new String[] {"nld", "ned", "dutch", "dut", "nl"};
+  private final String[] englishFilters = new String[] {"eng", "english", "en"};
+  private final String subtitleExtension = ".srt";
 
   public FileListAction(Settings settings) {
     this.settings = settings;
@@ -133,39 +136,43 @@ public class FileListAction {
     String subname = "";
     for (String allowedExtension : VideoPatterns.EXTENSIONS) {
       if (file.getName().contains("." + allowedExtension))
-        subname = file.getName().replace("." + allowedExtension, ".srt");
+        subname = file.getName().replace("." + allowedExtension, subtitleExtension);
     }
 
     final File f = new File(file.getParentFile(), subname);
     if (f.exists()) {
       return true;
     } else {
-      List<String> filters = new ArrayList<String>();
+      List<String> filters = null;
+      
       if (languageCode.equals("nl")) {
-        filters.add("nld.srt");
-        filters.add("ned.srt");
-        filters.add("dutch.srt");
-        filters.add("dut.srt");
-        filters.add("nl.srt");
+        filters = getFilters(dutchFilters);
         if (!settings.getEpisodeLibrarySettings().getDefaultNlText().equals(""))
-          filters.add("." + settings.getEpisodeLibrarySettings().getDefaultNlText().concat(".srt"));
-        final String[] contents =
-            file.getParentFile().list(
-                new FilenameExtensionFilter(filters.toArray(new String[filters.size()])));
-        return checkFileListContent(contents, subname.replace(".srt", ""));
+          filters.add("."
+              + settings.getEpisodeLibrarySettings().getDefaultNlText().concat(subtitleExtension));
       } else if (languageCode.equals("en")) {
-        filters.add("eng.srt");
-        filters.add("english.srt");
-        filters.add("en.srt");
+        filters = getFilters(englishFilters);
         if (!settings.getEpisodeLibrarySettings().getDefaultEnText().equals(""))
-          filters.add("." + settings.getEpisodeLibrarySettings().getDefaultEnText().concat(".srt"));
-        final String[] contents =
-            file.getParentFile().list(
-                new FilenameExtensionFilter(filters.toArray(new String[filters.size()])));
-        return checkFileListContent(contents, subname.replace(".srt", ""));
+          filters.add("."
+              + settings.getEpisodeLibrarySettings().getDefaultEnText().concat(subtitleExtension));
       }
+      
+      if (filters == null) return false;
+      final String[] contents =
+          file.getParentFile().list(
+              new FilenameExtensionFilter(filters.toArray(new String[filters.size()])));
+      return checkFileListContent(contents, subname.replace(subtitleExtension, ""));
     }
-    return false;
+  }
+
+  private List<String> getFilters(String[] words) {
+    List<String> filters = new ArrayList<String>();
+
+    for (String s : words) {
+      filters.add(s + subtitleExtension);
+    }
+
+    return filters;
   }
 
   public boolean checkFileListContent(String[] contents, String subname) {
