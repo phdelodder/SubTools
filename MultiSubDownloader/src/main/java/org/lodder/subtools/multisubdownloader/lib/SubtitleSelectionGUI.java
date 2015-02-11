@@ -13,7 +13,7 @@ public class SubtitleSelectionGUI extends SubtitleSelection {
   @Override
   public int getUserInput(Release release) {
     final SelectDialog sDialog =
-        new SelectDialog(null, release.getMatchingSubs(), release.getFilename());
+        new SelectDialog(null, this.buildDisplayLines(release), release.getFilename());
 
     if (sDialog.getAnswer() == SelectDialog.SelectionType.OK) {
       return sDialog.getSelection();

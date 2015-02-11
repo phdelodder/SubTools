@@ -1,18 +1,24 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
-import net.miginfocom.swing.MigLayout;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-
-import org.lodder.subtools.multisubdownloader.Messages;
-import org.lodder.subtools.multisubdownloader.lib.Actions;
-import org.lodder.subtools.sublibrary.model.Subtitle;
-
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.border.EmptyBorder;
+
+import net.miginfocom.swing.MigLayout;
+
+import org.lodder.subtools.multisubdownloader.Messages;
 
 public class SelectDialog extends MultiSubDialog {
 
@@ -37,16 +43,16 @@ public class SelectDialog extends MultiSubDialog {
   private final JPanel contentPanel = new JPanel();
   private JPanel pnlSelect;
   private SelectionType answer = SelectionType.CANCEL;
-  private List<Subtitle> lSubs;
+  private List<String> lines;
   private String filename;
 
 
   /**
    * Create the dialog.
    */
-  public SelectDialog(JFrame frame, List<Subtitle> lSubs, String filename) {
+  public SelectDialog(JFrame frame, List<String> lines, String filename) {
     super(frame, Messages.getString("SelectDialog.SelectCorrectSubtitle"), true);
-    this.lSubs = lSubs;
+    this.lines = lines;
     this.filename = filename;
     initialize();
     loadSelection();
@@ -56,8 +62,8 @@ public class SelectDialog extends MultiSubDialog {
 
   private void loadSelection() {
     ButtonGroup group = new ButtonGroup();
-    for (Subtitle subtitle : lSubs) {
-      JRadioButton option = new JRadioButton(Actions.buildDisplayLine(subtitle));
+    for (String line : lines) {
+      JRadioButton option = new JRadioButton(line);
       option.setName(Messages.getString("SelectDialog.Option"));
       group.add(option);
       pnlSelect.add(option);
@@ -110,7 +116,7 @@ public class SelectDialog extends MultiSubDialog {
           }
         });
         allButton.setActionCommand("Alles");
-        if (lSubs.size() == 1) allButton.setEnabled(false);
+        if (lines.size() == 1) allButton.setEnabled(false);
         buttonPane.add(allButton);
       }
       {

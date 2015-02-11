@@ -13,7 +13,6 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.DetectLanguage;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
-import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.util.Files;
 
 public class Actions {
@@ -24,18 +23,6 @@ public class Actions {
   public Actions(Settings settings, final boolean usingCMD) {
     this.settings = settings;
     this.usingCMD = usingCMD;
-  }
-
-  public static String buildDisplayLine(Subtitle subtitle) {
-    String hearingImpaired = "";
-    if (subtitle.isHearingImpaired()) {
-      hearingImpaired = " Hearing Impaired";
-    }
-    String uploader = "";
-    if (!subtitle.getUploader().isEmpty())
-      uploader = " (Uploader: " + subtitle.getUploader() + ") ";
-    return "Scrore:" + subtitle.getScore() + "% " + subtitle.getFilename() + hearingImpaired
-        + uploader + " (Source: " + subtitle.getSubtitleSource() + ") ";
   }
 
   public static void rename(LibrarySettings librarySettings, File f, Release release) {
