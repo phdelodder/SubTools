@@ -2,7 +2,7 @@ package org.lodder.subtools.multisubdownloader.workers;
 
 import java.util.*;
 
-import org.lodder.subtools.multisubdownloader.gui.actions.search.SearchSetupException;
+import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.ScoreCalculator;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.SortWeight;

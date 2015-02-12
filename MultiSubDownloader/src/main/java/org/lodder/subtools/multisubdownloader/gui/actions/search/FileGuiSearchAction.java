@@ -7,6 +7,7 @@ import java.util.List;
 import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.actions.FileListAction;
+import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchFileInputPanel;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;

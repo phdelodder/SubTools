@@ -3,7 +3,7 @@ package org.lodder.subtools.multisubdownloader.actions;
 import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.Messages;
-import org.lodder.subtools.multisubdownloader.gui.actions.search.SearchSetupException;
+import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener;
 import org.lodder.subtools.multisubdownloader.listeners.SearchProgressListener;
