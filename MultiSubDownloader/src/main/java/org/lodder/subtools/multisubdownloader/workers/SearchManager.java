@@ -1,11 +1,12 @@
 package org.lodder.subtools.multisubdownloader.workers;
 
 import java.util.*;
+
 import org.lodder.subtools.multisubdownloader.gui.actions.search.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
-import org.lodder.subtools.multisubdownloader.gui.dialog.progress.search.SearchProgressListener;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.ScoreCalculator;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.SortWeight;
+import org.lodder.subtools.multisubdownloader.listeners.SearchProgressListener;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.sublibrary.model.Release;

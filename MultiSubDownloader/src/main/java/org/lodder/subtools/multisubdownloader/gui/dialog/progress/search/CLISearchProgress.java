@@ -1,6 +1,7 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog.progress.search;
 
 import org.lodder.subtools.multisubdownloader.actions.ActionException;
+import org.lodder.subtools.multisubdownloader.listeners.SearchProgressListener;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.sublibrary.model.Release;
 
