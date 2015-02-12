@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer.IndexingProgressListener;
+import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
