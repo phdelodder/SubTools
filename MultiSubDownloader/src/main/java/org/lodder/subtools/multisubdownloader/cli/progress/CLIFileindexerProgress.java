@@ -3,14 +3,14 @@ package org.lodder.subtools.multisubdownloader.cli.progress;
 import org.lodder.subtools.multisubdownloader.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener;
 
-public class CLIFileindexerProgressDialog implements IndexingProgressListener {
+public class CLIFileindexerProgress implements IndexingProgressListener {
 
   String currentFile;
   int progress;
   boolean isEnabled = true;
   boolean isVerbose;
 
-  public CLIFileindexerProgressDialog() {
+  public CLIFileindexerProgress() {
     isEnabled = true;
     isVerbose = false;
     progress = 0;
