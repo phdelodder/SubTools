@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer;
+package org.lodder.subtools.multisubdownloader.cli.progress;
 
 import org.lodder.subtools.multisubdownloader.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener;
