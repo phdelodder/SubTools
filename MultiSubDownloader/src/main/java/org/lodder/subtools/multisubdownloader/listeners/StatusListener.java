@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader.gui.dialog.progress;
+package org.lodder.subtools.multisubdownloader.listeners;
 
 import org.lodder.subtools.multisubdownloader.actions.ActionException;
 
