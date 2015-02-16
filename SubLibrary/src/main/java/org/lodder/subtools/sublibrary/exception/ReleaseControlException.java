@@ -6,7 +6,7 @@ import org.lodder.subtools.sublibrary.model.Release;
 public class ReleaseControlException extends Exception {
 
     public ReleaseControlException(String string, Release release) {
-        super(string + ": " + release.getFilename());
+        super(string + ": " + release.toString());
         Logger.instance.trace("ReleaseControlException", "ReleaseControlException", "");
     }
 
