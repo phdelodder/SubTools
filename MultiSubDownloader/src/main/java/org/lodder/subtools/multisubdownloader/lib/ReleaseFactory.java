@@ -48,6 +48,7 @@ public class ReleaseFactory {
       Logger.instance.error(Logger.stack2String(e));
     } catch (ReleaseControlException e) {
       Logger.instance.error(Logger.stack2String(e));
+      return null;
     }
     
     return r;

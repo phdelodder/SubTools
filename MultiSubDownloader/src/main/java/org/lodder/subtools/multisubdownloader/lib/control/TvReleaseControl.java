@@ -81,9 +81,10 @@ public class TvReleaseControl extends ReleaseControl {
 
   /**
    * @param dict
+   * @throws ReleaseControlException 
    * 
    */
-  private void processSpecial(List<MappingTvdbScene> dict) {
+  private void processSpecial(List<MappingTvdbScene> dict) throws ReleaseControlException {
     TVRageEpisode tvrEpisode = null;
     TheTVDBEpisode thetvdbepisode = null;
     setTvrageID();
@@ -104,7 +105,7 @@ public class TvReleaseControl extends ReleaseControl {
     }
   }
 
-  private void setTvdbID(List<MappingTvdbScene> dict) {
+  private void setTvdbID(List<MappingTvdbScene> dict) throws ReleaseControlException {
     int tvdbid = 0;
     for (MappingTvdbScene mapping : dict) {
       if (mapping.getSceneName().replaceAll("[^A-Za-z]", "")
@@ -120,6 +121,7 @@ public class TvReleaseControl extends ReleaseControl {
       thetvdbserie = jtvdba.getSerie(tvdbid);
     }
 
+    if (thetvdbserie == null) throw new ReleaseControlException("Tvdb API, returned no result", release);
     ((TvRelease) release).setOriginalShowName(thetvdbserie.getSerieName());
     ((TvRelease) release).setTvdbid(Integer.parseInt(thetvdbserie.getId()));
   }
