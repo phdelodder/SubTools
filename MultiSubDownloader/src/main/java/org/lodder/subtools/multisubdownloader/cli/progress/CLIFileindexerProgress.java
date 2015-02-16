@@ -1,37 +1,31 @@
-package org.lodder.subtools.multisubdownloader.gui.dialog.progress.search;
+package org.lodder.subtools.multisubdownloader.cli.progress;
 
 import org.lodder.subtools.multisubdownloader.actions.ActionException;
-import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
-import org.lodder.subtools.sublibrary.model.Release;
+import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener;
 
-import dnl.utils.text.table.TextTable;
+public class CLIFileindexerProgress implements IndexingProgressListener {
 
-public class CLISearchProgress implements SearchProgressListener {
-
-  TextTable table;
-  SearchProgressTableModel tableModel;
+  String currentFile;
   int progress;
-  boolean isEnabled;
+  boolean isEnabled = true;
   boolean isVerbose;
 
-  public CLISearchProgress() {
-    tableModel = new SearchProgressTableModel();
-    table = new TextTable(tableModel);
+  public CLIFileindexerProgress() {
     isEnabled = true;
     isVerbose = false;
     progress = 0;
-  }
-
-  @Override
-  public void progress(SubtitleProvider provider, int jobsLeft, Release release) {
-    this.tableModel
-        .update(provider.getName(), jobsLeft, (release == null ? "Done" : release.getFilename()));
-    this.printProgress();
+    currentFile = "";
   }
 
   @Override
   public void progress(int progress) {
     this.progress = progress;
+    this.printProgress();
+  }
+
+  @Override
+  public void progress(String directory) {
+    this.currentFile = directory;
     this.printProgress();
   }
 
@@ -45,7 +39,7 @@ public class CLISearchProgress implements SearchProgressListener {
 
   @Override
   public void onError(ActionException exception) {
-    if (!isEnabled) {
+    if (!this.isEnabled) {
       return;
     }
     System.out.println("Error: " + exception.getMessage());
@@ -53,7 +47,7 @@ public class CLISearchProgress implements SearchProgressListener {
 
   @Override
   public void onStatus(String message) {
-    if (!isEnabled) {
+    if (!this.isEnabled) {
       return;
     }
     System.out.println(message);
@@ -74,13 +68,13 @@ public class CLISearchProgress implements SearchProgressListener {
       return;
     }
 
-    /* print table */
     if (isVerbose) {
+      /* newlines to counter the return carriage from printProgBar() */
       System.out.println("");
-      table.printTable();
+      System.out.println(this.currentFile);
+      System.out.println("");
     }
 
-    /* print progressbar */
     this.printProgBar(this.progress);
   }
 

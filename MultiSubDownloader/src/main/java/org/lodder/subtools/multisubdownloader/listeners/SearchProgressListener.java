@@ -1,6 +1,5 @@
-package org.lodder.subtools.multisubdownloader.gui.dialog.progress.search;
+package org.lodder.subtools.multisubdownloader.listeners;
 
-import org.lodder.subtools.multisubdownloader.gui.dialog.progress.StatusListener;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.sublibrary.model.Release;
 

@@ -8,10 +8,10 @@ import org.apache.commons.cli.CommandLine;
 import org.lodder.subtools.multisubdownloader.actions.DownloadAction;
 import org.lodder.subtools.multisubdownloader.actions.FileListAction;
 import org.lodder.subtools.multisubdownloader.actions.SubtitleSelectionAction;
+import org.lodder.subtools.multisubdownloader.cli.actions.CliSearchAction;
+import org.lodder.subtools.multisubdownloader.cli.progress.CLIFileindexerProgress;
+import org.lodder.subtools.multisubdownloader.cli.progress.CLISearchProgress;
 import org.lodder.subtools.multisubdownloader.framework.Container;
-import org.lodder.subtools.multisubdownloader.gui.actions.search.CliSearchAction;
-import org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer.CLIFileindexerProgressDialog;
-import org.lodder.subtools.multisubdownloader.gui.dialog.progress.search.CLISearchProgress;
 import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.SubtitleSelectionCLI;
@@ -88,7 +88,7 @@ public class CLI implements Listener {
     searchAction.setFiltering(new Filtering(this.settings));
     searchAction.setReleaseFactory(new ReleaseFactory(this.settings));
 
-    CLIFileindexerProgressDialog progressDialog = new CLIFileindexerProgressDialog();
+    CLIFileindexerProgress progressDialog = new CLIFileindexerProgress();
     CLISearchProgress searchProgress = new CLISearchProgress();
     progressDialog.setVerbose(this.verboseProgress);
     searchProgress.setVerbose(this.verboseProgress);

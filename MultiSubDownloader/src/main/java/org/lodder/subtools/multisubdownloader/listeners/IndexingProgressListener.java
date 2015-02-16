@@ -1,6 +1,5 @@
-package org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer;
+package org.lodder.subtools.multisubdownloader.listeners;
 
-import org.lodder.subtools.multisubdownloader.gui.dialog.progress.StatusListener;
 
 public interface IndexingProgressListener extends StatusListener {
 

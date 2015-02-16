@@ -1,30 +1,39 @@
-package org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer;
+package org.lodder.subtools.multisubdownloader.cli.progress;
 
 import org.lodder.subtools.multisubdownloader.actions.ActionException;
+import org.lodder.subtools.multisubdownloader.gui.dialog.progress.search.SearchProgressTableModel;
+import org.lodder.subtools.multisubdownloader.listeners.SearchProgressListener;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
+import org.lodder.subtools.sublibrary.model.Release;
 
-public class CLIFileindexerProgressDialog implements IndexingProgressListener {
+import dnl.utils.text.table.TextTable;
 
-  String currentFile;
+public class CLISearchProgress implements SearchProgressListener {
+
+  TextTable table;
+  SearchProgressTableModel tableModel;
   int progress;
-  boolean isEnabled = true;
+  boolean isEnabled;
   boolean isVerbose;
 
-  public CLIFileindexerProgressDialog() {
+  public CLISearchProgress() {
+    tableModel = new SearchProgressTableModel();
+    table = new TextTable(tableModel);
     isEnabled = true;
     isVerbose = false;
     progress = 0;
-    currentFile = "";
+  }
+
+  @Override
+  public void progress(SubtitleProvider provider, int jobsLeft, Release release) {
+    this.tableModel
+        .update(provider.getName(), jobsLeft, (release == null ? "Done" : release.getFilename()));
+    this.printProgress();
   }
 
   @Override
   public void progress(int progress) {
     this.progress = progress;
-    this.printProgress();
-  }
-
-  @Override
-  public void progress(String directory) {
-    this.currentFile = directory;
     this.printProgress();
   }
 
@@ -38,7 +47,7 @@ public class CLIFileindexerProgressDialog implements IndexingProgressListener {
 
   @Override
   public void onError(ActionException exception) {
-    if (!this.isEnabled) {
+    if (!isEnabled) {
       return;
     }
     System.out.println("Error: " + exception.getMessage());
@@ -46,7 +55,7 @@ public class CLIFileindexerProgressDialog implements IndexingProgressListener {
 
   @Override
   public void onStatus(String message) {
-    if (!this.isEnabled) {
+    if (!isEnabled) {
       return;
     }
     System.out.println(message);
@@ -67,13 +76,13 @@ public class CLIFileindexerProgressDialog implements IndexingProgressListener {
       return;
     }
 
+    /* print table */
     if (isVerbose) {
-      /* newlines to counter the return carriage from printProgBar() */
       System.out.println("");
-      System.out.println(this.currentFile);
-      System.out.println("");
+      table.printTable();
     }
 
+    /* print progressbar */
     this.printProgBar(this.progress);
   }
 

@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader.gui.actions.search;
+package org.lodder.subtools.multisubdownloader.cli.actions;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -9,6 +9,7 @@ import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.actions.FileListAction;
 import org.lodder.subtools.multisubdownloader.actions.SearchAction;
+import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.sublibrary.logging.Logger;

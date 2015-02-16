@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader.gui.actions.search;
+package org.lodder.subtools.multisubdownloader.exceptions;
 
 import org.lodder.subtools.multisubdownloader.actions.ActionException;
 
