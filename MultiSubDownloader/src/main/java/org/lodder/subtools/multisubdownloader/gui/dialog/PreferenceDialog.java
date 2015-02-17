@@ -578,8 +578,7 @@ public class PreferenceDialog extends MultiSubDialog {
     if (testOptionsTab()) {
       settingsCtrl.getSettings().setOptionsAlwaysConfirm(chkAlwaysConfirm.isSelected());
       settingsCtrl.getSettings().setOptionsMinAutomaticSelection(chkMinScoreSelection.isSelected());
-      settingsCtrl.getSettings().setOptionsMinAutomaticSelectionValue(
-          (Integer) sldMinScoreSelection.getValue());
+      settingsCtrl.getSettings().setOptionsMinAutomaticSelectionValue(sldMinScoreSelection.getValue());
       settingsCtrl.getSettings().setOptionSubtitleExactMatch(chkSubtitleExactMethod.isSelected());
       settingsCtrl.getSettings().setOptionSubtitleKeywordMatch(
           chkSubtitleKeywordMethod.isSelected());
