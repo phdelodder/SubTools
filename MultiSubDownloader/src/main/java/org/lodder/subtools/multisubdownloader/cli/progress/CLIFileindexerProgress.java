@@ -3,17 +3,12 @@ package org.lodder.subtools.multisubdownloader.cli.progress;
 import org.lodder.subtools.multisubdownloader.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener;
 
-public class CLIFileindexerProgress implements IndexingProgressListener {
+public class CLIFileindexerProgress extends CLIProgress implements IndexingProgressListener {
 
   String currentFile;
-  int progress;
-  boolean isEnabled = true;
-  boolean isVerbose;
 
   public CLIFileindexerProgress() {
-    isEnabled = true;
-    isVerbose = false;
-    progress = 0;
+    super();
     currentFile = "";
   }
 
@@ -53,17 +48,7 @@ public class CLIFileindexerProgress implements IndexingProgressListener {
     System.out.println(message);
   }
 
-  public void disable() {
-    this.isEnabled = false;
-    /* Print a line */
-    System.out.println("");
-  }
-
-  public void setVerbose(boolean isVerbose) {
-    this.isVerbose = isVerbose;
-  }
-
-  private void printProgress() {
+  protected void printProgress() {
     if (!isEnabled) {
       return;
     }
@@ -76,23 +61,5 @@ public class CLIFileindexerProgress implements IndexingProgressListener {
     }
 
     this.printProgBar(this.progress);
-  }
-
-  private void printProgBar(int percent) {
-    // http://nakkaya.com/2009/11/08/command-line-progress-bar/
-    StringBuilder bar = new StringBuilder("[");
-
-    for (int i = 0; i < 50; i++) {
-      if (i < (percent / 2)) {
-        bar.append("=");
-      } else if (i == (percent / 2)) {
-        bar.append(">");
-      } else {
-        bar.append(" ");
-      }
-    }
-
-    bar.append("]   " + percent + "%     ");
-    System.out.print("\r" + bar.toString());
   }
 }

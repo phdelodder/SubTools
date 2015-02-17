@@ -8,20 +8,15 @@ import org.lodder.subtools.sublibrary.model.Release;
 
 import dnl.utils.text.table.TextTable;
 
-public class CLISearchProgress implements SearchProgressListener {
+public class CLISearchProgress extends CLIProgress implements SearchProgressListener {
 
   TextTable table;
   SearchProgressTableModel tableModel;
-  int progress;
-  boolean isEnabled;
-  boolean isVerbose;
+  
 
   public CLISearchProgress() {
     tableModel = new SearchProgressTableModel();
     table = new TextTable(tableModel);
-    isEnabled = true;
-    isVerbose = false;
-    progress = 0;
   }
 
   @Override
@@ -61,17 +56,7 @@ public class CLISearchProgress implements SearchProgressListener {
     System.out.println(message);
   }
 
-  public void disable() {
-    this.isEnabled = false;
-    /* Print a line */
-    System.out.println("");
-  }
-
-  public void setVerbose(boolean isVerbose) {
-    this.isVerbose = isVerbose;
-  }
-
-  private void printProgress() {
+  protected void printProgress() {
     if (!isEnabled) {
       return;
     }
@@ -84,23 +69,5 @@ public class CLISearchProgress implements SearchProgressListener {
 
     /* print progressbar */
     this.printProgBar(this.progress);
-  }
-
-  private void printProgBar(int percent) {
-    // http://nakkaya.com/2009/11/08/command-line-progress-bar/
-    StringBuilder bar = new StringBuilder("[");
-
-    for (int i = 0; i < 50; i++) {
-      if (i < (percent / 2)) {
-        bar.append("=");
-      } else if (i == (percent / 2)) {
-        bar.append(">");
-      } else {
-        bar.append(" ");
-      }
-    }
-
-    bar.append("]   " + percent + "%     ");
-    System.out.print("\r" + bar.toString());
   }
 }
