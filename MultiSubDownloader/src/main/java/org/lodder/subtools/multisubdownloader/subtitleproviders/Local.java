@@ -36,9 +36,10 @@ public class Local implements SubtitleProvider {
   public List<Subtitle> search(Release release, String languageCode) {
     if (release instanceof MovieRelease) {
       return this.search((MovieRelease) release, languageCode);
-    } else {
+    } else if (release instanceof TvRelease) {
       return this.search((TvRelease) release, languageCode);
     }
+    return new ArrayList<Subtitle>();
   }
 
   private List<File> getPossibleSubtitles(String filter) {
