@@ -16,9 +16,7 @@ public abstract class SubtitleSelection {
   }
 
   public List<Subtitle> getAutomaticSelection(List<Subtitle> subtitles) {
-    List<Subtitle> shortlist = new ArrayList<Subtitle>();
-
-    shortlist = subtitles;
+    List<Subtitle> shortlist = new ArrayList<Subtitle>(subtitles);
 
     if (settings.isOptionsMinAutomaticSelection()) {
       for (int i = shortlist.size() - 1; i >= 0; i--) {
