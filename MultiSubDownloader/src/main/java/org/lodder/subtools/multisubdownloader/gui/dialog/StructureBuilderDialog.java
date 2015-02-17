@@ -208,21 +208,22 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
 
     @Override
     public void mouseClicked(MouseEvent e) {
-      // TODO Auto-generated method stub
       pos = txtStructure.getCaretPosition();
       txtStructureLength = txtStructure.getText().length();
       clickedLabel = (JLabel) e.getComponent();
-      clickedTag = clickedLabel.getText();
+      if (clickedLabel != null) {
+        clickedTag = clickedLabel.getText();
 
-      try {
-        beforeCaret = txtStructure.getText(0, pos);
-        afterCaret = txtStructure.getText(pos, txtStructureLength - pos);
-      } catch (BadLocationException ble) {
-        beforeCaret = txtStructure.getText();
-        afterCaret = "";
+        try {
+          beforeCaret = txtStructure.getText(0, pos);
+          afterCaret = txtStructure.getText(pos, txtStructureLength - pos);
+        } catch (BadLocationException ble) {
+          beforeCaret = txtStructure.getText();
+          afterCaret = "";
+        }
+
+        txtStructure.setText(String.format("%s%s%s", beforeCaret, clickedTag, afterCaret));
       }
-
-      txtStructure.setText(String.format("%s%s%s", beforeCaret, clickedTag, afterCaret));
     }
 
     @Override
