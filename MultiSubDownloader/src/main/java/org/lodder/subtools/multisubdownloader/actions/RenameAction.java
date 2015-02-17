@@ -21,28 +21,27 @@ public class RenameAction {
     this.librarySettings = librarySettings;
   }
 
+  @SuppressWarnings("unused")
   public void rename(File f, Release release) {
     Logger.instance
         .trace("Actions", "rename", "LibraryAction" + librarySettings.getLibraryAction());
     String filename = "";
-    if (librarySettings.getLibraryAction().equals(LibraryActionType.RENAME)
-        || librarySettings.getLibraryAction().equals(LibraryActionType.MOVEANDRENAME)) {
-      FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings);
-      filename = filenameLibraryBuilder.build(release);
-      if (release.getExtension().equals("srt")) {
-        String languageCode = "";
-        try {
-          if (librarySettings.isLibraryIncludeLanguageCode()) {
-            languageCode = DetectLanguage.execute(f);
-          }
-        } catch (final Exception e) {
-          Logger.instance.error("Unable to detect language, leaving language code blank");
-        }
 
-        filename = filenameLibraryBuilder.buildSubtitle(release, filename, languageCode, 0);
-      }
-    } else {
-      filename = f.getName();
+    switch (librarySettings.getLibraryAction()) {
+      case MOVE:
+        filename = f.getName();
+        break;
+      case MOVEANDRENAME:
+        filename = getNewFilename(f, release);
+        break;
+      case NOTHING:
+        filename = f.getName();
+        break;
+      case RENAME:
+        filename = getNewFilename(f, release);
+        break;
+      default:
+        break;
     }
     Logger.instance.trace("Actions", "rename", "filename" + filename);
 
@@ -75,14 +74,34 @@ public class RenameAction {
           CleanAction cleanAction = new CleanAction(librarySettings);
           cleanAction.cleanUpFiles(release, newDir, filename);
         }
-        if (librarySettings.isLibraryRemoveEmptyFolders()
-            && release.getPath().listFiles().length == 0) {
-          release.getPath().delete();
+        File[] listFiles = release.getPath().listFiles();
+        if (librarySettings.isLibraryRemoveEmptyFolders() && listFiles != null
+            && listFiles.length == 0) {
+          boolean isDeleted = release.getPath().delete();
         }
       } catch (IOException e) {
         Logger.instance.error("Unsuccessfull in moving the file to the libary");
       }
 
     }
+  }
+
+  private String getNewFilename(File f, Release release) {
+    String filename = "";
+    FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings);
+    filename = filenameLibraryBuilder.build(release);
+    if (release.getExtension().equals("srt")) {
+      String languageCode = "";
+      try {
+        if (librarySettings.isLibraryIncludeLanguageCode()) {
+          languageCode = DetectLanguage.execute(f);
+        }
+      } catch (final Exception e) {
+        Logger.instance.error("Unable to detect language, leaving language code blank");
+      }
+
+      filename = filenameLibraryBuilder.buildSubtitle(release, filename, languageCode, 0);
+    }
+    return filename;
   }
 }
