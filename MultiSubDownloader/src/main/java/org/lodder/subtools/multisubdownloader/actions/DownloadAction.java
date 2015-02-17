@@ -66,6 +66,7 @@ public class DownloadAction {
    * @param version
    * @throws Exception
    */
+  @SuppressWarnings("unused")
   private void download(Release release, Subtitle subtitle, LibrarySettings librarySettings,
       int version) throws Exception {
     Logger.instance.trace("Actions", "download",
@@ -127,7 +128,7 @@ public class DownloadAction {
           File[] listFiles = release.getPath().listFiles();
           if (librarySettings.isLibraryRemoveEmptyFolders() && listFiles != null
               && listFiles.length == 0) {
-            release.getPath().delete();
+            boolean isDelete = release.getPath().delete();
           }
         }
       }
