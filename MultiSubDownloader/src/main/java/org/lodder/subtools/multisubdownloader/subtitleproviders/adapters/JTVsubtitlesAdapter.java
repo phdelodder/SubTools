@@ -26,7 +26,7 @@ public class JTVsubtitlesAdapter implements JSubAdapter, SubtitleProvider {
       Logger.instance.error("API JTVsubtitles INIT: " + e.getCause());
     }
   }
-  
+
   @Override
   public String getName() {
     return "TvSubtitles";
@@ -36,9 +36,10 @@ public class JTVsubtitlesAdapter implements JSubAdapter, SubtitleProvider {
   public List<Subtitle> search(Release release, String languageCode) {
     if (release instanceof MovieRelease) {
       return this.searchSubtitles((MovieRelease) release, languageCode);
-    } else {
+    } else if (release instanceof TvRelease) {
       return this.searchSubtitles((TvRelease) release, languageCode);
     }
+    return new ArrayList<Subtitle>();
   }
 
   @Override

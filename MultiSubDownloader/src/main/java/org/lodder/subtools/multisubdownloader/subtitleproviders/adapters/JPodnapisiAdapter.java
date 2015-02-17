@@ -37,9 +37,10 @@ public class JPodnapisiAdapter implements JSubAdapter, SubtitleProvider {
   public List<Subtitle> search(Release release, String languageCode) {
     if (release instanceof MovieRelease) {
       return this.searchSubtitles((MovieRelease) release, languageCode);
-    } else {
+    } else if (release instanceof TvRelease){
       return this.searchSubtitles((TvRelease) release, languageCode);
     }
+    return new ArrayList<Subtitle>();
   }
 
   @Override
