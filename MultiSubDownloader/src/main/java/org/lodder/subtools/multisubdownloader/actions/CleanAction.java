@@ -22,7 +22,7 @@ public class CleanAction {
   private final String[] fileFilters = new String[] {"nfo", "jpg", "sfv", "srr", "srs", "nzb",
       "torrent", "txt"};
   private final String[] folderFilters = new String[] {"sample", "Sample"};
-  private final String sampleDirName = "sample";
+  private final static String sampleDirName = "sample";
 
   public CleanAction(LibrarySettings librarySettings) {
     this.librarySettings = librarySettings;
