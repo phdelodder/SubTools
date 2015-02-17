@@ -6,7 +6,6 @@ import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.util.StringUtils;
 
 public class PathLibraryBuilder extends LibraryBuilder {
@@ -19,9 +18,9 @@ public class PathLibraryBuilder extends LibraryBuilder {
     if (librarySettings.getLibraryAction().equals(LibraryActionType.MOVE)
         || librarySettings.getLibraryAction().equals(LibraryActionType.MOVEANDRENAME)) {
       String folder = "";
-      if (release.getVideoType() == VideoType.EPISODE)
+      if (release instanceof TvRelease)
         folder = buildEpisode((TvRelease) release);
-      else if (release.getVideoType() == VideoType.MOVIE)
+      else if (release instanceof MovieRelease)
         folder = buildMovie((MovieRelease) release);
       return new File(librarySettings.getLibraryFolder(), folder).toString();
     } else {
