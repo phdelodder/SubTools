@@ -464,7 +464,8 @@ public class PreferenceDialog extends MultiSubDialog {
     txtProxyPort.setText(String.valueOf(settingsCtrl.getSettings().getGeneralProxyPort()));
     chkAlwaysConfirm.setSelected(settingsCtrl.getSettings().isOptionsAlwaysConfirm());
     chkMinScoreSelection.setSelected(settingsCtrl.getSettings().isOptionsMinAutomaticSelection());
-    sldMinScoreSelection.setValue(settingsCtrl.getSettings().getOptionsMinAutomaticSelectionValue());
+    sldMinScoreSelection
+        .setValue(settingsCtrl.getSettings().getOptionsMinAutomaticSelectionValue());
     chkSubtitleExactMethod.setSelected(settingsCtrl.getSettings().isOptionSubtitleExactMatch());
     chkSubtitleKeywordMethod.setSelected(settingsCtrl.getSettings().isOptionSubtitleKeywordMatch());
     chkExcludeHearingImpaired.setSelected(settingsCtrl.getSettings()
@@ -549,8 +550,10 @@ public class PreferenceDialog extends MultiSubDialog {
 
       ArrayList<SettingsExcludeItem> list = new ArrayList<SettingsExcludeItem>();
       for (int i = 0; i < excludeList.getModel().getSize(); i++) {
+        SettingsExcludeType excludeListType = excludeList.getType(i);
+        if (excludeListType == null) continue;
         SettingsExcludeItem sei =
-            new SettingsExcludeItem(excludeList.getDescription(i), excludeList.getType(i));
+            new SettingsExcludeItem(excludeList.getDescription(i), excludeListType);
         list.add(sei);
       }
       settingsCtrl.getSettings().setExcludeList(list);

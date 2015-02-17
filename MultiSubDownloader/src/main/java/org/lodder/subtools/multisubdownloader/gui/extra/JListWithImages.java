@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader.gui.extra;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 
 import javax.swing.*;
+
 import java.awt.*;
 
 public class JListWithImages extends JList<JPanel> {
@@ -19,15 +20,23 @@ public class JListWithImages extends JList<JPanel> {
 
   public void addItem(SettingsExcludeType type, String text) {
     ImageIcon icon = new ImageIcon();
-    if (type == SettingsExcludeType.FOLDER) {
-      Image img =
-          Toolkit.getDefaultToolkit().getImage(getClass().getResource("/folder.png"));
-      icon = resizeIcon(new ImageIcon(img), 20, 20);
-    } else if (type == SettingsExcludeType.REGEX) {
-      Image img =
-          Toolkit.getDefaultToolkit().getImage(getClass().getResource("/regex.gif"));
-      icon = resizeIcon(new ImageIcon(img), 20, 20);
+    Image img;
+
+    switch (type) {
+      case FILE:
+        break;
+      case FOLDER:
+        img = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/folder.png"));
+        icon = resizeIcon(new ImageIcon(img), 20, 20);
+        break;
+      case REGEX:
+        img = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/regex.gif"));
+        icon = resizeIcon(new ImageIcon(img), 20, 20);
+        break;
+      default:
+        break;
     }
+
     icon.setDescription(type.toString());
     JLabel textLabel = new JLabel(text, icon, JLabel.LEFT);
     JPanel textPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -48,6 +57,7 @@ public class JListWithImages extends JList<JPanel> {
 
   public SettingsExcludeType getType(int index) {
     JPanel p = getModel().getElementAt(index);
+    if (p == null) return null;
     ImageIcon i = (ImageIcon) ((JLabel) p.getComponent(0)).getIcon();
     return SettingsExcludeType.valueOf(i.getDescription());
   }
