@@ -55,15 +55,19 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
 
   private void rename(File dir) {
     File[] contents = dir.listFiles();
+    if (contents == null) return;
+    
     for (final File file : contents) {
       if (file.isFile() && !file.getName().contains("sample")
           && patterns.accept(file.getAbsoluteFile(), file.getName())) {
         Release release;
         try {
           release = releaseFactory.createRelease(file);
-          publish(release.getFilename());
-          if (release.getVideoType() == videoType && release != null)
-            renameAction.rename(file, release);
+          if (release != null) {
+            publish(release.getFilename());
+            if (release.getVideoType() == videoType)
+              renameAction.rename(file, release);
+          }
         } catch (Exception e) {
           Logger.instance.log("Series Rename " + e.getMessage());
         }
