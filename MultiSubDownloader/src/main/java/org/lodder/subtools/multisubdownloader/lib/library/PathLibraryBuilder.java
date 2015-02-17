@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
+import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -35,7 +36,13 @@ public class PathLibraryBuilder extends LibraryBuilder {
     String show = "";
     if (librarySettings.isLibraryUseTVDBNaming()) {
       final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter();
-      show = jtvdb.getSerie(tvRelease).getSerieName();
+      TheTVDBSerie tvdbs = jtvdb.getSerie(tvRelease);
+      if (tvdbs == null) {
+        //use showname found for release as tvdb returns null
+        show = tvRelease.getShow();
+      } else {
+        show = tvdbs.getSerieName();
+      }
     } else {
       show = tvRelease.getShow();
     }
@@ -54,7 +61,8 @@ public class PathLibraryBuilder extends LibraryBuilder {
     folder = folder.replaceAll("%TITLE%", tvRelease.getTitle());
     try {
       folder = folder.replaceAll("%SEPARATOR%", File.separator);
-    } catch (IndexOutOfBoundsException | IllegalArgumentException ioobe) // windows hack needs "\\" instead of "\"
+    } catch (IndexOutOfBoundsException | IllegalArgumentException ioobe) // windows hack needs "\\"
+                                                                         // instead of "\"
     {
       folder = folder.replaceAll("%SEPARATOR%", File.separator + File.separator);
     }
