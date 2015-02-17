@@ -124,8 +124,9 @@ public class DownloadAction {
             CleanAction cleanAction = new CleanAction(librarySettings);
             cleanAction.cleanUpFiles(release, path, videoFileName);
           }
-          if (librarySettings.isLibraryRemoveEmptyFolders()
-              && release.getPath().listFiles().length == 0) {
+          File[] listFiles = release.getPath().listFiles();
+          if (librarySettings.isLibraryRemoveEmptyFolders() && listFiles != null
+              && listFiles.length == 0) {
             release.getPath().delete();
           }
         }
