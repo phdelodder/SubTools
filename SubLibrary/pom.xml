@@ -102,6 +102,6 @@
 	<parent>
 		<groupId>org.lodder.subtools</groupId>
 		<artifactId>subtools</artifactId>
-		<version>1.0.0-BETA4</version>
+		<version>1.0.0-BETA5-SNAPSHOT</version>
 	</parent>
 </project>
