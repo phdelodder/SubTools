@@ -89,7 +89,8 @@ public class CleanAction {
       if (file.isDirectory()) {
         FileUtils.deleteDirectory(file);
       } else {
-        file.delete();
+        @SuppressWarnings("unused")
+        boolean isDelete = file.delete();
       }
     }
   }
