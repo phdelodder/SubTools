@@ -163,24 +163,34 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
   }
 
   protected void parseText() {
-    if (structureType == StrucutureType.FILE) {
-      librarySettings.setLibraryFilenameStructure(txtStructure.getText());
-      FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings);
-      lblPreview.setText(filenameLibraryBuilder.build(getGenerateVideoFile()));
-    } else if (structureType == StrucutureType.FOLDER) {
-      librarySettings.setLibraryFolderStructure(txtStructure.getText());
-      PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings);
-      lblPreview.setText(pathLibraryBuilder.build(getGenerateVideoFile()));
+    Release release = getGenerateRelease();
+    if (release == null) return;
+
+    switch (structureType) {
+      case FILE:
+        librarySettings.setLibraryFilenameStructure(txtStructure.getText());
+        FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings);
+        lblPreview.setText(filenameLibraryBuilder.build(release));
+        break;
+      case FOLDER:
+        librarySettings.setLibraryFolderStructure(txtStructure.getText());
+        PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings);
+        lblPreview.setText(pathLibraryBuilder.build(release));
+        break;
+      default:
+        break;
     }
   }
 
-  private Release getGenerateVideoFile() {
-    if (videoType == VideoType.EPISODE) {
-      return ep;
-    } else if (videoType == VideoType.MOVIE) {
-      return mo;
+  private Release getGenerateRelease() {
+    switch (videoType) {
+      case EPISODE:
+        return ep;
+      case MOVIE:
+        return mo;
+      default:
+        return null;
     }
-    return null;
   }
 
   @Override
