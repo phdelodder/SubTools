@@ -4,10 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.prefs.BackingStoreException;
-import java.util.prefs.InvalidPreferencesFormatException;
 import java.util.prefs.Preferences;
 
 import org.lodder.subtools.multisubdownloader.Messages;
@@ -73,8 +71,10 @@ public class SettingsControl {
       storeProxySettings();
 
       preferences.putBoolean("OptionsAlwaysConfirm", settings.isOptionsAlwaysConfirm());
-      preferences.putBoolean("OptionsMinAutomaticSelection", settings.isOptionsMinAutomaticSelection());
-      preferences.putInt("OptionsMinAutomaticSelectionValue", settings.getOptionsMinAutomaticSelectionValue());
+      preferences.putBoolean("OptionsMinAutomaticSelection",
+          settings.isOptionsMinAutomaticSelection());
+      preferences.putInt("OptionsMinAutomaticSelectionValue",
+          settings.getOptionsMinAutomaticSelectionValue());
       preferences.putBoolean("OptionSubtitleExactMatch", settings.isOptionSubtitleExactMatch());
       preferences.putBoolean("OptionSubtitleKeywordMatch", settings.isOptionSubtitleKeywordMatch());
       preferences.putBoolean("OptionSubtitleExcludeHearingImpaired",
@@ -268,8 +268,10 @@ public class SettingsControl {
     // settings
     settings.setLastOutputDir(new File(preferences.get("LastOutputDir", "")));
     settings.setOptionsAlwaysConfirm(preferences.getBoolean("OptionsAlwaysConfirm", false));
-    settings.setOptionsMinAutomaticSelection(preferences.getBoolean("OptionsMinAutomaticSelection", false));
-    settings.setOptionsMinAutomaticSelectionValue(preferences.getInt("OptionsMinAutomaticSelectionValue", 0));
+    settings.setOptionsMinAutomaticSelection(preferences.getBoolean("OptionsMinAutomaticSelection",
+        false));
+    settings.setOptionsMinAutomaticSelectionValue(preferences.getInt(
+        "OptionsMinAutomaticSelectionValue", 0));
     settings.setOptionSubtitleExactMatch(preferences.getBoolean("OptionSubtitleExactMatch", true));
     settings.setOptionSubtitleKeywordMatch(preferences.getBoolean("OptionSubtitleKeywordMatch",
         true));
@@ -336,7 +338,7 @@ public class SettingsControl {
     settings.setGeneralProxyPort(preferences.getInt("generalProxyPort", 80));
     updateProxySettings();
   }
-  
+
   private void loadExcludeSettings() {
     Logger.instance.log("SettingsControl, loadExcludeSettings()", Level.TRACE);
     int last;
@@ -477,20 +479,26 @@ public class SettingsControl {
     return oldStructure;
   }
 
-  public void exportPreferences(File file) throws IOException, BackingStoreException {
+  public void exportPreferences(File file) {
     Logger.instance.log("SettingsControl, exportPreferences(File file)", Level.TRACE);
     store();
-    FileOutputStream fos = new FileOutputStream(file);
-    preferences.exportSubtree(fos);
+    try (FileOutputStream fos = new FileOutputStream(file)) {
+      preferences.exportSubtree(fos);
+    } catch (Exception e) {
+      Logger.instance.error(Logger.stack2String(e));
+    }
   }
 
-  public void importPreferences(File file) throws IOException, InvalidPreferencesFormatException,
-      BackingStoreException {
+  public void importPreferences(File file) {
     Logger.instance.log("SettingsControl, importPreferences(File file)", Level.TRACE);
-    InputStream is = new BufferedInputStream(new FileInputStream(file));
-    preferences.clear();
-    Preferences.importPreferences(is);
-    load();
+
+    try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
+      preferences.clear();
+      Preferences.importPreferences(is);
+      load();
+    } catch (Exception e) {
+      Logger.instance.error(Logger.stack2String(e));
+    }
   }
 
   public Settings getSettings() {
