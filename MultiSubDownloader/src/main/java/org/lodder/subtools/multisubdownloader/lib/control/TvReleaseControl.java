@@ -45,14 +45,13 @@ public class TvReleaseControl extends ReleaseControl {
   public void processTVRage() throws ReleaseControlException {
     setTvrageID();
     TVRageEpisode tvrEpisode =
-        tvra.getEpisodeInfo(((TvRelease) release).getTvrageid(), ((TvRelease) release)
-            .getSeason(), ((TvRelease) release).getEpisodeNumbers().get(0));
+        tvra.getEpisodeInfo(((TvRelease) release).getTvrageid(), ((TvRelease) release).getSeason(),
+            ((TvRelease) release).getEpisodeNumbers().get(0));
     if (tvrEpisode != null) {
       ((TvRelease) release).updateTVRageEpisodeInfo(tvrEpisode);
     } else {
-      throw new ReleaseControlException("Season " + ((TvRelease) release).getSeason()
-          + " Episode " + ((TvRelease) release).getEpisodeNumbers().toString()
-          + "not found, check file", release);
+      throw new ReleaseControlException("Season " + ((TvRelease) release).getSeason() + " Episode "
+          + ((TvRelease) release).getEpisodeNumbers().toString() + "not found, check file", release);
     }
   }
 
@@ -81,7 +80,7 @@ public class TvReleaseControl extends ReleaseControl {
 
   /**
    * @param dict
-   * @throws ReleaseControlException 
+   * @throws ReleaseControlException
    * 
    */
   private void processSpecial(List<MappingTvdbScene> dict) throws ReleaseControlException {
@@ -90,17 +89,17 @@ public class TvReleaseControl extends ReleaseControl {
     setTvrageID();
     if (((TvRelease) release).getTvrageid() > 0) {
       tvrEpisode =
-          tvra.getEpisodeInfo(((TvRelease) release).getTvrageid(), ((TvRelease) release)
-              .getSeason(), ((TvRelease) release).getEpisodeNumbers().get(0));
+          tvra.getEpisodeInfo(((TvRelease) release).getTvrageid(),
+              ((TvRelease) release).getSeason(), ((TvRelease) release).getEpisodeNumbers().get(0));
       if (tvrEpisode != null
-          & settings.getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVRAGE)
+          && settings.getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVRAGE)
         ((TvRelease) release).updateTVRageEpisodeInfo(tvrEpisode);
     }
     setTvdbID(dict);
     if (((TvRelease) release).getTvdbid() > 0) {
       thetvdbepisode = jtvdba.getEpisode(((TvRelease) release));
       if (thetvdbepisode != null
-          & settings.getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVDB)
+          && settings.getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVDB)
         ((TvRelease) release).updateTvdbEpisodeInfo(thetvdbepisode);
     }
   }
@@ -121,7 +120,8 @@ public class TvReleaseControl extends ReleaseControl {
       thetvdbserie = jtvdba.getSerie(tvdbid);
     }
 
-    if (thetvdbserie == null) throw new ReleaseControlException("Tvdb API, returned no result", release);
+    if (thetvdbserie == null)
+      throw new ReleaseControlException("Tvdb API, returned no result", release);
     ((TvRelease) release).setOriginalShowName(thetvdbserie.getSerieName());
     ((TvRelease) release).setTvdbid(Integer.parseInt(thetvdbserie.getId()));
   }
