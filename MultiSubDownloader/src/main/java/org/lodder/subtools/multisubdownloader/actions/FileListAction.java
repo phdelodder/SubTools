@@ -24,7 +24,7 @@ public class FileListAction {
   private Settings settings;
   private final String[] dutchFilters = new String[] {"nld", "ned", "dutch", "dut", "nl"};
   private final String[] englishFilters = new String[] {"eng", "english", "en"};
-  private final String subtitleExtension = ".srt";
+  private final static String subtitleExtension = ".srt";
 
   public FileListAction(Settings settings) {
     this.settings = settings;
@@ -144,7 +144,7 @@ public class FileListAction {
       return true;
     } else {
       List<String> filters = null;
-      
+
       if (languageCode.equals("nl")) {
         filters = getFilters(dutchFilters);
         if (!settings.getEpisodeLibrarySettings().getDefaultNlText().equals(""))
@@ -156,11 +156,14 @@ public class FileListAction {
           filters.add("."
               + settings.getEpisodeLibrarySettings().getDefaultEnText().concat(subtitleExtension));
       }
-      
+
       if (filters == null) return false;
-      final String[] contents =
+      
+      String[] contents =
           file.getParentFile().list(
               new FilenameExtensionFilter(filters.toArray(new String[filters.size()])));
+      if (contents == null) contents = new String[] {};
+
       return checkFileListContent(contents, subname.replace(subtitleExtension, ""));
     }
   }
