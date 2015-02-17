@@ -3,11 +3,9 @@ package org.lodder.subtools.multisubdownloader.lib.library;
 import java.io.File;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
-import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
-import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
-import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.util.StringUtils;
 
@@ -33,19 +31,7 @@ public class PathLibraryBuilder extends LibraryBuilder {
 
   protected String buildEpisode(TvRelease tvRelease) {
     String folder = librarySettings.getLibraryFolderStructure();
-    String show = "";
-    if (librarySettings.isLibraryUseTVDBNaming()) {
-      final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter();
-      TheTVDBSerie tvdbs = jtvdb.getSerie(tvRelease);
-      if (tvdbs == null) {
-        //use showname found for release as tvdb returns null
-        show = tvRelease.getShow();
-      } else {
-        show = tvdbs.getSerieName();
-      }
-    } else {
-      show = tvRelease.getShow();
-    }
+    String show = getShowName(tvRelease);
     if (librarySettings.isLibraryReplaceChars()) {
       show = StringUtils.removeIllegalWindowsChars(show);
     }

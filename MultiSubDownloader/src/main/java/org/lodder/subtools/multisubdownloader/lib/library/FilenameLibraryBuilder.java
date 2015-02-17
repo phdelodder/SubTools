@@ -1,10 +1,9 @@
 package org.lodder.subtools.multisubdownloader.lib.library;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
-import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
-import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.Release;
+import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.StringUtils;
 
 public class FilenameLibraryBuilder extends LibraryBuilder {
@@ -21,13 +20,7 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
         && !librarySettings.getLibraryFilenameStructure().isEmpty()) {
       TvRelease tvRelease = (TvRelease) release;
 
-      String show = "";
-      if (librarySettings.isLibraryUseTVDBNaming()) {
-        final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter();
-        show = jtvdb.getSerie(tvRelease).getSerieName();
-      } else {
-        show = tvRelease.getShow();
-      }
+      String show = getShowName(tvRelease);
 
       filename = librarySettings.getLibraryFilenameStructure();
       // order is important!

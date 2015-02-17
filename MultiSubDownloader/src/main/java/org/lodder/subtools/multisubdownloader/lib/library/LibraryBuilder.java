@@ -1,7 +1,10 @@
 package org.lodder.subtools.multisubdownloader.lib.library;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
+import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
+import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.model.Release;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 
 import java.util.List;
 
@@ -14,6 +17,23 @@ public abstract class LibraryBuilder {
   }
   
   public abstract String build(Release release);
+  
+  protected String getShowName(TvRelease tvRelease) {
+    String show = "";
+    if (librarySettings.isLibraryUseTVDBNaming()) {
+      final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter();
+      TheTVDBSerie tvdbs = jtvdb.getSerie(tvRelease);
+      if (tvdbs == null) {
+        //use showname found for release as tvdb returns null
+        show = tvRelease.getShow();
+      } else {
+        show = tvdbs.getSerieName();
+      }
+    } else {
+      show = tvRelease.getShow();
+    }
+    return show;
+  }
 
   protected String replaceFormatedEpisodeNumber(String structure, String tag,
       List<Integer> episodeNumbers, boolean leadingZero) {
