@@ -11,7 +11,7 @@ import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.*;
 import org.lodder.subtools.sublibrary.util.StringUtils;
 
-public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider{
+public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider {
 
   private static JAddic7edApi jaapi;
 
@@ -38,7 +38,7 @@ public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider{
   public List<Subtitle> search(Release release, String languageCode) {
     if (release instanceof MovieRelease) {
       return this.searchSubtitles((MovieRelease) release, languageCode);
-    } else if (release instanceof TvRelease){
+    } else if (release instanceof TvRelease) {
       return this.searchSubtitles((TvRelease) release, languageCode);
     }
     return new ArrayList<Subtitle>();
@@ -61,8 +61,10 @@ public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider{
         }
       }
 
-      lSubtitles.addAll(jaapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease
-          .getEpisodeNumbers().get(0), tvRelease.getTitle()));
+      if (showName.length() > 0) {
+        lSubtitles.addAll(jaapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease
+            .getEpisodeNumbers().get(0), tvRelease.getTitle()));
+      }
 
     } catch (Exception e) {
       Logger.instance.error("API JAddic7ed searchSubtitles using title: " + e);
