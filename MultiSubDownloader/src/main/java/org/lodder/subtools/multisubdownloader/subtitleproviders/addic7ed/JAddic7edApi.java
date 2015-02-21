@@ -103,7 +103,7 @@ public class JAddic7edApi extends Html {
     // http://www.addic7ed.com/serie/Smallville/9/11/Absolute_Justice
     String url =
         "http://www.addic7ed.com/serie/" + showname.toLowerCase().replace(" ", "_") + "/" + season
-            + "/" + episode + "/" + title.toLowerCase().replace(" ", "_");
+            + "/" + episode + "/" + title.toLowerCase().replace(" ", "_").replace("#", "");
     String content = this.getHtml(url);
     List<Addic7edSubtitleDescriptor> lSubtitles = new ArrayList<Addic7edSubtitleDescriptor>();
     Document doc = Jsoup.parse(content);
