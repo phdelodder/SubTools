@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.lodder.subtools</groupId>
 	<artifactId>subtools</artifactId>
-	<version>1.0.0-BETA5-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>SubTools</name>
 	<packaging>pom</packaging>
 
@@ -14,7 +14,7 @@
 		<connection>scm:git:git@github.com:phdelodder/SubTools.git</connection>
 		<url>scm:git:git@github.com:phdelodder/SubTools.git</url>
 		<developerConnection>scm:git:git@github.com:phdelodder/SubTools.git</developerConnection>
-	  <tag>HEAD</tag>
+	  <tag>subtools-1.0.0</tag>
   </scm>
 
 	<modules>
