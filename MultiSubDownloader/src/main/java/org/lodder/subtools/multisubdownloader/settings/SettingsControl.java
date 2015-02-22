@@ -4,27 +4,21 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import java.util.prefs.BackingStoreException;
-import java.util.prefs.InvalidPreferencesFormatException;
 import java.util.prefs.Preferences;
 
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
-import org.lodder.subtools.multisubdownloader.settings.model.SearchSubtitlePriority;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.settings.MappingSettingsControl;
 
 public class SettingsControl {
@@ -74,21 +68,19 @@ public class SettingsControl {
 
       storeExcludeSettings();
 
-      storeQualityRuleSettings();
-
       storeProxySettings();
 
       preferences.putBoolean("OptionsAlwaysConfirm", settings.isOptionsAlwaysConfirm());
+      preferences.putBoolean("OptionsMinAutomaticSelection",
+          settings.isOptionsMinAutomaticSelection());
+      preferences.putInt("OptionsMinAutomaticSelectionValue",
+          settings.getOptionsMinAutomaticSelectionValue());
       preferences.putBoolean("OptionSubtitleExactMatch", settings.isOptionSubtitleExactMatch());
       preferences.putBoolean("OptionSubtitleKeywordMatch", settings.isOptionSubtitleKeywordMatch());
       preferences.putBoolean("OptionSubtitleExcludeHearingImpaired",
           settings.isOptionSubtitleExcludeHearingImpaired());
       preferences.putBoolean("OptionsShowOnlyFound", settings.isOptionsShowOnlyFound());
       preferences.putBoolean("OptionsStopOnSearchError", settings.isOptionsStopOnSearchError());
-      preferences.putBoolean("OptionsAutomaticDownloadSelection",
-          settings.isOptionsAutomaticDownloadSelection());
-      preferences.putBoolean("OptionsNoRuleMatchTakeFirst",
-          settings.isOptionsNoRuleMatchTakeFirst());
       preferences.putBoolean("OptionRecursive", settings.isOptionRecursive());
       preferences.putBoolean("AutoUpdateMapping", settings.isAutoUpdateMapping());
       preferences.put("ProcessEpisodeSource", settings.getProcessEpisodeSource().toString());
@@ -258,17 +250,6 @@ public class SettingsControl {
     preferences.putInt("lastItemExclude", last);
   }
 
-  private void storeQualityRuleSettings() {
-    Logger.instance.log("SettingsControl, storeQualityRuleSettings()", Level.TRACE);
-    int last;
-    last = 0;
-    for (int i = 0; i < settings.getQualityRuleList().size(); i++) {
-      preferences.put("Quality" + i, settings.getQualityRuleList().get(i));
-      last++;
-    }
-    preferences.putInt("lastItemQuality", last);
-  }
-
   private void storeSerieSourcesSettings() {
     Logger.instance.log("SettingsControl, storeAddic7edLoginSettings()", Level.TRACE);
     preferences.putBoolean("loginAddic7edEnabled", settings.isLoginAddic7edEnabled());
@@ -279,36 +260,7 @@ public class SettingsControl {
     preferences.putBoolean("serieSourceOpensubtitles", settings.isSerieSourceOpensubtitles());
     preferences.putBoolean("serieSourcePodnapisi", settings.isSerieSourcePodnapisi());
     preferences.putBoolean("serieSourceTvSubtitles", settings.isSerieSourceTvSubtitles());
-    preferences.putBoolean("serieSourcePrivateRepo", settings.isSerieSourcePrivateRepo());
     preferences.putBoolean("serieSourceSubsMax", settings.isSerieSourceSubsMax());
-
-    for (SearchSubtitlePriority prio : settings.getListSearchSubtitlePriority()) {
-      switch (prio.getSubtitleSource()) {
-        case ADDIC7ED:
-          preferences.putInt("serieSourceAddic7edPrio", prio.getPriority());
-          break;
-        case LOCAL:
-          preferences.putInt("serieSourceLocalPrio", prio.getPriority());
-          break;
-        case OPENSUBTITLES:
-          preferences.putInt("serieSourceOpensubtitlesPrio", prio.getPriority());
-          break;
-        case PODNAPISI:
-          preferences.putInt("serieSourcePodnapisiPrio", prio.getPriority());
-          break;
-        case PRIVATEREPO:
-          preferences.putInt("serieSourcePrivateRepoPrio", prio.getPriority());
-          break;
-        case TVSUBTITLES:
-          preferences.putInt("serieSourceTvSubtitlesPrio", prio.getPriority());
-          break;
-        case SUBSMAX:
-          preferences.putInt("serieSourceSubsMaxPrio", prio.getPriority());
-          break;
-        default:
-          break;
-      }
-    }
   }
 
   public void load() {
@@ -316,6 +268,10 @@ public class SettingsControl {
     // settings
     settings.setLastOutputDir(new File(preferences.get("LastOutputDir", "")));
     settings.setOptionsAlwaysConfirm(preferences.getBoolean("OptionsAlwaysConfirm", false));
+    settings.setOptionsMinAutomaticSelection(preferences.getBoolean("OptionsMinAutomaticSelection",
+        false));
+    settings.setOptionsMinAutomaticSelectionValue(preferences.getInt(
+        "OptionsMinAutomaticSelectionValue", 0));
     settings.setOptionSubtitleExactMatch(preferences.getBoolean("OptionSubtitleExactMatch", true));
     settings.setOptionSubtitleKeywordMatch(preferences.getBoolean("OptionSubtitleKeywordMatch",
         true));
@@ -323,10 +279,6 @@ public class SettingsControl {
         "OptionSubtitleExcludeHearingImpaired", false));
     settings.setOptionsShowOnlyFound(preferences.getBoolean("OptionsShowOnlyFound", false));
     settings.setOptionsStopOnSearchError(preferences.getBoolean("OptionsStopOnSearchError", false));
-    settings.setOptionsAutomaticDownloadSelection(preferences.getBoolean(
-        "OptionsAutomaticDownloadSelection", false));
-    settings.setOptionsNoRuleMatchMatchTakeFirst(preferences.getBoolean(
-        "OptionsNoRuleMatchTakeFirst", false));
     settings.setOptionRecursive(preferences.getBoolean("OptionRecursive", false));
     settings.setAutoUpdateMapping(preferences.getBoolean("AutoUpdateMapping", false));
     settings.setProcessEpisodeSource(SettingsProcessEpisodeSource.valueOf(preferences.get(
@@ -342,8 +294,6 @@ public class SettingsControl {
     settings.setMappingSettings(mappingSettingsCtrl.getMappingSettings());
     // exclude settings
     loadExcludeSettings();
-    // quality rules
-    loadQualityRuleSettings();
     // proxy settings
     loadProxySettings();
     loadScreenSettings();
@@ -387,17 +337,6 @@ public class SettingsControl {
     settings.setGeneralProxyHost(preferences.get("generalProxyHost", ""));
     settings.setGeneralProxyPort(preferences.getInt("generalProxyPort", 80));
     updateProxySettings();
-  }
-
-  private void loadQualityRuleSettings() {
-    Logger.instance.log("SettingsControl, loadQualityRuleSettings()", Level.TRACE);
-    int last;
-
-    last = preferences.getInt("lastItemQuality", 0);
-
-    for (int i = 0; i < last; i++) {
-      settings.getQualityRuleList().add(preferences.get("Quality" + i, ""));
-    }
   }
 
   private void loadExcludeSettings() {
@@ -511,88 +450,55 @@ public class SettingsControl {
     settings.setSerieSourceOpensubtitles(preferences.getBoolean("serieSourceOpensubtitles", true));
     settings.setSerieSourcePodnapisi(preferences.getBoolean("serieSourcePodnapisi", true));
     settings.setSerieSourceTvSubtitles(preferences.getBoolean("serieSourceTvSubtitles", true));
-    settings.setSerieSourcePrivateRepo(preferences.getBoolean("serieSourcePrivateRepo", true));
     settings.setSerieSourceSubsMax(preferences.getBoolean("serieSourceSubsMax", true));
-
-    SearchSubtitlePriority prioAddic7ed =
-        new SearchSubtitlePriority(SubtitleSource.ADDIC7ED, preferences.getInt(
-            "serieSourceAddic7edPrio", 2));
-    SearchSubtitlePriority prioLocal =
-        new SearchSubtitlePriority(SubtitleSource.LOCAL, (Integer) preferences.getInt(
-            "serieSourceLocalPrio", 2));
-    SearchSubtitlePriority prioOpensubtitles =
-        new SearchSubtitlePriority(SubtitleSource.OPENSUBTITLES, (Integer) preferences.getInt(
-            "serieSourceOpensubtitlesPrio", 2));
-    SearchSubtitlePriority prioPodnapisi =
-        new SearchSubtitlePriority(SubtitleSource.PODNAPISI, (Integer) preferences.getInt(
-            "serieSourcePodnapisiPrio", 2));
-    SearchSubtitlePriority prioPrivateRepo =
-        new SearchSubtitlePriority(SubtitleSource.PRIVATEREPO, (Integer) preferences.getInt(
-            "serieSourcePrivateRepoPrio", 1));
-    SearchSubtitlePriority prioTvSubtitles =
-        new SearchSubtitlePriority(SubtitleSource.TVSUBTITLES, (Integer) preferences.getInt(
-            "serieSourceTvSubtitlesPrio", 2));
-    SearchSubtitlePriority prioSubsMax =
-        new SearchSubtitlePriority(SubtitleSource.SUBSMAX, (Integer) preferences.getInt(
-            "serieSourceSubsMaxPrio", 2));
-    List<SearchSubtitlePriority> lPrio = new ArrayList<SearchSubtitlePriority>();
-
-    lPrio.add(prioAddic7ed);
-    lPrio.add(prioLocal);
-    lPrio.add(prioOpensubtitles);
-    lPrio.add(prioPodnapisi);
-    lPrio.add(prioPrivateRepo);
-    lPrio.add(prioTvSubtitles);
-    lPrio.add(prioSubsMax);
-
-    java.util.Collections.sort(lPrio, new Comparator<SearchSubtitlePriority>() {
-      public int compare(SearchSubtitlePriority t1, SearchSubtitlePriority t2) {
-        return t1.getPriority() - t2.getPriority();
-      }
-    });
-
-    settings.setListSearchSubtitlePriority(lPrio);
   }
 
   private String checkForOldStructure(String oldStructure) {
-    if (oldStructure.equals("Show\\Season")) {
-      return "%SHOW NAME%%SEPARATOR%Season %S%";
-    } else if (oldStructure.equals("Show\\Series")) {
-      return "%SHOW NAME%%SEPARATOR%Series %S%";
-    } else if (oldStructure.equals("\\")) {
-      return "%SEPARATOR%";
-    } else if (oldStructure.equals("Show S00E00.extension")) {
-      return "%SHOW NAME% S%SS%E%EE%";
-    } else if (oldStructure.equals("Show S00E00 Title.extension")) {
-      return "%SHOW NAME% S%SS%E%EE% %TITLE%";
-    } else if (oldStructure.equals("Show 00X00 Title.extension")) {
-      return "%SHOW NAME% %SS%X%EE% %TITLE%";
-    } else if (oldStructure.equals("Show - S00E00.extension")) {
-      return "%SHOW NAME% - S%SS%E%EE%";
-    } else if (oldStructure.equals("Show S00E00 Title Quality.extension")) {
-      return "%SHOW NAME% S%SS%E%EE% %TITLE% %QUALITY%";
-    } else if (oldStructure.equals("Movie (Year)")) {
-      return "%MOVIE TITLE% (%YEAR%)";
-    } else if (oldStructure.equals("Year\\Movie")) {
-      return "%YEAR%%SEPARATOR%%MOVIE TITLE%";
+    switch (oldStructure) {
+      case "Show\\Season":
+        return "%SHOW NAME%%SEPARATOR%Season %S%";
+      case "Show\\Series":
+        return "%SHOW NAME%%SEPARATOR%Series %S%";
+      case "\\":
+        return "%SEPARATOR%";
+      case "Show S00E00.extension":
+        return "%SHOW NAME% S%SS%E%EE%";
+      case "Show S00E00 Title.extension":
+        return "%SHOW NAME% S%SS%E%EE% %TITLE%";
+      case "Show 00X00 Title.extension":
+        return "%SHOW NAME% %SS%X%EE% %TITLE%";
+      case "Show - S00E00.extension":
+        return "%SHOW NAME% - S%SS%E%EE%";
+      case "Show S00E00 Title Quality.extension":
+        return "%SHOW NAME% S%SS%E%EE% %TITLE% %QUALITY%";
+      case "Movie (Year)":
+        return "%MOVIE TITLE% (%YEAR%)";
+      case "Year\\Movie":
+        return "%YEAR%%SEPARATOR%%MOVIE TITLE%";
     }
     return oldStructure;
   }
 
-  public void exportPreferences(File file) throws IOException, BackingStoreException {
+  public void exportPreferences(File file) {
     Logger.instance.log("SettingsControl, exportPreferences(File file)", Level.TRACE);
     store();
-    FileOutputStream fos = new FileOutputStream(file);
-    preferences.exportSubtree(fos);
+    try (FileOutputStream fos = new FileOutputStream(file)) {
+      preferences.exportSubtree(fos);
+    } catch (Exception e) {
+      Logger.instance.error(Logger.stack2String(e));
+    }
   }
 
-  public void importPreferences(File file) throws IOException, InvalidPreferencesFormatException,
-      BackingStoreException {
+  public void importPreferences(File file) {
     Logger.instance.log("SettingsControl, importPreferences(File file)", Level.TRACE);
-    InputStream is = new BufferedInputStream(new FileInputStream(file));
-    preferences.clear();
-    Preferences.importPreferences(is);
-    load();
+
+    try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
+      preferences.clear();
+      Preferences.importPreferences(is);
+      load();
+    } catch (Exception e) {
+      Logger.instance.error(Logger.stack2String(e));
+    }
   }
 
   public Settings getSettings() {
@@ -629,6 +535,7 @@ public class SettingsControl {
    * 
    */
   public void updateMappingFromOnline() throws Throwable {
+    Logger.instance.log(Messages.getString("SettingsControl.UpdateMapping"));
     mappingSettingsCtrl.updateMappingFromOnline();
     settings.setMappingSettings(mappingSettingsCtrl.getMappingSettings());
   }

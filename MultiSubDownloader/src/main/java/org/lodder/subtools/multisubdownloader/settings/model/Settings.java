@@ -2,8 +2,11 @@ package org.lodder.subtools.multisubdownloader.settings.model;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import java.util.Map;
+import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.settings.model.MappingSettings;
 
 public class Settings {
@@ -12,9 +15,7 @@ public class Settings {
   private boolean optionsAlwaysConfirm, optionSubtitleExactMatch, optionSubtitleKeywordMatch,
       optionSubtitleExcludeHearingImpaired;
   private boolean optionsShowOnlyFound, optionsStopOnSearchError;
-  private boolean optionsNoRuleMatchTakeFirst, optionsAutomaticDownloadSelection;
   private List<SettingsExcludeItem> excludeList;
-  private List<String> qualityRuleList;
   private LibrarySettings movieLibrarySettings;
   private LibrarySettings episodeLibrarySettings;
   private String generalProxyHost;
@@ -28,11 +29,13 @@ public class Settings {
   private String loginAddic7edUsername;
   private String loginAddic7edPassword;
   private boolean serieSourceAddic7ed, serieSourceTvSubtitles, serieSourcePodnapisi,
-      serieSourceOpensubtitles, serieSourceLocal, serieSourcePrivateRepo, serieSourceSubsMax;
+      serieSourceOpensubtitles, serieSourceLocal, serieSourceSubsMax;
   private boolean autoUpdateMapping;
   private SettingsProcessEpisodeSource processEpisodeSource;
   private MappingSettings mappingSettings;
-  private List<SearchSubtitlePriority> listSearchSubtitlePriority;
+  private Map<String, Integer> sortWeights;
+  private boolean optionsMinAutomaticSelection;
+  private int optionsMinAutomaticSelectionValue;
 
   public Settings() {
     super();
@@ -41,9 +44,6 @@ public class Settings {
     optionsAlwaysConfirm = false;
     optionsShowOnlyFound = false;
     optionsStopOnSearchError = false;
-    optionsNoRuleMatchTakeFirst = false;
-    optionsAutomaticDownloadSelection = false;
-    qualityRuleList = new ArrayList<String>();
     setExcludeList(new ArrayList<SettingsExcludeItem>());
     movieLibrarySettings = new LibrarySettings();
     episodeLibrarySettings = new LibrarySettings();
@@ -58,13 +58,13 @@ public class Settings {
     serieSourcePodnapisi = true;
     serieSourceOpensubtitles = true;
     serieSourceLocal = true;
-    serieSourcePrivateRepo = true;
     autoUpdateMapping = false;
     setOptionSubtitleExactMatch(true);
     setOptionSubtitleKeywordMatch(true);
     setProcessEpisodeSource(SettingsProcessEpisodeSource.TVDB);
     setMappingSettings(new MappingSettings());
-    listSearchSubtitlePriority = new ArrayList<SearchSubtitlePriority>();
+    optionsMinAutomaticSelection = false;
+    optionsMinAutomaticSelectionValue = 0;
   }
 
   public boolean isOptionsAlwaysConfirm() {
@@ -105,30 +105,6 @@ public class Settings {
 
   public boolean isOptionsStopOnSearchError() {
     return optionsStopOnSearchError;
-  }
-
-  public void setQualityRuleList(List<String> qualityRuleList) {
-    this.qualityRuleList = qualityRuleList;
-  }
-
-  public List<String> getQualityRuleList() {
-    return qualityRuleList;
-  }
-
-  public void setOptionsNoRuleMatchMatchTakeFirst(boolean optionsNoRuleMatchMatchTakeFirst) {
-    this.optionsNoRuleMatchTakeFirst = optionsNoRuleMatchMatchTakeFirst;
-  }
-
-  public boolean isOptionsNoRuleMatchTakeFirst() {
-    return optionsNoRuleMatchTakeFirst;
-  }
-
-  public void setOptionsAutomaticDownloadSelection(boolean optionsAutomaticDownloadSelection) {
-    this.optionsAutomaticDownloadSelection = optionsAutomaticDownloadSelection;
-  }
-
-  public boolean isOptionsAutomaticDownloadSelection() {
-    return optionsAutomaticDownloadSelection;
   }
 
   public void setEpisodeLibrarySettings(LibrarySettings episodeLibrarySettings) {
@@ -360,20 +336,6 @@ public class Settings {
   }
 
   /**
-   * @return the serieSourcePrivateRepo
-   */
-  public boolean isSerieSourcePrivateRepo() {
-    return serieSourcePrivateRepo;
-  }
-
-  /**
-   * @param serieSourcePrivateRepo the serieSourcePrivateRepo to set
-   */
-  public void setSerieSourcePrivateRepo(boolean serieSourcePrivateRepo) {
-    this.serieSourcePrivateRepo = serieSourcePrivateRepo;
-  }
-
-  /**
    * @return the mappingSettings
    */
   public MappingSettings getMappingSettings() {
@@ -401,20 +363,6 @@ public class Settings {
     this.optionSubtitleExcludeHearingImpaired = optionSubtitleExcludeHearingImpaired;
   }
 
-  /**
-   * @return the listSearchSubtitlePriority
-   */
-  public List<SearchSubtitlePriority> getListSearchSubtitlePriority() {
-    return listSearchSubtitlePriority;
-  }
-
-  /**
-   * @param listSearchSubtitlePriority the listSearchSubtitlePriority to set
-   */
-  public void setListSearchSubtitlePriority(List<SearchSubtitlePriority> listSearchSubtitlePriority) {
-    this.listSearchSubtitlePriority = listSearchSubtitlePriority;
-  }
-
   public boolean isSerieSourceSubsMax() {
     return serieSourceSubsMax;
   }
@@ -423,4 +371,71 @@ public class Settings {
     this.serieSourceSubsMax = serieSourceSubsMax;
   }
 
+  public List<File> getDefaultFolders() {
+    return getDefaultIncomingFolders();
+  }
+
+  public boolean hasDefaultFolders() {
+    return getDefaultIncomingFolders().size() > 0;
+  }
+
+  public Map<String, Integer> getSortWeights() {
+    // TODO: user should be able to edit/add these through a panel
+    sortWeights = new HashMap<>();
+    sortWeights.put("%GROUP%",5);
+    VideoPatterns videoPatterns = new VideoPatterns();
+    for (String keyword : videoPatterns.getQualityKeywords()) {
+      sortWeights.put(keyword, 2);
+    }
+     /* overwrite keywords that should have low weight */
+    // keywords that tend to have a lot of different sources:
+    sortWeights.put("ts", 1);
+    sortWeights.put("dvdscreener", 1);
+    sortWeights.put("r5", 1);
+    sortWeights.put("cam", 1);
+    // encoding says little about the release:
+    sortWeights.put("xvid", 1);
+    sortWeights.put("divx", 1);
+    sortWeights.put("x264", 1);
+    // keywords that might get matched too easily
+    //sortWeights.remove("dl");
+
+    return sortWeights;
+  }
+
+  public boolean isSerieSource(String subtitleProviderName) {
+    // TODO: dynamically inject SubtitleProvider to settings
+    switch (subtitleProviderName) {
+      case "Addic7ed":
+        return this.isSerieSourceAddic7ed();
+      case "OpenSubtitles":
+        return this.isSerieSourceOpensubtitles();
+      case "Podnapisi":
+        return this.isSerieSourcePodnapisi();
+      case "SubsMax":
+        return this.isSerieSourceSubsMax();
+      case "TvSubtitles":
+        return this.isSerieSourceTvSubtitles();
+      case "Local":
+        return this.isSerieSourceLocal();
+      default:
+        return false;
+    }
+  }
+
+  public boolean isOptionsMinAutomaticSelection() {
+    return optionsMinAutomaticSelection;
+  }
+
+  public void setOptionsMinAutomaticSelection(boolean optionsMinAutomaticSelection) {
+    this.optionsMinAutomaticSelection = optionsMinAutomaticSelection;
+  }
+
+  public int getOptionsMinAutomaticSelectionValue() {
+    return optionsMinAutomaticSelectionValue;
+  }
+
+  public void setOptionsMinAutomaticSelectionValue(int optionsMinAutomaticSelectionValue) {
+    this.optionsMinAutomaticSelectionValue = optionsMinAutomaticSelectionValue;
+  }
 }

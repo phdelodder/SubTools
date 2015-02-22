@@ -2,29 +2,30 @@ package org.lodder.subtools.sublibrary.control;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.util.NamedPattern;
+
+import com.mifmif.common.regex.Generex;
 
 public class VideoPatterns {
 
-  private volatile static List<NamedPattern> plist = null;
+  private List<NamedPattern> compiledPatterns = null;
+  private List<String> keys = null;
+  private String qualityRegex = null;
 
-  public static final String[] QUALITYKEYWORDS = new String[] {"hdtv", "web-dl", "web dl",
-      "dvdrip", "bluray", "1080p", "ts", "dvdscreener", "r5", "bdrip", "brrip", "720p", "xvid",
-      "cam", "480p", "webdl", "web", "dl", "x264", "1080i", "pdtv", "divx"};
+  protected static final String[] QUALITYKEYWORDS = new String[] {"hdtv", "dvdrip", "bluray",
+      "1080p", "ts", "dvdscreener", "r5", "bdrip", "brrip", "720p", "xvid", "cam", "480p", "x264",
+      "1080i", "pdtv", "divx", "webrip", "h264"};
 
-  public static final String[] GROUPEDQUALITYKEYWORDS = new String[] {"hdtv 720p", "hdtv xvid",
-      "hdtv x264"};
-
-  public static final String[] CODECKEYWORDS = new String[] {"X264", "XVID", "divx"};
+  protected static final String[] QUALITYREGEXKEYWORDS = new String[] {"web[ .-]dl", "dd5[ .]1"};
 
   public static final String[] EXTENSIONS = new String[] {"avi", "mkv", "wmv", "ts", "mp4"};
 
   // order is important!!!!!!
-  public final static String[] PATTERNS =
+  protected final static String[] PATTERNS =
       new String[] {
           // example:
           // Back.to.the.Future.Part.II.1989.720p.BluRay.X264-AMIABLE.mkv
@@ -59,28 +60,82 @@ public class VideoPatterns {
 
       };
 
-  public synchronized static List<NamedPattern> getCompiledPatterns() {
-    if (plist == null) {
-      plist = new ArrayList<NamedPattern>();
-      for (String p : PATTERNS) {
-        plist.add(NamedPattern.compile(p, Pattern.CASE_INSENSITIVE));
-      }
-    }
-    return plist;
+  public VideoPatterns() {
+    buildQualityKeywordsList();
+    buildCompiledPatternList();
+    buildQualityKeywordsRegex();
   }
 
-  public static String buildQualityRegex() {
-    Logger.instance.trace("VideoPatterns", "buildQualityRegex", "");
-    StringBuilder result = new StringBuilder();
+  public List<NamedPattern> getCompiledPatterns() {
+    return compiledPatterns;
+  }
+
+  public String getQualityKeysRegex() {
+    return qualityRegex;
+  }
+
+  public List<String> getQualityKeywords() {
+    return keys;
+  }
+
+  private void buildQualityKeywordsList() {
+    keys = new ArrayList<String>();
+    Collections.addAll(keys, QUALITYKEYWORDS);
+    keys.addAll(getQualityRegexKeywords());
+  }
+
+  private void buildCompiledPatternList() {
+    compiledPatterns = new ArrayList<NamedPattern>();
+    for (String p : PATTERNS) {
+      compiledPatterns.add(NamedPattern.compile(p, Pattern.CASE_INSENSITIVE));
+    }
+  }
+
+  private void buildQualityKeywordsRegex() {
+    StringBuilder sb = new StringBuilder();
     String separator = "|";
+
+    sb.append("(");
+
     if (VideoPatterns.QUALITYKEYWORDS.length > 0) {
-      result.append(VideoPatterns.QUALITYKEYWORDS[0]);
+      sb.append(VideoPatterns.QUALITYKEYWORDS[0]);
       for (int i = 1; i < VideoPatterns.QUALITYKEYWORDS.length; i++) {
-        result.append(separator);
-        result.append(VideoPatterns.QUALITYKEYWORDS[i]);
+        sb.append(separator);
+        sb.append(VideoPatterns.QUALITYKEYWORDS[i]);
       }
     }
-    return "(" + result.toString().replace(" ", "[. ]") + ")";
+
+    if (VideoPatterns.QUALITYREGEXKEYWORDS.length > 0) {
+      for (int i = 0; i < VideoPatterns.QUALITYREGEXKEYWORDS.length; i++) {
+        sb.append(separator);
+        sb.append(VideoPatterns.QUALITYREGEXKEYWORDS[i]);
+      }
+    }
+
+    sb.append(")");
+    qualityRegex = sb.toString();
   }
+
+  private List<String> getQualityRegexKeywords() {
+    List<String> keys;
+
+    StringBuilder regex = new StringBuilder();
+    String separator = "|";
+    if (VideoPatterns.QUALITYREGEXKEYWORDS.length > 0) {
+      regex.append(VideoPatterns.QUALITYREGEXKEYWORDS[0]);
+      for (int i = 1; i < VideoPatterns.QUALITYREGEXKEYWORDS.length; i++) {
+        regex.append(separator);
+        regex.append(VideoPatterns.QUALITYREGEXKEYWORDS[i]);
+      }
+    }
+
+    Generex generex = new Generex(regex.toString());
+
+    keys = generex.getAllMatchedStrings();
+
+    return keys;
+  }
+
+
 
 }

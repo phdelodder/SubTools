@@ -3,11 +3,9 @@ package org.lodder.subtools.multisubdownloader.lib.library;
 import java.io.File;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
-import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
-import org.lodder.subtools.sublibrary.model.MovieFile;
-import org.lodder.subtools.sublibrary.model.VideoFile;
-import org.lodder.subtools.sublibrary.model.VideoType;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
+import org.lodder.subtools.sublibrary.model.Release;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.StringUtils;
 
 public class PathLibraryBuilder extends LibraryBuilder {
@@ -16,49 +14,44 @@ public class PathLibraryBuilder extends LibraryBuilder {
     super(librarySettings);
   }
 
-  public File buildPath(VideoFile videoFile) {
+  public String build(Release release) {
     if (librarySettings.getLibraryAction().equals(LibraryActionType.MOVE)
         || librarySettings.getLibraryAction().equals(LibraryActionType.MOVEANDRENAME)) {
       String folder = "";
-      if (videoFile.getVideoType() == VideoType.EPISODE)
-        folder = episodeBuildPath((EpisodeFile) videoFile);
-      else if (videoFile.getVideoType() == VideoType.MOVIE)
-        folder = movieBuildPath((MovieFile) videoFile);
-      return new File(librarySettings.getLibraryFolder(), folder);
+      if (release instanceof TvRelease)
+        folder = buildEpisode((TvRelease) release);
+      else if (release instanceof MovieRelease)
+        folder = buildMovie((MovieRelease) release);
+      return new File(librarySettings.getLibraryFolder(), folder).toString();
     } else {
-      return videoFile.getPath();
+      return release.getPath().toString();
     }
   }
 
-  protected String episodeBuildPath(EpisodeFile episodeFile) {
+  protected String buildEpisode(TvRelease tvRelease) {
     String folder = librarySettings.getLibraryFolderStructure();
-    String show = "";
-    if (librarySettings.isLibraryUseTVDBNaming()) {
-      final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter();
-      show = jtvdb.getSerie(episodeFile).getSerieName();
-    } else {
-      show = episodeFile.getShow();
-    }
+    String show = getShowName(tvRelease);
     if (librarySettings.isLibraryReplaceChars()) {
       show = StringUtils.removeIllegalWindowsChars(show);
     }
 
     folder = folder.replaceAll("%SHOW NAME%", show);
     // order is important!
-    folder = replaceFormatedEpisodeNumber(folder, "%EEX%", episodeFile.getEpisodeNumbers(), true);
-    folder = replaceFormatedEpisodeNumber(folder, "%EX%", episodeFile.getEpisodeNumbers(), false);
-    folder = folder.replaceAll("%SS%", formatedNumber(episodeFile.getSeason(), true));
-    folder = folder.replaceAll("%S%", formatedNumber(episodeFile.getSeason(), false));
-    folder = folder.replaceAll("%EE%", formatedNumber(episodeFile.getEpisodeNumbers().get(0), true));
-    folder = folder.replaceAll("%E%", formatedNumber(episodeFile.getEpisodeNumbers().get(0), false));
-    folder = folder.replaceAll("%TITLE%", episodeFile.getTitle());
+    folder = replaceFormatedEpisodeNumber(folder, "%EEX%", tvRelease.getEpisodeNumbers(), true);
+    folder = replaceFormatedEpisodeNumber(folder, "%EX%", tvRelease.getEpisodeNumbers(), false);
+    folder = folder.replaceAll("%SS%", formatedNumber(tvRelease.getSeason(), true));
+    folder = folder.replaceAll("%S%", formatedNumber(tvRelease.getSeason(), false));
+    folder = folder.replaceAll("%EE%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), true));
+    folder = folder.replaceAll("%E%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), false));
+    folder = folder.replaceAll("%TITLE%", tvRelease.getTitle());
     try {
       folder = folder.replaceAll("%SEPARATOR%", File.separator);
-    } catch (IndexOutOfBoundsException | IllegalArgumentException ioobe) // windows hack needs "\\" instead of "\"
+    } catch (IndexOutOfBoundsException | IllegalArgumentException ioobe) // windows hack needs "\\"
+                                                                         // instead of "\"
     {
       folder = folder.replaceAll("%SEPARATOR%", File.separator + File.separator);
     }
-    folder = folder.replaceAll("%QUALITY%", episodeFile.getQuality());
+    folder = folder.replaceAll("%QUALITY%", tvRelease.getQuality());
 
     if (librarySettings.isLibraryFolderReplaceSpace()) {
       folder = folder.replaceAll(" ", librarySettings.getLibraryFolderReplacingSpaceSign());
@@ -67,18 +60,18 @@ public class PathLibraryBuilder extends LibraryBuilder {
     return folder;
   }
 
-  protected String movieBuildPath(MovieFile movieFile) {
+  protected String buildMovie(MovieRelease movieRelease) {
     String folder = librarySettings.getLibraryFolderStructure();
-    String title = movieFile.getTitle();
+    String title = movieRelease.getTitle();
 
     if (librarySettings.isLibraryReplaceChars()) {
       title = StringUtils.removeIllegalWindowsChars(title);
     }
 
     folder = folder.replaceAll("%MOVIE TITLE%", title);
-    folder = folder.replaceAll("%YEAR%", Integer.toString(movieFile.getYear()));
+    folder = folder.replaceAll("%YEAR%", Integer.toString(movieRelease.getYear()));
     folder = folder.replaceAll("%SEPARATOR%", File.separator);
-    folder = folder.replaceAll("%QUALITY%", movieFile.getQuality());
+    folder = folder.replaceAll("%QUALITY%", movieRelease.getQuality());
 
     if (librarySettings.isLibraryFolderReplaceSpace()) {
       folder = folder.replaceAll(" ", librarySettings.getLibraryFolderReplacingSpaceSign());

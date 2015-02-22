@@ -1,19 +1,12 @@
 package org.lodder.subtools.sublibrary.util.http;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.BOMInputStream;
+import org.lodder.subtools.sublibrary.logging.Logger;
+import org.lodder.subtools.sublibrary.util.Files;
+
+import java.io.*;
+import java.net.*;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -22,14 +15,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.BOMInputStream;
-import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.util.Files;
-
 
 public class HttpClient {
 
+  private static final Object myLock = new Object();
   private volatile static HttpClient hc;
   private final CookieManager cookieManager;
 
@@ -39,7 +28,14 @@ public class HttpClient {
 
   public static HttpClient getHttpClient() {
     Logger.instance.trace("HttpClient", "getHttpClient", "");
-    if (hc == null) hc = new HttpClient();
+    if (hc == null) { // avoid sync penalty if we can
+      synchronized (HttpClient.myLock) { // declare a private static Object to use for mutex
+        if (hc == null) { // have to do this inside the sync
+          hc = new HttpClient();
+        }
+      }
+    }
+
     return hc;
   }
 
@@ -57,24 +53,22 @@ public class HttpClient {
       try {
         int respCode = ((HttpURLConnection) conn).getResponseCode();
         if (respCode == 429) {
-          Logger.instance.log("429 error, gelieve 1 minuut te wachten");
+          Logger.instance.log("HTTP STATUS CODE 429: gelieve 1 minuut te wachten");
           try {
             TimeUnit.MINUTES.sleep(1);
             TimeUnit.SECONDS.sleep(1);
           } catch (InterruptedException ie) {
-            Thread.currentThread().interrupt(); // restore
-            // interrupted
-            // status
+            // restore interrupted status
+            Thread.currentThread().interrupt();
           }
           return doGet(url, userAgent);
         } else {
-          Logger.instance.error("Error response " + respCode + ": "
-              + getStringFromInputStream(((HttpURLConnection) conn).getErrorStream()));
+          Logger.instance.error("Error response: " + respCode + " For url: " + url);
         }
       } catch (Exception ex) {
-        Logger.instance.error(Logger.stack2String(ex));
+        Logger.instance.error(ex.getMessage());
+        Logger.instance.debug(Logger.stack2String(ex));
       }
-      Logger.instance.error(Logger.stack2String(e));
     }
     return "";
   }
@@ -83,15 +77,15 @@ public class HttpClient {
     HttpURLConnection conn = null;
     Set<String> keys = data.keySet();
     Iterator<String> keyIter = keys.iterator();
-    String urlParameters = "";
+    StringBuilder urlParameters = new StringBuilder();
 
     try {
       for (int i = 0; keyIter.hasNext(); i++) {
         Object key = keyIter.next();
         if (i != 0) {
-          urlParameters += "&";
+          urlParameters.append("&");
         }
-        urlParameters += key + "=" + URLEncoder.encode(data.get(key), "UTF-8");
+        urlParameters.append(key).append("=").append(URLEncoder.encode(data.get(key), "UTF-8"));
       }
 
       conn = (HttpURLConnection) url.openConnection();
@@ -100,17 +94,18 @@ public class HttpClient {
       if (userAgent.length() > 0) conn.setRequestProperty("user-agent", userAgent);
       conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
       conn.setRequestProperty("Content-Length",
-          "" + Integer.toString(urlParameters.getBytes().length));
+          "" + Integer.toString(urlParameters.toString().getBytes().length));
       conn.setUseCaches(false);
       conn.setDoInput(true);
       conn.setDoOutput(true);
       conn.setInstanceFollowRedirects(false);
 
-      DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+      try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
 
-      out.writeBytes(urlParameters);
-      out.flush();
-      out.close();
+        out.writeBytes(urlParameters.toString());
+        out.flush();
+        out.close();
+      }
 
       cookieManager.storeCookies(conn);
       if (conn.getResponseCode() == 302) {
@@ -135,27 +130,16 @@ public class HttpClient {
   }
 
   private static String getStringFromInputStream(InputStream is) {
-    BufferedReader br = null;
     StringBuilder sb = new StringBuilder();
-
     String line;
-    try {
 
-      br = new BufferedReader(new InputStreamReader(is));
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
       while ((line = br.readLine()) != null) {
         sb.append(line);
       }
 
     } catch (IOException e) {
       e.printStackTrace();
-    } finally {
-      if (br != null) {
-        try {
-          br.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
     }
 
     return sb.toString();
@@ -240,10 +224,7 @@ public class HttpClient {
                 "((https?|ftp|gopher|telnet|file):((//)|(\\\\\\\\))+[\\\\w\\\\d:#@%/;$()~_?\\\\+-=\\\\\\\\\\\\.&]*)",
                 Pattern.CASE_INSENSITIVE);
     Matcher matcher = urlPattern.matcher(str);
-    if (matcher.find())
-      return true;
-    else
-      return false;
+    return matcher.find();
   }
 
   public String downloadText(URL url) throws IOException {

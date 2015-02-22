@@ -196,12 +196,8 @@ public class CookieManager {
 			return true;
 		} else if (cookiePath.equals("/")) {
 			return true;
-		} else if (targetPath.regionMatches(0, cookiePath, 0,
-				cookiePath.length())) {
-			return true;
-		} else {
-			return false;
-		}
+		} else
+				return targetPath.regionMatches(0, cookiePath, 0, cookiePath.length());
 
 	}
 

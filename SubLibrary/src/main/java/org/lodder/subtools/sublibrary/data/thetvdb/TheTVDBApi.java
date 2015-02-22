@@ -9,7 +9,7 @@ import java.util.StringTokenizer;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.subtitlesource.XmlHTTP;
+import org.lodder.subtools.sublibrary.data.XmlHTTP;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -42,18 +42,18 @@ public class TheTVDBApi {
     }
     Document doc = xmlHTTPAPI.getXMLDisk(url, 24 * 60 * 60 * 5);
     NodeList nList = null;
-    
-    if (doc != null){
+
+    if (doc != null) {
       nList = doc.getElementsByTagName("Series");
     }
-    
+
     if (nList == null || nList.getLength() == 0) {
-      //retry if failed, but delete entry!
+      // retry if failed, but delete entry!
       xmlHTTPAPI.removeCacheEntry(url);
       doc = xmlHTTPAPI.getXMLDisk(url, 24 * 60 * 60 * 5);
       nList = doc.getElementsByTagName("Series");
     }
-    
+
     for (int i = 0; i < nList.getLength(); i++) {
 
       Element eElement = (Element) nList.item(i);
@@ -81,26 +81,36 @@ public class TheTVDBApi {
     // language!=null?language+XML_EXTENSION:""});
     if (tvdbid != 0) {
       String url = createApiUrl("series", new String[] {Integer.toString(tvdbid)});
-      Document doc = xmlHTTPAPI.getXMLDisk(url);
+      //Use all as final resort if nothing get's found, or api returns bad results
+      String urlAll = createApiUrl("series", new String[] {Integer.toString(tvdbid), "all"});
+      NodeList nList = tryGettingData(new String[] {url, url, urlAll});
 
-      NodeList nList = null;
-      
-      if (doc != null){
-        nList = doc.getElementsByTagName("Series");
-      }
-      
-      if (nList == null || nList.getLength() == 0) {
-        //retry if failed, but delete entry!
-        xmlHTTPAPI.removeCacheEntry(url);
-        doc = xmlHTTPAPI.getXMLDisk(url);
-        nList = doc.getElementsByTagName("Series");
-      }
-
-      if (nList.getLength() > 0 && nList.item(0).getNodeType() == Node.ELEMENT_NODE) {
+      if (nList != null && nList.getLength() > 0
+          && nList.item(0).getNodeType() == Node.ELEMENT_NODE) {
         return parseSerieNode((Element) nList.item(0));
       }
     } else {
       Logger.instance.log("TVDB ID is 0! please fix ");
+    }
+
+    return null;
+  }
+
+  private NodeList tryGettingData(String[] urls) {
+    NodeList nList = null;
+
+    for (String url : urls) {
+      Document doc = xmlHTTPAPI.getXMLDisk(url);
+
+      if (doc != null)
+        nList = doc.getElementsByTagName("Series");
+      else
+        xmlHTTPAPI.removeCacheEntry(url);
+
+      if (nList == null || nList.getLength() == 0)
+        xmlHTTPAPI.removeCacheEntry(url);
+      else
+        return nList;
     }
 
     return null;

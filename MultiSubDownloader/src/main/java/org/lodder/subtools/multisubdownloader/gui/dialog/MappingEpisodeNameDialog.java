@@ -25,12 +25,13 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.JCheckBox;
 
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 
-public class MappingEpisodeNameDialog extends MutliSubDialog {
+public class MappingEpisodeNameDialog extends MultiSubDialog {
 
   /**
      *
@@ -46,7 +47,7 @@ public class MappingEpisodeNameDialog extends MutliSubDialog {
    * Create the dialog.
    */
   public MappingEpisodeNameDialog(JFrame frame, final SettingsControl prefCtrl) {
-    super(frame, "Mapping Tvdb/Scene", true);
+    super(frame, Messages.getString("MappingEpisodeNameDialog.Title"), true);
     this.prefCtrl = prefCtrl;
     pref = prefCtrl.getSettings();
     initialize();
@@ -63,7 +64,8 @@ public class MappingEpisodeNameDialog extends MutliSubDialog {
       String tvdbId = "";
       if (pref.getMappingSettings().getMappingList().get(i).getTvdbId() > 0)
         tvdbId = Integer.toString(pref.getMappingSettings().getMappingList().get(i).getTvdbId());
-      model.addRow(new String[] {pref.getMappingSettings().getMappingList().get(i).getSceneName(), tvdbId});
+      model.addRow(new String[] {pref.getMappingSettings().getMappingList().get(i).getSceneName(),
+          tvdbId});
     }
 
     chkAutoUpdateMapping.setSelected(pref.isAutoUpdateMapping());
@@ -90,12 +92,16 @@ public class MappingEpisodeNameDialog extends MutliSubDialog {
       gbc_pnlButtons.gridy = 0;
       contentPanel.add(pnlButtons, gbc_pnlButtons);
       {
-        JButton btnAdd = new JButton("Rij toevoegen");
+        JButton btnAdd = new JButton(Messages.getString("MappingEpisodeNameDialog.AddRow"));
         btnAdd.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent arg0) {
-            String scene = JOptionPane.showInputDialog("Please input scene show name");
+            String scene =
+                JOptionPane.showInputDialog(Messages
+                    .getString("MappingEpisodeNameDialog.EnterSceneShowName"));
             if (!scene.equals("")) {
-              String tvdbId = JOptionPane.showInputDialog("Please input TVDB SERIE ID");
+              String tvdbId =
+                  JOptionPane.showInputDialog(Messages
+                      .getString("MappingEpisodeNameDialog.EnterTvdbId"));
               if (!tvdbId.equals("")) {
                 DefaultTableModel model = (DefaultTableModel) table.getModel();
                 model.addRow(new Object[] {scene, tvdbId});
@@ -106,7 +112,8 @@ public class MappingEpisodeNameDialog extends MutliSubDialog {
         pnlButtons.add(btnAdd);
       }
       {
-        JButton btnDeleteSelectedRow = new JButton("Verwijder geselecteerde rij");
+        JButton btnDeleteSelectedRow =
+            new JButton(Messages.getString("MappingEpisodeNameDialog.DeleteRow"));
         btnDeleteSelectedRow.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent arg0) {
             int row = table.getSelectedRow();
@@ -126,8 +133,9 @@ public class MappingEpisodeNameDialog extends MutliSubDialog {
       contentPanel.add(scrollPane, gbc_scrollPane);
       {
         table = new JTable();
-        table.setModel(new DefaultTableModel(new Object[][] {}, new String[] {"Scene Serie naam",
-            "TVDB Serie Id"}) {
+        table.setModel(new DefaultTableModel(new Object[][] {}, new String[] {
+            Messages.getString("MappingEpisodeNameDialog.SceneShowName"),
+            Messages.getString("MappingEpisodeNameDialog.TvdbId")}) {
           /**
                      *
                      */
@@ -156,7 +164,7 @@ public class MappingEpisodeNameDialog extends MutliSubDialog {
       JPanel buttonPane = new JPanel();
       getContentPane().add(buttonPane, BorderLayout.SOUTH);
       {
-        JButton okButton = new JButton(" OK ");
+        JButton okButton = new JButton(Messages.getString("MappingEpisodeNameDialog.OK"));
         okButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent arg0) {
             setVisible(false);
@@ -166,7 +174,8 @@ public class MappingEpisodeNameDialog extends MutliSubDialog {
         buttonPane.setLayout(new MigLayout("", "[117px][grow,fill][62px,trailing]",
             "[][25px,grow,fill]"));
         {
-          JButton btnUpdateMapping = new JButton("Update met Online Mapping");
+          JButton btnUpdateMapping =
+              new JButton(Messages.getString("MappingEpisodeNameDialog.UpdateWithOnlineMapping"));
           btnUpdateMapping.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
               try {
@@ -181,12 +190,13 @@ public class MappingEpisodeNameDialog extends MutliSubDialog {
             }
           });
           {
-            chkAutoUpdateMapping = new JCheckBox("Mapping updaten bij het opstarten?");
+            chkAutoUpdateMapping =
+                new JCheckBox(Messages.getString("MappingEpisodeNameDialog.UpdateMappingOnStart"));
             buttonPane.add(chkAutoUpdateMapping, "cell 0 0 2 1");
           }
           buttonPane.add(btnUpdateMapping, "cell 0 1,alignx left,aligny top");
         }
-        okButton.setActionCommand("OK");
+        okButton.setActionCommand(Messages.getString("MappingEpisodeNameDialog.OK"));
         buttonPane.add(okButton, "cell 2 1,alignx right,aligny top");
         getRootPane().setDefaultButton(okButton);
       }

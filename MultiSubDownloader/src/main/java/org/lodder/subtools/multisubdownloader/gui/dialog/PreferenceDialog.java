@@ -1,108 +1,79 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
-import net.miginfocom.swing.MigLayout;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
-
-import org.lodder.subtools.multisubdownloader.gui.extra.*;
-import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
-import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
-import org.lodder.subtools.multisubdownloader.settings.model.SearchSubtitlePriority;
-import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
-import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
-import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
-import org.lodder.subtools.sublibrary.control.VideoPatterns;
-import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
-
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
-public class PreferenceDialog extends MutliSubDialog {
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+
+import net.miginfocom.swing.MigLayout;
+
+import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
+import org.lodder.subtools.multisubdownloader.framework.event.Event;
+import org.lodder.subtools.multisubdownloader.Messages;
+import org.lodder.subtools.multisubdownloader.gui.extra.JListWithImages;
+import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
+import org.lodder.subtools.multisubdownloader.gui.panels.EpisodeLibraryPanel;
+import org.lodder.subtools.multisubdownloader.gui.panels.MovieLibraryPanel;
+import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
+import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
+import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
+import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
+import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
+import org.lodder.subtools.sublibrary.logging.Logger;
+import javax.swing.JSlider;
+
+public class PreferenceDialog extends MultiSubDialog {
 
   /**
      *
      */
   private static final long serialVersionUID = -5730220264781738564L;
   private final JPanel contentPanel = new JPanel();
+  private final Emitter eventEmitter;
   private JCheckBox chkOnlyFound, chkAlwaysConfirm, chkSubtitleExactMethod,
       chkSubtitleKeywordMethod;
   private SettingsControl settingsCtrl;
   private EpisodeLibraryPanel pnlEpisodeLibrary;
   private JListWithImages excludeList;
   private JCheckBox chkStopOnSearchError;
-  private JCheckBox chkAutomaticDownloadSelection;
-  private JTable table;
-  private JCheckBox chkNoRuleMatchTakeFirst;
   private MovieLibraryPanel pnlMovieLibrary;
   private JTextField txtProxyHost, txtAddic7edUsername;
   private JTextField txtProxyPort, txtAddic7edPassword;
   private JCheckBox chkProxyserverGebruiken, chkUserAddic7edLogin, chkExcludeHearingImpaired;
   private JListWithImages defaultIncomingFoldersList, localSourcesFoldersList;
   private JCheckBox chkSerieSourceAddic7ed, chkSerieSourceTvSubtitles, chkSerieSourcePodnapisi,
-      chkSerieSourceOpensubtitles, chkSerieSourceLocal, chkSerieSourcePrivateRepo,chkSerieSourceSubsMax;
+      chkSerieSourceOpensubtitles, chkSerieSourceLocal, chkSerieSourceSubsMax;
   private JComboBox<SettingsProcessEpisodeSource> cbxEpisodeProcessSource;
-  private JComboBox<Integer> cbxPriorityLocal, cbxPriorityPodnapisi, cbxPriorityAddic7ed,
-      cbxPriorityTvSubtitles, cbxPriorityOpensubtitles, cbxPriorityPrivateRepo, cbxPrioritySubsMax;
+  private JCheckBox chkMinScoreSelection;
+  private JSlider sldMinScoreSelection;
 
   /**
    * Create the dialog.
    */
-  public PreferenceDialog(JFrame frame, final SettingsControl settingsCtrl) {
-    super(frame, "Voorkeuren", true);
+  public PreferenceDialog(JFrame frame, final SettingsControl settingsCtrl, Emitter eventEmitter) {
+    super(frame, Messages.getString("PreferenceDialog.Title"), true);
     this.settingsCtrl = settingsCtrl;
+    this.eventEmitter = eventEmitter;
     initialize();
-    initializeTable();
     setPreferenceSettings();
     repaint();
-  }
-
-  private void initializeTable() {
-    DefaultTableModel model = (DefaultTableModel) table.getModel();
-
-    // Add some columns
-    model.addColumn("Regel Nummer");
-    model.addColumn("Kwaliteit");
-  }
-
-  private void addRuleRow(String q) {
-    DefaultTableModel model = (DefaultTableModel) table.getModel();
-    model.addRow(new Object[] {model.getRowCount() + 1, q});
-    // These are the combobox values
-    List<String> both =
-        new ArrayList<String>(1 + VideoPatterns.QUALITYKEYWORDS.length
-            + VideoPatterns.GROUPEDQUALITYKEYWORDS.length);
-    Collections.addAll(both, "Selecteer...");
-    // additional grouped keywords
-    Collections.addAll(both, VideoPatterns.GROUPEDQUALITYKEYWORDS);
-    // keywords
-    Collections.addAll(both, VideoPatterns.QUALITYKEYWORDS);
-    String[] values = both.toArray(new String[] {});
-
-    // Set the combobox editor on the 1st visible column
-    int vColIndex = 1;
-    TableColumn col = table.getColumnModel().getColumn(vColIndex);
-    col.setCellEditor(new MyComboBoxEditor(values));
-    // If the cell should appear like a combobox in its
-    // non-editing state, also set the combobox renderer
-    col.setCellRenderer(new MyComboBoxRenderer(values));
-  }
-
-  private void removeRuleRow() {
-    DefaultTableModel model = (DefaultTableModel) table.getModel();
-    if (table.getSelectedRow() >= 0) {
-      model.removeRow(table.getSelectedRow());
-    }
-
   }
 
   private void initialize() {
@@ -119,20 +90,22 @@ public class PreferenceDialog extends MutliSubDialog {
       contentPanel.add(tabbedPane);
       {
         JPanel pnlGeneral = new JPanel();
-        tabbedPane.addTab("Algmeen", null, pnlGeneral, null);
+        tabbedPane
+            .addTab(Messages.getString("PreferenceDialog.TabGeneral"), null, pnlGeneral, null);
         pnlGeneral.setLayout(new MigLayout("", "[127px,grow][grow][grow]",
             "[23px][grow][][][grow,center][grow]"));
         {
-          JLabel lblDefaultIncomingFolder = new JLabel("Standaard inkomende map");
+          JLabel lblDefaultIncomingFolder =
+              new JLabel(Messages.getString("PreferenceDialog.DefaultIncomingFolder"));
           pnlGeneral.add(lblDefaultIncomingFolder, "cell 0 0,alignx left,aligny center");
         }
         {
-          JButton btnBrowse = new JButton("map toevoegen");
+          JButton btnBrowse = new JButton(Messages.getString("PreferenceDialog.AddFolder"));
           btnBrowse.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
               File path =
                   MemoryFolderChooser.getInstance().selectDirectory(getContentPane(),
-                      "Selecteer map");
+                      Messages.getString("PreferenceDialog.SelectFolder"));
               if (defaultIncomingFoldersList.getModel().getSize() == 0) {
                 defaultIncomingFoldersList.addItem(SettingsExcludeType.FOLDER,
                     path.getAbsolutePath());
@@ -153,7 +126,7 @@ public class PreferenceDialog extends MutliSubDialog {
           pnlGeneral.add(btnBrowse, "cell 1 0,alignx left,aligny top");
         }
         {
-          JButton button = new JButton("map verwijderen");
+          JButton button = new JButton(Messages.getString("PreferenceDialog.DeleteFolder"));
           button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
               DefaultListModel<JPanel> model =
@@ -175,11 +148,11 @@ public class PreferenceDialog extends MutliSubDialog {
           }
         }
         {
-          JLabel lblUitsluitLijst = new JLabel("Uitsluit lijst");
+          JLabel lblUitsluitLijst = new JLabel(Messages.getString("PreferenceDialog.ExcludeList"));
           pnlGeneral.add(lblUitsluitLijst, "cell 0 2,alignx right,gaptop 10");
         }
         {
-          JButton btnAddUitsluitMap = new JButton("map toevoegen");
+          JButton btnAddUitsluitMap = new JButton(Messages.getString("PreferenceDialog.AddFolder"));
           btnAddUitsluitMap.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
               addExcludeItem(SettingsExcludeType.FOLDER);
@@ -188,7 +161,8 @@ public class PreferenceDialog extends MutliSubDialog {
           pnlGeneral.add(btnAddUitsluitMap, "cell 1 2,alignx center,gaptop 10");
         }
         {
-          JButton btnVerwijderUitsluitMap = new JButton("item verwijderen");
+          JButton btnVerwijderUitsluitMap =
+              new JButton(Messages.getString("PreferenceDialog.DeleteItem"));
           btnVerwijderUitsluitMap.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
               removeExcludeItem();
@@ -197,7 +171,8 @@ public class PreferenceDialog extends MutliSubDialog {
           pnlGeneral.add(btnVerwijderUitsluitMap, "cell 2 2,alignx center,gaptop 10");
         }
         {
-          JButton btnAddUitsluitRegex = new JButton("regex toevoegen");
+          JButton btnAddUitsluitRegex =
+              new JButton(Messages.getString("PreferenceDialog.RegexToevoegen"));
           btnAddUitsluitRegex.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
               addExcludeItem(SettingsExcludeType.REGEX);
@@ -218,14 +193,16 @@ public class PreferenceDialog extends MutliSubDialog {
           JPanel pnlProxySettings = new JPanel();
           pnlGeneral.add(pnlProxySettings, "cell 0 5 3 1,grow");
           pnlProxySettings.setLayout(new MigLayout("", "[50px:n][][grow][grow]", "[][][][]"));
-          pnlProxySettings.add(new JLabel("Proxy Instellingen"), "cell 0 0 4 1,gapy 5");
+          pnlProxySettings.add(new JLabel(Messages.getString("PreferenceDialog.ConfigureProxy")),
+              "cell 0 0 4 1,gapy 5");
           pnlProxySettings.add(new JSeparator(), "cell 0 0 4 1,growx,gapy 5");
           {
-            chkProxyserverGebruiken = new JCheckBox("Proxyserver gebruiken");
+            chkProxyserverGebruiken =
+                new JCheckBox(Messages.getString("PreferenceDialog.UseProxyServer"));
             pnlProxySettings.add(chkProxyserverGebruiken, "cell 0 1 3 1");
           }
           {
-            JLabel lblProxyHost = new JLabel("Adres");
+            JLabel lblProxyHost = new JLabel(Messages.getString("PreferenceDialog.Hostname"));
             pnlProxySettings.add(lblProxyHost, "cell 1 2,alignx trailing");
           }
           {
@@ -234,7 +211,7 @@ public class PreferenceDialog extends MutliSubDialog {
             txtProxyHost.setColumns(10);
           }
           {
-            JLabel lblProxyPoort = new JLabel("Poort");
+            JLabel lblProxyPoort = new JLabel(Messages.getString("PreferenceDialog.Port"));
             pnlProxySettings.add(lblProxyPoort, "cell 1 3,alignx trailing");
           }
           {
@@ -249,182 +226,119 @@ public class PreferenceDialog extends MutliSubDialog {
       {
         pnlEpisodeLibrary =
             new EpisodeLibraryPanel(settingsCtrl.getSettings().getEpisodeLibrarySettings());
-        tabbedPane.addTab("Serie Bibliotheek", null, pnlEpisodeLibrary, null);
+        tabbedPane.addTab(Messages.getString("PreferenceDialog.SerieLibrary"), null,
+            pnlEpisodeLibrary, null);
       }
       {
         pnlMovieLibrary =
             new MovieLibraryPanel(settingsCtrl.getSettings().getMovieLibrarySettings());
-        tabbedPane.addTab("Film Bibliotheek", null, pnlMovieLibrary, null);
+        tabbedPane.addTab(Messages.getString("PreferenceDialog.MovieLibrary"), null,
+            pnlMovieLibrary, null);
       }
       {
         JPanel pnlOptions = new JPanel();
-        tabbedPane.addTab("Opties", null, pnlOptions, null);
-        pnlOptions.setLayout(new MigLayout("", "[][433px,grow][433px][100px,grow][]",
-            "[][][][][grow][grow][][][][25px][][][][][23px][][23px][][]"));
-        pnlOptions.add(new JLabel("Download opties"), "cell 0 0 5 1");
+        tabbedPane.addTab(Messages.getString("PreferenceDialog.Options"), null, pnlOptions, null);
+        pnlOptions.setLayout(new MigLayout("", "[][433px,grow][433px,grow][100px,grow][]",
+            "[][][][][25px][][][][23px][][23px][][]"));
+        pnlOptions.add(new JLabel(Messages.getString("PreferenceDialog.DownloadOptions")),
+            "cell 0 0 5 1");
         pnlOptions.add(new JSeparator(), "cell 0 0 5 1,growx");
-        chkAlwaysConfirm = new JCheckBox("Controleer altijd voor het downloaden");
+        chkAlwaysConfirm =
+            new JCheckBox(Messages.getString("PreferenceDialog.CheckBeforeDownloading"));
         pnlOptions.add(chkAlwaysConfirm, "cell 1 1 3 1,grow");
-        chkAutomaticDownloadSelection = new JCheckBox("Automatische download selectie regels");
-        chkAutomaticDownloadSelection.addActionListener(new ActionListener() {
-          public void actionPerformed(ActionEvent arg0) {}
-        });
-        pnlOptions.add(chkAutomaticDownloadSelection, "cell 1 2 3 1");
         {
-          JButton btnAddExtraRule = new JButton("Extra regel toevoegen");
-          btnAddExtraRule.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-              addRuleRow("");
-            }
-          });
-          pnlOptions.add(btnAddExtraRule, "cell 2 3,alignx right");
-        }
-        JButton btnRemoveSelected = new JButton("Geselecteerde regel verwijderen");
-        btnRemoveSelected.addActionListener(new ActionListener() {
-          public void actionPerformed(ActionEvent arg0) {
-            removeRuleRow();
-          }
-        });
-        pnlOptions.add(btnRemoveSelected, "cell 3 3");
-        {
-          JScrollPane scrollPane = new JScrollPane();
-          pnlOptions.add(scrollPane, "cell 2 4 2 2,grow");
-          table = new JTable();
-          scrollPane.setViewportView(table);
+          chkMinScoreSelection =
+              new JCheckBox(Messages.getString("PreferenceDialog.MinAutomaticScoreSelection"));
+          pnlOptions.add(chkMinScoreSelection, "cell 1 2");
         }
         {
-          ArrowButton btnNaarBovenPlaatsen = new ArrowButton(SwingConstants.NORTH, 1, 10);
-          btnNaarBovenPlaatsen.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-              moveRuleRowUp();
-            }
-          });
-          pnlOptions.add(btnNaarBovenPlaatsen, "cell 4 4 1 1");
+          sldMinScoreSelection = new JSlider();
+          sldMinScoreSelection.setMinimum(0);
+          sldMinScoreSelection.setMaximum(100);
+          pnlOptions.add(sldMinScoreSelection, "cell 2 2");
         }
-        {
-          ArrowButton btnNaarBenedenPlaatsen = new ArrowButton(SwingConstants.SOUTH, 1, 10);
-          btnNaarBenedenPlaatsen.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-              moveRuleRowDown();
-            }
-          });
-          pnlOptions.add(btnNaarBenedenPlaatsen, "cell 4 5");
-        }
-        {
-          chkNoRuleMatchTakeFirst =
-              new JCheckBox("Neem de eerste ondertitel als geen enkel regel resultaat heeft.");
-          pnlOptions.add(chkNoRuleMatchTakeFirst, "cell 2 6 3 1");
-        }
-        pnlOptions.add(new JLabel("Zoek filter"), "cell 0 8 5 1");
-        pnlOptions.add(new JSeparator(), "cell 0 8 5 1,growx");
+        pnlOptions.add(new JLabel(Messages.getString("PreferenceDialog.SearchFilter")),
+            "cell 0 3 5 1");
+        pnlOptions.add(new JSeparator(), "cell 0 3 5 1,growx");
         chkSubtitleExactMethod =
-            new JCheckBox(
-                "Exacte (werkt enkel als naamgeving identiek is) [werkte niet met Addic7ed]");
-        pnlOptions.add(chkSubtitleExactMethod, "cell 1 9 3 1,grow");
+            new JCheckBox(Messages.getString("PreferenceDialog.SearchFilterExact"));
+        pnlOptions.add(chkSubtitleExactMethod, "cell 1 4 3 1,grow");
         {
           chkSubtitleKeywordMethod =
-              new JCheckBox(
-                  "Keywords (op basis van woorden zoals 720p, xvid, ...) [werkt met iedere source]");
-          pnlOptions.add(chkSubtitleKeywordMethod, "cell 1 10 3 1");
+              new JCheckBox(Messages.getString("PreferenceDialog.SearchFilterKeyword"));
+          pnlOptions.add(chkSubtitleKeywordMethod, "cell 1 5 3 1");
         }
         {
-          chkExcludeHearingImpaired = new JCheckBox("Hearing Impaired uitsluiten");
-          pnlOptions.add(chkExcludeHearingImpaired, "cell 1 12 3 1");
+          chkExcludeHearingImpaired =
+              new JCheckBox(Messages.getString("PreferenceDialog.ExcludeHearingImpaired"));
+          pnlOptions.add(chkExcludeHearingImpaired, "cell 1 6 3 1");
         }
-        pnlOptions.add(new JLabel("Tabel opties"), "cell 0 13 5 1");
-        pnlOptions.add(new JSeparator(), "cell 0 13 5 1,growx");
-        chkOnlyFound = new JCheckBox("Alleen gevonden tonen");
-        pnlOptions.add(chkOnlyFound, "cell 1 14 3 1,growx,aligny center");
-        pnlOptions.add(new JLabel("Fout afhandeling opties"), "cell 0 15 5 1");
-        pnlOptions.add(new JSeparator(), "cell 0 15 5 1,growx");
-        chkStopOnSearchError = new JCheckBox("Stop zoeken na fout");
-        pnlOptions.add(chkStopOnSearchError, "cell 1 16 3 1,alignx left,aligny center");
+        pnlOptions.add(new JLabel(Messages.getString("PreferenceDialog.TableOptions")),
+            "cell 0 7 5 1");
+        pnlOptions.add(new JSeparator(), "cell 0 7 5 1,growx");
+        chkOnlyFound = new JCheckBox(Messages.getString("PreferenceDialog.ShowOnlyFound"));
+        pnlOptions.add(chkOnlyFound, "cell 1 8 3 1,growx,aligny center");
+        pnlOptions.add(new JLabel(Messages.getString("PreferenceDialog.ErrorHandlingOption")),
+            "cell 0 9 5 1");
+        pnlOptions.add(new JSeparator(), "cell 0 9 5 1,growx");
+        chkStopOnSearchError = new JCheckBox(Messages.getString("PreferenceDialog.StopAfterError"));
+        pnlOptions.add(chkStopOnSearchError, "cell 1 10 3 1,alignx left,aligny center");
         {
-          JLabel label = new JLabel("Serie database source");
-          pnlOptions.add(label, "cell 0 17 5 1");
-          pnlOptions.add(new JSeparator(), "cell 0 17 5 1,growx");
+          JLabel label = new JLabel(Messages.getString("PreferenceDialog.SerieDatabaseSource"));
+          pnlOptions.add(label, "cell 0 11 5 1");
+          pnlOptions.add(new JSeparator(), "cell 0 11 5 1,growx");
         }
         {
-          cbxEpisodeProcessSource =
-              new JComboBox<SettingsProcessEpisodeSource>(SettingsProcessEpisodeSource.values());
-          //cbxEpisodeProcessSource = new JComboBox<SettingsProcessEpisodeSource>();
+          cbxEpisodeProcessSource = new JComboBox<SettingsProcessEpisodeSource>();
+          cbxEpisodeProcessSource.setModel(new DefaultComboBoxModel<SettingsProcessEpisodeSource>(
+              SettingsProcessEpisodeSource.values()));
           cbxEpisodeProcessSource.setEnabled(false);
-          pnlOptions.add(cbxEpisodeProcessSource, "cell 1 18,growx");
+          pnlOptions.add(cbxEpisodeProcessSource, "cell 1 12,growx");
         }
       }
       {
+
         JPanel pnlSerieSources = new JPanel();
-        Integer[] prio = new Integer[] {1, 2, 3, 4, 5, 6,7 };
-        tabbedPane.addTab("Serie Sources", null, pnlSerieSources, null);
+        tabbedPane.addTab(Messages.getString("PreferenceDialog.SerieSources"), null,
+            pnlSerieSources, null);
         pnlSerieSources.setLayout(new MigLayout("", "[grow]", "[][top][]"));
         JPanel pnlSerieSourcesSelectionSettings = new JPanel();
         pnlSerieSources.add(pnlSerieSourcesSelectionSettings, "cell 0 0 3 1,grow");
-        pnlSerieSourcesSelectionSettings.setLayout(new MigLayout("", "[50px:n][][100.00,grow][grow][grow]", "[][][][][][][][]"));
-        pnlSerieSourcesSelectionSettings.add(new JLabel(
-            "Selecteer de gewenste sources en bepaalde volgorde"), "cell 0 0 5 1,gapy 5");
+        pnlSerieSourcesSelectionSettings.setLayout(new MigLayout("",
+            "[50px:n][][100.00,grow][grow][grow]", "[][][][][][][]"));
+        pnlSerieSourcesSelectionSettings.add(new JLabel("Selecteer de gewenste providers"),
+            "cell 0 0 5 1,gapy 5");
+        pnlSerieSources.add(pnlSerieSourcesSelectionSettings, "cell 0 0 3 1,grow");
         pnlSerieSourcesSelectionSettings.add(new JSeparator(), "cell 0 0 5 1,growx,gapy 5");
+
         chkSerieSourceAddic7ed = new JCheckBox("Addic7ed");
         pnlSerieSourcesSelectionSettings.add(chkSerieSourceAddic7ed, "cell 0 1 2 1");
-        {
-          cbxPriorityAddic7ed = new JComboBox<Integer>();
-          cbxPriorityAddic7ed.setModel(new DefaultComboBoxModel<Integer>(prio));
-          pnlSerieSourcesSelectionSettings.add(cbxPriorityAddic7ed, "cell 2 1,growx");
-        }
         chkSerieSourceTvSubtitles = new JCheckBox("Tv Subtitles");
         pnlSerieSourcesSelectionSettings.add(chkSerieSourceTvSubtitles, "cell 0 2 2 1");
-        {
-          cbxPriorityTvSubtitles = new JComboBox<Integer>();
-          cbxPriorityTvSubtitles.setModel(new DefaultComboBoxModel<Integer>(prio));
-          pnlSerieSourcesSelectionSettings.add(cbxPriorityTvSubtitles, "cell 2 2,growx");
-        }
         chkSerieSourcePodnapisi = new JCheckBox("Podnapisi");
         pnlSerieSourcesSelectionSettings.add(chkSerieSourcePodnapisi, "cell 0 3 2 1");
-        {
-          cbxPriorityPodnapisi = new JComboBox<Integer>();
-          cbxPriorityPodnapisi.setModel(new DefaultComboBoxModel<Integer>(prio));
-          pnlSerieSourcesSelectionSettings.add(cbxPriorityPodnapisi, "cell 2 3,growx");
-        }
         chkSerieSourceOpensubtitles = new JCheckBox("Opensubtitles");
         pnlSerieSourcesSelectionSettings.add(chkSerieSourceOpensubtitles, "cell 0 4 2 1");
-        {
-          cbxPriorityOpensubtitles = new JComboBox<Integer>();
-          cbxPriorityOpensubtitles.setModel(new DefaultComboBoxModel<Integer>(prio));
-          pnlSerieSourcesSelectionSettings.add(cbxPriorityOpensubtitles, "cell 2 4,growx");
-        }
-        chkSerieSourcePrivateRepo = new JCheckBox("Private Repo");
-        pnlSerieSourcesSelectionSettings.add(chkSerieSourcePrivateRepo, "cell 0 5");
-        {
-          cbxPriorityPrivateRepo = new JComboBox<Integer>();
-          cbxPriorityPrivateRepo.setModel(new DefaultComboBoxModel<Integer>(prio));
-          pnlSerieSourcesSelectionSettings.add(cbxPriorityPrivateRepo, "cell 2 5,growx");
-        }
         chkSerieSourceLocal = new JCheckBox("Lokaal");
-        pnlSerieSourcesSelectionSettings.add(chkSerieSourceLocal, "cell 0 6 2 1");
-        {
-          cbxPriorityLocal = new JComboBox<Integer>();
-          cbxPriorityLocal.setModel(new DefaultComboBoxModel<Integer>(prio));
-          pnlSerieSourcesSelectionSettings.add(cbxPriorityLocal, "cell 2 6,growx");
-        }
+        pnlSerieSourcesSelectionSettings.add(chkSerieSourceLocal, "cell 0 5 2 1");
         {
           chkSerieSourceSubsMax = new JCheckBox("SubsMax");
-          pnlSerieSourcesSelectionSettings.add(chkSerieSourceSubsMax, "cell 0 7");
-        }
-        {
-          cbxPrioritySubsMax = new JComboBox<Integer>();
-          cbxPrioritySubsMax.setModel(new DefaultComboBoxModel<Integer>(prio));
-          pnlSerieSourcesSelectionSettings.add(cbxPrioritySubsMax, "cell 2 7,growx");
+          pnlSerieSourcesSelectionSettings.add(chkSerieSourceSubsMax, "cell 0 6");
         }
         JPanel pnlAddic7edLoginSettings = new JPanel();
         pnlSerieSources.add(pnlAddic7edLoginSettings, "cell 0 1 3 1,grow");
         pnlAddic7edLoginSettings.setLayout(new MigLayout("", "[50px:n][][grow][grow]", "[][][][]"));
-        pnlAddic7edLoginSettings.add(new JLabel("Addic7ed Login"), "cell 0 0 4 1,gapy 5");
+        pnlAddic7edLoginSettings
+            .add(new JLabel(Messages.getString("PreferenceDialog.Addic7edLogin")),
+                "cell 0 0 4 1,gapy 5");
         pnlAddic7edLoginSettings.add(new JSeparator(), "cell 0 0 4 1,growx,gapy 5");
         {
-          chkUserAddic7edLogin = new JCheckBox("Addic7ed login gebruiken");
+          chkUserAddic7edLogin =
+              new JCheckBox(Messages.getString("PreferenceDialog.UseAddic7edLogin"));
           pnlAddic7edLoginSettings.add(chkUserAddic7edLogin, "cell 0 1 3 1");
         }
         {
-          JLabel lblUsername = new JLabel("Gebruikersnaam");
+          JLabel lblUsername = new JLabel(Messages.getString("PreferenceDialog.Username"));
           pnlAddic7edLoginSettings.add(lblUsername, "cell 1 2,alignx trailing");
         }
         {
@@ -433,7 +347,7 @@ public class PreferenceDialog extends MutliSubDialog {
           txtAddic7edUsername.setColumns(10);
         }
         {
-          JLabel lblAddic7edPassword = new JLabel("Paswoord");
+          JLabel lblAddic7edPassword = new JLabel(Messages.getString("PreferenceDialog.Password"));
           pnlAddic7edLoginSettings.add(lblAddic7edPassword, "cell 1 3,alignx trailing");
         }
         {
@@ -444,20 +358,23 @@ public class PreferenceDialog extends MutliSubDialog {
         JPanel pnlLocalSourcesSettings = new JPanel();
         pnlSerieSources.add(pnlLocalSourcesSettings, "cell 0 2 3 1,grow");
         pnlLocalSourcesSettings.setLayout(new MigLayout("", "[][][][grow]", "[][][]"));
-        pnlLocalSourcesSettings.add(new JLabel("Lokale folders"), "cell 0 0 5 1,gapy 5");
+        pnlLocalSourcesSettings.add(
+            new JLabel(Messages.getString("PreferenceDialog.LocalFolders")), "cell 0 0 5 1,gapy 5");
         pnlLocalSourcesSettings.add(new JSeparator(), "cell 0 0 5 1,growx,gapy 5");
 
         {
-          JLabel lblLocalSources = new JLabel("Lokale mappen met ondertitels");
+          JLabel lblLocalSources =
+              new JLabel(Messages.getString("PreferenceDialog.LocalFolderWithSubtitles"));
           pnlLocalSourcesSettings.add(lblLocalSources, "cell 0 1,alignx left,aligny center");
         }
         {
-          JButton btnBrowseLocalSources = new JButton("map toevoegen");
+          JButton btnBrowseLocalSources =
+              new JButton(Messages.getString("PreferenceDialog.AddFolder"));
           btnBrowseLocalSources.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
               File path =
                   MemoryFolderChooser.getInstance().selectDirectory(getContentPane(),
-                      "Selecteer map");
+                      Messages.getString("PreferenceDialog.SelectFolder"));
               if (localSourcesFoldersList.getModel().getSize() == 0) {
                 localSourcesFoldersList.addItem(SettingsExcludeType.FOLDER, path.getAbsolutePath());
               } else {
@@ -477,7 +394,8 @@ public class PreferenceDialog extends MutliSubDialog {
           pnlLocalSourcesSettings.add(btnBrowseLocalSources, "cell 1 1,alignx left,aligny top");
         }
         {
-          JButton btnRemoveLocalSources = new JButton("map verwijderen");
+          JButton btnRemoveLocalSources =
+              new JButton(Messages.getString("PreferenceDialog.DeleteFolder"));
           btnRemoveLocalSources.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
               DefaultListModel<JPanel> model =
@@ -505,18 +423,18 @@ public class PreferenceDialog extends MutliSubDialog {
       buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
       getContentPane().add(buttonPane, BorderLayout.SOUTH);
       {
-        JButton okButton = new JButton(" OK ");
+        JButton okButton = new JButton(Messages.getString("PreferenceDialog.OK"));
         okButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent arg0) {
             testAndSaveValues();
           }
         });
-        okButton.setActionCommand("OK");
+        okButton.setActionCommand(Messages.getString("PreferenceDialog.OK"));
         buttonPane.add(okButton);
         getRootPane().setDefaultButton(okButton);
       }
       {
-        JButton cancelButton = new JButton("Annuleren");
+        JButton cancelButton = new JButton(Messages.getString("PreferenceDialog.Cancel"));
         cancelButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent arg0) {
             setVisible(false);
@@ -525,26 +443,6 @@ public class PreferenceDialog extends MutliSubDialog {
         cancelButton.setActionCommand("Cancel");
         buttonPane.add(cancelButton);
       }
-    }
-  }
-
-  protected void moveRuleRowDown() {
-    DefaultTableModel model = (DefaultTableModel) table.getModel();
-    if (table.getSelectedRow() >= 0 && table.getSelectedRow() < model.getRowCount()) {
-      Object oSelected = model.getValueAt(table.getSelectedRow(), 1);
-      Object oDown = model.getValueAt(table.getSelectedRow() + 1, 1);
-      model.setValueAt(oSelected, table.getSelectedRow() + 1, 1);
-      model.setValueAt(oDown, table.getSelectedRow(), 1);
-    }
-  }
-
-  protected void moveRuleRowUp() {
-    DefaultTableModel model = (DefaultTableModel) table.getModel();
-    if (table.getSelectedRow() >= 0) {
-      Object oSelected = model.getValueAt(table.getSelectedRow(), 1);
-      Object oUp = model.getValueAt(table.getSelectedRow() - 1, 1);
-      model.setValueAt(oSelected, table.getSelectedRow() - 1, 1);
-      model.setValueAt(oUp, table.getSelectedRow(), 1);
     }
   }
 
@@ -565,6 +463,9 @@ public class PreferenceDialog extends MutliSubDialog {
     txtProxyHost.setText(settingsCtrl.getSettings().getGeneralProxyHost());
     txtProxyPort.setText(String.valueOf(settingsCtrl.getSettings().getGeneralProxyPort()));
     chkAlwaysConfirm.setSelected(settingsCtrl.getSettings().isOptionsAlwaysConfirm());
+    chkMinScoreSelection.setSelected(settingsCtrl.getSettings().isOptionsMinAutomaticSelection());
+    sldMinScoreSelection
+        .setValue(settingsCtrl.getSettings().getOptionsMinAutomaticSelectionValue());
     chkSubtitleExactMethod.setSelected(settingsCtrl.getSettings().isOptionSubtitleExactMatch());
     chkSubtitleKeywordMethod.setSelected(settingsCtrl.getSettings().isOptionSubtitleKeywordMatch());
     chkExcludeHearingImpaired.setSelected(settingsCtrl.getSettings()
@@ -574,12 +475,6 @@ public class PreferenceDialog extends MutliSubDialog {
     cbxEpisodeProcessSource.setSelectedItem(settingsCtrl.getSettings().getProcessEpisodeSource());
     pnlEpisodeLibrary.setLibrarySettings(settingsCtrl.getSettings().getEpisodeLibrarySettings());
     pnlMovieLibrary.setLibrarySettings(settingsCtrl.getSettings().getMovieLibrarySettings());
-    chkAutomaticDownloadSelection.setSelected(settingsCtrl.getSettings()
-        .isOptionsAutomaticDownloadSelection());
-    chkNoRuleMatchTakeFirst.setSelected(settingsCtrl.getSettings().isOptionsNoRuleMatchTakeFirst());
-    for (String q : settingsCtrl.getSettings().getQualityRuleList()) {
-      addRuleRow(q);
-    }
     chkUserAddic7edLogin.setSelected(settingsCtrl.getSettings().isLoginAddic7edEnabled());
     txtAddic7edUsername.setText(settingsCtrl.getSettings().getLoginAddic7edUsername());
     txtAddic7edPassword.setText(settingsCtrl.getSettings().getLoginAddic7edPassword());
@@ -589,52 +484,10 @@ public class PreferenceDialog extends MutliSubDialog {
     chkSerieSourceOpensubtitles
         .setSelected(settingsCtrl.getSettings().isSerieSourceOpensubtitles());
     chkSerieSourceLocal.setSelected(settingsCtrl.getSettings().isSerieSourceLocal());
-    chkSerieSourcePrivateRepo.setSelected(settingsCtrl.getSettings().isSerieSourcePrivateRepo());
     chkSerieSourceSubsMax.setSelected(settingsCtrl.getSettings().isSerieSourceSubsMax());
-
-    for (SearchSubtitlePriority prio : settingsCtrl.getSettings().getListSearchSubtitlePriority()) {
-      switch (prio.getSubtitleSource()) {
-        case ADDIC7ED:
-          cbxPriorityAddic7ed.setSelectedItem(prio.getPriority());
-          break;
-        case LOCAL:
-          cbxPriorityLocal.setSelectedItem(prio.getPriority());
-          break;
-        case OPENSUBTITLES:
-          cbxPriorityOpensubtitles.setSelectedItem(prio.getPriority());
-          break;
-        case PODNAPISI:
-          cbxPriorityPodnapisi.setSelectedItem(prio.getPriority());
-          break;
-        case PRIVATEREPO:
-          cbxPriorityPrivateRepo.setSelectedItem(prio.getPriority());
-          break;
-        case TVSUBTITLES:
-          cbxPriorityTvSubtitles.setSelectedItem(prio.getPriority());
-          break;
-        case SUBSMAX:
-          cbxPrioritySubsMax.setSelectedItem(prio.getPriority());
-          break;
-        default:
-          break;
-      }
-
-    }
-
   }
 
   protected boolean testOptionsTab() {
-    DefaultTableModel model = (DefaultTableModel) table.getModel();
-    for (int i = 0; i < model.getRowCount(); i++) {
-      if (model.getValueAt(i, 1).equals("") || model.getValueAt(i, 1).equals("Selecteer...")) {
-        String message = "Opties: op regel " + i + 1 + " is er geen waarde geselecteerd";
-        JOptionPane.showConfirmDialog(this, message, "MultiSubDownloader",
-            JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
-        Logger.instance.debug("testOptionsTab: " + "Opties: op regel " + i + 1
-            + " is er geen waarde geselecteerd");
-        return false;
-      }
-    }
     return true;
   }
 
@@ -642,9 +495,9 @@ public class PreferenceDialog extends MutliSubDialog {
     try {
       Integer.parseInt(txtProxyPort.getText());
     } catch (Exception e) {
-      String message = "De proxy poort moet een numerische waarde zijn!";
-      JOptionPane.showConfirmDialog(this, message, "MultiSubDownloader", JOptionPane.CLOSED_OPTION,
-          JOptionPane.ERROR_MESSAGE);
+      String message = Messages.getString("PreferenceDialog.ProxyPortNumericRequired");
+      JOptionPane.showConfirmDialog(this, message, Messages.getString("PreferenceDialog.Name"),
+          JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
       Logger.instance.debug("testGeneralTab: De proxy poort moet een numerische waarde zijn!");
       return false;
     }
@@ -655,8 +508,8 @@ public class PreferenceDialog extends MutliSubDialog {
     if (chkUserAddic7edLogin.isSelected()) {
       if (txtAddic7edUsername.getText().isEmpty() | txtAddic7edPassword.getText().isEmpty()) {
         String message =
-            "Addic7ed login geselecteerd! Gelieve een username en pasword in te vullen.";
-        JOptionPane.showConfirmDialog(this, message, "MultiSubDownloader",
+            Messages.getString("PreferenceDialog.Addic7edLoginSelectEnterUsernamePassword");
+        JOptionPane.showConfirmDialog(this, message, Messages.getString("PreferenceDialog.Name"),
             JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
         Logger.instance
             .debug("testSerieSourcesTab: Addic7ed login geselecteerd! Gelieve een username en pasword in te vullen.");
@@ -670,10 +523,10 @@ public class PreferenceDialog extends MutliSubDialog {
     if (seType == SettingsExcludeType.FOLDER) {
       File path =
           MemoryFolderChooser.getInstance().selectDirectory(getContentPane(),
-              "Selecteer uitsluit map");
+              Messages.getString("PreferenceDialog.SelectExcludeFolder"));
       excludeList.addItem(seType, path.getAbsolutePath());
     } else if (seType == SettingsExcludeType.REGEX) {
-      String regex = JOptionPane.showInputDialog("Geef een REGEX op: (VB: S0*)");
+      String regex = JOptionPane.showInputDialog(Messages.getString("PreferenceDialog.EnterRegex"));
       excludeList.addItem(seType, regex);
     }
   }
@@ -697,8 +550,10 @@ public class PreferenceDialog extends MutliSubDialog {
 
       ArrayList<SettingsExcludeItem> list = new ArrayList<SettingsExcludeItem>();
       for (int i = 0; i < excludeList.getModel().getSize(); i++) {
+        SettingsExcludeType excludeListType = excludeList.getType(i);
+        if (excludeListType == null) continue;
         SettingsExcludeItem sei =
-            new SettingsExcludeItem(excludeList.getDescription(i), excludeList.getType(i));
+            new SettingsExcludeItem(excludeList.getDescription(i), excludeListType);
         list.add(sei);
       }
       settingsCtrl.getSettings().setExcludeList(list);
@@ -722,6 +577,8 @@ public class PreferenceDialog extends MutliSubDialog {
     }
     if (testOptionsTab()) {
       settingsCtrl.getSettings().setOptionsAlwaysConfirm(chkAlwaysConfirm.isSelected());
+      settingsCtrl.getSettings().setOptionsMinAutomaticSelection(chkMinScoreSelection.isSelected());
+      settingsCtrl.getSettings().setOptionsMinAutomaticSelectionValue(sldMinScoreSelection.getValue());
       settingsCtrl.getSettings().setOptionSubtitleExactMatch(chkSubtitleExactMethod.isSelected());
       settingsCtrl.getSettings().setOptionSubtitleKeywordMatch(
           chkSubtitleKeywordMethod.isSelected());
@@ -731,16 +588,6 @@ public class PreferenceDialog extends MutliSubDialog {
       settingsCtrl.getSettings().setOptionsStopOnSearchError(chkStopOnSearchError.isSelected());
       settingsCtrl.getSettings().setProcessEpisodeSource(
           (SettingsProcessEpisodeSource) cbxEpisodeProcessSource.getSelectedItem());
-      settingsCtrl.getSettings().setOptionsAutomaticDownloadSelection(
-          chkAutomaticDownloadSelection.isSelected());
-      settingsCtrl.getSettings().setOptionsNoRuleMatchMatchTakeFirst(
-          chkNoRuleMatchTakeFirst.isSelected());
-      DefaultTableModel model = (DefaultTableModel) table.getModel();
-      ArrayList<String> list = new ArrayList<String>();
-      for (int i = 0; i < model.getRowCount(); i++) {
-        list.add((String) model.getValueAt(i, 1));
-      }
-      settingsCtrl.getSettings().setQualityRuleList(list);
     } else {
       status = false;
     }
@@ -759,48 +606,7 @@ public class PreferenceDialog extends MutliSubDialog {
       settingsCtrl.getSettings().setSerieSourceOpensubtitles(
           chkSerieSourceOpensubtitles.isSelected());
       settingsCtrl.getSettings().setSerieSourceLocal(chkSerieSourceLocal.isSelected());
-      settingsCtrl.getSettings().setSerieSourcePrivateRepo(chkSerieSourcePrivateRepo.isSelected());
       settingsCtrl.getSettings().setSerieSourceSubsMax(chkSerieSourceSubsMax.isSelected());
-
-      // Save priority
-      SearchSubtitlePriority prioAddic7ed =
-          new SearchSubtitlePriority(SubtitleSource.ADDIC7ED,
-              (Integer) cbxPriorityAddic7ed.getSelectedItem());
-      SearchSubtitlePriority prioLocal =
-          new SearchSubtitlePriority(SubtitleSource.LOCAL,
-              (Integer) cbxPriorityLocal.getSelectedItem());
-      SearchSubtitlePriority prioOpensubtitles =
-          new SearchSubtitlePriority(SubtitleSource.OPENSUBTITLES,
-              (Integer) cbxPriorityOpensubtitles.getSelectedItem());
-      SearchSubtitlePriority prioPodnapisi =
-          new SearchSubtitlePriority(SubtitleSource.PODNAPISI,
-              (Integer) cbxPriorityPodnapisi.getSelectedItem());
-      SearchSubtitlePriority prioPrivateRepo =
-          new SearchSubtitlePriority(SubtitleSource.PRIVATEREPO,
-              (Integer) cbxPriorityPrivateRepo.getSelectedItem());
-      SearchSubtitlePriority prioTvSubtitles =
-          new SearchSubtitlePriority(SubtitleSource.TVSUBTITLES,
-              (Integer) cbxPriorityTvSubtitles.getSelectedItem());
-      SearchSubtitlePriority prioSubsMax =
-          new SearchSubtitlePriority(SubtitleSource.SUBSMAX,
-              (Integer) cbxPrioritySubsMax.getSelectedItem());
-      List<SearchSubtitlePriority> lPrio = new ArrayList<SearchSubtitlePriority>();
-
-      lPrio.add(prioAddic7ed);
-      lPrio.add(prioLocal);
-      lPrio.add(prioOpensubtitles);
-      lPrio.add(prioPodnapisi);
-      lPrio.add(prioPrivateRepo);
-      lPrio.add(prioTvSubtitles);
-      lPrio.add(prioSubsMax);
-
-      java.util.Collections.sort(lPrio, new Comparator<SearchSubtitlePriority>() {
-        public int compare(SearchSubtitlePriority t1, SearchSubtitlePriority t2) {
-          return t1.getPriority() - t2.getPriority();
-        }
-      });
-
-      settingsCtrl.getSettings().setListSearchSubtitlePriority(lPrio);
     } else {
       status = false;
     }
@@ -809,5 +615,6 @@ public class PreferenceDialog extends MutliSubDialog {
       setVisible(false);
       settingsCtrl.store();
     }
+    this.eventEmitter.fire(new Event("providers.settings.change"));
   }
 }

@@ -33,10 +33,7 @@ public class DetectLanguage {
 
   private static String readText(File file) {
     String text = "";
-    FileInputStream is = null;
-    try {
-      is = new FileInputStream(file);
-
+    try (FileInputStream is = new FileInputStream(file)){
       byte[] contents = new byte[(int) file.length()];
       is.read(contents);
 
@@ -45,12 +42,6 @@ public class DetectLanguage {
       Logger.instance.error(Logger.stack2String(e));
     } catch (IOException e) {
       Logger.instance.error(Logger.stack2String(e));
-    } finally {
-      try {
-        if (is != null) is.close();
-      } catch (IOException e) {
-        Logger.instance.error(Logger.stack2String(e));
-      }
     }
 
     return text;

@@ -18,16 +18,17 @@ public class UpdateAvailableDropbox {
   private String updatedUrl;
   private final CacheManager ucm;
   private static long timeout = 900;
-  private final static String programName = "MultiSubDownloader";
-  private final static String extension = "jar";
+  private final static String programName = ConfigProperties.getInstance().getProperty("updateProgramName");
+  private final static String extension = ConfigProperties.getInstance().getProperty("updateProgramExtension");
 
   public UpdateAvailableDropbox() {
-    url = "https://www.dropbox.com/sh/1gz18xwzinfgmbl/gDfSgYN1qC";
+    url = ConfigProperties.getInstance().getProperty("updateUrlDropbox");
     ucm = CacheManager.getURLCache();
     updatedUrl = "";
   }
 
   public boolean checkProgram() {
+    Logger.instance.log(Messages.getString("UpdateAvailableDropbox.CheckingForUpdate"));
     try {
       return check(programName, extension);
     } catch (Exception e) {

@@ -1,19 +1,26 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
-import net.miginfocom.swing.MigLayout;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-
-import org.lodder.subtools.multisubdownloader.lib.Actions;
-import org.lodder.subtools.sublibrary.model.Subtitle;
-
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-public class SelectDialog extends MutliSubDialog {
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.border.EmptyBorder;
+
+import net.miginfocom.swing.MigLayout;
+
+import org.lodder.subtools.multisubdownloader.Messages;
+
+public class SelectDialog extends MultiSubDialog {
 
   public enum SelectionType {
     OK(1), ALL(999999), CANCEL(-1);
@@ -36,16 +43,16 @@ public class SelectDialog extends MutliSubDialog {
   private final JPanel contentPanel = new JPanel();
   private JPanel pnlSelect;
   private SelectionType answer = SelectionType.CANCEL;
-  private List<Subtitle> lSubs;
+  private List<String> lines;
   private String filename;
 
 
   /**
    * Create the dialog.
    */
-  public SelectDialog(JFrame frame, List<Subtitle> lSubs, String filename) {
-    super(frame, "Selecteer de correcte ondertitel", true);
-    this.lSubs = lSubs;
+  public SelectDialog(JFrame frame, List<String> lines, String filename) {
+    super(frame, Messages.getString("SelectDialog.SelectCorrectSubtitle"), true);
+    this.lines = lines;
     this.filename = filename;
     initialize();
     loadSelection();
@@ -55,9 +62,9 @@ public class SelectDialog extends MutliSubDialog {
 
   private void loadSelection() {
     ButtonGroup group = new ButtonGroup();
-    for (Subtitle subtitle : lSubs) {
-      JRadioButton option = new JRadioButton(Actions.buildDisplayLine(subtitle));
-      option.setName("option");
+    for (String line : lines) {
+      JRadioButton option = new JRadioButton(line);
+      option.setName(Messages.getString("SelectDialog.Option"));
       group.add(option);
       pnlSelect.add(option);
     }
@@ -72,7 +79,7 @@ public class SelectDialog extends MutliSubDialog {
     contentPanel.setLayout(new MigLayout("", "[grow]", "[][::300px,grow]"));
     {
       JLabel lblNewLabel =
-          new JLabel("Selecteer de correcte ondertitel voor dit bestand: " + filename);
+          new JLabel(Messages.getString("SelectDialog.SelectCorrectSubtitleThisRelease") + filename);
       contentPanel.add(lblNewLabel, "cell 0 0");
     }
     {
@@ -89,7 +96,7 @@ public class SelectDialog extends MutliSubDialog {
       buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
       getContentPane().add(buttonPane, BorderLayout.SOUTH);
       {
-        JButton okButton = new JButton("OK");
+        JButton okButton = new JButton(Messages.getString("SelectDialog.OK"));
         okButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent arg0) {
             answer = SelectionType.OK;
@@ -101,7 +108,7 @@ public class SelectDialog extends MutliSubDialog {
         getRootPane().setDefaultButton(okButton);
       }
       {
-        JButton allButton = new JButton("Alles");
+        JButton allButton = new JButton(Messages.getString("SelectDialog.Everything"));
         allButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent arg0) {
             answer = SelectionType.ALL;
@@ -109,11 +116,11 @@ public class SelectDialog extends MutliSubDialog {
           }
         });
         allButton.setActionCommand("Alles");
-        if (lSubs.size() == 1) allButton.setEnabled(false);
+        if (lines.size() == 1) allButton.setEnabled(false);
         buttonPane.add(allButton);
       }
       {
-        JButton cancelButton = new JButton("Cancel");
+        JButton cancelButton = new JButton(Messages.getString("SelectDialog.Cancel"));
         cancelButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent arg0) {
             answer = SelectionType.CANCEL;

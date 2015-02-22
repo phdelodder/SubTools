@@ -1,18 +1,41 @@
 package org.lodder.subtools.multisubdownloader.lib.library;
 
+import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
+import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
+import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
+import org.lodder.subtools.sublibrary.model.Release;
+import org.lodder.subtools.sublibrary.model.TvRelease;
+
 import java.util.List;
 
-import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
-
-public class LibraryBuilder {
+public abstract class LibraryBuilder {
 
   protected final LibrarySettings librarySettings;
 
   public LibraryBuilder(LibrarySettings librarySettings) {
     this.librarySettings = librarySettings;
   }
+  
+  public abstract String build(Release release);
+  
+  protected String getShowName(TvRelease tvRelease) {
+    String show = "";
+    if (librarySettings.isLibraryUseTVDBNaming()) {
+      final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter();
+      TheTVDBSerie tvdbs = jtvdb.getSerie(tvRelease);
+      if (tvdbs == null) {
+        //use showname found for release as tvdb returns null
+        show = tvRelease.getShow();
+      } else {
+        show = tvdbs.getSerieName();
+      }
+    } else {
+      show = tvRelease.getShow();
+    }
+    return show;
+  }
 
-  public String replaceFormatedEpisodeNumber(String structure, String tag,
+  protected String replaceFormatedEpisodeNumber(String structure, String tag,
       List<Integer> episodeNumbers, boolean leadingZero) {
 
     String formatedEpisodeNumber = "";
@@ -22,11 +45,12 @@ public class LibraryBuilder {
       int posBegin = structurePart.lastIndexOf("%");
       String seperator = structure.substring(posBegin + 1, posEnd);
 
-
+      StringBuilder builder = new StringBuilder();
       for (final int epNum : episodeNumbers) {
-        formatedEpisodeNumber += seperator + formatedNumber(epNum, leadingZero);
+        builder.append(seperator).append(formatedNumber(epNum, leadingZero));
       }
-
+      formatedEpisodeNumber += builder.toString();
+      
       // strip the first seperator off
       formatedEpisodeNumber = formatedEpisodeNumber.substring(1, formatedEpisodeNumber.length());
     }
@@ -34,7 +58,7 @@ public class LibraryBuilder {
 
   }
 
-  public String formatedNumber(int number, boolean leadingZero) {
+  protected String formatedNumber(int number, boolean leadingZero) {
     if (number < 10 && leadingZero) {
       return "0" + number;
     }

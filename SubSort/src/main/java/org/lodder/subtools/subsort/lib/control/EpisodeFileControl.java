@@ -2,30 +2,30 @@ package org.lodder.subtools.subsort.lib.control;
 
 import java.util.List;
 
-import org.lodder.subtools.sublibrary.exception.VideoControlException;
+import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 
 public class EpisodeFileControl extends VideoFileControl {
 
-  public EpisodeFileControl(EpisodeFile episodeFile) {
-    super(episodeFile);
+  public EpisodeFileControl(TvRelease tvRelease) {
+    super(tvRelease);
   }
 
-  public EpisodeFile process(List<MappingTvdbScene> dict) throws VideoControlException {
+  public TvRelease process(List<MappingTvdbScene> dict) throws ReleaseControlException {
     Logger.instance.trace("EpisodeFileControl", "process", "");
 
-    EpisodeFile episodeFile = (EpisodeFile) videoFile;
+    TvRelease tvRelease = (TvRelease) release;
     // return episodeFile;
-    if (episodeFile.getShow().equals("")) {
-      throw new VideoControlException("Unable to extract episode details, check file", videoFile);
+    if (tvRelease.getShow().equals("")) {
+      throw new ReleaseControlException("Unable to extract episode details, check file", release);
     } else {
-      Logger.instance.debug("Showname: " + episodeFile.getShow());
-      Logger.instance.debug("Season: " + episodeFile.getSeason());
-      Logger.instance.debug("Episode: " + episodeFile.getEpisodeNumbers());
+      Logger.instance.debug("Showname: " + tvRelease.getShow());
+      Logger.instance.debug("Season: " + tvRelease.getSeason());
+      Logger.instance.debug("Episode: " + tvRelease.getEpisodeNumbers());
 
-      return episodeFile;
+      return tvRelease;
     }
   }
 }

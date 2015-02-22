@@ -5,7 +5,7 @@ import java.util.List;
 import org.lodder.subtools.sublibrary.data.tvrage.TVRageApi;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageShowInfo;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 
 public class JTVRageAdapter {
 
@@ -15,7 +15,7 @@ public class JTVRageAdapter {
     trapi = new TVRageApi();
   }
 
-  public TVRageShowInfo searchShow(EpisodeFile newEp) {
+  public TVRageShowInfo searchShow(TvRelease newEp) {
     return searchShow(newEp.getShow());
   }
 

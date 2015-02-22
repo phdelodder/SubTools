@@ -1,10 +1,9 @@
 package org.lodder.subtools.multisubdownloader.lib.library;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
-import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
-import org.lodder.subtools.sublibrary.model.EpisodeFile;
+import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
-import org.lodder.subtools.sublibrary.model.VideoFile;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.StringUtils;
 
 public class FilenameLibraryBuilder extends LibraryBuilder {
@@ -13,42 +12,36 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
     super(librarySettings);
   }
 
-  public String buildFileName(VideoFile videoFile) {
+  public String build(Release release) {
     String filename = "";
     if (((librarySettings.getLibraryAction().equals(LibraryActionType.RENAME) || librarySettings
         .getLibraryAction().equals(LibraryActionType.MOVEANDRENAME)))
-        && videoFile instanceof EpisodeFile
+        && release instanceof TvRelease
         && !librarySettings.getLibraryFilenameStructure().isEmpty()) {
-      EpisodeFile episodeFile = (EpisodeFile) videoFile;
+      TvRelease tvRelease = (TvRelease) release;
 
-      String show = "";
-      if (librarySettings.isLibraryUseTVDBNaming()) {
-        final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter();
-        show = jtvdb.getSerie(episodeFile).getSerieName();
-      } else {
-        show = episodeFile.getShow();
-      }
+      String show = getShowName(tvRelease);
 
       filename = librarySettings.getLibraryFilenameStructure();
       // order is important!
       filename = filename.replaceAll("%SHOW NAME%", show);
       filename =
-          replaceFormatedEpisodeNumber(filename, "%EEX%", episodeFile.getEpisodeNumbers(), true);
+          replaceFormatedEpisodeNumber(filename, "%EEX%", tvRelease.getEpisodeNumbers(), true);
       filename =
-          replaceFormatedEpisodeNumber(filename, "%EX%", episodeFile.getEpisodeNumbers(), false);
-      filename = filename.replaceAll("%SS%", formatedNumber(episodeFile.getSeason(), true));
-      filename = filename.replaceAll("%S%", formatedNumber(episodeFile.getSeason(), false));
+          replaceFormatedEpisodeNumber(filename, "%EX%", tvRelease.getEpisodeNumbers(), false);
+      filename = filename.replaceAll("%SS%", formatedNumber(tvRelease.getSeason(), true));
+      filename = filename.replaceAll("%S%", formatedNumber(tvRelease.getSeason(), false));
       filename =
-          filename.replaceAll("%EE%", formatedNumber(episodeFile.getEpisodeNumbers().get(0), true));
+          filename.replaceAll("%EE%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), true));
       filename =
-          filename.replaceAll("%E%", formatedNumber(episodeFile.getEpisodeNumbers().get(0), false));
-      filename = filename.replaceAll("%TITLE%", episodeFile.getTitle());
-      filename = filename.replaceAll("%QUALITY%", videoFile.getQuality());
-      filename = filename.replaceAll("%DESCRIPTION%", videoFile.getDescription());
+          filename.replaceAll("%E%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), false));
+      filename = filename.replaceAll("%TITLE%", tvRelease.getTitle());
+      filename = filename.replaceAll("%QUALITY%", release.getQuality());
+      filename = filename.replaceAll("%DESCRIPTION%", release.getDescription());
 
-      filename += "." + videoFile.getExtension();
+      filename += "." + release.getExtension();
     } else {
-      filename = videoFile.getFilename();
+      filename = release.getFilename();
     }
     if (librarySettings.isLibraryReplaceChars()) {
       filename = StringUtils.removeIllegalWindowsChars(filename);
@@ -59,35 +52,39 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
     return filename;
   }
 
-  public String buildSubFileName(VideoFile videoFile, Subtitle sub, String filename, int version) {
-    return buildSubFileName(videoFile, filename, sub.getLanguagecode(), version);
+  public String buildSubtitle(Release release, Subtitle sub, String filename, int version) {
+    return buildSubtitle(release, filename, sub.getLanguagecode(), version);
   }
 
-  public String buildSubFileName(VideoFile videoFile, String filename, String languageCode,
+  public String buildSubtitle(Release release, String filename, String languageCode,
       int version) {
-    final String extension = "." + videoFile.getExtension();
+    final String extension = "." + release.getExtension();
     if (version > 0) {
       filename =
           filename.substring(0, filename.indexOf(extension)) + "-v" + version + "."
-              + videoFile.getExtension();
+              + release.getExtension();
     }
     if (librarySettings.isLibraryIncludeLanguageCode()) {
-      if (languageCode.equals("nl")) {
-        if (librarySettings.getDefaultNlText().equals("")) {
+      switch (languageCode) {
+        case "nl":
+          if (librarySettings.getDefaultNlText().equals("")) {
+            filename = changeExtension(filename, ".nld.srt");
+          } else {
+            final String ext = "." + librarySettings.getDefaultNlText() + ".srt";
+            filename = changeExtension(filename, ext);
+          }
+          break;
+        case "en":
+          if (librarySettings.getDefaultEnText().equals("")) {
+            filename = changeExtension(filename, ".eng.srt");
+          } else {
+            final String ext = "." + librarySettings.getDefaultEnText() + ".srt";
+            filename = changeExtension(filename, ext);
+          }
+          break;
+        default:
           filename = changeExtension(filename, ".nld.srt");
-        } else {
-          final String ext = "." + librarySettings.getDefaultNlText() + ".srt";
-          filename = changeExtension(filename, ext);
-        }
-      } else if (languageCode.equals("en")) {
-        if (librarySettings.getDefaultEnText().equals("")) {
-          filename = changeExtension(filename, ".eng.srt");
-        } else {
-          final String ext = "." + librarySettings.getDefaultEnText() + ".srt";
-          filename = changeExtension(filename, ext);
-        }
-      } else {
-        filename = changeExtension(filename, ".nld.srt");
+          break;
       }
     } else {
 

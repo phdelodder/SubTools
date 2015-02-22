@@ -1,35 +1,47 @@
 package org.lodder.subtools.multisubdownloader.gui.workers;
 
-import javax.swing.*;
+import java.util.List;
 
+import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
+
+import org.lodder.subtools.multisubdownloader.actions.DownloadAction;
+import org.lodder.subtools.multisubdownloader.actions.SubtitleSelectionAction;
+import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.dialog.SelectDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
-import org.lodder.subtools.multisubdownloader.lib.Actions;
+import org.lodder.subtools.multisubdownloader.lib.Info;
+import org.lodder.subtools.multisubdownloader.lib.SubtitleSelectionGUI;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.VideoFile;
-
-import java.util.List;
+import org.lodder.subtools.sublibrary.model.Release;
 
 /**
  * Created by IntelliJ IDEA. User: lodder Date: 4/12/11 Time: 8:52 AM To change this template use
  * File | Settings | File Templates.
  */
-public class DownloadWorker extends SwingWorker<Void, String> {
+public class DownloadWorker extends SwingWorker<Void, String> implements Cancelable {
 
   private final VideoTable table;
-  private final Actions actions;
+  private final Settings settings;
+  private DownloadAction downloadAction;
+  private SubtitleSelectionAction subtitleSelectionAction;
 
   public DownloadWorker(VideoTable table, Settings settings) {
     this.table = table;
-    actions = new Actions(settings, false);
+    this.settings = settings;
+    downloadAction = new DownloadAction(settings);
+    subtitleSelectionAction = new SubtitleSelectionAction(settings);
+    subtitleSelectionAction.setSubtitleSelection(new SubtitleSelectionGUI(settings));
   }
 
   protected Void doInBackground() throws Exception {
-    Logger.instance.trace(DownloadWorker.class.toString(), "doInBackground", "Rows to thread: " + table.getModel().getRowCount());
+    Logger.instance.trace(DownloadWorker.class.toString(), "doInBackground", "Rows to thread: "
+        + table.getModel().getRowCount());
+    Info.downloadOptions(settings);
     final VideoTableModel model = (VideoTableModel) table.getModel();
     int selectedCount = model.getSelectedCount(table.getColumnIdByName(SearchColumnName.SELECT));
     int progress = 0;
@@ -40,21 +52,25 @@ public class DownloadWorker extends SwingWorker<Void, String> {
         if (k > 0) progress = 100 * k / selectedCount;
         if (progress == 0 && selectedCount > 1) progress = 1;
         setProgress(progress);
-        final VideoFile videoFile =
-            (VideoFile) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.OBJECT));
-        publish(videoFile.getFilename());
-        int selection = actions.determineWhatSubtitleDownload(videoFile, true);
+        final Release release =
+            (Release) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.OBJECT));
+        publish(release.getFilename());
+        int selection = subtitleSelectionAction.subtitleSelection(release, true);
         if (selection >= 0) {
           try {
             if (selection == SelectDialog.SelectionType.ALL.getSelectionCode()) {
-              Logger.instance.debug("Downloaded ALL subs for episode: " + videoFile.getFilename());
-              for (int j = 0; j < videoFile.getMatchingSubs().size(); j++) {
-                actions.download(videoFile, videoFile.getMatchingSubs().get(j), j + 1);
+              Logger.instance.log("Downloading ALL found subtitles for release: "
+                  + release.getFilename());
+              for (int j = 0; j < release.getMatchingSubs().size(); j++) {
+                Logger.instance.log("Downloading subtitle: "
+                    + release.getMatchingSubs().get(0).getFilename());
+                downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
               }
             } else {
-              Logger.instance.debug("Downloaded subs for episode: " + videoFile.getFilename()
-                  + " using these subs: " + videoFile.getMatchingSubs().get(0).getFilename());
-              actions.download(videoFile, videoFile.getMatchingSubs().get(selection));
+              Logger.instance.log("Downloading subtitle: "
+                  + release.getMatchingSubs().get(selection).getFilename() + " for release: "
+                  + release.getFilename());
+              downloadAction.download(release, release.getMatchingSubs().get(selection));
             }
             model.removeRow(i);
             i--;

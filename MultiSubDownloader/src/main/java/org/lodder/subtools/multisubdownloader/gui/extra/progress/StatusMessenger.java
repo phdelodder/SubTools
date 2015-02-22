@@ -14,6 +14,12 @@ public enum StatusMessenger implements Messenger {
     }
   }
 
+  public void removeListener(Messenger sm) {
+    synchronized (statusmessagers) {
+      statusmessagers.remove(sm);
+    }
+  }
+
   public void message(String message) {
     synchronized (statusmessagers) {
       for (Messenger sm : statusmessagers)
