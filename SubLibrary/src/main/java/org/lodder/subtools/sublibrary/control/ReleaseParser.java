@@ -84,9 +84,13 @@ public class ReleaseParser {
 
     if (namedgroups.contains("moviename")) {
       if (namedgroups.contains("part")) {
+        String number = "";
+        if (namedgroups.contains("partnumber")) number = namedMatcher.group("partnumber");
+        if (namedgroups.contains("romanepisode")) number = namedMatcher.group("romanepisode");
+
         return new Object[] {
             cleanUnwantedChars(namedMatcher.group("moviename") + " " + namedMatcher.group("part")
-                + " " + namedMatcher.group("romanepisode")), year, description};
+                + " " + number), year, description};
       } else {
         return new Object[] {cleanUnwantedChars(namedMatcher.group("moviename")), year, description};
       }
