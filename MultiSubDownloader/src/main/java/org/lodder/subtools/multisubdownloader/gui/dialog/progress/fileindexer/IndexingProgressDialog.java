@@ -51,6 +51,7 @@ public class IndexingProgressDialog extends ProgressDialog implements IndexingPr
     if (this.completed) {
       return;
     }
+    if (this.isVisible()) return;
     this.setVisible(true);
   }
 }
