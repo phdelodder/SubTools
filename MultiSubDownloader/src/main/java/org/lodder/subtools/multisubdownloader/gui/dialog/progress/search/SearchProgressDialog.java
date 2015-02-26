@@ -40,8 +40,8 @@ public class SearchProgressDialog extends MultiSubDialog implements SearchProgre
   @Override
   public void progress(SubtitleProvider provider, int jobsLeft, Release release) {
     this.setVisible();
-    this.tableModel
-        .update(provider.getName(), jobsLeft, (release == null ? "Done" : release.getFilename()));
+    this.tableModel.update(provider.getName(), jobsLeft,
+        (release == null ? "Done" : release.getFilename()));
   }
 
   @Override
@@ -112,6 +112,7 @@ public class SearchProgressDialog extends MultiSubDialog implements SearchProgre
     if (this.completed) {
       return;
     }
+    if (this.isVisible()) return;
     this.setVisible(true);
   }
 }

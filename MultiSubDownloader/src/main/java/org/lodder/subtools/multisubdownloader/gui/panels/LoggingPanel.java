@@ -51,6 +51,7 @@ public class LoggingPanel extends JPanel {
   
   public void setLogText(String str1){
     this.txtLogging.setText(str1);
+    repaint();
   }
   
 }

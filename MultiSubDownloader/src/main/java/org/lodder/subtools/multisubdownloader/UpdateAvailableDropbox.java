@@ -18,8 +18,10 @@ public class UpdateAvailableDropbox {
   private String updatedUrl;
   private final CacheManager ucm;
   private static long timeout = 900;
-  private final static String programName = ConfigProperties.getInstance().getProperty("updateProgramName");
-  private final static String extension = ConfigProperties.getInstance().getProperty("updateProgramExtension");
+  private final static String programName = ConfigProperties.getInstance().getProperty(
+      "updateProgramName");
+  private final static String extension = ConfigProperties.getInstance().getProperty(
+      "updateProgramExtension");
 
   public UpdateAvailableDropbox() {
     url = ConfigProperties.getInstance().getProperty("updateUrlDropbox");
@@ -53,7 +55,8 @@ public class UpdateAvailableDropbox {
 
   private boolean check(String baseName, String extension) {
     try {
-      String newFoundVersion = ConfigProperties.getInstance().getProperty("version");
+      String newFoundVersion =
+          ConfigProperties.getInstance().getProperty("version").replace("-SNAPSHOT", "");
       String source = ucm.fetchAsString(new URL(url), timeout);
       Document sourceDoc = Jsoup.parse(source);
       Elements results = sourceDoc.getElementsByClass("filename-link");
@@ -65,7 +68,9 @@ public class UpdateAvailableDropbox {
                   .replace("-v", "").replace("-r", "").replace("." + extension, "").trim()
                   .replace("?dl=0", "");
           int compare =
-              compareVersions(ConfigProperties.getInstance().getProperty("version"), foundVersion);
+              compareVersions(
+                  ConfigProperties.getInstance().getProperty("version").replace("-SNAPSHOT", ""),
+                  foundVersion);
           if (compare < 0) {
             if (compareVersions(newFoundVersion, foundVersion) <= 0) {
               newFoundVersion = foundVersion;

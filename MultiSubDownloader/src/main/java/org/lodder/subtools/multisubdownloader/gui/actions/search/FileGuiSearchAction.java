@@ -42,6 +42,7 @@ public class FileGuiSearchAction extends GuiSearchAction {
     release.getMatchingSubs().addAll(subtitles);
 
     model.addRow(release);
+    mainwindow.repaint();
 
     /* Let GuiSearchAction also make some decisions */
     super.onFound(release, subtitles);

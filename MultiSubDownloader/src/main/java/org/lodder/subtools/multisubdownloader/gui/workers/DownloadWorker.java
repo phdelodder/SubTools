@@ -62,14 +62,9 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
               Logger.instance.log("Downloading ALL found subtitles for release: "
                   + release.getFilename());
               for (int j = 0; j < release.getMatchingSubs().size(); j++) {
-                Logger.instance.log("Downloading subtitle: "
-                    + release.getMatchingSubs().get(0).getFilename());
                 downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
               }
             } else {
-              Logger.instance.log("Downloading subtitle: "
-                  + release.getMatchingSubs().get(selection).getFilename() + " for release: "
-                  + release.getFilename());
               downloadAction.download(release, release.getMatchingSubs().get(selection));
             }
             model.removeRow(i);
