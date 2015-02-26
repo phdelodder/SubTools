@@ -10,7 +10,7 @@ import org.lodder.subtools.sublibrary.logging.Logger;
 public class IMDBSearchID {
 
   private Manager manager;
-
+  private static String DEFAULTUSERAGENT = "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)";
 
   public IMDBSearchID(Manager manager) {
     this.manager = manager;
@@ -39,7 +39,7 @@ public class IMDBSearchID {
 
       sb.append("+site%3Aimdb.com&fr=yfp-t-501&ei=UTF-8&rd=r1");
 
-      xml = manager.getContent(sb.toString(), null, true);
+      xml = manager.getContent(sb.toString(), DEFAULTUSERAGENT, true);
       int beginIndex = xml.indexOf("/title/tt");
       StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 7), "/\"");
       String imdbId = st.nextToken();
@@ -69,7 +69,7 @@ public class IMDBSearchID {
 
       sb.append("+site%3Awww.imdb.com&meta=");
 
-      xml = manager.getContent(sb.toString(), null, true);
+      xml = manager.getContent(sb.toString(), DEFAULTUSERAGENT, true);
       String imdbId = "";
 
       int beginIndex = xml.indexOf("/title/tt");
