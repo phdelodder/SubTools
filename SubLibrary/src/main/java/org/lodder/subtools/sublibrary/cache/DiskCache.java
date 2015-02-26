@@ -15,7 +15,8 @@ public class DiskCache<K, T> extends InMemoryCache<K, T> {
   private final File path;
   private Connection conn;
 
-  public DiskCache(long crunchifyTimeToLive, long crunchifyTimerInterval, int maxItems, String username, String password) {
+  public DiskCache(long crunchifyTimeToLive, long crunchifyTimerInterval, int maxItems,
+      String username, String password) {
     super(crunchifyTimeToLive, crunchifyTimerInterval, maxItems);
     path = new File(System.getProperty("user.home"), ".MultiSubDownloader");
     if (!path.exists()) {
@@ -30,7 +31,7 @@ public class DiskCache<K, T> extends InMemoryCache<K, T> {
               + "/diskcache.hsqldb;hsqldb.write_delay=false;shutdown=true", username, password);
 
       PreparedStatement prep =
-          conn.prepareStatement("create table IF NOT EXISTS cacheobjects (key LONGVARCHAR not null, value LONGVARCHAR);");
+          conn.prepareStatement("create table IF NOT EXISTS cacheobjects (key OTHER, cacheobject OTHER);");
       prep.execute();
       prep.close();
       fillCacheMap();
@@ -44,9 +45,9 @@ public class DiskCache<K, T> extends InMemoryCache<K, T> {
   @SuppressWarnings("unchecked")
   private void fillCacheMap() {
     try (Statement stmt = conn.createStatement()) {
-      ResultSet rs = stmt.executeQuery("SELECT key, value FROM cacheobjects");
+      ResultSet rs = stmt.executeQuery("SELECT key, cacheobject FROM cacheobjects");
       while (rs.next()) {
-        super.put((K) rs.getString("key"), (T) rs.getString("value"));
+        cacheMap.put(rs.getObject("key"), rs.getObject("cacheobject"));
       }
       rs.close();
     } catch (SQLException e) {
@@ -60,7 +61,7 @@ public class DiskCache<K, T> extends InMemoryCache<K, T> {
     super.remove(key);
     try (PreparedStatement prep = conn.prepareCall("delete from cacheobjects where key = ?")) {
       prep.clearParameters();
-      prep.setString(1, (String) key);
+      prep.setObject(1, key);
       prep.execute();
     } catch (SQLException e) {
       Logger.instance.error("Unable to delete object from disk cache!");
@@ -70,10 +71,11 @@ public class DiskCache<K, T> extends InMemoryCache<K, T> {
   public void put(K key, T value) {
     super.put(key, value);
     try (PreparedStatement prep =
-        conn.prepareCall("INSERT INTO cacheobjects (key,value) VALUES (?,?)")) {
+        conn.prepareCall("INSERT INTO cacheobjects (key,cacheobject) VALUES (?,?)")) {
       prep.clearParameters();
-      prep.setString(1, (String) key);
-      prep.setString(2, (String) value);
+      prep.setObject(1, key);
+      CacheObject<?, ?> cacheObject = (CacheObject<?, ?>) cacheMap.get(key);
+      prep.setObject(2, cacheObject);
       prep.execute();
     } catch (SQLException e) {
       Logger.instance.error("Unable to insert object in disk cache!");
