@@ -92,7 +92,7 @@ public class InMemoryCache<K, T> {
         key = (K) itr.next();
         c = (CacheObject<K, T>) itr.getValue();
 
-        if (c != null && (now > (timeToLive + c.lastAccessed))) {
+        if (c != null && (now > (timeToLive + c.created))) {
           deleteKey.add(key);
         }
       }
