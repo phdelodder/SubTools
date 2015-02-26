@@ -7,6 +7,7 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax.JSubsMaxApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax.model.SubMaxSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.JSubAdapter;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -19,10 +20,10 @@ public class JSubsMaxAdapter implements JSubAdapter, SubtitleProvider  {
 
   private static JSubsMaxApi jsmapi;
 
-  public JSubsMaxAdapter() {
+  public JSubsMaxAdapter(Manager manager) {
     try {
       if (jsmapi == null) {
-        jsmapi = new JSubsMaxApi();
+        jsmapi = new JSubsMaxApi(manager);
       }
     } catch (Exception e) {
       Logger.instance.error("API JSubsMax INIT: " + e.getCause());

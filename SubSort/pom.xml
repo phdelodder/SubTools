@@ -69,7 +69,7 @@
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>org.lodder.subtools.multisubdownloader.App</mainClass>
+							<mainClass>org.lodder.subtools.subsort.App</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

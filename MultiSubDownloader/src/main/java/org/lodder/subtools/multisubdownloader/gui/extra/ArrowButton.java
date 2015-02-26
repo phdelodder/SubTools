@@ -197,6 +197,8 @@ public class ArrowButton extends JButton {
           j++;
         }
         break;
+      default:
+        break;
     }
 
     g.translate(-x, -y);

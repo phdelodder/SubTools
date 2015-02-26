@@ -9,6 +9,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.Local;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
+import org.lodder.subtools.sublibrary.Manager;
 
 public class LocalServiceProvider implements ServiceProvider {
 
@@ -41,8 +42,8 @@ public class LocalServiceProvider implements ServiceProvider {
 
   private SubtitleProvider createProvider() {
     Settings settings = (Settings) this.app.make("Settings");
-
-    return new Local(settings);
+    Manager manager = (Manager) app.make("Manager");
+    return new Local(settings, manager);
   }
 
   private void registerListener(final SubtitleProviderStore subtitleProviderStore) {

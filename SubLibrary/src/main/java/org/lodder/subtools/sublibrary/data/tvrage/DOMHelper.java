@@ -17,20 +17,8 @@ package org.lodder.subtools.sublibrary.data.tvrage;
  * see <http://www.gnu.org/licenses/>.
  */
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.lodder.subtools.sublibrary.util.http.HttpClient;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 
 /**
@@ -40,8 +28,6 @@ import org.xml.sax.SAXException;
  *
  */
 public class DOMHelper {
-
-  private static final String DEFAULT_CHARSET = "UTF-8";
 
   // Hide the constructor
   protected DOMHelper() {
@@ -72,28 +58,5 @@ public class DOMHelper {
       }
       return tagNodeList.item(0).getNodeValue();
     }
-  }
-
-  /**
-   * Get a DOM document from the supplied URL
-   *
-   * @param url
-   * @return
-   * @throws IOException
-   * @throws ParserConfigurationException
-   * @throws SAXException
-   */
-  public static Document getEventDocFromUrl(String url) throws IOException,
-      ParserConfigurationException, SAXException {
-    Document doc = null;
-    String webPage = HttpClient.getHttpClient().doGet(new URL(url), "");
-
-    try (InputStream in = new ByteArrayInputStream(webPage.getBytes(DEFAULT_CHARSET))) {
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-      DocumentBuilder db = dbf.newDocumentBuilder();
-      doc = db.parse(in);
-      doc.getDocumentElement().normalize();
-    }
-    return doc;
   }
 }

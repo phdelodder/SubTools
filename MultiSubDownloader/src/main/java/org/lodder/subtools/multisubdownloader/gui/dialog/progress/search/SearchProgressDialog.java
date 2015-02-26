@@ -20,6 +20,10 @@ import org.lodder.subtools.sublibrary.model.Release;
 
 public class SearchProgressDialog extends MultiSubDialog implements SearchProgressListener {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = -1331536352530988442L;
   private final Cancelable searchAction;
   private final GUI window;
   private SearchProgressTableModel tableModel;

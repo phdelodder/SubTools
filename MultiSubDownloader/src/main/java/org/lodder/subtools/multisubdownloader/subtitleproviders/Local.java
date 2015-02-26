@@ -8,6 +8,7 @@ import org.lodder.subtools.multisubdownloader.lib.control.MovieReleaseControl;
 import org.lodder.subtools.multisubdownloader.lib.control.TvReleaseControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.DetectLanguage;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
@@ -22,9 +23,11 @@ import org.lodder.subtools.sublibrary.util.Utils;
 public class Local implements SubtitleProvider {
 
   private Settings settings;
+  private Manager manager;
 
-  public Local(Settings settings) {
+  public Local(Settings settings, Manager manager) {
     this.settings = settings;
+    this.manager = manager;
   }
 
   @Override
@@ -72,7 +75,7 @@ public class Local implements SubtitleProvider {
           if (((TvRelease) release).getSeason() == tvRelease.getSeason()
               && Utils.containsAll(((TvRelease) release).getEpisodeNumbers(),
                   tvRelease.getEpisodeNumbers())) {
-            TvReleaseControl epCtrl = new TvReleaseControl((TvRelease) release, settings);
+            TvReleaseControl epCtrl = new TvReleaseControl((TvRelease) release, settings, manager);
             epCtrl.process(settings.getMappingSettings().getMappingList());
             if (((TvRelease) release).getTvdbid() == tvRelease.getTvdbid()) {
               String detectedLang = DetectLanguage.execute(fileSub);
@@ -109,7 +112,7 @@ public class Local implements SubtitleProvider {
       try {
         Release release = releaseParser.parse(fileSub);
         if (release.getVideoType() == VideoType.MOVIE) {
-          MovieReleaseControl movieCtrl = new MovieReleaseControl((MovieRelease) release, settings);
+          MovieReleaseControl movieCtrl = new MovieReleaseControl((MovieRelease) release, settings, manager);
           movieCtrl.process(settings.getMappingSettings().getMappingList());
           if (((MovieRelease) release).getImdbid() == movieRelease.getImdbid()) {
             String detectedLang = DetectLanguage.execute(fileSub);

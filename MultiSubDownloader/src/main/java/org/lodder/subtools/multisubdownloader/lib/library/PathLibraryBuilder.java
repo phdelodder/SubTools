@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader.lib.library;
 import java.io.File;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
@@ -10,8 +11,8 @@ import org.lodder.subtools.sublibrary.util.StringUtils;
 
 public class PathLibraryBuilder extends LibraryBuilder {
 
-  public PathLibraryBuilder(LibrarySettings librarySettings) {
-    super(librarySettings);
+  public PathLibraryBuilder(LibrarySettings librarySettings, Manager manager) {
+    super(librarySettings, manager);
   }
 
   public String build(Release release) {

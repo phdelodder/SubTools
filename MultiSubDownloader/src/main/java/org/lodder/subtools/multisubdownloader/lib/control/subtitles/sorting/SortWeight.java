@@ -11,7 +11,7 @@ import org.lodder.subtools.sublibrary.model.Release;
 
 public class SortWeight {
 
-  protected static List<KeywordReplacer> keywordReplacers;
+  protected static final List<KeywordReplacer> keywordReplacers;
 
   static {
     keywordReplacers = new ArrayList<>();

@@ -10,6 +10,7 @@ import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -28,19 +29,19 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
   private RenameAction renameAction;
 
   public TypedRenameWorker(File dir, LibrarySettings librarySettings, VideoType videoType,
-      boolean isRecursive) {
-    setParameters(dir, librarySettings, videoType, isRecursive);
+      boolean isRecursive, Manager manager) {
+    setParameters(dir, librarySettings, videoType, isRecursive, manager);
     patterns =
         new FilenameExtensionFilter(
             StringUtils.join(VideoPatterns.EXTENSIONS, new String[] {"srt"}));
   }
 
   public void setParameters(File dir, LibrarySettings librarySettings, VideoType videoType,
-      boolean isRecursive) {
+      boolean isRecursive, Manager manager) {
     this.dir = dir;
     this.videoType = videoType;
     this.isRecursive = isRecursive;
-    this.renameAction = new RenameAction(librarySettings);
+    this.renameAction = new RenameAction(librarySettings, manager);
   }
 
   public void setReleaseFactory(ReleaseFactory releaseFactory) {

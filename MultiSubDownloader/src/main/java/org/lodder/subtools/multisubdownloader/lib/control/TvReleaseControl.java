@@ -6,6 +6,7 @@ import org.lodder.subtools.multisubdownloader.lib.JTVRageAdapter;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
 import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
@@ -20,10 +21,10 @@ public class TvReleaseControl extends ReleaseControl {
   private JTheTVDBAdapter jtvdba;
   private final JTVRageAdapter tvra;
 
-  public TvReleaseControl(TvRelease tvRelease, Settings settings) {
-    super(tvRelease, settings);
-    jtvdba = JTheTVDBAdapter.getAdapter();
-    tvra = new JTVRageAdapter();
+  public TvReleaseControl(TvRelease tvRelease, Settings settings, Manager manager) {
+    super(tvRelease, settings, manager);
+    jtvdba = JTheTVDBAdapter.getAdapter(manager);
+    tvra = new JTVRageAdapter(manager);
   }
 
   public void processTvdb(List<MappingTvdbScene> dict) throws ReleaseControlException {

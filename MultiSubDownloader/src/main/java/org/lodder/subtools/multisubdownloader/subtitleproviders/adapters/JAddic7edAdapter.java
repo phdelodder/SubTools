@@ -7,6 +7,7 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.JAddic7edApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.model.Addic7edSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.JSubAdapter;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.*;
 import org.lodder.subtools.sublibrary.util.StringUtils;
@@ -15,13 +16,13 @@ public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider {
 
   private static JAddic7edApi jaapi;
 
-  public JAddic7edAdapter(boolean isLoginEnabled, String username, String password) {
+  public JAddic7edAdapter(boolean isLoginEnabled, String username, String password, boolean speedy, Manager manager) {
     try {
       if (jaapi == null) {
         if (isLoginEnabled) {
-          jaapi = new JAddic7edApi(username, password);
+          jaapi = new JAddic7edApi(username, password, speedy, manager);
         } else {
-          jaapi = new JAddic7edApi();
+          jaapi = new JAddic7edApi(speedy, manager);
         }
       }
     } catch (Exception e) {

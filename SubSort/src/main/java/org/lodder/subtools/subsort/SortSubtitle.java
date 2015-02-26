@@ -1,14 +1,24 @@
 package org.lodder.subtools.subsort;
 
-import java.io.*;
-import java.net.URL;
+import java.io.BufferedReader;
+import java.io.Console;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+
 import org.lodder.subtools.sublibrary.DetectLanguage;
 import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
+import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.cache.DiskCache;
+import org.lodder.subtools.sublibrary.cache.InMemoryCache;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.exception.ControlFactoryException;
@@ -25,6 +35,7 @@ import org.lodder.subtools.sublibrary.privateRepo.model.IndexSubtitle;
 import org.lodder.subtools.sublibrary.settings.MappingSettingsControl;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 import org.lodder.subtools.sublibrary.util.Files;
+import org.lodder.subtools.sublibrary.util.http.CookieManager;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
 import org.lodder.subtools.subsort.lib.control.VideoFileFactory;
@@ -38,8 +49,20 @@ public class SortSubtitle implements Listener {
   private static final String BACKING_STORE_AVAIL = "BackingStoreAvail";
   private Preferences preferences;
   private MappingSettingsControl mappingSettingsCtrl;
+  private static Manager manager = new Manager();
 
   public SortSubtitle() {
+    DiskCache<String, String> diskCache =
+        new DiskCache<String, String>(TimeUnit.SECONDS.convert(5, TimeUnit.DAYS), 100, 500, "user",
+            "pass");
+    manager.setDiskCache(diskCache);
+    InMemoryCache<String, String> inMemoryCache =
+        new InMemoryCache<String, String>(TimeUnit.SECONDS.convert(10, TimeUnit.MINUTES), 10, 500);
+    manager.setInMemoryCache(inMemoryCache);
+    HttpClient httpClient = new HttpClient();
+    httpClient.setCookieManager(new CookieManager());
+    manager.setHttpClient(httpClient);
+
     org.lodder.subtools.sublibrary.logging.Logger.instance.addListener(this);
     if (!backingStoreAvailable())
       Logger.instance.error("Unable to store preferences, used debug for reason");
@@ -74,8 +97,8 @@ public class SortSubtitle implements Listener {
       try {
         x++;
         System.out.println("threathing file " + x + " of " + files.size() + " " + file.toString());
-        Release release = VideoFileFactory.get(file, new ArrayList<MappingTvdbScene>());
-        final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter();
+        Release release = VideoFileFactory.get(file, new ArrayList<MappingTvdbScene>(), manager);
+        final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter(manager);
         if (release.getVideoType() == VideoType.EPISODE) {
           TvRelease tvRelease = (TvRelease) release;
 
@@ -196,8 +219,8 @@ public class SortSubtitle implements Listener {
     }
     for (File file : files) {
       try {
-        Release release = VideoFileFactory.get(file, new ArrayList<MappingTvdbScene>());
-        final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter();
+        Release release = VideoFileFactory.get(file, new ArrayList<MappingTvdbScene>(), manager);
+        final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter(manager);
         final String quality = ReleaseParser.getQualityKeyword(release.getFilename());
         Logger.instance.log(release.getFilename() + " Q: " + quality);
         int num = 1;
@@ -251,13 +274,16 @@ public class SortSubtitle implements Listener {
                   Logger.instance
                       .log("Duplicate file detected with exact same content, file deleted!"
                           + to.getName());
-                  file.delete();
+                  boolean isDeleted = file.delete();
+                  if (isDeleted) {
+                    // do nothing
+                  }
                 } else {
                   Logger.instance.log("Duplicate file detected but content is different! "
                       + release.getPath() + " " + release.getFilename());
                 }
               } else {
-                if (remove & i == tvRelease.getEpisodeNumbers().size() - 1) {
+                if (remove && i == tvRelease.getEpisodeNumbers().size() - 1) {
                   Files.move(file, to);
                 } else {
                   Files.copy(file, to);
@@ -273,7 +299,10 @@ public class SortSubtitle implements Listener {
           } else {
 
             if (num == 2) {
-              file.delete();
+              boolean isDeleted = file.delete();
+              if (isDeleted) {
+                // do nothing
+              }
             } else {
               Logger.instance.log("Skip");
             }
@@ -300,7 +329,10 @@ public class SortSubtitle implements Listener {
             if (textFilesEqual(to, file)) {
               Logger.instance.log("Duplicate file detected with exact same content, file deleted!"
                   + to.getName());
-              file.delete();
+              boolean isDeleted = file.delete();
+              if (isDeleted) {
+                // do nothing
+              }
             } else {
               Logger.instance.log("Duplicate file detected but content is different! "
                   + release.getPath() + " " + release.getFilename());
@@ -364,14 +396,13 @@ public class SortSubtitle implements Listener {
   }
 
   public static ArrayList<MappingTvdbScene> getOnlineMappingCollection() throws Throwable {
-    URL url =
-        new URL(
-            "https://dl.dropboxusercontent.com/sh/1gz18xwzinfgmbl/wTwbjRsxS3/Mappings.xml?dl=1&token_hash=AAGng0oyYrOp0QA6ANd_VNLjtBqHaJxM0kn5E3RUx21XLQ");
-    String content = HttpClient.getHttpClient().downloadText(url);
-    return Read(XMLHelper.getDocument(content));
+    String content =
+        manager
+            .downloadText("https://dl.dropboxusercontent.com/sh/1gz18xwzinfgmbl/wTwbjRsxS3/Mappings.xml?dl=1&token_hash=AAGng0oyYrOp0QA6ANd_VNLjtBqHaJxM0kn5E3RUx21XLQ");
+    return read(XMLHelper.getDocument(content));
   }
 
-  public static ArrayList<MappingTvdbScene> Read(Document newDoc) throws Throwable {
+  public static ArrayList<MappingTvdbScene> read(Document newDoc) throws Throwable {
     ArrayList<MappingTvdbScene> list = new ArrayList<MappingTvdbScene>();
     NodeList nList = newDoc.getElementsByTagName("mapping");
 
@@ -439,18 +470,15 @@ public class SortSubtitle implements Listener {
     StringBuilder builder2 = new StringBuilder();
     String y = "", z = "";
 
-    BufferedReader bfr, bfr1;
-    try {
-      bfr = new BufferedReader(new FileReader(f1));
-      bfr1 = new BufferedReader(new FileReader(f2));
+    try (BufferedReader bfr =
+        new BufferedReader(new InputStreamReader(new FileInputStream(f1), "UTF-8"));
+        BufferedReader bfr1 =
+            new BufferedReader(new InputStreamReader(new FileInputStream(f2), "UTF-8"))) {
 
       while ((y = bfr.readLine()) != null)
         builder1.append(y);
       while ((z = bfr1.readLine()) != null)
         builder2.append(z);
-
-      bfr.close();
-      bfr1.close();
 
       return builder2.toString().equals(builder1.toString());
 
@@ -489,7 +517,7 @@ public class SortSubtitle implements Listener {
   public void removeFromRepo(File toRemove, File privateRepoFolder) {
     if (toRemove.exists()) {
       File indexLoc = new File(privateRepoFolder, "index");
-      List<IndexSubtitle> index = new ArrayList<IndexSubtitle>();
+      List<IndexSubtitle> index;
       if (indexLoc.exists()) {
         String strIndex = "";
         try {
@@ -505,7 +533,10 @@ public class SortSubtitle implements Listener {
           IndexSubtitle indexSubtitle = i.next();
           if (PrivateRepoIndex.getFullFilename(indexSubtitle).equals(toRemove.getName())) {
             i.remove();
-            toRemove.delete();
+            boolean isDeleted = toRemove.delete();
+            if (isDeleted) {
+              // do nothing
+            }
           }
         }
 

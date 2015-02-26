@@ -1,6 +1,7 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.VideoType;
 
 public class EpisodeLibraryPanel extends VideoLibraryPanel {
@@ -10,8 +11,8 @@ public class EpisodeLibraryPanel extends VideoLibraryPanel {
   private static final long serialVersionUID = -9175813173306481849L;
 
 
-  public EpisodeLibraryPanel(LibrarySettings libSettings) {
-    super(libSettings, VideoType.EPISODE);
+  public EpisodeLibraryPanel(LibrarySettings libSettings, Manager manager) {
+    super(libSettings, VideoType.EPISODE, manager);
     repaint();
   }
 

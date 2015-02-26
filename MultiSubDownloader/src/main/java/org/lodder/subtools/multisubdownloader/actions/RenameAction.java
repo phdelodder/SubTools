@@ -9,6 +9,7 @@ import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileAction
 import org.lodder.subtools.multisubdownloader.lib.library.PathLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.DetectLanguage;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.util.Files;
@@ -16,12 +17,13 @@ import org.lodder.subtools.sublibrary.util.Files;
 public class RenameAction {
 
   private LibrarySettings librarySettings;
+  private Manager manager;
 
-  public RenameAction(LibrarySettings librarySettings) {
+  public RenameAction(LibrarySettings librarySettings, Manager manager) {
     this.librarySettings = librarySettings;
+    this.manager =manager;
   }
 
-  @SuppressWarnings("unused")
   public void rename(File f, Release release) {
     Logger.instance
         .trace("Actions", "rename", "LibraryAction" + librarySettings.getLibraryAction());
@@ -45,7 +47,7 @@ public class RenameAction {
     }
     Logger.instance.trace("Actions", "rename", "filename" + filename);
 
-    PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings);
+    PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager);
     final File newDir = new File(pathLibraryBuilder.build(release));
     boolean status = true;
     if (!newDir.exists()) {
@@ -78,6 +80,9 @@ public class RenameAction {
         if (librarySettings.isLibraryRemoveEmptyFolders() && listFiles != null
             && listFiles.length == 0) {
           boolean isDeleted = release.getPath().delete();
+          if (isDeleted){
+            //do nothing
+          }
         }
       } catch (IOException e) {
         Logger.instance.error("Unsuccessfull in moving the file to the libary");
@@ -88,7 +93,7 @@ public class RenameAction {
 
   private String getNewFilename(File f, Release release) {
     String filename = "";
-    FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings);
+    FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager);
     filename = filenameLibraryBuilder.build(release);
     if (release.getExtension().equals("srt")) {
       String languageCode = "";

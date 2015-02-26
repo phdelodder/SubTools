@@ -11,11 +11,6 @@ import java.io.IOException;
 
 import org.lodder.subtools.sublibrary.logging.Logger;
 
-
-
-
-
-
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
@@ -52,8 +47,7 @@ public class DropBoxClient {
 
   public boolean doDownloadFile(String location, File output) {
     boolean success = false;
-    try {
-      FileOutputStream outputStream = new FileOutputStream(output);
+    try (FileOutputStream outputStream = new FileOutputStream(output)){
       dbxClient.getFile(locationOffset + location, null, outputStream);
       success = true;
       outputStream.close();
@@ -95,7 +89,7 @@ public class DropBoxClient {
     try {
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
       dbxClient.getFile(location, null, outputStream);
-      content = outputStream.toString();
+      content = outputStream.toString("UTF-8");
       outputStream.close();
     } catch (DbxException e) {
       Logger.instance.error(Logger.stack2String(e));

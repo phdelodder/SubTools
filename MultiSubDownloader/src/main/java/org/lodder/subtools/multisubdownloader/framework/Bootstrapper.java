@@ -5,9 +5,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.prefs.Preferences;
+
 import org.lodder.subtools.multisubdownloader.framework.service.providers.ServiceProvider;
 import org.lodder.subtools.multisubdownloader.framework.service.providers.ServiceProviderComparator;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.reflections.Reflections;
 
@@ -15,10 +18,14 @@ public class Bootstrapper {
 
   private final Container app;
   private final Settings settings;
+  private final Preferences preferences;
+  private final Manager manager;
 
-  public Bootstrapper(Container app, Settings settings) {
+  public Bootstrapper(Container app, Settings settings, Preferences preferences, Manager manager) {
     this.app = app;
     this.settings = settings;
+    this.preferences = preferences;
+    this.manager = manager;
   }
 
   public void initialize() {
@@ -27,6 +34,22 @@ public class Bootstrapper {
       @Override
       public Object resolve() {
         return settings;
+      }
+    });
+    
+    /* Bind Preferences to IoC Container */
+    this.app.bind("Preferences", new Resolver() {
+      @Override
+      public Object resolve() {
+        return preferences;
+      }
+    });
+    
+    /* Bind Manager to IoC Container */
+    this.app.bind("Manager", new Resolver() {
+      @Override
+      public Object resolve() {
+        return manager;
       }
     });
 

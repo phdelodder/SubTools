@@ -5,6 +5,7 @@ import org.lodder.subtools.multisubdownloader.framework.service.providers.Servic
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.adapters.JTVsubtitlesAdapter;
+import org.lodder.subtools.sublibrary.Manager;
 
 public class TvSubtitlesServiceProvider implements ServiceProvider {
   @Override
@@ -19,7 +20,8 @@ public class TvSubtitlesServiceProvider implements ServiceProvider {
     SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) app.make("SubtitleProviderStore");
 
     /* Create the SubtitleProvider */
-    SubtitleProvider tvsubtitlesAdapter = new JTVsubtitlesAdapter();
+    Manager manager = (Manager) app.make("Manager");
+    SubtitleProvider tvsubtitlesAdapter = new JTVsubtitlesAdapter(manager);
 
     /* Add the SubtitleProvider to the store */
     subtitleProviderStore.addProvider(tvsubtitlesAdapter);

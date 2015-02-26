@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax;
 
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,13 +12,16 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax.model.SubMaxSubtitleDescriptor;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.data.Html;
 import org.lodder.subtools.sublibrary.logging.Logger;
 
 public class JSubsMaxApi extends Html {
 
-  public JSubsMaxApi() {
-    super();
+  private static String DEFAULTUSERAGENT = "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)";
+  
+  public JSubsMaxApi(Manager manager) {
+    super(manager, DEFAULTUSERAGENT);
   }
 
   public List<SubMaxSubtitleDescriptor> searchSubtitles(String name, int season, int episode,
@@ -35,12 +39,14 @@ public class JSubsMaxApi extends Html {
     }
 
     String url =
-        "http://subsmax.com/api/50/" + name.replace(" ", "%20") + "-s" + season + "e" + episode + "-" + language;
+        "http://subsmax.com/api/50/" + name.replace(" ", "%20") + "-s" + season + "e" + episode
+            + "-" + language;
 
-    String html = this.getHtml(url);
+
 
     byte[] byteArray;
     try {
+      String html = this.getHtml(url);
       byteArray = html.getBytes("UTF-8");
 
       ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArray);
@@ -88,7 +94,11 @@ public class JSubsMaxApi extends Html {
               case "languages":
                 if (submaxitem != null) submaxitem.setLanguages(tagContent);
                 break;
+              default:
+                break;
             }
+            break;
+          default:
             break;
         }
 
@@ -97,6 +107,10 @@ public class JSubsMaxApi extends Html {
     } catch (UnsupportedEncodingException e) {
       Logger.instance.error(Logger.stack2String(e));
     } catch (XMLStreamException e) {
+      Logger.instance.error(Logger.stack2String(e));
+    } catch (MalformedURLException e) {
+      Logger.instance.error(Logger.stack2String(e));
+    } catch (Exception e) {
       Logger.instance.error(Logger.stack2String(e));
     }
 

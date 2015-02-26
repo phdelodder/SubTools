@@ -2,6 +2,7 @@ package org.lodder.subtools.sublibrary.data;
 
 import java.net.URL;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Vector;
@@ -10,133 +11,123 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
-/**
- * Created by IntelliJ IDEA. User: lodder Date: 20/08/11 Time: 13:22 To change
- * this template use File | Settings | File Templates.
- */
 public class XmlRPC {
 
-	private final String apiServer;
-	private String userAgent;
-	private String token;
+  private final String apiServer;
+  private String userAgent;
+  private String token;
 
-	public XmlRPC(String userAgent, String apiServer) {
-		this.apiServer = apiServer;
-		this.userAgent = userAgent;
-	}
+  public XmlRPC(String userAgent, String apiServer) {
+    this.apiServer = apiServer;
+    this.userAgent = userAgent;
+  }
 
-	protected Map<String, String> invoke(String method, Object[] arguments)
-			throws Exception {
+  protected Map<?, ?> invoke(String method, Object[] arguments) throws Exception {
 
-		XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
-		config.setServerURL(new URL(getApiServer()));
-		XmlRpcClient client = new XmlRpcClient();
-		client.setConfig(config);
-		Map<String, String> response = (Map<String, String>) client.execute(
-				method, arguments);
-		checkResponse(response);
-		return response;
-	}
+    XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
+    config.setServerURL(new URL(getApiServer()));
+    XmlRpcClient client = new XmlRpcClient();
+    client.setConfig(config);
+    Map<?, ?> response = (Map<?, ?>) client.execute(method, arguments);
+    checkResponse(response);
+    return response;
+  }
 
-	protected Map<String, String> invoke(String method, Vector<Object> arguments)
-			throws Exception {
-		XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
-		config.setServerURL(new URL(getApiServer()));
-		XmlRpcClient client = new XmlRpcClient();
-		client.setConfig(config);
-		Map<String, String> response = (Map<String, String>) client.execute(
-				method, arguments);
-		checkResponse(response);
-		return response;
-	}
+  protected Map<?, ?> invoke(String method, Vector<Object> arguments) throws Exception {
+    XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
+    config.setServerURL(new URL(getApiServer()));
+    XmlRpcClient client = new XmlRpcClient();
+    client.setConfig(config);
+    Map<?, ?> response = (Map<?, ?>) client.execute(method, arguments);
+    checkResponse(response);
+    return response;
+  }
 
-	/**
-	 * Check whether status is OK or not status code and message (e.g. 200 OK,
-	 * 401 Unauthorized, ...)
-	 * 
-	 * @param response
-	 * @throws XmlRpcFault
-	 *             thrown if status code is not OK
-	 */
-	protected void checkResponse(Map<?, ?> response) throws Exception {
-	    String status = response.get("status").toString();
 
-	    if ((status == null) || (status.equals("200 OK")) || (status.equals("200"))) {
-	      return;
-	    }
+  /**
+   * Check whether status is OK or not status code and message (e.g. 200 OK, 401 Unauthorized, ...)
+   * 
+   * @param response
+   * @throws XmlRpcFault thrown if status code is not OK
+   */
+  protected void checkResponse(Map<?, ?> response) throws Exception {
+    String status = response.get("status").toString();
 
-	    try {
-	      throw new Exception(new Scanner(status).nextInt() +" : "+ status);
-	    } catch (NoSuchElementException e) {}
-	    throw new XmlRpcException("Illegal status code: " + status);
-	  }
+    if ((status == null) || (status.equals("200 OK")) || (status.equals("200"))) {
+      return;
+    }
 
-	public String getApiServer() {
-		return apiServer;
-	}
+    try {
+      throw new Exception(new Scanner(status).nextInt() + " : " + status);
+    } catch (NoSuchElementException e) {}
+    throw new XmlRpcException("Illegal status code: " + status);
+  }
 
-	public String generateXmlRpc(String procname, String s[]) {
-		StringBuilder str = new StringBuilder();
-		str.append("<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>");
-		str.append(procname).append("</methodName><params>");
+  public String getApiServer() {
+    return apiServer;
+  }
 
-		for (String value : s) {
-			str.append("<param><value><string>").append(value)
-					.append("</string></value></param>");
-		}
+  public String generateXmlRpc(String procname, String s[]) {
+    StringBuilder str = new StringBuilder();
+    str.append("<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>");
+    str.append(procname).append("</methodName><params>");
 
-		str.append("</params></methodCall>");
-		return str.toString();
-	}
+    for (String value : s) {
+      str.append("<param><value><string>").append(value).append("</string></value></param>");
+    }
 
-	public String generateXmlRpc(final String method,
-			final Map<String, Object> arguments) {
-		String str = "";
-		str += "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>";
-		str += method;
-		str += "</methodName><params><param><value><string>";
-		str += getToken();
-		str += "</string></value></param><param><value><struct>";
+    str.append("</params></methodCall>");
+    return str.toString();
+  }
 
-		str += "<member><value><struct>";
+  public String generateXmlRpc(final String method, final Map<String, Object> arguments) {
+    StringBuilder sb = new StringBuilder();
 
-		for (String s : arguments.keySet()) {
-			str += addMapElement(s, arguments.get(s).toString());
-		}
+    sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>");
+    sb.append(method);
+    sb.append("</methodName><params><param><value><string>");
+    sb.append(getToken());
+    sb.append("</string></value></param><param><value><struct>");
+    sb.append("<member><value><struct>");
 
-		str += "</struct></value></member>";
+    for (Entry<String, Object> e : arguments.entrySet()){
+      sb.append(addMapElement(e.getKey(),  e.getValue().toString()));
+    }
 
-		str += "</struct></value></param></params></methodCall>";
-		return str;
-	}
+    sb.append("</struct></value></member>");
 
-	private static String addMapElement(final String name, final String value) {
-		return "<member><name>" + name + "</name><value><string>"
-				+ elementEncoding(value) + "</string></value></member>";
-	}
+    sb.append("</struct></value></param></params></methodCall>");
 
-	private static String elementEncoding(String a) {
-		a = a.replace("&", "&amp;");
-		a = a.replace("<", "&lt;");
-		a = a.replace(">", "&gt;");
-		a = a.replace("'", "&apos;");
-		a = a.replace("\"", "&quot;");
-		return a;
-	}
+    return sb.toString();
+  }
 
-	public String getToken() {
-		return token;
-	}
+  private static String addMapElement(final String name, final String value) {
+    return "<member><name>" + name + "</name><value><string>" + elementEncoding(value)
+        + "</string></value></member>";
+  }
 
-	public void setToken(String token) {
-		this.token = token;
-	}
+  private static String elementEncoding(String a) {
+    a = a.replace("&", "&amp;");
+    a = a.replace("<", "&lt;");
+    a = a.replace(">", "&gt;");
+    a = a.replace("'", "&apos;");
+    a = a.replace("\"", "&quot;");
+    return a;
+  }
 
-	public String getUserAgent() {
-		return userAgent;
-	}
+  public String getToken() {
+    return token;
+  }
 
-	public void setUserAgent(String userAgent) {
-		this.userAgent = userAgent;
-	}
+  public void setToken(String token) {
+    this.token = token;
+  }
+
+  public String getUserAgent() {
+    return userAgent;
+  }
+
+  public void setUserAgent(String userAgent) {
+    this.userAgent = userAgent;
+  }
 }

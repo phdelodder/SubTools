@@ -7,6 +7,7 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.JTVSubtitlesApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.model.TVsubtitlesSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.JSubAdapter;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -19,9 +20,9 @@ public class JTVsubtitlesAdapter implements JSubAdapter, SubtitleProvider {
 
   private static JTVSubtitlesApi jtvapi;
 
-  public JTVsubtitlesAdapter() {
+  public JTVsubtitlesAdapter(Manager manager) {
     try {
-      if (jtvapi == null) jtvapi = new JTVSubtitlesApi();
+      if (jtvapi == null) jtvapi = new JTVSubtitlesApi(manager);
     } catch (Exception e) {
       Logger.instance.error("API JTVsubtitles INIT: " + e.getCause());
     }

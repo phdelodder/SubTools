@@ -1,20 +1,27 @@
 package org.lodder.subtools.sublibrary.data.thetvdb;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.ManagerException;
+import org.lodder.subtools.sublibrary.ManagerSetupException;
+import org.lodder.subtools.sublibrary.data.XmlHTTP;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.data.XmlHTTP;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 public class TheTVDBApi {
 
@@ -26,117 +33,165 @@ public class TheTVDBApi {
   private static final String SERIES_URL = "/series/";
   private static final String ALL_URL = "/all/";
 
-  public TheTVDBApi(String apikey) {
-    xmlHTTPAPI = new XmlHTTP();
-    theTVDBMirrors = new TheTVDBMirrors(apikey);
+  public TheTVDBApi(String apikey, Manager manager) throws TheTVDBException {
+    xmlHTTPAPI = new XmlHTTP(manager);
+    try {
+      theTVDBMirrors = new TheTVDBMirrors(apikey, manager);
+    } catch (Exception e) {
+      throw new TheTVDBException("Trouble getting a mirror");
+    }
     setApiKey(apikey);
   }
 
-  public int searchSerie(String seriename, String language) {
+  public int searchSerie(String seriename, String language) throws TheTVDBException {
     String url = getXmlMirror() + "/api/GetSeries.php?seriesname=";
+
     try {
       url = url + URLEncoder.encode(seriename, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    Document doc = xmlHTTPAPI.getXMLDisk(url, 24 * 60 * 60 * 5);
-    NodeList nList = null;
 
-    if (doc != null) {
-      nList = doc.getElementsByTagName("Series");
-    }
 
-    if (nList == null || nList.getLength() == 0) {
-      // retry if failed, but delete entry!
-      xmlHTTPAPI.removeCacheEntry(url);
-      doc = xmlHTTPAPI.getXMLDisk(url, 24 * 60 * 60 * 5);
-      nList = doc.getElementsByTagName("Series");
-    }
+      Document doc = xmlHTTPAPI.getXMLDisk(url);
+      NodeList nList = null;
 
-    for (int i = 0; i < nList.getLength(); i++) {
+      if (doc != null) {
+        nList = doc.getElementsByTagName("Series");
+      }
 
-      Element eElement = (Element) nList.item(i);
-      if (eElement != null) {
-        String seriesName =
-            org.lodder.subtools.sublibrary.xml.XMLHelper.getStringTagValue("SeriesName", eElement);
-        if (seriesName.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(
-            seriename.replaceAll("[^A-Za-z]", ""))) {
-          return org.lodder.subtools.sublibrary.xml.XMLHelper.getIntTagValue("seriesid", eElement);
-        }
-        String aliasNames =
-            org.lodder.subtools.sublibrary.xml.XMLHelper.getStringTagValue("AliasNames", eElement);
-        if (aliasNames.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(
-            seriename.replaceAll("[^A-Za-z]", ""))) {
-          return org.lodder.subtools.sublibrary.xml.XMLHelper.getIntTagValue("seriesid", eElement);
+      if (nList == null || nList.getLength() == 0) {
+        // retry if failed, but delete entry!
+        xmlHTTPAPI.removeCacheEntry(url);
+        doc = xmlHTTPAPI.getXMLDisk(url);
+        nList = doc.getElementsByTagName("Series");
+      }
+
+      for (int i = 0; i < nList.getLength(); i++) {
+
+        Element eElement = (Element) nList.item(i);
+        if (eElement != null) {
+          String seriesName =
+              org.lodder.subtools.sublibrary.xml.XMLHelper
+                  .getStringTagValue("SeriesName", eElement);
+          if (seriesName.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(
+              seriename.replaceAll("[^A-Za-z]", ""))) {
+            return org.lodder.subtools.sublibrary.xml.XMLHelper
+                .getIntTagValue("seriesid", eElement);
+          }
+          String aliasNames =
+              org.lodder.subtools.sublibrary.xml.XMLHelper
+                  .getStringTagValue("AliasNames", eElement);
+          if (aliasNames.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(
+              seriename.replaceAll("[^A-Za-z]", ""))) {
+            return org.lodder.subtools.sublibrary.xml.XMLHelper
+                .getIntTagValue("seriesid", eElement);
+          }
         }
       }
 
+    } catch (UnsupportedEncodingException e) {
+      throw new TheTVDBException(e);
+    } catch (ManagerSetupException e) {
+      throw new TheTVDBException(e);
+    } catch (ManagerException e) {
+      throw new TheTVDBException(e);
+    } catch (ParserConfigurationException e) {
+      throw new TheTVDBException(e);
+    } catch (SAXException e) {
+      throw new TheTVDBException(e);
+    } catch (IOException e) {
+      throw new TheTVDBException(e);
     }
+
     return 0;
   }
 
-  public TheTVDBSerie getSerie(int tvdbid, String language) {
-    // String url = createApiUrl("series", new String[]{Integer.toString(tvdbid),
-    // language!=null?language+XML_EXTENSION:""});
-    if (tvdbid != 0) {
-      String url = createApiUrl("series", new String[] {Integer.toString(tvdbid)});
-      //Use all as final resort if nothing get's found, or api returns bad results
-      String urlAll = createApiUrl("series", new String[] {Integer.toString(tvdbid), "all"});
-      NodeList nList = tryGettingData(new String[] {url, url, urlAll});
+  public TheTVDBSerie getSerie(int tvdbid, String language) throws TheTVDBException {
+    try {
+      if (tvdbid != 0) {
+        String url = createApiUrl("series", new String[] {Integer.toString(tvdbid)});
+        // Use all as final resort if nothing get's found, or api returns bad results
+        String urlAll = createApiUrl("series", new String[] {Integer.toString(tvdbid), ALL_URL});
+        NodeList nList = tryGettingData(new String[] {url, url, urlAll});
 
-      if (nList != null && nList.getLength() > 0
-          && nList.item(0).getNodeType() == Node.ELEMENT_NODE) {
-        return parseSerieNode((Element) nList.item(0));
+        if (nList != null && nList.getLength() > 0
+            && nList.item(0).getNodeType() == Node.ELEMENT_NODE) {
+          return parseSerieNode((Element) nList.item(0));
+        }
+      } else {
+        Logger.instance.log("TVDB ID is 0! please fix ");
       }
-    } else {
-      Logger.instance.log("TVDB ID is 0! please fix ");
+    } catch (Exception e) {
+      throw new TheTVDBException("Trouble getting a mirror");
     }
 
     return null;
   }
 
-  private NodeList tryGettingData(String[] urls) {
+  private NodeList tryGettingData(String[] urls) throws TheTVDBException {
     NodeList nList = null;
+    try {
+      for (String url : urls) {
+        Document doc = xmlHTTPAPI.getXMLDisk(url);
 
-    for (String url : urls) {
-      Document doc = xmlHTTPAPI.getXMLDisk(url);
+        if (doc != null)
+          nList = doc.getElementsByTagName("Series");
+        else
 
-      if (doc != null)
-        nList = doc.getElementsByTagName("Series");
-      else
-        xmlHTTPAPI.removeCacheEntry(url);
+          xmlHTTPAPI.removeCacheEntry(url);
 
-      if (nList == null || nList.getLength() == 0)
-        xmlHTTPAPI.removeCacheEntry(url);
-      else
-        return nList;
+
+        if (nList == null || nList.getLength() == 0)
+          xmlHTTPAPI.removeCacheEntry(url);
+        else
+          return nList;
+      }
+    } catch (ManagerSetupException e) {
+      throw new TheTVDBException(e);
+    } catch (ManagerException e) {
+      throw new TheTVDBException(e);
+    } catch (ParserConfigurationException e) {
+      throw new TheTVDBException(e);
+    } catch (SAXException e) {
+      throw new TheTVDBException(e);
+    } catch (IOException e) {
+      throw new TheTVDBException(e);
     }
 
     return null;
   }
 
-  public List<TheTVDBEpisode> getAllEpisodes(int tvdbid, String language) {
+  public List<TheTVDBEpisode> getAllEpisodes(int tvdbid, String language) throws TheTVDBException {
     List<TheTVDBEpisode> epList = new ArrayList<TheTVDBEpisode>();
-    // String url = createApiUrl("series", new String[]{Integer.toString(tvdbid), "all",
-    // language!=null?language+XML_EXTENSION:""});
-    String url = createApiUrl("series", new String[] {Integer.toString(tvdbid), "all"});
-    Document doc = xmlHTTPAPI.getXMLDisk(url, 24 * 60 * 60 * 5);
+    String url = createApiUrl("series", new String[] {Integer.toString(tvdbid), ALL_URL});
+    Document doc;
 
-    NodeList nList = doc.getElementsByTagName("Episode");
+    try {
+      doc = xmlHTTPAPI.getXMLDisk(url);
+      NodeList nList = doc.getElementsByTagName("Episode");
 
-    for (int i = 0; i < nList.getLength(); i++) {
-      if (nList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-        Element eElement = (Element) nList.item(i);
-        TheTVDBEpisode ep = parseEpisodeNode(eElement);
-        epList.add(ep);
+      for (int i = 0; i < nList.getLength(); i++) {
+        if (nList.item(i).getNodeType() == Node.ELEMENT_NODE) {
+          Element eElement = (Element) nList.item(i);
+          TheTVDBEpisode ep = parseEpisodeNode(eElement);
+          epList.add(ep);
+        }
       }
+    } catch (ManagerSetupException e) {
+      throw new TheTVDBException(e);
+    } catch (ManagerException e) {
+      throw new TheTVDBException(e);
+    } catch (ParserConfigurationException e) {
+      throw new TheTVDBException(e);
+    } catch (SAXException e) {
+      throw new TheTVDBException(e);
+    } catch (IOException e) {
+      throw new TheTVDBException(e);
     }
 
     return epList;
   }
 
-  public TheTVDBEpisode getEpisode(int tvdbid, int season, int episode, String language) {
+  public TheTVDBEpisode getEpisode(int tvdbid, int season, int episode, String language)
+      throws TheTVDBException {
     StringBuilder urlString = new StringBuilder();
     try {
       urlString.append(getXmlMirror());
@@ -152,17 +207,24 @@ public class TheTVDBApi {
       if (language != null) {
         urlString.append(language).append(XML_EXTENSION);
       }
-    } catch (Throwable tw) {
-      Logger.instance.error(tw.getMessage());
-      return new TheTVDBEpisode();
-    }
+      Document doc = xmlHTTPAPI.getXMLDisk(urlString.toString());
 
-    Document doc = xmlHTTPAPI.getXMLDisk(urlString.toString());
+      NodeList nList = doc.getElementsByTagName("Episode");
 
-    NodeList nList = doc.getElementsByTagName("Episode");
+      if (nList.getLength() > 0 && nList.item(0).getNodeType() == Node.ELEMENT_NODE) {
+        return parseEpisodeNode((Element) nList.item(0));
+      }
 
-    if (nList.getLength() > 0 && nList.item(0).getNodeType() == Node.ELEMENT_NODE) {
-      return parseEpisodeNode((Element) nList.item(0));
+    } catch (ManagerSetupException e) {
+      throw new TheTVDBException(e);
+    } catch (ManagerException e) {
+      throw new TheTVDBException(e);
+    } catch (ParserConfigurationException e) {
+      throw new TheTVDBException(e);
+    } catch (SAXException e) {
+      throw new TheTVDBException(e);
+    } catch (IOException e) {
+      throw new TheTVDBException(e);
     }
 
     return null;
@@ -225,7 +287,9 @@ public class TheTVDBApi {
     try {
       Logger.instance.trace("TheTVDBSerie", "parseSerieNode",
           "Element: " + XMLHelper.getXMLAsString(eElement));
-    } catch (Exception e) {}
+    } catch (Exception e) {
+      Logger.instance.log(Logger.stack2String(e));
+    }
 
     TheTVDBSerie.setId(XMLHelper.getStringTagValue("id", eElement));
     TheTVDBSerie.setActors(parseList(XMLHelper.getStringTagValue("Actors", eElement), "|,"));

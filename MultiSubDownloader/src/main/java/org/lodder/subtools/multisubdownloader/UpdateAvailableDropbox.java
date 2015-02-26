@@ -1,13 +1,13 @@
 package org.lodder.subtools.multisubdownloader;
 
-import java.net.URL;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.lodder.subtools.sublibrary.ConfigProperties;
-import org.lodder.subtools.sublibrary.cache.CacheManager;
+import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.ManagerException;
+import org.lodder.subtools.sublibrary.ManagerSetupException;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
 
@@ -16,16 +16,16 @@ public class UpdateAvailableDropbox {
 
   private final String url;
   private String updatedUrl;
-  private final CacheManager ucm;
-  private static long timeout = 900;
+  private Manager manager;
+
   private final static String programName = ConfigProperties.getInstance().getProperty(
       "updateProgramName");
   private final static String extension = ConfigProperties.getInstance().getProperty(
       "updateProgramExtension");
 
-  public UpdateAvailableDropbox() {
+  public UpdateAvailableDropbox(Manager manager) {
     url = ConfigProperties.getInstance().getProperty("updateUrlDropbox");
-    ucm = CacheManager.getURLCache();
+    this.manager = manager;
     updatedUrl = "";
   }
 
@@ -57,7 +57,7 @@ public class UpdateAvailableDropbox {
     try {
       String newFoundVersion =
           ConfigProperties.getInstance().getProperty("version").replace("-SNAPSHOT", "");
-      String source = ucm.fetchAsString(new URL(url), timeout);
+      String source = manager.getContent(url, null, false);
       Document sourceDoc = Jsoup.parse(source);
       Elements results = sourceDoc.getElementsByClass("filename-link");
       for (Element result : results) {
@@ -82,8 +82,10 @@ public class UpdateAvailableDropbox {
       if (HttpClient.isUrl(updatedUrl)) {
         return true;
       }
-    } catch (Exception e) {
-      Logger.instance.error(Logger.stack2String(e));
+    } catch (ManagerSetupException e) {
+      Logger.instance.log(Logger.stack2String(e));
+    } catch (ManagerException e) {
+      Logger.instance.log(Logger.stack2String(e));
     }
 
     return false;

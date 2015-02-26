@@ -36,7 +36,9 @@ import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.logging.Logger;
+
 import javax.swing.JSlider;
 
 public class PreferenceDialog extends MultiSubDialog {
@@ -63,14 +65,16 @@ public class PreferenceDialog extends MultiSubDialog {
   private JComboBox<SettingsProcessEpisodeSource> cbxEpisodeProcessSource;
   private JCheckBox chkMinScoreSelection;
   private JSlider sldMinScoreSelection;
+  private Manager manager;
 
   /**
    * Create the dialog.
    */
-  public PreferenceDialog(JFrame frame, final SettingsControl settingsCtrl, Emitter eventEmitter) {
+  public PreferenceDialog(JFrame frame, final SettingsControl settingsCtrl, Emitter eventEmitter, Manager manager) {
     super(frame, Messages.getString("PreferenceDialog.Title"), true);
     this.settingsCtrl = settingsCtrl;
     this.eventEmitter = eventEmitter;
+    this.manager = manager;
     initialize();
     setPreferenceSettings();
     repaint();
@@ -225,13 +229,13 @@ public class PreferenceDialog extends MultiSubDialog {
 
       {
         pnlEpisodeLibrary =
-            new EpisodeLibraryPanel(settingsCtrl.getSettings().getEpisodeLibrarySettings());
+            new EpisodeLibraryPanel(settingsCtrl.getSettings().getEpisodeLibrarySettings(), manager);
         tabbedPane.addTab(Messages.getString("PreferenceDialog.SerieLibrary"), null,
             pnlEpisodeLibrary, null);
       }
       {
         pnlMovieLibrary =
-            new MovieLibraryPanel(settingsCtrl.getSettings().getMovieLibrarySettings());
+            new MovieLibraryPanel(settingsCtrl.getSettings().getMovieLibrarySettings(), manager);
         tabbedPane.addTab(Messages.getString("PreferenceDialog.MovieLibrary"), null,
             pnlMovieLibrary, null);
       }
@@ -506,7 +510,7 @@ public class PreferenceDialog extends MultiSubDialog {
 
   protected boolean testSerieSourcesTab() {
     if (chkUserAddic7edLogin.isSelected()) {
-      if (txtAddic7edUsername.getText().isEmpty() | txtAddic7edPassword.getText().isEmpty()) {
+      if (txtAddic7edUsername.getText().isEmpty() || txtAddic7edPassword.getText().isEmpty()) {
         String message =
             Messages.getString("PreferenceDialog.Addic7edLoginSelectEnterUsernamePassword");
         JOptionPane.showConfirmDialog(this, message, Messages.getString("PreferenceDialog.Name"),

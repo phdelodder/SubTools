@@ -19,7 +19,7 @@ public class XMLMappingTvdbScene {
   public final static String mappings = "/MultiSubDownloader/Mappings.xml";
   public final static String version = "/MultiSubDownloader/mappings.version.xml";
 
-  public static void Write(List<MappingTvdbScene> list, File f) throws Throwable {
+  public static void write(List<MappingTvdbScene> list, File f) throws Throwable {
     Document newDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     Element rootElement = newDoc.createElement("MappingTvdbScene");
     newDoc.appendChild(rootElement);
@@ -38,17 +38,17 @@ public class XMLMappingTvdbScene {
     XMLHelper.writeToFile(f, newDoc);
   }
 
-  public static ArrayList<MappingTvdbScene> Read(File f) throws Throwable {
+  public static ArrayList<MappingTvdbScene> read(File f) throws Throwable {
     Document newDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(f);
-    return Read(newDoc);
+    return read(newDoc);
   }
 
   public static ArrayList<MappingTvdbScene> getOnlineMappingCollection() throws Throwable {
     String content = DropBoxClient.getDropBoxClient().getFile(mappings);
-    return Read(XMLHelper.getDocument(content));
+    return read(XMLHelper.getDocument(content));
   }
 
-  public static ArrayList<MappingTvdbScene> Read(Document newDoc) throws Throwable {
+  public static ArrayList<MappingTvdbScene> read(Document newDoc) throws Throwable {
     ArrayList<MappingTvdbScene> list = new ArrayList<MappingTvdbScene>();
     NodeList nList = newDoc.getElementsByTagName("mapping");
 

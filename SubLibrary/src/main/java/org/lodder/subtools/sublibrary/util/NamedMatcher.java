@@ -190,7 +190,7 @@ public class NamedMatcher implements NamedMatchResult {
         return this;
     }
 
-    public boolean equals(Object obj) {
+    public boolean equals(Matcher obj) {
         return matcher.equals(obj);
     }
 

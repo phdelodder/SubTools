@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.lib;
 
 import java.util.List;
 
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.data.tvrage.TVRageApi;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageShowInfo;
@@ -11,8 +12,8 @@ public class JTVRageAdapter {
 
   private final TVRageApi trapi;
 
-  public JTVRageAdapter() {
-    trapi = new TVRageApi();
+  public JTVRageAdapter(Manager manager) {
+    trapi = new TVRageApi(manager);
   }
 
   public TVRageShowInfo searchShow(TvRelease newEp) {

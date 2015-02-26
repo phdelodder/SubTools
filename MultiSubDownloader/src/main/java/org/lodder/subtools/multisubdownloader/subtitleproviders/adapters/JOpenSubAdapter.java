@@ -182,7 +182,7 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
     for (OpenSubtitlesSubtitleDescriptor ossd : lSubtitles) {
       String subFileName = ossd.getSubFileName().replaceAll("[^A-Za-z]", "").toLowerCase();
       if (subFileName.contains(name)
-          | (originalName.length() > 0 && subFileName.contains(originalName))) {
+          || (originalName.length() > 0 && subFileName.contains(originalName))) {
         listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.OPENSUBTITLES, ossd
             .getSubFileName(), ossd.getSubDownloadLink(), ossd.getISO639(), "",
             SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(ossd.getSubFileName()),

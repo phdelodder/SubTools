@@ -9,9 +9,9 @@ public enum Logger {
 
     instance;
 
-    private final List<Listener> listeners = new LinkedList<Listener>();
+    private final transient List<Listener> listeners = new LinkedList<Listener>();
     private Level logLevel = Level.ALL;
-
+    
     public void addListener(Listener l) {
         synchronized (listeners) {
             listeners.add(l);

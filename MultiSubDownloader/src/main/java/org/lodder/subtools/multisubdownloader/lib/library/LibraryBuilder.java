@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.lib.library;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
@@ -11,9 +12,11 @@ import java.util.List;
 public abstract class LibraryBuilder {
 
   protected final LibrarySettings librarySettings;
+  private Manager manager;
 
-  public LibraryBuilder(LibrarySettings librarySettings) {
+  public LibraryBuilder(LibrarySettings librarySettings, Manager manager) {
     this.librarySettings = librarySettings;
+    this.manager = manager;
   }
   
   public abstract String build(Release release);
@@ -21,7 +24,7 @@ public abstract class LibraryBuilder {
   protected String getShowName(TvRelease tvRelease) {
     String show = "";
     if (librarySettings.isLibraryUseTVDBNaming()) {
-      final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter();
+      final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter(manager);
       TheTVDBSerie tvdbs = jtvdb.getSerie(tvRelease);
       if (tvdbs == null) {
         //use showname found for release as tvdb returns null

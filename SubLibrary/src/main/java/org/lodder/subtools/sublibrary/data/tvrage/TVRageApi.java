@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisodeList;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageShowInfo;
@@ -20,8 +21,8 @@ public class TVRageApi{
     public static final String UNKNOWN = "UNKNOWN";
     private final TVRageParser tvrParser;
 	
-    public TVRageApi(){
-    	tvrParser = new TVRageParser();
+    public TVRageApi(Manager manager){
+    	tvrParser = new TVRageParser(manager);
     }
     
 	/**

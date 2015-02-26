@@ -18,6 +18,7 @@ import org.lodder.subtools.multisubdownloader.lib.SubtitleSelectionCLI;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.logging.Listener;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -40,7 +41,7 @@ public class CLI implements Listener {
     Logger.instance.addListener(this);
     this.app = app;
     this.settings = settings;
-    downloadAction = new DownloadAction(settings);
+    downloadAction = new DownloadAction(settings, (Manager) this.app.make("Manager"));
     subtitleSelectionAction = new SubtitleSelectionAction(settings);
     subtitleSelectionAction.setSubtitleSelection(new SubtitleSelectionCLI(settings));
   }
@@ -86,7 +87,7 @@ public class CLI implements Listener {
 
     searchAction.setFileListAction(new FileListAction(this.settings));
     searchAction.setFiltering(new Filtering(this.settings));
-    searchAction.setReleaseFactory(new ReleaseFactory(this.settings));
+    searchAction.setReleaseFactory(new ReleaseFactory(this.settings, (Manager) app.make("Manager")));
 
     CLIFileindexerProgress progressDialog = new CLIFileindexerProgress();
     CLISearchProgress searchProgress = new CLISearchProgress();

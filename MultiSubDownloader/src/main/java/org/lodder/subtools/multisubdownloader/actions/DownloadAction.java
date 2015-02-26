@@ -1,7 +1,6 @@
 package org.lodder.subtools.multisubdownloader.actions;
 
 import java.io.File;
-import java.net.URL;
 
 import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
@@ -9,6 +8,7 @@ import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileAction
 import org.lodder.subtools.multisubdownloader.lib.library.PathLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -23,13 +23,15 @@ import org.lodder.subtools.sublibrary.util.http.HttpClient;
 public class DownloadAction {
 
   private Settings settings;
+  private Manager manager;
 
   /**
    * 
    * @param settings
    */
-  public DownloadAction(Settings settings) {
+  public DownloadAction(Settings settings, Manager manager) {
     this.settings = settings;
+    this.manager = manager;
   }
 
   /**
@@ -66,12 +68,12 @@ public class DownloadAction {
    * @param version
    * @throws Exception
    */
-  @SuppressWarnings("unused")
+
   private void download(Release release, Subtitle subtitle, LibrarySettings librarySettings,
       int version) throws Exception {
     Logger.instance.trace("Actions", "download",
         "LibraryAction" + librarySettings.getLibraryAction());
-    PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings);
+    PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager);
     final File path = new File(pathLibraryBuilder.build(release));
     if (!path.exists()) {
       Logger.instance.debug("Download creating folder: " + path.getAbsolutePath());
@@ -80,7 +82,8 @@ public class DownloadAction {
       }
     }
 
-    FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings);
+    FilenameLibraryBuilder filenameLibraryBuilder =
+        new FilenameLibraryBuilder(librarySettings, manager);
     final String videoFileName = filenameLibraryBuilder.build(release);
     final String subFileName =
         filenameLibraryBuilder.buildSubtitle(release, subtitle, videoFileName, version);
@@ -89,8 +92,7 @@ public class DownloadAction {
     boolean success;
 
     if (HttpClient.isUrl(subtitle.getDownloadlink())) {
-      success =
-          HttpClient.getHttpClient().doDownloadFile(new URL(subtitle.getDownloadlink()), subFile);
+      success = manager.store(subtitle.getDownloadlink(), subFile);
       Logger.instance.debug("doDownload file was: " + success);
     } else {
       Files.copy(new File(subtitle.getDownloadlink()), subFile);
@@ -128,7 +130,10 @@ public class DownloadAction {
           File[] listFiles = release.getPath().listFiles();
           if (librarySettings.isLibraryRemoveEmptyFolders() && listFiles != null
               && listFiles.length == 0) {
-            boolean isDelete = release.getPath().delete();
+            boolean isDeleted = release.getPath().delete();
+            if (isDeleted) {
+              // do nothing
+            }
           }
         }
       }

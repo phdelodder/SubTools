@@ -48,10 +48,10 @@ public class Import {
                 settingsControl.importPreferences(file);
             }else if (listType == ImportListType.TRANSLATE
                     && settingsControl.getSettings().getMappingSettings().getMappingList().size() == 0) {
-                settingsControl.getSettings().getMappingSettings().setMappingList(XMLMappingTvdbScene.Read(file));
+                settingsControl.getSettings().getMappingSettings().setMappingList(XMLMappingTvdbScene.read(file));
             } else if (listType == ImportListType.EXCLUDE
                     && settingsControl.getSettings().getExcludeList().size() == 0) {
-                settingsControl.getSettings().setExcludeList(XMLExclude.Read(file));
+                settingsControl.getSettings().setExcludeList(XMLExclude.read(file));
             } else {
                 final int response = JOptionPane
                         .showConfirmDialog(
@@ -61,10 +61,10 @@ public class Import {
                                 JOptionPane.QUESTION_MESSAGE);
                 if (response == JOptionPane.YES_OPTION) {
                     if (listType == ImportListType.EXCLUDE) {
-                        settingsControl.getSettings().getExcludeList().addAll(XMLExclude.Read(file));
+                        settingsControl.getSettings().getExcludeList().addAll(XMLExclude.read(file));
                     } else if (listType == ImportListType.TRANSLATE) {
                         settingsControl.getSettings().getMappingSettings().getMappingList().addAll(
-                                XMLMappingTvdbScene.Read(file));
+                                XMLMappingTvdbScene.read(file));
                     }
                 }
             }

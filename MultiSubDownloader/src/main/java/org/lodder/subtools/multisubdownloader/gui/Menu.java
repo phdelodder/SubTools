@@ -142,7 +142,6 @@ public class Menu extends JMenuBar {
     mntmQuit.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         if (fileQuitAction != null) fileQuitAction.actionPerformed(e);
-        System.exit(0);
       }
     });
 
