@@ -126,7 +126,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
   private void checkUpdate(final boolean showNoUpdate) {
     Manager manager = (Manager) this.app.make("Manager");
     UpdateAvailableDropbox u = new UpdateAvailableDropbox(manager);
-    if (u.checkProgram()) {
+    if (u.checkProgram(settingsControl.getSettings().getUpdateCheckPeriod())) {
       final JEditorPane editorPane = new JEditorPane();
       editorPane.setPreferredSize(new Dimension(800, 50));
       editorPane.setEditable(false);

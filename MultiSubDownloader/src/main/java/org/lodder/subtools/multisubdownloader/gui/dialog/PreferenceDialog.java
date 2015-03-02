@@ -18,15 +18,16 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
 import org.lodder.subtools.multisubdownloader.framework.event.Event;
-import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.extra.JListWithImages;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.panels.EpisodeLibraryPanel;
@@ -36,10 +37,9 @@ import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
+import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.logging.Logger;
-
-import javax.swing.JSlider;
 
 public class PreferenceDialog extends MultiSubDialog {
 
@@ -66,11 +66,13 @@ public class PreferenceDialog extends MultiSubDialog {
   private JCheckBox chkMinScoreSelection;
   private JSlider sldMinScoreSelection;
   private Manager manager;
+  private JComboBox<UpdateCheckPeriod> cbxUpdateCheckPeriod;
 
   /**
    * Create the dialog.
    */
-  public PreferenceDialog(JFrame frame, final SettingsControl settingsCtrl, Emitter eventEmitter, Manager manager) {
+  public PreferenceDialog(JFrame frame, final SettingsControl settingsCtrl, Emitter eventEmitter,
+      Manager manager) {
     super(frame, Messages.getString("PreferenceDialog.Title"), true);
     this.settingsCtrl = settingsCtrl;
     this.eventEmitter = eventEmitter;
@@ -97,7 +99,7 @@ public class PreferenceDialog extends MultiSubDialog {
         tabbedPane
             .addTab(Messages.getString("PreferenceDialog.TabGeneral"), null, pnlGeneral, null);
         pnlGeneral.setLayout(new MigLayout("", "[127px,grow][grow][grow]",
-            "[23px][grow][][][grow,center][grow]"));
+            "[23px][grow][][][grow,center][][grow]"));
         {
           JLabel lblDefaultIncomingFolder =
               new JLabel(Messages.getString("PreferenceDialog.DefaultIncomingFolder"));
@@ -194,8 +196,19 @@ public class PreferenceDialog extends MultiSubDialog {
           }
         }
         {
+          JLabel lblNewUpdateCheck =
+              new JLabel(Messages.getString("PreferenceDialog.NewUpdateCheck"));
+          pnlGeneral.add(lblNewUpdateCheck, "cell 0 5 2 1");
+        }
+        {
+          cbxUpdateCheckPeriod = new JComboBox<UpdateCheckPeriod>();
+          cbxUpdateCheckPeriod.setModel(new DefaultComboBoxModel<UpdateCheckPeriod>(
+              UpdateCheckPeriod.values()));
+          pnlGeneral.add(cbxUpdateCheckPeriod, "cell 2 5,growx");
+        }
+        {
           JPanel pnlProxySettings = new JPanel();
-          pnlGeneral.add(pnlProxySettings, "cell 0 5 3 1,grow");
+          pnlGeneral.add(pnlProxySettings, "cell 0 6 3 1,grow");
           pnlProxySettings.setLayout(new MigLayout("", "[50px:n][][grow][grow]", "[][][][]"));
           pnlProxySettings.add(new JLabel(Messages.getString("PreferenceDialog.ConfigureProxy")),
               "cell 0 0 4 1,gapy 5");
@@ -489,6 +502,7 @@ public class PreferenceDialog extends MultiSubDialog {
         .setSelected(settingsCtrl.getSettings().isSerieSourceOpensubtitles());
     chkSerieSourceLocal.setSelected(settingsCtrl.getSettings().isSerieSourceLocal());
     chkSerieSourceSubsMax.setSelected(settingsCtrl.getSettings().isSerieSourceSubsMax());
+    cbxUpdateCheckPeriod.setSelectedItem(settingsCtrl.getSettings().getUpdateCheckPeriod());
   }
 
   protected boolean testOptionsTab() {
@@ -561,6 +575,8 @@ public class PreferenceDialog extends MultiSubDialog {
         list.add(sei);
       }
       settingsCtrl.getSettings().setExcludeList(list);
+      settingsCtrl.getSettings().setUpdateCheckPeriod(
+          (UpdateCheckPeriod) cbxUpdateCheckPeriod.getSelectedItem());
       settingsCtrl.getSettings().setGeneralProxyEnabled(chkProxyserverGebruiken.isSelected());
       settingsCtrl.getSettings().setGeneralProxyHost(txtProxyHost.getText());
       settingsCtrl.getSettings().setGeneralProxyPort(Integer.parseInt(txtProxyPort.getText()));
@@ -582,7 +598,8 @@ public class PreferenceDialog extends MultiSubDialog {
     if (testOptionsTab()) {
       settingsCtrl.getSettings().setOptionsAlwaysConfirm(chkAlwaysConfirm.isSelected());
       settingsCtrl.getSettings().setOptionsMinAutomaticSelection(chkMinScoreSelection.isSelected());
-      settingsCtrl.getSettings().setOptionsMinAutomaticSelectionValue(sldMinScoreSelection.getValue());
+      settingsCtrl.getSettings().setOptionsMinAutomaticSelectionValue(
+          sldMinScoreSelection.getValue());
       settingsCtrl.getSettings().setOptionSubtitleExactMatch(chkSubtitleExactMethod.isSelected());
       settingsCtrl.getSettings().setOptionSubtitleKeywordMatch(
           chkSubtitleKeywordMethod.isSelected());

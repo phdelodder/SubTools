@@ -17,6 +17,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
+import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.settings.MappingSettingsControl;
@@ -84,6 +85,7 @@ public class SettingsControl {
       preferences.putBoolean("OptionRecursive", settings.isOptionRecursive());
       preferences.putBoolean("AutoUpdateMapping", settings.isAutoUpdateMapping());
       preferences.put("ProcessEpisodeSource", settings.getProcessEpisodeSource().toString());
+      preferences.put("UpdateCheckPeriod", settings.getUpdateCheckPeriod().toString());
 
       if (MemoryFolderChooser.getInstance().getMemory() != null)
         preferences.put("LastOutputDir", MemoryFolderChooser.getInstance().getMemory()
@@ -283,6 +285,8 @@ public class SettingsControl {
     settings.setAutoUpdateMapping(preferences.getBoolean("AutoUpdateMapping", false));
     settings.setProcessEpisodeSource(SettingsProcessEpisodeSource.valueOf(preferences.get(
         "ProcessEpisodeSource", SettingsProcessEpisodeSource.TVDB.toString())));
+    settings.setUpdateCheckPeriod(UpdateCheckPeriod.valueOf(preferences.get("UpdateCheckPeriod",
+        UpdateCheckPeriod.WEEKLY.toString())));
     // GeneralDefaultIncomingFolders
     loadGeneralDefaultIncomingFolders();
     // Serie

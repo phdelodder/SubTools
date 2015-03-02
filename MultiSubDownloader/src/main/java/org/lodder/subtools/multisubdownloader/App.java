@@ -174,7 +174,7 @@ public class App {
 
   public static void checkUpdate(Manager manager) {
     UpdateAvailableDropbox u = new UpdateAvailableDropbox(manager);
-    if (u.checkProgram()) {
+    if (u.checkProgram(prefctrl.getSettings().getUpdateCheckPeriod())) {
       Logger.instance.log(Messages.getString("UpdateAppAvailable") + ": " + u.getUpdateUrl());
     }
   }

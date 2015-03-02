@@ -36,6 +36,7 @@ public class Settings {
   private Map<String, Integer> sortWeights;
   private boolean optionsMinAutomaticSelection;
   private int optionsMinAutomaticSelectionValue;
+  private UpdateCheckPeriod updateCheckPeriod;
 
   public Settings() {
     super();
@@ -437,5 +438,13 @@ public class Settings {
 
   public void setOptionsMinAutomaticSelectionValue(int optionsMinAutomaticSelectionValue) {
     this.optionsMinAutomaticSelectionValue = optionsMinAutomaticSelectionValue;
+  }
+
+  public UpdateCheckPeriod getUpdateCheckPeriod() {
+    return updateCheckPeriod;
+  }
+
+  public void setUpdateCheckPeriod(UpdateCheckPeriod updateCheckPeriod) {
+    this.updateCheckPeriod = updateCheckPeriod;
   }
 }

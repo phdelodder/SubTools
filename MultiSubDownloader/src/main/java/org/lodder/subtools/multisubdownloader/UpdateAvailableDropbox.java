@@ -1,9 +1,13 @@
 package org.lodder.subtools.multisubdownloader;
 
+import java.util.Calendar;
+
+import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.sublibrary.ConfigProperties;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
@@ -29,10 +33,30 @@ public class UpdateAvailableDropbox {
     updatedUrl = "";
   }
 
-  public boolean checkProgram() {
+  public boolean checkProgram(UpdateCheckPeriod updateCheckPeriod) {
     Logger.instance.log(Messages.getString("UpdateAvailableDropbox.CheckingForUpdate"));
     try {
-      return check(programName, extension);
+      Calendar date = Calendar.getInstance();
+      switch (updateCheckPeriod) {
+        case DAILY:
+          return check(programName, extension);
+        case MANUAL:
+          break;
+        case MONTHLY:
+          date.set(Calendar.DAY_OF_MONTH, 1);
+          if (DateUtils.isSameDay(date, Calendar.getInstance())) {
+            return check(programName, extension);
+          }
+          break;
+        case WEEKLY:
+          date.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+          if (DateUtils.isSameDay(date, Calendar.getInstance())) {
+            return check(programName, extension);
+          }
+          break;
+        default:
+          break;
+      }
     } catch (Exception e) {
       Logger.instance.error(Logger.stack2String(e));
     }
