@@ -41,11 +41,19 @@ public class CLI implements Listener {
     Logger.instance.addListener(this);
     this.app = app;
     this.settings = settings;
+    checkUpdate((Manager) this.app.make("Manager"));
     downloadAction = new DownloadAction(settings, (Manager) this.app.make("Manager"));
     subtitleSelectionAction = new SubtitleSelectionAction(settings);
     subtitleSelectionAction.setSubtitleSelection(new SubtitleSelectionCLI(settings));
   }
 
+  private void checkUpdate(Manager manager) {
+    UpdateAvailableDropbox u = new UpdateAvailableDropbox(manager);
+    if (u.checkProgram(settings.getUpdateCheckPeriod())) {
+      Logger.instance.log(Messages.getString("UpdateAppAvailable") + ": " + u.getUpdateUrl());
+    }
+  }
+  
   public void setUp(CommandLine line) throws Exception {
     this.folders = getFolders(line);
     this.languagecode = getLanguageCode(line);

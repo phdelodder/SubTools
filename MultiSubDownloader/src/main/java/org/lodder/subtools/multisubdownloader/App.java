@@ -79,14 +79,11 @@ public class App {
       Logger.instance.setLogLevel(Level.DEBUG);
     }
 
-
-
     if (line.hasOption("nogui")) {
       bootstrapper.initialize();
       CLI cmd = new CLI(prefctrl.getSettings(), app);
 
       /* Defined here so there is output on console */
-      checkUpdate(manager);
       importPreferences(line);
       updateMapping(line);
 
@@ -169,13 +166,6 @@ public class App {
     options.addOption("verboseprogress", false, Messages.getString("App.OptionVerboseProgressCLI"));
 
     return options;
-  }
-
-  public static void checkUpdate(Manager manager) {
-    UpdateAvailableDropbox u = new UpdateAvailableDropbox(manager);
-    if (u.checkProgram(prefctrl.getSettings().getUpdateCheckPeriod())) {
-      Logger.instance.log(Messages.getString("UpdateAppAvailable") + ": " + u.getUpdateUrl());
-    }
   }
 
   private static Manager createManager() {
