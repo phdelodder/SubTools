@@ -100,7 +100,6 @@ public class App {
       cmd.run();
     } else {
       /* Defined here so there is output in the splash */
-      checkUpdate(manager);
       importPreferences(line);
       updateMapping(line);
 
