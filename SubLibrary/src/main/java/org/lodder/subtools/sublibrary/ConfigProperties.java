@@ -7,22 +7,12 @@ public final class ConfigProperties {
 
   private static ConfigProperties configProps = null;
   private java.util.Properties prop = new java.util.Properties();
-  private InputStream input = null;
 
   private ConfigProperties() {
-    try {
-      input = getClass().getResourceAsStream("/config.properties");
+    try (InputStream input = getClass().getResourceAsStream("/config.properties")) {
       prop.load(input);
     } catch (IOException ex) {
       ex.printStackTrace();
-    } finally {
-      if (input != null) {
-        try {
-          input.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
     }
   }
 
