@@ -12,13 +12,12 @@ import org.lodder.subtools.sublibrary.logging.Logger;
 
 public class DiskCache<K, T> extends InMemoryCache<K, T> {
 
-  private final File path;
   private Connection conn;
 
   public DiskCache(long crunchifyTimeToLive, long crunchifyTimerInterval, int maxItems,
       String username, String password) {
     super(crunchifyTimeToLive, crunchifyTimerInterval, maxItems);
-    path = new File(System.getProperty("user.home"), ".MultiSubDownloader");
+    File path = new File(System.getProperty("user.home"), ".MultiSubDownloader");
     if (!path.exists()) {
       if (!path.mkdir()) {
         throw new RuntimeException("Could not create folder " + path);
