@@ -113,7 +113,7 @@ public class JAddic7edApi extends Html {
     String url =
         "http://www.addic7ed.com/serie/" + showname.toLowerCase().replace(" ", "_") + "/" + season
             + "/" + episode + "/" + title.toLowerCase().replace(" ", "_").replace("#", "");
-    String content = this.getContent(false, url);;
+    String content = this.getContent(false, url);
     List<Addic7edSubtitleDescriptor> lSubtitles = new ArrayList<Addic7edSubtitleDescriptor>();
     Document doc = Jsoup.parse(content);
 
