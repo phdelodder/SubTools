@@ -26,8 +26,7 @@ public class DetectLanguage {
 
     UberLanguageDetector detector = UberLanguageDetector.getInstance();
 
-    String language = detector.detectLang(text);
-    return language;
+    return detector.detectLang(text);
 
   }
 
