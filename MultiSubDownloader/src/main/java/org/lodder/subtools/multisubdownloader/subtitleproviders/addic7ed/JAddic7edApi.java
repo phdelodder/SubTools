@@ -212,7 +212,7 @@ public class JAddic7edApi extends Html {
       if (disk) {
         content = this.getHtmlDisk(url);
       } else {
-        if (!speedy) {
+        if (!speedy && !this.isCached(url)) {
           long dur = new Date().getTime() - lastRequest.getTime();
           if (dur < RATEDURATION) {
             Logger.instance.log("RateLimiet is bereikt voor ADDIC7ed, gelieve 15 sec te wachten");

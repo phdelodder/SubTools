@@ -68,7 +68,8 @@ public class Manager {
     } catch (IOException e) {
       throw new ManagerException(e);
     } catch (HttpClientException e) {
-      throw new ManagerException("Error occured with httpclient response: " + e.getResponseCode() +  " " + e.getResponseMessage());
+      throw new ManagerException("Error occured with httpclient response: " + e.getResponseCode()
+          + " " + e.getResponseMessage());
     } catch (HttpClientSetupException e) {
       throw new ManagerException(e);
     }
@@ -127,4 +128,10 @@ public class Manager {
     diskCache.remove(url);
   }
 
+  public boolean isCached(String url) {
+    if (inMemoryCache.exists(url))
+      return true;
+    else
+      return diskCache.exists(url);
+  }
 }

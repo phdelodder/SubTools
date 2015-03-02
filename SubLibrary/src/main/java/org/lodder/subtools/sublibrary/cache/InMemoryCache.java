@@ -49,6 +49,12 @@ public class InMemoryCache<K, T> {
     }
   }
 
+  public boolean exists(K key) {
+    synchronized (cacheMap) {
+      return cacheMap.containsKey(key);
+    }
+  }
+
   @SuppressWarnings("unchecked")
   public T get(K key) {
     synchronized (cacheMap) {

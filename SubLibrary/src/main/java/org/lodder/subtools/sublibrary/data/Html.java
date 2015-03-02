@@ -1,7 +1,6 @@
 package org.lodder.subtools.sublibrary.data;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.Map;
 
 import org.lodder.subtools.sublibrary.Manager;
@@ -40,5 +39,9 @@ public class Html {
 
   public String postHtml(String url, Map<String, String> data) throws ManagerException {
     return manager.post(url, userAgent, data);
+  }
+  
+  public boolean isCached(String url){
+    return manager.isCached(url);
   }
 }
