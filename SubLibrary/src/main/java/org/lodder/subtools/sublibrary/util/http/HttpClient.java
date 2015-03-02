@@ -1,13 +1,11 @@
 package org.lodder.subtools.sublibrary.util.http;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -53,7 +51,7 @@ public class HttpClient {
 
     int respCode = ((HttpURLConnection) conn).getResponseCode();
 
-    if (respCode == 200) return getStringFromInputStream(conn.getInputStream());
+    if (respCode == 200) return IOUtils.toString(conn.getInputStream());
     throw new HttpClientException((HttpURLConnection) conn);
   }
 
@@ -98,7 +96,7 @@ public class HttpClient {
         }
       }
 
-      return getStringFromInputStream(conn.getInputStream());
+      return IOUtils.toString(conn.getInputStream());
 
     } catch (UnsupportedEncodingException e) {
       throw new HttpClientException(e, null);
@@ -109,23 +107,6 @@ public class HttpClient {
         conn.disconnect();
       }
     }
-  }
-
-  private static String getStringFromInputStream(InputStream is) {
-    StringBuilder sb = new StringBuilder();
-    String line;
-
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"))) {
-      while ((line = br.readLine()) != null) {
-        sb.append(line);
-      }
-
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-
-    return sb.toString();
-
   }
 
   public boolean doDownloadFile(URL url, final File file) {
