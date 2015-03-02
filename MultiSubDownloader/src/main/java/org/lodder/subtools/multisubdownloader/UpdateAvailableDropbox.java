@@ -34,7 +34,6 @@ public class UpdateAvailableDropbox {
   }
 
   public boolean checkProgram(UpdateCheckPeriod updateCheckPeriod) {
-    Logger.instance.log(Messages.getString("UpdateAvailableDropbox.CheckingForUpdate"));
     try {
       Calendar date = Calendar.getInstance();
       switch (updateCheckPeriod) {
@@ -45,12 +44,14 @@ public class UpdateAvailableDropbox {
         case MONTHLY:
           date.set(Calendar.DAY_OF_MONTH, 1);
           if (DateUtils.isSameDay(date, Calendar.getInstance())) {
+            Logger.instance.log(Messages.getString("UpdateAvailableDropbox.CheckingForUpdate"));
             return check(programName, extension);
           }
           break;
         case WEEKLY:
           date.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
           if (DateUtils.isSameDay(date, Calendar.getInstance())) {
+            Logger.instance.log(Messages.getString("UpdateAvailableDropbox.CheckingForUpdate"));
             return check(programName, extension);
           }
           break;
