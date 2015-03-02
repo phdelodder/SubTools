@@ -51,7 +51,11 @@ public class HttpClient {
 
     int respCode = ((HttpURLConnection) conn).getResponseCode();
 
-    if (respCode == 200) return IOUtils.toString(conn.getInputStream());
+    if (respCode == 200) {
+      String result = IOUtils.toString(conn.getInputStream());
+      ((HttpURLConnection) conn).disconnect();
+      return result;
+    }
     throw new HttpClientException((HttpURLConnection) conn);
   }
 
@@ -96,7 +100,9 @@ public class HttpClient {
         }
       }
 
-      return IOUtils.toString(conn.getInputStream());
+      String result = IOUtils.toString(conn.getInputStream());
+      ((HttpURLConnection) conn).disconnect();
+      return result;
 
     } catch (UnsupportedEncodingException e) {
       throw new HttpClientException(e, null);
