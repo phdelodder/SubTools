@@ -28,12 +28,12 @@ public class Html {
     this.userAgent = userAgent;
   }
 
-  public String getHtml(String url) throws MalformedURLException, IOException, HttpClientException,
+  public String getHtml(String url) throws IOException, HttpClientException,
       ManagerSetupException, ManagerException {
     return manager.getContent(url, userAgent, false);
   }
 
-  public String getHtmlDisk(String url) throws MalformedURLException, IOException,
+  public String getHtmlDisk(String url) throws IOException,
       HttpClientException, ManagerSetupException, ManagerException {
     return manager.getContent(url, userAgent, false);
   }
