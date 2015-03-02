@@ -191,7 +191,7 @@ public class Files {
           noFiles = false;
         }
       }
-      if (noFiles == true && allDirsEmpty == true) {
+      if (noFiles && allDirsEmpty) {
         isEmpty = true;
       }
     }
