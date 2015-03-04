@@ -25,11 +25,10 @@ public class VideoTable extends ZebraJTable {
   public void hideColumn(SearchColumnName searchColumnName) {
     int columnId = getColumnIdByName(searchColumnName);
     if (columnId > -1) {
-      if (columnId == -1)
-        columnSettings.put(searchColumnName, new int[] {
-            getColumnModel().getColumn(columnId).getMaxWidth(),
-            getColumnModel().getColumn(columnId).getMinWidth(),
-            getColumnModel().getColumn(columnId).getPreferredWidth()});
+      columnSettings.put(searchColumnName, new int[] {
+          getColumnModel().getColumn(columnId).getMaxWidth(),
+          getColumnModel().getColumn(columnId).getMinWidth(),
+          getColumnModel().getColumn(columnId).getPreferredWidth()});
       getColumnModel().getColumn(columnId).setMaxWidth(0);
       getColumnModel().getColumn(columnId).setMinWidth(0);
       getColumnModel().getColumn(columnId).setPreferredWidth(0);
@@ -55,8 +54,8 @@ public class VideoTable extends ZebraJTable {
   public boolean isHideColumn(SearchColumnName searchColumnName) {
     int columnId = getColumnIdByName(searchColumnName);
     if (columnId > -1) {
-        return getColumnModel().getColumn(columnId).getMinWidth() == 0
-            && getColumnModel().getColumn(columnId).getPreferredWidth() == 0;
+      return getColumnModel().getColumn(columnId).getMinWidth() == 0
+          && getColumnModel().getColumn(columnId).getPreferredWidth() == 0;
     }
     return true;
   }
