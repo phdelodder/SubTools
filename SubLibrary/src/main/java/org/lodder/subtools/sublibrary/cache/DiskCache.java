@@ -53,7 +53,9 @@ public class DiskCache<K, T> extends InMemoryCache<K, T> {
     try (Statement stmt = conn.createStatement()) {
       ResultSet rs = stmt.executeQuery("SELECT key, cacheobject FROM cacheobjects");
       while (rs.next()) {
-        cacheMap.put(rs.getObject("key"), rs.getObject("cacheobject"));
+        synchronized (cacheMap) {
+          cacheMap.put(rs.getObject("key"), rs.getObject("cacheobject"));
+        }
       }
       rs.close();
     } catch (SQLException e) {
@@ -80,8 +82,10 @@ public class DiskCache<K, T> extends InMemoryCache<K, T> {
         conn.prepareCall("INSERT INTO cacheobjects (key,cacheobject) VALUES (?,?)")) {
       prep.clearParameters();
       prep.setObject(1, key);
-      CacheObject<?, ?> cacheObject = (CacheObject<?, ?>) cacheMap.get(key);
-      prep.setObject(2, cacheObject);
+      synchronized (cacheMap) {
+        CacheObject<?, ?> cacheObject = (CacheObject<?, ?>) cacheMap.get(key);
+        prep.setObject(2, cacheObject);
+      }
       prep.execute();
     } catch (SQLException e) {
       Logger.instance.error("Unable to insert object in disk cache!");
