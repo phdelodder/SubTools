@@ -23,13 +23,14 @@ public class DiskCache<K, T> extends InMemoryCache<K, T> {
         throw new RuntimeException("Could not create folder " + path);
       }
     }
+    PreparedStatement prep = null;
     try {
       Class.forName("org.hsqldb.jdbcDriver");
       conn =
           DriverManager.getConnection("jdbc:hsqldb:file:" + path.toString()
               + "/diskcache.hsqldb;hsqldb.write_delay=false;shutdown=true", username, password);
 
-      PreparedStatement prep =
+      prep =
           conn.prepareStatement("create table IF NOT EXISTS cacheobjects (key OTHER, cacheobject OTHER);");
       prep.execute();
       prep.close();
@@ -38,6 +39,12 @@ public class DiskCache<K, T> extends InMemoryCache<K, T> {
       throw new RuntimeException("Unable to load jdbcdriver for diskcache");
     } catch (SQLException e) {
       throw new RuntimeException(e);
+    } finally {
+      try {
+        if (prep != null) prep.close();
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 
