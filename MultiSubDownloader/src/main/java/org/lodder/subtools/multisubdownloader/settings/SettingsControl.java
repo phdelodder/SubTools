@@ -97,6 +97,8 @@ public class SettingsControl {
 
       storeLocalSourcesFolders();
 
+      storeDefaultSelectionSettings();
+
     } catch (BackingStoreException e) {
       Logger.instance.log(Logger.stack2String(e));
     }
@@ -303,6 +305,7 @@ public class SettingsControl {
     loadScreenSettings();
     loadSerieSourcesSettings();
     loadLocalSourcesFolders();
+    loadDefaultSelectionSettings();
   }
 
   private void loadLocalSourcesFolders() {
@@ -542,6 +545,33 @@ public class SettingsControl {
     Logger.instance.log(Messages.getString("SettingsControl.UpdateMapping"));
     mappingSettingsCtrl.updateMappingFromOnline();
     settings.setMappingSettings(mappingSettingsCtrl.getMappingSettings());
+  }
+
+  private void storeDefaultSelectionSettings() {
+    Logger.instance.log("SettingsControl, storeQualityRuleSettings()", Level.TRACE);
+    int last;
+    last = 0;
+    for (int i = 0; i < settings.getOptionsDefaultSelectionQualityList().size(); i++) {
+      preferences.put("DefaultSelectionQuality" + i, settings
+          .getOptionsDefaultSelectionQualityList().get(i));
+      last++;
+    }
+    preferences.putInt("lastItemDefaultSelectionQuality", last);
+    
+    preferences.putBoolean("DefaultSelectionQualityEnabled", settings.isOptionsDefaultSelection());
+  }
+
+  private void loadDefaultSelectionSettings() {
+    Logger.instance.log("SettingsControl, loadQualityRuleSettings()", Level.TRACE);
+    int last;
+
+    last = preferences.getInt("lastItemDefaultSelectionQuality", 0);
+
+    for (int i = 0; i < last; i++) {
+      settings.getOptionsDefaultSelectionQualityList().add(preferences.get("DefaultSelectionQuality" + i, ""));
+    }
+    
+    settings.setOptionsDefaultSelection(preferences.getBoolean("DefaultSelectionQualityEnabled", false));
   }
 
 }
