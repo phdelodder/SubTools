@@ -113,6 +113,8 @@ public class JPodnapisiApi extends XmlRPC{
         url = url +"&sXML=1";
 
         Document doc = getXML(url);
+        
+        if (doc != null) {
 
         NodeList nList = doc.getElementsByTagName("subtitle");
 
@@ -121,6 +123,8 @@ public class JPodnapisiApi extends XmlRPC{
                 Element eElement = (Element) nList.item(i);
                 subtitles.add(parsePodnapisiSubtitle(eElement));
             }
+        }
+        
         }
 
         return subtitles;
