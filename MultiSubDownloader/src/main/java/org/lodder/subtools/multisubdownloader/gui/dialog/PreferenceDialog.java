@@ -121,7 +121,9 @@ public class PreferenceDialog extends MultiSubDialog {
               } else {
                 boolean exists = false;
                 for (int i = 0; i < defaultIncomingFoldersList.getModel().getSize(); i++) {
-                  if (defaultIncomingFoldersList.getDescription(i).equals(path.getAbsolutePath())) {
+                  if (defaultIncomingFoldersList.getDescription(i) != null
+                      && defaultIncomingFoldersList.getDescription(i)
+                          .equals(path.getAbsolutePath())) {
                     exists = true;
                   }
                 }
@@ -416,7 +418,8 @@ public class PreferenceDialog extends MultiSubDialog {
               } else {
                 boolean exists = false;
                 for (int i = 0; i < localSourcesFoldersList.getModel().getSize(); i++) {
-                  if (localSourcesFoldersList.getDescription(i).equals(path.getAbsolutePath())) {
+                  if (localSourcesFoldersList.getDescription(i) != null
+                      && localSourcesFoldersList.getDescription(i).equals(path.getAbsolutePath())) {
                     exists = true;
                   }
                 }
@@ -591,7 +594,7 @@ public class PreferenceDialog extends MultiSubDialog {
       ArrayList<SettingsExcludeItem> list = new ArrayList<SettingsExcludeItem>();
       for (int i = 0; i < excludeList.getModel().getSize(); i++) {
         SettingsExcludeType excludeListType = excludeList.getType(i);
-        if (excludeListType == null) continue;
+        if (excludeListType == null || excludeList.getDescription(i) == null) continue;
         SettingsExcludeItem sei =
             new SettingsExcludeItem(excludeList.getDescription(i), excludeListType);
         list.add(sei);
