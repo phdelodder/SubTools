@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +12,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.model.TVsubtitlesSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.ManagerException;
+import org.lodder.subtools.sublibrary.ManagerSetupException;
 import org.lodder.subtools.sublibrary.data.Html;
+import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 
 
 public class JTVSubtitlesApi extends Html {
@@ -24,48 +28,11 @@ public class JTVSubtitlesApi extends Html {
       String title, String languageid) throws Exception {
     List<TVsubtitlesSubtitleDescriptor> lSubtitles = new ArrayList<TVsubtitlesSubtitleDescriptor>();
 
-    Map<String, String> data = new HashMap<String, String>();
-    data.put("q", name);
-    String searchShow = this.postHtml("http://www.tvsubtitles.net/search.php", data);
-    String showUrl = null, seasonUrl, episodeUrl = null;
-    Document searchShowDoc = Jsoup.parse(searchShow);
-    Elements shows = searchShowDoc.getElementsByTag("li");
-    for (Element show : shows) {
-      Elements links = show.getElementsByTag("a");
-      if (links.size() == 1 && links.get(0).text().toLowerCase().contains(name.toLowerCase())) {
-        showUrl = links.get(0).attr("href");
-        break;
-      }
-    }
+    String showUrl = this.getShowUrl(name);
 
     if (showUrl != null) {
-      seasonUrl =
-          "http://www.tvsubtitles.net/" + showUrl.substring(0, showUrl.indexOf(".")) + "-" + season
-              + ".html";
-      String searchSeason = this.getHtmlDisk(seasonUrl);
-      Document searchSeasonDoc = Jsoup.parse(searchSeason);
-      Element searchSeasonTable = searchSeasonDoc.getElementById("table5");
 
-      boolean foundEp = false;
-      for (Element ep : searchSeasonTable.getElementsByTag("td")) {
-        if (foundEp) {
-          Elements links = ep.getElementsByTag("a");
-          if (links.size() == 1) {
-            episodeUrl = links.get(0).attr("href");
-            break;
-          }
-        }
-
-        String formatedepisodenumber = "";
-        if (episode < 10) {
-          formatedepisodenumber = "0" + episode;
-        } else {
-          formatedepisodenumber = "" + episode;
-        }
-        if (ep.text().equals(season + "x" + formatedepisodenumber)) {
-          foundEp = true;
-        }
-      }
+      String episodeUrl = getEpisodeUrl(showUrl, season, episode);
 
       if (episodeUrl != null) {
         episodeUrl =
@@ -125,5 +92,63 @@ public class JTVSubtitlesApi extends Html {
     }
 
     return lSubtitles;
+  }
+
+  private String getEpisodeUrl(String showUrl, int season, int episode) throws IOException,
+      HttpClientException, ManagerSetupException, ManagerException {
+    String seasonUrl =
+        "http://www.tvsubtitles.net/" + showUrl.substring(0, showUrl.indexOf(".")) + "-" + season
+            + ".html";
+    String searchSeason = this.getHtmlDisk(seasonUrl);
+    Document searchSeasonDoc = Jsoup.parse(searchSeason);
+    if (searchSeasonDoc == null) return null;
+
+    Element searchSeasonTable = searchSeasonDoc.getElementById("table5");
+    String episodeUrl = null;
+
+    boolean foundEp = false;
+    for (Element ep : searchSeasonTable.getElementsByTag("td")) {
+      if (foundEp) {
+        Elements links = ep.getElementsByTag("a");
+        if (links.size() == 1) {
+          episodeUrl = links.get(0).attr("href");
+          break;
+        }
+      }
+
+      String formatedepisodenumber = "";
+      if (episode < 10) {
+        formatedepisodenumber = "0" + episode;
+      } else {
+        formatedepisodenumber = "" + episode;
+      }
+      if (ep.text().equals(season + "x" + formatedepisodenumber)) {
+        foundEp = true;
+      }
+    }
+
+    return episodeUrl;
+  }
+
+  private String getShowUrl(String showName) throws ManagerException {
+    Map<String, String> data = new HashMap<String, String>();
+    data.put("q", showName);
+
+    String searchShow = this.postHtml("http://www.tvsubtitles.net/search.php", data);
+    String showUrl = null;
+
+    Document searchShowDoc = Jsoup.parse(searchShow);
+    if (searchShowDoc == null) return showUrl;
+
+    Elements shows = searchShowDoc.getElementsByTag("li");
+    for (Element show : shows) {
+      Elements links = show.getElementsByTag("a");
+      if (links.size() == 1 && links.get(0).text().toLowerCase().contains(showName.toLowerCase())) {
+        showUrl = links.get(0).attr("href");
+        break;
+      }
+    }
+
+    return showUrl;
   }
 }
