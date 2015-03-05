@@ -72,40 +72,46 @@ public class PrivateRepoIndex {
           case XMLStreamConstants.END_ELEMENT:
             switch (reader.getLocalName()) {
               case "PrivateRepoItem":
-                repoList.add(currIndexSubtitle);
+                if (repoList != null) repoList.add(currIndexSubtitle);
                 break;
               case "name":
-                currIndexSubtitle.setName(tagContent);
+                if (currIndexSubtitle != null) currIndexSubtitle.setName(tagContent);
                 break;
               case "season":
-                currIndexSubtitle.setSeason(Integer.parseInt(tagContent));
+                if (currIndexSubtitle != null)
+                  currIndexSubtitle.setSeason(Integer.parseInt(tagContent));
                 break;
               case "episode":
-                currIndexSubtitle.setEpisode(Integer.parseInt(tagContent));
+                if (currIndexSubtitle != null)
+                  currIndexSubtitle.setEpisode(Integer.parseInt(tagContent));
                 break;
               case "language":
-                currIndexSubtitle.setLanguage(tagContent);
+                if (currIndexSubtitle != null) currIndexSubtitle.setLanguage(tagContent);
                 break;
               case "filename":
-                currIndexSubtitle.setFilename(tagContent);
+                if (currIndexSubtitle != null) currIndexSubtitle.setFilename(tagContent);
                 break;
               case "tvdbid":
-                currIndexSubtitle.setTvdbid(Integer.parseInt(tagContent));
+                if (currIndexSubtitle != null)
+                  currIndexSubtitle.setTvdbid(Integer.parseInt(tagContent));
                 break;
               case "uploader":
-                currIndexSubtitle.setUploader(tagContent);
+                if (currIndexSubtitle != null) currIndexSubtitle.setUploader(tagContent);
                 break;
               case "originalSource":
-                currIndexSubtitle.setOriginalSource(tagContent);
+                if (currIndexSubtitle != null) currIndexSubtitle.setOriginalSource(tagContent);
                 break;
               case "videotype":
-                currIndexSubtitle.setVideoType(VideoType.valueOf(tagContent));
+                if (currIndexSubtitle != null)
+                  currIndexSubtitle.setVideoType(VideoType.valueOf(tagContent));
                 break;
               case "imdbid":
-                currIndexSubtitle.setImdbid(Integer.parseInt(tagContent));
+                if (currIndexSubtitle != null)
+                  currIndexSubtitle.setImdbid(Integer.parseInt(tagContent));
                 break;
               case "year":
-                currIndexSubtitle.setYear(Integer.parseInt(tagContent));
+                if (currIndexSubtitle != null)
+                  currIndexSubtitle.setYear(Integer.parseInt(tagContent));
                 break;
               default:
                 break;
