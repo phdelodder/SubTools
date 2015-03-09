@@ -52,6 +52,7 @@ public class JListWithImages extends JList<JPanel> {
 
   public String getDescription(int index) {
     JPanel p = getModel().getElementAt(index);
+    if (p == null) return null;
     return ((JLabel) p.getComponent(0)).getText();
   }
 

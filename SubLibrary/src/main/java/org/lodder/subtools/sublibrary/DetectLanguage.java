@@ -1,13 +1,13 @@
 package org.lodder.subtools.sublibrary;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.lodder.subtools.sublibrary.logging.Logger;
-
 import me.champeau.ld.UberLanguageDetector;
+
+import org.apache.commons.io.FileUtils;
+import org.lodder.subtools.sublibrary.logging.Logger;
 
 public class DetectLanguage {
 
@@ -26,18 +26,14 @@ public class DetectLanguage {
 
     UberLanguageDetector detector = UberLanguageDetector.getInstance();
 
-    String language = detector.detectLang(text);
-    return language;
+    return detector.detectLang(text);
 
   }
 
   private static String readText(File file) {
     String text = "";
-    try (FileInputStream is = new FileInputStream(file)){
-      byte[] contents = new byte[(int) file.length()];
-      is.read(contents);
-
-      text = new String(contents, "UTF-8");
+    try {
+      text = FileUtils.readFileToString(file);
     } catch (FileNotFoundException e) {
       Logger.instance.error(Logger.stack2String(e));
     } catch (IOException e) {

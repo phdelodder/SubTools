@@ -1,5 +1,7 @@
 package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
+import java.awt.Dimension;
+
 /**
  * A JTable that draws a zebra striped background.
  */
@@ -100,7 +102,10 @@ public class ZebraJTable extends javax.swing.JTable {
      * if ( !(p instanceof javax.swing.JViewport) ) return false; return
      * ((javax.swing.JViewport)p).getHeight() > getPreferredSize().height;
      **/
-    return p instanceof javax.swing.JViewport && p.getHeight() > getPreferredSize().height;
+    Dimension preferredSize = getPreferredSize();
+    if (preferredSize == null) return false;
+    
+    return p instanceof javax.swing.JViewport && p.getHeight() > preferredSize.height;
   }
 
   /** Compute zebra background stripe colors. */

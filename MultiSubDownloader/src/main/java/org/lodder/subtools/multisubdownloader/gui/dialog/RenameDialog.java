@@ -31,6 +31,7 @@ import org.lodder.subtools.multisubdownloader.gui.workers.TypedRenameWorker;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 
@@ -49,7 +50,7 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
   /**
    * Create the dialog.
    */
-  public RenameDialog(JFrame frame, final Settings settings, final VideoType videoType) {
+  public RenameDialog(JFrame frame, final Settings settings, final VideoType videoType, final Manager manager) {
     super(frame, videoType + Messages.getString("RenameDialog.Rename"), false);
     listTranslate = settings.getMappingSettings().getMappingList();
     setResizable(false);
@@ -125,9 +126,9 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
     }
     {
       if (videoType == VideoType.EPISODE) {
-        pnlLibrary = new EpisodeLibraryPanel(settings.getEpisodeLibrarySettings());
+        pnlLibrary = new EpisodeLibraryPanel(settings.getEpisodeLibrarySettings(), manager);
       } else {
-        pnlLibrary = new MovieLibraryPanel(settings.getMovieLibrarySettings());
+        pnlLibrary = new MovieLibraryPanel(settings.getMovieLibrarySettings(), manager);
       }
 
       GridBagConstraints gbc_panel = new GridBagConstraints();
@@ -149,10 +150,10 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
             if (videoType == VideoType.EPISODE) {
               list = (ArrayList<MappingTvdbScene>) listTranslate;
               rename(new File(txtRenameLocation.getText()), new File(txtRenameLocation.getText()),
-                  settings, pnlLibrary.getLibrarySettings(), list);
+                  settings, pnlLibrary.getLibrarySettings(), list, manager);
             } else {
               rename(new File(txtRenameLocation.getText()), new File(txtRenameLocation.getText()),
-                  new Settings(), pnlLibrary.getLibrarySettings(), list);
+                  new Settings(), pnlLibrary.getLibrarySettings(), list, manager);
             }
 
             setVisible(false);
@@ -182,14 +183,15 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
    * @param settings
    * @param librarySettings can be different from the store librarySettings
    * @param list
+   * @param manager
    */
   protected void rename(File dir, File basedir, Settings settings, LibrarySettings librarySettings,
-      ArrayList<MappingTvdbScene> list) {
+      ArrayList<MappingTvdbScene> list, Manager manager) {
     TypedRenameWorker renameWorker =
         new TypedRenameWorker(dir, librarySettings, VideoType.EPISODE,
-            this.chkRecursive.isSelected());
+            this.chkRecursive.isSelected(), manager);
     renameWorker.addPropertyChangeListener(this);
-    renameWorker.setReleaseFactory(new ReleaseFactory(settings));
+    renameWorker.setReleaseFactory(new ReleaseFactory(settings, manager));
     progressDialog = new ProgressDialog(renameWorker);
     progressDialog.setVisible(true);
     renameWorker.execute();

@@ -4,8 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import java.util.Map;
+
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.settings.model.MappingSettings;
 
@@ -36,6 +36,9 @@ public class Settings {
   private Map<String, Integer> sortWeights;
   private boolean optionsMinAutomaticSelection;
   private int optionsMinAutomaticSelectionValue;
+  private UpdateCheckPeriod updateCheckPeriod;
+  private boolean optionsDefaultSelection;
+  private List<String> optionsDefaultSelectionQualityList;
 
   public Settings() {
     super();
@@ -65,6 +68,8 @@ public class Settings {
     setMappingSettings(new MappingSettings());
     optionsMinAutomaticSelection = false;
     optionsMinAutomaticSelectionValue = 0;
+    setOptionsDefaultSelection(false);
+    setOptionsDefaultSelectionQualityList(new ArrayList<String>());
   }
 
   public boolean isOptionsAlwaysConfirm() {
@@ -437,5 +442,29 @@ public class Settings {
 
   public void setOptionsMinAutomaticSelectionValue(int optionsMinAutomaticSelectionValue) {
     this.optionsMinAutomaticSelectionValue = optionsMinAutomaticSelectionValue;
+  }
+
+  public UpdateCheckPeriod getUpdateCheckPeriod() {
+    return updateCheckPeriod;
+  }
+
+  public void setUpdateCheckPeriod(UpdateCheckPeriod updateCheckPeriod) {
+    this.updateCheckPeriod = updateCheckPeriod;
+  }
+
+  public boolean isOptionsDefaultSelection() {
+    return optionsDefaultSelection;
+  }
+
+  public void setOptionsDefaultSelection(boolean optionsDefaultSelection) {
+    this.optionsDefaultSelection = optionsDefaultSelection;
+  }
+
+  public List<String> getOptionsDefaultSelectionQualityList() {
+    return optionsDefaultSelectionQualityList;
+  }
+
+  public void setOptionsDefaultSelectionQualityList(List<String> optionsDefaultSelectionQualityList) {
+    this.optionsDefaultSelectionQualityList = optionsDefaultSelectionQualityList;
   }
 }

@@ -16,7 +16,7 @@ import java.util.List;
 
 public class XMLExclude {
 
-  public static void Write(List<SettingsExcludeItem> list, File f) throws Throwable {
+  public static void write(List<SettingsExcludeItem> list, File f) throws Throwable {
     Document newDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     Element rootElement = newDoc.createElement("Exclude-Bierdopje-Scene");
     newDoc.appendChild(rootElement);
@@ -35,7 +35,7 @@ public class XMLExclude {
     XMLHelper.writeToFile(f, newDoc);
   }
 
-  public static ArrayList<SettingsExcludeItem> Read(File f) throws Throwable {
+  public static ArrayList<SettingsExcludeItem> read(File f) throws Throwable {
     ArrayList<SettingsExcludeItem> list = new ArrayList<SettingsExcludeItem>();
     Document newDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(f);
     NodeList nList = newDoc.getElementsByTagName("excludeitem");

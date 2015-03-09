@@ -3,9 +3,9 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.io.IOException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,32 +19,41 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.model.Addic7edSubtitleDescriptor;
+import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.ManagerException;
+import org.lodder.subtools.sublibrary.ManagerSetupException;
 import org.lodder.subtools.sublibrary.data.Html;
-import org.lodder.subtools.sublibrary.util.http.HttpClient;
+import org.lodder.subtools.sublibrary.logging.Logger;
+import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 
 
 public class JAddic7edApi extends Html {
 
   private final Pattern pattern;
+  private final static long RATEDURATION = MILLISECONDS.convert(15, TimeUnit.SECONDS);
+  private boolean speedy;
+  private Date lastRequest = new Date();
 
-  public JAddic7edApi() {
-    super();
+  public JAddic7edApi(boolean speedy, Manager manager) {
+    super(manager, "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
     pattern = Pattern.compile("Version (.+), ([0-9]+).([0-9])+ MBs");
-    this.setRatelimit(1);
-    this.setRateDuration(MILLISECONDS.convert(15, TimeUnit.SECONDS));
+    this.speedy = speedy;
   }
 
-  public JAddic7edApi(String username, String password) throws IOException {
-    super();
+  public JAddic7edApi(String username, String password, boolean speedy, Manager manager)
+      throws ManagerException {
+    super(manager, "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
+    pattern = Pattern.compile("Version (.+), ([0-9]+).([0-9])+ MBs");
+    login(username, password);
+    this.speedy = speedy;
+  }
+
+  public void login(String username, String password) throws ManagerException {
     Map<String, String> data = new HashMap<String, String>();
     data.put("username", username);
     data.put("password", password);
     data.put("remember", "false");
-    HttpClient.getHttpClient().doPost(new URL("http://www.addic7ed.com/dologin.php"),
-        "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)", data);
-    pattern = Pattern.compile("Version (.+), ([0-9]+).([0-9])+ MBs");
-    this.setRatelimit(1);
-    this.setRateDuration(MILLISECONDS.convert(15, TimeUnit.SECONDS));
+    this.postHtml("http://www.addic7ed.com/dologin.php", data);
   }
 
   public String searchSerieName(String name) throws Exception {
@@ -84,7 +93,7 @@ public class JAddic7edApi extends Html {
         "http://www.addic7ed.com/search.php?search=" + URLEncoder.encode(name, "UTF-8")
             + "&Submit=Search";
 
-    String content = this.getHtmlDisk(url);
+    String content = this.getContent(true, url);
 
     if (content.contains("<b>0 results found</b>")) {
       if (name.contains(":")) {
@@ -104,7 +113,7 @@ public class JAddic7edApi extends Html {
     String url =
         "http://www.addic7ed.com/serie/" + showname.toLowerCase().replace(" ", "_") + "/" + season
             + "/" + episode + "/" + title.toLowerCase().replace(" ", "_").replace("#", "");
-    String content = this.getHtml(url);
+    String content = this.getContent(false, url);
     List<Addic7edSubtitleDescriptor> lSubtitles = new ArrayList<Addic7edSubtitleDescriptor>();
     Document doc = Jsoup.parse(content);
 
@@ -194,5 +203,44 @@ public class JAddic7edApi extends Html {
           && s.getVersion().equals(sub.getVersion())) return true;
     }
     return false;
+  }
+
+  private String getContent(boolean disk, String url) {
+    String content = "";
+
+    try {
+      if (disk) {
+        content = this.getHtmlDisk(url);
+      } else {
+        if (!speedy && !this.isCached(url)) {
+          long dur = new Date().getTime() - lastRequest.getTime();
+          if (dur < RATEDURATION) {
+            Logger.instance.log("RateLimiet is bereikt voor ADDIC7ed, gelieve 15 sec te wachten");
+          }
+          while ((new Date().getTime() - lastRequest.getTime()) < RATEDURATION) {
+            try {
+              // Pause for 1 seconds
+              TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt(); // restore
+                                                  // interrupted
+                                                  // status
+            }
+          }
+          lastRequest = new Date();
+        }
+        content = this.getHtml(url);
+      }
+    } catch (HttpClientException hce) {
+      Logger.instance.log(Logger.stack2String(hce));
+    } catch (IOException e) {
+      Logger.instance.log(Logger.stack2String(e));
+    } catch (ManagerSetupException e) {
+      Logger.instance.log(Logger.stack2String(e));
+    } catch (ManagerException e) {
+      Logger.instance.log(Logger.stack2String(e));
+    }
+
+    return content;
   }
 }

@@ -12,6 +12,7 @@ import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
@@ -25,10 +26,12 @@ public class RenameWorker extends SwingWorker<Void, String> implements Cancelabl
   private VideoTable table;
   private Settings settings;
   private RenameAction renameAction;
+  private Manager manager;
 
-  public RenameWorker(VideoTable table, Settings settings) {
+  public RenameWorker(VideoTable table, Settings settings, Manager manager) {
     this.table = table;
     this.settings = settings;
+    this.manager = manager;
   }
 
   protected Void doInBackground() throws Exception {
@@ -46,10 +49,10 @@ public class RenameWorker extends SwingWorker<Void, String> implements Cancelabl
             (Release) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.OBJECT));
         if (release.getVideoType() == VideoType.EPISODE) {
           Logger.instance.debug("Treat as EPISODE");
-          renameAction = new RenameAction(settings.getEpisodeLibrarySettings());
+          renameAction = new RenameAction(settings.getEpisodeLibrarySettings(), manager);
         } else if (release.getVideoType() == VideoType.MOVIE) {
           Logger.instance.debug("Treat as MOVIE");
-          renameAction = new RenameAction(settings.getMovieLibrarySettings());
+          renameAction = new RenameAction(settings.getMovieLibrarySettings(), manager);
         }
         if (renameAction != null)
           renameAction.rename(new File(release.getPath(), release.getFilename()), release);

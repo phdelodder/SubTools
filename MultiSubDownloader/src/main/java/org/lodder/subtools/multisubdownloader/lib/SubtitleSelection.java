@@ -25,6 +25,19 @@ public abstract class SubtitleSelection {
       }
     }
 
+    if (settings.isOptionsDefaultSelection()) {
+      List<Subtitle> defaultSelectionsFound = new ArrayList<Subtitle>();
+      for (String q : settings.getOptionsDefaultSelectionQualityList()) {
+        for (Subtitle subtitle : shortlist) {
+          if (subtitle.getQuality().toLowerCase().contains(q.toLowerCase())) {
+            if (!defaultSelectionsFound.contains(subtitle)) defaultSelectionsFound.add(subtitle);
+          }
+        }
+      }
+
+      if (defaultSelectionsFound.size() > 0) shortlist = defaultSelectionsFound;
+    }
+
     return shortlist;
   }
 

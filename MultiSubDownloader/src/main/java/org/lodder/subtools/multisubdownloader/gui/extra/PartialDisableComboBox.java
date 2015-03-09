@@ -16,6 +16,7 @@ public class PartialDisableComboBox extends JComboBox<Object> {
 
   private ArrayList<Boolean> itemsState = new ArrayList<Boolean>();
 
+  @SuppressWarnings("unchecked")
   public PartialDisableComboBox(Object[] items) {
     super();
     for (Object o : items) {
@@ -24,6 +25,7 @@ public class PartialDisableComboBox extends JComboBox<Object> {
     this.setRenderer(new BasicComboBoxRenderer() {
       private static final long serialVersionUID = -2774241371293899669L;
 
+      @SuppressWarnings("rawtypes")
       @Override
       public Component getListCellRendererComponent(JList list, Object value, int index,
           boolean isSelected, boolean cellHasFocus) {

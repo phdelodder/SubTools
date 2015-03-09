@@ -11,7 +11,7 @@ public class Utils {
 
 		for (Integer integer : listB) {
 
-			if (listAAsSet.contains(integer) == false) {
+			if (!listAAsSet.contains(integer)) {
 				return false;
 			}
 		}

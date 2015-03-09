@@ -10,6 +10,7 @@ import org.lodder.subtools.multisubdownloader.gui.extra.PartialDisableComboBox;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.VideoType;
 
@@ -35,9 +36,11 @@ public abstract class VideoLibraryPanel extends JPanel {
   private JCheckBox chkUseTVDBNaming;
   private PartialDisableComboBox cbxLibraryOtherFileAction;
   private SubtitleBackupPanel pnlBackup;
+  private Manager manager;
 
-  public VideoLibraryPanel(LibrarySettings libSettings, VideoType videoType) {
+  public VideoLibraryPanel(LibrarySettings libSettings, VideoType videoType, Manager manager) {
     this.videoType = videoType;
+    this.manager = manager;
     initialize_ui();
     setLibrarySettings(libSettings);
     // repaint();
@@ -284,7 +287,7 @@ public abstract class VideoLibraryPanel extends JPanel {
       public void actionPerformed(ActionEvent arg0) {
         final StructureBuilderDialog sDialog =
             new StructureBuilderDialog(null, "Structure Builder", true, videoType,
-                StructureBuilderDialog.StrucutureType.FOLDER, getLibrarySettings());
+                StructureBuilderDialog.StrucutureType.FOLDER, getLibrarySettings(), manager);
         String value = sDialog.showDialog(pnlStructureFolder.getStructure().getText());
         if (!value.equals("")) pnlStructureFolder.getStructure().setText(value);
       }
@@ -298,7 +301,7 @@ public abstract class VideoLibraryPanel extends JPanel {
       public void actionPerformed(ActionEvent arg0) {
         final StructureBuilderDialog sDialog =
             new StructureBuilderDialog(null, "Structure Builder", true, videoType,
-                StructureBuilderDialog.StrucutureType.FILE, getLibrarySettings());
+                StructureBuilderDialog.StrucutureType.FILE, getLibrarySettings(), manager);
         String value = sDialog.showDialog(pnlStructureFile.getFileStructure());
         if (!value.isEmpty()) pnlStructureFile.setFileStructure(value);
       }

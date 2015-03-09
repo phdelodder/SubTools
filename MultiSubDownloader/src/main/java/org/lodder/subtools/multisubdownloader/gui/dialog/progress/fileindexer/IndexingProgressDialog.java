@@ -9,6 +9,10 @@ import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener
 
 public class IndexingProgressDialog extends ProgressDialog implements IndexingProgressListener {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 2974749335080501254L;
   private final GUI window;
   private boolean completed;
 

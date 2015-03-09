@@ -1,6 +1,7 @@
 package org.lodder.subtools.multisubdownloader.lib.library;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.TvRelease;
@@ -8,8 +9,8 @@ import org.lodder.subtools.sublibrary.util.StringUtils;
 
 public class FilenameLibraryBuilder extends LibraryBuilder {
 
-  public FilenameLibraryBuilder(LibrarySettings librarySettings) {
-    super(librarySettings);
+  public FilenameLibraryBuilder(LibrarySettings librarySettings, Manager manager) {
+    super(librarySettings, manager);
   }
 
   public String build(Release release) {

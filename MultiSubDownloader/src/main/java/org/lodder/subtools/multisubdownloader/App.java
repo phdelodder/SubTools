@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader;
 
 import java.awt.EventQueue;
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
 import javax.swing.UIManager;
@@ -18,8 +19,13 @@ import org.lodder.subtools.multisubdownloader.gui.Splash;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.ConfigProperties;
+import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.cache.DiskCache;
+import org.lodder.subtools.sublibrary.cache.InMemoryCache;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
+import org.lodder.subtools.sublibrary.util.http.CookieManager;
+import org.lodder.subtools.sublibrary.util.http.HttpClient;
 
 public class App {
 
@@ -33,9 +39,9 @@ public class App {
   public static void main(String[] args) throws Exception {
     // Default log level for the program
     Logger.instance.setLogLevel(Level.INFO);
-    
+
     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-    
+
     CommandLineParser parser = new GnuParser();
     HelpFormatter formatter = new HelpFormatter();
 
@@ -49,14 +55,18 @@ public class App {
     if (line == null) {
       return;
     }
-    
-    if (!line.hasOption("nogui")){
+
+    if (!line.hasOption("nogui")) {
       splash = new Splash();
       splash.showSplash();
     }
 
+    Preferences preferences = Preferences.userRoot();
+    preferences.putBoolean("speedy", line.hasOption("speedy"));
+
     final Container app = new Container();
-    Bootstrapper bootstrapper = new Bootstrapper(app, prefctrl.getSettings());
+    final Manager manager = createManager();
+    Bootstrapper bootstrapper = new Bootstrapper(app, prefctrl.getSettings(), preferences, manager);
 
     if (line.hasOption("help")) {
       formatter.printHelp(ConfigProperties.getInstance().getProperty("name"), getCLIOptions());
@@ -69,14 +79,11 @@ public class App {
       Logger.instance.setLogLevel(Level.DEBUG);
     }
 
-    Preferences preferences = Preferences.userRoot();
-    preferences.putBoolean("speedy", line.hasOption("speedy"));
-
     if (line.hasOption("nogui")) {
+      bootstrapper.initialize();
       CLI cmd = new CLI(prefctrl.getSettings(), app);
-      
+
       /* Defined here so there is output on console */
-      checkUpdate();
       importPreferences(line);
       updateMapping(line);
 
@@ -87,14 +94,12 @@ public class App {
         return;
       }
 
-      bootstrapper.initialize();
       cmd.run();
     } else {
       /* Defined here so there is output in the splash */
-      checkUpdate();
       importPreferences(line);
       updateMapping(line);
-      
+
       bootstrapper.initialize();
       EventQueue.invokeLater(new Runnable() {
         public void run() {
@@ -150,12 +155,12 @@ public class App {
     options.addOption("debug", false, Messages.getString("App.OptionOptionDebugMsg"));
     options.addOption("trace", false, Messages.getString("App.OptionOptionTraceMsg"));
     options.addOption("importpreferences", true,
-                      Messages.getString("App.OptionOptionImportPreferencesMsg"));
+        Messages.getString("App.OptionOptionImportPreferencesMsg"));
     options.addOption("force", false, Messages.getString("App.OptionOptionForceMsg"));
     options.addOption("folder", true, Messages.getString("App.OptionOptionFolderMsg"));
     options.addOption("downloadall", false, Messages.getString("App.OptionOptionDownloadAllMsg"));
     options.addOption("updatefromonlinemapping", false,
-                      Messages.getString("App.OptionOptionUpdateMappingMsg"));
+        Messages.getString("App.OptionOptionUpdateMappingMsg"));
     options.addOption("selection", false, Messages.getString("App.OptionOptionSelectionMsg"));
     options.addOption("speedy", false, Messages.getString("App.OptionOptionSpeedyMsg"));
     options.addOption("verboseprogress", false, Messages.getString("App.OptionVerboseProgressCLI"));
@@ -163,10 +168,18 @@ public class App {
     return options;
   }
 
-  public static void checkUpdate() {
-    UpdateAvailableDropbox u = new UpdateAvailableDropbox();
-    if (u.checkProgram()) {
-      Logger.instance.log(Messages.getString("UpdateAppAvailable") + ": " + u.getUpdateUrl());
-    }
+  private static Manager createManager() {
+    Logger.instance.log("Creating manager");
+    Manager manager = new Manager();
+    DiskCache<String, String> diskCache =
+        new DiskCache<String, String>(TimeUnit.SECONDS.convert(5, TimeUnit.DAYS), 100, 500, "user", "pass");
+    manager.setDiskCache(diskCache);
+    InMemoryCache<String, String> inMemoryCache =
+        new InMemoryCache<String, String>(TimeUnit.SECONDS.convert(10, TimeUnit.MINUTES), 10, 500);
+    manager.setInMemoryCache(inMemoryCache);
+    HttpClient httpClient = new HttpClient();
+    httpClient.setCookieManager(new CookieManager());
+    manager.setHttpClient(httpClient);
+    return manager;
   }
 }

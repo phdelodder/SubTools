@@ -25,10 +25,12 @@ public class JOpenSubtitlesApi extends XmlRPC {
     login(username, password, "en");
   }
 
+  @SuppressWarnings("unchecked")
   public synchronized void login(String username, String password, String language)
       throws Exception {
     Map<String, String> response =
-        invoke("LogIn", new Object[] {username, password, language, getUserAgent()});
+        (Map<String, String>) invoke("LogIn", new Object[] {username, password, language,
+            getUserAgent()});
 
     setToken(response.get("token"));
   }
@@ -41,21 +43,25 @@ public class JOpenSubtitlesApi extends XmlRPC {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public Map<String, String> getServerInfo() throws Exception {
-    return invoke("ServerInfo", new Object[] {getToken()});
+    return (Map<String, String>) invoke("ServerInfo", new Object[] {getToken()});
   }
 
+  @SuppressWarnings("unchecked")
   public List<OpenSubtitlesMovieDescriptor> searchMoviesOnIMDB(String title) throws Exception {
     List<OpenSubtitlesMovieDescriptor> movies = new ArrayList<OpenSubtitlesMovieDescriptor>();
-    Map<?, ?> response = invoke("SearchMoviesOnIMDB", new Object[] {getToken(), title});
+    Map<String, List<Map<String, String>>> response =
+        (Map<String, List<Map<String, String>>>) invoke("SearchMoviesOnIMDB", new Object[] {
+            getToken(), title});
 
-    List<Map> movieData = (List<Map>) response.get("data");
+    List<Map<String, String>> movieData = (List<Map<String, String>>) response.get("data");
 
     NamedPattern np =
         NamedPattern.compile(
             "(?<moviename>[\\w\\s:&().,_-]+)[\\.|\\[|\\(| ]{1}(?<year>19\\d{2}|20\\d{2})", 2);
 
-    for (Map<?, ?> movie : movieData) {
+    for (Map<String, String> movie : movieData) {
       Scanner titleScanner = new Scanner((String) movie.get("title"));
       titleScanner.useDelimiter("(Â)|(\\s+aka\\s+)");
 
@@ -130,6 +136,7 @@ public class JOpenSubtitlesApi extends XmlRPC {
     return searchSubtitles(queryList, languages);
   }
 
+  @SuppressWarnings("unchecked")
   public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(Map<String, Object> queryList,
       String[] languages) throws Exception {
     List<OpenSubtitlesSubtitleDescriptor> subtitles =
@@ -151,13 +158,17 @@ public class JOpenSubtitlesApi extends XmlRPC {
     params.add(getToken());
     params.add(new Object[] {queryList});
 
-    Map<?, ?> response = invoke("SearchSubtitles", params);
+    Map<String, ?> response = (Map<String, ?>) invoke("SearchSubtitles", params);
     try {
-      Object[] data = (Object[]) response.get("data");
-      for (Object o : data) {
-        subtitles.add(parseOSSubtitle((Map<String, String>) o));
+      if (response.get("data") instanceof Object[]) {
+        Object[] data = (Object[]) response.get("data");
+        for (Object o : data) {
+          subtitles.add(parseOSSubtitle((Map<String, String>) o));
+        }
       }
-    } catch (Exception localException) {}
+    } catch (Exception localException) {
+      Logger.instance.error(Logger.stack2String(localException));
+    }
     return subtitles;
   }
 

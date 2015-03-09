@@ -16,6 +16,7 @@ import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.SubtitleSelectionGUI;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
 
@@ -30,10 +31,10 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
   private DownloadAction downloadAction;
   private SubtitleSelectionAction subtitleSelectionAction;
 
-  public DownloadWorker(VideoTable table, Settings settings) {
+  public DownloadWorker(VideoTable table, Settings settings, Manager manager) {
     this.table = table;
     this.settings = settings;
-    downloadAction = new DownloadAction(settings);
+    downloadAction = new DownloadAction(settings, manager);
     subtitleSelectionAction = new SubtitleSelectionAction(settings);
     subtitleSelectionAction.setSubtitleSelection(new SubtitleSelectionGUI(settings));
   }

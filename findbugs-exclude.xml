@@ -1,0 +1,12 @@
+<FindBugsFilter>
+<And>
+    <Bug pattern="MS_PKGPROTECT"/>
+    <!-- Field should be package protected -->
+    <Class name="org.lodder.subtools.sublibrary.control.VideoPatterns"/>
+  </And>
+    <And>
+    <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    <!-- Field should be package protected -->
+    <Class name="org.lodder.subtools.multisubdownloader.lib.control.ReleaseControl"/>
+  </And>
+</FindBugsFilter>

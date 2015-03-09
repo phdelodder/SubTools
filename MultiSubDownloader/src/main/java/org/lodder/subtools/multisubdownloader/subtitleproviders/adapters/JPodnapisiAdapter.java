@@ -9,6 +9,7 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.Op
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.JPodnapisiApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.model.PodnapisiSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.JSubAdapter;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -20,9 +21,9 @@ import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 public class JPodnapisiAdapter implements JSubAdapter, SubtitleProvider {
 
   private static JPodnapisiApi jpapi;
-  public JPodnapisiAdapter() {
+  public JPodnapisiAdapter(Manager manager) {
     try {
-      if (jpapi == null) jpapi = new JPodnapisiApi("JBierSubDownloader");
+      if (jpapi == null) jpapi = new JPodnapisiApi("JBierSubDownloader", manager);
     } catch (Exception e) {
       Logger.instance.error("API PODNAPISI INIT: " + e.getCause());
     }

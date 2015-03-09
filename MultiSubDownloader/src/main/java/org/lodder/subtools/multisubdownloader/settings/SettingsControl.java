@@ -17,6 +17,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
+import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.sublibrary.logging.Level;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.settings.MappingSettingsControl;
@@ -84,6 +85,7 @@ public class SettingsControl {
       preferences.putBoolean("OptionRecursive", settings.isOptionRecursive());
       preferences.putBoolean("AutoUpdateMapping", settings.isAutoUpdateMapping());
       preferences.put("ProcessEpisodeSource", settings.getProcessEpisodeSource().toString());
+      preferences.put("UpdateCheckPeriod", settings.getUpdateCheckPeriod().toString());
 
       if (MemoryFolderChooser.getInstance().getMemory() != null)
         preferences.put("LastOutputDir", MemoryFolderChooser.getInstance().getMemory()
@@ -94,6 +96,8 @@ public class SettingsControl {
       storeSerieSourcesSettings();
 
       storeLocalSourcesFolders();
+
+      storeDefaultSelectionSettings();
 
     } catch (BackingStoreException e) {
       Logger.instance.log(Logger.stack2String(e));
@@ -283,6 +287,8 @@ public class SettingsControl {
     settings.setAutoUpdateMapping(preferences.getBoolean("AutoUpdateMapping", false));
     settings.setProcessEpisodeSource(SettingsProcessEpisodeSource.valueOf(preferences.get(
         "ProcessEpisodeSource", SettingsProcessEpisodeSource.TVDB.toString())));
+    settings.setUpdateCheckPeriod(UpdateCheckPeriod.valueOf(preferences.get("UpdateCheckPeriod",
+        UpdateCheckPeriod.WEEKLY.toString())));
     // GeneralDefaultIncomingFolders
     loadGeneralDefaultIncomingFolders();
     // Serie
@@ -299,6 +305,7 @@ public class SettingsControl {
     loadScreenSettings();
     loadSerieSourcesSettings();
     loadLocalSourcesFolders();
+    loadDefaultSelectionSettings();
   }
 
   private void loadLocalSourcesFolders() {
@@ -538,6 +545,33 @@ public class SettingsControl {
     Logger.instance.log(Messages.getString("SettingsControl.UpdateMapping"));
     mappingSettingsCtrl.updateMappingFromOnline();
     settings.setMappingSettings(mappingSettingsCtrl.getMappingSettings());
+  }
+
+  private void storeDefaultSelectionSettings() {
+    Logger.instance.log("SettingsControl, storeQualityRuleSettings()", Level.TRACE);
+    int last;
+    last = 0;
+    for (int i = 0; i < settings.getOptionsDefaultSelectionQualityList().size(); i++) {
+      preferences.put("DefaultSelectionQuality" + i, settings
+          .getOptionsDefaultSelectionQualityList().get(i));
+      last++;
+    }
+    preferences.putInt("lastItemDefaultSelectionQuality", last);
+    
+    preferences.putBoolean("DefaultSelectionQualityEnabled", settings.isOptionsDefaultSelection());
+  }
+
+  private void loadDefaultSelectionSettings() {
+    Logger.instance.log("SettingsControl, loadQualityRuleSettings()", Level.TRACE);
+    int last;
+
+    last = preferences.getInt("lastItemDefaultSelectionQuality", 0);
+
+    for (int i = 0; i < last; i++) {
+      settings.getOptionsDefaultSelectionQualityList().add(preferences.get("DefaultSelectionQuality" + i, ""));
+    }
+    
+    settings.setOptionsDefaultSelection(preferences.getBoolean("DefaultSelectionQualityEnabled", false));
   }
 
 }

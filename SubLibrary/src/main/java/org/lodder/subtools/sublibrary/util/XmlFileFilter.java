@@ -14,9 +14,7 @@ public class XmlFileFilter extends FileFilter {
 		}
 
 		String extension = getExtension(f);
-		if (extension != null) return extension.equals("xml");
-
-		return false;
+		return extension.equals("xml");
 	}
 
 	@Override

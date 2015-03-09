@@ -32,6 +32,9 @@ public class FileListAction {
 
   public List<File> getFileListing(File dir, boolean recursieve, String languagecode,
       boolean forceSubtitleOverwrite) {
+    Logger.instance.trace(FileListAction.class.toString(), "getFileListing",
+        "File: " + dir.toString() + " Recursive: " + recursieve + " languageCode: " + languagecode
+            + " forceSubtitleOverwrite: " + forceSubtitleOverwrite);
     /* Reset progress counters */
     this.progressFileIndex = 0;
     this.progressFilesTotal = 0;
@@ -158,7 +161,7 @@ public class FileListAction {
       }
 
       if (filters == null) return false;
-      
+
       String[] contents =
           file.getParentFile().list(
               new FilenameExtensionFilter(filters.toArray(new String[filters.size()])));

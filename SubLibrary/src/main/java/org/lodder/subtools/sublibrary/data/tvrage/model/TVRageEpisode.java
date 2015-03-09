@@ -103,7 +103,7 @@ public class TVRageEpisode implements Serializable {
     public void setAirDate(String airDate) {
         if (isValidString(airDate)) {
             try {
-                this.airDate = TVRageParser.ParseDate(airDate);
+                this.airDate = TVRageParser.parseDate(airDate);
             } catch (Exception ex) {
                 this.airDate = null;
             }

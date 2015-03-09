@@ -9,6 +9,10 @@ import org.lodder.subtools.multisubdownloader.Messages;
 
 public class SearchProgressTableModel extends DefaultTableModel {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = -8366722569174216456L;
   private String[] columnNames = {Messages.getString("SearchProgressTableModel.Source"),
       Messages.getString("SearchProgressTableModel.Queue"),
       Messages.getString("SearchProgressTableModel.Release")};

@@ -18,7 +18,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
@@ -72,6 +71,8 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider
 import org.lodder.subtools.multisubdownloader.util.Export;
 import org.lodder.subtools.multisubdownloader.util.Import;
 import org.lodder.subtools.sublibrary.ConfigProperties;
+import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.OsCheck;
 import org.lodder.subtools.sublibrary.OsCheck.OSType;
 import org.lodder.subtools.sublibrary.logging.Level;
@@ -123,8 +124,9 @@ public class GUI extends JFrame implements PropertyChangeListener {
   }
 
   private void checkUpdate(final boolean showNoUpdate) {
-    UpdateAvailableDropbox u = new UpdateAvailableDropbox();
-    if (u.checkProgram()) {
+    Manager manager = (Manager) this.app.make("Manager");
+    UpdateAvailableDropbox u = new UpdateAvailableDropbox(manager);
+    if (u.checkProgram(settingsControl.getSettings().getUpdateCheckPeriod())) {
       final JEditorPane editorPane = new JEditorPane();
       editorPane.setPreferredSize(new Dimension(800, 50));
       editorPane.setEditable(false);
@@ -299,7 +301,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     menuBar.setEditRenameTVAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         final RenameDialog rDialog =
-            new RenameDialog(getThis(), settingsControl.getSettings(), VideoType.EPISODE);
+            new RenameDialog(getThis(), settingsControl.getSettings(), VideoType.EPISODE, (Manager) app.make("Manager"));
         rDialog.setVisible(true);
       }
     });
@@ -307,7 +309,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     menuBar.setEditRenameMovieAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         final RenameDialog rDialog =
-            new RenameDialog(getThis(), settingsControl.getSettings(), VideoType.MOVIE);
+            new RenameDialog(getThis(), settingsControl.getSettings(), VideoType.MOVIE, (Manager) app.make("Manager"));
         rDialog.setVisible(true);
       }
     });
@@ -315,7 +317,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     menuBar.setEditPreferencesAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
         final PreferenceDialog pDialog =
-            new PreferenceDialog(getThis(), settingsControl, (Emitter) app.make("EventEmitter"));
+            new PreferenceDialog(getThis(), settingsControl, (Emitter) app.make("EventEmitter"), (Manager) app.make("Manager"));
         pDialog.setVisible(true);
       }
     });
@@ -382,7 +384,8 @@ public class GUI extends JFrame implements PropertyChangeListener {
     SubtitleProviderStore subtitleProviderStore =
         (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
 
-    TextGuiSearchAction searchAction = new TextGuiSearchAction(this, settings, subtitleProviderStore);
+    TextGuiSearchAction searchAction =
+        new TextGuiSearchAction(this, settings, subtitleProviderStore);
     ResultPanel resultPanel = new ResultPanel();
     pnlSearchTextInput = new SearchTextInputPanel();
 
@@ -394,7 +397,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     resultPanel.setTable(createSubtitleTable());
 
     searchAction.setSearchPanel(pnlSearchText);
-    searchAction.setReleaseFactory(new ReleaseFactory(settings));
+    searchAction.setReleaseFactory(new ReleaseFactory(settings, (Manager) app.make("Manager")));
     searchAction.setFiltering(new Filtering(settings));
     searchAction.setSubtitleSelection(new SubtitleSelectionGUI(settings));
 
@@ -423,7 +426,8 @@ public class GUI extends JFrame implements PropertyChangeListener {
     SubtitleProviderStore subtitleProviderStore =
         (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
 
-    FileGuiSearchAction searchAction = new FileGuiSearchAction(this, settings, subtitleProviderStore);
+    FileGuiSearchAction searchAction =
+        new FileGuiSearchAction(this, settings, subtitleProviderStore);
     ResultPanel resultPanel = new ResultPanel();
     pnlSearchFileInput = new SearchFileInputPanel();
     pnlSearchFileInput.setRecursiveSelected(settings.isOptionRecursive());
@@ -435,7 +439,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     resultPanel.setTable(createVideoTable());
 
     searchAction.setFileListAction(new FileListAction(this.settingsControl.getSettings()));
-    searchAction.setReleaseFactory(new ReleaseFactory(this.settingsControl.getSettings()));
+    searchAction.setReleaseFactory(new ReleaseFactory(this.settingsControl.getSettings(), (Manager) app.make("Manager")));
     searchAction.setFiltering(new Filtering(this.settingsControl.getSettings()));
     searchAction.setSearchPanel(pnlSearchFile);
 
@@ -569,7 +573,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
   protected void rename() {
     VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
-    RenameWorker renameWorker = new RenameWorker(videoTable, settingsControl.getSettings());
+    RenameWorker renameWorker = new RenameWorker(videoTable, settingsControl.getSettings(), (Manager) this.app.make("Manager"));
     renameWorker.addPropertyChangeListener(this);
     pnlSearchFile.getResultPanel().enableButtons();
     progressDialog = new ProgressDialog(this, renameWorker);
@@ -580,7 +584,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
   private void download() {
     VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
     Logger.instance.trace(GUI.class.toString(), "download", "");
-    DownloadWorker downloadWorker = new DownloadWorker(videoTable, settingsControl.getSettings());
+    DownloadWorker downloadWorker = new DownloadWorker(videoTable, settingsControl.getSettings(), (Manager) this.app.make("Manager"));
     downloadWorker.addPropertyChangeListener(this);
     pnlSearchFile.getResultPanel().disableButtons();
     progressDialog = new ProgressDialog(this, downloadWorker);
@@ -608,8 +612,8 @@ public class GUI extends JFrame implements PropertyChangeListener {
         try {
 
           if (HttpClient.isUrl(subtitle.getDownloadlink())) {
-            HttpClient.getHttpClient().doDownloadFile(new URL(subtitle.getDownloadlink()),
-                new File(path, filename));
+            Manager manager = (Manager) this.app.make("Manager");
+            manager.store(subtitle.getDownloadlink(), new File(path, filename));
           } else {
             Files
                 .copy(new File(subtitle.getDownloadlink()), new File(path, subtitle.getFilename()));
@@ -618,6 +622,8 @@ public class GUI extends JFrame implements PropertyChangeListener {
         } catch (MalformedURLException e) {
           Logger.instance.error("downloadText : " + Logger.stack2String(e));
         } catch (IOException e) {
+          Logger.instance.error("downloadText : " + Logger.stack2String(e));
+        } catch (ManagerException e) {
           Logger.instance.error("downloadText : " + Logger.stack2String(e));
         }
       }

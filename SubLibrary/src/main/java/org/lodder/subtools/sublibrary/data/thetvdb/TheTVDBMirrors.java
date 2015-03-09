@@ -1,9 +1,15 @@
 package org.lodder.subtools.sublibrary.data.thetvdb;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.ManagerException;
+import org.lodder.subtools.sublibrary.ManagerSetupException;
 import org.lodder.subtools.sublibrary.data.XmlHTTP;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
 import org.w3c.dom.Document;
@@ -36,10 +42,10 @@ public class TheTVDBMirrors {
     
     private final XmlHTTP xmlHTTPAPI;
 	
-	public TheTVDBMirrors(String apikey){
+	public TheTVDBMirrors(String apikey, Manager manager) throws ManagerSetupException, ManagerException, ParserConfigurationException, IOException{
 		 // Make this synchronized so that only one 
         synchronized (this) {
-        	xmlHTTPAPI = new XmlHTTP();
+        	xmlHTTPAPI = new XmlHTTP(manager);
             String urlString = "http://www.thetvdb.com/api/" + apikey + "/mirrors.xml";
             Document doc = null;
             

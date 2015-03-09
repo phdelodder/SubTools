@@ -37,28 +37,24 @@ public class ReleaseParser {
           Logger.instance.trace(this.getClass().getSimpleName(), "parse", "using file name: "
               + fileparsename);
           Object[] parseResults = parsePatternResult();
-          if (parseResults != null) {
-            Release vFile = null;
-            if (parseResults.length == 4) {
-              vFile =
-                  new TvRelease((String) parseResults[0], (Integer) parseResults[1],
-                      (List<Integer>) parseResults[2], file,
-                      extractFileNameExtension(file.getName()),
-                      removeExtension((String) parseResults[3]),
-                      extractReleasegroup(file.getName()), isSpecialEpisode(
-                          (Integer) parseResults[1], (List<Integer>) parseResults[2]));
-            } else if (parseResults.length == 3) {
-              vFile =
-                  new MovieRelease((String) parseResults[0], (Integer) parseResults[1], file,
-                      extractFileNameExtension(file.getName()),
-                      removeExtension((String) parseResults[2]),
-                      extractReleasegroup(file.getName()));
-            }
-            if (vFile == null) return vFile;
-
-            vFile.setQuality(getQualityKeyword(fileparsename));
-            return vFile;
+          Release vFile = null;
+          if (parseResults.length == 4) {
+            vFile =
+                new TvRelease((String) parseResults[0], (Integer) parseResults[1],
+                    (List<Integer>) parseResults[2], file,
+                    extractFileNameExtension(file.getName()),
+                    removeExtension((String) parseResults[3]), extractReleasegroup(file.getName()),
+                    isSpecialEpisode((Integer) parseResults[1], (List<Integer>) parseResults[2]));
+          } else if (parseResults.length == 3) {
+            vFile =
+                new MovieRelease((String) parseResults[0], (Integer) parseResults[1], file,
+                    extractFileNameExtension(file.getName()),
+                    removeExtension((String) parseResults[2]), extractReleasegroup(file.getName()));
           }
+          if (vFile == null) return vFile;
+
+          vFile.setQuality(getQualityKeyword(fileparsename));
+          return vFile;
         }
       }
     }

@@ -30,6 +30,7 @@ import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder
 import org.lodder.subtools.multisubdownloader.lib.library.PathLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
@@ -50,24 +51,26 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
   private TvRelease ep;
   private MovieRelease mo;
   private String oldStructure;
+  private Manager manager;
 
   public enum StrucutureType {
     FILE, FOLDER
   }
 
   public StructureBuilderDialog(JFrame frame, String title, boolean modal, VideoType videoType,
-      StrucutureType structureType, LibrarySettings librarySettings) {
+      StrucutureType structureType, LibrarySettings librarySettings, Manager manager) {
     super(frame, title, modal);
     this.videoType = videoType;
     this.librarySettings = librarySettings;
     this.structureType = structureType;
+    this.manager = manager;
     initializeUi();
     generateVideoFiles();
     mo = new MovieRelease();
   }
 
   private void generateVideoFiles() {
-    ReleaseFactory releaseFactory = new ReleaseFactory(new Settings());
+    ReleaseFactory releaseFactory = new ReleaseFactory(new Settings(), manager);
     if (videoType == VideoType.EPISODE) {
       ep = (TvRelease) releaseFactory.createRelease(
       // new File(File.separator + "Castle.2009.S04E10.720p.HDTV.X264-DIMENSION.mkv"),
@@ -169,12 +172,12 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
     switch (structureType) {
       case FILE:
         librarySettings.setLibraryFilenameStructure(txtStructure.getText());
-        FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings);
+        FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager);
         lblPreview.setText(filenameLibraryBuilder.build(release));
         break;
       case FOLDER:
         librarySettings.setLibraryFolderStructure(txtStructure.getText());
-        PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings);
+        PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager);
         lblPreview.setText(pathLibraryBuilder.build(release));
         break;
       default:

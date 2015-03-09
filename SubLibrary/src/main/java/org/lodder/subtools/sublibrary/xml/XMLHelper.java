@@ -93,8 +93,8 @@ public class XMLHelper {
   }
 
 
-  public static String CleanBadChars(String string) {
-    Logger.instance.trace("XMLHelper", "CleanBadChars", "string:" + string);
+  public static String cleanBadChars(String string) {
+    Logger.instance.trace("XMLHelper", "cleanBadChars", "string:" + string);
     /*
      * Remove bad chars for the find function of bierdopje api.
      */
@@ -111,7 +111,7 @@ public class XMLHelper {
   public static void writeToFile(File file, Document doc) throws Exception {
     String xmlString = getXMLAsString(doc);
     try (FileOutputStream os = new FileOutputStream(file)) {
-      byte[] xmlStringContent = xmlString.getBytes();
+      byte[] xmlStringContent = xmlString.getBytes("UTF-8");
       os.write(xmlStringContent);
       os.close();
     }

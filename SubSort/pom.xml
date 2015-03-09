@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>org.lodder.subtools</groupId>
 			<artifactId>sublibrary</artifactId>
-			<version>1.1.0-SNAPSHOT</version>
+			<version>1.1.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -69,7 +69,7 @@
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>org.lodder.subtools.multisubdownloader.App</mainClass>
+							<mainClass>org.lodder.subtools.subsort.App</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -89,6 +89,6 @@
 	<parent>
 		<groupId>org.lodder.subtools</groupId>
 		<artifactId>subtools</artifactId>
-		<version>1.1.0-SNAPSHOT</version>
+		<version>1.1.1-SNAPSHOT</version>
 	</parent>
 </project>

@@ -308,7 +308,7 @@ public class TVRageShowInfo implements Serializable {
     public void setStartDate(String startDate) {
         if (isValidString(startDate)) {
             try {
-                this.startDate = TVRageParser.ParseDate(startDate);
+                this.startDate = TVRageParser.parseDate(startDate);
             } catch (Exception ex) {
                 // We can't do anything about this error, so return
                 this.startDate = null;

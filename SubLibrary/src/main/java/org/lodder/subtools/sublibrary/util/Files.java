@@ -8,9 +8,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -55,7 +55,8 @@ public class Files {
   }
 
   public static String read(File file) throws IOException {
-    try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+    try (BufferedReader br =
+        new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
       StringBuilder sb = new StringBuilder();
       String line = br.readLine();
 
@@ -190,7 +191,7 @@ public class Files {
           noFiles = false;
         }
       }
-      if (noFiles == true && allDirsEmpty == true) {
+      if (noFiles && allDirsEmpty) {
         isEmpty = true;
       }
     }

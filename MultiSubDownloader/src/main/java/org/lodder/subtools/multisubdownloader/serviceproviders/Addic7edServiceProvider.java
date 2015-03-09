@@ -1,5 +1,7 @@
 package org.lodder.subtools.multisubdownloader.serviceproviders;
 
+import java.util.prefs.Preferences;
+
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
 import org.lodder.subtools.multisubdownloader.framework.event.Event;
@@ -9,6 +11,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.adapters.JAddic7edAdapter;
+import org.lodder.subtools.sublibrary.Manager;
 
 public class Addic7edServiceProvider implements ServiceProvider {
 
@@ -27,7 +30,8 @@ public class Addic7edServiceProvider implements ServiceProvider {
     this.app = app;
 
     /* Resolve the SubtitleProviderStore from the IoC Container */
-    final SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) app.make("SubtitleProviderStore");
+    final SubtitleProviderStore subtitleProviderStore =
+        (SubtitleProviderStore) app.make("SubtitleProviderStore");
 
     /* Create the SubtitleProvider */
     subtitleProvider = createProvider();
@@ -41,6 +45,8 @@ public class Addic7edServiceProvider implements ServiceProvider {
 
   private SubtitleProvider createProvider() {
     Settings settings = (Settings) this.app.make("Settings");
+    Preferences preferences = (Preferences) this.app.make("Preferences");
+    Manager manager = (Manager) this.app.make("Manager");
 
     boolean loginEnabled = false;
     String username = "";
@@ -60,7 +66,8 @@ public class Addic7edServiceProvider implements ServiceProvider {
       loginEnabled = false;
     }
 
-    return new JAddic7edAdapter(loginEnabled, username, password);
+    return new JAddic7edAdapter(loginEnabled, username, password, preferences.getBoolean("speedy",
+        false), manager);
   }
 
   private void registerListener(final SubtitleProviderStore subtitleProviderStore) {

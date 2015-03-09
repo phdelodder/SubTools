@@ -1,64 +1,92 @@
 package org.lodder.subtools.sublibrary;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 
 import org.lodder.subtools.sublibrary.data.thetvdb.TheTVDBApi;
+import org.lodder.subtools.sublibrary.data.thetvdb.TheTVDBException;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.util.http.HttpClient;
 
 public class JTheTVDBAdapter {
 
-  private final TheTVDBApi jtvapi;
+  private TheTVDBApi jtvapi;
   private static JTheTVDBAdapter adapter;
   private String exceptions = "";
-  private final String splitValue = ": '";
+  private final static String splitValue = ": '";
 
-  JTheTVDBAdapter() {
-    this.jtvapi = new TheTVDBApi("A1720D2DDFDCE82D");
+  JTheTVDBAdapter(Manager manager) {
+    this.jtvapi = null;
     try {
+      this.jtvapi = new TheTVDBApi("A1720D2DDFDCE82D", manager);
       exceptions =
-          HttpClient.getHttpClient().downloadText(
-              new URL("http://midgetspy.github.io/sb_tvdb_scene_exceptions/exceptions.txt"));
-    } catch (IOException e) {
+          manager
+              .downloadText("http://midgetspy.github.io/sb_tvdb_scene_exceptions/exceptions.txt");
+    } catch (TheTVDBException e) {
+      Logger.instance.error(Logger.stack2String(e));
+    } catch (ManagerException e) {
       Logger.instance.error(Logger.stack2String(e));
     }
+
   }
 
   public TheTVDBSerie searchSerie(TvRelease episode) {
-    int tvdbid = this.jtvapi.searchSerie(episode.getShow(), null);
-    if (tvdbid == 0) {
-      Logger.instance.error("Unknown serie name in tvdb: " + episode.getShow());
-      return null;
+    int tvdbid;
+    try {
+      tvdbid = this.jtvapi.searchSerie(episode.getShow(), null);
+      if (tvdbid == 0) {
+        Logger.instance.error("Unknown serie name in tvdb: " + episode.getShow());
+        return null;
+      }
+      return this.jtvapi.getSerie(tvdbid, null);
+    } catch (TheTVDBException e) {
+      Logger.instance.error(Logger.stack2String(e));
     }
-    return this.jtvapi.getSerie(tvdbid, null);
+    return null;
   }
 
   public TheTVDBEpisode getEpisode(TvRelease episode) {
-    return this.jtvapi.getEpisode(episode.getTvdbid(), episode.getSeason(), episode
-        .getEpisodeNumbers().get(0), "en");
+    try {
+      return this.jtvapi.getEpisode(episode.getTvdbid(), episode.getSeason(), episode
+          .getEpisodeNumbers().get(0), "en");
+    } catch (TheTVDBException e) {
+      Logger.instance.error(Logger.stack2String(e));
+    }
+    return null;
   }
 
   public TheTVDBSerie getSerie(TvRelease episode) {
-    if (episode.getTvdbid() > 0) {
-      return this.jtvapi.getSerie(episode.getTvdbid(), null);
-    } else {
-      int tvdbid = sickbeardTVDBSceneExceptions(episode.getShow());
-      if (tvdbid > 0) return this.jtvapi.getSerie(tvdbid, null);
-      return searchSerie(episode);
+    try {
+      if (episode.getTvdbid() > 0) {
+        return this.jtvapi.getSerie(episode.getTvdbid(), null);
+      } else {
+        int tvdbid = sickbeardTVDBSceneExceptions(episode.getShow());
+        if (tvdbid > 0) return this.jtvapi.getSerie(tvdbid, null);
+        return searchSerie(episode);
+      }
+    } catch (TheTVDBException e) {
+      Logger.instance.error(Logger.stack2String(e));
     }
+    return null;
   }
 
   public TheTVDBSerie getSerie(int tvdbid) {
-    return this.jtvapi.getSerie(tvdbid, null);
+    try {
+      return this.jtvapi.getSerie(tvdbid, null);
+    } catch (TheTVDBException e) {
+      Logger.instance.error(Logger.stack2String(e));
+    }
+    return null;
   }
 
   public List<TheTVDBEpisode> getAllEpisodes(int tvdbid, String language) {
-    return this.jtvapi.getAllEpisodes(tvdbid, language);
+    try {
+      return this.jtvapi.getAllEpisodes(tvdbid, language);
+    } catch (TheTVDBException e) {
+      Logger.instance.error(Logger.stack2String(e));
+    }
+    return null;
   }
 
   public int sickbeardTVDBSceneExceptions(String serieName) {
@@ -80,8 +108,8 @@ public class JTheTVDBAdapter {
   /**
    * @return JTheTVDBAdapter
    */
-  public static JTheTVDBAdapter getAdapter() {
-    if (adapter == null) adapter = new JTheTVDBAdapter();
+  public synchronized static JTheTVDBAdapter getAdapter(Manager manager) {
+    if (adapter == null) adapter = new JTheTVDBAdapter(manager);
     return adapter;
   }
 }

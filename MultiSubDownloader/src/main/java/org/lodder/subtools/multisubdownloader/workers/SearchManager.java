@@ -37,8 +37,7 @@ public class SearchManager implements Cancelable {
   }
 
   public void addProvider(SubtitleProvider provider) {
-    if (this.workers.containsKey(provider))
-      return;
+    if (this.workers.containsKey(provider)) return;
 
     this.workers.put(provider, new SearchWorker(provider, this));
     this.queue.put(provider, new LinkedList<Release>());
@@ -55,16 +54,18 @@ public class SearchManager implements Cancelable {
   }
 
   public void setProgressListener(SearchProgressListener listener) {
-    this.progressListener = listener;
+    synchronized (this) {
+      this.progressListener = listener;
+    }
   }
 
   public void start() throws SearchSetupException {
-    if(this.progressListener == null)
-      throw new SearchSetupException("ProgressListener cannot be null");
-    if(this.onFound == null)
-      throw new SearchSetupException("SearchHandler cannot be null");
-    if(this.language == null)
-      throw new SearchSetupException("Language cannot be null");
+    synchronized (this) {
+      if (this.progressListener == null)
+        throw new SearchSetupException("ProgressListener cannot be null");
+    }
+    if (this.onFound == null) throw new SearchSetupException("SearchHandler cannot be null");
+    if (this.language == null) throw new SearchSetupException("Language cannot be null");
 
     totalJobs = this.jobsLeft();
 
