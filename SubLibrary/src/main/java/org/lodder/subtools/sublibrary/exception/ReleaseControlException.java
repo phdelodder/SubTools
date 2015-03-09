@@ -1,13 +1,11 @@
 package org.lodder.subtools.sublibrary.exception;
 
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
 
 public class ReleaseControlException extends Exception {
 
     public ReleaseControlException(String string, Release release) {
         super(string + ": " + release.toString());
-        Logger.instance.trace("ReleaseControlException", "ReleaseControlException", "");
     }
 
     /**
