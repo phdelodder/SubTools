@@ -6,18 +6,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
-import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
 import org.lodder.subtools.sublibrary.privateRepo.model.IndexSubtitle;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.lodder.subtools.sublibrary.util.http.DropBoxClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PrivateRepo {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(PrivateRepo.class);
+  
   private List<IndexSubtitle> index = new ArrayList<IndexSubtitle>();
   private String indexUrl = "/Ondertitels/PrivateRepo/index";
   private String indexVersionUrl = "/Ondertitels/PrivateRepo/index.version";
@@ -48,7 +51,7 @@ public class PrivateRepo {
         strIndex = Files.read(rIndex);
       }
     } catch (Exception e) {
-      Logger.instance.log(Logger.stack2String(e));
+      LOGGER.error("Unable to get latest version number", e);
     }
     index = PrivateRepoIndex.getIndex(strIndex);
   }
