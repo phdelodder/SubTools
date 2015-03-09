@@ -17,7 +17,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
@@ -75,14 +74,14 @@ import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.OsCheck;
 import org.lodder.subtools.sublibrary.OsCheck.OSType;
-import org.lodder.subtools.sublibrary.logging.Level;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.lodder.subtools.sublibrary.util.StringUtils;
 import org.lodder.subtools.sublibrary.util.XmlFileFilter;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GUI extends JFrame implements PropertyChangeListener {
 
@@ -103,6 +102,8 @@ public class GUI extends JFrame implements PropertyChangeListener {
   private Menu menuBar;
   private SearchProgressDialog searchProgressDialog;
   private IndexingProgressDialog fileIndexerProgressDialog;
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(CLI.class);
 
   /**
    * Create the application.
@@ -143,7 +144,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
             try {
               Desktop.getDesktop().browse(hyperlinkEvent.getURL().toURI());
             } catch (Exception e) {
-              Logger.instance.error(Logger.stack2String(e));
+              LOGGER.error("", e);
             }
           }
         }
@@ -545,7 +546,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
           StringSelection selection = new StringSelection((String) model.getValueAt(row, col));
           Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
         } catch (HeadlessException e) {
-          Logger.instance.error("initPopupMenu : " + Logger.stack2String(e));
+          LOGGER.error("initPopupMenu",e);
         }
       }
     });
@@ -583,7 +584,6 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
   private void download() {
     VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
-    Logger.instance.trace(GUI.class.toString(), "download", "");
     DownloadWorker downloadWorker = new DownloadWorker(videoTable, settingsControl.getSettings(), (Manager) this.app.make("Manager"));
     downloadWorker.addPropertyChangeListener(this);
     pnlSearchFile.getResultPanel().disableButtons();
@@ -619,12 +619,8 @@ public class GUI extends JFrame implements PropertyChangeListener {
                 .copy(new File(subtitle.getDownloadlink()), new File(path, subtitle.getFilename()));
           }
 
-        } catch (MalformedURLException e) {
-          Logger.instance.error("downloadText : " + Logger.stack2String(e));
-        } catch (IOException e) {
-          Logger.instance.error("downloadText : " + Logger.stack2String(e));
-        } catch (ManagerException e) {
-          Logger.instance.error("downloadText : " + Logger.stack2String(e));
+        } catch (IOException | ManagerException e) {
+          LOGGER.error("downloadText", e);
         }
       }
     }
@@ -704,7 +700,6 @@ public class GUI extends JFrame implements PropertyChangeListener {
   }
 
   private void close() {
-    Logger.instance.log("close", Level.TRACE);
     settingsControl.getSettings().setOptionRecursive(pnlSearchFileInput.isRecursiveSelected());
     storeScreenSettings();
     settingsControl.store();
