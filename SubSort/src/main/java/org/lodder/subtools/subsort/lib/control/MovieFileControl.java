@@ -8,14 +8,18 @@ import org.lodder.subtools.sublibrary.data.IMDB.IMDBException;
 import org.lodder.subtools.sublibrary.data.IMDB.IMDBSearchID;
 import org.lodder.subtools.sublibrary.data.IMDB.model.IMDBDetails;
 import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
+import org.lodder.subtools.sublibrary.util.http.DropBoxClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MovieFileControl extends VideoFileControl {
   private final IMDBSearchID imdbSearchID;
   private final IMDBAPI imdbapi;
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(DropBoxClient.class);
 
   public MovieFileControl(MovieRelease movieRelease, Manager manager) {
     super(movieRelease);
@@ -25,7 +29,6 @@ public class MovieFileControl extends VideoFileControl {
 
   @Override
   public Release process(List<MappingTvdbScene> dict) throws ReleaseControlException {
-    Logger.instance.trace("MovieFileControl", "process", "");
     MovieRelease movieRelease = (MovieRelease) release;
     if (movieRelease.getTitle().equals("")) {
       throw new ReleaseControlException("Unable to extract/find title, check file", release);
@@ -42,15 +45,14 @@ public class MovieFileControl extends VideoFileControl {
             movieRelease.setYear(imdbinfo.getYear());
             movieRelease.setTitle(imdbinfo.getTitle());
           } else {
-            Logger.instance
-                .error("Unable to get details from IMDB API, continue with filename info" + release);
+            LOGGER.error("Unable to get details from IMDB API, continue with filename info [{}]", release);
           }
 
         } else {
           throw new ReleaseControlException("Movie not found on IMDB, check file", release);
         }
       } catch (IMDBException e) {
-        Logger.instance.log(Logger.stack2String(e));
+        LOGGER.error("process: IMDBAPI Failed", e);
         throw new ReleaseControlException("IMDBAPI Failed", release);
       }
       return movieRelease;
