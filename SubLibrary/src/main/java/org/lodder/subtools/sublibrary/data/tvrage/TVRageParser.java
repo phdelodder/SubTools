@@ -26,13 +26,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.data.XmlHTTP;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageCountryDetail;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisodeList;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisodeNumber;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageShowInfo;
-import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.data.XmlHTTP;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -51,6 +52,8 @@ public class TVRageParser extends XmlHTTP {
   private static final String TITLE = "title";
   private static final String AIRDATE = "airdate";
   private static final String COUNTRY = "country";
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(TVRageParser.class);
 
   public TVRageEpisode getEpisodeInfo(String searchUrl) {
     TVRageEpisode episode = new TVRageEpisode();
@@ -394,7 +397,7 @@ public class TVRageParser extends XmlHTTP {
     try {
       return formatter.parse(strDate);
     } catch (ParseException e) {
-      Logger.instance.error("TVRageParser ParseDate " + e.getCause());
+      LOGGER.error("TVRageParser ParseDate ", e);
     }
     return null;
   }
