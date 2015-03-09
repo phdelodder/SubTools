@@ -9,7 +9,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.lodder.subtools.sublibrary.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxException;
@@ -26,6 +27,8 @@ public class DropBoxClient {
   private DbxClient dbxClient;
   private String locationOffset = "/Ondertitels/PrivateRepo/";
   private String unSortedLocationOffset = "/Ondertitels/Unsorted/";
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(DropBoxClient.class);
 
   DropBoxClient() {
     dropboxInit();
@@ -47,14 +50,12 @@ public class DropBoxClient {
 
   public boolean doDownloadFile(String location, File output) {
     boolean success = false;
-    try (FileOutputStream outputStream = new FileOutputStream(output)){
+    try (FileOutputStream outputStream = new FileOutputStream(output)) {
       dbxClient.getFile(locationOffset + location, null, outputStream);
       success = true;
       outputStream.close();
-    } catch (DbxException e) {
-      Logger.instance.error(Logger.stack2String(e));
-    } catch (IOException e) {
-      Logger.instance.error(Logger.stack2String(e));
+    } catch (DbxException | IOException e) {
+      LOGGER.error("doDownloadFile", e);
     }
     return success;
   }
@@ -65,16 +66,14 @@ public class DropBoxClient {
       inputStream = new FileInputStream(inputFile);
       dbxClient.uploadFile(unSortedLocationOffset + "/" + languageCode + "/" + filename,
           DbxWriteMode.add(), inputFile.length(), inputStream);
-    } catch (DbxException e) {
-      Logger.instance.error(Logger.stack2String(e));
-    } catch (IOException e) {
-      Logger.instance.error(Logger.stack2String(e));
+    } catch (DbxException | IOException e) {
+      LOGGER.error("put", e);
     } finally {
       if (inputStream != null) {
         try {
           inputStream.close();
         } catch (IOException e) {
-          Logger.instance.error(Logger.stack2String(e));
+          LOGGER.error("put close inputStream", e);
         }
       }
     }
@@ -91,10 +90,8 @@ public class DropBoxClient {
       dbxClient.getFile(location, null, outputStream);
       content = outputStream.toString("UTF-8");
       outputStream.close();
-    } catch (DbxException e) {
-      Logger.instance.error(Logger.stack2String(e));
-    } catch (IOException e) {
-      Logger.instance.error(Logger.stack2String(e));
+    } catch (DbxException | IOException e) {
+      LOGGER.error("getFile", e);
     }
     return content;
   }
