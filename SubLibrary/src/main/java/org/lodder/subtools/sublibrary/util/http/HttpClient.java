@@ -19,13 +19,16 @@ import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.util.Files;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class HttpClient {
 
   private CookieManager cookieManager;
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(HttpClient.class);
 
   public HttpClient() {}
 
@@ -116,7 +119,7 @@ public class HttpClient {
   }
 
   public boolean doDownloadFile(URL url, final File file) {
-    Logger.instance.debug("url: " + url.toString());
+    LOGGER.debug("doDownloadFile: URL [{}], file [{}]", url, file);
     boolean success = true;
 
     InputStream in = null;
@@ -138,7 +141,7 @@ public class HttpClient {
         }
         String content = new String(data, "UTF-8");
         if (content.contains("Daily Download count exceeded")) {
-          Logger.instance.error("Download problem: Addic7ed Daily Download count exceeded!");
+          LOGGER.error("Download problem: Addic7ed Daily Download count exceeded!");
           success = false;
         } else {
           try (FileOutputStream outputStream = new FileOutputStream(file)) {
@@ -148,13 +151,13 @@ public class HttpClient {
       }
     } catch (Exception e) {
       success = false;
-      Logger.instance.error("Download problem: " + e.getMessage());
+      LOGGER.error("Download problem", e);
     } finally {
       if (in != null) try {
         in.close();
       } catch (IOException e) {
         success = false;
-        Logger.instance.error("Download problem: " + e.getMessage());
+        LOGGER.error("Download problem", e);
       }
     }
     return success;
