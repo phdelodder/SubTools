@@ -22,23 +22,29 @@ import org.lodder.subtools.sublibrary.ConfigProperties;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
 import org.lodder.subtools.sublibrary.cache.InMemoryCache;
-import org.lodder.subtools.sublibrary.logging.Level;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.util.http.CookieManager;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.ConsoleAppender;
 
 public class App {
 
   private final static SettingsControl prefctrl = new SettingsControl();
   private static Splash splash;
+  private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
   /**
    * @param args
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    // Default log level for the program
-    Logger.instance.setLogLevel(Level.INFO);
+    configureLogging();
 
     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
@@ -49,7 +55,7 @@ public class App {
     try {
       line = parser.parse(getCLIOptions(), args);
     } catch (ParseException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("Unable to parse cli options", e);
     }
 
     if (line == null) {
@@ -74,9 +80,9 @@ public class App {
     }
 
     if (line.hasOption("trace")) {
-      Logger.instance.setLogLevel(Level.ALL);
+      setLogLevel(Level.ALL);
     } else if (line.hasOption("debug")) {
-      Logger.instance.setLogLevel(Level.DEBUG);
+      setLogLevel(Level.DEBUG);
     }
 
     if (line.hasOption("nogui")) {
@@ -109,11 +115,34 @@ public class App {
             splash.setVisible(false);
             splash.dispose();
           } catch (Exception e) {
-            Logger.instance.error(Logger.stack2String(e));
+            LOGGER.error("", e);
           }
         }
       });
     }
+  }
+
+  private static void configureLogging() {
+    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    PatternLayoutEncoder ple = new PatternLayoutEncoder();
+    
+    ple.setPattern("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
+    ple.setContext(lc);
+    ple.start();
+    
+    ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<ILoggingEvent>();
+    consoleAppender.setEncoder(ple);
+    consoleAppender.setContext(lc);
+    consoleAppender.start();
+    
+    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+    root.addAppender(consoleAppender);
+    root.setLevel(Level.INFO);
+  }
+  
+  private static void setLogLevel(Level level){
+    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+    root.setLevel(level);
   }
 
   private static void updateMapping(CommandLine line) {
@@ -125,7 +154,7 @@ public class App {
       prefctrl.updateMappingFromOnline();
       prefctrl.store();
     } catch (Throwable e) {
-      Logger.instance.error("executeArgs: updateFromOnlineMapping" + Logger.stack2String(e));
+     LOGGER.error("executeArgs: updateFromOnlineMapping",e);
     }
   }
 
@@ -139,7 +168,7 @@ public class App {
         prefctrl.importPreferences(file);
       }
     } catch (Exception e) {
-      Logger.instance.error("executeArgs: importPreferences" + Logger.stack2String(e));
+      LOGGER.error("executeArgs: importPreferences",e);
     }
   }
 
@@ -169,7 +198,7 @@ public class App {
   }
 
   private static Manager createManager() {
-    Logger.instance.log("Creating manager");
+    LOGGER.info("Creating manager");
     Manager manager = new Manager();
     DiskCache<String, String> diskCache =
         new DiskCache<String, String>(TimeUnit.SECONDS.convert(5, TimeUnit.DAYS), 100, 500, "user", "pass");
