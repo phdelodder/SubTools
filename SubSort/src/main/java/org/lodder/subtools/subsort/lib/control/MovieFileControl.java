@@ -11,7 +11,6 @@ import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
-import org.lodder.subtools.sublibrary.util.http.DropBoxClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +18,7 @@ public class MovieFileControl extends VideoFileControl {
   private final IMDBSearchID imdbSearchID;
   private final IMDBAPI imdbapi;
   
-  private static final Logger LOGGER = LoggerFactory.getLogger(DropBoxClient.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MovieFileControl.class);
 
   public MovieFileControl(MovieRelease movieRelease, Manager manager) {
     super(movieRelease);
