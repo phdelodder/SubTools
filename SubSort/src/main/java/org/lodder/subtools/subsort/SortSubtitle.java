@@ -24,8 +24,6 @@ import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.exception.ControlFactoryException;
 import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.exception.ReleaseParseException;
-import org.lodder.subtools.sublibrary.logging.Listener;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
@@ -39,17 +37,21 @@ import org.lodder.subtools.sublibrary.util.http.CookieManager;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
 import org.lodder.subtools.subsort.lib.control.VideoFileFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class SortSubtitle implements Listener {
+public class SortSubtitle {
 
   private static final String BACKING_STORE_AVAIL = "BackingStoreAvail";
   private Preferences preferences;
   private MappingSettingsControl mappingSettingsCtrl;
   private static Manager manager = new Manager();
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(SortSubtitle.class);
 
   public SortSubtitle() {
     DiskCache<String, String> diskCache =
@@ -63,15 +65,14 @@ public class SortSubtitle implements Listener {
     httpClient.setCookieManager(new CookieManager());
     manager.setHttpClient(httpClient);
 
-    org.lodder.subtools.sublibrary.logging.Logger.instance.addListener(this);
     if (!backingStoreAvailable())
-      Logger.instance.error("Unable to store preferences, used debug for reason");
+      LOGGER.error("Unable to store preferences, used debug for reason");
     preferences = Preferences.userRoot().node("MultiSubDownloader");
     mappingSettingsCtrl = new MappingSettingsControl(preferences);
     try {
       mappingSettingsCtrl.updateMappingFromOnline();
     } catch (Throwable e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("updateMappingOnline call", e);
     }
   }
 
@@ -82,7 +83,7 @@ public class SortSubtitle implements Listener {
       prefs.putBoolean(BACKING_STORE_AVAIL, !oldValue);
       prefs.flush();
     } catch (BackingStoreException e) {
-      Logger.instance.debug(Logger.stack2String(e));
+      LOGGER.error("", e);
       return false;
     }
     return true;
@@ -125,7 +126,7 @@ public class SortSubtitle implements Listener {
             try {
               language = DetectLanguage.execute(file);
             } catch (Exception e) {
-              Logger.instance.error(Logger.stack2String(e));
+              LOGGER.error("Exception during detectlanguage", e);
             }
             for (int i = 0; i < tvRelease.getEpisodeNumbers().size(); i++) {
               final File pathFolder =
@@ -149,7 +150,7 @@ public class SortSubtitle implements Listener {
           try {
             language = DetectLanguage.execute(file);
           } catch (Exception e) {
-            Logger.instance.error(Logger.stack2String(e));
+            LOGGER.error("Exception during detectlanguage", e);
           }
           final String filename = removeLanguageCode(release.getFilename(), language);
           String title = replaceWindowsChars(movieRelease.getTitle());
@@ -169,12 +170,8 @@ public class SortSubtitle implements Listener {
             System.out.println("doesn't exists: " + to.toString());
           }
         }
-      } catch (ControlFactoryException e) {
-        Logger.instance.error(Logger.stack2String(e));
-      } catch (ReleaseParseException e) {
-        Logger.instance.error(Logger.stack2String(e));
-      } catch (ReleaseControlException e) {
-        Logger.instance.error(Logger.stack2String(e));
+      } catch (ControlFactoryException |  ReleaseParseException | ReleaseControlException e) {
+        LOGGER.error("", e);
       }
     }
 
@@ -196,10 +193,8 @@ public class SortSubtitle implements Listener {
         Files.write(indexVersionLoc, Integer.toString(indexVersion).trim());
       }
 
-    } catch (FileNotFoundException e) {
-      Logger.instance.error(Logger.stack2String(e));
     } catch (IOException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("", e);
     }
   }
 
@@ -214,7 +209,7 @@ public class SortSubtitle implements Listener {
         index = PrivateRepoIndex.getIndex(strIndex);
       } catch (IOException e) {
         index = new ArrayList<IndexSubtitle>();
-        Logger.instance.error(Logger.stack2String(e));
+        LOGGER.error("", e);
       }
     }
     for (File file : files) {
@@ -222,7 +217,7 @@ public class SortSubtitle implements Listener {
         Release release = VideoFileFactory.get(file, new ArrayList<MappingTvdbScene>(), manager);
         final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter(manager);
         final String quality = ReleaseParser.getQualityKeyword(release.getFilename());
-        Logger.instance.log(release.getFilename() + " Q: " + quality);
+        LOGGER.info(release.getFilename() + " Q: " + quality);
         int num = 1;
         if (quality.split(" ").length == 1) {
           Console c = System.console();
@@ -271,16 +266,13 @@ public class SortSubtitle implements Listener {
               final File to = new File(pathFolder, filename);
               if (to.exists()) {
                 if (textFilesEqual(to, file)) {
-                  Logger.instance
-                      .log("Duplicate file detected with exact same content, file deleted!"
-                          + to.getName());
+                  LOGGER.info("Duplicate file detected with exact same content, file deleted! [{}]", to.getName());
                   boolean isDeleted = file.delete();
                   if (isDeleted) {
                     // do nothing
                   }
                 } else {
-                  Logger.instance.log("Duplicate file detected but content is different! "
-                      + release.getPath() + " " + release.getFilename());
+                  LOGGER.info("Duplicate file detected but content is different! [{}/{}]",  release.getPath(), release.getFilename() );
                 }
               } else {
                 if (remove && i == tvRelease.getEpisodeNumbers().size() - 1) {
@@ -304,7 +296,7 @@ public class SortSubtitle implements Listener {
                 // do nothing
               }
             } else {
-              Logger.instance.log("Skip");
+              LOGGER.info("Skip");
             }
           }
         } else if (release.getVideoType() == VideoType.MOVIE) {
@@ -327,15 +319,13 @@ public class SortSubtitle implements Listener {
 
           if (to.exists()) {
             if (textFilesEqual(to, file)) {
-              Logger.instance.log("Duplicate file detected with exact same content, file deleted!"
-                  + to.getName());
+              LOGGER.info("Duplicate file detected with exact same content, file deleted! [{}]", to.getName());
               boolean isDeleted = file.delete();
               if (isDeleted) {
                 // do nothing
               }
             } else {
-              Logger.instance.log("Duplicate file detected but content is different! "
-                  + release.getPath() + " " + release.getFilename());
+              LOGGER.info("Duplicate file detected but content is different! [{}/{}]",  release.getPath(), release.getFilename() );
             }
           } else {
             if (remove) {
@@ -355,16 +345,15 @@ public class SortSubtitle implements Listener {
         }
 
       } catch (Exception e) {
-        Logger.instance.error(file.toString());
-        Logger.instance.error(Logger.stack2String(e));
+        LOGGER.error(file.toString(), e);
       }
     }
     if (cleanUp) {
-      Logger.instance.log("Performing clean up!");
+      LOGGER.info("Performing clean up!");
       try {
         Files.deleteEmptyFolders(inputDir);
       } catch (FileNotFoundException e) {
-        Logger.instance.error(Logger.stack2String(e));
+        LOGGER.error("", e);
       }
     }
 
@@ -386,7 +375,7 @@ public class SortSubtitle implements Listener {
 
       File temp = new File(outputDir, t);
       if (!temp.exists()) {
-        Logger.instance.log("clean up index " + t);
+        LOGGER.info("clean up index " + t);
         i.remove();
       }
     }
@@ -483,7 +472,7 @@ public class SortSubtitle implements Listener {
       return builder2.toString().equals(builder1.toString());
 
     } catch (IOException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("", e);
     }
     return false;
   }
@@ -504,12 +493,6 @@ public class SortSubtitle implements Listener {
     return text.trim();
   }
 
-  @Override
-  public void log(String log) {
-    System.out.println(log + "\r");
-
-  }
-
   /**
    * @param toRemove
    * @param privateRepoFolder
@@ -524,7 +507,7 @@ public class SortSubtitle implements Listener {
           strIndex = Files.read(indexLoc);
           index = PrivateRepoIndex.getIndex(strIndex);
         } catch (IOException e) {
-          Logger.instance.error(Logger.stack2String(e));
+          LOGGER.error("", e);
         }
         index = PrivateRepoIndex.getIndex(strIndex);
 
