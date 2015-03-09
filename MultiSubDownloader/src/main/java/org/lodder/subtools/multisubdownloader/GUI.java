@@ -103,7 +103,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
   private SearchProgressDialog searchProgressDialog;
   private IndexingProgressDialog fileIndexerProgressDialog;
   
-  private static final Logger LOGGER = LoggerFactory.getLogger(CLI.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GUI.class);
 
   /**
    * Create the application.
