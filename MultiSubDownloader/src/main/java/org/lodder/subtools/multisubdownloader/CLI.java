@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 public class CLI {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CLI.class);
   
   private final Container app;
   private Settings settings;
