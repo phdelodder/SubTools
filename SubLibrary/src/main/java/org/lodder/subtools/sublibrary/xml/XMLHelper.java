@@ -17,8 +17,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.lodder.subtools.sublibrary.logging.Level;
-import org.lodder.subtools.sublibrary.logging.Logger;
+import org.lodder.subtools.sublibrary.util.http.HttpClient;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -27,6 +28,8 @@ import org.xml.sax.SAXException;
 
 
 public class XMLHelper {
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(HttpClient.class);
 
   private static String XMLCleanup(String text) {
     return text.replace("&amp;", "&");
@@ -37,12 +40,12 @@ public class XMLHelper {
   }
 
   public static String getStringTagValue(String sTag, Element eElement) {
-    Logger.instance.trace("XMLHelper", "getStringTagValue", "sTag:" + sTag);
+    LOGGER.trace("getStringTagValue: sTag [{}]", sTag);
     return HTMLCleanup(XMLCleanup(getStringTagRawValue(sTag, eElement)));
   }
 
   public static String getStringTagRawValue(String sTag, Element eElement) {
-    Logger.instance.trace("XMLHelper", "getStringTagRawValue", "sTag:" + sTag);
+    LOGGER.trace("getStringTagRawValue: sTag [{}]", sTag);
     if (eElement.getElementsByTagName(sTag).getLength() > 0) {
       NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
       Node nValue = nlList.item(0);
@@ -57,14 +60,13 @@ public class XMLHelper {
   }
 
   public static String getStringAtributeValue(String sTag, String sAtribute, Element eElement) {
-    Logger.instance.trace("XMLHelper", "getStringAtributeValue", "sTag:" + sTag + " "
-        + "sAtribute:" + sAtribute);
+    LOGGER.trace("getStringAtributeValue: sTag [{}], sAtribute [{}]", sTag, sAtribute);
     NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
     return XMLCleanup(((Element) nlList).getAttribute(sAtribute));
   }
 
   public static int getIntTagValue(String sTag, Element eElement) {
-    Logger.instance.trace("XMLHelper", "getIntTagValue", "sTag:" + sTag);
+    LOGGER.trace("getIntTagValue: sTag [{}]", sTag);
     NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
     Node nValue = nlList.item(0);
 
@@ -77,7 +79,7 @@ public class XMLHelper {
   }
 
   public static boolean getBooleanTagValue(String sTag, Element eElement) {
-    Logger.instance.trace("XMLHelper", "getBooleanTagValue", "sTag:" + sTag);
+    LOGGER.trace("getBooleanTagValue: sTag [{}]", sTag);
     NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
     Node nValue = nlList.item(0);
 
@@ -85,8 +87,7 @@ public class XMLHelper {
   }
 
   public static boolean getBooleanAtributeValue(String sTag, String sAtribute, Element eElement) {
-    Logger.instance.trace("XMLHelper", "getBooleanAtributeValue", "sTag:" + sTag + " "
-        + "sAtribute:" + sAtribute);
+    LOGGER.trace("getBooleanAtributeValue: sTag [{}], sAtribute [{}]", sTag, sAtribute);
     NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
     return ((Element) nlList).getAttribute(sAtribute) != null
         && Boolean.parseBoolean(((Element) nlList).getAttribute(sAtribute));
@@ -94,7 +95,7 @@ public class XMLHelper {
 
 
   public static String cleanBadChars(String string) {
-    Logger.instance.trace("XMLHelper", "cleanBadChars", "string:" + string);
+    LOGGER.trace("cleanBadChars: string [{}]", string);
     /*
      * Remove bad chars for the find function of bierdopje api.
      */
@@ -154,11 +155,10 @@ public class XMLHelper {
     try {
       doc = builder.parse(inputStream);
     } catch (SAXException e) {
-      if (Logger.instance.getLogLevel() == Level.TRACE) {
-        Logger.instance.trace("XMLHelper", "getDocument",
-            "Not a valid XML document, setting a blank document!");
+      if (LOGGER.isTraceEnabled()) {
+        LOGGER.trace("getDocument: Not a valid XML document, setting a blank document!");
       } else {
-        Logger.instance.debug("Not a valid XML document, setting a blank document!");
+        LOGGER.debug("Not a valid XML document, setting a blank document!");
       }
       doc = builder.newDocument();
     }
