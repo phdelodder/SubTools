@@ -8,17 +8,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.lodder.subtools.sublibrary.exception.ReleaseParseException;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.NamedMatcher;
 import org.lodder.subtools.sublibrary.util.NamedPattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReleaseParser {
 
   private NamedMatcher namedMatcher;
   private static VideoPatterns videoPatterns = new VideoPatterns();
+  private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseParser.class);
 
   public final NamedMatcher getNamedMatcher() {
     return namedMatcher;
@@ -34,8 +36,7 @@ public class ReleaseParser {
       for (NamedPattern np : videoPatterns.getCompiledPatterns()) {
         namedMatcher = np.matcher(fileparsename);
         if (namedMatcher.find()) {
-          Logger.instance.trace(this.getClass().getSimpleName(), "parse", "using file name: "
-              + fileparsename);
+          LOGGER.trace("Parsing match found using file name: {}", fileparsename);
           Object[] parseResults = parsePatternResult();
           Release vFile = null;
           if (parseResults.length == 4) {
@@ -93,8 +94,7 @@ public class ReleaseParser {
     }
 
     if (namedgroups.contains("episodenumber1")) {
-      Logger.instance.trace(this.getClass().getSimpleName(), "parsePatternResult",
-          "episodenumber1 '" + namedMatcher.group("episodenumber1") + "'");
+      LOGGER.trace("parsePatternResult: episodenumber1: {}", namedMatcher.group("episodenumber1"));
       // Multiple episodes, have episodenumber1, 2 ....
       for (String group : namedgroups) {
         Pattern pattern = Pattern.compile("episodenumber(\\d+)");
@@ -105,8 +105,8 @@ public class ReleaseParser {
       }
       Collections.sort(episodenumbers);
     } else if (namedgroups.contains("episodenumberstart")) {
-      Logger.instance.trace(this.getClass().getSimpleName(), "parsePatternResult",
-          "episodenumberstart '" + namedMatcher.group("episodenumberstart") + "'");
+      LOGGER.trace("parsePatternResult: episodenumberstart: {}",
+          namedMatcher.group("episodenumberstart"));
       // Multiple episodes, regex specifies start and end number
       int start = Integer.parseInt(namedMatcher.group("episodenumberstart"));
       int end = Integer.parseInt(namedMatcher.group("episodenumberend"));
@@ -119,8 +119,7 @@ public class ReleaseParser {
         episodenumbers.add(i);
       }
     } else if (namedgroups.contains("episodenumber")) {
-      Logger.instance.trace(this.getClass().getSimpleName(), "parsePatternResult",
-          "episodenumber '" + namedMatcher.group("episodenumber") + "'");
+      LOGGER.trace("parsePatternResult: episodenumber: {}", namedMatcher.group("episodenumber"));
       episodenumbers.add(Integer.parseInt(namedMatcher.group("episodenumber")));
     } else if (namedgroups.contains("year") || namedgroups.contains("month")
         || namedgroups.contains("day")) {
@@ -130,8 +129,7 @@ public class ReleaseParser {
     }
 
     if (namedgroups.contains("seriesname")) {
-      Logger.instance.trace(this.getClass().getSimpleName(), "parsePatternResult", "seriesname '"
-          + namedMatcher.group("seriesname") + "'");
+      LOGGER.trace("parsePatternResult: seriesname: {}", namedMatcher.group("seriesname"));
       seriesname = cleanUnwantedChars(namedMatcher.group("seriesname"));
       if (namedgroups.contains("year")) {
         seriesname = seriesname + " " + namedMatcher.group("year");
@@ -139,8 +137,7 @@ public class ReleaseParser {
     }
 
     if (namedgroups.contains("seasonnumber")) {
-      Logger.instance.trace(this.getClass().getSimpleName(), "parsePatternResult", "seasonnumber '"
-          + namedMatcher.group("seasonnumber") + "'");
+      LOGGER.trace("parsePatternResult: seasonnumber: {}", namedMatcher.group("seasonnumber"));
       seasonnumber = Integer.parseInt(namedMatcher.group("seasonnumber"));
       return new Object[] {seriesname, seasonnumber, episodenumbers, description};
     } else if (namedgroups.contains("part") && !namedgroups.contains("year")) {
@@ -150,8 +147,7 @@ public class ReleaseParser {
         && namedgroups.contains("day")) {
       // need to implement
     } else if (namedgroups.contains("season_episode")) {
-      Logger.instance.trace(this.getClass().getSimpleName(), "parsePatternResult",
-          "season_episode '" + namedMatcher.group("season_episode") + "'");
+      LOGGER.trace("parsePatternResult: season_episode: {}", namedMatcher.group("season_episode"));
       if (namedMatcher.group("season_episode").length() == 3) {
         episodenumbers.add(Integer.parseInt(namedMatcher.group("season_episode").substring(1, 3)));
         seasonnumber = Integer.parseInt(namedMatcher.group("season_episode").substring(0, 1));
@@ -237,7 +233,7 @@ public class ReleaseParser {
   }
 
   public static final String getQualityKeyword(final String name) {
-    Logger.instance.trace("VideoFileParser", "getQualityKeyword", name);
+    LOGGER.trace("getQualityKeyword: name: {}", name);
     Pattern p = Pattern.compile(videoPatterns.getQualityKeysRegex(), Pattern.CASE_INSENSITIVE);
     Matcher m = p.matcher(name);
     StringBuilder builder = new StringBuilder();
@@ -248,7 +244,7 @@ public class ReleaseParser {
   }
 
   public static List<String> getQualityKeyWords(String name) {
-    Logger.instance.trace("VideoFileParser", "getQualityKeywords", name);
+    LOGGER.trace("getQualityKeyWords: name: {}", name);
     name = name.trim().toLowerCase();
     Pattern p = Pattern.compile(videoPatterns.getQualityKeysRegex(), Pattern.CASE_INSENSITIVE);
     Matcher m = p.matcher(name);
