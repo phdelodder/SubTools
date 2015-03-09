@@ -6,8 +6,9 @@ import org.lodder.subtools.sublibrary.data.thetvdb.TheTVDBApi;
 import org.lodder.subtools.sublibrary.data.thetvdb.TheTVDBException;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JTheTVDBAdapter {
 
@@ -15,6 +16,7 @@ public class JTheTVDBAdapter {
   private static JTheTVDBAdapter adapter;
   private String exceptions = "";
   private final static String splitValue = ": '";
+  private static final Logger LOGGER = LoggerFactory.getLogger(JTheTVDBAdapter.class);
 
   JTheTVDBAdapter(Manager manager) {
     this.jtvapi = null;
@@ -24,9 +26,9 @@ public class JTheTVDBAdapter {
           manager
               .downloadText("http://midgetspy.github.io/sb_tvdb_scene_exceptions/exceptions.txt");
     } catch (TheTVDBException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error(e.getMessage(), e);
     } catch (ManagerException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error(e.getMessage(), e);
     }
 
   }
@@ -36,12 +38,12 @@ public class JTheTVDBAdapter {
     try {
       tvdbid = this.jtvapi.searchSerie(episode.getShow(), null);
       if (tvdbid == 0) {
-        Logger.instance.error("Unknown serie name in tvdb: " + episode.getShow());
+        LOGGER.error("Unknown serie name in tvdb: " + episode.getShow());
         return null;
       }
       return this.jtvapi.getSerie(tvdbid, null);
     } catch (TheTVDBException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error(e.getMessage(),e);
     }
     return null;
   }
@@ -51,7 +53,7 @@ public class JTheTVDBAdapter {
       return this.jtvapi.getEpisode(episode.getTvdbid(), episode.getSeason(), episode
           .getEpisodeNumbers().get(0), "en");
     } catch (TheTVDBException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error(e.getMessage(),e);
     }
     return null;
   }
@@ -66,7 +68,7 @@ public class JTheTVDBAdapter {
         return searchSerie(episode);
       }
     } catch (TheTVDBException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error(e.getMessage(),e);
     }
     return null;
   }
@@ -75,7 +77,7 @@ public class JTheTVDBAdapter {
     try {
       return this.jtvapi.getSerie(tvdbid, null);
     } catch (TheTVDBException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("getSerie exception",e);
     }
     return null;
   }
@@ -84,7 +86,7 @@ public class JTheTVDBAdapter {
     try {
       return this.jtvapi.getAllEpisodes(tvdbid, language);
     } catch (TheTVDBException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("getAllEpisodes exception", e);
     }
     return null;
   }
