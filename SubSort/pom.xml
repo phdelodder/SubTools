@@ -22,6 +22,10 @@
 			<artifactId>sublibrary</artifactId>
 			<version>1.1.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
