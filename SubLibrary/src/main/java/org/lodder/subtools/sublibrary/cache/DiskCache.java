@@ -8,11 +8,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.lodder.subtools.sublibrary.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DiskCache<K, T> extends InMemoryCache<K, T> {
 
   private Connection conn;
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(DiskCache.class);
 
   public DiskCache(long crunchifyTimeToLive, long crunchifyTimerInterval, int maxItems,
       String username, String password) {
@@ -59,7 +62,7 @@ public class DiskCache<K, T> extends InMemoryCache<K, T> {
       }
       rs.close();
     } catch (SQLException e) {
-      Logger.instance.error("Unable to insert object in disk cache!");
+      LOGGER.error("Unable to insert object in disk cache!", e);
     } finally {
 
     }
@@ -72,7 +75,7 @@ public class DiskCache<K, T> extends InMemoryCache<K, T> {
       prep.setObject(1, key);
       prep.execute();
     } catch (SQLException e) {
-      Logger.instance.error("Unable to delete object from disk cache!");
+      LOGGER.error("Unable to delete object from disk cache!", e);
     }
   }
 
@@ -88,7 +91,7 @@ public class DiskCache<K, T> extends InMemoryCache<K, T> {
       }
       prep.execute();
     } catch (SQLException e) {
-      Logger.instance.error("Unable to insert object in disk cache!");
+      LOGGER.error("Unable to insert object in disk cache!", e);
     }
   }
 }
