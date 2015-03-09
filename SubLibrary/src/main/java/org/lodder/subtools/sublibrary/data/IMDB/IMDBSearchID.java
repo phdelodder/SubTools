@@ -4,13 +4,15 @@ import java.net.URLEncoder;
 import java.util.StringTokenizer;
 
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class IMDBSearchID {
 
   private Manager manager;
   private static String DEFAULTUSERAGENT = "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)";
+  private static final Logger LOGGER = LoggerFactory.getLogger(IMDBSearchID.class);
 
   public IMDBSearchID(Manager manager) {
     this.manager = manager;
@@ -45,7 +47,7 @@ public class IMDBSearchID {
       String imdbId = st.nextToken();
 
       if (imdbId.startsWith("tt")) {
-        Logger.instance.debug("Found imdb with Yahoo: " + imdbId);
+        LOGGER.trace("Found imdbid [{}] with yahoo", imdbId);
         return Integer.parseInt(imdbId.substring(2));
       }
 
@@ -79,7 +81,7 @@ public class IMDBSearchID {
       }
 
       if (imdbId.startsWith("tt")) {
-        Logger.instance.debug("Found imdb with Google: " + imdbId);
+        LOGGER.trace("Found imdbid [{}] with google", imdbId);
         return Integer.parseInt(imdbId.substring(2));
       }
 
