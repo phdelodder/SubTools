@@ -19,12 +19,14 @@ import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.logging.Listener;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class CLI implements Listener {
+public class CLI {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
+  
   private final Container app;
   private Settings settings;
   private boolean recursive = false;
@@ -38,7 +40,6 @@ public class CLI implements Listener {
   private SubtitleSelectionAction subtitleSelectionAction;
 
   public CLI(Settings settings, Container app) {
-    Logger.instance.addListener(this);
     this.app = app;
     this.settings = settings;
     checkUpdate((Manager) this.app.make("Manager"));
@@ -50,7 +51,7 @@ public class CLI implements Listener {
   private void checkUpdate(Manager manager) {
     UpdateAvailableDropbox u = new UpdateAvailableDropbox(manager);
     if (u.checkProgram(settings.getUpdateCheckPeriod())) {
-      Logger.instance.log(Messages.getString("UpdateAppAvailable") + ": " + u.getUpdateUrl());
+      LOGGER.info(Messages.getString("UpdateAppAvailable") + ": " + u.getUpdateUrl());
     }
   }
   
@@ -76,7 +77,7 @@ public class CLI implements Listener {
       try {
         this.download(release);
       } catch (Exception e) {
-        Logger.instance.error("executeArgs: search" + Logger.stack2String(e));
+        LOGGER.error("executeArgs: search", e);
       }
     }
   }
@@ -109,27 +110,20 @@ public class CLI implements Listener {
     searchAction.run();
   }
 
-  @Override
-  public void log(String log) {
-    System.out.println(log + "\r");
-  }
-
   private void download(Release release) throws Exception {
     int selection = subtitleSelectionAction.subtitleSelection(release, subtitleSelection);
     if (selection >= 0) {
       if (downloadall) {
-        Logger.instance
-            .log("Downloading ALL found subtitles for release: " + release.getFilename());
+        LOGGER.info("Downloading ALL found subtitles for release: {} ", release.getFilename());
         for (int j = 0; j < release.getMatchingSubs().size(); j++) {
-          Logger.instance.log("Downloading subtitle: "
-                              + release.getMatchingSubs().get(0).getFilename());
+          LOGGER.info("Downloading subtitle: {} ", release.getMatchingSubs().get(0).getFilename());
           downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
         }
       } else {
         downloadAction.download(release, release.getMatchingSubs().get(selection));
       }
     } else {
-      Logger.instance.log("No subs found for: " + release.getFilename());
+      LOGGER.info("No subs found for: {}", release.getFilename());
     }
   }
 
@@ -151,7 +145,7 @@ public class CLI implements Listener {
       }
       return languagecode;
     } else {
-      Logger.instance.log(Messages.getString("App.NoLanguageUseDefault"));
+      LOGGER.info(Messages.getString("App.NoLanguageUseDefault"));
       return "nl";
     }
   }
