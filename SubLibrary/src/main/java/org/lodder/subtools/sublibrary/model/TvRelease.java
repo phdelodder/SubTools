@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
-import org.lodder.subtools.sublibrary.logging.Logger;
 
 public class TvRelease extends Release {
 
