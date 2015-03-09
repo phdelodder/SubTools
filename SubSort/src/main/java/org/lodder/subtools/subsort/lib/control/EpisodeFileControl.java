@@ -5,13 +5,12 @@ import java.util.List;
 import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
-import org.lodder.subtools.sublibrary.util.http.DropBoxClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EpisodeFileControl extends VideoFileControl {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DropBoxClient.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(EpisodeFileControl.class);
 
   public EpisodeFileControl(TvRelease tvRelease) {
     super(tvRelease);
