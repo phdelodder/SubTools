@@ -77,7 +77,7 @@ public class CliSearchAction extends SearchAction {
     int index = 0;
     int progress = 0;
 
-    LOGGER.info(Messages.getString("CliSearchAction.ParsingFoundFiles"));
+    System.out.println(Messages.getString("CliSearchAction.ParsingFoundFiles"));
     this.indexingProgressListener.progress(progress);
 
     List<Release> releases = new ArrayList<>();

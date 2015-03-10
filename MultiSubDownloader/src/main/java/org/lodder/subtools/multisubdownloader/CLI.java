@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 public class CLI {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CLI.class);
-  
+
   private final Container app;
   private Settings settings;
   private boolean recursive = false;
@@ -51,10 +51,10 @@ public class CLI {
   private void checkUpdate(Manager manager) {
     UpdateAvailableDropbox u = new UpdateAvailableDropbox(manager);
     if (u.checkProgram(settings.getUpdateCheckPeriod())) {
-      LOGGER.info(Messages.getString("UpdateAppAvailable") + ": " + u.getUpdateUrl());
+      System.out.println(Messages.getString("UpdateAppAvailable") + ": " + u.getUpdateUrl());
     }
   }
-  
+
   public void setUp(CommandLine line) throws Exception {
     this.folders = getFolders(line);
     this.languagecode = getLanguageCode(line);
@@ -66,13 +66,13 @@ public class CLI {
   }
 
   public void run() {
-    Info.subtitleSources(this.settings);
-    Info.subtitleFiltering(this.settings);
+    Info.subtitleSources(this.settings, true);
+    Info.subtitleFiltering(this.settings, true);
     this.search();
   }
 
   public void download(List<Release> releases) {
-    Info.downloadOptions(this.settings);
+    Info.downloadOptions(this.settings, true);
     for (Release release : releases) {
       try {
         this.download(release);
@@ -96,7 +96,8 @@ public class CLI {
 
     searchAction.setFileListAction(new FileListAction(this.settings));
     searchAction.setFiltering(new Filtering(this.settings));
-    searchAction.setReleaseFactory(new ReleaseFactory(this.settings, (Manager) app.make("Manager")));
+    searchAction
+        .setReleaseFactory(new ReleaseFactory(this.settings, (Manager) app.make("Manager")));
 
     CLIFileindexerProgress progressDialog = new CLIFileindexerProgress();
     CLISearchProgress searchProgress = new CLISearchProgress();
@@ -114,16 +115,16 @@ public class CLI {
     int selection = subtitleSelectionAction.subtitleSelection(release, subtitleSelection);
     if (selection >= 0) {
       if (downloadall) {
-        LOGGER.info("Downloading ALL found subtitles for release: {} ", release.getFilename());
+        System.out.println("Downloading ALL found subtitles for release: " + release.getFilename());
         for (int j = 0; j < release.getMatchingSubs().size(); j++) {
-          LOGGER.info("Downloading subtitle: {} ", release.getMatchingSubs().get(0).getFilename());
+          System.out.println("Downloading subtitle: " + release.getMatchingSubs().get(0).getFilename());
           downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
         }
       } else {
         downloadAction.download(release, release.getMatchingSubs().get(selection));
       }
     } else {
-      LOGGER.info("No subs found for: {}", release.getFilename());
+      System.out.println("No subs found for: " + release.getFilename());
     }
   }
 
@@ -145,7 +146,7 @@ public class CLI {
       }
       return languagecode;
     } else {
-      LOGGER.info(Messages.getString("App.NoLanguageUseDefault"));
+      System.out.println(Messages.getString("App.NoLanguageUseDefault"));
       return "nl";
     }
   }

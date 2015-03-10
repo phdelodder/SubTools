@@ -44,7 +44,7 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
 
   protected Void doInBackground() throws Exception {
     LOGGER.trace("doInBackground: Rows to thread: {} ", table.getModel().getRowCount());
-    Info.downloadOptions(settings);
+    Info.downloadOptions(settings, false);
     final VideoTableModel model = (VideoTableModel) table.getModel();
     int selectedCount = model.getSelectedCount(table.getColumnIdByName(SearchColumnName.SELECT));
     int progress = 0;
