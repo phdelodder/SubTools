@@ -9,15 +9,18 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.util.FilenameContainsFilter;
 import org.lodder.subtools.sublibrary.util.FilenameExtensionFilter;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.lodder.subtools.sublibrary.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CleanAction {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(CleanAction.class);
+  
   private LibrarySettings librarySettings;
   private final String[] fileFilters = new String[] {"nfo", "jpg", "sfv", "srr", "srs", "nzb",
       "torrent", "txt"};
@@ -29,8 +32,7 @@ public class CleanAction {
   }
 
   public void cleanUpFiles(Release release, File path, String videoFileName) throws IOException {
-    Logger.instance.trace("Actions", "cleanUpFiles",
-        "LibraryOtherFileAction" + librarySettings.getLibraryOtherFileAction());
+    LOGGER.trace("cleanUpFiles: LibraryOtherFileAction", librarySettings.getLibraryOtherFileAction());
 
     String[] files = release.getPath().list(new FilenameExtensionFilter(fileFilters));
     if (files == null) files = new String[] {};
