@@ -32,6 +32,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
+import ch.qos.logback.core.FileAppender;
 
 public class App {
 
@@ -44,7 +45,7 @@ public class App {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    configureLogging();
+    setLogLevel(Level.INFO);
 
     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
@@ -120,28 +121,6 @@ public class App {
         }
       });
     }
-  }
-
-  private static void configureLogging() {
-    LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-    PatternLayoutEncoder patternLayoutEncoder = new PatternLayoutEncoder();
-    // we are not interested in auto-configuration
-    loggerContext.reset();
-
-    patternLayoutEncoder.setPattern("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
-    patternLayoutEncoder.setContext(loggerContext);
-    patternLayoutEncoder.start();
-
-    ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<ILoggingEvent>();
-    consoleAppender.setEncoder(patternLayoutEncoder);
-    consoleAppender.setContext(loggerContext);
-    consoleAppender.start();
-
-    ch.qos.logback.classic.Logger root =
-        (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory
-            .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
-    root.addAppender(consoleAppender);
-    root.setLevel(Level.INFO);
   }
 
   private static void setLogLevel(Level level) {
