@@ -14,14 +14,15 @@ public class SubtitleSelectionCLI extends SubtitleSelection {
 
   @Override
   public int getUserInput(Release release) {
-    System.out.println("Select best subtitle for : " + release.getFilename());
+    System.out.println("\nSelect best subtitle for : " + release.getFilename());
     List<String> lines = this.buildDisplayLines(release);
     for (int i = 0; i < lines.size(); i++) {
-      System.out.println("(" + i + ")" + lines.get(i));
+      System.out.println("(" + i + ") " + lines.get(i));
     }
     System.out.println("(-1) To skip download and/or move!");
     Console c = System.console();
     String selectedSubtitle = c.readLine("Enter number of selected subtitle: ");
+    System.out.println("");
     try {
       Integer.parseInt(selectedSubtitle);
     } catch (Exception e) {
