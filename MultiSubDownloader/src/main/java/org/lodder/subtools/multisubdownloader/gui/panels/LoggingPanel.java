@@ -53,7 +53,7 @@ public class LoggingPanel extends JPanel {
     txtLogging.setEditable(false);
     txtLogging.setAutoscrolls(true);
     
-    LogTextAppender logAppender = new LogTextAppender(txtLogging);
+    new LogTextAppender(txtLogging);
   }
 
   public void setLogText(String str1) {
