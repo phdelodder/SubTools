@@ -12,8 +12,9 @@ import org.lodder.subtools.sublibrary.ConfigProperties;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.ManagerSetupException;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class UpdateAvailableDropbox {
@@ -21,6 +22,9 @@ public class UpdateAvailableDropbox {
   private final String url;
   private String updatedUrl;
   private Manager manager;
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(UpdateAvailableDropbox.class);
+
 
   private final static String programName = ConfigProperties.getInstance().getProperty(
       "updateProgramName");
@@ -44,14 +48,14 @@ public class UpdateAvailableDropbox {
         case MONTHLY:
           date.set(Calendar.DAY_OF_MONTH, 1);
           if (DateUtils.isSameDay(date, Calendar.getInstance())) {
-            Logger.instance.log(Messages.getString("UpdateAvailableDropbox.CheckingForUpdate"));
+            LOGGER.info(Messages.getString("UpdateAvailableDropbox.CheckingForUpdate"));
             return check(programName, extension);
           }
           break;
         case WEEKLY:
           date.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
           if (DateUtils.isSameDay(date, Calendar.getInstance())) {
-            Logger.instance.log(Messages.getString("UpdateAvailableDropbox.CheckingForUpdate"));
+            LOGGER.info(Messages.getString("UpdateAvailableDropbox.CheckingForUpdate"));
             return check(programName, extension);
           }
           break;
@@ -59,7 +63,7 @@ public class UpdateAvailableDropbox {
           break;
       }
     } catch (Exception e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("checkProgram", e);
     }
     return false;
   }
@@ -68,7 +72,7 @@ public class UpdateAvailableDropbox {
     try {
       return check("Mapping", "xml");
     } catch (Exception e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("checkMapping", e);
     }
 
     return false;
@@ -107,10 +111,8 @@ public class UpdateAvailableDropbox {
       if (HttpClient.isUrl(updatedUrl)) {
         return true;
       }
-    } catch (ManagerSetupException e) {
-      Logger.instance.log(Logger.stack2String(e));
-    } catch (ManagerException e) {
-      Logger.instance.log(Logger.stack2String(e));
+    } catch (ManagerSetupException  | ManagerException e) {
+      LOGGER.error("", e);
     }
 
     return false;

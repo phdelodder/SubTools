@@ -9,12 +9,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JTextArea;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.lodder.subtools.multisubdownloader.gui.extra.LogTextArea;
-import org.lodder.subtools.sublibrary.logging.Level;
-import org.lodder.subtools.sublibrary.logging.Logger;
+import org.lodder.subtools.multisubdownloader.gui.extra.TextAreaAppender;
+
+import ch.qos.logback.classic.Level;
 
 public class LoggingPanel extends JPanel {
 
@@ -22,9 +23,14 @@ public class LoggingPanel extends JPanel {
    * 
    */
   private static final long serialVersionUID = 1578326761175927376L;
-  private LogTextArea txtLogging;
+  private JTextArea txtLogging;
+  private ch.qos.logback.classic.Logger root =
+      (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory
+          .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+  
+  private TextAreaAppender textAreaAppender;
 
-  public LoggingPanel(){
+  public LoggingPanel() {
     this.setLayout(new MigLayout("", "[698px,grow][]", "[][70px,grow]"));
 
     final JScrollPane scrollPane_1 = new JScrollPane();
@@ -32,26 +38,29 @@ public class LoggingPanel extends JPanel {
     this.add(new JSeparator(), "cell 0 0,growx,gaptop 5");
 
     final JComboBox<Level> cbxLogLevel = new JComboBox<Level>();
-    cbxLogLevel.setModel(new DefaultComboBoxModel<Level>(Level.values()));
-    cbxLogLevel.setSelectedItem(Logger.instance.getLogLevel());
+    Level[] logLevels =
+        new Level[] {Level.ALL, Level.TRACE, Level.DEBUG, Level.INFO, Level.WARN, Level.ERROR};
+    cbxLogLevel.setModel(new DefaultComboBoxModel<Level>(logLevels));
+    cbxLogLevel.setSelectedItem(root.getLevel());
     cbxLogLevel.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        Logger.instance.setLogLevel((Level) cbxLogLevel.getSelectedItem());
+        root.setLevel((Level) cbxLogLevel.getSelectedItem());
       }
     });
     this.add(cbxLogLevel, "cell 1 0,alignx right");
     this.add(scrollPane_1, "cell 0 1 2 1,grow");
 
-    txtLogging = new LogTextArea();
-    Logger.instance.addListener(txtLogging);
+    txtLogging = new JTextArea();
     scrollPane_1.setViewportView(txtLogging);
     txtLogging.setEditable(false);
-    txtLogging.setAutoScroll(true);
+    txtLogging.setAutoscrolls(true);
+    
+    //textAreaAppender = new TextAreaAppender(root.getLoggerContext(), txtLogging);
   }
-  
-  public void setLogText(String str1){
+
+  public void setLogText(String str1) {
     this.txtLogging.setText(str1);
     repaint();
   }
-  
+
 }

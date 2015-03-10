@@ -146,6 +146,7 @@ public class App {
   }
 
   private static void updateMapping(CommandLine line) {
+    splash.setProgressMsg(Messages.getString("SettingsControl.UpdateMapping"));
     Settings settings = prefctrl.getSettings();
     if (!line.hasOption("updatefromonlinemapping") && !settings.isAutoUpdateMapping()) {
       return;
@@ -198,7 +199,7 @@ public class App {
   }
 
   private static Manager createManager() {
-    LOGGER.info("Creating manager");
+    splash.setProgressMsg("Creating Manager");
     Manager manager = new Manager();
     DiskCache<String, String> diskCache =
         new DiskCache<String, String>(TimeUnit.SECONDS.convert(5, TimeUnit.DAYS), 100, 500, "user", "pass");
