@@ -3,7 +3,6 @@ package org.lodder.subtools.multisubdownloader.lib.control.subtitles.filters;
 import java.util.List;
 
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 
@@ -35,7 +34,6 @@ public abstract class Filter {
   }
   
   private boolean keywordCheck(String videoFileName, String subFileName) {
-    Logger.instance.trace("SubtitleControl", "keywordCheck", "");
     boolean foundKeywordMatch = false;
 
     videoFileName = videoFileName.toLowerCase();
