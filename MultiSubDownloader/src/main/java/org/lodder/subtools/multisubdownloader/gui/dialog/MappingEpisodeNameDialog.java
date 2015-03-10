@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -23,13 +24,12 @@ import javax.swing.table.TableRowSorter;
 
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.JCheckBox;
-
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MappingEpisodeNameDialog extends MultiSubDialog {
 
@@ -42,6 +42,8 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
   private final SettingsControl prefCtrl;
   private final Settings pref;
   private JCheckBox chkAutoUpdateMapping;
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(MappingEpisodeNameDialog.class);
 
   /**
    * Create the dialog.
@@ -182,11 +184,9 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
                 storeMappingTable();
                 prefCtrl.updateMappingFromOnline();
                 loadMappingTable();
-              } catch (Exception e) {
-                Logger.instance.error(Logger.stack2String(e));
               } catch (Throwable e) {
-                Logger.instance.error(Logger.stack2String(e));
-              }
+                LOGGER.error("btnUpdateMapping", e);
+              } 
             }
           });
           {
