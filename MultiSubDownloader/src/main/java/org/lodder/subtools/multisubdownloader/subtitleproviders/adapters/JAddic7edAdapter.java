@@ -8,15 +8,23 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.JAddic7
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.model.Addic7edSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.JSubAdapter;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.*;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
+import org.lodder.subtools.sublibrary.model.Release;
+import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider {
 
   private static JAddic7edApi jaapi;
 
-  public JAddic7edAdapter(boolean isLoginEnabled, String username, String password, boolean speedy, Manager manager) {
+  private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edAdapter.class);
+
+  public JAddic7edAdapter(boolean isLoginEnabled, String username, String password, boolean speedy,
+      Manager manager) {
     try {
       if (jaapi == null) {
         if (isLoginEnabled) {
@@ -26,7 +34,7 @@ public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider {
         }
       }
     } catch (Exception e) {
-      Logger.instance.error("API JAddic7ed INIT: " + e.getCause());
+      LOGGER.error("API JAddic7ed INIT: ", e);
     }
   }
 
@@ -68,7 +76,7 @@ public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider {
       }
 
     } catch (Exception e) {
-      Logger.instance.error("API JAddic7ed searchSubtitles using title: " + e);
+      LOGGER.error("API JAddic7ed searchSubtitles using title ", e);
     }
     for (Addic7edSubtitleDescriptor sub : lSubtitles) {
       if (sub.getLanguage().equals("Dutch")) sub.setLanguage("nl");
