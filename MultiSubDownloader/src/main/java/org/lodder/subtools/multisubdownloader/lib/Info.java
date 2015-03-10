@@ -1,13 +1,16 @@
 package org.lodder.subtools.multisubdownloader.lib;
 
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Info {
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(Info.class);
 
   public static void subtitleSources(Settings settings) {
-    Logger.instance.log("----- Subtitle Providers ------");
+    LOGGER.info("----- Subtitle Providers ------");
     for (SubtitleSource source : SubtitleSource.values()) {
       boolean enabled = false;
       switch (source){
@@ -33,24 +36,24 @@ public class Info {
           break;
         
       }
-      Logger.instance.log(" - provider : " + source.toString() + " enabled: " + enabled);
+      LOGGER.info(" - provider : " + source.toString() + " enabled: " + enabled);
     }
-    Logger.instance.log("-----------------------------");
+    LOGGER.info("-----------------------------");
   }
 
   public static void subtitleFiltering(Settings settings) {
-    Logger.instance.log("----- Subtitle Filtering ------");
-    Logger.instance.log(" - OptionSubtitleExactMatch : " + settings.isOptionSubtitleExactMatch());
-    Logger.instance.log(" - OptionSubtitleKeywordMatch : "
+    LOGGER.info("----- Subtitle Filtering ------");
+    LOGGER.info(" - OptionSubtitleExactMatch : " + settings.isOptionSubtitleExactMatch());
+    LOGGER.info(" - OptionSubtitleKeywordMatch : "
         + settings.isOptionSubtitleKeywordMatch());
-    Logger.instance.log(" - OptionSubtitleExcludeHearingImpaired : "
+    LOGGER.info(" - OptionSubtitleExcludeHearingImpaired : "
         + settings.isOptionSubtitleExcludeHearingImpaired());
-    Logger.instance.log("-------------------------------");
+    LOGGER.info("-------------------------------");
   }
 
   public static void downloadOptions(Settings settings) {
-    Logger.instance.log("----- Download Options ------");
-    Logger.instance.log(" - OptionsAlwaysConfirm : " + settings.isOptionsAlwaysConfirm());
-    Logger.instance.log("-----------------------------");
+    LOGGER.info("----- Download Options ------");
+    LOGGER.info(" - OptionsAlwaysConfirm : " + settings.isOptionsAlwaysConfirm());
+    LOGGER.info("-----------------------------");
   }
 }
