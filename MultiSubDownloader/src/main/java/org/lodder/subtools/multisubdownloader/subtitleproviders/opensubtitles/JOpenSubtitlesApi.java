@@ -1,16 +1,25 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles;
 
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Vector;
+
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.model.OpenSubtitlesMovieDescriptor;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.model.OpenSubtitlesSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.data.XmlRPC;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.util.NamedMatcher;
 import org.lodder.subtools.sublibrary.util.NamedPattern;
-
-import java.net.MalformedURLException;
-import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JOpenSubtitlesApi extends XmlRPC {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(JOpenSubtitlesApi.class);
 
   public JOpenSubtitlesApi(String useragent) throws Exception {
     super(useragent, "http://api.opensubtitles.org/xml-rpc");
@@ -75,7 +84,7 @@ public class JOpenSubtitlesApi extends XmlRPC {
           imdbid = Integer.parseInt((String) movie.get("id"));
           year = Integer.parseInt(nm.group("year"));
         } catch (Exception e) {
-          Logger.instance.error(e.getMessage());
+          LOGGER.error("searchMoviesOnImdb parse imdbid and year", e);
         }
 
         movies.add(new OpenSubtitlesMovieDescriptor(nm.group("moviename"), year, imdbid));
@@ -167,7 +176,7 @@ public class JOpenSubtitlesApi extends XmlRPC {
         }
       }
     } catch (Exception localException) {
-      Logger.instance.error(Logger.stack2String(localException));
+      LOGGER.error("searhSubtitles parsing", localException);
     }
     return subtitles;
   }
