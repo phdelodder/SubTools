@@ -17,8 +17,9 @@ import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.SubtitleSelectionGUI;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by IntelliJ IDEA. User: lodder Date: 4/12/11 Time: 8:52 AM To change this template use
@@ -30,6 +31,8 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
   private final Settings settings;
   private DownloadAction downloadAction;
   private SubtitleSelectionAction subtitleSelectionAction;
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(DownloadWorker.class);
 
   public DownloadWorker(VideoTable table, Settings settings, Manager manager) {
     this.table = table;
@@ -40,8 +43,7 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
   }
 
   protected Void doInBackground() throws Exception {
-    Logger.instance.trace(DownloadWorker.class.toString(), "doInBackground", "Rows to thread: "
-        + table.getModel().getRowCount());
+    LOGGER.trace("doInBackground: Rows to thread: {} ", table.getModel().getRowCount());
     Info.downloadOptions(settings);
     final VideoTableModel model = (VideoTableModel) table.getModel();
     int selectedCount = model.getSelectedCount(table.getColumnIdByName(SearchColumnName.SELECT));
@@ -60,8 +62,7 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
         if (selection >= 0) {
           try {
             if (selection == SelectDialog.SelectionType.ALL.getSelectionCode()) {
-              Logger.instance.log("Downloading ALL found subtitles for release: "
-                  + release.getFilename());
+              LOGGER.info("Downloading ALL found subtitles for release {}", release.getFilename());
               for (int j = 0; j < release.getMatchingSubs().size(); j++) {
                 downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
               }
@@ -71,8 +72,8 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
             model.removeRow(i);
             i--;
           } catch (final Exception e) {
-            Logger.instance.log(Logger.stack2String(e));
-            showErrorMessage(Logger.stack2String(e));
+            LOGGER.error(e.getMessage(), e);
+            showErrorMessage(e.toString());
           }
         }
       }
