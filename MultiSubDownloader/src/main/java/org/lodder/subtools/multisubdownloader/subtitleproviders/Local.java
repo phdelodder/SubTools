@@ -10,8 +10,6 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.DetectLanguage;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
-import org.lodder.subtools.sublibrary.logging.Level;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -19,9 +17,13 @@ import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.util.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Local implements SubtitleProvider {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(Local.class);
+  
   private Settings settings;
   private Manager manager;
 
@@ -56,7 +58,6 @@ public class Local implements SubtitleProvider {
 
 
   public List<Subtitle> search(TvRelease tvRelease, String languagecode) {
-    Logger.instance.trace("SubtitleControl", "addLocalLibrary", "");
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
     ReleaseParser vfp = new ReleaseParser();
 
@@ -80,7 +81,7 @@ public class Local implements SubtitleProvider {
             if (((TvRelease) release).getTvdbid() == tvRelease.getTvdbid()) {
               String detectedLang = DetectLanguage.execute(fileSub);
               if (detectedLang.equals(languagecode)) {
-                Logger.instance.debug("Local Sub found, adding " + fileSub.toString());
+                LOGGER.debug("Local Sub found, adding [{}]", fileSub.toString());
                 listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub
                     .getName(), fileSub.toString(), "", "", SubtitleMatchType.EVERYTHING,
                     ReleaseParser.extractReleasegroup(fileSub.getName()),
@@ -90,10 +91,10 @@ public class Local implements SubtitleProvider {
           }
         }
       } catch (Exception e) {
-        if (Logger.instance.getLogLevel().intValue() < Level.INFO.intValue()) {
-          Logger.instance.error(Logger.stack2String(e));
+        if (LOGGER.isDebugEnabled() || LOGGER.isTraceEnabled()) {
+          LOGGER.error(e.getMessage(), e);
         } else {
-          Logger.instance.error(e.getMessage());
+          LOGGER.error(e.getMessage());
         }
       }
     }
@@ -102,7 +103,6 @@ public class Local implements SubtitleProvider {
   }
 
   public List<Subtitle> search(MovieRelease movieRelease, String languagecode) {
-    Logger.instance.trace("SubtitleControl", "addLocalLibrary", "");
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
     ReleaseParser releaseParser = new ReleaseParser();
 
@@ -117,7 +117,7 @@ public class Local implements SubtitleProvider {
           if (((MovieRelease) release).getImdbid() == movieRelease.getImdbid()) {
             String detectedLang = DetectLanguage.execute(fileSub);
             if (detectedLang.equals(languagecode)) {
-              Logger.instance.debug("Local Sub found, adding " + fileSub.toString());
+              LOGGER.debug("Local Sub found, adding {}", fileSub.toString());
               listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub.getName(),
                   fileSub.toString(), "", "", SubtitleMatchType.EVERYTHING, ReleaseParser
                       .extractReleasegroup(fileSub.getName()), fileSub.getAbsolutePath(), false));
@@ -125,10 +125,10 @@ public class Local implements SubtitleProvider {
           }
         }
       } catch (Exception e) {
-        if (Logger.instance.getLogLevel().intValue() < Level.INFO.intValue()) {
-          Logger.instance.error(Logger.stack2String(e));
+        if (LOGGER.isDebugEnabled() || LOGGER.isTraceEnabled()) {
+          LOGGER.error(e.getMessage(), e);
         } else {
-          Logger.instance.error(e.getMessage());
+          LOGGER.error(e.getMessage());
         }
       }
     }
@@ -137,7 +137,6 @@ public class Local implements SubtitleProvider {
   }
 
   private List<File> getAllSubtitlesFiles(File dir, String filter) {
-    Logger.instance.trace("SubtitleControl", "getAllSubtitlesFiles", "");
     final List<File> filelist = new ArrayList<File>();
     final File[] contents = dir.listFiles();
     if (contents != null) {
