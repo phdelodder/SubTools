@@ -13,7 +13,7 @@ import javax.swing.JTextArea;
 
 import net.miginfocom.swing.MigLayout;
 
-import org.lodder.subtools.multisubdownloader.gui.extra.TextAreaAppender;
+import org.lodder.subtools.multisubdownloader.gui.extra.LogTextAppender;
 
 import ch.qos.logback.classic.Level;
 
@@ -28,8 +28,6 @@ public class LoggingPanel extends JPanel {
       (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory
           .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
   
-  private TextAreaAppender textAreaAppender;
-
   public LoggingPanel() {
     this.setLayout(new MigLayout("", "[698px,grow][]", "[][70px,grow]"));
 
@@ -55,7 +53,7 @@ public class LoggingPanel extends JPanel {
     txtLogging.setEditable(false);
     txtLogging.setAutoscrolls(true);
     
-    //textAreaAppender = new TextAreaAppender(root.getLoggerContext(), txtLogging);
+    LogTextAppender logAppender = new LogTextAppender(txtLogging);
   }
 
   public void setLogText(String str1) {
