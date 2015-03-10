@@ -13,8 +13,9 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.multisubdownloader.workers.SearchHandler;
 import org.lodder.subtools.multisubdownloader.workers.SearchManager;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class SearchAction implements Runnable, Cancelable, SearchHandler {
 
@@ -25,6 +26,8 @@ public abstract class SearchAction implements Runnable, Cancelable, SearchHandle
   protected IndexingProgressListener indexingProgressListener;
   protected SearchProgressListener searchProgressListener;
   protected StatusListener statusListener;
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchAction.class);
 
   public void setSettings(Settings settings) {
     this.settings = settings;
@@ -48,11 +51,11 @@ public abstract class SearchAction implements Runnable, Cancelable, SearchHandle
 
   @Override
   public void run() {
-    Logger.instance.trace(this.getClass().getSimpleName(), "run", "SearchAction is being executed");
+    LOGGER.trace("SearchAction is being executed");
     try {
       this.search();
     } catch (ActionException e) {
-      Logger.instance.error(e.getMessage());
+      LOGGER.trace(e.getMessage(), e);
       if (this.statusListener != null) {
         this.statusListener.onError(e);
       }
