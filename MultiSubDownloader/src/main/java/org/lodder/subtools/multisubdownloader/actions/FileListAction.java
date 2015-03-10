@@ -11,10 +11,11 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.util.FilenameExtensionFilter;
 import org.lodder.subtools.sublibrary.util.NamedMatcher;
 import org.lodder.subtools.sublibrary.util.NamedPattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FileListAction {
 
@@ -26,15 +27,17 @@ public class FileListAction {
   private final String[] englishFilters = new String[] {"eng", "english", "en"};
   private final static String subtitleExtension = ".srt";
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(FileListAction.class);
+
   public FileListAction(Settings settings) {
     this.settings = settings;
   }
 
   public List<File> getFileListing(File dir, boolean recursieve, String languagecode,
       boolean forceSubtitleOverwrite) {
-    Logger.instance.trace(FileListAction.class.toString(), "getFileListing",
-        "File: " + dir.toString() + " Recursive: " + recursieve + " languageCode: " + languagecode
-            + " forceSubtitleOverwrite: " + forceSubtitleOverwrite);
+    LOGGER.trace(
+        "getFileListing: dir [{}] Recursive [{}] languageCode [{}] forceSubtitleOverwrite [{}]",
+        dir, recursieve, languagecode, forceSubtitleOverwrite);
     /* Reset progress counters */
     this.progressFileIndex = 0;
     this.progressFilesTotal = 0;
@@ -45,8 +48,6 @@ public class FileListAction {
 
   private List<File> _getFileListing(File dir, boolean recursieve, String languagecode,
       boolean forceSubtitleOverwrite) {
-    Logger.instance.trace("Actions", "getFileListing", "dir: " + dir + " recursieve: " + recursieve
-        + " languagecode: " + languagecode + " forceSubtitleOverwrite: " + forceSubtitleOverwrite);
     final List<File> filelist = new ArrayList<File>();
     final File[] contents = dir.listFiles();
 
@@ -91,7 +92,7 @@ public class FileListAction {
       File excludeFile = new File(item.getDescription());
       if (!excludeFile.equals(file)) continue;
 
-      Logger.instance.trace("Actions", "getFileListing", "Skipping: " + file);
+      LOGGER.trace("isExcludedDir, skipping [{}]", file);
       status = true;
     }
 
@@ -107,7 +108,7 @@ public class FileListAction {
                 Pattern.CASE_INSENSITIVE);
         NamedMatcher namedMatcher = np.matcher(file.getName());
         if (namedMatcher.find()) {
-          Logger.instance.trace("Actions", "isNotExcluded", "Skipping: " + file);
+          LOGGER.trace("isNotExcluded, skipping [{}]", file);
           return false;
         }
       }
@@ -116,7 +117,7 @@ public class FileListAction {
       if (settings.getExcludeList().get(j).getType() == SettingsExcludeType.FILE) {
         File excludeFile = new File(settings.getExcludeList().get(j).getDescription());
         if (excludeFile.equals(file)) {
-          Logger.instance.trace("Actions", "isNotExcluded", "Skipping: " + file);
+          LOGGER.trace("isNotExcluded, skipping [{}]", file);
           return false;
         }
       }
