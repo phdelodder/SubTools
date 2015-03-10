@@ -1,10 +1,14 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
-import javax.swing.*;
+import java.awt.Component;
 
-import org.lodder.subtools.sublibrary.logging.Logger;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.ListCellRenderer;
 
-import java.awt.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ImageListCellRenderer extends JLabel implements ListCellRenderer<Object> {
 
@@ -12,6 +16,7 @@ public class ImageListCellRenderer extends JLabel implements ListCellRenderer<Ob
      *
      */
   private static final long serialVersionUID = 2640608321583922789L;
+  private static final Logger LOGGER = LoggerFactory.getLogger(ImageListCellRenderer.class);
 
   @Override
   /**
@@ -44,8 +49,7 @@ public class ImageListCellRenderer extends JLabel implements ListCellRenderer<Ob
     } else {
       // TODO - I get one String here when the JList is first rendered; proper way to deal with
       // this?
-      Logger.instance.error("Got something besides a JPanel: "
-          + value.getClass().getCanonicalName());
+      LOGGER.error("Got something besides a JPanel [{}]", value.getClass().getCanonicalName());
       return new JLabel("???");
     }
   }
