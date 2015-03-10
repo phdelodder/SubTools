@@ -40,8 +40,6 @@ public class App {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    setLogLevel(Level.INFO);
-
     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
     CommandLineParser parser = new GnuParser();
