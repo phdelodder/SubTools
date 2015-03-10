@@ -8,12 +8,9 @@ import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JWindow;
 
-import org.lodder.subtools.sublibrary.logging.Listener;
-import org.lodder.subtools.sublibrary.logging.Logger;
-
 import net.miginfocom.swing.MigLayout;
 
-public class Splash extends JWindow implements Listener{
+public class Splash extends JWindow{
   /**
    * 
    */
@@ -23,7 +20,6 @@ public class Splash extends JWindow implements Listener{
 
   public Splash() {
     initialize_ui();
-    Logger.instance.addListener(this);
   }
 
   public void initialize_ui(){
@@ -51,9 +47,8 @@ public class Splash extends JWindow implements Listener{
     toFront();
   }
 
-  @Override
-  public void log(String log) {
-    progressBar.setString(log);
+  public void setProgressMsg(String msg){
+    progressBar.setString(msg);
   }
   
 }
