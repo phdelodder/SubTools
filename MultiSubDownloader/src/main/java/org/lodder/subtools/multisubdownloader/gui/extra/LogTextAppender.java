@@ -49,7 +49,7 @@ public class LogTextAppender extends AppenderBase<ILoggingEvent> {
         try {
             encoder.doEncode(event);
             out.flush();
-            final String line = out.toString();
+            final String line = out.toString("UTF-8");
 
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
