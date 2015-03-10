@@ -12,11 +12,12 @@ import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.util.FilenameExtensionFilter;
 import org.lodder.subtools.sublibrary.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TypedRenameWorker extends SwingWorker<Void, String> implements Cancelable {
 
@@ -27,6 +28,8 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
   private boolean isRecursive;
   private ReleaseFactory releaseFactory;
   private RenameAction renameAction;
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(TypedRenameWorker.class);
 
   public TypedRenameWorker(File dir, LibrarySettings librarySettings, VideoType videoType,
       boolean isRecursive, Manager manager) {
@@ -70,7 +73,7 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
               renameAction.rename(file, release);
           }
         } catch (Exception e) {
-          Logger.instance.log("Series Rename " + e.getMessage());
+          LOGGER.error("Series Rename" , e);
         }
       } else if (file.isDirectory() && isRecursive) {
         rename(file);
