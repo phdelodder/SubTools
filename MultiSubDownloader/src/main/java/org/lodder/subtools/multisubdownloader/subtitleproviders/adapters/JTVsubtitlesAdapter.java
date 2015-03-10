@@ -9,22 +9,24 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.mode
 import org.lodder.subtools.sublibrary.JSubAdapter;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JTVsubtitlesAdapter implements JSubAdapter, SubtitleProvider {
 
   private static JTVSubtitlesApi jtvapi;
+  private static final Logger LOGGER = LoggerFactory.getLogger(JTVsubtitlesAdapter.class);
 
   public JTVsubtitlesAdapter(Manager manager) {
     try {
       if (jtvapi == null) jtvapi = new JTVSubtitlesApi(manager);
     } catch (Exception e) {
-      Logger.instance.error("API JTVsubtitles INIT: " + e.getCause());
+      LOGGER.error("API JTVsubtitles INIT", e);
     }
   }
 
@@ -66,7 +68,7 @@ public class JTVsubtitlesAdapter implements JSubAdapter, SubtitleProvider {
             .getEpisodeNumbers().get(0), tvRelease.getTitle(), sublanguageids[0]));
       }
     } catch (Exception e) {
-      Logger.instance.error("API JTVsubtitles searchSubtitles using title: " + e);
+      LOGGER.error("API JTVsubtitles searchSubtitles using title", e);
     }
     for (TVsubtitlesSubtitleDescriptor sub : lSubtitles) {
       listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.TVSUBTITLES, sub.Filename,
