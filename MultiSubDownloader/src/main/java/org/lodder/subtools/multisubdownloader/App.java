@@ -123,25 +123,31 @@ public class App {
   }
 
   private static void configureLogging() {
-    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-    PatternLayoutEncoder ple = new PatternLayoutEncoder();
-    
-    ple.setPattern("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
-    ple.setContext(lc);
-    ple.start();
-    
+    LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+    PatternLayoutEncoder patternLayoutEncoder = new PatternLayoutEncoder();
+    // we are not interested in auto-configuration
+    loggerContext.reset();
+
+    patternLayoutEncoder.setPattern("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
+    patternLayoutEncoder.setContext(loggerContext);
+    patternLayoutEncoder.start();
+
     ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<ILoggingEvent>();
-    consoleAppender.setEncoder(ple);
-    consoleAppender.setContext(lc);
+    consoleAppender.setEncoder(patternLayoutEncoder);
+    consoleAppender.setContext(loggerContext);
     consoleAppender.start();
-    
-    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+
+    ch.qos.logback.classic.Logger root =
+        (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory
+            .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
     root.addAppender(consoleAppender);
     root.setLevel(Level.INFO);
   }
-  
-  private static void setLogLevel(Level level){
-    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+
+  private static void setLogLevel(Level level) {
+    ch.qos.logback.classic.Logger root =
+        (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory
+            .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
     root.setLevel(level);
   }
 
@@ -155,7 +161,7 @@ public class App {
       prefctrl.updateMappingFromOnline();
       prefctrl.store();
     } catch (Throwable e) {
-     LOGGER.error("executeArgs: updateFromOnlineMapping",e);
+      LOGGER.error("executeArgs: updateFromOnlineMapping", e);
     }
   }
 
@@ -169,7 +175,7 @@ public class App {
         prefctrl.importPreferences(file);
       }
     } catch (Exception e) {
-      LOGGER.error("executeArgs: importPreferences",e);
+      LOGGER.error("executeArgs: importPreferences", e);
     }
   }
 
@@ -202,7 +208,8 @@ public class App {
     if (splash != null) splash.setProgressMsg("Creating Manager");
     Manager manager = new Manager();
     DiskCache<String, String> diskCache =
-        new DiskCache<String, String>(TimeUnit.SECONDS.convert(5, TimeUnit.DAYS), 100, 500, "user", "pass");
+        new DiskCache<String, String>(TimeUnit.SECONDS.convert(5, TimeUnit.DAYS), 100, 500, "user",
+            "pass");
     manager.setDiskCache(diskCache);
     InMemoryCache<String, String> inMemoryCache =
         new InMemoryCache<String, String>(TimeUnit.SECONDS.convert(10, TimeUnit.MINUTES), 10, 500);
