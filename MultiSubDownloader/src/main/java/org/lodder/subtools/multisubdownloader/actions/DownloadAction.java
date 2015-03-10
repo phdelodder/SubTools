@@ -10,7 +10,6 @@ import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
@@ -19,8 +18,12 @@ import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.lodder.subtools.sublibrary.util.http.DropBoxClient;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DownloadAction {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(DownloadAction.class);
 
   private Settings settings;
   private Manager manager;
@@ -56,8 +59,8 @@ public class DownloadAction {
    * @throws Exception
    */
   public void download(Release release, Subtitle subtitle) throws Exception {
-    Logger.instance.log("Downloading subtitle" + ": " + subtitle.getFilename() + " for release"
-        + ": " + release.getFilename());
+    LOGGER.info("Downloading subtitle: [{}] for release: [{}]", subtitle.getFilename(),
+        release.getFilename());
     download(release, subtitle, 0);
   }
 
@@ -71,12 +74,11 @@ public class DownloadAction {
 
   private void download(Release release, Subtitle subtitle, LibrarySettings librarySettings,
       int version) throws Exception {
-    Logger.instance.trace("Actions", "download",
-        "LibraryAction" + librarySettings.getLibraryAction());
+    LOGGER.trace("cleanUpFiles: LibraryAction", librarySettings.getLibraryAction());
     PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager);
     final File path = new File(pathLibraryBuilder.build(release));
     if (!path.exists()) {
-      Logger.instance.debug("Download creating folder: " + path.getAbsolutePath());
+      LOGGER.debug("Download creating folder [{}] ", path.getAbsolutePath());
       if (!path.mkdirs()) {
         throw new Exception("Download unable to create folder: " + path.getAbsolutePath());
       }
@@ -93,7 +95,7 @@ public class DownloadAction {
 
     if (HttpClient.isUrl(subtitle.getDownloadlink())) {
       success = manager.store(subtitle.getDownloadlink(), subFile);
-      Logger.instance.debug("doDownload file was: " + success);
+      LOGGER.debug("doDownload file was [{}] ", success);
     } else {
       Files.copy(new File(subtitle.getDownloadlink()), subFile);
       success = true;
@@ -119,8 +121,7 @@ public class DownloadAction {
         final File oldLocationFile = new File(release.getPath(), release.getFilename());
         if (oldLocationFile.exists()) {
           final File newLocationFile = new File(path, videoFileName);
-          Logger.instance.log("Moving/Renaming " + videoFileName + " to folder " + path.getPath()
-              + " , this might take a while... ");
+          LOGGER.info("Moving/Renaming [{}] to folder [{}] this might take a while... ", videoFileName, path.getPath());
           Files.move(oldLocationFile, newLocationFile);
           if (!librarySettings.getLibraryOtherFileAction().equals(
               LibraryOtherFileActionType.NOTHING)) {
