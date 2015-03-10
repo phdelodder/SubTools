@@ -9,9 +9,10 @@ import org.lodder.subtools.multisubdownloader.lib.control.subtitles.filters.Filt
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.filters.KeywordFilter;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.filters.ReleasegroupFilter;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Filtering {
 
@@ -19,6 +20,8 @@ public class Filtering {
   private Filter exactname;
   private Filter keyword;
   private Filter releasegroup;
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(Filtering.class);
 
   public Filtering(Settings settings) {
     this.settings = settings;
@@ -28,7 +31,7 @@ public class Filtering {
   }
 
   public List<Subtitle> getFiltered(List<Subtitle> listFoundSubtitles, Release release) {
-    Logger.instance.trace("Filtering", "getFiltered", "");
+    LOGGER.trace("getFiltered: release [{}] available subtitles [{}]", release, listFoundSubtitles);
 
     List<Subtitle> listFilteredSubtitles;
     listFilteredSubtitles = new ArrayList<Subtitle>();
