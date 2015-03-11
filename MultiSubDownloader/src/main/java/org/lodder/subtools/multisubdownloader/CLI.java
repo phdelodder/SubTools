@@ -124,7 +124,7 @@ public class CLI {
         downloadAction.download(release, release.getMatchingSubs().get(selection));
       }
     } else {
-      System.out.println("No subs found for: " + release.getFilename());
+      System.out.println("No substitles found for: " + release.getFilename());
     }
   }
 
