@@ -9,7 +9,7 @@ import org.lodder.subtools.multisubdownloader.actions.RenameAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
-import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
+import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
@@ -24,14 +24,14 @@ import org.slf4j.LoggerFactory;
  */
 public class RenameWorker extends SwingWorker<Void, String> implements Cancelable {
 
-  private VideoTable table;
+  private CustomTable table;
   private Settings settings;
   private RenameAction renameAction;
   private Manager manager;
   
   private static final Logger LOGGER = LoggerFactory.getLogger(RenameWorker.class);
 
-  public RenameWorker(VideoTable table, Settings settings, Manager manager) {
+  public RenameWorker(CustomTable table, Settings settings, Manager manager) {
     this.table = table;
     this.settings = settings;
     this.manager = manager;

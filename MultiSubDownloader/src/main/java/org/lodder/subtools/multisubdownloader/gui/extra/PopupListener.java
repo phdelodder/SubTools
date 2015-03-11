@@ -6,7 +6,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.JPopupMenu;
 import javax.swing.table.DefaultTableModel;
 
-import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
+import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
 
 public class PopupListener extends MouseAdapter {
 
@@ -26,7 +26,7 @@ public class PopupListener extends MouseAdapter {
 
   private synchronized void showPopup(MouseEvent e) {
     if (e.isPopupTrigger()) {
-      final VideoTable t = (VideoTable) e.getComponent();
+      final CustomTable t = (CustomTable) e.getComponent();
       if (t == null) return;
       
       final DefaultTableModel model = (DefaultTableModel) t.getModel();

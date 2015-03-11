@@ -2,7 +2,7 @@ package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
 import java.util.HashMap;
 
-public class VideoTable extends ZebraJTable {
+public class CustomTable extends ZebraJTable {
 
   /**
 	 * 

@@ -10,7 +10,7 @@ import net.miginfocom.swing.MigLayout;
 
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
-import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
+import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 
 public class ResultPanel extends JPanel {
@@ -25,7 +25,7 @@ public class ResultPanel extends JPanel {
   private JButton btnDownload;
   private JButton btnSelectFound;
   private JButton btnSelectNone;
-  private VideoTable resultTable;
+  private CustomTable resultTable;
 
   private ActionListener downloadAction;
   private ActionListener moveAction;
@@ -85,7 +85,7 @@ public class ResultPanel extends JPanel {
     this.btnMove.setVisible(false);
   }
 
-  public void setTable(VideoTable table) {
+  public void setTable(CustomTable table) {
     this.resultTable = table;
     scrollPane.setViewportView(this.resultTable);
   }
@@ -184,7 +184,7 @@ public class ResultPanel extends JPanel {
     }
   }
 
-  public VideoTable getTable() {
+  public CustomTable getTable() {
     return this.resultTable;
   }
 

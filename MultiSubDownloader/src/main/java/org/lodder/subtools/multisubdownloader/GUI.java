@@ -52,7 +52,7 @@ import org.lodder.subtools.multisubdownloader.gui.extra.PopupListener;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusLabel;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
-import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
+import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.LoggingPanel;
 import org.lodder.subtools.multisubdownloader.gui.panels.ResultPanel;
@@ -231,64 +231,64 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
     menuBar.setViewFilenameAction(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
-        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
+        CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
         if (menuBar.isViewFilenameSelected()) {
-          videoTable.unhideColumn(SearchColumnName.FILENAME);
+          customTable.unhideColumn(SearchColumnName.FILENAME);
         } else {
-          videoTable.hideColumn(SearchColumnName.FILENAME);
+          customTable.hideColumn(SearchColumnName.FILENAME);
         }
       }
     });
 
     menuBar.setViewTypeAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
+        CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
         if (menuBar.isViewTitleSelected()) {
-          videoTable.unhideColumn(SearchColumnName.TYPE);
+          customTable.unhideColumn(SearchColumnName.TYPE);
         } else {
-          videoTable.hideColumn(SearchColumnName.TYPE);
+          customTable.hideColumn(SearchColumnName.TYPE);
         }
       }
     });
 
     menuBar.setViewTitleAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
+        CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
         if (menuBar.isViewTitleSelected()) {
-          videoTable.unhideColumn(SearchColumnName.TITLE);
+          customTable.unhideColumn(SearchColumnName.TITLE);
         } else {
-          videoTable.hideColumn(SearchColumnName.TITLE);
+          customTable.hideColumn(SearchColumnName.TITLE);
         }
       }
     });
 
     menuBar.setViewSeasonAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
+        CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
         if (menuBar.isViewSeasonSelected()) {
-          videoTable.unhideColumn(SearchColumnName.SEASON);
+          customTable.unhideColumn(SearchColumnName.SEASON);
         } else {
-          videoTable.hideColumn(SearchColumnName.SEASON);
+          customTable.hideColumn(SearchColumnName.SEASON);
         }
       }
     });
 
     menuBar.setViewEpisodeAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
+        CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
         if (menuBar.isViewEpisodeSelected()) {
-          videoTable.unhideColumn(SearchColumnName.EPISODE);
+          customTable.unhideColumn(SearchColumnName.EPISODE);
         } else {
-          videoTable.hideColumn(SearchColumnName.EPISODE);
+          customTable.hideColumn(SearchColumnName.EPISODE);
         }
       }
     });
 
     menuBar.setViewShowOnlyFoundAction(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
+        CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
         settingsControl.getSettings().setOptionsShowOnlyFound(menuBar.isShowOnlyFound());
-        ((VideoTableModel) videoTable.getModel()).setShowOnlyFound(settingsControl.getSettings()
+        ((VideoTableModel) customTable.getModel()).setShowOnlyFound(settingsControl.getSettings()
             .isOptionsShowOnlyFound());
       }
     });
@@ -410,8 +410,8 @@ public class GUI extends JFrame implements PropertyChangeListener {
     });
   }
 
-  private VideoTable createSubtitleTable() {
-    VideoTable subtitleTable = new VideoTable();
+  private CustomTable createSubtitleTable() {
+    CustomTable subtitleTable = new CustomTable();
     subtitleTable.setModel(VideoTableModel.getDefaultSubtitleTableModel());
     final RowSorter<TableModel> sorterSubtitle =
         new TableRowSorter<TableModel>(subtitleTable.getModel());
@@ -470,64 +470,64 @@ public class GUI extends JFrame implements PropertyChangeListener {
     });
   }
 
-  private VideoTable createVideoTable() {
-    VideoTable videoTable = new VideoTable();
-    videoTable.setModel(VideoTableModel.getDefaultVideoTableModel());
-    ((VideoTableModel) videoTable.getModel()).setShowOnlyFound(settingsControl.getSettings()
+  private CustomTable createVideoTable() {
+    CustomTable customTable = new CustomTable();
+    customTable.setModel(VideoTableModel.getDefaultVideoTableModel());
+    ((VideoTableModel) customTable.getModel()).setShowOnlyFound(settingsControl.getSettings()
         .isOptionsShowOnlyFound());
-    ((VideoTableModel) videoTable.getModel()).setSubtitleSelection(new SubtitleSelectionGUI(
+    ((VideoTableModel) customTable.getModel()).setSubtitleSelection(new SubtitleSelectionGUI(
         settingsControl.getSettings()));
-    final RowSorter<TableModel> sorter = new TableRowSorter<TableModel>(videoTable.getModel());
-    videoTable.setRowSorter(sorter);
-    videoTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+    final RowSorter<TableModel> sorter = new TableRowSorter<TableModel>(customTable.getModel());
+    customTable.setRowSorter(sorter);
+    customTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
-    int columnId = videoTable.getColumnIdByName(SearchColumnName.FOUND);
-    videoTable.getColumnModel().getColumn(columnId).setResizable(false);
-    videoTable.getColumnModel().getColumn(columnId).setPreferredWidth(100);
-    videoTable.getColumnModel().getColumn(columnId).setMaxWidth(100);
-    columnId = videoTable.getColumnIdByName(SearchColumnName.SELECT);
-    videoTable.getColumnModel().getColumn(columnId).setResizable(false);
-    videoTable.getColumnModel().getColumn(columnId).setPreferredWidth(85);
-    videoTable.getColumnModel().getColumn(columnId).setMaxWidth(85);
-    videoTable.hideColumn(SearchColumnName.OBJECT);
-    videoTable.hideColumn(SearchColumnName.SEASON);
-    videoTable.hideColumn(SearchColumnName.EPISODE);
-    videoTable.hideColumn(SearchColumnName.TYPE);
-    videoTable.hideColumn(SearchColumnName.TITLE);
-    return videoTable;
+    int columnId = customTable.getColumnIdByName(SearchColumnName.FOUND);
+    customTable.getColumnModel().getColumn(columnId).setResizable(false);
+    customTable.getColumnModel().getColumn(columnId).setPreferredWidth(100);
+    customTable.getColumnModel().getColumn(columnId).setMaxWidth(100);
+    columnId = customTable.getColumnIdByName(SearchColumnName.SELECT);
+    customTable.getColumnModel().getColumn(columnId).setResizable(false);
+    customTable.getColumnModel().getColumn(columnId).setPreferredWidth(85);
+    customTable.getColumnModel().getColumn(columnId).setMaxWidth(85);
+    customTable.hideColumn(SearchColumnName.OBJECT);
+    customTable.hideColumn(SearchColumnName.SEASON);
+    customTable.hideColumn(SearchColumnName.EPISODE);
+    customTable.hideColumn(SearchColumnName.TYPE);
+    customTable.hideColumn(SearchColumnName.TITLE);
+    return customTable;
   }
 
   private void restoreScreenSettings() {
-    VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
+    CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
     if (settingsControl.getSettings().getScreenSettings().isHideEpisode()) {
-      videoTable.hideColumn(SearchColumnName.EPISODE);
+      customTable.hideColumn(SearchColumnName.EPISODE);
     } else {
       menuBar.setViewEpisodeSelected(true);
-      videoTable.unhideColumn(SearchColumnName.EPISODE);
+      customTable.unhideColumn(SearchColumnName.EPISODE);
     }
     if (settingsControl.getSettings().getScreenSettings().isHideFilename()) {
-      videoTable.hideColumn(SearchColumnName.FILENAME);
+      customTable.hideColumn(SearchColumnName.FILENAME);
     } else {
       menuBar.setViewFileNameSelected(true);
-      videoTable.unhideColumn(SearchColumnName.FILENAME);
+      customTable.unhideColumn(SearchColumnName.FILENAME);
     }
     if (settingsControl.getSettings().getScreenSettings().isHideSeason()) {
-      videoTable.hideColumn(SearchColumnName.SEASON);
+      customTable.hideColumn(SearchColumnName.SEASON);
     } else {
       menuBar.setViewSeasonSelected(true);
-      videoTable.unhideColumn(SearchColumnName.SEASON);
+      customTable.unhideColumn(SearchColumnName.SEASON);
     }
     if (settingsControl.getSettings().getScreenSettings().isHideType()) {
-      videoTable.hideColumn(SearchColumnName.TYPE);
+      customTable.hideColumn(SearchColumnName.TYPE);
     } else {
       menuBar.setViewTitleSelected(true);
-      videoTable.unhideColumn(SearchColumnName.TYPE);
+      customTable.unhideColumn(SearchColumnName.TYPE);
     }
     if (settingsControl.getSettings().getScreenSettings().isHideTitle()) {
-      videoTable.hideColumn(SearchColumnName.TITLE);
+      customTable.hideColumn(SearchColumnName.TITLE);
     } else {
       menuBar.setViewTitleSelected(true);
-      videoTable.unhideColumn(SearchColumnName.TITLE);
+      customTable.unhideColumn(SearchColumnName.TITLE);
     }
   }
 
@@ -536,7 +536,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     JMenuItem menuItem = new JMenuItem(Messages.getString("MainWindow.Copy"));
     menuItem.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent arg0) {
-        final VideoTable t = (VideoTable) popupMenu.getInvoker();
+        final CustomTable t = (CustomTable) popupMenu.getInvoker();
         final DefaultTableModel model = (DefaultTableModel) t.getModel();
 
         int col = t.columnAtPoint(popupMenu.getClickLocation());
@@ -554,10 +554,10 @@ public class GUI extends JFrame implements PropertyChangeListener {
     // add the listener to the jtable
     MouseListener popupListener = new PopupListener(popupMenu);
     // add the listener specifically to the header
-    VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
-    VideoTable subtitleTable = pnlSearchText.getResultPanel().getTable();
-    videoTable.addMouseListener(popupListener);
-    videoTable.getTableHeader().addMouseListener(popupListener);
+    CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
+    CustomTable subtitleTable = pnlSearchText.getResultPanel().getTable();
+    customTable.addMouseListener(popupListener);
+    customTable.getTableHeader().addMouseListener(popupListener);
     subtitleTable.addMouseListener(popupListener);
     subtitleTable.getTableHeader().addMouseListener(popupListener);
   }
@@ -573,8 +573,8 @@ public class GUI extends JFrame implements PropertyChangeListener {
   }
 
   protected void rename() {
-    VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
-    RenameWorker renameWorker = new RenameWorker(videoTable, settingsControl.getSettings(), (Manager) this.app.make("Manager"));
+    CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
+    RenameWorker renameWorker = new RenameWorker(customTable, settingsControl.getSettings(), (Manager) this.app.make("Manager"));
     renameWorker.addPropertyChangeListener(this);
     pnlSearchFile.getResultPanel().enableButtons();
     progressDialog = new ProgressDialog(this, renameWorker);
@@ -583,8 +583,8 @@ public class GUI extends JFrame implements PropertyChangeListener {
   }
 
   private void download() {
-    VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
-    DownloadWorker downloadWorker = new DownloadWorker(videoTable, settingsControl.getSettings(), (Manager) this.app.make("Manager"));
+    CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
+    DownloadWorker downloadWorker = new DownloadWorker(customTable, settingsControl.getSettings(), (Manager) this.app.make("Manager"));
     downloadWorker.addPropertyChangeListener(this);
     pnlSearchFile.getResultPanel().disableButtons();
     progressDialog = new ProgressDialog(this, downloadWorker);
@@ -593,7 +593,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
   }
 
   private void downloadText() {
-    VideoTable subtitleTable = pnlSearchText.getResultPanel().getTable();
+    CustomTable subtitleTable = pnlSearchText.getResultPanel().getTable();
     final VideoTableModel model = (VideoTableModel) subtitleTable.getModel();
     File path =
         MemoryFolderChooser.getInstance().selectDirectory(getContentPane(),
@@ -706,17 +706,17 @@ public class GUI extends JFrame implements PropertyChangeListener {
   }
 
   private void storeScreenSettings() {
-    VideoTable videoTable = pnlSearchFile.getResultPanel().getTable();
+    CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
     settingsControl.getSettings().getScreenSettings()
-        .setHideEpisode(videoTable.isHideColumn(SearchColumnName.EPISODE));
+        .setHideEpisode(customTable.isHideColumn(SearchColumnName.EPISODE));
     settingsControl.getSettings().getScreenSettings()
-        .setHideFilename(videoTable.isHideColumn(SearchColumnName.FILENAME));
+        .setHideFilename(customTable.isHideColumn(SearchColumnName.FILENAME));
     settingsControl.getSettings().getScreenSettings()
-        .setHideSeason(videoTable.isHideColumn(SearchColumnName.SEASON));
+        .setHideSeason(customTable.isHideColumn(SearchColumnName.SEASON));
     settingsControl.getSettings().getScreenSettings()
-        .setHideTitle(videoTable.isHideColumn(SearchColumnName.TITLE));
+        .setHideTitle(customTable.isHideColumn(SearchColumnName.TITLE));
     settingsControl.getSettings().getScreenSettings()
-        .setHideType(videoTable.isHideColumn(SearchColumnName.TYPE));
+        .setHideType(customTable.isHideColumn(SearchColumnName.TYPE));
 
   }
 

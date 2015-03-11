@@ -11,7 +11,7 @@ import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.dialog.SelectDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
-import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
+import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.SubtitleSelectionGUI;
@@ -27,14 +27,14 @@ import org.slf4j.LoggerFactory;
  */
 public class DownloadWorker extends SwingWorker<Void, String> implements Cancelable {
 
-  private final VideoTable table;
+  private final CustomTable table;
   private final Settings settings;
   private DownloadAction downloadAction;
   private SubtitleSelectionAction subtitleSelectionAction;
   
   private static final Logger LOGGER = LoggerFactory.getLogger(DownloadWorker.class);
 
-  public DownloadWorker(VideoTable table, Settings settings, Manager manager) {
+  public DownloadWorker(CustomTable table, Settings settings, Manager manager) {
     this.table = table;
     this.settings = settings;
     downloadAction = new DownloadAction(settings, manager);
