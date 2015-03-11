@@ -13,9 +13,9 @@ public class CustomTable extends ZebraJTable {
   private static final int MIN_WIDTH = 15;
   private static final int PREFERRED_WIDTH = 75;
 
-  public int getColumnIdByName(SearchColumnName searchColumnName) {
+  public int getColumnIdByName(CustomColumnName customColumnName) {
     for (int i = 0; i < this.getColumnCount(); i++) {
-      if (this.getColumnName(i).equals(searchColumnName.getColumnName())) {
+      if (this.getColumnName(i).equals(customColumnName.getColumnName())) {
         return i;
       }
     }
