@@ -400,7 +400,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     searchAction.setSearchPanel(pnlSearchText);
     searchAction.setReleaseFactory(new ReleaseFactory(settings, (Manager) app.make("Manager")));
     searchAction.setFiltering(new Filtering(settings));
-    searchAction.setSubtitleSelection(new SubtitleSelectionGUI(settings));
+    searchAction.setSubtitleSelection(new SubtitleSelectionGUI(settings, this));
 
     pnlSearchTextInput.setSearchAction(searchAction);
     resultPanel.setDownloadAction(new ActionListener() {
@@ -476,7 +476,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     ((VideoTableModel) customTable.getModel()).setShowOnlyFound(settingsControl.getSettings()
         .isOptionsShowOnlyFound());
     ((VideoTableModel) customTable.getModel()).setSubtitleSelection(new SubtitleSelectionGUI(
-        settingsControl.getSettings()));
+        settingsControl.getSettings(), this));
     final RowSorter<TableModel> sorter = new TableRowSorter<TableModel>(customTable.getModel());
     customTable.setRowSorter(sorter);
     customTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
@@ -584,7 +584,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
   private void download() {
     CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
-    DownloadWorker downloadWorker = new DownloadWorker(customTable, settingsControl.getSettings(), (Manager) this.app.make("Manager"));
+    DownloadWorker downloadWorker = new DownloadWorker(customTable, settingsControl.getSettings(), (Manager) this.app.make("Manager"), this);
     downloadWorker.addPropertyChangeListener(this);
     pnlSearchFile.getResultPanel().disableButtons();
     progressDialog = new ProgressDialog(this, downloadWorker);

@@ -5,6 +5,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
+import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.actions.DownloadAction;
 import org.lodder.subtools.multisubdownloader.actions.SubtitleSelectionAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
@@ -34,12 +35,12 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
   
   private static final Logger LOGGER = LoggerFactory.getLogger(DownloadWorker.class);
 
-  public DownloadWorker(CustomTable table, Settings settings, Manager manager) {
+  public DownloadWorker(CustomTable table, Settings settings, Manager manager, GUI gui) {
     this.table = table;
     this.settings = settings;
     downloadAction = new DownloadAction(settings, manager);
     subtitleSelectionAction = new SubtitleSelectionAction(settings);
-    subtitleSelectionAction.setSubtitleSelection(new SubtitleSelectionGUI(settings));
+    subtitleSelectionAction.setSubtitleSelection(new SubtitleSelectionGUI(settings, gui));
   }
 
   protected Void doInBackground() throws Exception {
