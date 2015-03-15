@@ -112,8 +112,9 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
     for (OpenSubtitlesSubtitleDescriptor ossd : lSubtitles) {
       if (movieRelease.getYear() == ossd.getMovieYear()) {
         listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.OPENSUBTITLES, ossd
-            .getSubFileName(), ossd.getSubDownloadLink(), ossd.getISO639(), "",
-            SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(ossd.getSubFileName(),
+            .getSubFileName(), ossd.getSubDownloadLink(), ossd.getISO639(), ReleaseParser
+            .getQualityKeyword(ossd.getSubFileName()), SubtitleMatchType.EVERYTHING, ReleaseParser
+            .extractReleasegroup(ossd.getSubFileName(),
                 FilenameUtils.isExtension(ossd.getSubFileName(), "srt")), ossd.getUserNickName(),
             Boolean.valueOf(ossd.getSubHearingImpaired())));
       }
@@ -192,8 +193,9 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
       if (subFileName.contains(name)
           || (originalName.length() > 0 && subFileName.contains(originalName))) {
         listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.OPENSUBTITLES, ossd
-            .getSubFileName(), ossd.getSubDownloadLink(), ossd.getISO639(), "",
-            SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(ossd.getSubFileName(),
+            .getSubFileName(), ossd.getSubDownloadLink(), ossd.getISO639(), ReleaseParser
+            .getQualityKeyword(ossd.getSubFileName()), SubtitleMatchType.EVERYTHING, ReleaseParser
+            .extractReleasegroup(ossd.getSubFileName(),
                 FilenameUtils.isExtension(ossd.getSubFileName(), "srt")), ossd.getUserNickName(),
             Boolean.valueOf(ossd.getSubHearingImpaired())));
       }

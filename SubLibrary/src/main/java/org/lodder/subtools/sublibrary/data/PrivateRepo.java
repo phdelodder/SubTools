@@ -78,8 +78,10 @@ public class PrivateRepo {
 
               Subtitle tempSub =
                   new Subtitle(Subtitle.SubtitleSource.LOCAL, indexSubtitle.getFilename(),
-                      location, indexSubtitle.getLanguage(), "", SubtitleMatchType.EVERYTHING,
-                      ReleaseParser.extractReleasegroup(indexSubtitle.getFilename(),
+                      location, indexSubtitle.getLanguage(),
+                      ReleaseParser.getQualityKeyword(indexSubtitle.getFilename()),
+                      SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(
+                          indexSubtitle.getFilename(),
                           FilenameUtils.isExtension(indexSubtitle.getFilename(), "srt")), "", false);
               results.add(tempSub);
             }

@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 public class Local implements SubtitleProvider {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Local.class);
-  
+
   private Settings settings;
   private Manager manager;
 
@@ -83,9 +83,9 @@ public class Local implements SubtitleProvider {
               if (detectedLang.equals(languagecode)) {
                 LOGGER.debug("Local Sub found, adding [{}]", fileSub.toString());
                 listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub
-                    .getName(), fileSub.toString(), "", "", SubtitleMatchType.EVERYTHING,
-                    ReleaseParser.extractReleasegroup(fileSub.getName(), true),
-                    fileSub.getAbsolutePath(), false));
+                    .getName(), fileSub.toString(), "", ReleaseParser.getQualityKeyword(fileSub
+                    .getName()), SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(
+                    fileSub.getName(), true), fileSub.getAbsolutePath(), false));
               }
             }
           }
@@ -112,15 +112,17 @@ public class Local implements SubtitleProvider {
       try {
         Release release = releaseParser.parse(fileSub);
         if (release.getVideoType() == VideoType.MOVIE) {
-          MovieReleaseControl movieCtrl = new MovieReleaseControl((MovieRelease) release, settings, manager);
+          MovieReleaseControl movieCtrl =
+              new MovieReleaseControl((MovieRelease) release, settings, manager);
           movieCtrl.process(settings.getMappingSettings().getMappingList());
           if (((MovieRelease) release).getImdbid() == movieRelease.getImdbid()) {
             String detectedLang = DetectLanguage.execute(fileSub);
             if (detectedLang.equals(languagecode)) {
               LOGGER.debug("Local Sub found, adding {}", fileSub.toString());
               listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub.getName(),
-                  fileSub.toString(), "", "", SubtitleMatchType.EVERYTHING, ReleaseParser
-                      .extractReleasegroup(fileSub.getName(), true), fileSub.getAbsolutePath(), false));
+                  fileSub.toString(), "", ReleaseParser.getQualityKeyword(fileSub.getName()),
+                  SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(
+                      fileSub.getName(), true), fileSub.getAbsolutePath(), false));
             }
           }
         }

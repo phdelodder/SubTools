@@ -65,8 +65,8 @@ public class JSubsMaxAdapter implements JSubAdapter, SubtitleProvider {
 
     for (SubMaxSubtitleDescriptor sub : lSubtitles) {
       listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.SUBSMAX, sub.getFilename(), sub
-          .getLink(), sublanguageids[0], "", SubtitleMatchType.EVERYTHING, ReleaseParser
-          .extractReleasegroup(sub.getFilename(),
+          .getLink(), sublanguageids[0], ReleaseParser.getQualityKeyword(sub.getFilename()),
+          SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(sub.getFilename(),
               FilenameUtils.isExtension(sub.getFilename(), "srt")), "", false));
     }
 

@@ -8,6 +8,7 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.JAddic7
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.model.Addic7edSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.JSubAdapter;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -84,8 +85,10 @@ public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider {
       if (sublanguageids[0].equals(sub.getLanguage())) {
         listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.ADDIC7ED, StringUtils
             .removeIllegalFilenameChars(sub.getTitel() + " " + sub.getVersion()), sub.getUrl(), sub
-            .getLanguage(), sub.getVersion(), SubtitleMatchType.EVERYTHING, sub.getVersion(), sub
-            .getUploader(), sub.isHearingImpaired()));
+            .getLanguage(),
+            ReleaseParser.getQualityKeyword(sub.getTitel() + " " + sub.getVersion()),
+            SubtitleMatchType.EVERYTHING, sub.getVersion(), sub.getUploader(), sub
+                .isHearingImpaired()));
       }
     }
     return listFoundSubtitles;
