@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -20,7 +21,7 @@ import org.slf4j.LoggerFactory;
 public class PrivateRepo {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PrivateRepo.class);
-  
+
   private List<IndexSubtitle> index = new ArrayList<IndexSubtitle>();
   private String indexUrl = "/Ondertitels/PrivateRepo/index";
   private String indexVersionUrl = "/Ondertitels/PrivateRepo/index.version";
@@ -78,7 +79,8 @@ public class PrivateRepo {
               Subtitle tempSub =
                   new Subtitle(Subtitle.SubtitleSource.LOCAL, indexSubtitle.getFilename(),
                       location, indexSubtitle.getLanguage(), "", SubtitleMatchType.EVERYTHING,
-                      ReleaseParser.extractReleasegroup(indexSubtitle.getFilename()), "", false);
+                      ReleaseParser.extractReleasegroup(indexSubtitle.getFilename(),
+                          FilenameUtils.isExtension(indexSubtitle.getFilename(), "srt")), "", false);
               results.add(tempSub);
             }
           }
@@ -103,7 +105,8 @@ public class PrivateRepo {
               Subtitle tempSub =
                   new Subtitle(Subtitle.SubtitleSource.LOCAL, indexSubtitle.getFilename(),
                       location, indexSubtitle.getLanguage(), "", SubtitleMatchType.EVERYTHING,
-                      ReleaseParser.extractReleasegroup(indexSubtitle.getFilename()), "", false);
+                      ReleaseParser.extractReleasegroup(indexSubtitle.getFilename(),
+                          FilenameUtils.isExtension(indexSubtitle.getFilename(), "srt")), "", false);
               results.add(tempSub);
             }
           }

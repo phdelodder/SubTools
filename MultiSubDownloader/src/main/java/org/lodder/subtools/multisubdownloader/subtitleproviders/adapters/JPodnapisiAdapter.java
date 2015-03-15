@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesHasher;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.JPodnapisiApi;
@@ -106,7 +107,7 @@ public class JPodnapisiAdapter implements JSubAdapter, SubtitleProvider {
           for (String release : ossd.getReleaseString().split(" ")) {
             listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.PODNAPISI, release,
                 downloadlink, sublanguageid, "", SubtitleMatchType.EVERYTHING, ReleaseParser
-                    .extractReleasegroup(release), ossd.getUploaderName(), ossd.getFlagsString().equals(
+                    .extractReleasegroup(release, FilenameUtils.isExtension(release, "srt")), ossd.getUploaderName(), ossd.getFlagsString().equals(
                     "nhu")));
           }
         }

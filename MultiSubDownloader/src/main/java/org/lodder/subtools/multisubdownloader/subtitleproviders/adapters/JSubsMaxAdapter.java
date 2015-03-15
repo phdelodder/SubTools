@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax.JSubsMaxApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax.model.SubMaxSubtitleDescriptor;
@@ -65,7 +66,8 @@ public class JSubsMaxAdapter implements JSubAdapter, SubtitleProvider {
     for (SubMaxSubtitleDescriptor sub : lSubtitles) {
       listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.SUBSMAX, sub.getFilename(), sub
           .getLink(), sublanguageids[0], "", SubtitleMatchType.EVERYTHING, ReleaseParser
-          .extractReleasegroup(sub.getFilename()), "", false));
+          .extractReleasegroup(sub.getFilename(),
+              FilenameUtils.isExtension(sub.getFilename(), "srt")), "", false));
     }
 
     return listFoundSubtitles;

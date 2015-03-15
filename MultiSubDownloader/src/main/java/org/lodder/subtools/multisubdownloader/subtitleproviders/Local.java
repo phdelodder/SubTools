@@ -84,7 +84,7 @@ public class Local implements SubtitleProvider {
                 LOGGER.debug("Local Sub found, adding [{}]", fileSub.toString());
                 listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub
                     .getName(), fileSub.toString(), "", "", SubtitleMatchType.EVERYTHING,
-                    ReleaseParser.extractReleasegroup(fileSub.getName()),
+                    ReleaseParser.extractReleasegroup(fileSub.getName(), true),
                     fileSub.getAbsolutePath(), false));
               }
             }
@@ -120,7 +120,7 @@ public class Local implements SubtitleProvider {
               LOGGER.debug("Local Sub found, adding {}", fileSub.toString());
               listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub.getName(),
                   fileSub.toString(), "", "", SubtitleMatchType.EVERYTHING, ReleaseParser
-                      .extractReleasegroup(fileSub.getName()), fileSub.getAbsolutePath(), false));
+                      .extractReleasegroup(fileSub.getName(), true), fileSub.getAbsolutePath(), false));
             }
           }
         }

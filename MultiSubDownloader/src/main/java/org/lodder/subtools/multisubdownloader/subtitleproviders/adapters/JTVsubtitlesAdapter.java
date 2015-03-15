@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.JTVSubtitlesApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.model.TVsubtitlesSubtitleDescriptor;
@@ -73,7 +74,8 @@ public class JTVsubtitlesAdapter implements JSubAdapter, SubtitleProvider {
     for (TVsubtitlesSubtitleDescriptor sub : lSubtitles) {
       listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.TVSUBTITLES, sub.Filename,
           sub.Url, sublanguageids[0], sub.Rip, SubtitleMatchType.EVERYTHING, ReleaseParser
-              .extractReleasegroup(sub.Filename), sub.Author, false));
+              .extractReleasegroup(sub.Filename, FilenameUtils.isExtension(sub.Filename, "srt")),
+          sub.Author, false));
     }
     return listFoundSubtitles;
   }

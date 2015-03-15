@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FilenameUtils;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.JOpenSubtitlesApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesHasher;
@@ -94,7 +95,7 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
           try {
             lSubtitles.addAll(joapi.searchSubtitles(movieRelease.getImdbid(), sublanguageids));
           } catch (Exception e) {
-            LOGGER.error("API OPENSUBTITLES searchSubtitles using imdbid",e);
+            LOGGER.error("API OPENSUBTITLES searchSubtitles using imdbid", e);
           }
         }
         if (lSubtitles.size() == 0) {
@@ -112,8 +113,9 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
       if (movieRelease.getYear() == ossd.getMovieYear()) {
         listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.OPENSUBTITLES, ossd
             .getSubFileName(), ossd.getSubDownloadLink(), ossd.getISO639(), "",
-            SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(ossd.getSubFileName()),
-            ossd.getUserNickName(), Boolean.valueOf(ossd.getSubHearingImpaired())));
+            SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(ossd.getSubFileName(),
+                FilenameUtils.isExtension(ossd.getSubFileName(), "srt")), ossd.getUserNickName(),
+            Boolean.valueOf(ossd.getSubHearingImpaired())));
       }
     }
     return listFoundSubtitles;
@@ -191,8 +193,9 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
           || (originalName.length() > 0 && subFileName.contains(originalName))) {
         listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.OPENSUBTITLES, ossd
             .getSubFileName(), ossd.getSubDownloadLink(), ossd.getISO639(), "",
-            SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(ossd.getSubFileName()),
-            ossd.getUserNickName(), Boolean.valueOf(ossd.getSubHearingImpaired())));
+            SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(ossd.getSubFileName(),
+                FilenameUtils.isExtension(ossd.getSubFileName(), "srt")), ossd.getUserNickName(),
+            Boolean.valueOf(ossd.getSubHearingImpaired())));
       }
     }
     return listFoundSubtitles;
