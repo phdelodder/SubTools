@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.lib;
 
 import java.io.Console;
 
+import org.lodder.subtools.multisubdownloader.gui.extra.table.SubtitleTableColumnName;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.model.Release;
 
@@ -16,13 +17,22 @@ public class SubtitleSelectionCLI extends SubtitleSelection {
   @Override
   public int getUserInput(Release release) {
     System.out.println("\nSelect best subtitle for : " + release.getFilename());
-    String[] columnNames = {"Score", "Subtitle name", "Source", "Uploader", "Hearing impaired"};
+    String[] columnNames =
+        {SubtitleTableColumnName.SCORE.getColumnName(),
+            SubtitleTableColumnName.FILENAME.getColumnName(),
+            SubtitleTableColumnName.RELEASEGROUP.getColumnName(),
+            SubtitleTableColumnName.QUALITY.getColumnName(),
+            SubtitleTableColumnName.SOURCE.getColumnName(),
+            SubtitleTableColumnName.UPLOADER.getColumnName(),
+            SubtitleTableColumnName.HEARINGIMPAIRED.getColumnName()};
 
     Object[][] dataTable = new Object[release.getMatchingSubs().size()][columnNames.length];
     for (int i = 0; i < release.getMatchingSubs().size(); i++) {
       dataTable[i] =
           new Object[] {release.getMatchingSubs().get(i).getScore(),
               release.getMatchingSubs().get(i).getFilename(),
+              release.getMatchingSubs().get(i).getReleasegroup(),
+              release.getMatchingSubs().get(i).getQuality(),
               release.getMatchingSubs().get(i).getSubtitleSource(),
               release.getMatchingSubs().get(i).getUploader(),
               release.getMatchingSubs().get(i).isHearingImpaired()};
@@ -37,11 +47,13 @@ public class SubtitleSelectionCLI extends SubtitleSelection {
     Console c = System.console();
     String selectedSubtitle = c.readLine("Enter number of selected subtitle: ");
     System.out.println("");
+    int selected = -1;
     try {
-      Integer.parseInt(selectedSubtitle);
+      selected = Integer.parseInt(selectedSubtitle);
+      selected--;
     } catch (Exception e) {
       return -1;
     }
-    return Integer.parseInt(selectedSubtitle);
+    return selected;
   }
 }
