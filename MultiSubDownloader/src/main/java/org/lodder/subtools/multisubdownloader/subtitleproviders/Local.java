@@ -83,9 +83,10 @@ public class Local implements SubtitleProvider {
               if (detectedLang.equals(languagecode)) {
                 LOGGER.debug("Local Sub found, adding [{}]", fileSub.toString());
                 listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub
-                    .getName(), fileSub.toString(), "", ReleaseParser.getQualityKeyword(fileSub
-                    .getName()), SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(
-                    fileSub.getName(), true), fileSub.getAbsolutePath(), false));
+                    .getName(), fileSub.toString(), languagecode, ReleaseParser
+                    .getQualityKeyword(fileSub.getName()), SubtitleMatchType.EVERYTHING,
+                    ReleaseParser.extractReleasegroup(fileSub.getName(), true), fileSub
+                        .getAbsolutePath(), false));
               }
             }
           }
