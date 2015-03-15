@@ -44,13 +44,13 @@ public class ReleaseParser {
                 new TvRelease((String) parseResults[0], (Integer) parseResults[1],
                     (List<Integer>) parseResults[2], file,
                     extractFileNameExtension(file.getName()),
-                    removeExtension((String) parseResults[3]), extractReleasegroup(file.getName()),
+                    removeExtension((String) parseResults[3]), extractReleasegroup(file.getName(), true),
                     isSpecialEpisode((Integer) parseResults[1], (List<Integer>) parseResults[2]));
           } else if (parseResults.length == 3) {
             vFile =
                 new MovieRelease((String) parseResults[0], (Integer) parseResults[1], file,
                     extractFileNameExtension(file.getName()),
-                    removeExtension((String) parseResults[2]), extractReleasegroup(file.getName()));
+                    removeExtension((String) parseResults[2]), extractReleasegroup(file.getName(), true));
           }
           if (vFile == null) return vFile;
 
@@ -260,8 +260,13 @@ public class ReleaseParser {
     return fileName.substring(mid + 1, fileName.length());
   }
 
-  public static String extractReleasegroup(final String fileName) {
-    Pattern releaseGroupPattern = Pattern.compile("-([\\w]+).[\\w]+$");
+  public static String extractReleasegroup(final String fileName, boolean hasExtension) {
+    Pattern releaseGroupPattern;
+    if (hasExtension){
+    releaseGroupPattern = Pattern.compile("-([\\w]+).[\\w]+$");
+    }else{
+      releaseGroupPattern = Pattern.compile("-([\\w]+)$");
+    }
     Matcher matcher = releaseGroupPattern.matcher(fileName);
     if (!matcher.find()) return "";
 
