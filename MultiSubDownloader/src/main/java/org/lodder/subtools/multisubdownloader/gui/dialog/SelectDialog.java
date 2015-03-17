@@ -56,7 +56,7 @@ public class SelectDialog extends MultiSubDialog {
    * Create the dialog.
    */
   public SelectDialog(JFrame frame, List<Subtitle> subtitles, Release release) {
-    super(frame, Messages.getString("SelectDialog.SelectCorrectSubtitle"), false);
+    super(frame, Messages.getString("SelectDialog.SelectCorrectSubtitle"), true);
     this.subtitles = subtitles;
     this.release = release;
     this.frame = frame;
