@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
@@ -27,7 +26,6 @@ public class ExactNameFilter extends Filter {
         LOGGER.debug("getSubtitlesFiltered: found EXACT match [{}] ", subtitle.getFilename());
         
         subtitle.setSubtitleMatchType(SubtitleMatchType.EXACT);
-        subtitle.setQuality(ReleaseParser.getQualityKeyword(subtitle.getFilename()));
         
         filteredList.add(subtitle);
       }

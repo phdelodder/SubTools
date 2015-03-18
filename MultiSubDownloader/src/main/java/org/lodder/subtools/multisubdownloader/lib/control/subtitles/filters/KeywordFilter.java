@@ -20,13 +20,15 @@ public class KeywordFilter extends Filter {
     String keywordsFile = ReleaseParser.getQualityKeyword(getReleasename(release));
 
     for (Subtitle subtitle : Subtitles) {
+      if (subtitle.getQuality().isEmpty())
+        subtitle.setQuality(ReleaseParser.getQualityKeyword(subtitle.getFilename()));
+      
       boolean checkKeywordMatch = checkKeywordSubtitleMatch(subtitle, keywordsFile);
 
       if (checkKeywordMatch) {
         LOGGER.debug("getSubtitlesFiltered: found KEYWORD match [{}] ", subtitle.getFilename());
 
         subtitle.setSubtitleMatchType(SubtitleMatchType.KEYWORD);
-        subtitle.setQuality(ReleaseParser.getQualityKeyword(subtitle.getFilename()));
 
         filteredList.add(subtitle);
       }
