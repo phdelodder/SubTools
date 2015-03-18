@@ -44,13 +44,15 @@ public class ReleaseParser {
                 new TvRelease((String) parseResults[0], (Integer) parseResults[1],
                     (List<Integer>) parseResults[2], file,
                     extractFileNameExtension(file.getName()),
-                    removeExtension((String) parseResults[3]), extractReleasegroup(file.getName(), true),
-                    isSpecialEpisode((Integer) parseResults[1], (List<Integer>) parseResults[2]));
+                    removeExtension((String) parseResults[3]), extractReleasegroup(file.getName(),
+                        true), isSpecialEpisode((Integer) parseResults[1],
+                        (List<Integer>) parseResults[2]));
           } else if (parseResults.length == 3) {
             vFile =
                 new MovieRelease((String) parseResults[0], (Integer) parseResults[1], file,
                     extractFileNameExtension(file.getName()),
-                    removeExtension((String) parseResults[2]), extractReleasegroup(file.getName(), true));
+                    removeExtension((String) parseResults[2]), extractReleasegroup(file.getName(),
+                        true));
           }
           if (vFile == null) return vFile;
 
@@ -240,6 +242,7 @@ public class ReleaseParser {
     while (m.find()) {
       builder.append(m.group(0).replace(".", " ")).append(" ");
     }
+    LOGGER.trace("getQualityKeyWords: keyswords: {}", builder.toString().trim());
     return builder.toString().trim();
   }
 
@@ -252,6 +255,7 @@ public class ReleaseParser {
     while (m.find()) {
       keywords.add(m.group(0));
     }
+    LOGGER.trace("getQualityKeyWords: keyswords: {}", keywords);
     return keywords;
   }
 
@@ -261,16 +265,21 @@ public class ReleaseParser {
   }
 
   public static String extractReleasegroup(final String fileName, boolean hasExtension) {
+    LOGGER.trace("extractReleasegroup: name: {} , hasExtension: {}", fileName, hasExtension);
     Pattern releaseGroupPattern;
-    if (hasExtension){
-    releaseGroupPattern = Pattern.compile("-([\\w]+).[\\w]+$");
-    }else{
+    if (hasExtension) {
+      releaseGroupPattern = Pattern.compile("-([\\w]+).[\\w]+$");
+    } else {
       releaseGroupPattern = Pattern.compile("-([\\w]+)$");
     }
     Matcher matcher = releaseGroupPattern.matcher(fileName);
-    if (!matcher.find()) return "";
+    String releaseGroup = "";
+    if (matcher.find()){
+      releaseGroup = matcher.group(1);
+    }
 
-    return matcher.group(1);
+    LOGGER.trace("extractReleasegroup: release group: {}", releaseGroup);
+    return releaseGroup;
   }
 
   public static String removeExtension(final String fileName) {
