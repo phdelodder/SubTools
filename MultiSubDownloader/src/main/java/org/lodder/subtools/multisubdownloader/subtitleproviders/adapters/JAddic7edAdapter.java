@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.JAddic7edApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.model.Addic7edSubtitleDescriptor;
@@ -87,8 +88,10 @@ public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider {
             .removeIllegalFilenameChars(sub.getTitel() + " " + sub.getVersion()), sub.getUrl(), sub
             .getLanguage(),
             ReleaseParser.getQualityKeyword(sub.getTitel() + " " + sub.getVersion()),
-            SubtitleMatchType.EVERYTHING, sub.getVersion(), sub.getUploader(), sub
-                .isHearingImpaired()));
+            SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(sub.getTitel() + " "
+                + sub.getVersion(),
+                FilenameUtils.isExtension(sub.getTitel() + " " + sub.getVersion(), "srt")), sub
+                .getUploader(), sub.isHearingImpaired()));
       }
     }
     return listFoundSubtitles;
