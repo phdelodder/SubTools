@@ -67,8 +67,7 @@ public class SelectDialog extends MultiSubDialog {
   }
 
   private void initialize() {
-    setBounds(100, 100, 850, 100);
-    getContentPane().setLayout(new MigLayout("", "[grow,fill]", "[][::100px,fill][grow]"));
+    getContentPane().setLayout(new MigLayout("", "[1000px:n,grow,fill]", "[][::100px,fill][grow]"));
     JLabel lblNewLabel =
         new JLabel(Messages.getString("SelectDialog.SelectCorrectSubtitleThisRelease")
             + release.getFilename());
@@ -135,18 +134,17 @@ public class SelectDialog extends MultiSubDialog {
 
     int columnId = customTable.getColumnIdByName(SubtitleTableColumnName.SELECT);
     customTable.getColumnModel().getColumn(columnId).setResizable(false);
-    customTable.getColumnModel().getColumn(columnId).setPreferredWidth(65);
-    customTable.getColumnModel().getColumn(columnId).setMaxWidth(65);
+    customTable.getColumnModel().getColumn(columnId).setPreferredWidth(55);
+    customTable.getColumnModel().getColumn(columnId).setMaxWidth(55);
 
     columnId = customTable.getColumnIdByName(SubtitleTableColumnName.SCORE);
     customTable.getColumnModel().getColumn(columnId).setResizable(false);
-    customTable.getColumnModel().getColumn(columnId).setPreferredWidth(70);
-    customTable.getColumnModel().getColumn(columnId).setMaxWidth(70);
+    customTable.getColumnModel().getColumn(columnId).setPreferredWidth(60);
+    customTable.getColumnModel().getColumn(columnId).setMaxWidth(60);
 
     columnId = customTable.getColumnIdByName(SubtitleTableColumnName.FILENAME);
     customTable.getColumnModel().getColumn(columnId).setResizable(true);
-    customTable.getColumnModel().getColumn(columnId).setPreferredWidth(300);
-    customTable.getColumnModel().getColumn(columnId).setMaxWidth(500);
+    customTable.getColumnModel().getColumn(columnId).setMinWidth(500);
 
     for (Subtitle subtitle : subtitles) {
       subtitleTableModel.addRow(subtitle);
