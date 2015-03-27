@@ -19,11 +19,13 @@ import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.logging.Listener;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class CLI implements Listener {
+public class CLI {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(CLI.class);
 
   private final Container app;
   private Settings settings;
@@ -38,7 +40,6 @@ public class CLI implements Listener {
   private SubtitleSelectionAction subtitleSelectionAction;
 
   public CLI(Settings settings, Container app) {
-    Logger.instance.addListener(this);
     this.app = app;
     this.settings = settings;
     checkUpdate((Manager) this.app.make("Manager"));
@@ -50,10 +51,10 @@ public class CLI implements Listener {
   private void checkUpdate(Manager manager) {
     UpdateAvailableDropbox u = new UpdateAvailableDropbox(manager);
     if (u.checkProgram(settings.getUpdateCheckPeriod())) {
-      Logger.instance.log(Messages.getString("UpdateAppAvailable") + ": " + u.getUpdateUrl());
+      System.out.println(Messages.getString("UpdateAppAvailable") + ": " + u.getUpdateUrl());
     }
   }
-  
+
   public void setUp(CommandLine line) throws Exception {
     this.folders = getFolders(line);
     this.languagecode = getLanguageCode(line);
@@ -65,18 +66,18 @@ public class CLI implements Listener {
   }
 
   public void run() {
-    Info.subtitleSources(this.settings);
-    Info.subtitleFiltering(this.settings);
+    Info.subtitleSources(this.settings, true);
+    Info.subtitleFiltering(this.settings, true);
     this.search();
   }
 
   public void download(List<Release> releases) {
-    Info.downloadOptions(this.settings);
+    Info.downloadOptions(this.settings, true);
     for (Release release : releases) {
       try {
         this.download(release);
       } catch (Exception e) {
-        Logger.instance.error("executeArgs: search" + Logger.stack2String(e));
+        LOGGER.error("executeArgs: search", e);
       }
     }
   }
@@ -95,7 +96,8 @@ public class CLI implements Listener {
 
     searchAction.setFileListAction(new FileListAction(this.settings));
     searchAction.setFiltering(new Filtering(this.settings));
-    searchAction.setReleaseFactory(new ReleaseFactory(this.settings, (Manager) app.make("Manager")));
+    searchAction
+        .setReleaseFactory(new ReleaseFactory(this.settings, (Manager) app.make("Manager")));
 
     CLIFileindexerProgress progressDialog = new CLIFileindexerProgress();
     CLISearchProgress searchProgress = new CLISearchProgress();
@@ -109,27 +111,20 @@ public class CLI implements Listener {
     searchAction.run();
   }
 
-  @Override
-  public void log(String log) {
-    System.out.println(log + "\r");
-  }
-
   private void download(Release release) throws Exception {
     int selection = subtitleSelectionAction.subtitleSelection(release, subtitleSelection);
     if (selection >= 0) {
       if (downloadall) {
-        Logger.instance
-            .log("Downloading ALL found subtitles for release: " + release.getFilename());
+        System.out.println("Downloading ALL found subtitles for release: " + release.getFilename());
         for (int j = 0; j < release.getMatchingSubs().size(); j++) {
-          Logger.instance.log("Downloading subtitle: "
-                              + release.getMatchingSubs().get(0).getFilename());
+          System.out.println("Downloading subtitle: " + release.getMatchingSubs().get(0).getFilename());
           downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
         }
       } else {
         downloadAction.download(release, release.getMatchingSubs().get(selection));
       }
     } else {
-      Logger.instance.log("No subs found for: " + release.getFilename());
+      System.out.println("No substitles found for: " + release.getFilename());
     }
   }
 
@@ -151,7 +146,7 @@ public class CLI implements Listener {
       }
       return languagecode;
     } else {
-      Logger.instance.log(Messages.getString("App.NoLanguageUseDefault"));
+      System.out.println(Messages.getString("App.NoLanguageUseDefault"));
       return "nl";
     }
   }

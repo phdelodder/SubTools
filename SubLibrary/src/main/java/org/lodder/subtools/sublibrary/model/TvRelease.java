@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
-import org.lodder.subtools.sublibrary.logging.Logger;
 
 public class TvRelease extends Release {
 
@@ -102,7 +101,6 @@ public class TvRelease extends Release {
   }
 
   public void updateTVRageEpisodeInfo(TVRageEpisode tvrageEpisode) {
-      Logger.instance.trace("EpisodeFile", "updateTVRageEpisodeInfo", "");
       if (tvrageEpisode.getTitle().contains("$")){
         this.setTitle(tvrageEpisode.getTitle().replaceAll("\\$", "")); // update to reflect correct episode title and fix for $
       }else{
@@ -111,7 +109,6 @@ public class TvRelease extends Release {
     }
 
   public void updateTvdbEpisodeInfo(TheTVDBEpisode tvdbEpisode){
-    Logger.instance.trace("EpisodeFile", "updateTVRageEpisodeInfo", "");
     this.setTitle(tvdbEpisode.getEpisodeName()); // update to reflect correct episode title
   }
 

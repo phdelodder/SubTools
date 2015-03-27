@@ -12,12 +12,15 @@ import org.lodder.subtools.multisubdownloader.actions.SearchAction;
 import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CliSearchAction extends SearchAction {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(CliSearchAction.class);
+  
   private CLI cmd;
   private FileListAction filelistAction;
   private List<File> folders;
@@ -68,13 +71,13 @@ public class CliSearchAction extends SearchAction {
     /* fix: remove carriage return from progressbar */
     System.out.println("");
 
-    Logger.instance.debug("# Files found to process: " + files.size());
+    LOGGER.debug("# Files found to process [{}] ", files.size());
 
     int total = files.size();
     int index = 0;
     int progress = 0;
 
-    Logger.instance.log(Messages.getString("CliSearchAction.ParsingFoundFiles"));
+    System.out.println(Messages.getString("CliSearchAction.ParsingFoundFiles"));
     this.indexingProgressListener.progress(progress);
 
     List<Release> releases = new ArrayList<>();
@@ -119,7 +122,7 @@ public class CliSearchAction extends SearchAction {
       return;
     }
 
-    Logger.instance.debug("found files for doDownload: " + releases.size());
+    LOGGER.debug("found files for doDownload [{}]", releases.size());
 
     /* stop printing progress */
     this.searchProgressListener.completed();

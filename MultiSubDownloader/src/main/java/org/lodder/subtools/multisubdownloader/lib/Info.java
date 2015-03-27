@@ -1,16 +1,23 @@
 package org.lodder.subtools.multisubdownloader.lib;
 
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Info {
 
-  public static void subtitleSources(Settings settings) {
-    Logger.instance.log("----- Subtitle Providers ------");
+  private static final Logger LOGGER = LoggerFactory.getLogger(Info.class);
+
+  public static void subtitleSources(Settings settings, boolean isCli) {
+    if (isCli) {
+      System.out.println("----- Subtitle Providers ------");
+    } else {
+      LOGGER.info("----- Subtitle Providers ------");
+    }
     for (SubtitleSource source : SubtitleSource.values()) {
       boolean enabled = false;
-      switch (source){
+      switch (source) {
         case ADDIC7ED:
           enabled = settings.isSerieSourceAddic7ed();
           break;
@@ -31,26 +38,52 @@ public class Info {
           break;
         default:
           break;
-        
+
       }
-      Logger.instance.log(" - provider : " + source.toString() + " enabled: " + enabled);
+      if (isCli) {
+        System.out.println(" - provider : " + source.toString() + " enabled: " + enabled);
+      } else {
+        LOGGER.info(" - provider : " + source.toString() + " enabled: " + enabled);
+      }
     }
-    Logger.instance.log("-----------------------------");
+    if (isCli) {
+      System.out.println("-----------------------------");
+    } else {
+      LOGGER.info("-----------------------------");
+    }
   }
 
-  public static void subtitleFiltering(Settings settings) {
-    Logger.instance.log("----- Subtitle Filtering ------");
-    Logger.instance.log(" - OptionSubtitleExactMatch : " + settings.isOptionSubtitleExactMatch());
-    Logger.instance.log(" - OptionSubtitleKeywordMatch : "
-        + settings.isOptionSubtitleKeywordMatch());
-    Logger.instance.log(" - OptionSubtitleExcludeHearingImpaired : "
-        + settings.isOptionSubtitleExcludeHearingImpaired());
-    Logger.instance.log("-------------------------------");
+  public static void subtitleFiltering(Settings settings, boolean isClie) {
+    if (isClie) {
+      System.out.println("----- Subtitle Filtering ------");
+      System.out.println(" - OptionSubtitleExactMatch : " + settings.isOptionSubtitleExactMatch());
+      System.out.println(" - OptionSubtitleKeywordMatch : "
+          + settings.isOptionSubtitleKeywordMatch());
+      System.out.println(" - OptionSubtitleExcludeHearingImpaired : "
+          + settings.isOptionSubtitleExcludeHearingImpaired());
+      System.out.println("-------------------------------");
+    } else {
+      LOGGER.info("----- Subtitle Filtering ------");
+      LOGGER.info(" - OptionSubtitleExactMatch: {} ", settings.isOptionSubtitleExactMatch());
+      LOGGER.info(" - OptionSubtitleKeywordMatch: {} ", settings.isOptionSubtitleKeywordMatch());
+      LOGGER.info(" - OptionSubtitleExcludeHearingImpaired: {} ",
+          settings.isOptionSubtitleExcludeHearingImpaired());
+      LOGGER.info("-------------------------------");
+    }
+
   }
 
-  public static void downloadOptions(Settings settings) {
-    Logger.instance.log("----- Download Options ------");
-    Logger.instance.log(" - OptionsAlwaysConfirm : " + settings.isOptionsAlwaysConfirm());
-    Logger.instance.log("-----------------------------");
+  public static void downloadOptions(Settings settings, boolean isCli) {
+    if (isCli) {
+      System.out.println("----- Download Options ------");
+      System.out.println(" - OptionsAlwaysConfirm : " + settings.isOptionsAlwaysConfirm());
+      System.out.println("-----------------------------");
+    } else {
+      LOGGER.info("----- Download Options ------");
+      LOGGER.info(" - OptionsAlwaysConfirm : " + settings.isOptionsAlwaysConfirm());
+      LOGGER.info("-----------------------------");
+    }
+
+
   }
 }

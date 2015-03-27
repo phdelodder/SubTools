@@ -14,11 +14,13 @@ import javax.xml.stream.XMLStreamReader;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax.model.SubMaxSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.data.Html;
-import org.lodder.subtools.sublibrary.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JSubsMaxApi extends Html {
 
   private static String DEFAULTUSERAGENT = "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)";
+  private static final Logger LOGGER = LoggerFactory.getLogger(JSubsMaxApi.class);
   
   public JSubsMaxApi(Manager manager) {
     super(manager, DEFAULTUSERAGENT);
@@ -105,13 +107,13 @@ public class JSubsMaxApi extends Html {
         prevEvent = event;
       }
     } catch (UnsupportedEncodingException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("SUBSMAXAPI searchSubtitles" ,e);
     } catch (XMLStreamException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("SUBSMAXAPI searchSubtitles" ,e);
     } catch (MalformedURLException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("SUBSMAXAPI searchSubtitles" ,e);
     } catch (Exception e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("SUBSMAXAPI searchSubtitles" ,e);
     }
 
     return lSubtitles;

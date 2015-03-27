@@ -14,7 +14,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
@@ -22,15 +21,18 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.FilenameUtils;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.privateRepo.model.IndexSubtitle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class PrivateRepoIndex {
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(PrivateRepoIndex.class);
 
   public static List<IndexSubtitle> getIndex(String index) {
     List<IndexSubtitle> repoList = null;
@@ -130,9 +132,9 @@ public class PrivateRepoIndex {
       }
 
     } catch (UnsupportedEncodingException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("getIndex()", e);
     } catch (XMLStreamException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("getIndex()", e);
     }
 
     return repoList;
@@ -209,14 +211,8 @@ public class PrivateRepoIndex {
       transformer.transform(source, result);
 
       return result.getWriter().toString();
-    } catch (ParserConfigurationException e) {
-      Logger.instance.error(Logger.stack2String(e));
-    } catch (TransformerConfigurationException e) {
-      Logger.instance.error(Logger.stack2String(e));
-    } catch (TransformerFactoryConfigurationError e) {
-      Logger.instance.error(Logger.stack2String(e));
-    } catch (TransformerException e) {
-      Logger.instance.error(Logger.stack2String(e));
+    } catch (ParserConfigurationException |  TransformerFactoryConfigurationError | TransformerException e) {
+      LOGGER.error("setIndex()", e);
     }
     return "";
 

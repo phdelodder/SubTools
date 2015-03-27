@@ -6,8 +6,6 @@ package org.lodder.subtools.sublibrary.settings;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
-import org.lodder.subtools.sublibrary.logging.Level;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.settings.model.MappingSettings;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 import org.lodder.subtools.sublibrary.xml.XMLMappingTvdbScene;
@@ -30,7 +28,6 @@ public class MappingSettingsControl {
    * 
    */
   public void store() {
-    Logger.instance.log("MappingSettingsControl, store()", Level.TRACE);
     int last = 0;
     for (int i = 0; i < mappingSettings.getMappingList().size(); i++) {
       preferences.put("Dictionary" + i, mappingSettings.getMappingList().get(i).getSceneName()
@@ -42,7 +39,6 @@ public class MappingSettingsControl {
   }
 
   public void load() {
-    Logger.instance.log("MappingSettingsControl, load()", Level.TRACE);
     int last = preferences.getInt("lastItemDictionary", 0);
     mappingSettings.setMappingVersion(preferences.getInt("mappingVersion", 0));
     for (int i = 0; i < last; i++) {

@@ -15,8 +15,9 @@ import org.lodder.subtools.sublibrary.ManagerSetupException;
 import org.lodder.subtools.sublibrary.data.XmlHTTP;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -32,6 +33,8 @@ public class TheTVDBApi {
   private static final String XML_EXTENSION = ".xml";
   private static final String SERIES_URL = "/series/";
   private static final String ALL_URL = "/all/";
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(TheTVDBApi.class);
 
   public TheTVDBApi(String apikey, Manager manager) throws TheTVDBException {
     xmlHTTPAPI = new XmlHTTP(manager);
@@ -117,7 +120,7 @@ public class TheTVDBApi {
           return parseSerieNode((Element) nList.item(0));
         }
       } else {
-        Logger.instance.log("TVDB ID is 0! please fix ");
+        LOGGER.warn("TVDB ID is 0! please fix");
       }
     } catch (Exception e) {
       throw new TheTVDBException("Trouble getting a mirror");
@@ -285,10 +288,9 @@ public class TheTVDBApi {
     TheTVDBSerie TheTVDBSerie = new TheTVDBSerie();
 
     try {
-      Logger.instance.trace("TheTVDBSerie", "parseSerieNode",
-          "Element: " + XMLHelper.getXMLAsString(eElement));
+      LOGGER.trace("parseSerieNode: eElement [{}]", XMLHelper.getXMLAsString(eElement));
     } catch (Exception e) {
-      Logger.instance.log(Logger.stack2String(e));
+      LOGGER.error("Trying to display eElement", e);
     }
 
     TheTVDBSerie.setId(XMLHelper.getStringTagValue("id", eElement));
@@ -344,7 +346,7 @@ public class TheTVDBApi {
   }
 
   private String createApiUrl(String command, String[] params) {
-    Logger.instance.trace("TheTVDBApi", "createApiUrl", "");
+    LOGGER.trace("createApiUrl, command [{}], params [{}]", command, params);
     command = command.replace("/", "");
     String urlParam = "";
     for (int i = 0; i < params.length; i++) {
@@ -354,8 +356,7 @@ public class TheTVDBApi {
         urlParam = urlParam + "/" + params[i].replace("/", "");
       }
     }
-    Logger.instance.trace("TheTVDBApi", "createApiUrl", "create part: " + "/" + command + "/"
-        + urlParam);
+    LOGGER.trace("createApiUrl, createpart /  command [{}] / urlParam [{}]", command, urlParam);
     return getXmlMirror() + "/api/" + this.getApiKey() + "/" + command + "/" + urlParam;
   }
 

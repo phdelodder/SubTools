@@ -21,8 +21,9 @@ import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.ManagerSetupException;
 import org.lodder.subtools.sublibrary.data.XmlRPC;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -33,6 +34,7 @@ public class JPodnapisiApi extends XmlRPC {
   private Date lastCheck;
   private Manager manager;
   public static final int maxAge = 90000;
+  private static final Logger LOGGER = LoggerFactory.getLogger(JPodnapisiApi.class);
 
   public JPodnapisiApi(String useragent, Manager manager) {
     super(useragent, "http://ssp.podnapisi.net:8000/RPC2/");
@@ -66,7 +68,7 @@ public class JPodnapisiApi extends XmlRPC {
       lastCheck = new Date(System.currentTimeMillis() + maxAge);
       if (!responseLogin.get("status").toString().equals("200")) setToken(null);
     } catch (NoSuchAlgorithmException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("API PODNAPISI login", e);
       setToken(null);
     }
   }
@@ -96,7 +98,7 @@ public class JPodnapisiApi extends XmlRPC {
           subtitles.add(parsePodnapisiSubtitle(subtitle));
       }
     } catch (Exception e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("API PODNAPISI searchSubtitles", e);
     }
     return subtitles;
   }
@@ -145,7 +147,7 @@ public class JPodnapisiApi extends XmlRPC {
       List<Map<String, String>> data = (List<Map<String, String>>) response.get("names");
       return "http://www.podnapisi.net/static/podnapisi/" + data.get(0).get("filename");
     } catch (Exception e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("API PODNAPISI download", e);
     }
     return null;
   }
@@ -160,10 +162,11 @@ public class JPodnapisiApi extends XmlRPC {
       url = url.replace("predownload", "download");
       return "http://simple.podnapisi.net" + url;
     } else {
-      Logger.instance.error("Download URL for subtitleID:" + subtitleId
-          + " can't be found, set to debug for more information!");
-      Logger.instance.debug("The URL:" + url);
-      Logger.instance.debug("The Page:" + xml);
+      LOGGER.error(
+          "Download URL for subtitleID {} can't be found, set to debug for more information!",
+          subtitleId);
+      LOGGER.debug("The URL {}", url);
+      LOGGER.debug("The Page {}", xml);
       return null;
     }
   }
@@ -188,13 +191,13 @@ public class JPodnapisiApi extends XmlRPC {
     try {
       return XMLHelper.getDocument(manager.getContent(url, getUserAgent(), false));
     } catch (MalformedURLException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("API PODNAPISI getXML", e);
     } catch (ParserConfigurationException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("API PODNAPISI getXML", e);
     } catch (IOException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("API PODNAPISI getXML", e);
     } catch (Exception e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("API PODNAPISI getXML", e);
     }
     return null;
   }

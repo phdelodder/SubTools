@@ -12,14 +12,17 @@ import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageShowInfo;
 import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TvReleaseControl extends ReleaseControl {
 
   private JTheTVDBAdapter jtvdba;
   private final JTVRageAdapter tvra;
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(TvReleaseControl.class);
 
   public TvReleaseControl(TvRelease tvRelease, Settings settings, Manager manager) {
     super(tvRelease, settings, manager);
@@ -57,16 +60,13 @@ public class TvReleaseControl extends ReleaseControl {
   }
 
   public void process(List<MappingTvdbScene> dict) throws ReleaseControlException {
-    Logger.instance.trace("EpisodeFileControl", "process", "");
-
     TvRelease tvRelease = (TvRelease) release;
     // return episodeFile;
     if (tvRelease.getShow().equals("")) {
       throw new ReleaseControlException("Unable to extract episode details, check file", release);
     } else {
-      Logger.instance.debug("Showname: " + tvRelease.getShow());
-      Logger.instance.debug("Season: " + tvRelease.getSeason());
-      Logger.instance.debug("Episode: " + tvRelease.getEpisodeNumbers());
+      LOGGER.debug("process: showname [{}], season [{}], episode [{}]", tvRelease.getShow(),
+          tvRelease.getSeason(), tvRelease.getEpisodeNumbers());
 
       if (tvRelease.isSpecial()) {
         processSpecial(dict);

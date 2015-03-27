@@ -23,8 +23,9 @@ import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.ManagerSetupException;
 import org.lodder.subtools.sublibrary.data.Html;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.util.http.HttpClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class JAddic7edApi extends Html {
@@ -33,6 +34,7 @@ public class JAddic7edApi extends Html {
   private final static long RATEDURATION = MILLISECONDS.convert(15, TimeUnit.SECONDS);
   private boolean speedy;
   private Date lastRequest = new Date();
+  private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edApi.class);
 
   public JAddic7edApi(boolean speedy, Manager manager) {
     super(manager, "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
@@ -215,7 +217,7 @@ public class JAddic7edApi extends Html {
         if (!speedy && !this.isCached(url)) {
           long dur = new Date().getTime() - lastRequest.getTime();
           if (dur < RATEDURATION) {
-            Logger.instance.log("RateLimiet is bereikt voor ADDIC7ed, gelieve 15 sec te wachten");
+            LOGGER.info("RateLimiet is bereikt voor ADDIC7ed, gelieve 15 sec te wachten");
           }
           while ((new Date().getTime() - lastRequest.getTime()) < RATEDURATION) {
             try {
@@ -232,13 +234,13 @@ public class JAddic7edApi extends Html {
         content = this.getHtml(url);
       }
     } catch (HttpClientException hce) {
-      Logger.instance.log(Logger.stack2String(hce));
+      LOGGER.error(hce.getMessage(), hce);
     } catch (IOException e) {
-      Logger.instance.log(Logger.stack2String(e));
+      LOGGER.error(e.getMessage(), e);
     } catch (ManagerSetupException e) {
-      Logger.instance.log(Logger.stack2String(e));
+      LOGGER.error(e.getMessage(), e);
     } catch (ManagerException e) {
-      Logger.instance.log(Logger.stack2String(e));
+      LOGGER.error(e.getMessage(), e);
     }
 
     return content;

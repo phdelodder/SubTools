@@ -23,29 +23,46 @@ public class ReleaseParserTest {
   }
 
   @Test
-  public void testListGetQualityKeyWords() throws Exception{
-    releaseparser = new ReleaseParser();
+  public void testReleaseGroup() throws Exception {
+    String releaseGroup =
+        ReleaseParser.extractReleasegroup("The.Following.S03E01.HDTV.XviD-AFG", false);
+    assertEquals(releaseGroup, "AFG");
     
+    releaseGroup =
+        ReleaseParser.extractReleasegroup("The.Following.S03E01.HDTV.XviD-AFG", true);
+    assertEquals(releaseGroup, "A");
+
+    releaseGroup = ReleaseParser.extractReleasegroup("The.Following.S03E01.HDTV.XviD-AFG.srt", false);
+    assertEquals(releaseGroup, "");
+    
+    releaseGroup = ReleaseParser.extractReleasegroup("The.Following.S03E01.HDTV.XviD-AFG.srt", true);
+    assertEquals(releaseGroup, "AFG");
+  }
+
+  @Test
+  public void testListGetQualityKeyWords() throws Exception {
+    releaseparser = new ReleaseParser();
+
     File file = new File("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv");
     Release release = releaseparser.parse(file);
-    
+
     List<String> q = ReleaseParser.getQualityKeyWords(release.getQuality());
-    
+
     assertEquals(q.get(0), "720p");
     assertEquals(q.get(1), "hdtv");
     assertEquals(q.get(2), "x264");
-    
+
     file = new File("The.Drop.2014.1080p.WEB-DL.DD5.1.H264-RARBG.mkv");
     release = releaseparser.parse(file);
-    
+
     q = ReleaseParser.getQualityKeyWords(release.getQuality());
-    
+
     assertEquals(q.get(0), "1080p");
     assertEquals(q.get(1), "web-dl");
     assertEquals(q.get(2), "dd5 1");
     assertEquals(q.get(3), "h264");
   }
-  
+
   @Test
   public void testTV() throws Exception {
     releaseparser = new ReleaseParser();
@@ -112,9 +129,9 @@ public class ReleaseParserTest {
     assertEquals((int) tvrelease.getEpisodeNumbers().get(0), 10);
 
   }
-  
+
   @Test
-  public void testMovie() throws Exception{
+  public void testMovie() throws Exception {
     releaseparser = new ReleaseParser();
 
     File file = new File("Back.to.the.Future.Part.II.1989.720p.BluRay.X264-AMIABLE.mkv");
@@ -122,15 +139,16 @@ public class ReleaseParserTest {
 
     assertSame(release.getVideoType(), VideoType.MOVIE);
     assertEquals(release.getExtension(), "mkv");
-    assertEquals(release.getFilename(), "Back.to.the.Future.Part.II.1989.720p.BluRay.X264-AMIABLE.mkv");
+    assertEquals(release.getFilename(),
+        "Back.to.the.Future.Part.II.1989.720p.BluRay.X264-AMIABLE.mkv");
     assertEquals(release.getReleasegroup(), "AMIABLE");
     assertEquals(release.getQuality(), "720p BluRay X264");
-    
+
     MovieRelease movieRelease = (MovieRelease) release;
 
     assertEquals(movieRelease.getYear(), 1989);
     assertEquals(movieRelease.getTitle(), "Back to the Future Part II");
-    
+
     file = new File("The.Equalizer.2014.720p.BluRay.x264-SPARKS.mkv");
     release = releaseparser.parse(file);
 
@@ -139,21 +157,22 @@ public class ReleaseParserTest {
     assertEquals(release.getFilename(), "The.Equalizer.2014.720p.BluRay.x264-SPARKS.mkv");
     assertEquals(release.getReleasegroup(), "SPARKS");
     assertEquals(release.getQuality(), "720p BluRay x264");
-    
+
     movieRelease = (MovieRelease) release;
 
     assertEquals(movieRelease.getYear(), 2014);
     assertEquals(movieRelease.getTitle(), "The Equalizer");
-    
+
     file = new File("The.Trip.to.Italy.2014.LIMITED.720p.BluRay.x264-GECKOS.mkv");
     release = releaseparser.parse(file);
 
     assertSame(release.getVideoType(), VideoType.MOVIE);
     assertEquals(release.getExtension(), "mkv");
-    assertEquals(release.getFilename(), "The.Trip.to.Italy.2014.LIMITED.720p.BluRay.x264-GECKOS.mkv");
+    assertEquals(release.getFilename(),
+        "The.Trip.to.Italy.2014.LIMITED.720p.BluRay.x264-GECKOS.mkv");
     assertEquals(release.getReleasegroup(), "GECKOS");
     assertEquals(release.getQuality(), "720p BluRay x264");
-    
+
     movieRelease = (MovieRelease) release;
 
     assertEquals(movieRelease.getYear(), 2014);

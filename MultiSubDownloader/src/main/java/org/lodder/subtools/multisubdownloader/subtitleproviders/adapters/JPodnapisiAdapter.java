@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FilenameUtils;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesHasher;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.JPodnapisiApi;
@@ -11,21 +12,23 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.model.
 import org.lodder.subtools.sublibrary.JSubAdapter;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
-import org.lodder.subtools.sublibrary.logging.Logger;
-import org.lodder.subtools.sublibrary.model.Release;
-import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
+import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
+import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JPodnapisiAdapter implements JSubAdapter, SubtitleProvider {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(JPodnapisiAdapter.class);
   private static JPodnapisiApi jpapi;
   public JPodnapisiAdapter(Manager manager) {
     try {
       if (jpapi == null) jpapi = new JPodnapisiApi("JBierSubDownloader", manager);
     } catch (Exception e) {
-      Logger.instance.error("API PODNAPISI INIT: " + e.getCause());
+      LOGGER.error("API PODNAPISI INIT", e.getCause());
     }
   }
   
@@ -55,7 +58,7 @@ public class JPodnapisiAdapter implements JSubAdapter, SubtitleProvider {
               jpapi.searchSubtitles(new String[] {OpenSubtitlesHasher.computeHash(file)},
                   sublanguageid[0]);
         } catch (Exception e) {
-          Logger.instance.error("API PODNAPISI searchSubtitles using file hash: " + e);
+          LOGGER.error("API PODNAPISI searchSubtitles using file hash", e);
         }
     }
     if (lSubtitles.size() == 0) {
@@ -63,7 +66,7 @@ public class JPodnapisiAdapter implements JSubAdapter, SubtitleProvider {
         lSubtitles.addAll(jpapi.searchSubtitles(movieRelease.getTitle(), movieRelease.getYear(), 0, 0,
             sublanguageid[0]));
       } catch (Exception e) {
-        Logger.instance.error("API PODNAPISI searchSubtitles using title: " + e);
+        LOGGER.error("API PODNAPISI searchSubtitles using title", e);
       }
     }
     return buildListSubtitles(sublanguageid[0], lSubtitles);
@@ -89,7 +92,7 @@ public class JPodnapisiAdapter implements JSubAdapter, SubtitleProvider {
         }
       }
     } catch (Exception e) {
-      Logger.instance.error("API PODNAPISI searchSubtitles: " + e);
+      LOGGER.error("API PODNAPISI searchSubtitles", e);
     }
     return buildListSubtitles(sublanguageid[0], lSubtitles);
   }
@@ -103,8 +106,8 @@ public class JPodnapisiAdapter implements JSubAdapter, SubtitleProvider {
         if (downloadlink != null) {
           for (String release : ossd.getReleaseString().split(" ")) {
             listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.PODNAPISI, release,
-                downloadlink, sublanguageid, "", SubtitleMatchType.EVERYTHING, ReleaseParser
-                    .extractReleasegroup(release), ossd.getUploaderName(), ossd.getFlagsString().equals(
+                downloadlink, sublanguageid, ReleaseParser.getQualityKeyword(release), SubtitleMatchType.EVERYTHING, ReleaseParser
+                    .extractReleasegroup(release, FilenameUtils.isExtension(release, "srt")), ossd.getUploaderName(), ossd.getFlagsString().equals(
                     "nhu")));
           }
         }
@@ -117,7 +120,7 @@ public class JPodnapisiAdapter implements JSubAdapter, SubtitleProvider {
     try {
       return jpapi.downloadUrl(subtitleId);
     } catch (Exception e) {
-      Logger.instance.error("API PODNAPISI getdownloadlink: " + e);
+      LOGGER.error("API PODNAPISI getdownloadlink", e);
     }
     return null;
   }

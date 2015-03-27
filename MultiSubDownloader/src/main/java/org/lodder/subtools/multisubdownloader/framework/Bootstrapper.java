@@ -11,10 +11,13 @@ import org.lodder.subtools.multisubdownloader.framework.service.providers.Servic
 import org.lodder.subtools.multisubdownloader.framework.service.providers.ServiceProviderComparator;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Bootstrapper {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(Bootstrapper.class);
 
   private final Container app;
   private final Settings settings;
@@ -36,7 +39,7 @@ public class Bootstrapper {
         return settings;
       }
     });
-    
+
     /* Bind Preferences to IoC Container */
     this.app.bind("Preferences", new Resolver() {
       @Override
@@ -44,7 +47,7 @@ public class Bootstrapper {
         return preferences;
       }
     });
-    
+
     /* Bind Manager to IoC Container */
     this.app.bind("Manager", new Resolver() {
       @Override
@@ -67,7 +70,8 @@ public class Bootstrapper {
   public List<ServiceProvider> getProviders() {
 
     Reflections reflections = new Reflections("org.lodder.subtools.multisubdownloader");
-    Set<Class<? extends ServiceProvider>> providerClasses = reflections.getSubTypesOf(ServiceProvider.class);
+    Set<Class<? extends ServiceProvider>> providerClasses =
+        reflections.getSubTypesOf(ServiceProvider.class);
 
     List<ServiceProvider> providers = new ArrayList<>();
 
@@ -79,12 +83,11 @@ public class Bootstrapper {
         Constructor constructor = serviceProviderClass.getConstructor();
         serviceProvider = (ServiceProvider) constructor.newInstance();
       } catch (Exception e) {
-        Logger.instance.error(
-          "ServiceProvider: '" + serviceProviderClass.getClass().getName() + "' failed to create instance.");
+        LOGGER.error("ServiceProvider: '{}' failed to create instance.", serviceProviderClass
+            .getClass().getName());
       }
 
-      if (serviceProvider == null)
-        continue;
+      if (serviceProvider == null) continue;
 
       providers.add(serviceProvider);
     }
@@ -95,8 +98,7 @@ public class Bootstrapper {
     // Register serviceproviders
     for (ServiceProvider provider : providers) {
       provider.register(this.app);
-
-      Logger.instance.debug("ServiceProvider: '" + provider.getClass().getName() + "' registered.");
+      LOGGER.debug("ServiceProvider: '{}' registered.", provider.getClass().getName());
     }
   }
 }

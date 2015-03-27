@@ -7,9 +7,13 @@ import java.io.IOException;
 import me.champeau.ld.UberLanguageDetector;
 
 import org.apache.commons.io.FileUtils;
-import org.lodder.subtools.sublibrary.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DetectLanguage {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(DetectLanguage.class);
 
   public static String execute(File file) throws Exception {
     String text = readText(file);
@@ -35,9 +39,9 @@ public class DetectLanguage {
     try {
       text = FileUtils.readFileToString(file);
     } catch (FileNotFoundException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("File not found to detect language", e);
     } catch (IOException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("", e);
     }
 
     return text;

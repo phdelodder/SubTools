@@ -5,13 +5,15 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.lodder.subtools.sublibrary.control.ReleaseParser;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExactNameFilter extends Filter {
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(ExactNameFilter.class);
 
   @Override
   public List<Subtitle> doFilter(Release release, List<Subtitle> Subtitles) {
@@ -21,10 +23,9 @@ public class ExactNameFilter extends Filter {
     for (Subtitle subtitle : Subtitles) {
       Matcher m = p.matcher(subtitle.getFilename().toLowerCase().replace(".srt", ""));
       if (m.matches()) {
-        Logger.instance.debug("getSubtitlesFiltered: found EXACT match: " + subtitle.getFilename());
+        LOGGER.debug("getSubtitlesFiltered: found EXACT match [{}] ", subtitle.getFilename());
         
         subtitle.setSubtitleMatchType(SubtitleMatchType.EXACT);
-        subtitle.setQuality(ReleaseParser.getQualityKeyword(subtitle.getFilename()));
         
         filteredList.add(subtitle);
       }

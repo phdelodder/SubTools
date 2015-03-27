@@ -1,8 +1,24 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
-import net.miginfocom.swing.MigLayout;
+import java.awt.Component;
+import java.awt.HeadlessException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.io.File;
+import java.io.IOException;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
+
+import net.miginfocom.swing.MigLayout;
 
 import org.lodder.subtools.multisubdownloader.gui.dialog.StructureBuilderDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
@@ -11,16 +27,9 @@ import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.VideoType;
-
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.io.File;
-import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class VideoLibraryPanel extends JPanel {
   /**
@@ -37,6 +46,8 @@ public abstract class VideoLibraryPanel extends JPanel {
   private PartialDisableComboBox cbxLibraryOtherFileAction;
   private SubtitleBackupPanel pnlBackup;
   private Manager manager;
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(VideoLibraryPanel.class);
 
   public VideoLibraryPanel(LibrarySettings libSettings, VideoType videoType, Manager manager) {
     this.videoType = videoType;
@@ -131,14 +142,11 @@ public abstract class VideoLibraryPanel extends JPanel {
                   "Geen geldig pad is ingegeven in 'Map - Locatie' op Bibliotheek info ";
               JOptionPane.showConfirmDialog(this, message, "MultiSubDownloader",
                   JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
-              Logger.instance
-                  .debug("isValidPanelValues: Geen geldig pad is ingegeven in 'Map - Locatie' op Bibliotheek info.");
+              LOGGER.debug("isValidPanelValues: Geen geldig pad is ingegeven in 'Map - Locatie' op Bibliotheek info.");
               return false;
             }
-          } catch (HeadlessException e) {
-            Logger.instance.error(Logger.stack2String(e));
-          } catch (IOException e) {
-            Logger.instance.error(Logger.stack2String(e));
+          } catch (HeadlessException | IOException e) {
+            LOGGER.error(e.getMessage(), e);
           }
         }
     }

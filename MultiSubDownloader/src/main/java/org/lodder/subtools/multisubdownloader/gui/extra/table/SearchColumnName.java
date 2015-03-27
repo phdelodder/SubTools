@@ -2,7 +2,7 @@ package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
 import org.lodder.subtools.multisubdownloader.Messages;
 
-public enum SearchColumnName {
+public enum SearchColumnName implements CustomColumnName{
   RELEASE(Messages.getString("SearchColumnName.Release"), String.class, false), FILENAME(Messages
       .getString("SearchColumnName.Filename"), String.class, false), FOUND(Messages
       .getString("SearchColumnName.NumberFound"), Integer.class, false), SELECT(Messages
@@ -14,7 +14,7 @@ public enum SearchColumnName {
       .getString("SearchColumnName.Title"), String.class, false), SOURCE(Messages
       .getString("SearchColumnName.Source"), String.class, false), SCORE(Messages
       .getString("SearchColumnName.Score"), Integer.class, false);
-
+  
   private final String columnName;
   private final Class<?> c;
   private final boolean editable;

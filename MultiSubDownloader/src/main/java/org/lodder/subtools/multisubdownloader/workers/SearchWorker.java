@@ -2,10 +2,12 @@ package org.lodder.subtools.multisubdownloader.workers;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SearchWorker extends Thread {
 
@@ -15,6 +17,7 @@ public class SearchWorker extends Thread {
   private boolean isInterrupted = false;
   private Release release;
   private List<Subtitle> subtitles;
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchWorker.class);
 
   public SearchWorker(SubtitleProvider provider, SearchManager scheduler) {
     this.provider = provider;
@@ -33,7 +36,7 @@ public class SearchWorker extends Thread {
         break;
       }
       this.release = release;
-      Logger.instance.debug("[Search] " + this.provider.getName() + " searching " + release.toString());
+      LOGGER.debug("[Search] {} searching {} ", this.provider.getName(), release.toString());
 
       List<Subtitle> subtitles = this.provider.search(release, language);
       if (subtitles == null) {
@@ -44,9 +47,8 @@ public class SearchWorker extends Thread {
       this.subtitles = new ArrayList<>(subtitles);
 
       this.busy = false;
-      Logger.instance.debug(
-        "[Search] " + this.provider.getName() + " found " + subtitles.size() + " subtitles for "
-          + release.toString());
+      LOGGER.debug("[Search] {} found {} subtitles for {} ", this.provider.getName(),
+          subtitles.size(), release.toString());
 
       if (!this.isInterrupted()) {
         this.scheduler.onCompleted(this);

@@ -5,20 +5,22 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
+import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.actions.DownloadAction;
 import org.lodder.subtools.multisubdownloader.actions.SubtitleSelectionAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.dialog.SelectDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
-import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTable;
+import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.SubtitleSelectionGUI;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.Release;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by IntelliJ IDEA. User: lodder Date: 4/12/11 Time: 8:52 AM To change this template use
@@ -26,23 +28,24 @@ import org.lodder.subtools.sublibrary.model.Release;
  */
 public class DownloadWorker extends SwingWorker<Void, String> implements Cancelable {
 
-  private final VideoTable table;
+  private final CustomTable table;
   private final Settings settings;
   private DownloadAction downloadAction;
   private SubtitleSelectionAction subtitleSelectionAction;
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(DownloadWorker.class);
 
-  public DownloadWorker(VideoTable table, Settings settings, Manager manager) {
+  public DownloadWorker(CustomTable table, Settings settings, Manager manager, GUI gui) {
     this.table = table;
     this.settings = settings;
     downloadAction = new DownloadAction(settings, manager);
     subtitleSelectionAction = new SubtitleSelectionAction(settings);
-    subtitleSelectionAction.setSubtitleSelection(new SubtitleSelectionGUI(settings));
+    subtitleSelectionAction.setSubtitleSelection(new SubtitleSelectionGUI(settings, gui));
   }
 
   protected Void doInBackground() throws Exception {
-    Logger.instance.trace(DownloadWorker.class.toString(), "doInBackground", "Rows to thread: "
-        + table.getModel().getRowCount());
-    Info.downloadOptions(settings);
+    LOGGER.trace("doInBackground: Rows to thread: {} ", table.getModel().getRowCount());
+    Info.downloadOptions(settings, false);
     final VideoTableModel model = (VideoTableModel) table.getModel();
     int selectedCount = model.getSelectedCount(table.getColumnIdByName(SearchColumnName.SELECT));
     int progress = 0;
@@ -60,8 +63,7 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
         if (selection >= 0) {
           try {
             if (selection == SelectDialog.SelectionType.ALL.getSelectionCode()) {
-              Logger.instance.log("Downloading ALL found subtitles for release: "
-                  + release.getFilename());
+              LOGGER.info("Downloading ALL found subtitles for release {}", release.getFilename());
               for (int j = 0; j < release.getMatchingSubs().size(); j++) {
                 downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
               }
@@ -71,8 +73,8 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
             model.removeRow(i);
             i--;
           } catch (final Exception e) {
-            Logger.instance.log(Logger.stack2String(e));
-            showErrorMessage(Logger.stack2String(e));
+            LOGGER.error(e.getMessage(), e);
+            showErrorMessage(e.toString());
           }
         }
       }

@@ -98,18 +98,19 @@ public class FilteringTest {
 
     assertEquals(filtered.size(), 1);
   }
-  
+
   @Test
   public void testExactMatchAndKeywordMatchFilter() {
     Release release =
-        createRelease("Criminal.Minds.S10E12.Anonymous.720p.HDTV.X264-DIMENSION.mkv", "DIMENSION", "mkv");
+        createRelease("Criminal.Minds.S10E12.Anonymous.720p.HDTV.X264-DIMENSION.mkv", "DIMENSION",
+            "mkv");
     List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
     listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.HDTV.XviD-AFG.srt", "AFG", false));
     listFoundSubtitles.add(createSubtitle("criminal.minds.1012.hdtv-lol.srt", "lol", false));
-    listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.Anonymous.720p.HDTV.X264-DIMENSION.srt",
-        "DIMENSION", true));
-    listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.Anonymous.720p.HDTV.X264-DIMENSION.srt",
-      "DIMENSION", false));
+    listFoundSubtitles.add(createSubtitle(
+        "Criminal.Minds.S10E12.Anonymous.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", true));
+    listFoundSubtitles.add(createSubtitle(
+        "Criminal.Minds.S10E12.Anonymous.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", false));
     listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt",
         "DIMENSION", false));
     listFoundSubtitles.add(createSubtitle(
@@ -155,6 +156,7 @@ public class FilteringTest {
 
     when(subtitle.getFilename()).thenReturn(filename);
     when(subtitle.getReleasegroup()).thenReturn(releasegroup);
+    when(subtitle.getQuality()).thenReturn("");
     when(subtitle.isHearingImpaired()).thenReturn(excludehearing);
 
     return subtitle;

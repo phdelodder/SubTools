@@ -18,9 +18,9 @@ import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
-import org.lodder.subtools.sublibrary.logging.Level;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.settings.MappingSettingsControl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SettingsControl {
 
@@ -28,10 +28,11 @@ public class SettingsControl {
   private Settings settings;
   private MappingSettingsControl mappingSettingsCtrl;
   private static final String BACKING_STORE_AVAIL = "BackingStoreAvail";
+  private static final Logger LOGGER = LoggerFactory.getLogger(SettingsControl.class);
 
   public SettingsControl() {
     if (!backingStoreAvailable())
-      Logger.instance.error("Unable to store preferences, used debug for reason");
+      LOGGER.error("Unable to store preferences, used debug for reason");
     preferences = Preferences.userRoot().node("MultiSubDownloader");
     settings = new Settings();
     mappingSettingsCtrl = new MappingSettingsControl(preferences);
@@ -45,14 +46,13 @@ public class SettingsControl {
       prefs.putBoolean(BACKING_STORE_AVAIL, !oldValue);
       prefs.flush();
     } catch (BackingStoreException e) {
-      Logger.instance.debug(Logger.stack2String(e));
+      LOGGER.error("BackingStore is not available, settings could not be loaded using defaults", e);
       return false;
     }
     return true;
   }
 
   public void store() {
-    Logger.instance.log("SettingsControl, store()", Level.TRACE);
     try {
       // clean up
       preferences.clear();
@@ -100,7 +100,7 @@ public class SettingsControl {
       storeDefaultSelectionSettings();
 
     } catch (BackingStoreException e) {
-      Logger.instance.log(Logger.stack2String(e));
+      LOGGER.error(e.getMessage(), e);
     }
 
   }
@@ -115,39 +115,32 @@ public class SettingsControl {
   }
 
   private void storeDefaultIncomingFolder() {
-    Logger.instance.log("SettingsControl, storeDefaultIncomingFolder()", Level.TRACE);
     int last;
     last = 0;
     for (int i = 0; i < settings.getDefaultIncomingFolders().size(); i++) {
-      Logger.instance.log("SettingsControl, storeDefaultIncomingFolder(), storing:"
-          + settings.getDefaultIncomingFolders().get(i).getAbsolutePath(), Level.TRACE);
+      LOGGER.trace("SettingsControl, storeDefaultIncomingFolder(), storing {}", settings.getDefaultIncomingFolders().get(i).getAbsolutePath());
       preferences.put("GeneralDefaultIncomingFolder" + i,
           settings.getDefaultIncomingFolders().get(i).getAbsolutePath());
       last++;
     }
-    Logger.instance.log("SettingsControl, storeDefaultIncomingFolder(), stored:" + last
-        + " DefaultIncomingFolders", Level.TRACE);
+    LOGGER.trace("SettingsControl, storeDefaultIncomingFolder(), # stored [{}] DefaultIncomingFolders", last);
     preferences.putInt("lastDefaultIncomingFolder", last);
   }
 
   private void storeLocalSourcesFolders() {
-    Logger.instance.log("SettingsControl, storeLocalSourcesFolders()", Level.TRACE);
     int last;
     last = 0;
     for (int i = 0; i < settings.getLocalSourcesFolders().size(); i++) {
-      Logger.instance.log("SettingsControl, storeLocalSourcesFolders(), storing:"
-          + settings.getLocalSourcesFolders().get(i).getAbsolutePath(), Level.TRACE);
+      LOGGER.trace("SettingsControl, storeLocalSourcesFolders(), storing {}", settings.getLocalSourcesFolders().get(i).getAbsolutePath());
       preferences.put("LocalSubtitlesSourcesFolders" + i, settings.getLocalSourcesFolders().get(i)
           .getAbsolutePath());
       last++;
     }
-    Logger.instance.log("SettingsControl, storeLocalSourcesFolders(), stored:" + last
-        + " LocalSourcesFolders", Level.TRACE);
+    LOGGER.trace("SettingsControl, storeLocalSourcesFolders(), # stored [{}] LocalSourcesFolders", last);
     preferences.putInt("lastLocalSubtitlesSourcesFolder", last);
   }
 
   private void storeProxySettings() {
-    Logger.instance.log("SettingsControl, storeProxySettings()", Level.TRACE);
     preferences.putBoolean("generalProxyEnabled", settings.isGeneralProxyEnabled());
     preferences.put("generalProxyHost", settings.getGeneralProxyHost());
     preferences.putInt("generalProxyPort", settings.getGeneralProxyPort());
@@ -155,8 +148,6 @@ public class SettingsControl {
   }
 
   private void storeLibrarySerie() {
-    Logger.instance.log("SettingsControl, storeLibrarySerie()", Level.TRACE);
-
     preferences.put("EpisodeLibraryBackupSubtitlePath", settings.getEpisodeLibrarySettings()
         .getLibraryBackupSubtitlePath().getAbsolutePath());
     preferences.putBoolean("EpisodeLibraryBackupSubtitle", settings.getEpisodeLibrarySettings()
@@ -200,8 +191,6 @@ public class SettingsControl {
   }
 
   private void storeLibraryMovie() {
-    Logger.instance.log("SettingsControl, storeLibraryMovie()", Level.TRACE);
-
     preferences.put("MovieLibraryBackupSubtitlePath", settings.getMovieLibrarySettings()
         .getLibraryBackupSubtitlePath().getAbsolutePath());
     preferences.putBoolean("MovieLibraryBackupSubtitle", settings.getMovieLibrarySettings()
@@ -243,7 +232,6 @@ public class SettingsControl {
   }
 
   private void storeExcludeSettings() {
-    Logger.instance.log("SettingsControl, storeExcludeSettings()", Level.TRACE);
     int last;
     last = 0;
     for (int i = 0; i < settings.getExcludeList().size(); i++) {
@@ -255,7 +243,6 @@ public class SettingsControl {
   }
 
   private void storeSerieSourcesSettings() {
-    Logger.instance.log("SettingsControl, storeAddic7edLoginSettings()", Level.TRACE);
     preferences.putBoolean("loginAddic7edEnabled", settings.isLoginAddic7edEnabled());
     preferences.put("loginAddic7edUsername", settings.getLoginAddic7edUsername());
     preferences.put("loginAddic7edPassword", settings.getLoginAddic7edPassword());
@@ -268,7 +255,6 @@ public class SettingsControl {
   }
 
   public void load() {
-    Logger.instance.log("SettingsControl, load()", Level.TRACE);
     // settings
     settings.setLastOutputDir(new File(preferences.get("LastOutputDir", "")));
     settings.setOptionsAlwaysConfirm(preferences.getBoolean("OptionsAlwaysConfirm", false));
@@ -309,7 +295,6 @@ public class SettingsControl {
   }
 
   private void loadLocalSourcesFolders() {
-    Logger.instance.log("SettingsControl, loadLocalSourcesFolders()", Level.TRACE);
     int last;
 
     last = preferences.getInt("lastLocalSubtitlesSourcesFolder", 0);
@@ -321,7 +306,6 @@ public class SettingsControl {
   }
 
   private void loadGeneralDefaultIncomingFolders() {
-    Logger.instance.log("SettingsControl, loadGeneralDefaultIncomingFolders()", Level.TRACE);
     if (preferences.get("GeneralDefaultIncomingFolder", "").equals("")) {
       int last;
 
@@ -339,7 +323,6 @@ public class SettingsControl {
   }
 
   private void loadProxySettings() {
-    Logger.instance.log("SettingsControl, loadProxySettings()", Level.TRACE);
     settings.setGeneralProxyEnabled(preferences.getBoolean("generalProxyEnabled", false));
     settings.setGeneralProxyHost(preferences.get("generalProxyHost", ""));
     settings.setGeneralProxyPort(preferences.getInt("generalProxyPort", 80));
@@ -347,7 +330,6 @@ public class SettingsControl {
   }
 
   private void loadExcludeSettings() {
-    Logger.instance.log("SettingsControl, loadExcludeSettings()", Level.TRACE);
     int last;
 
     last = preferences.getInt("lastItemExclude", 0);
@@ -363,12 +345,10 @@ public class SettingsControl {
 
       settings.getExcludeList().add(sei);
     }
-    Logger.instance.trace("Settings", "loadExcludeSettings", "ExcludeList Size"
-        + settings.getExcludeList().size());
+    LOGGER.trace("loadExcludeSettings: ExcludeList size {}", settings.getExcludeList().size());
   }
 
   private void loadLibraryMovie() {
-    Logger.instance.log("SettingsControl, loadLibraryMovie()", Level.TRACE);
     LibrarySettings moLibSet = new LibrarySettings();
 
     moLibSet.setLibraryBackupSubtitle(preferences.getBoolean("MovieLibraryBackupSubtitle", false));
@@ -407,7 +387,6 @@ public class SettingsControl {
   }
 
   private void loadLibrarySerie() {
-    Logger.instance.log("SettingsControl, loadLibrarySerie()", Level.TRACE);
     LibrarySettings epLibSet = new LibrarySettings();
 
     epLibSet
@@ -448,7 +427,6 @@ public class SettingsControl {
   }
 
   private void loadSerieSourcesSettings() {
-    Logger.instance.log("SettingsControl, loadAddic7edLoginSettings()", Level.TRACE);
     settings.setLoginAddic7edEnabled(preferences.getBoolean("loginAddic7edEnabled", false));
     settings.setLoginAddic7edUsername(preferences.get("loginAddic7edUsername", ""));
     settings.setLoginAddic7edPassword(preferences.get("loginAddic7edPassword", ""));
@@ -487,24 +465,22 @@ public class SettingsControl {
   }
 
   public void exportPreferences(File file) {
-    Logger.instance.log("SettingsControl, exportPreferences(File file)", Level.TRACE);
+
     store();
     try (FileOutputStream fos = new FileOutputStream(file)) {
       preferences.exportSubtree(fos);
     } catch (Exception e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("exportPreferences", e);
     }
   }
 
   public void importPreferences(File file) {
-    Logger.instance.log("SettingsControl, importPreferences(File file)", Level.TRACE);
-
     try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
       preferences.clear();
       Preferences.importPreferences(is);
       load();
     } catch (Exception e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("importPreferences", e);
     }
   }
 
@@ -542,13 +518,12 @@ public class SettingsControl {
    * 
    */
   public void updateMappingFromOnline() throws Throwable {
-    Logger.instance.log(Messages.getString("SettingsControl.UpdateMapping"));
+    LOGGER.info(Messages.getString("SettingsControl.UpdateMapping"));
     mappingSettingsCtrl.updateMappingFromOnline();
     settings.setMappingSettings(mappingSettingsCtrl.getMappingSettings());
   }
 
   private void storeDefaultSelectionSettings() {
-    Logger.instance.log("SettingsControl, storeQualityRuleSettings()", Level.TRACE);
     int last;
     last = 0;
     for (int i = 0; i < settings.getOptionsDefaultSelectionQualityList().size(); i++) {
@@ -562,7 +537,6 @@ public class SettingsControl {
   }
 
   private void loadDefaultSelectionSettings() {
-    Logger.instance.log("SettingsControl, loadQualityRuleSettings()", Level.TRACE);
     int last;
 
     last = preferences.getInt("lastItemDefaultSelectionQuality", 0);

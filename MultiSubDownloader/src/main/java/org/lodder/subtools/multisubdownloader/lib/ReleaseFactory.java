@@ -10,10 +10,11 @@ import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.exception.ReleaseParseException;
-import org.lodder.subtools.sublibrary.logging.Logger;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReleaseFactory {
 
@@ -21,6 +22,8 @@ public class ReleaseFactory {
   private ReleaseControl releaseControl;
   private Settings settings;
   private Manager manager;
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseFactory.class);
   
   public ReleaseFactory(Settings settings, Manager manager){
     releaseParser = new ReleaseParser();
@@ -49,9 +52,9 @@ public class ReleaseFactory {
       r = releaseControl.getVideoFile();
       
     } catch (ReleaseParseException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("createRelease", e);
     } catch (ReleaseControlException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("createRelease", e);
       return null;
     }
     

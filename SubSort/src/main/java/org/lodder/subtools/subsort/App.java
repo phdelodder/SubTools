@@ -8,13 +8,35 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.lodder.subtools.sublibrary.logging.Level;
-import org.lodder.subtools.sublibrary.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.ConsoleAppender;
 
 public class App {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
+  
   public static void main(String[] args) {
-    Logger.instance.setLogLevel(Level.INFO);
+    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    PatternLayoutEncoder ple = new PatternLayoutEncoder();
+    
+    ple.setPattern("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
+    ple.setContext(lc);
+    ple.start();
+    
+    ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<ILoggingEvent>();
+    consoleAppender.setEncoder(ple);
+    consoleAppender.setContext(lc);
+    consoleAppender.start();
+    
+    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+    root.addAppender(consoleAppender);
+    root.setLevel(Level.INFO);
 
     CommandLineParser parser = new GnuParser();
     HelpFormatter formatter = new HelpFormatter();
@@ -24,7 +46,7 @@ public class App {
     try {
       line = parser.parse(getCLIOptions(), args);
     } catch (ParseException e) {
-      Logger.instance.error(Logger.stack2String(e));
+      LOGGER.error("Unable to parse cli options", e);
     }
 
     if (line != null) {

@@ -1,24 +1,29 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
-import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.border.EmptyBorder;
+import javax.swing.JTable;
+import javax.swing.RowSorter;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import net.miginfocom.swing.MigLayout;
 
 import org.lodder.subtools.multisubdownloader.Messages;
+import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
+import org.lodder.subtools.multisubdownloader.gui.extra.table.SubtitleTableColumnName;
+import org.lodder.subtools.multisubdownloader.gui.extra.table.SubtitleTableModel;
+import org.lodder.subtools.sublibrary.model.Release;
+import org.lodder.subtools.sublibrary.model.Subtitle;
 
 public class SelectDialog extends MultiSubDialog {
 
@@ -40,67 +45,52 @@ public class SelectDialog extends MultiSubDialog {
      *
      */
   private static final long serialVersionUID = -4092909537478305235L;
-  private final JPanel contentPanel = new JPanel();
-  private JPanel pnlSelect;
   private SelectionType answer = SelectionType.CANCEL;
-  private List<String> lines;
-  private String filename;
+  private List<Subtitle> subtitles;
+  private Release release;
+  private CustomTable customTable;
+  private JFrame frame;
 
 
   /**
    * Create the dialog.
    */
-  public SelectDialog(JFrame frame, List<String> lines, String filename) {
+  public SelectDialog(JFrame frame, List<Subtitle> subtitles, Release release) {
     super(frame, Messages.getString("SelectDialog.SelectCorrectSubtitle"), true);
-    this.lines = lines;
-    this.filename = filename;
+    this.subtitles = subtitles;
+    this.release = release;
+    this.frame = frame;
     initialize();
-    loadSelection();
     pack();
+    setDialogLocation(frame);
     setVisible(true);
   }
 
-  private void loadSelection() {
-    ButtonGroup group = new ButtonGroup();
-    for (String line : lines) {
-      JRadioButton option = new JRadioButton(line);
-      option.setName(Messages.getString("SelectDialog.Option"));
-      group.add(option);
-      pnlSelect.add(option);
-    }
-  }
-
   private void initialize() {
-    setBounds(100, 100, 500, 150);
-    setResizable(false);
-    getContentPane().setLayout(new BorderLayout());
-    contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-    getContentPane().add(contentPanel, BorderLayout.CENTER);
-    contentPanel.setLayout(new MigLayout("", "[grow]", "[][::300px,grow]"));
-    {
-      JLabel lblNewLabel =
-          new JLabel(Messages.getString("SelectDialog.SelectCorrectSubtitleThisRelease") + filename);
-      contentPanel.add(lblNewLabel, "cell 0 0");
-    }
+    getContentPane().setLayout(new MigLayout("", "[1000px:n,grow,fill]", "[][::100px,fill][grow]"));
+    JLabel lblNewLabel =
+        new JLabel(Messages.getString("SelectDialog.SelectCorrectSubtitleThisRelease")
+            + release.getFilename());
+    getContentPane().add(lblNewLabel, "cell 0 0");
     {
       JScrollPane scrollPane = new JScrollPane();
-      contentPanel.add(scrollPane, "cell 0 1,grow");
-      {
-        pnlSelect = new JPanel();
-        scrollPane.setViewportView(pnlSelect);
-        pnlSelect.setLayout(new BoxLayout(pnlSelect, BoxLayout.PAGE_AXIS));
-      }
-    }
-    {
+      getContentPane().add(scrollPane, "cell 0 1,grow");
+      customTable = createCustomTable();
+      scrollPane.setViewportView(customTable);
       JPanel buttonPane = new JPanel();
       buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-      getContentPane().add(buttonPane, BorderLayout.SOUTH);
+      getContentPane().add(buttonPane, "cell 0 2,grow");
       {
         JButton okButton = new JButton(Messages.getString("SelectDialog.OK"));
         okButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent arg0) {
-            answer = SelectionType.OK;
-            setVisible(false);
+            if (testSelection()) {
+              answer = SelectionType.OK;
+              setVisible(false);
+            } else {
+              String message = Messages.getString("SelectDialog.MultipleSubtitlesSelected");
+              JOptionPane.showConfirmDialog(frame, message, Messages.getString("SelectDialog.Name"), JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
+            }
           }
         });
         okButton.setActionCommand("OK");
@@ -116,7 +106,7 @@ public class SelectDialog extends MultiSubDialog {
           }
         });
         allButton.setActionCommand("Alles");
-        if (lines.size() == 1) allButton.setEnabled(false);
+        if (subtitles.size() == 1) allButton.setEnabled(false);
         buttonPane.add(allButton);
       }
       {
@@ -133,16 +123,60 @@ public class SelectDialog extends MultiSubDialog {
     }
   }
 
+  private CustomTable createCustomTable() {
+    CustomTable customTable = new CustomTable();
+    customTable.setModel(SubtitleTableModel.getDefaultSubtitleTableModel());
+    final RowSorter<TableModel> sorter = new TableRowSorter<TableModel>(customTable.getModel());
+    customTable.setRowSorter(sorter);
+    customTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+    SubtitleTableModel subtitleTableModel = (SubtitleTableModel) customTable.getModel();
+
+    int columnId = customTable.getColumnIdByName(SubtitleTableColumnName.SELECT);
+    customTable.getColumnModel().getColumn(columnId).setResizable(false);
+    customTable.getColumnModel().getColumn(columnId).setPreferredWidth(55);
+    customTable.getColumnModel().getColumn(columnId).setMaxWidth(55);
+
+    columnId = customTable.getColumnIdByName(SubtitleTableColumnName.SCORE);
+    customTable.getColumnModel().getColumn(columnId).setResizable(false);
+    customTable.getColumnModel().getColumn(columnId).setPreferredWidth(60);
+    customTable.getColumnModel().getColumn(columnId).setMaxWidth(60);
+
+    columnId = customTable.getColumnIdByName(SubtitleTableColumnName.FILENAME);
+    customTable.getColumnModel().getColumn(columnId).setResizable(true);
+    customTable.getColumnModel().getColumn(columnId).setMinWidth(500);
+
+    for (Subtitle subtitle : subtitles) {
+      subtitleTableModel.addRow(subtitle);
+    }
+
+    return customTable;
+  }
+  
+  private boolean testSelection() {
+    int count = 0;
+    SubtitleTableModel subtitleTableModel = (SubtitleTableModel) customTable.getModel();
+    for (int i = 0; i < subtitleTableModel.getRowCount(); i++) {
+      if ((Boolean) subtitleTableModel.getValueAt(i,
+          customTable.getColumnIdByName(SubtitleTableColumnName.SELECT))) {
+        count++;
+      }
+    }
+    return !(count > 1);
+  }
+
   public int getSelection() {
+    int selectedRow = -1;
     if (answer == SelectionType.OK) {
-      for (int i = 0; i < pnlSelect.getComponentCount(); i++) {
-        if (pnlSelect.getComponent(i) instanceof JRadioButton) {
-          JRadioButton option = (JRadioButton) pnlSelect.getComponent(i);
-          if (option.isSelected()) return i;
+      SubtitleTableModel subtitleTableModel = (SubtitleTableModel) customTable.getModel();
+      for (int i = 0; i < subtitleTableModel.getRowCount(); i++) {
+        if ((Boolean) subtitleTableModel.getValueAt(i,
+            customTable.getColumnIdByName(SubtitleTableColumnName.SELECT))) {
+          selectedRow = i;
         }
       }
     }
-    return -1;
+    return selectedRow;
   }
 
   public SelectionType getAnswer() {

@@ -40,7 +40,8 @@ import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PreferenceDialog extends MultiSubDialog {
 
@@ -70,6 +71,8 @@ public class PreferenceDialog extends MultiSubDialog {
   private JComboBox<UpdateCheckPeriod> cbxUpdateCheckPeriod;
   private JCheckBox chkDefaultSelection;
   private DefaultSelectionPanel pnlDefaultSelection;
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(PreferenceDialog.class);
 
   /**
    * Create the dialog.
@@ -541,7 +544,7 @@ public class PreferenceDialog extends MultiSubDialog {
       String message = Messages.getString("PreferenceDialog.ProxyPortNumericRequired");
       JOptionPane.showConfirmDialog(this, message, Messages.getString("PreferenceDialog.Name"),
           JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
-      Logger.instance.debug("testGeneralTab: De proxy poort moet een numerische waarde zijn!");
+      LOGGER.debug("testGeneralTab: De proxy poort moet een numerische waarde zijn!");
       return false;
     }
     return true;
@@ -554,8 +557,7 @@ public class PreferenceDialog extends MultiSubDialog {
             Messages.getString("PreferenceDialog.Addic7edLoginSelectEnterUsernamePassword");
         JOptionPane.showConfirmDialog(this, message, Messages.getString("PreferenceDialog.Name"),
             JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
-        Logger.instance
-            .debug("testSerieSourcesTab: Addic7ed login geselecteerd! Gelieve een username en pasword in te vullen.");
+        LOGGER.debug("testSerieSourcesTab: Addic7ed login geselecteerd! Gelieve een username en pasword in te vullen.");
         return false;
       }
     }

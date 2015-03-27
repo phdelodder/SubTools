@@ -1,8 +1,9 @@
 package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 
-public class VideoTable extends ZebraJTable {
+public class CustomTable extends ZebraJTable {
 
   /**
 	 * 
@@ -13,9 +14,9 @@ public class VideoTable extends ZebraJTable {
   private static final int MIN_WIDTH = 15;
   private static final int PREFERRED_WIDTH = 75;
 
-  public int getColumnIdByName(SearchColumnName searchColumnName) {
+  public int getColumnIdByName(CustomColumnName customColumnName) {
     for (int i = 0; i < this.getColumnCount(); i++) {
-      if (this.getColumnName(i).equals(searchColumnName.getColumnName())) {
+      if (this.getColumnName(i).equals(customColumnName.getColumnName())) {
         return i;
       }
     }
@@ -58,6 +59,17 @@ public class VideoTable extends ZebraJTable {
           && getColumnModel().getColumn(columnId).getPreferredWidth() == 0;
     }
     return true;
+  }
+
+  public String getToolTipText(MouseEvent e) {
+    int row = rowAtPoint(e.getPoint());
+    int column = columnAtPoint(e.getPoint());
+    
+    if (row > -1 && column > -1 && getColumnCount() >= column && getRowCount() >= row) {
+      Object value = getValueAt(row, column);
+      return value == null ? null : value.toString();
+    }
+    return null;
   }
 
 }
