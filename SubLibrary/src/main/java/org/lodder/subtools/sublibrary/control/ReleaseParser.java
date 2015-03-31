@@ -123,7 +123,7 @@ public class ReleaseParser {
         || namedgroups.contains("day")) {
       // need to implement
     } else if (namedgroups.contains("romanepisode") && !namedgroups.contains("year")) {
-      episodenumbers.add(romanToInteger(namedMatcher.group("romanepisode")));
+      episodenumbers.add(Roman.decode(namedMatcher.group("romanepisode")));
     }
 
     if (namedgroups.contains("seriesname")) {
@@ -188,48 +188,6 @@ public class ReleaseParser {
     return text.trim();
   }
 
-  public final int romanToInteger(final String roman) {
-    int decimal = 0;
-    String romanNumeral = roman.toUpperCase();
-    int x = 0;
-    do {
-      char convertToDecimal = roman.charAt(x);
-      switch (convertToDecimal) {
-        case 'M':
-          decimal += 1000;
-          break;
-
-        case 'D':
-          decimal += 500;
-          break;
-
-        case 'C':
-          decimal += 100;
-          break;
-
-        case 'L':
-          decimal += 50;
-          break;
-
-        case 'X':
-          decimal += 10;
-          break;
-
-        case 'V':
-          decimal += 5;
-          break;
-
-        case 'I':
-          decimal += 1;
-          break;
-        default:
-          break;
-      }
-      x++;
-    } while (x < romanNumeral.length());
-    return decimal;
-  }
-
   public static final String getQualityKeyword(final String name) {
     LOGGER.trace("getQualityKeyword: name: {}", name);
     Pattern p = Pattern.compile(videoPatterns.getQualityKeysRegex(), Pattern.CASE_INSENSITIVE);
@@ -270,7 +228,7 @@ public class ReleaseParser {
     }
     Matcher matcher = releaseGroupPattern.matcher(fileName);
     String releaseGroup = "";
-    if (matcher.find()){
+    if (matcher.find()) {
       releaseGroup = matcher.group(1);
     }
 
