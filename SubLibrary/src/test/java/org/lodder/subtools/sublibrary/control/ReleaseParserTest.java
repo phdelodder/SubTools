@@ -2,12 +2,16 @@ package org.lodder.subtools.sublibrary.control;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.lodder.subtools.sublibrary.exception.ReleaseParseException;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
@@ -27,15 +31,16 @@ public class ReleaseParserTest {
     String releaseGroup =
         ReleaseParser.extractReleasegroup("The.Following.S03E01.HDTV.XviD-AFG", false);
     assertEquals(releaseGroup, "AFG");
-    
-    releaseGroup =
-        ReleaseParser.extractReleasegroup("The.Following.S03E01.HDTV.XviD-AFG", true);
+
+    releaseGroup = ReleaseParser.extractReleasegroup("The.Following.S03E01.HDTV.XviD-AFG", true);
     assertEquals(releaseGroup, "A");
 
-    releaseGroup = ReleaseParser.extractReleasegroup("The.Following.S03E01.HDTV.XviD-AFG.srt", false);
+    releaseGroup =
+        ReleaseParser.extractReleasegroup("The.Following.S03E01.HDTV.XviD-AFG.srt", false);
     assertEquals(releaseGroup, "");
-    
-    releaseGroup = ReleaseParser.extractReleasegroup("The.Following.S03E01.HDTV.XviD-AFG.srt", true);
+
+    releaseGroup =
+        ReleaseParser.extractReleasegroup("The.Following.S03E01.HDTV.XviD-AFG.srt", true);
     assertEquals(releaseGroup, "AFG");
   }
 
@@ -128,6 +133,36 @@ public class ReleaseParserTest {
     assertEquals(tvrelease.getEpisodeNumbers().size(), 1);
     assertEquals((int) tvrelease.getEpisodeNumbers().get(0), 10);
 
+    file = new File("Greys.Anatomy.S10E01E02.720p.HDTV.X264-DIMENSION.mkv");
+    release = releaseparser.parse(file);
+
+    assertSame(release.getVideoType(), VideoType.EPISODE);
+    assertEquals(release.getExtension(), "mkv");
+    assertEquals(release.getFilename(), "Greys.Anatomy.S10E01E02.720p.HDTV.X264-DIMENSION.mkv");
+    assertEquals(release.getReleasegroup(), "DIMENSION");
+    assertEquals(release.getQuality(), "720p HDTV X264");
+
+    tvrelease = (TvRelease) release;
+
+    assertEquals(tvrelease.getSeason(), 10);
+    assertEquals(tvrelease.getEpisodeNumbers().size(), 2);
+    assertEquals((int) tvrelease.getEpisodeNumbers().get(0), 1);
+    assertEquals((int) tvrelease.getEpisodeNumbers().get(1), 2);
+  }
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  @Test
+  public void testReleaseParseExceptionMessage() throws ReleaseParseException {
+    File file = new File("exceptiontesting.mkv");
+    releaseparser = new ReleaseParser();
+
+    thrown.expect(ReleaseParseException.class);
+    thrown.expectMessage("Unknow format, can't be parsed: " + file.getAbsolutePath());
+    releaseparser.parse(file);
+
+    fail("Expected an ReleaseParseException to be thrown");
   }
 
   @Test
