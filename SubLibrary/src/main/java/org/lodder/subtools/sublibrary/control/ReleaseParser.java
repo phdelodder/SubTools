@@ -22,10 +22,6 @@ public class ReleaseParser {
   private static VideoPatterns videoPatterns = new VideoPatterns();
   private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseParser.class);
 
-  public final NamedMatcher getNamedMatcher() {
-    return namedMatcher;
-  }
-
   @SuppressWarnings("unchecked")
   public final Release parse(final File file) throws ReleaseParseException {
     String foldername = "";
