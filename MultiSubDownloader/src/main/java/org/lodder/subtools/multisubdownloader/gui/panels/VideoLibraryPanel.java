@@ -9,6 +9,7 @@ import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -46,12 +47,15 @@ public abstract class VideoLibraryPanel extends JPanel {
   private PartialDisableComboBox cbxLibraryOtherFileAction;
   private SubtitleBackupPanel pnlBackup;
   private Manager manager;
-  
+  private Boolean renameMode;
+
   private static final Logger LOGGER = LoggerFactory.getLogger(VideoLibraryPanel.class);
 
-  public VideoLibraryPanel(LibrarySettings libSettings, VideoType videoType, Manager manager) {
+  public VideoLibraryPanel(LibrarySettings libSettings, VideoType videoType, Manager manager,
+      Boolean renameMode) {
     this.videoType = videoType;
     this.manager = manager;
+    this.renameMode = renameMode;
     initialize_ui();
     setLibrarySettings(libSettings);
     // repaint();
@@ -115,7 +119,8 @@ public abstract class VideoLibraryPanel extends JPanel {
       if (!(VideoType.MOVIE == videoType && c.equals(chkUseTVDBNaming))) {
         if (c instanceof JTextField && ((JTextField) c).getText().isEmpty()
             && VideoType.MOVIE == videoType && !c.equals(pnlStructureFolder.getStructure())
-            && !c.equals(pnlStructureFile.getTxtDefaultNlText()) && !c.equals(pnlStructureFile.getTxtDefaultEnText())) {
+            && !c.equals(pnlStructureFile.getTxtDefaultNlText())
+            && !c.equals(pnlStructureFile.getTxtDefaultEnText())) {
           c.setVisible(false);
         } else if (c instanceof JButton && c.equals(pnlStructureFile.getBtnBuildStructure())
             && VideoType.MOVIE == videoType) {
@@ -142,7 +147,8 @@ public abstract class VideoLibraryPanel extends JPanel {
                   "Geen geldig pad is ingegeven in 'Map - Locatie' op Bibliotheek info ";
               JOptionPane.showConfirmDialog(this, message, "MultiSubDownloader",
                   JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
-              LOGGER.debug("isValidPanelValues: Geen geldig pad is ingegeven in 'Map - Locatie' op Bibliotheek info.");
+              LOGGER
+                  .debug("isValidPanelValues: Geen geldig pad is ingegeven in 'Map - Locatie' op Bibliotheek info.");
               return false;
             }
           } catch (HeadlessException | IOException e) {
@@ -156,9 +162,12 @@ public abstract class VideoLibraryPanel extends JPanel {
   public void setLibrarySettings(final LibrarySettings libSettings) {
     this.libSettings = libSettings;
 
-    pnlBackup.setBackupSubtitleSelected(libSettings.isLibraryBackupSubtitle());
-    pnlBackup.setBackupSubtitlePath(libSettings.getLibraryBackupSubtitlePath().getAbsolutePath());
-    pnlBackup.setBackupUseWebsiteFilenameSelected(libSettings.isLibraryBackupUseWebsiteFileName());
+    if (!renameMode) {
+      pnlBackup.setBackupSubtitleSelected(libSettings.isLibraryBackupSubtitle());
+      pnlBackup.setBackupSubtitlePath(libSettings.getLibraryBackupSubtitlePath().getAbsolutePath());
+      pnlBackup
+          .setBackupUseWebsiteFilenameSelected(libSettings.isLibraryBackupUseWebsiteFileName());
+    }
     this.cbxLibraryAction.setSelectedItem(libSettings.getLibraryAction());
     this.chkUseTVDBNaming.setSelected(libSettings.isLibraryUseTVDBNaming());
     this.chkReplaceWindowsChar.setSelected(libSettings.isLibraryReplaceChars());
@@ -187,10 +196,12 @@ public abstract class VideoLibraryPanel extends JPanel {
   }
 
   public LibrarySettings getLibrarySettings() {
-    this.libSettings.setLibraryBackupSubtitle(pnlBackup.isBackupSubtitleSelected());
-    this.libSettings.setLibraryBackupSubtitlePath(new File(pnlBackup.getBackupSubtitlePath()));
-    this.libSettings.setLibraryBackupUseWebsiteFileName(pnlBackup
-        .isBackupUseWebsiteFilenameSelected());
+    if (!renameMode) {
+      this.libSettings.setLibraryBackupSubtitle(pnlBackup.isBackupSubtitleSelected());
+      this.libSettings.setLibraryBackupSubtitlePath(new File(pnlBackup.getBackupSubtitlePath()));
+      this.libSettings.setLibraryBackupUseWebsiteFileName(pnlBackup
+          .isBackupUseWebsiteFilenameSelected());
+    }
     this.libSettings.setLibraryAction((LibraryActionType) this.cbxLibraryAction.getSelectedItem());
     this.libSettings.setLibraryUseTVDBNaming(this.chkUseTVDBNaming.isSelected());
     this.libSettings.setLibraryReplaceChars(this.chkReplaceWindowsChar.isSelected());
@@ -207,12 +218,12 @@ public abstract class VideoLibraryPanel extends JPanel {
     if (pnlStructureFile.isReplaceSpaceSelected()) {
       this.libSettings.setLibraryFilenameReplacingSpaceSign(pnlStructureFile.getReplaceSpaceChar());
     }
-    this.libSettings
-        .setLibraryFolderReplaceSpace(pnlStructureFolder.isReplaceSpaceSelected());
+    this.libSettings.setLibraryFolderReplaceSpace(pnlStructureFolder.isReplaceSpaceSelected());
     if (pnlStructureFolder.isReplaceSpaceSelected()) {
       this.libSettings.setLibraryFolderReplacingSpaceSign(pnlStructureFolder.getReplaceSpaceChar());
     }
-    this.libSettings.setLibraryIncludeLanguageCode(pnlStructureFile.isIncludeLanguageCodeSelected());
+    this.libSettings
+        .setLibraryIncludeLanguageCode(pnlStructureFile.isIncludeLanguageCodeSelected());
     this.libSettings.setDefaultEnText(pnlStructureFile.getTxtDefaultEnText().getText());
     this.libSettings.setDefaultNlText(pnlStructureFile.getTxtDefaultNlText().getText());
 
@@ -227,13 +238,16 @@ public abstract class VideoLibraryPanel extends JPanel {
     add(new JLabel("Bibiliotheek opties"), "cell 0 0 2 1,gapy 5");
     add(new JSeparator(), "cell 0 0 2 1,growx,gapy 5");
 
-    createBackupPanel();
-    add(pnlBackup, "cell 0 1 2 1,grow");
+    if (!renameMode) {
+      createBackupPanel();
+      add(pnlBackup, "cell 0 1 2 1,grow");
+    }
 
     add(new JLabel("Volgende acties uitvoeren:"), "cell 0 2,alignx left");
 
-    cbxLibraryAction = new JComboBox<LibraryActionType>(LibraryActionType.values());
-    // cbxLibraryAction = new JComboBox<LibraryActionType>();
+    cbxLibraryAction = new JComboBox<LibraryActionType>();
+    cbxLibraryAction.setModel(new DefaultComboBoxModel<LibraryActionType>(LibraryActionType
+        .values()));
     cbxLibraryAction.addItemListener(new ItemListener() {
       public void itemStateChanged(ItemEvent arg0) {
         checkEnableStatusPanel();

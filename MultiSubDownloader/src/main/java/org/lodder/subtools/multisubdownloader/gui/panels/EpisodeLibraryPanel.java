@@ -11,8 +11,8 @@ public class EpisodeLibraryPanel extends VideoLibraryPanel {
   private static final long serialVersionUID = -9175813173306481849L;
 
 
-  public EpisodeLibraryPanel(LibrarySettings libSettings, Manager manager) {
-    super(libSettings, VideoType.EPISODE, manager);
+  public EpisodeLibraryPanel(LibrarySettings libSettings, Manager manager, Boolean renameMode) {
+    super(libSettings, VideoType.EPISODE, manager, renameMode);
     repaint();
   }
 

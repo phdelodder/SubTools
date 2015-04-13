@@ -35,4 +35,20 @@ public class GroupReplacerTest {
     /* check if the weight is acme */
     assertTrue(definedWeights.containsKey("acme"));
   }
+  
+  @Test
+  public void testEmptyWeights() throws Exception {
+    Release release = mock(Release.class);
+    when(release.getReleasegroup()).thenReturn("Acme");
+
+    HashMap<String, Integer> definedWeights = new HashMap<>();
+
+    replacer.replace(release, definedWeights);
+
+    /* check if the weight there is only one weight */
+    assertEquals(0, definedWeights.size());
+
+    /* check if the weight is acme */
+    assertFalse(definedWeights.containsKey("acme"));
+  }
 }
