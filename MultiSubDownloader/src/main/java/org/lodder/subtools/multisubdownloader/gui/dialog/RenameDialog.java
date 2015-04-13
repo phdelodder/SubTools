@@ -126,9 +126,9 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
     }
     {
       if (videoType == VideoType.EPISODE) {
-        pnlLibrary = new EpisodeLibraryPanel(settings.getEpisodeLibrarySettings(), manager);
+        pnlLibrary = new EpisodeLibraryPanel(settings.getEpisodeLibrarySettings(), manager, true);
       } else {
-        pnlLibrary = new MovieLibraryPanel(settings.getMovieLibrarySettings(), manager);
+        pnlLibrary = new MovieLibraryPanel(settings.getMovieLibrarySettings(), manager, true);
       }
 
       GridBagConstraints gbc_panel = new GridBagConstraints();
