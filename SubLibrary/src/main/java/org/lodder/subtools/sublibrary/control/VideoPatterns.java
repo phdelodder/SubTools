@@ -22,7 +22,7 @@ public class VideoPatterns {
 
   protected static final String[] QUALITYREGEXKEYWORDS = new String[] {"web[ .-]dl", "dd5[ .]1"};
 
-  public static final String[] EXTENSIONS = new String[] {"avi", "mkv", "wmv", "ts", "mp4"};
+  public static final String[] EXTENSIONS = new String[] {"avi", "mkv", "wmv", "ts", "mp4", "m4v"};
 
   // order is important!!!!!!
   protected final static String[] PATTERNS =
