@@ -18,7 +18,7 @@ public class IMDBSearchID {
     this.manager = manager;
   }
 
-  public int getImdbId(String title, int year) throws IMDBException {
+  public int getImdbId(String title, int year) throws IMDBSearchIDException {
     int imdbid = this.getImdbIdOnGoogle(title, year);
     if (imdbid == 0) {
       return this.getImdbIdOnYahoo(title, year);
@@ -27,7 +27,7 @@ public class IMDBSearchID {
     }
   }
 
-  public int getImdbIdOnYahoo(String title, int year) throws IMDBException {
+  public int getImdbIdOnYahoo(String title, int year) throws IMDBSearchIDException {
     String xml = "";
     
     try {
@@ -52,13 +52,13 @@ public class IMDBSearchID {
       }
 
     } catch (Exception e) {
-      throw new IMDBException("Error getImdbIdOnYahoo", xml, e);
+      throw new IMDBSearchIDException("Error getImdbIdOnYahoo", xml, e);
     }
     return 0;
   }
 
 
-  public int getImdbIdOnGoogle(String title, int year) throws IMDBException {
+  public int getImdbIdOnGoogle(String title, int year) throws IMDBSearchIDException {
     String xml = "";
     
     try {
@@ -86,7 +86,7 @@ public class IMDBSearchID {
       }
 
     } catch (Exception e) {
-      throw new IMDBException("Error getImdbIdOnGoogle", xml, e);
+      throw new IMDBSearchIDException("Error getImdbIdOnGoogle", xml, e);
     }
     return 0;
   }
