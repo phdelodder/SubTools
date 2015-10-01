@@ -12,7 +12,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -23,196 +23,193 @@ import org.lodder.subtools.sublibrary.util.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class HttpClient {
 
-  private CookieManager cookieManager;
-  
-  private static final Logger LOGGER = LoggerFactory.getLogger(HttpClient.class);
+	private CookieManager cookieManager;
 
-  public HttpClient() {}
+	private static final Logger LOGGER = LoggerFactory.getLogger(HttpClient.class);
 
-  public void setCookieManager(CookieManager cookieManager) {
-    this.cookieManager = cookieManager;
-  }
+	public HttpClient() {
+	}
 
-  public void validate() throws HttpClientSetupException {
-    if (cookieManager == null)
-      throw new HttpClientSetupException("CookieManager is not initialized");
-  }
+	public void setCookieManager(CookieManager cookieManager) {
+		this.cookieManager = cookieManager;
+	}
 
-  public String doGet(URL url, String userAgent) throws IOException, HttpClientException,
-      HttpClientSetupException {
-    validate();
+	public void validate() throws HttpClientSetupException {
+		if (cookieManager == null)
+			throw new HttpClientSetupException("CookieManager is not initialized");
+	}
 
-    URLConnection conn = null;
-    conn = url.openConnection();
-    cookieManager.setCookies(conn);
+	public String doGet(URL url, String userAgent) throws IOException, HttpClientException, HttpClientSetupException {
+		validate();
 
-    if (userAgent != null && userAgent.length() > 0)
-      conn.setRequestProperty("user-agent", userAgent);
+		URLConnection conn = null;
+		conn = url.openConnection();
+		cookieManager.setCookies(conn);
 
-    int respCode = ((HttpURLConnection) conn).getResponseCode();
+		if (userAgent != null && userAgent.length() > 0)
+			conn.setRequestProperty("user-agent", userAgent);
 
-    if (respCode == 200) {
-      String result = IOUtils.toString(conn.getInputStream());
-      ((HttpURLConnection) conn).disconnect();
-      return result;
-    }
-    throw new HttpClientException((HttpURLConnection) conn);
-  }
+		int respCode = ((HttpURLConnection) conn).getResponseCode();
 
-  public String doPost(URL url, String userAgent, Map<String, String> data)
-      throws HttpClientSetupException, HttpClientException {
-    validate();
+		if (respCode == 200) {
+			String result = IOUtils.toString(conn.getInputStream());
+			((HttpURLConnection) conn).disconnect();
+			return result;
+		}
+		throw new HttpClientException((HttpURLConnection) conn);
+	}
 
-    HttpURLConnection conn = null;
-    Set<String> keys = data.keySet();
-    StringBuilder urlParameters = new StringBuilder();
+	public String doPost(URL url, String userAgent, Map<String, String> data)
+			throws HttpClientSetupException, HttpClientException {
+		validate();
 
-    try {
+		HttpURLConnection conn = null;
+		StringBuilder urlParameters = new StringBuilder();
 
-      for (String key : keys) {
-        if (urlParameters.length() > 0) urlParameters.append("&");
-        urlParameters.append(key).append("=").append(URLEncoder.encode(data.get(key), "UTF-8"));
-      }
+		try {
 
-      conn = (HttpURLConnection) url.openConnection();
-      cookieManager.setCookies(conn);
-      conn.setRequestMethod("POST");
-      if (userAgent.length() > 0) conn.setRequestProperty("user-agent", userAgent);
-      conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-      conn.setRequestProperty("Content-Length",
-          "" + Integer.toString(urlParameters.toString().getBytes("UTF-8").length));
-      conn.setUseCaches(false);
-      conn.setDoInput(true);
-      conn.setDoOutput(true);
-      conn.setInstanceFollowRedirects(false);
+			for (Entry<String, String> entry : data.entrySet()) {
+				if (urlParameters.length() > 0)
+					urlParameters.append("&");
+				urlParameters.append(entry.getKey()).append("=").append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+			}
 
-      try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
-        out.writeBytes(urlParameters.toString());
-        out.flush();
-        out.close();
-      }
+			conn = (HttpURLConnection) url.openConnection();
+			cookieManager.setCookies(conn);
+			conn.setRequestMethod("POST");
+			if (userAgent.length() > 0)
+				conn.setRequestProperty("user-agent", userAgent);
+			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			conn.setRequestProperty("Content-Length",
+					"" + Integer.toString(urlParameters.toString().getBytes("UTF-8").length));
+			conn.setUseCaches(false);
+			conn.setDoInput(true);
+			conn.setDoOutput(true);
+			conn.setInstanceFollowRedirects(false);
 
-      cookieManager.storeCookies(conn);
+			try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
+				out.writeBytes(urlParameters.toString());
+				out.flush();
+				out.close();
+			}
 
-      if (conn.getResponseCode() == 302) {
-        if (isUrl(conn.getHeaderField("Location"))) {
-          return doGet(new URL(conn.getHeaderField("Location")), userAgent);
-        }
-      }
+			cookieManager.storeCookies(conn);
 
-      String result = IOUtils.toString(conn.getInputStream());
-      ((HttpURLConnection) conn).disconnect();
-      return result;
+			if (conn.getResponseCode() == 302) {
+				if (isUrl(conn.getHeaderField("Location"))) {
+					return doGet(new URL(conn.getHeaderField("Location")), userAgent);
+				}
+			}
 
-    } catch (UnsupportedEncodingException e) {
-      throw new HttpClientException(e, null);
-    } catch (IOException e) {
-      throw new HttpClientException(e, conn);
-    } finally {
-      if (conn != null) {
-        conn.disconnect();
-      }
-    }
-  }
+			String result = IOUtils.toString(conn.getInputStream());
+			((HttpURLConnection) conn).disconnect();
+			return result;
 
-  public boolean doDownloadFile(URL url, final File file) {
-    LOGGER.debug("doDownloadFile: URL [{}], file [{}]", url, file);
-    boolean success = true;
+		} catch (UnsupportedEncodingException e) {
+			throw new HttpClientException(e, null);
+		} catch (IOException e) {
+			throw new HttpClientException(e, conn);
+		} finally {
+			if (conn != null) {
+				conn.disconnect();
+			}
+		}
+	}
 
-    InputStream in = null;
-    try {
-      if (url.getFile().endsWith(".gz")) {
-        in = new GZIPInputStream(url.openStream());
-      } else {
-        in = getInputStream(url);
-      }
+	public boolean doDownloadFile(URL url, final File file) {
+		LOGGER.debug("doDownloadFile: URL [{}], file [{}]", url, file);
+		boolean success = true;
 
-      byte[] data = IOUtils.toByteArray(in);
-      in.close();
+		InputStream in = null;
+		try {
+			if (url.getFile().endsWith(".gz")) {
+				in = new GZIPInputStream(url.openStream());
+			} else {
+				in = getInputStream(url);
+			}
 
-      if (url.getFile().endsWith(".zip") || Files.isZipFile(new ByteArrayInputStream(data))) {
-        Files.unzip(new ByteArrayInputStream(data), file, ".srt");
-      } else {
-        if (Files.isGZipCompressed(data)) {
-          data = Files.decompressGZip(data);
-        }
-        String content = new String(data, "UTF-8");
-        if (content.contains("Daily Download count exceeded")) {
-          LOGGER.error("Download problem: Addic7ed Daily Download count exceeded!");
-          success = false;
-        } else {
-          try (FileOutputStream outputStream = new FileOutputStream(file)) {
-            IOUtils.write(data, outputStream);
-          }
-        }
-      }
-    } catch (Exception e) {
-      success = false;
-      LOGGER.error("Download problem", e);
-    } finally {
-      if (in != null) try {
-        in.close();
-      } catch (IOException e) {
-        success = false;
-        LOGGER.error("Download problem", e);
-      }
-    }
-    return success;
-  }
+			byte[] data = IOUtils.toByteArray(in);
+			in.close();
 
-  private InputStream getInputStream(URL url) throws Exception {
-    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-    cookieManager.setCookies(conn);
-    conn.addRequestProperty("User-Agent", "Mozilla");
-    conn.addRequestProperty("Referer", url.toString());
-    conn.setInstanceFollowRedirects(false);
+			if (url.getFile().endsWith(".zip") || Files.isZipFile(new ByteArrayInputStream(data))) {
+				Files.unzip(new ByteArrayInputStream(data), file, ".srt");
+			} else {
+				if (Files.isGZipCompressed(data)) {
+					data = Files.decompressGZip(data);
+				}
+				String content = new String(data, "UTF-8");
+				if (content.contains("Daily Download count exceeded")) {
+					LOGGER.error("Download problem: Addic7ed Daily Download count exceeded!");
+					success = false;
+				} else {
+					try (FileOutputStream outputStream = new FileOutputStream(file)) {
+						IOUtils.write(data, outputStream);
+					}
+				}
+			}
+		} catch (Exception e) {
+			success = false;
+			LOGGER.error("Download problem", e);
+		} finally {
+			if (in != null)
+				try {
+					in.close();
+				} catch (IOException e) {
+					success = false;
+					LOGGER.error("Download problem", e);
+				}
+		}
+		return success;
+	}
 
-    int status = conn.getResponseCode();
+	private InputStream getInputStream(URL url) throws Exception {
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		cookieManager.setCookies(conn);
+		conn.addRequestProperty("User-Agent", "Mozilla");
+		conn.addRequestProperty("Referer", url.toString());
+		conn.setInstanceFollowRedirects(false);
 
-    cookieManager.storeCookies(conn);
+		int status = conn.getResponseCode();
 
-    if (status != HttpURLConnection.HTTP_OK) {
-      if (status == HttpURLConnection.HTTP_MOVED_TEMP
-          || status == HttpURLConnection.HTTP_MOVED_PERM
-          || status == HttpURLConnection.HTTP_SEE_OTHER) {
-        if (HttpClient.isUrl(conn.getHeaderField("Location"))) {
-          url = new URL(conn.getHeaderField("Location"));
-        } else {
-          String protocol = url.getProtocol();
-          String host = conn.getURL().getHost();
-          url =
-              new URL(protocol + "://" + host + "/"
-                  + conn.getHeaderField("Location").trim().replaceAll(" ", "%20"));
-        }
-        return getInputStream(url);
-      }
+		cookieManager.storeCookies(conn);
 
-      throw new Exception("error: " + status);
-    } else {
-      return conn.getInputStream();
-    }
-  }
+		if (status != HttpURLConnection.HTTP_OK) {
+			if (status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM
+					|| status == HttpURLConnection.HTTP_SEE_OTHER) {
+				if (HttpClient.isUrl(conn.getHeaderField("Location"))) {
+					url = new URL(conn.getHeaderField("Location"));
+				} else {
+					String protocol = url.getProtocol();
+					String host = conn.getURL().getHost();
+					url = new URL(protocol + "://" + host + "/"
+							+ conn.getHeaderField("Location").trim().replaceAll(" ", "%20"));
+				}
+				return getInputStream(url);
+			}
 
-  public static boolean isUrl(String str) {
-    Pattern urlPattern =
-        Pattern
-            .compile(
-                "((https?|ftp|gopher|telnet|file):((//)|(\\\\\\\\))+[\\\\w\\\\d:#@%/;$()~_?\\\\+-=\\\\\\\\\\\\.&]*)",
-                Pattern.CASE_INSENSITIVE);
-    Matcher matcher = urlPattern.matcher(str);
-    return matcher.find();
-  }
+			throw new Exception("error: " + status);
+		} else {
+			return conn.getInputStream();
+		}
+	}
 
-  public String downloadText(URL url) throws IOException {
-    String html = IOUtils.toString(url.openConnection().getInputStream());
-    String content = "";
-    try (BOMInputStream bomIn = new BOMInputStream(IOUtils.toInputStream(html))) {
-      content = IOUtils.toString(bomIn);
-    }
-    return content;
-  }
+	public static boolean isUrl(String str) {
+		Pattern urlPattern = Pattern.compile(
+				"((https?|ftp|gopher|telnet|file):((//)|(\\\\\\\\))+[\\\\w\\\\d:#@%/;$()~_?\\\\+-=\\\\\\\\\\\\.&]*)",
+				Pattern.CASE_INSENSITIVE);
+		Matcher matcher = urlPattern.matcher(str);
+		return matcher.find();
+	}
+
+	public String downloadText(URL url) throws IOException {
+		String html = IOUtils.toString(url.openConnection().getInputStream());
+		String content = "";
+		try (BOMInputStream bomIn = new BOMInputStream(IOUtils.toInputStream(html))) {
+			content = IOUtils.toString(bomIn);
+		}
+		return content;
+	}
 
 }
