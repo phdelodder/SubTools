@@ -75,9 +75,9 @@ public class SearchManager implements Cancelable {
       return;
     }
 
+    for (Entry<SubtitleProvider, SearchWorker> worker : workers.entrySet())
+      worker.getValue().start();
 
-    for (SubtitleProvider provider : workers.keySet())
-      workers.get(provider).start();
   }
 
   public synchronized void onCompleted(SearchWorker worker) {
