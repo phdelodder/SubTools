@@ -100,8 +100,8 @@ public class SearchManager implements Cancelable {
 
   @Override
   public boolean cancel(boolean mayInterruptIfRunning) {
-    for (SubtitleProvider provider : workers.keySet())
-      workers.get(provider).interrupt();
+    for (Entry<SubtitleProvider, SearchWorker> worker : workers.entrySet())
+      worker.getValue().interrupt();
 
     return true;
   }
