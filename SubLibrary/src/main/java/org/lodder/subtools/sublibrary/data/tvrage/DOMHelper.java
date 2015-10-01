@@ -20,7 +20,6 @@ package org.lodder.subtools.sublibrary.data.tvrage;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-
 /**
  * Generic set of routines to process the DOM model data
  *
@@ -29,34 +28,30 @@ import org.w3c.dom.NodeList;
  */
 public class DOMHelper {
 
-  // Hide the constructor
-  protected DOMHelper() {
-    // prevents calls from subclass
-    throw new UnsupportedOperationException();
-  }
+	// Hide the constructor
+	protected DOMHelper() {
+		// prevents calls from subclass
+		throw new UnsupportedOperationException();
+	}
 
-  /**
-   * Gets the string value of the tag element name passed
-   *
-   * @param element
-   * @param tagName
-   * @return
-   */
-  public static String getValueFromElement(Element element, String tagName) {
-    NodeList elementNodeList = element.getElementsByTagName(tagName);
-    if (elementNodeList == null) {
-      return "";
-    } else {
-      Element tagElement = (Element) elementNodeList.item(0);
-      if (tagElement == null) {
-        return "";
-      }
+	/**
+	 * Gets the string value of the tag element name passed
+	 *
+	 * @param element
+	 * @param tagName
+	 * @return
+	 */
+	public static String getValueFromElement(Element element, String tagName) {
+		NodeList elementNodeList = element.getElementsByTagName(tagName);
+		Element tagElement = (Element) elementNodeList.item(0);
+		if (tagElement == null) {
+			return "";
+		}
 
-      NodeList tagNodeList = tagElement.getChildNodes();
-      if (tagNodeList == null || tagNodeList.getLength() == 0) {
-        return "";
-      }
-      return tagNodeList.item(0).getNodeValue();
-    }
-  }
+		NodeList tagNodeList = tagElement.getChildNodes();
+		if (tagNodeList == null || tagNodeList.getLength() == 0) {
+			return "";
+		}
+		return tagNodeList.item(0).getNodeValue();
+	}
 }
