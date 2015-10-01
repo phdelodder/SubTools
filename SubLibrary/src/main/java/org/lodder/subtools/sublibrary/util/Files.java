@@ -168,28 +168,31 @@ public class Files {
 	public static boolean findEmptyFoldersInDir(File folder, List<File> emptyFolders) {
 		boolean isEmpty = false;
 		File[] filesAndDirs = folder.listFiles();
-		List<File> filesDirs = Arrays.asList(filesAndDirs);
 
-		if (filesDirs != null) {
-			if (filesDirs.size() == 0) {
-				isEmpty = true;
-			}
-			if (filesDirs.size() > 0) {
-				boolean allDirsEmpty = true;
-				boolean noFiles = true;
-				for (File file : filesDirs) {
-					if (!file.isFile()) {
-						boolean isEmptyChild = findEmptyFoldersInDir(file, emptyFolders);
-						if (!isEmptyChild) {
-							allDirsEmpty = false;
+		if (filesAndDirs != null) {
+			List<File> filesDirs = Arrays.asList(filesAndDirs);
+
+			if (filesDirs != null) {
+				if (filesDirs.size() == 0) {
+					isEmpty = true;
+				}
+				if (filesDirs.size() > 0) {
+					boolean allDirsEmpty = true;
+					boolean noFiles = true;
+					for (File file : filesDirs) {
+						if (!file.isFile()) {
+							boolean isEmptyChild = findEmptyFoldersInDir(file, emptyFolders);
+							if (!isEmptyChild) {
+								allDirsEmpty = false;
+							}
+						}
+						if (file.isFile()) {
+							noFiles = false;
 						}
 					}
-					if (file.isFile()) {
-						noFiles = false;
+					if (noFiles && allDirsEmpty) {
+						isEmpty = true;
 					}
-				}
-				if (noFiles && allDirsEmpty) {
-					isEmpty = true;
 				}
 			}
 		}
