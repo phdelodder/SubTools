@@ -136,8 +136,9 @@ public class SearchManager implements Cancelable {
 
   private int jobsLeft() {
     int jobsLeft = 0;
-    for (SubtitleProvider provider : this.queue.keySet()) {
-      jobsLeft += this.queue.get(provider).size();
+
+    for (Entry<SubtitleProvider, Queue<Release>> provider : this.queue.entrySet()) {
+      jobsLeft += provider.getValue().size();
       SearchWorker worker = this.workers.get(provider);
       if (worker.isAlive() && worker.isBusy()) {
         jobsLeft++;
