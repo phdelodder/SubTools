@@ -1,6 +1,7 @@
 package org.lodder.subtools.multisubdownloader.workers;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
@@ -44,8 +45,9 @@ public class SearchManager implements Cancelable {
   }
 
   public void addRelease(Release release) {
-    for (SubtitleProvider provider : this.queue.keySet())
-      queue.get(provider).add(release);
+    for (Entry<SubtitleProvider, Queue<Release>> provider : this.queue.entrySet()) {
+      queue.get(provider.getKey()).add(release);
+    }
 
     /* Create a scoreCalculator so we can score subtitles for this release */
     // TODO: extract to factory
