@@ -290,14 +290,14 @@ public class SortSubtitle {
             }
           } else {
 
-            if (num == 2) {
-              boolean isDeleted = file.delete();
-              if (isDeleted) {
-                // do nothing
-              }
-            } else {
-              LOGGER.info("Skip");
-            }
+//            if (num == 2) {
+//              boolean isDeleted = file.delete();
+//              if (isDeleted) {
+//                // do nothing
+//              }
+//            } else {
+//              LOGGER.info("Skip");
+//            }
           }
         } else if (release.getVideoType() == VideoType.MOVIE) {
           MovieRelease movieRelease = (MovieRelease) release;
