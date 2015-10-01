@@ -178,11 +178,6 @@ public class GUI extends JFrame implements PropertyChangeListener {
     gridBagLayout.columnWeights = new double[] {1.0, Double.MIN_VALUE};
     gridBagLayout.rowWeights = new double[] {1.0, 1.0, 0.0, Double.MIN_VALUE};
     getContentPane().setLayout(gridBagLayout);
-    final GridBagConstraints gbc_panel_buttons = new GridBagConstraints();
-    gbc_panel_buttons.insets = new Insets(0, 0, 5, 0);
-    gbc_panel_buttons.fill = GridBagConstraints.BOTH;
-    gbc_panel_buttons.gridx = 0;
-    gbc_panel_buttons.gridy = 1;
 
     JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
     GridBagConstraints gbc_tabbedPane = new GridBagConstraints();
