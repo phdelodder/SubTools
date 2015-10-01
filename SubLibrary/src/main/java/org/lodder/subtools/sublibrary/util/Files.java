@@ -157,11 +157,7 @@ public class Files {
   public static void deleteEmptyFolders(File aStartingDir) throws FileNotFoundException {
     List<File> emptyFolders = new ArrayList<File>();
     findEmptyFoldersInDir(aStartingDir, emptyFolders);
-    List<String> fileNames = new ArrayList<String>();
-    for (File f : emptyFolders) {
-      String s = f.getAbsolutePath();
-      fileNames.add(s);
-    }
+
     for (File f : emptyFolders) {
       boolean isDeleted = f.delete();
       if (isDeleted) {
