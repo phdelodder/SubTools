@@ -60,7 +60,7 @@ public class MovieReleaseControl extends ReleaseControl {
 					throw new ReleaseControlException("Movie not found on IMDB, check file", release);
 				}
 			} catch (IMDBException e) {
-				LOGGER.error("OMDBAPI Failed {}, using OMDBAPI as fallback", release);
+				LOGGER.warn("IMDBAPI Failed {}, using OMDBAPI as fallback", release);
 				OMDBDetails omdbinfo;
 				
 				try {
