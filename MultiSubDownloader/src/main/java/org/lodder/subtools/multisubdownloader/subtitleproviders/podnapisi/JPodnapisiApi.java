@@ -155,12 +155,18 @@ public class JPodnapisiApi extends XmlRPC {
   public String downloadUrl(String subtitleId) throws ManagerSetupException, ManagerException {
     String url = "http://simple.podnapisi.net/en/ondertitels-p" + subtitleId;
     String xml = manager.getContent(url, getUserAgent(), false);
-    int beginIndex = xml.indexOf("/ppodnapisi/predownload/i/");
-    if (beginIndex > 0) {
-      StringTokenizer st = new StringTokenizer(xml.substring(beginIndex - 3), "\"");
-      url = st.nextToken();
-      url = url.replace("predownload", "download");
-      return "http://simple.podnapisi.net" + url;
+    int downloadStartIndex = xml.indexOf("/download");
+    int startIndex = 0;
+    if (downloadStartIndex > 0) {
+      //get starting point of string
+      for (int i = downloadStartIndex; i > 0; i--){
+        if (xml.charAt(i) == '='){
+          startIndex = i;
+          break;
+        }
+      }
+      url = xml.substring(startIndex + 2, downloadStartIndex + 9); 
+      return "http://www.podnapisi.net" + url;
     } else {
       LOGGER.error(
           "Download URL for subtitleID {} can't be found, set to debug for more information!",
