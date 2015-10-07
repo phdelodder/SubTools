@@ -73,20 +73,21 @@ public class Local implements SubtitleProvider {
         Release release = vfp.parse(fileSub);
         if (release.getVideoType() == VideoType.EPISODE) {
 
-          if (((TvRelease) release).getSeason() == tvRelease.getSeason()
-              && Utils.containsAll(((TvRelease) release).getEpisodeNumbers(),
-                  tvRelease.getEpisodeNumbers())) {
+          if (((TvRelease) release).getSeason() == tvRelease.getSeason() && Utils.containsAll(
+              ((TvRelease) release).getEpisodeNumbers(), tvRelease.getEpisodeNumbers())) {
+
             TvReleaseControl epCtrl = new TvReleaseControl((TvRelease) release, settings, manager);
             epCtrl.process(settings.getMappingSettings().getMappingList());
             if (((TvRelease) release).getTvdbid() == tvRelease.getTvdbid()) {
               String detectedLang = DetectLanguage.execute(fileSub);
               if (detectedLang.equals(languagecode)) {
                 LOGGER.debug("Local Sub found, adding [{}]", fileSub.toString());
-                listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub
-                    .getName(), fileSub.toString(), languagecode, ReleaseParser
-                    .getQualityKeyword(fileSub.getName()), SubtitleMatchType.EVERYTHING,
-                    ReleaseParser.extractReleasegroup(fileSub.getName(), true), fileSub
-                        .getAbsolutePath(), false));
+                listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.LOCAL,
+                    fileSub.getName(), fileSub.toString(), languagecode,
+                    ReleaseParser.getQualityKeyword(fileSub.getName()),
+                    SubtitleMatchType.EVERYTHING,
+                    ReleaseParser.extractReleasegroup(fileSub.getName(), true),
+                    fileSub.getAbsolutePath(), false));
               }
             }
           }
@@ -122,8 +123,9 @@ public class Local implements SubtitleProvider {
               LOGGER.debug("Local Sub found, adding {}", fileSub.toString());
               listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub.getName(),
                   fileSub.toString(), "", ReleaseParser.getQualityKeyword(fileSub.getName()),
-                  SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(
-                      fileSub.getName(), true), fileSub.getAbsolutePath(), false));
+                  SubtitleMatchType.EVERYTHING,
+                  ReleaseParser.extractReleasegroup(fileSub.getName(), true),
+                  fileSub.getAbsolutePath(), false));
             }
           }
         }
