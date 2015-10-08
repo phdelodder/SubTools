@@ -38,6 +38,7 @@ public class CLI {
   private boolean verboseProgress = false;
   private DownloadAction downloadAction;
   private SubtitleSelectionAction subtitleSelectionAction;
+  private boolean dryRun = false;
 
   public CLI(Settings settings, Container app) {
     this.app = app;
@@ -63,6 +64,7 @@ public class CLI {
     this.recursive = line.hasOption("recursive");
     this.subtitleSelection = line.hasOption("selection");
     this.verboseProgress = line.hasOption("verboseprogress");
+    this.dryRun = line.hasOption("dryrun");
   }
 
   public void run() {
@@ -112,7 +114,7 @@ public class CLI {
   }
 
   private void download(Release release) throws Exception {
-    int selection = subtitleSelectionAction.subtitleSelection(release, subtitleSelection);
+    int selection = subtitleSelectionAction.subtitleSelection(release, subtitleSelection, dryRun);
     if (selection >= 0) {
       if (downloadall) {
         System.out.println("Downloading ALL found subtitles for release: " + release.getFilename());
@@ -124,7 +126,10 @@ public class CLI {
         downloadAction.download(release, release.getMatchingSubs().get(selection));
       }
     } else {
-      System.out.println("No substitles found for: " + release.getFilename());
+      if (dryRun && release.getMatchingSubs().size() == 0)
+        System.out.println("No substitles found for: " + release.getFilename());
+      else if (selection == -1 && !dryRun)
+        System.out.println("No substitles found for: " + release.getFilename());
     }
   }
 

@@ -24,4 +24,10 @@ public class SubtitleSelectionGUI extends SubtitleSelection {
     }
     return sDialog.getAnswer().getSelectionCode();
   }
+
+  @Override
+  public void dryRunOutput(Release release) {
+    // TODO Auto-generated method stub
+    
+  }
 }

@@ -14,9 +14,34 @@ public class SubtitleSelectionCLI extends SubtitleSelection {
     super(settings);
   }
 
+  
+  
   @Override
   public int getUserInput(Release release) {
     System.out.println("\nSelect best subtitle for : " + release.getFilename());
+    generateSubtitleSelectionOutput(release);
+
+    System.out.println("(-1) To skip download and/or move!");
+    Console c = System.console();
+    String selectedSubtitle = c.readLine("Enter number of selected subtitle: ");
+    System.out.println("");
+    int selected = -1;
+    try {
+      selected = Integer.parseInt(selectedSubtitle);
+      selected--;
+    } catch (Exception e) {
+      return -1;
+    }
+    return selected;
+  }
+
+  @Override
+  public void dryRunOutput(Release release) {
+    generateSubtitleSelectionOutput(release);
+  }
+  
+  private void generateSubtitleSelectionOutput(Release release){
+    System.out.println("\nAvailable subtitles for : " + release.getFilename());
     String[] columnNames =
         {SubtitleTableColumnName.SCORE.getColumnName(),
             SubtitleTableColumnName.FILENAME.getColumnName(),
@@ -42,18 +67,5 @@ public class SubtitleSelectionCLI extends SubtitleSelection {
     // this adds the numbering on the left
     tt.setAddRowNumbering(true);
     tt.printTable();
-
-    System.out.println("(-1) To skip download and/or move!");
-    Console c = System.console();
-    String selectedSubtitle = c.readLine("Enter number of selected subtitle: ");
-    System.out.println("");
-    int selected = -1;
-    try {
-      selected = Integer.parseInt(selectedSubtitle);
-      selected--;
-    } catch (Exception e) {
-      return -1;
-    }
-    return selected;
   }
 }

@@ -172,7 +172,8 @@ public class App {
     options.addOption("selection", false, Messages.getString("App.OptionOptionSelectionMsg"));
     options.addOption("speedy", false, Messages.getString("App.OptionOptionSpeedyMsg"));
     options.addOption("verboseprogress", false, Messages.getString("App.OptionVerboseProgressCLI"));
-
+    options.addOption("dryrun", false, Messages.getString("App.OptionDryRun"));
+    
     return options;
   }
 

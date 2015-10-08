@@ -42,4 +42,6 @@ public abstract class SubtitleSelection {
   }
 
   public abstract int getUserInput(Release release);
+  
+  public abstract void dryRunOutput(Release release);
 }
