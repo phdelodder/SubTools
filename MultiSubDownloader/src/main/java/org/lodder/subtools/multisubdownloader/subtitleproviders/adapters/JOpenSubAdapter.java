@@ -167,18 +167,16 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
       if (isLoginOk()) {
         try {
 
-          String showName = "";
           if (tvRelease.getOriginalShowName().length() > 0) {
-            showName = tvRelease.getOriginalShowName();
-          } else {
-            showName = tvRelease.getShow();
-          }
-
-          if (showName.length() > 0) {
-
-            lSubtitles.addAll(joapi.searchSubtitles(showName, tvRelease.getSeason(),
+            lSubtitles.addAll(joapi.searchSubtitles(tvRelease.getOriginalShowName(), tvRelease.getSeason(),
+                tvRelease.getEpisodeNumbers(), sublanguageids));
+            lSubtitles.addAll(joapi.searchSubtitles(tvRelease.getShow(), tvRelease.getSeason(),
+                tvRelease.getEpisodeNumbers(), sublanguageids));
+          }else{
+            lSubtitles.addAll(joapi.searchSubtitles(tvRelease.getShow(), tvRelease.getSeason(),
                 tvRelease.getEpisodeNumbers(), sublanguageids));
           }
+          
         } catch (Exception e) {
           LOGGER.error("API OPENSUBTITLES searchSubtitles using title", e);
         }
