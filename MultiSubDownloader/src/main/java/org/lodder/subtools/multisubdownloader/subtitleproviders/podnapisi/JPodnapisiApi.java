@@ -166,7 +166,7 @@ public class JPodnapisiApi extends XmlRPC {
       }
       url = xml.substring(startIndex + 2, downloadStartIndex + 9); 
       return "http://www.podnapisi.net/" + url;
-    } else {
+      } else {
       LOGGER.error(
           "Download URL for subtitleID {} can't be found, set to debug for more information!",
           subtitleId);
