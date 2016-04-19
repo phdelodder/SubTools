@@ -34,7 +34,7 @@
 		<dependency>
 			<groupId>org.lodder.subtools</groupId>
 			<artifactId>sublibrary</artifactId>
-			<version>1.2.5</version>
+			<version>1.2.6-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -135,6 +135,6 @@
 	<parent>
 		<groupId>org.lodder.subtools</groupId>
 		<artifactId>subtools</artifactId>
-		<version>1.2.5</version>
+		<version>1.2.6-SNAPSHOT</version>
 	</parent>
 </project>
