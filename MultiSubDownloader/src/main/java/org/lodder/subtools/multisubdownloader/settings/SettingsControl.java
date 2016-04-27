@@ -227,8 +227,8 @@ public class SettingsControl {
         .getLibraryFolderReplacingSpaceSign());
     preferences.putBoolean("MovieLibraryIncludeLanguageCode", settings.getMovieLibrarySettings()
         .isLibraryIncludeLanguageCode());
-    preferences.put("MovieDefaultNlText", settings.getMovieLibrarySettings().getDefaultNlText());
-    preferences.put("MovieDefaultEnText", settings.getMovieLibrarySettings().getDefaultEnText());
+    preferences.put("MovieLibraryDefaultNlText", settings.getMovieLibrarySettings().getDefaultNlText());
+    preferences.put("MovieLibraryDefaultEnText", settings.getMovieLibrarySettings().getDefaultEnText());
   }
 
   private void storeExcludeSettings() {
