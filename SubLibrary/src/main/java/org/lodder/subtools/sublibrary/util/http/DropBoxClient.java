@@ -12,10 +12,9 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
-import com.dropbox.core.DbxWriteMode;
+import com.dropbox.core.v2.DbxClientV2;
 
 /**
  * @author lodder
@@ -24,7 +23,7 @@ import com.dropbox.core.DbxWriteMode;
 public class DropBoxClient {
 
   private static DropBoxClient dbc;
-  private DbxClient dbxClient;
+  private DbxClientV2 dbxClient;
   private String locationOffset = "/Ondertitels/PrivateRepo/";
   private String unSortedLocationOffset = "/Ondertitels/Unsorted/";
 
@@ -42,16 +41,15 @@ public class DropBoxClient {
   private void dropboxInit() {
     final String accessToken = "3x5qOT-XdxgAAAAAAAAAAVa2Hrj23e7EiO98AZqw-UqGEr7I4lJG6eL8M1s9LlG0";
 
-    DbxRequestConfig config =
-        new DbxRequestConfig("PersonalDownload/1.0", java.util.Locale.getDefault().toString());
+    DbxRequestConfig config = new DbxRequestConfig("PersonalDownload/1.0");	
 
-    dbxClient = new DbxClient(config, accessToken);
+    dbxClient = new DbxClientV2(config, accessToken);
   }
 
   public boolean doDownloadFile(String location, File output) {
     boolean success = false;
     try (FileOutputStream outputStream = new FileOutputStream(output)) {
-      dbxClient.getFile(locationOffset + location, null, outputStream);
+      dbxClient.files().download(locationOffset + location).download(outputStream);
       success = true;
       outputStream.close();
     } catch (DbxException | IOException e) {
@@ -64,8 +62,7 @@ public class DropBoxClient {
     FileInputStream inputStream = null;
     try {
       inputStream = new FileInputStream(inputFile);
-      dbxClient.uploadFile(unSortedLocationOffset + "/" + languageCode + "/" + filename,
-          DbxWriteMode.add(), inputFile.length(), inputStream);
+      dbxClient.files().upload(unSortedLocationOffset + "/" + languageCode + "/" + filename).uploadAndFinish(inputStream, inputFile.length());
     } catch (DbxException | IOException e) {
       LOGGER.error("put", e);
     } finally {
@@ -87,7 +84,7 @@ public class DropBoxClient {
     String content = "";
     try {
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      dbxClient.getFile(location, null, outputStream);
+      dbxClient.files().download(location).download(outputStream);
       content = outputStream.toString("UTF-8");
       outputStream.close();
     } catch (DbxException | IOException e) {
