@@ -64,6 +64,7 @@ public class DropBoxClient {
       inputStream = new FileInputStream(inputFile);
       dbxClient.files().upload(unSortedLocationOffset + "/" + languageCode + "/" + filename).uploadAndFinish(inputStream, inputFile.length());
     } catch (DbxException | IOException e) {
+      LOGGER.error("upload path: " + unSortedLocationOffset + "/" + languageCode + "/" + filename );
       LOGGER.error("put", e);
     } finally {
       if (inputStream != null) {
