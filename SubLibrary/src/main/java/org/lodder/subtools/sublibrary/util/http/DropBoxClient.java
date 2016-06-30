@@ -25,7 +25,7 @@ public class DropBoxClient {
   private static DropBoxClient dbc;
   private DbxClientV2 dbxClient;
   private String locationOffset = "/Ondertitels/PrivateRepo/";
-  private String unSortedLocationOffset = "/Ondertitels/Unsorted/";
+  private String unSortedLocationOffset = "/Ondertitels/Unsorted";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DropBoxClient.class);
 
