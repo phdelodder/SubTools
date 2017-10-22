@@ -7,8 +7,8 @@
 		<repository>
 			<id>jlangdetect-googlecode</id>
 			<name>JLangDetect Maven repository</name>
-			<url>https://jlangdetect.googlecode.com/svn/repo</url>
-		</repository>
+			<url>http://mvn.is.inf.uni-due.de:8081/nexus/content/groups/public/</url>
+		</repository>		
 	</repositories>
 
 	<dependencies>

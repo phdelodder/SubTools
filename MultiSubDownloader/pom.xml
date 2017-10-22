@@ -53,10 +53,11 @@
 			<artifactId>reflections</artifactId>
 			<version>0.9.9</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.massisframework/j-text-utils -->
 		<dependency>
-			<groupId>dnl.utils</groupId>
-			<artifactId>j-text-utils</artifactId>
-			<version>0.3.3</version>
+		    <groupId>com.massisframework</groupId>
+		    <artifactId>j-text-utils</artifactId>
+		    <version>0.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
