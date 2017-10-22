@@ -1,24 +1,28 @@
 package org.lodder.subtools.sublibrary.util.http;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.BOMInputStream;
+import org.apache.commons.lang3.CharEncoding;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +58,7 @@ public class HttpClient {
 		int respCode = ((HttpURLConnection) conn).getResponseCode();
 
 		if (respCode == 200) {
-			String result = IOUtils.toString(conn.getInputStream());
+			String result = IOUtils.toString(conn.getInputStream(), "UTF-8");
 			((HttpURLConnection) conn).disconnect();
 			return result;
 		}
@@ -103,7 +107,7 @@ public class HttpClient {
 				}
 			}
 
-			String result = IOUtils.toString(conn.getInputStream());
+			String result = IOUtils.toString(conn.getInputStream(), "UTF-8");
 			((HttpURLConnection) conn).disconnect();
 			return result;
 
@@ -203,13 +207,19 @@ public class HttpClient {
 		return matcher.find();
 	}
 
-	public String downloadText(URL url) throws IOException {
-		String html = IOUtils.toString(url.openConnection().getInputStream());
-		String content = "";
-		try (BOMInputStream bomIn = new BOMInputStream(IOUtils.toInputStream(html))) {
-			content = IOUtils.toString(bomIn);
-		}
-		return content;
+	
+	public String downloadText(String url) throws java.io.IOException {
+		BufferedReader in = null;
+	    String content = null;
+	    try {
+	    	in = new BufferedReader(new InputStreamReader(new URL(url).openStream(), StandardCharsets.UTF_8));
+	        content = in.lines().collect(Collectors.joining());
+
+	    }
+	    finally {
+	        if (in != null) in.close(); 
+	    }
+	    return content.toString();
 	}
 
 }

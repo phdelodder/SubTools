@@ -25,20 +25,29 @@ public class Manager {
   }
 
   public String downloadText(String urlString) throws ManagerException {
-    URL url;
     try {
-      url = new URL(urlString);
-      return httpClient.downloadText(url);
+      return httpClient.downloadText(urlString);
     } catch (MalformedURLException e) {
       throw new ManagerException("incorrect url", e);
     } catch (IOException e) {
       throw new ManagerException(e);
     }
   }
+  
+  public String downloadText2(String urlString) throws ManagerException {
+	    try {
+	      return httpClient.downloadText(urlString);
+	    } catch (MalformedURLException e) {
+	      throw new ManagerException("incorrect url", e);
+	    } catch (IOException e) {
+	      throw new ManagerException(e);
+	    }
+	  }
+
 
   public InputStream getContentStream(String urlString, String userAgent, boolean longTermCache)
-      throws ManagerSetupException, ManagerException {
-    return IOUtils.toInputStream(getContent(urlString, userAgent, longTermCache));
+      throws ManagerSetupException, ManagerException, IOException {
+    return IOUtils.toInputStream(getContent(urlString, userAgent, longTermCache), "UTF-8");
   }
 
   public String getContent(String urlString, String userAgent, boolean longTermCache)

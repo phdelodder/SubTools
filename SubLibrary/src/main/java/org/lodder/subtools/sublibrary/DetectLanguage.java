@@ -37,7 +37,7 @@ public class DetectLanguage {
   private static String readText(File file) {
     String text = "";
     try {
-      text = FileUtils.readFileToString(file);
+      text = FileUtils.readFileToString(file, "UTF-8");
     } catch (FileNotFoundException e) {
       LOGGER.error("File not found to detect language", e);
     } catch (IOException e) {
