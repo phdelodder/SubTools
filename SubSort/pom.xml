@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>org.lodder.subtools</groupId>
 			<artifactId>sublibrary</artifactId>
-			<version>1.2.7</version>
+			<version>1.2.8-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
@@ -99,6 +99,6 @@
 	<parent>
 		<groupId>org.lodder.subtools</groupId>
 		<artifactId>subtools</artifactId>
-		<version>1.2.7</version>
+		<version>1.2.8-SNAPSHOT</version>
 	</parent>
 </project>
