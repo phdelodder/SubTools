@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.CharEncoding;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
