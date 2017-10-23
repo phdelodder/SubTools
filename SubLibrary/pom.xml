@@ -97,6 +97,16 @@
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 		</dependency>
+		<dependency>
+  			<groupId>javax.ws.rs</groupId>
+  			<artifactId>javax.ws.rs-api</artifactId>
+  			<version>2.1</version>
+  		</dependency>
+  		<dependency>
+  			<groupId>com.uwetrottmann.thetvdb-java</groupId>
+  			<artifactId>thetvdb-java</artifactId>
+  			<version>1.5.0</version>
+  		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

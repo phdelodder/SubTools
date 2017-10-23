@@ -3,6 +3,7 @@ package org.lodder.subtools.sublibrary;
 import java.util.List;
 
 import org.lodder.subtools.sublibrary.data.thetvdb.TheTVDBApi;
+import org.lodder.subtools.sublibrary.data.thetvdb.TheTVDBApiV2;
 import org.lodder.subtools.sublibrary.data.thetvdb.TheTVDBException;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
@@ -12,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 public class JTheTVDBAdapter {
 
-  private TheTVDBApi jtvapi;
+  private TheTVDBApiV2 jtvapi;
   private static JTheTVDBAdapter adapter;
   private String exceptions = "";
   private final static String splitValue = ": '";
@@ -21,7 +22,7 @@ public class JTheTVDBAdapter {
   JTheTVDBAdapter(Manager manager) {
     this.jtvapi = null;
     try {
-      this.jtvapi = new TheTVDBApi("A1720D2DDFDCE82D", manager);
+      this.jtvapi = new TheTVDBApiV2("A1720D2DDFDCE82D");
       exceptions =
           manager
               .downloadText2("https://raw.githubusercontent.com/midgetspy/sb_tvdb_scene_exceptions/gh-pages/exceptions.txt");
