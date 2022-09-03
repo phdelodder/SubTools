@@ -2,9 +2,10 @@ package org.lodder.subtools.multisubdownloader.framework.event;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 public class EventBag {
-    protected HashMap<String, Object> attributes = new HashMap<>();
+    protected Map<String, Object> attributes = new HashMap<>();
 
     public Object getAttribute(String name) {
         Object attribute = null;

@@ -4,9 +4,6 @@ import java.io.Serializable;
 import java.util.Comparator;
 
 public class ServiceProviderComparator implements Comparator<ServiceProvider>, Serializable {
-    /**
-     *
-     */
     private static final long serialVersionUID = 7236933845444427431L;
 
     @Override

@@ -21,9 +21,8 @@ public class CleanAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CleanAction.class);
 
-    private LibrarySettings librarySettings;
-    private final String[] fileFilters = { "nfo", "jpg", "sfv", "srr", "srs", "nzb",
-            "torrent", "txt" };
+    private final LibrarySettings librarySettings;
+    private final String[] fileFilters = { "nfo", "jpg", "sfv", "srr", "srs", "nzb", "torrent", "txt" };
     private final String[] folderFilters = { "sample", "Sample" };
     private final static String sampleDirName = "sample";
 
@@ -45,31 +44,21 @@ public class CleanAction {
         }
 
         // remove duplicates using set
-        final Set<String> list =
-                new LinkedHashSet<>(Arrays.asList(StringUtils.join(files, folders)));
+        final Set<String> list = new LinkedHashSet<>(Arrays.asList(StringUtils.join(files, folders)));
 
         switch (librarySettings.getLibraryOtherFileAction()) {
-            case MOVE:
-                doMove(release, list, path);
-                break;
-            case MOVEANDRENAME:
-                doMoveAndRename(release, list, path, videoFileName);
-                break;
-            case NOTHING:
-                break;
-            case REMOVE:
-                doRemove(release, list);
-                break;
-            case RENAME:
-                doRename(release, path, videoFileName, files);
-                break;
-            default:
-                break;
+            case MOVE -> doMove(release, list, path);
+            case MOVEANDRENAME -> doMoveAndRename(release, list, path, videoFileName);
+            case REMOVE -> doRemove(release, list);
+            case RENAME -> doRename(release, path, videoFileName, files);
+            case NOTHING -> {
+            }
+            default -> {
+            }
         }
     }
 
-    private void doRename(Release release, File path, String videoFileName, String[] files)
-            throws IOException {
+    private void doRename(Release release, File path, String videoFileName, String[] files) throws IOException {
         for (String s : files) {
             String extension = ReleaseParser.extractFileNameExtension(s);
 
@@ -80,8 +69,7 @@ public class CleanAction {
             }
 
             if (f.isFile()) {
-                final String filename =
-                        videoFileName.substring(0, videoFileName.lastIndexOf(".")).concat("." + extension);
+                final String filename = videoFileName.substring(0, videoFileName.lastIndexOf(".")).concat("." + extension);
                 Files.move(f, new File(release.getPath(), filename));
             } else {
                 Files.move(f, new File(path, s));
@@ -95,14 +83,12 @@ public class CleanAction {
             if (file.isDirectory()) {
                 FileUtils.deleteDirectory(file);
             } else {
-                @SuppressWarnings("unused")
-                boolean isDelete = file.delete();
+                file.delete();
             }
         }
     }
 
-    private void doMoveAndRename(Release release, Set<String> list, File path, String videoFileName)
-            throws IOException {
+    private void doMoveAndRename(Release release, Set<String> list, File path, String videoFileName) throws IOException {
         for (String s : list) {
             String extension = ReleaseParser.extractFileNameExtension(s);
 
@@ -113,8 +99,7 @@ public class CleanAction {
             }
 
             if (f.isFile()) {
-                final String filename =
-                        videoFileName.substring(0, videoFileName.lastIndexOf(".")).concat("." + extension);
+                final String filename = videoFileName.substring(0, videoFileName.lastIndexOf(".")).concat("." + extension);
                 Files.move(f, new File(path, filename));
             } else {
                 Files.move(f, new File(path, s));

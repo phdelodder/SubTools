@@ -13,7 +13,6 @@ import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
-import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.lodder.subtools.sublibrary.util.http.DropBoxClient;
@@ -27,49 +26,23 @@ public class DownloadAction {
     private final Settings settings;
     private final Manager manager;
 
-    /**
-     *
-     * @param settings
-     */
     public DownloadAction(Settings settings, Manager manager) {
         this.settings = settings;
         this.manager = manager;
     }
 
-    /**
-     *
-     * @param release
-     * @param subtitle
-     * @param version
-     * @throws Exception
-     */
     public void download(Release release, Subtitle subtitle, int version) throws Exception {
-        if (VideoType.EPISODE.equals(release.getVideoType())) {
-            download(release, subtitle, settings.getEpisodeLibrarySettings(), version);
-        } else if (VideoType.MOVIE.equals(release.getVideoType())) {
-            download(release, subtitle, settings.getMovieLibrarySettings(), version);
+        switch (release.getVideoType()) {
+            case EPISODE -> download(release, subtitle, settings.getEpisodeLibrarySettings(), version);
+            case MOVIE -> download(release, subtitle, settings.getMovieLibrarySettings(), version);
+            default -> throw new IllegalArgumentException("Unexpected value: " + release.getVideoType());
         }
     }
 
-    /**
-     *
-     * @param release
-     * @param subtitle
-     * @throws Exception
-     */
     public void download(Release release, Subtitle subtitle) throws Exception {
-        LOGGER.info("Downloading subtitle: [{}] for release: [{}]", subtitle.getFilename(),
-                release.getFilename());
+        LOGGER.info("Downloading subtitle: [{}] for release: [{}]", subtitle.getFilename(), release.getFilename());
         download(release, subtitle, 0);
     }
-
-    /**
-     * @param release
-     * @param subtitle
-     * @param librarySettings
-     * @param version
-     * @throws Exception
-     */
 
     private void download(Release release, Subtitle subtitle, LibrarySettings librarySettings,
             int version) throws Exception {
@@ -83,11 +56,9 @@ public class DownloadAction {
             }
         }
 
-        FilenameLibraryBuilder filenameLibraryBuilder =
-                new FilenameLibraryBuilder(librarySettings, manager);
+        FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager);
         final String videoFileName = filenameLibraryBuilder.build(release);
-        final String subFileName =
-                filenameLibraryBuilder.buildSubtitle(release, subtitle, videoFileName, version);
+        final String subFileName = filenameLibraryBuilder.buildSubtitle(release, subtitle, videoFileName, version);
         final File subFile = new File(path, subFileName);
 
         boolean success;
@@ -103,15 +74,11 @@ public class DownloadAction {
         if (ReleaseParser.getQualityKeyword(release.getFilename()).split(" ").length > 1) {
             String dropBoxName = "";
             if (subtitle.getSubtitleSource() == SubtitleSource.LOCAL) {
-                dropBoxName =
-                        PrivateRepoIndex.getFullFilename(
-                                FilenameLibraryBuilder.changeExtension(release.getFilename(), ".srt"), "?",
-                                subtitle.getSubtitleSource().toString());
+                dropBoxName = PrivateRepoIndex.getFullFilename(FilenameLibraryBuilder.changeExtension(release.getFilename(), ".srt"), "?",
+                        subtitle.getSubtitleSource().toString());
             } else {
-                dropBoxName =
-                        PrivateRepoIndex.getFullFilename(
-                                FilenameLibraryBuilder.changeExtension(release.getFilename(), ".srt"),
-                                subtitle.getUploader(), subtitle.getSubtitleSource().toString());
+                dropBoxName = PrivateRepoIndex.getFullFilename(FilenameLibraryBuilder.changeExtension(release.getFilename(), ".srt"),
+                        subtitle.getUploader(), subtitle.getSubtitleSource().toString());
             }
             DropBoxClient.getDropBoxClient().put(subFile, dropBoxName, subtitle.getLanguagecode());
         }
@@ -123,14 +90,12 @@ public class DownloadAction {
                     final File newLocationFile = new File(path, videoFileName);
                     LOGGER.info("Moving/Renaming [{}] to folder [{}] this might take a while... ", videoFileName, path.getPath());
                     Files.move(oldLocationFile, newLocationFile);
-                    if (!LibraryOtherFileActionType.NOTHING.equals(
-                            librarySettings.getLibraryOtherFileAction())) {
+                    if (!LibraryOtherFileActionType.NOTHING.equals(librarySettings.getLibraryOtherFileAction())) {
                         CleanAction cleanAction = new CleanAction(librarySettings);
                         cleanAction.cleanUpFiles(release, path, videoFileName);
                     }
                     File[] listFiles = release.getPath().listFiles();
-                    if (librarySettings.isLibraryRemoveEmptyFolders() && listFiles != null
-                            && listFiles.length == 0) {
+                    if (librarySettings.isLibraryRemoveEmptyFolders() && listFiles != null && listFiles.length == 0) {
                         boolean isDeleted = release.getPath().delete();
                         if (isDeleted) {
                             // do nothing
@@ -139,15 +104,11 @@ public class DownloadAction {
                 }
             }
             if (librarySettings.isLibraryBackupSubtitle()) {
-                String langFolder = "";
-                if ("nl".equals(subtitle.getLanguagecode())) {
-                    langFolder = "Nederlands";
-                } else {
-                    langFolder = "Engels";
-                }
-                File backupPath =
-                        new File(librarySettings.getLibraryBackupSubtitlePath() + File.separator + langFolder
-                                + File.separator);
+                String langFolder = switch (subtitle.getLanguagecode()) {
+                    case "nl" -> "Nederlands";
+                    default -> "Engels";
+                };
+                File backupPath = new File(librarySettings.getLibraryBackupSubtitlePath() + File.separator + langFolder + File.separator);
 
                 if (!backupPath.exists() && !backupPath.mkdirs()) {
                     throw new Exception("Download unable to create folder: " + backupPath.getAbsolutePath());

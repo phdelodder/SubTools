@@ -35,10 +35,6 @@ public class App {
     private static Splash splash;
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
-    /**
-     * @param args
-     * @throws Exception
-     */
     public static void main(String[] args) throws Exception {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
@@ -115,9 +111,7 @@ public class App {
     }
 
     private static void setLogLevel(Level level) {
-        ch.qos.logback.classic.Logger root =
-                (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory
-                        .getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root.setLevel(level);
     }
 
@@ -162,13 +156,11 @@ public class App {
         options.addOption("language", true, Messages.getString("App.OptionOptionLanguageMsg"));
         options.addOption("debug", false, Messages.getString("App.OptionOptionDebugMsg"));
         options.addOption("trace", false, Messages.getString("App.OptionOptionTraceMsg"));
-        options.addOption("importpreferences", true,
-                Messages.getString("App.OptionOptionImportPreferencesMsg"));
+        options.addOption("importpreferences", true, Messages.getString("App.OptionOptionImportPreferencesMsg"));
         options.addOption("force", false, Messages.getString("App.OptionOptionForceMsg"));
         options.addOption("folder", true, Messages.getString("App.OptionOptionFolderMsg"));
         options.addOption("downloadall", false, Messages.getString("App.OptionOptionDownloadAllMsg"));
-        options.addOption("updatefromonlinemapping", false,
-                Messages.getString("App.OptionOptionUpdateMappingMsg"));
+        options.addOption("updatefromonlinemapping", false, Messages.getString("App.OptionOptionUpdateMappingMsg"));
         options.addOption("selection", false, Messages.getString("App.OptionOptionSelectionMsg"));
         options.addOption("speedy", false, Messages.getString("App.OptionOptionSpeedyMsg"));
         options.addOption("verboseprogress", false, Messages.getString("App.OptionVerboseProgressCLI"));
@@ -182,12 +174,9 @@ public class App {
             splash.setProgressMsg("Creating Manager");
         }
         Manager manager = new Manager();
-        DiskCache<String, String> diskCache =
-                new DiskCache<>(TimeUnit.SECONDS.convert(5, TimeUnit.DAYS), 100, 500, "user",
-                        "pass");
+        DiskCache<String, String> diskCache = new DiskCache<>(TimeUnit.SECONDS.convert(5, TimeUnit.DAYS), 100, 500, "user", "pass");
         manager.setDiskCache(diskCache);
-        InMemoryCache<String, String> inMemoryCache =
-                new InMemoryCache<>(TimeUnit.SECONDS.convert(10, TimeUnit.MINUTES), 10, 500);
+        InMemoryCache<String, String> inMemoryCache = new InMemoryCache<>(TimeUnit.SECONDS.convert(10, TimeUnit.MINUTES), 10, 500);
         manager.setInMemoryCache(inMemoryCache);
         HttpClient httpClient = new HttpClient();
         httpClient.setCookieManager(new CookieManager());

@@ -2,9 +2,6 @@ package org.lodder.subtools.multisubdownloader.actions;
 
 public class ActionException extends Exception {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -7453153452045851404L;
 
     public ActionException() {

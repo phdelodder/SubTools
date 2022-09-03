@@ -55,8 +55,7 @@ public class Bootstrapper {
     public List<ServiceProvider> getProviders() {
 
         Reflections reflections = new Reflections("org.lodder.subtools.multisubdownloader");
-        Set<Class<? extends ServiceProvider>> providerClasses =
-                reflections.getSubTypesOf(ServiceProvider.class);
+        Set<Class<? extends ServiceProvider>> providerClasses = reflections.getSubTypesOf(ServiceProvider.class);
 
         List<ServiceProvider> providers = new ArrayList<>();
 
@@ -68,8 +67,7 @@ public class Bootstrapper {
                 Constructor constructor = serviceProviderClass.getConstructor();
                 serviceProvider = (ServiceProvider) constructor.newInstance();
             } catch (Exception e) {
-                LOGGER.error("ServiceProvider: '{}' failed to create instance.", serviceProviderClass
-                        .getClass().getName());
+                LOGGER.error("ServiceProvider: '{}' failed to create instance.", serviceProviderClass.getClass().getName());
             }
 
             if (serviceProvider == null) {

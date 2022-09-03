@@ -3,7 +3,6 @@ package org.lodder.subtools.multisubdownloader.cli.actions;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.lodder.subtools.multisubdownloader.CLI;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.actions.ActionException;
@@ -62,20 +61,18 @@ public class CliSearchAction extends SearchAction {
     protected List<Release> createReleases() throws ActionException {
         filelistAction.setIndexingProgressListener(this.indexingProgressListener);
 
-        List<File> files = new ArrayList<>();
-        for (File folder : this.folders) {
-            files.addAll(filelistAction.getFileListing(folder, this.isRecursive, this.languageCode,
-                    this.overwriteSubtitles));
-        }
+        List<File> files = this.folders.stream()
+                .flatMap(folder -> filelistAction.getFileListing(folder, this.isRecursive, this.languageCode, this.overwriteSubtitles).stream())
+                .toList();
 
         /* fix: remove carriage return from progressbar */
         System.out.println("");
 
-        LOGGER.debug("# Files found to process [{}] ", files.size());
-
         int total = files.size();
         int index = 0;
         int progress = 0;
+
+        LOGGER.debug("# Files found to process [{}] ", total);
 
         System.out.println(Messages.getString("CliSearchAction.ParsingFoundFiles"));
         this.indexingProgressListener.progress(progress);

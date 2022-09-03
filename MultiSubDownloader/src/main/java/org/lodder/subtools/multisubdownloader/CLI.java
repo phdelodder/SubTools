@@ -28,7 +28,7 @@ public class CLI {
     private static final Logger LOGGER = LoggerFactory.getLogger(CLI.class);
 
     private final Container app;
-    private Settings settings;
+    private final Settings settings;
     private boolean recursive = false;
     private String languagecode = "";
     private boolean force = false;
@@ -36,8 +36,8 @@ public class CLI {
     private boolean downloadall = false;
     private boolean subtitleSelection = false;
     private boolean verboseProgress = false;
-    private DownloadAction downloadAction;
-    private SubtitleSelectionAction subtitleSelectionAction;
+    private final DownloadAction downloadAction;
+    private final SubtitleSelectionAction subtitleSelectionAction;
     private boolean dryRun = false;
 
     public CLI(Settings settings, Container app) {
@@ -98,8 +98,7 @@ public class CLI {
 
         searchAction.setFileListAction(new FileListAction(this.settings));
         searchAction.setFiltering(new Filtering(this.settings));
-        searchAction
-                .setReleaseFactory(new ReleaseFactory(this.settings, (Manager) app.make("Manager")));
+        searchAction.setReleaseFactory(new ReleaseFactory(this.settings, (Manager) app.make("Manager")));
 
         CLIFileindexerProgress progressDialog = new CLIFileindexerProgress();
         CLISearchProgress searchProgress = new CLISearchProgress();
@@ -133,13 +132,12 @@ public class CLI {
     }
 
     private List<File> getFolders(CommandLine line) {
-        List<File> folders = new ArrayList<>();
+
         if (line.hasOption("folder")) {
-            folders.add(new File(line.getOptionValue("folder")));
+            return List.of(new File(line.getOptionValue("folder")));
         } else {
-            folders.addAll(this.settings.getDefaultFolders());
+            return new ArrayList<>(this.settings.getDefaultFolders());
         }
-        return folders;
     }
 
     private String getLanguageCode(CommandLine line) throws Exception {

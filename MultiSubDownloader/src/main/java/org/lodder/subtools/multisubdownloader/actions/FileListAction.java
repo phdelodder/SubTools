@@ -2,10 +2,13 @@ package org.lodder.subtools.multisubdownloader.actions;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
@@ -22,7 +25,7 @@ public class FileListAction {
     private IndexingProgressListener indexingProgressListener;
     private int progressFileIndex;
     private int progressFilesTotal;
-    private Settings settings;
+    private final Settings settings;
     private final String[] dutchFilters = { "nld", "ned", "dutch", "dut", "nl" };
     private final String[] englishFilters = { "eng", "english", "en" };
     private final static String subtitleExtension = ".srt";
@@ -33,11 +36,9 @@ public class FileListAction {
         this.settings = settings;
     }
 
-    public List<File> getFileListing(File dir, boolean recursieve, String languagecode,
-            boolean forceSubtitleOverwrite) {
-        LOGGER.trace(
-                "getFileListing: dir [{}] Recursive [{}] languageCode [{}] forceSubtitleOverwrite [{}]",
-                dir, recursieve, languagecode, forceSubtitleOverwrite);
+    public List<File> getFileListing(File dir, boolean recursieve, String languagecode, boolean forceSubtitleOverwrite) {
+        LOGGER.trace("getFileListing: dir [{}] Recursive [{}] languageCode [{}] forceSubtitleOverwrite [{}]", dir, recursieve, languagecode,
+                forceSubtitleOverwrite);
         /* Reset progress counters */
         this.progressFileIndex = 0;
         this.progressFilesTotal = 0;
@@ -46,8 +47,7 @@ public class FileListAction {
         return this._getFileListing(dir, recursieve, languagecode, forceSubtitleOverwrite);
     }
 
-    private List<File> _getFileListing(File dir, boolean recursieve, String languagecode,
-            boolean forceSubtitleOverwrite) {
+    private List<File> _getFileListing(File dir, boolean recursieve, String languagecode, boolean forceSubtitleOverwrite) {
         final List<File> filelist = new ArrayList<>();
         final File[] contents = dir.listFiles();
 
@@ -67,13 +67,11 @@ public class FileListAction {
                 /* Tell the progresslistener which directory we are handling */
                 this.indexingProgressListener.progress(dir.getPath());
                 /* Tell the progresslistener the overall progress */
-                int progress =
-                        (int) Math.floor((float) this.progressFileIndex / this.progressFilesTotal * 100);
+                int progress = (int) Math.floor((float) this.progressFileIndex / this.progressFilesTotal * 100);
                 this.indexingProgressListener.progress(progress);
             }
 
-            if (file.isFile() && isValidVideoFile(file)
-                    && (!fileHasSubtitles(file, languagecode) || forceSubtitleOverwrite)
+            if (file.isFile() && isValidVideoFile(file) && (!fileHasSubtitles(file, languagecode) || forceSubtitleOverwrite)
                     && isNotExcluded(file)) {
                 filelist.add(file);
             } else if (file.isDirectory() && recursieve && !isExcludedDir(file)) {
@@ -108,10 +106,7 @@ public class FileListAction {
     private boolean isNotExcluded(File file) {
         for (SettingsExcludeItem element : settings.getExcludeList()) {
             if (element.getType() == SettingsExcludeType.REGEX) {
-                NamedPattern np =
-                        NamedPattern.compile(
-                                element.getDescription().replace("*", ".*") + ".*$",
-                                Pattern.CASE_INSENSITIVE);
+                NamedPattern np = NamedPattern.compile(element.getDescription().replace("*", ".*") + ".*$", Pattern.CASE_INSENSITIVE);
                 NamedMatcher namedMatcher = np.matcher(file.getName());
                 if (namedMatcher.find()) {
                     LOGGER.trace("isNotExcluded, skipping [{}]", file);
@@ -138,21 +133,14 @@ public class FileListAction {
         if (filename.contains("sample")) {
             return false;
         }
-        for (String allowedExtension : VideoPatterns.EXTENSIONS) {
-            if (ext.equalsIgnoreCase(allowedExtension)) {
-                return true;
-            }
-        }
-        return false;
+        return Arrays.stream(VideoPatterns.EXTENSIONS).anyMatch(ext::equals);
     }
 
     public boolean fileHasSubtitles(File file, String languageCode) {
-        String subname = "";
-        for (String allowedExtension : VideoPatterns.EXTENSIONS) {
-            if (file.getName().contains("." + allowedExtension)) {
-                subname = file.getName().replace("." + allowedExtension, subtitleExtension);
-            }
-        }
+        String subname = Arrays.stream(VideoPatterns.EXTENSIONS)
+                .filter(allowedExtension -> file.getName().contains("." + allowedExtension))
+                .map(allowedExtension -> file.getName().replace("." + allowedExtension, subtitleExtension))
+                .findAny().orElse("");
 
         final File f = new File(file.getParentFile(), subname);
         if (f.exists()) {
@@ -162,15 +150,13 @@ public class FileListAction {
 
             if ("nl".equals(languageCode)) {
                 filters = getFilters(dutchFilters);
-                if (!"".equals(settings.getEpisodeLibrarySettings().getDefaultNlText())) {
-                    filters.add("."
-                            + settings.getEpisodeLibrarySettings().getDefaultNlText().concat(subtitleExtension));
+                if (!StringUtils.isBlank(settings.getEpisodeLibrarySettings().getDefaultNlText())) {
+                    filters.add("." + settings.getEpisodeLibrarySettings().getDefaultNlText().concat(subtitleExtension));
                 }
             } else if ("en".equals(languageCode)) {
                 filters = getFilters(englishFilters);
-                if (!"".equals(settings.getEpisodeLibrarySettings().getDefaultEnText())) {
-                    filters.add("."
-                            + settings.getEpisodeLibrarySettings().getDefaultEnText().concat(subtitleExtension));
+                if (!StringUtils.isBlank(settings.getEpisodeLibrarySettings().getDefaultEnText())) {
+                    filters.add("." + settings.getEpisodeLibrarySettings().getDefaultEnText().concat(subtitleExtension));
                 }
             }
 
@@ -178,9 +164,7 @@ public class FileListAction {
                 return false;
             }
 
-            String[] contents =
-                    file.getParentFile().list(
-                            new FilenameExtensionFilter(filters.toArray(new String[filters.size()])));
+            String[] contents = file.getParentFile().list(new FilenameExtensionFilter(filters.toArray(new String[filters.size()])));
             if (contents == null) {
                 contents = new String[] {};
             }
@@ -190,24 +174,11 @@ public class FileListAction {
     }
 
     private List<String> getFilters(String[] words) {
-        List<String> filters = new ArrayList<>();
-
-        for (String s : words) {
-            filters.add(s + subtitleExtension);
-        }
-
-        return filters;
+        return Arrays.stream(words).map(word -> word + subtitleExtension).collect(Collectors.toList());
     }
 
     public boolean checkFileListContent(String[] contents, String subname) {
-        if (contents.length > 0) {
-            for (final String file : contents) {
-                if (file.contains(subname)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return contents.length > 0 && Arrays.stream(contents).anyMatch(file -> file.contains(subname));
     }
 
     public void setIndexingProgressListener(IndexingProgressListener indexingProgressListener) {

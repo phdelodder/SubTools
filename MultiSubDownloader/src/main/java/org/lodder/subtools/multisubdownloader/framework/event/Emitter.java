@@ -5,10 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Emitter {
-    private HashMap<String, ArrayList<Handler>> eventListeners = new HashMap<>();
+    private final Map<String, ArrayList<Handler>> eventListeners = new HashMap<>();
 
     public void fire(Event event) {
-
         String eventName = event.getEventName();
         List<Handler> handlers = this.eventListeners.get(eventName);
         if (handlers == null) {

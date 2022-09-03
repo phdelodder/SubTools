@@ -138,12 +138,11 @@ public abstract class SearchAction implements Runnable, Cancelable, SearchHandle
     protected abstract String getLanguageCode();
 
     protected String getLanguageCode(String language) {
-        if ("Nederlands".equals(language)) {
-            return "nl";
-        } else if ("Engels".equals(language)) {
-            return "en";
-        }
-        return null;
+        return switch (language) {
+            case "Nederlands" -> "nl";
+            case "Engels" -> "en";
+            default -> null;
+        };
     }
 
     protected void validate() throws SearchSetupException {
