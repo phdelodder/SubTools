@@ -32,7 +32,7 @@ public class TheTVDBApiV2 {
 	public int searchSerie(String seriename, String language) throws TheTVDBException {
 		try {
 			String encodedSerieName = URLEncoder.encode(seriename, "UTF-8");
-			Response<SeriesResultsResponse> response = theTvdb.search().series(encodedSerieName, null, null, language).execute();
+			Response<SeriesResultsResponse> response = theTvdb.search().series(encodedSerieName, null, null, null, language).execute();
 			if (response.isSuccessful()) {
 				List<Series> series = response.body().data;
 				if (series.size() > 0) {
@@ -137,7 +137,7 @@ public class TheTVDBApiV2 {
 		tvdbEpisode.setSeasonId(toString(episode.airedSeasonID));
 		tvdbEpisode.setAirsAfterSeason(0);
 		tvdbEpisode.setAirsBeforeEpisode(0);
-		
+
 		return tvdbEpisode;
 	}
 
