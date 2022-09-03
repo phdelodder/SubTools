@@ -3,9 +3,9 @@ package org.lodder.subtools.sublibrary.util.http;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -44,11 +44,10 @@ public class CookieManager {
     private static final char NAME_VALUE_SEPARATOR = '=';
     private static final char DOT = '.';
 
-    private final DateFormat dateFormat;
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
 
     public CookieManager() {
         store = new HashMap<>();
-        dateFormat = new SimpleDateFormat(DATE_FORMAT);
     }
 
     /**
@@ -168,11 +167,10 @@ public class CookieManager {
         if (cookieExpires == null) {
             return true;
         }
-        Date now = new Date();
         try {
-            return now.compareTo(dateFormat.parse(cookieExpires)) <= 0;
-        } catch (java.text.ParseException pe) {
-            pe.printStackTrace();
+            return LocalDateTime.now().isBefore(LocalDateTime.parse(cookieExpires, DATE_FORMATTER));
+        } catch (DateTimeParseException e) {
+            e.printStackTrace();
             return false;
         }
     }

@@ -1,12 +1,13 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.*;
 
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,7 @@ public class JAddic7edApi extends Html {
     private final Pattern pattern;
     private final static long RATEDURATION = MILLISECONDS.convert(15, TimeUnit.SECONDS);
     private final boolean speedy;
-    private Date lastRequest = new Date();
+    private LocalDateTime lastRequest = LocalDateTime.now();
     private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edApi.class);
 
     public JAddic7edApi(boolean speedy, Manager manager) {
@@ -203,11 +204,10 @@ public class JAddic7edApi extends Html {
                 return this.getHtmlDisk(url);
             } else {
                 if (!speedy && !this.isCached(url)) {
-                    long dur = new Date().getTime() - lastRequest.getTime();
-                    if (dur < RATEDURATION) {
+                    if (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
                         LOGGER.info("RateLimiet is bereikt voor ADDIC7ed, gelieve 15 sec te wachten");
                     }
-                    while (new Date().getTime() - lastRequest.getTime() < RATEDURATION) {
+                    while (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
                         try {
                             // Pause for 1 seconds
                             TimeUnit.SECONDS.sleep(1);
@@ -216,7 +216,7 @@ public class JAddic7edApi extends Html {
                             Thread.currentThread().interrupt();
                         }
                     }
-                    lastRequest = new Date();
+                    lastRequest = LocalDateTime.now();
                 }
                 return this.getHtml(url);
             }

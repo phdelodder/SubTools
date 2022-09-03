@@ -16,11 +16,10 @@ package org.lodder.subtools.sublibrary.data.tvrage;
  * You should have received a copy of the GNU General Public License along with TVRage API. If not,
  * see <http://www.gnu.org/licenses/>.
  */
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,9 +40,7 @@ import org.w3c.dom.NodeList;
 
 public class TVRageParser extends XmlHTTP {
 
-    public TVRageParser(Manager manager) {
-        super(manager);
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(TVRageParser.class);
 
     // Literals
     private static final String EPISODE = "episode";
@@ -52,7 +49,11 @@ public class TVRageParser extends XmlHTTP {
     private static final String AIRDATE = "airdate";
     private static final String COUNTRY = "country";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TVRageParser.class);
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    public TVRageParser(Manager manager) {
+        super(manager);
+    }
 
     public TVRageEpisode getEpisodeInfo(String searchUrl) {
         TVRageEpisode episode = new TVRageEpisode();
@@ -390,13 +391,7 @@ public class TVRageParser extends XmlHTTP {
         }
     }
 
-    public static Date parseDate(String strDate) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        try {
-            return formatter.parse(strDate);
-        } catch (ParseException e) {
-            LOGGER.error("TVRageParser ParseDate ", e);
-        }
-        return null;
+    public static LocalDate parseDate(String strDate) throws DateTimeParseException {
+        return LocalDate.parse(strDate, DATE_FORMATTER);
     }
 }

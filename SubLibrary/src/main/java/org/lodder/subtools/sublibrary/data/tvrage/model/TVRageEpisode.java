@@ -19,11 +19,11 @@ package org.lodder.subtools.sublibrary.data.tvrage.model;
  *      along with TVRage API.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-import static org.lodder.subtools.sublibrary.data.tvrage.TVRageApi.isValidString;
+import static org.lodder.subtools.sublibrary.data.tvrage.TVRageApi.*;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -37,7 +37,7 @@ public class TVRageEpisode implements Serializable {
     private static final String UNKNOWN = TVRageApi.UNKNOWN;
     private TVRageEpisodeNumber episodeNumber = new TVRageEpisodeNumber(0, 0);
     private String productionId = UNKNOWN;
-    private Date airDate = null;
+    private LocalDate airDate = null;
     private String link = UNKNOWN;
     private String title = UNKNOWN;
     private String summary = UNKNOWN;
@@ -82,19 +82,19 @@ public class TVRageEpisode implements Serializable {
         this.productionId = isValidString(productionId) ? productionId.trim() : UNKNOWN;
     }
 
-    public Date getAirDate() {
-        return (Date) airDate.clone();
+    public LocalDate getAirDate() {
+        return airDate;
     }
 
-    public void setAirDate(Date airDate) {
-        this.airDate = (Date) airDate.clone();
+    public void setAirDate(LocalDate airDate) {
+        this.airDate = airDate;
     }
 
     public void setAirDate(String airDate) {
         if (isValidString(airDate)) {
             try {
                 this.airDate = TVRageParser.parseDate(airDate);
-            } catch (Exception ex) {
+            } catch (DateTimeParseException ex) {
                 this.airDate = null;
             }
         } else {

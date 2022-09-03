@@ -5,9 +5,9 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,9 +27,9 @@ import org.w3c.dom.NodeList;
 
 public class JPodnapisiApi extends XmlRPC {
 
-    private Date lastCheck;
+    private LocalDateTime nextCheck;
     private final Manager manager;
-    public static final int maxAge = 90000;
+    public static final int maxAge = 90;
     private static final Logger LOGGER = LoggerFactory.getLogger(JPodnapisiApi.class);
 
     public JPodnapisiApi(String useragent, Manager manager) {
@@ -60,7 +60,7 @@ public class JPodnapisiApi extends XmlRPC {
             final String shaString = shaNumber.toString(16);
 
             Map<?, ?> responseLogin = invoke("authenticate", new String[] { getToken(), username, shaString });
-            lastCheck = new Date(System.currentTimeMillis() + maxAge);
+            nextCheck = LocalDateTime.now().plusSeconds(maxAge);
             if (!"200".equals(responseLogin.get("status").toString())) {
                 setToken(null);
             }
@@ -179,10 +179,9 @@ public class JPodnapisiApi extends XmlRPC {
     }
 
     private void keepAlive() throws Exception {
-        final Date current = new Date();
-        if (lastCheck.compareTo(current) < 0) {
+        if (LocalDateTime.now().isAfter(nextCheck)) {
             invoke("keepalive", new Object[] { getToken() });
-            lastCheck = new Date(System.currentTimeMillis() + maxAge);
+            nextCheck = LocalDateTime.now().plusSeconds(maxAge);
         }
     }
 

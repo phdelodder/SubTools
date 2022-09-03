@@ -19,12 +19,12 @@ package org.lodder.subtools.sublibrary.data.tvrage.model;
  *      along with TVRage API.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-import static org.lodder.subtools.sublibrary.data.tvrage.TVRageApi.isValidString;
+import static org.lodder.subtools.sublibrary.data.tvrage.TVRageApi.*;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -55,7 +55,7 @@ public class TVRageShowInfo implements Serializable {
     private int showID = 0;
     private String showLink = TVRageApi.UNKNOWN;
     private String showName = TVRageApi.UNKNOWN;
-    private Date startDate = null;
+    private LocalDate startDate = null;
     private int started = 0;
     private String status = TVRageApi.UNKNOWN;
     private String summary = TVRageApi.UNKNOWN;
@@ -179,8 +179,8 @@ public class TVRageShowInfo implements Serializable {
         return showName;
     }
 
-    public Date getStartDate() {
-        return (Date) startDate.clone();
+    public LocalDate getStartDate() {
+        return startDate;
     }
 
     public int getStarted() {
@@ -263,18 +263,20 @@ public class TVRageShowInfo implements Serializable {
         this.showName = isValidString(showName) ? showName : TVRageApi.UNKNOWN;
     }
 
-    public void setStartDate(Date startDate) {
-        this.startDate = (Date) startDate.clone();
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
     }
 
     public void setStartDate(String startDate) {
         if (isValidString(startDate)) {
             try {
                 this.startDate = TVRageParser.parseDate(startDate);
-            } catch (Exception ex) {
+            } catch (DateTimeParseException ex) {
                 // We can't do anything about this error, so return
                 this.startDate = null;
             }
+        } else {
+            this.startDate = null;
         }
     }
 
