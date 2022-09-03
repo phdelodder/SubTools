@@ -12,25 +12,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ExactNameFilter extends Filter {
-  
-  private static final Logger LOGGER = LoggerFactory.getLogger(ExactNameFilter.class);
 
-  @Override
-  public List<Subtitle> doFilter(Release release, List<Subtitle> Subtitles) {
-    List<Subtitle> filteredList = new ArrayList<Subtitle>();
-    Pattern p = Pattern.compile(getReleasename(release).replaceAll(" ", "[. ]"), Pattern.CASE_INSENSITIVE);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExactNameFilter.class);
 
-    for (Subtitle subtitle : Subtitles) {
-      Matcher m = p.matcher(subtitle.getFilename().toLowerCase().replace(".srt", ""));
-      if (m.matches()) {
-        LOGGER.debug("getSubtitlesFiltered: found EXACT match [{}] ", subtitle.getFilename());
-        
-        subtitle.setSubtitleMatchType(SubtitleMatchType.EXACT);
-        
-        filteredList.add(subtitle);
-      }
+    @Override
+    public List<Subtitle> doFilter(Release release, List<Subtitle> Subtitles) {
+        List<Subtitle> filteredList = new ArrayList<>();
+        Pattern p = Pattern.compile(getReleasename(release).replace(" ", "[. ]"), Pattern.CASE_INSENSITIVE);
+
+        for (Subtitle subtitle : Subtitles) {
+            Matcher m = p.matcher(subtitle.getFilename().toLowerCase().replace(".srt", ""));
+            if (m.matches()) {
+                LOGGER.debug("getSubtitlesFiltered: found EXACT match [{}] ", subtitle.getFilename());
+
+                subtitle.setSubtitleMatchType(SubtitleMatchType.EXACT);
+
+                filteredList.add(subtitle);
+            }
+        }
+
+        return filteredList;
     }
-    
-    return filteredList;
-  }
 }

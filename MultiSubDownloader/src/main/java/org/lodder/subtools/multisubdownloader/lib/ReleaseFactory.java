@@ -18,46 +18,46 @@ import org.slf4j.LoggerFactory;
 
 public class ReleaseFactory {
 
-  private ReleaseParser releaseParser;
-  private ReleaseControl releaseControl;
-  private Settings settings;
-  private Manager manager;
-  
-  private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseFactory.class);
-  
-  public ReleaseFactory(Settings settings, Manager manager){
-    releaseParser = new ReleaseParser();
-    this.settings = settings;
-    this.manager = manager;
-  }
-  
-  public Release createRelease(final File file){
-    Release r = null;
-    
-    try {
-      r = releaseParser.parse(file);
-      
-      switch (r.getVideoType()){
-        case EPISODE:
-          releaseControl = new TvReleaseControl((TvRelease) r, settings, manager);
-          break;
-        case MOVIE:
-          releaseControl = new MovieReleaseControl((MovieRelease) r, settings, manager);
-          break;
-        default:
-          break;
-      }     
-      
-      releaseControl.process(settings.getMappingSettings().getMappingList());
-      r = releaseControl.getVideoFile();
-      
-    } catch (ReleaseParseException e) {
-      LOGGER.error("createRelease", e);
-    } catch (ReleaseControlException e) {
-      LOGGER.error("createRelease", e);
-      return null;
+    private ReleaseParser releaseParser;
+    private ReleaseControl releaseControl;
+    private Settings settings;
+    private Manager manager;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseFactory.class);
+
+    public ReleaseFactory(Settings settings, Manager manager) {
+        releaseParser = new ReleaseParser();
+        this.settings = settings;
+        this.manager = manager;
     }
-    
-    return r;
-  }
+
+    public Release createRelease(final File file) {
+        Release r = null;
+
+        try {
+            r = releaseParser.parse(file);
+
+            switch (r.getVideoType()) {
+                case EPISODE:
+                    releaseControl = new TvReleaseControl((TvRelease) r, settings, manager);
+                    break;
+                case MOVIE:
+                    releaseControl = new MovieReleaseControl((MovieRelease) r, settings, manager);
+                    break;
+                default:
+                    break;
+            }
+
+            releaseControl.process(settings.getMappingSettings().getMappingList());
+            r = releaseControl.getVideoFile();
+
+        } catch (ReleaseParseException e) {
+            LOGGER.error("createRelease", e);
+        } catch (ReleaseControlException e) {
+            LOGGER.error("createRelease", e);
+            return null;
+        }
+
+        return r;
+    }
 }

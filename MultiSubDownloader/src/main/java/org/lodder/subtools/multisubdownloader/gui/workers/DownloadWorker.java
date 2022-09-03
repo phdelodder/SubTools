@@ -28,68 +28,75 @@ import org.slf4j.LoggerFactory;
  */
 public class DownloadWorker extends SwingWorker<Void, String> implements Cancelable {
 
-  private final CustomTable table;
-  private final Settings settings;
-  private DownloadAction downloadAction;
-  private SubtitleSelectionAction subtitleSelectionAction;
-  
-  private static final Logger LOGGER = LoggerFactory.getLogger(DownloadWorker.class);
+    private final CustomTable table;
+    private final Settings settings;
+    private DownloadAction downloadAction;
+    private SubtitleSelectionAction subtitleSelectionAction;
 
-  public DownloadWorker(CustomTable table, Settings settings, Manager manager, GUI gui) {
-    this.table = table;
-    this.settings = settings;
-    downloadAction = new DownloadAction(settings, manager);
-    subtitleSelectionAction = new SubtitleSelectionAction(settings);
-    subtitleSelectionAction.setSubtitleSelection(new SubtitleSelectionGUI(settings, gui));
-  }
+    private static final Logger LOGGER = LoggerFactory.getLogger(DownloadWorker.class);
 
-  protected Void doInBackground() throws Exception {
-    LOGGER.trace("doInBackground: Rows to thread: {} ", table.getModel().getRowCount());
-    Info.downloadOptions(settings, false);
-    final VideoTableModel model = (VideoTableModel) table.getModel();
-    int selectedCount = model.getSelectedCount(table.getColumnIdByName(SearchColumnName.SELECT));
-    int progress = 0;
-    int k = 0;
-    for (int i = 0; i < model.getRowCount(); i++) {
-      if ((Boolean) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.SELECT))) {
-        k++;
-        if (k > 0) progress = 100 * k / selectedCount;
-        if (progress == 0 && selectedCount > 1) progress = 1;
-        setProgress(progress);
-        final Release release =
-            (Release) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.OBJECT));
-        publish(release.getFilename());
-        int selection = subtitleSelectionAction.subtitleSelection(release, true);
-        if (selection >= 0) {
-          try {
-            if (selection == SelectDialog.SelectionType.ALL.getSelectionCode()) {
-              LOGGER.info("Downloading ALL found subtitles for release {}", release.getFilename());
-              for (int j = 0; j < release.getMatchingSubs().size(); j++) {
-                downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
-              }
-            } else {
-              downloadAction.download(release, release.getMatchingSubs().get(selection));
-            }
-            model.removeRow(i);
-            i--;
-          } catch (final Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            showErrorMessage(e.toString());
-          }
-        }
-      }
+    public DownloadWorker(CustomTable table, Settings settings, Manager manager, GUI gui) {
+        this.table = table;
+        this.settings = settings;
+        downloadAction = new DownloadAction(settings, manager);
+        subtitleSelectionAction = new SubtitleSelectionAction(settings);
+        subtitleSelectionAction.setSubtitleSelection(new SubtitleSelectionGUI(settings, gui));
     }
-    return null;
-  }
 
-  protected void process(List<String> data) {
-    for (String s : data)
-      StatusMessenger.instance.message("Ondertitel downloaden voor: " + s);
-  }
+    @Override
+    protected Void doInBackground() throws Exception {
+        LOGGER.trace("doInBackground: Rows to thread: {} ", table.getModel().getRowCount());
+        Info.downloadOptions(settings, false);
+        final VideoTableModel model = (VideoTableModel) table.getModel();
+        int selectedCount = model.getSelectedCount(table.getColumnIdByName(SearchColumnName.SELECT));
+        int progress = 0;
+        int k = 0;
+        for (int i = 0; i < model.getRowCount(); i++) {
+            if ((Boolean) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.SELECT))) {
+                k++;
+                if (k > 0) {
+                    progress = 100 * k / selectedCount;
+                }
+                if (progress == 0 && selectedCount > 1) {
+                    progress = 1;
+                }
+                setProgress(progress);
+                final Release release =
+                        (Release) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.OBJECT));
+                publish(release.getFilename());
+                int selection = subtitleSelectionAction.subtitleSelection(release, true);
+                if (selection >= 0) {
+                    try {
+                        if (selection == SelectDialog.SelectionType.ALL.getSelectionCode()) {
+                            LOGGER.info("Downloading ALL found subtitles for release {}", release.getFilename());
+                            for (int j = 0; j < release.getMatchingSubs().size(); j++) {
+                                downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
+                            }
+                        } else {
+                            downloadAction.download(release, release.getMatchingSubs().get(selection));
+                        }
+                        model.removeRow(i);
+                        i--;
+                    } catch (final Exception e) {
+                        LOGGER.error(e.getMessage(), e);
+                        showErrorMessage(e.toString());
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
-  private void showErrorMessage(String message) {
-    JOptionPane.showConfirmDialog(null, message, "JBierSubDownloader", JOptionPane.CLOSED_OPTION,
-        JOptionPane.ERROR_MESSAGE);
-  }
+    @Override
+    protected void process(List<String> data) {
+        for (String s : data) {
+            StatusMessenger.instance.message("Ondertitel downloaden voor: " + s);
+        }
+    }
+
+    private void showErrorMessage(String message) {
+        JOptionPane.showConfirmDialog(null, message, "JBierSubDownloader", JOptionPane.CLOSED_OPTION,
+                JOptionPane.ERROR_MESSAGE);
+    }
 
 }

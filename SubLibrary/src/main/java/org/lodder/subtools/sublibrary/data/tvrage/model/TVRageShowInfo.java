@@ -50,12 +50,12 @@ public class TVRageShowInfo implements Serializable {
      */
     private String airDay = TVRageApi.UNKNOWN;
     private String airTime = TVRageApi.UNKNOWN;
-    private List<TVRageCountryDetail> akas = new ArrayList<TVRageCountryDetail>();
+    private List<TVRageCountryDetail> akas = new ArrayList<>();
     private String classification = TVRageApi.UNKNOWN;
     private String country = TVRageApi.UNKNOWN;
     private String ended = TVRageApi.UNKNOWN;
-    private List<String> genres = new ArrayList<String>();
-    private List<TVRageCountryDetail> network = new ArrayList<TVRageCountryDetail>();
+    private List<String> genres = new ArrayList<>();
+    private List<TVRageCountryDetail> network = new ArrayList<>();
     private String originCountry = TVRageApi.UNKNOWN;
     private int runtime = 0;
     private int showID = 0;

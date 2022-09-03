@@ -2,8 +2,6 @@ package org.lodder.subtools.multisubdownloader.gui.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -38,273 +36,271 @@ import org.lodder.subtools.sublibrary.model.VideoType;
 
 public class StructureBuilderDialog extends MultiSubDialog implements DocumentListener {
 
-  /**
-     * 
+    /**
+     *
      */
-  private static final long serialVersionUID = -5174968778375028124L;
-  private final JPanel contentPanel = new JPanel();
-  private JTextField txtStructure;
-  private VideoType videoType;
-  private LibrarySettings librarySettings;
-  private StrucutureType structureType;
-  private JLabel lblPreview;
-  private TvRelease ep;
-  private MovieRelease mo;
-  private String oldStructure;
-  private Manager manager;
+    private static final long serialVersionUID = -5174968778375028124L;
+    private final JPanel contentPanel = new JPanel();
+    private JTextField txtStructure;
+    private VideoType videoType;
+    private LibrarySettings librarySettings;
+    private StrucutureType structureType;
+    private JLabel lblPreview;
+    private TvRelease ep;
+    private MovieRelease mo;
+    private String oldStructure;
+    private Manager manager;
 
-  public enum StrucutureType {
-    FILE, FOLDER
-  }
-
-  public StructureBuilderDialog(JFrame frame, String title, boolean modal, VideoType videoType,
-      StrucutureType structureType, LibrarySettings librarySettings, Manager manager) {
-    super(frame, title, modal);
-    this.videoType = videoType;
-    this.librarySettings = librarySettings;
-    this.structureType = structureType;
-    this.manager = manager;
-    initializeUi();
-    generateVideoFiles();
-    mo = new MovieRelease();
-  }
-
-  private void generateVideoFiles() {
-    ReleaseFactory releaseFactory = new ReleaseFactory(new Settings(), manager);
-    if (videoType == VideoType.EPISODE) {
-      ep = (TvRelease) releaseFactory.createRelease(
-      // new File(File.separator + "Castle.2009.S04E10.720p.HDTV.X264-DIMENSION.mkv"),
-          new File(File.separator + "Terra.Nova.S01E01E02.720p.HDTV.x264-ORENJI.mkv"));
-    } else if (videoType == VideoType.MOVIE) {
-      mo =
-          (MovieRelease) releaseFactory.createRelease(new File(File.separator
-              + "Final.Destination.5.720p.Bluray.x264-TWiZTED"));
-    }
-  }
-
-  private void initializeUi() {
-    setBounds(100, 100, 600, 300);
-    getContentPane().setLayout(new BorderLayout());
-    contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-    getContentPane().add(contentPanel, BorderLayout.CENTER);
-    contentPanel.setLayout(new MigLayout("", "[][grow]", "[grow][][]"));
-    tagPanel = new JPanel();
-    tagPanel.setLayout(new MigLayout("", "[150px][150px]", "[15px]"));
-
-    // add header label
-    tagPanel.add(new JLabel(Messages.getString("StructureBuilderDialog.AvailableTagsClickToAdd")),
-        "cell 0 0 2 1,alignx left,aligny top");
-    if (videoType == VideoType.EPISODE) {
-      // add tv show tags
-      buildLabelTable(EPISODE_TAGS, 4);
-
-    } else if (videoType == VideoType.MOVIE) {
-      // add movie tags
-      buildLabelTable(MOVIE_TAGS, 4);
+    public enum StrucutureType {
+        FILE, FOLDER
     }
 
-    contentPanel.add(tagPanel, "cell 0 0 2 1,grow");
-    JLabel lblNewLabel = new JLabel(Messages.getString("StructureBuilderDialog.Structure"));
-    contentPanel.add(lblNewLabel, "cell 0 1,alignx left");
-    txtStructure = new JTextField();
-    contentPanel.add(txtStructure, "cell 1 1,growx");
-    txtStructure.setColumns(10);
-    txtStructure.getDocument().addDocumentListener(this);
-    JLabel lblNewLabel_1 = new JLabel(Messages.getString("StructureBuilderDialog.Preview"));
-    contentPanel.add(lblNewLabel_1, "cell 0 2");
-    lblPreview = new JLabel("");
-    contentPanel.add(lblPreview, "cell 1 2");
-    JPanel buttonPane = new JPanel();
-    buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-    getContentPane().add(buttonPane, BorderLayout.SOUTH);
-    JButton okButton = new JButton(Messages.getString("StructureBuilderDialog.OK"));
-    okButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        setVisible(false);
-        dispose(); // this is needed to dispose the dialog and return the control to the window
-      }
-    });
-    okButton.setActionCommand("OK");
-    buttonPane.add(okButton);
-    getRootPane().setDefaultButton(okButton);
-    JButton cancelButton = new JButton(Messages.getString("StructureBuilderDialog.Cancel"));
-    cancelButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        setVisible(false);
-        txtStructure.setText(oldStructure);
-        dispose(); // this is needed to dispose the dialog and return the control to the window
-      }
-    });
-    cancelButton.setActionCommand("Cancel");
-    buttonPane.add(cancelButton);
-
-  }
-
-  // Needs miglayout
-  private void buildLabelTable(Map<String, String> map, int maxRows) {
-    int row = 0;
-    int col = 0;
-    for (Entry<String, String> entry : map.entrySet()) {
-      JLabel label = new JLabel(entry.getKey());
-      label.addMouseListener(new InsertTag());
-      label.setToolTipText(entry.getValue());
-      row++;
-      if (row > maxRows) {
-        col++;
-        row = 1;
-      }
-      tagPanel.add(label, "cell " + col + " " + row);
+    public StructureBuilderDialog(JFrame frame, String title, boolean modal, VideoType videoType,
+            StrucutureType structureType, LibrarySettings librarySettings, Manager manager) {
+        super(frame, title, modal);
+        this.videoType = videoType;
+        this.librarySettings = librarySettings;
+        this.structureType = structureType;
+        this.manager = manager;
+        initializeUi();
+        generateVideoFiles();
+        mo = new MovieRelease();
     }
-  }
 
-  public String showDialog(String structure) {
-    oldStructure = structure;
-    txtStructure.setText(structure);
-    parseText();
-    setVisible(true);
-    return txtStructure.getText();
-  }
-
-  protected void parseText() {
-    Release release = getGenerateRelease();
-    if (release == null) return;
-
-    switch (structureType) {
-      case FILE:
-        librarySettings.setLibraryFilenameStructure(txtStructure.getText());
-        FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager);
-        lblPreview.setText(filenameLibraryBuilder.build(release));
-        break;
-      case FOLDER:
-        librarySettings.setLibraryFolderStructure(txtStructure.getText());
-        PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager);
-        lblPreview.setText(pathLibraryBuilder.build(release));
-        break;
-      default:
-        break;
+    private void generateVideoFiles() {
+        ReleaseFactory releaseFactory = new ReleaseFactory(new Settings(), manager);
+        if (videoType == VideoType.EPISODE) {
+            ep = (TvRelease) releaseFactory.createRelease(
+                    // new File(File.separator + "Castle.2009.S04E10.720p.HDTV.X264-DIMENSION.mkv"),
+                    new File(File.separator + "Terra.Nova.S01E01E02.720p.HDTV.x264-ORENJI.mkv"));
+        } else if (videoType == VideoType.MOVIE) {
+            mo =
+                    (MovieRelease) releaseFactory.createRelease(new File(File.separator
+                            + "Final.Destination.5.720p.Bluray.x264-TWiZTED"));
+        }
     }
-  }
 
-  private Release getGenerateRelease() {
-    switch (videoType) {
-      case EPISODE:
-        return ep;
-      case MOVIE:
-        return mo;
-      default:
-        return null;
-    }
-  }
+    private void initializeUi() {
+        setBounds(100, 100, 600, 300);
+        getContentPane().setLayout(new BorderLayout());
+        contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+        getContentPane().add(contentPanel, BorderLayout.CENTER);
+        contentPanel.setLayout(new MigLayout("", "[][grow]", "[grow][][]"));
+        tagPanel = new JPanel();
+        tagPanel.setLayout(new MigLayout("", "[150px][150px]", "[15px]"));
 
-  @Override
-  public void changedUpdate(DocumentEvent arg0) {
-    // TODO Auto-generated method stub
+        // add header label
+        tagPanel.add(new JLabel(Messages.getString("StructureBuilderDialog.AvailableTagsClickToAdd")),
+                "cell 0 0 2 1,alignx left,aligny top");
+        if (videoType == VideoType.EPISODE) {
+            // add tv show tags
+            buildLabelTable(EPISODE_TAGS, 4);
 
-  }
-
-  @Override
-  public void insertUpdate(DocumentEvent arg0) {
-    parseText();
-
-  }
-
-  @Override
-  public void removeUpdate(DocumentEvent arg0) {
-    parseText();
-
-  }
-
-  private class InsertTag implements MouseListener {
-    private int pos, txtStructureLength;
-    private JLabel clickedLabel;
-    private String clickedTag, beforeCaret, afterCaret;
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-      pos = txtStructure.getCaretPosition();
-      txtStructureLength = txtStructure.getText().length();
-      clickedLabel = (JLabel) e.getComponent();
-      if (clickedLabel != null) {
-        clickedTag = clickedLabel.getText();
-
-        try {
-          beforeCaret = txtStructure.getText(0, pos);
-          afterCaret = txtStructure.getText(pos, txtStructureLength - pos);
-        } catch (BadLocationException ble) {
-          beforeCaret = txtStructure.getText();
-          afterCaret = "";
+        } else if (videoType == VideoType.MOVIE) {
+            // add movie tags
+            buildLabelTable(MOVIE_TAGS, 4);
         }
 
-        txtStructure.setText(String.format("%s%s%s", beforeCaret, clickedTag, afterCaret));
-      }
+        contentPanel.add(tagPanel, "cell 0 0 2 1,grow");
+        JLabel lblNewLabel = new JLabel(Messages.getString("StructureBuilderDialog.Structure"));
+        contentPanel.add(lblNewLabel, "cell 0 1,alignx left");
+        txtStructure = new JTextField();
+        contentPanel.add(txtStructure, "cell 1 1,growx");
+        txtStructure.setColumns(10);
+        txtStructure.getDocument().addDocumentListener(this);
+        JLabel lblNewLabel_1 = new JLabel(Messages.getString("StructureBuilderDialog.Preview"));
+        contentPanel.add(lblNewLabel_1, "cell 0 2");
+        lblPreview = new JLabel("");
+        contentPanel.add(lblPreview, "cell 1 2");
+        JPanel buttonPane = new JPanel();
+        buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        getContentPane().add(buttonPane, BorderLayout.SOUTH);
+        JButton okButton = new JButton(Messages.getString("StructureBuilderDialog.OK"));
+        okButton.addActionListener(e -> {
+            setVisible(false);
+            dispose(); // this is needed to dispose the dialog and return the control to the window
+        });
+        okButton.setActionCommand("OK");
+        buttonPane.add(okButton);
+        getRootPane().setDefaultButton(okButton);
+        JButton cancelButton = new JButton(Messages.getString("StructureBuilderDialog.Cancel"));
+        cancelButton.addActionListener(e -> {
+            setVisible(false);
+            txtStructure.setText(oldStructure);
+            dispose(); // this is needed to dispose the dialog and return the control to the window
+        });
+        cancelButton.setActionCommand("Cancel");
+        buttonPane.add(cancelButton);
+
     }
 
-    @Override
-    public void mouseEntered(MouseEvent e) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-      // TODO Auto-generated method stub
-
-    }
-
-  }
-
-  private static final Map<String, String> EPISODE_TAGS = Collections
-      .unmodifiableMap(new HashMap<String, String>() {
-        /**
-                 * 
-                 */
-        private static final long serialVersionUID = 3313041588123263612L;
-
-        {
-          put("%SHOW NAME%", Messages.getString("StructureBuilderDialog.NameTvShow"));
-          put("%TITLE%", Messages.getString("StructureBuilderDialog.EpisodeTitle"));
-          put("%EE%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZero"));
-          put("%EEX%",
-              Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZeroForMultipe"));
-          put("%E%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeWithoutLeadingZero"));
-          put("%EX%",
-              Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZeroMultiple"));
-          put("%SS%", Messages.getString("StructureBuilderDialog.NumberOfSeasonLeading"));
-          put("%S%", Messages.getString("StructureBuilderDialog.NumberOfSeasonsWithoutLeading"));
-          put("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfRelease"));
-          put("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.Description"));
-          put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
+    // Needs miglayout
+    private void buildLabelTable(Map<String, String> map, int maxRows) {
+        int row = 0;
+        int col = 0;
+        for (Entry<String, String> entry : map.entrySet()) {
+            JLabel label = new JLabel(entry.getKey());
+            label.addMouseListener(new InsertTag());
+            label.setToolTipText(entry.getValue());
+            row++;
+            if (row > maxRows) {
+                col++;
+                row = 1;
+            }
+            tagPanel.add(label, "cell " + col + " " + row);
         }
-      });
+    }
 
-  private static final Map<String, String> MOVIE_TAGS = Collections
-      .unmodifiableMap(new HashMap<String, String>() {
-        /**
-                 * 
-                 */
-        private static final long serialVersionUID = 5943868685951628245L;
+    public String showDialog(String structure) {
+        oldStructure = structure;
+        txtStructure.setText(structure);
+        parseText();
+        setVisible(true);
+        return txtStructure.getText();
+    }
 
-        {
-          put("%MOVIE NAME%", Messages.getString("StructureBuilderDialog.MovieName"));
-          put("%YEAR%", Messages.getString("StructureBuilderDialog.MovieYear"));
-          put("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfMovie"));
-          put("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.MovieDescription"));
-          put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
+    protected void parseText() {
+        Release release = getGenerateRelease();
+        if (release == null) {
+            return;
+        }
+
+        switch (structureType) {
+            case FILE:
+                librarySettings.setLibraryFilenameStructure(txtStructure.getText());
+                FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager);
+                lblPreview.setText(filenameLibraryBuilder.build(release));
+                break;
+            case FOLDER:
+                librarySettings.setLibraryFolderStructure(txtStructure.getText());
+                PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager);
+                lblPreview.setText(pathLibraryBuilder.build(release));
+                break;
+            default:
+                break;
+        }
+    }
+
+    private Release getGenerateRelease() {
+        switch (videoType) {
+            case EPISODE:
+                return ep;
+            case MOVIE:
+                return mo;
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void insertUpdate(DocumentEvent arg0) {
+        parseText();
+
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent arg0) {
+        parseText();
+
+    }
+
+    private class InsertTag implements MouseListener {
+        private int pos, txtStructureLength;
+        private JLabel clickedLabel;
+        private String clickedTag, beforeCaret, afterCaret;
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            pos = txtStructure.getCaretPosition();
+            txtStructureLength = txtStructure.getText().length();
+            clickedLabel = (JLabel) e.getComponent();
+            if (clickedLabel != null) {
+                clickedTag = clickedLabel.getText();
+
+                try {
+                    beforeCaret = txtStructure.getText(0, pos);
+                    afterCaret = txtStructure.getText(pos, txtStructureLength - pos);
+                } catch (BadLocationException ble) {
+                    beforeCaret = txtStructure.getText();
+                    afterCaret = "";
+                }
+
+                txtStructure.setText(String.format("%s%s%s", beforeCaret, clickedTag, afterCaret));
+            }
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+            // TODO Auto-generated method stub
 
         }
-      });
-  private JPanel tagPanel;
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            // TODO Auto-generated method stub
+
+        }
+
+    }
+
+    private static final Map<String, String> EPISODE_TAGS = Collections
+            .unmodifiableMap(new HashMap<String, String>() {
+                /**
+                         *
+                         */
+                private static final long serialVersionUID = 3313041588123263612L;
+
+                {
+                    put("%SHOW NAME%", Messages.getString("StructureBuilderDialog.NameTvShow"));
+                    put("%TITLE%", Messages.getString("StructureBuilderDialog.EpisodeTitle"));
+                    put("%EE%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZero"));
+                    put("%EEX%",
+                            Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZeroForMultipe"));
+                    put("%E%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeWithoutLeadingZero"));
+                    put("%EX%",
+                            Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZeroMultiple"));
+                    put("%SS%", Messages.getString("StructureBuilderDialog.NumberOfSeasonLeading"));
+                    put("%S%", Messages.getString("StructureBuilderDialog.NumberOfSeasonsWithoutLeading"));
+                    put("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfRelease"));
+                    put("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.Description"));
+                    put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
+                }
+            });
+
+    private static final Map<String, String> MOVIE_TAGS = Collections
+            .unmodifiableMap(new HashMap<String, String>() {
+                /**
+                         *
+                         */
+                private static final long serialVersionUID = 5943868685951628245L;
+
+                {
+                    put("%MOVIE NAME%", Messages.getString("StructureBuilderDialog.MovieName"));
+                    put("%YEAR%", Messages.getString("StructureBuilderDialog.MovieYear"));
+                    put("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfMovie"));
+                    put("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.MovieDescription"));
+                    put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
+
+                }
+            });
+    private JPanel tagPanel;
 
 }

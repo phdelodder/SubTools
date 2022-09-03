@@ -7,20 +7,20 @@ import org.opensubtitles.model.Download200Response;
 import org.opensubtitles.model.DownloadRequest;
 
 public class DownloadSubtitle extends OpenSubtitlesExecuter {
-	private final ApiClient apiClient;
+    private final ApiClient apiClient;
 
-	private int fileId;
+    private int fileId;
 
-	public DownloadSubtitle(ApiClient apiClient) {
-		this.apiClient = apiClient;
-	}
+    public DownloadSubtitle(ApiClient apiClient) {
+        this.apiClient = apiClient;
+    }
 
-	public DownloadSubtitle fileId(int fileId) {
-		this.fileId = fileId;
-		return this;
-	}
+    public DownloadSubtitle fileId(int fileId) {
+        this.fileId = fileId;
+        return this;
+    }
 
-	public Download200Response download() throws ApiException {
-		return execute(() -> new DownloadApi(apiClient).download(new DownloadRequest().fileId(fileId)));
-	}
+    public Download200Response download() throws ApiException {
+        return execute(() -> new DownloadApi(apiClient).download(new DownloadRequest().fileId(fileId)));
+    }
 }

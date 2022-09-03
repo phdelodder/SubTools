@@ -1,11 +1,11 @@
 package org.lodder.subtools.multisubdownloader.settings.model;
 
 public class ScreenSettings {
-    
+
     private boolean hideEpisode, hideSeason, hideTitle;
     private boolean hideWIP, hideType, hideFilename;
-    
-    public ScreenSettings(){
+
+    public ScreenSettings() {
         hideEpisode = false;
         hideSeason = false;
         hideTitle = false;

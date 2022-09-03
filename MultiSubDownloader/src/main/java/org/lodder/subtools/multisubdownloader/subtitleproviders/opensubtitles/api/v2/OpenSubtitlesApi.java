@@ -8,31 +8,31 @@ import org.opensubtitles.model.LoginRequest;
 
 public class OpenSubtitlesApi {
 
-	private final String apikey = "lNNp0yv0ah8gytkmYPbHwuaATJqr4rS9";
+    private final String apikey = "lNNp0yv0ah8gytkmYPbHwuaATJqr4rS9";
 
-	private final ApiClient apiClient;
+    private final ApiClient apiClient;
 
-	public OpenSubtitlesApi() {
-		apiClient = new ApiClient();
-		apiClient.setApiKey(apikey);
-	}
+    public OpenSubtitlesApi() {
+        apiClient = new ApiClient();
+        apiClient.setApiKey(apikey);
+    }
 
-	public OpenSubtitlesApi(String userName, String password) throws ApiException {
-		this();
-		login(userName, password);
-	}
+    public OpenSubtitlesApi(String userName, String password) throws ApiException {
+        this();
+        login(userName, password);
+    }
 
-	public void login(String userName, String password) throws ApiException {
-		Login200Response loginResponse =
-				new AuthenticationApi(apiClient).login("application/json", new LoginRequest().username(userName).password(password));
-		apiClient.setBearerToken(loginResponse.getToken());
-	}
+    public void login(String userName, String password) throws ApiException {
+        Login200Response loginResponse =
+                new AuthenticationApi(apiClient).login("application/json", new LoginRequest().username(userName).password(password));
+        apiClient.setBearerToken(loginResponse.getToken());
+    }
 
-	public SearchSubtitles searchSubtitles() {
-		return new SearchSubtitles(apiClient);
-	}
+    public SearchSubtitles searchSubtitles() {
+        return new SearchSubtitles(apiClient);
+    }
 
-	public DownloadSubtitle downloadSubtitle() {
-		return new DownloadSubtitle(apiClient);
-	}
+    public DownloadSubtitle downloadSubtitle() {
+        return new DownloadSubtitle(apiClient);
+    }
 }

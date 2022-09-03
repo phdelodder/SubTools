@@ -17,88 +17,75 @@ import org.slf4j.LoggerFactory;
 
 public class Bootstrapper {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(Bootstrapper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Bootstrapper.class);
 
-  private final Container app;
-  private final Settings settings;
-  private final Preferences preferences;
-  private final Manager manager;
+    private final Container app;
+    private final Settings settings;
+    private final Preferences preferences;
+    private final Manager manager;
 
-  public Bootstrapper(Container app, Settings settings, Preferences preferences, Manager manager) {
-    this.app = app;
-    this.settings = settings;
-    this.preferences = preferences;
-    this.manager = manager;
-  }
-
-  public void initialize() {
-    /* Bind Settings to IoC Container */
-    this.app.bind("Settings", new Resolver() {
-      @Override
-      public Object resolve() {
-        return settings;
-      }
-    });
-
-    /* Bind Preferences to IoC Container */
-    this.app.bind("Preferences", new Resolver() {
-      @Override
-      public Object resolve() {
-        return preferences;
-      }
-    });
-
-    /* Bind Manager to IoC Container */
-    this.app.bind("Manager", new Resolver() {
-      @Override
-      public Object resolve() {
-        return manager;
-      }
-    });
-
-    // Collect ServiceProviders
-    List<ServiceProvider> providers = this.getProviders();
-
-    // Sort according to priority
-    Collections.sort(providers, new ServiceProviderComparator());
-
-    // Register ServiceProviders
-    this.registerProviders(providers);
-  }
-
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  public List<ServiceProvider> getProviders() {
-
-    Reflections reflections = new Reflections("org.lodder.subtools.multisubdownloader");
-    Set<Class<? extends ServiceProvider>> providerClasses =
-        reflections.getSubTypesOf(ServiceProvider.class);
-
-    List<ServiceProvider> providers = new ArrayList<>();
-
-    // Intantieer alle serviceproviders
-    for (Class serviceProviderClass : providerClasses) {
-      ServiceProvider serviceProvider = null;
-
-      try {
-        Constructor constructor = serviceProviderClass.getConstructor();
-        serviceProvider = (ServiceProvider) constructor.newInstance();
-      } catch (Exception e) {
-        LOGGER.error("ServiceProvider: '{}' failed to create instance.", serviceProviderClass
-            .getClass().getName());
-      }
-
-      if (serviceProvider == null) continue;
-
-      providers.add(serviceProvider);
+    public Bootstrapper(Container app, Settings settings, Preferences preferences, Manager manager) {
+        this.app = app;
+        this.settings = settings;
+        this.preferences = preferences;
+        this.manager = manager;
     }
-    return providers;
-  }
 
-  public void registerProviders(List<ServiceProvider> providers) {
-    // Register serviceproviders
-    for (ServiceProvider provider : providers) {
-      provider.register(this.app);
-      LOGGER.debug("ServiceProvider: '{}' registered.", provider.getClass().getName());
+    public void initialize() {
+        /* Bind Settings to IoC Container */
+        this.app.bind("Settings", () -> settings);
+
+        /* Bind Preferences to IoC Container */
+        this.app.bind("Preferences", () -> preferences);
+
+        /* Bind Manager to IoC Container */
+        this.app.bind("Manager", () -> manager);
+
+        // Collect ServiceProviders
+        List<ServiceProvider> providers = this.getProviders();
+
+        // Sort according to priority
+        Collections.sort(providers, new ServiceProviderComparator());
+
+        // Register ServiceProviders
+        this.registerProviders(providers);
     }
-  }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public List<ServiceProvider> getProviders() {
+
+        Reflections reflections = new Reflections("org.lodder.subtools.multisubdownloader");
+        Set<Class<? extends ServiceProvider>> providerClasses =
+                reflections.getSubTypesOf(ServiceProvider.class);
+
+        List<ServiceProvider> providers = new ArrayList<>();
+
+        // Intantieer alle serviceproviders
+        for (Class serviceProviderClass : providerClasses) {
+            ServiceProvider serviceProvider = null;
+
+            try {
+                Constructor constructor = serviceProviderClass.getConstructor();
+                serviceProvider = (ServiceProvider) constructor.newInstance();
+            } catch (Exception e) {
+                LOGGER.error("ServiceProvider: '{}' failed to create instance.", serviceProviderClass
+                        .getClass().getName());
+            }
+
+            if (serviceProvider == null) {
+                continue;
+            }
+
+            providers.add(serviceProvider);
+        }
+        return providers;
+    }
+
+    public void registerProviders(List<ServiceProvider> providers) {
+        // Register serviceproviders
+        for (ServiceProvider provider : providers) {
+            provider.register(this.app);
+            LOGGER.debug("ServiceProvider: '{}' registered.", provider.getClass().getName());
+        }
+    }
 }

@@ -19,116 +19,122 @@ import org.slf4j.LoggerFactory;
 
 public class TvReleaseControl extends ReleaseControl {
 
-  private JTheTVDBAdapter jtvdba;
-  private final JTVRageAdapter tvra;
+    private JTheTVDBAdapter jtvdba;
+    private final JTVRageAdapter tvra;
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TvReleaseControl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TvReleaseControl.class);
 
-  public TvReleaseControl(TvRelease tvRelease, Settings settings, Manager manager) {
-    super(tvRelease, settings, manager);
-    jtvdba = JTheTVDBAdapter.getAdapter(manager);
-    tvra = new JTVRageAdapter(manager);
-  }
-
-  public void processTvdb(List<MappingTvdbScene> dict) throws ReleaseControlException {
-    setTvdbID(dict);
-    if (((TvRelease) release).getTvdbid() > 0) {
-      TheTVDBEpisode thetvdbepisode = jtvdba.getEpisode(((TvRelease) release));
-      if (thetvdbepisode != null) {
-        ((TvRelease) release).updateTvdbEpisodeInfo(thetvdbepisode);
-      } else {
-        throw new ReleaseControlException("Season " + ((TvRelease) release).getSeason()
-            + " Episode " + ((TvRelease) release).getEpisodeNumbers().toString()
-            + "not found, check file", release);
-      }
-    } else {
-      throw new ReleaseControlException("Show not found, check file", release);
+    public TvReleaseControl(TvRelease tvRelease, Settings settings, Manager manager) {
+        super(tvRelease, settings, manager);
+        jtvdba = JTheTVDBAdapter.getAdapter(manager);
+        tvra = new JTVRageAdapter(manager);
     }
-  }
 
-  public void processTVRage() throws ReleaseControlException {
-    setTvrageID();
-    TVRageEpisode tvrEpisode =
-        tvra.getEpisodeInfo(((TvRelease) release).getTvrageid(), ((TvRelease) release).getSeason(),
-            ((TvRelease) release).getEpisodeNumbers().get(0));
-    if (tvrEpisode != null) {
-      ((TvRelease) release).updateTVRageEpisodeInfo(tvrEpisode);
-    } else {
-      throw new ReleaseControlException("Season " + ((TvRelease) release).getSeason() + " Episode "
-          + ((TvRelease) release).getEpisodeNumbers().toString() + "not found, check file", release);
-    }
-  }
-
-  public void process(List<MappingTvdbScene> dict) throws ReleaseControlException {
-    TvRelease tvRelease = (TvRelease) release;
-    // return episodeFile;
-    if (tvRelease.getShow().equals("")) {
-      throw new ReleaseControlException("Unable to extract episode details, check file", release);
-    } else {
-      LOGGER.debug("process: showname [{}], season [{}], episode [{}]", tvRelease.getShow(),
-          tvRelease.getSeason(), tvRelease.getEpisodeNumbers());
-
-      if (tvRelease.isSpecial()) {
-        processSpecial(dict);
-      } else {
-        if (settings.getProcessEpisodeSource().equals(SettingsProcessEpisodeSource.TVRAGE)) {
-          processTVRage();
+    public void processTvdb(List<MappingTvdbScene> dict) throws ReleaseControlException {
+        setTvdbID(dict);
+        if (((TvRelease) release).getTvdbid() > 0) {
+            TheTVDBEpisode thetvdbepisode = jtvdba.getEpisode((TvRelease) release);
+            if (thetvdbepisode != null) {
+                ((TvRelease) release).updateTvdbEpisodeInfo(thetvdbepisode);
+            } else {
+                throw new ReleaseControlException("Season " + ((TvRelease) release).getSeason()
+                        + " Episode " + ((TvRelease) release).getEpisodeNumbers().toString()
+                        + "not found, check file", release);
+            }
+        } else {
+            throw new ReleaseControlException("Show not found, check file", release);
         }
-        processTvdb(dict);
-      }
-    }
-  }
-
-  /**
-   * @param dict
-   * @throws ReleaseControlException
-   * 
-   */
-  private void processSpecial(List<MappingTvdbScene> dict) throws ReleaseControlException {
-    TVRageEpisode tvrEpisode = null;
-    TheTVDBEpisode thetvdbepisode = null;
-    setTvrageID();
-    if (((TvRelease) release).getTvrageid() > 0) {
-      tvrEpisode =
-          tvra.getEpisodeInfo(((TvRelease) release).getTvrageid(),
-              ((TvRelease) release).getSeason(), ((TvRelease) release).getEpisodeNumbers().get(0));
-      if (tvrEpisode != null
-          && settings.getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVRAGE)
-        ((TvRelease) release).updateTVRageEpisodeInfo(tvrEpisode);
-    }
-    setTvdbID(dict);
-    if (((TvRelease) release).getTvdbid() > 0) {
-      thetvdbepisode = jtvdba.getEpisode(((TvRelease) release));
-      if (thetvdbepisode != null
-          && settings.getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVDB)
-        ((TvRelease) release).updateTvdbEpisodeInfo(thetvdbepisode);
-    }
-  }
-
-  private void setTvdbID(List<MappingTvdbScene> dict) throws ReleaseControlException {
-    int tvdbid = 0;
-    for (MappingTvdbScene mapping : dict) {
-      if (mapping.getSceneName().replaceAll("[^A-Za-z]", "")
-          .equalsIgnoreCase(((TvRelease) release).getShow().replaceAll("[^A-Za-z]", ""))) {
-        tvdbid = mapping.getTvdbId();
-      }
     }
 
-    TheTVDBSerie thetvdbserie = null;
-    if (tvdbid == 0) {
-      thetvdbserie = jtvdba.getSerie((TvRelease) release);
-    } else {
-      thetvdbserie = jtvdba.getSerie(tvdbid);
+    public void processTVRage() throws ReleaseControlException {
+        setTvrageID();
+        TVRageEpisode tvrEpisode =
+                tvra.getEpisodeInfo(((TvRelease) release).getTvrageid(), ((TvRelease) release).getSeason(),
+                        ((TvRelease) release).getEpisodeNumbers().get(0));
+        if (tvrEpisode != null) {
+            ((TvRelease) release).updateTVRageEpisodeInfo(tvrEpisode);
+        } else {
+            throw new ReleaseControlException("Season " + ((TvRelease) release).getSeason() + " Episode "
+                    + ((TvRelease) release).getEpisodeNumbers().toString() + "not found, check file", release);
+        }
     }
 
-    if (thetvdbserie == null)
-      throw new ReleaseControlException("Tvdb API, returned no result", release);
-    ((TvRelease) release).setOriginalShowName(thetvdbserie.getSerieName());
-    ((TvRelease) release).setTvdbid(Integer.parseInt(thetvdbserie.getId()));
-  }
+    @Override
+    public void process(List<MappingTvdbScene> dict) throws ReleaseControlException {
+        TvRelease tvRelease = (TvRelease) release;
+        // return episodeFile;
+        if ("".equals(tvRelease.getShow())) {
+            throw new ReleaseControlException("Unable to extract episode details, check file", release);
+        } else {
+            LOGGER.debug("process: showname [{}], season [{}], episode [{}]", tvRelease.getShow(),
+                    tvRelease.getSeason(), tvRelease.getEpisodeNumbers());
 
-  private void setTvrageID() {
-    TVRageShowInfo tvrShowInfo = tvra.searchShow((TvRelease) release);
-    if (tvrShowInfo != null) ((TvRelease) release).setTvrageid(tvrShowInfo.getShowID());
-  }
+            if (tvRelease.isSpecial()) {
+                processSpecial(dict);
+            } else {
+                if (SettingsProcessEpisodeSource.TVRAGE.equals(settings.getProcessEpisodeSource())) {
+                    processTVRage();
+                }
+                processTvdb(dict);
+            }
+        }
+    }
+
+    /**
+     * @param dict
+     * @throws ReleaseControlException
+     *
+     */
+    private void processSpecial(List<MappingTvdbScene> dict) throws ReleaseControlException {
+        TVRageEpisode tvrEpisode = null;
+        TheTVDBEpisode thetvdbepisode = null;
+        setTvrageID();
+        if (((TvRelease) release).getTvrageid() > 0) {
+            tvrEpisode =
+                    tvra.getEpisodeInfo(((TvRelease) release).getTvrageid(),
+                            ((TvRelease) release).getSeason(), ((TvRelease) release).getEpisodeNumbers().get(0));
+            if (tvrEpisode != null
+                    && settings.getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVRAGE) {
+                ((TvRelease) release).updateTVRageEpisodeInfo(tvrEpisode);
+            }
+        }
+        setTvdbID(dict);
+        if (((TvRelease) release).getTvdbid() > 0) {
+            thetvdbepisode = jtvdba.getEpisode((TvRelease) release);
+            if (thetvdbepisode != null
+                    && settings.getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVDB) {
+                ((TvRelease) release).updateTvdbEpisodeInfo(thetvdbepisode);
+            }
+        }
+    }
+
+    private void setTvdbID(List<MappingTvdbScene> dict) throws ReleaseControlException {
+        int tvdbid = 0;
+        for (MappingTvdbScene mapping : dict) {
+            if (mapping.getSceneName().replaceAll("[^A-Za-z]", "")
+                    .equalsIgnoreCase(((TvRelease) release).getShow().replaceAll("[^A-Za-z]", ""))) {
+                tvdbid = mapping.getTvdbId();
+            }
+        }
+
+        TheTVDBSerie thetvdbserie = null;
+        if (tvdbid == 0) {
+            thetvdbserie = jtvdba.getSerie((TvRelease) release);
+        } else {
+            thetvdbserie = jtvdba.getSerie(tvdbid);
+        }
+
+        if (thetvdbserie == null) {
+            throw new ReleaseControlException("Tvdb API, returned no result", release);
+        }
+        ((TvRelease) release).setOriginalShowName(thetvdbserie.getSerieName());
+        ((TvRelease) release).setTvdbid(Integer.parseInt(thetvdbserie.getId()));
+    }
+
+    private void setTvrageID() {
+        TVRageShowInfo tvrShowInfo = tvra.searchShow((TvRelease) release);
+        if (tvrShowInfo != null) {
+            ((TvRelease) release).setTvrageid(tvrShowInfo.getShowID());
+        }
+    }
 }

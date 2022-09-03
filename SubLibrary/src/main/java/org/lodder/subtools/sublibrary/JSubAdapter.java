@@ -8,7 +8,7 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 
 public interface JSubAdapter {
 
-  public abstract List<Subtitle> searchSubtitles(TvRelease tvRelease, String... sublanguageids);
+    public abstract List<Subtitle> searchSubtitles(TvRelease tvRelease, String... sublanguageids);
 
-  public abstract List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... sublanguageids);
+    public abstract List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... sublanguageids);
 }

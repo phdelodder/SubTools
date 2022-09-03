@@ -25,6 +25,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
+import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -164,7 +166,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
             }
         });
         setBounds(100, 100, 925, 680);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         final GridBagLayout gridBagLayout = new GridBagLayout();
         gridBagLayout.columnWidths = new int[] { 448, 0 };
         gridBagLayout.rowHeights = new int[] { 0, 125, 15, 0 };
@@ -172,7 +174,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
         gridBagLayout.rowWeights = new double[] { 1.0, 1.0, 0.0, Double.MIN_VALUE };
         getContentPane().setLayout(gridBagLayout);
 
-        JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+        JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);
         GridBagConstraints gbc_tabbedPane = new GridBagConstraints();
         gbc_tabbedPane.insets = new Insets(0, 0, 5, 0);
         gbc_tabbedPane.fill = GridBagConstraints.BOTH;
@@ -572,7 +574,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             Export e = new Export(settingsControl);
             File f = fc.getSelectedFile();
-            if (!XmlFileFilter.getExtension(f).equalsIgnoreCase("xml")) {
+            if (!"xml".equalsIgnoreCase(XmlFileFilter.getExtension(f))) {
                 f = new File(f.toString() + ".xml");
             }
             e.doExport(listType, f);

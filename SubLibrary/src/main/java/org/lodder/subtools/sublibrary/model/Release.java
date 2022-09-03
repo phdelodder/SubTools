@@ -4,8 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-
-public class Release extends Video{
+public class Release extends Video {
 
     private List<Subtitle> matchingSubs;
     private File path;
@@ -18,7 +17,7 @@ public class Release extends Video{
     public Release(VideoType videoType) {
         this.setVideoType(videoType);
         extension = "";
-        matchingSubs = new ArrayList<Subtitle>();
+        matchingSubs = new ArrayList<>();
         filename = "";
         path = new File("");
         quality = "";
@@ -89,20 +88,21 @@ public class Release extends Video{
         this.description = description;
     }
 
-	  /**
-	 * @return the Releasegroup
-	 */
-	  public String getReleasegroup() {
-		return releasegroup;
-	}
+    /**
+     * @return the Releasegroup
+     */
+    public String getReleasegroup() {
+        return releasegroup;
+    }
 
-	  /**
-	 * @param Releasegroup the Releasegroup to set
-	 */
-	  public void setReleasegroup(String releasegroup) {
-		this.releasegroup = releasegroup;
-	}
+    /**
+     * @param Releasegroup the Releasegroup to set
+     */
+    public void setReleasegroup(String releasegroup) {
+        this.releasegroup = releasegroup;
+    }
 
+    @Override
     public String toString() {
         return this.getClass().getSimpleName() + ": " + this.getFilename() + " " + this.getQuality();
     }

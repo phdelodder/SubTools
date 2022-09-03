@@ -22,7 +22,7 @@ import java.util.TreeSet;
  */
 
 public class FilenameExtensionFilter implements FilenameFilter {
-    private final TreeSet<String> exts = new TreeSet<String>();
+    private final TreeSet<String> exts = new TreeSet<>();
 
     public FilenameExtensionFilter(String ext) {
         exts.add("." + ext.toLowerCase().trim());
@@ -35,6 +35,7 @@ public class FilenameExtensionFilter implements FilenameFilter {
         exts.remove("");
     }
 
+    @Override
     public boolean accept(File dir, String name) {
         for (String ext : exts) {
             if (name.toLowerCase().endsWith(ext)) {

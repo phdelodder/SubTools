@@ -24,12 +24,12 @@ public class LogTextAppender extends AppenderBase<ILoggingEvent> {
     public LogTextAppender(JTextArea jTextArea) {
         this.jTextArea = jTextArea;
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        
+
         PatternLayoutEncoder patternLayoutEncoder = new PatternLayoutEncoder();
         patternLayoutEncoder.setPattern("%msg%n");
         patternLayoutEncoder.setContext(loggerContext);
         patternLayoutEncoder.start();
-        
+
         setContext(loggerContext);
         start();
         loggerContext.getLogger("ROOT").addAppender(this);
@@ -51,12 +51,9 @@ public class LogTextAppender extends AppenderBase<ILoggingEvent> {
             out.flush();
             final String line = out.toString("UTF-8");
 
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    if (jTextArea != null) {
-                        jTextArea.append(line);
-                    }
+            SwingUtilities.invokeLater(() -> {
+                if (jTextArea != null) {
+                    jTextArea.append(line);
                 }
             });
             out.reset();

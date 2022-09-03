@@ -15,36 +15,36 @@ import org.xml.sax.SAXException;
 
 public class XmlHTTP {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(XmlHTTP.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(XmlHTTP.class);
 
-  private Manager manager;
+    private Manager manager;
 
-  public XmlHTTP(Manager manager) {
-    this.manager = manager;
-  }
+    public XmlHTTP(Manager manager) {
+        this.manager = manager;
+    }
 
-  public Document getXML(String url) throws ParserConfigurationException, IOException,
-      ManagerSetupException, ManagerException {
-    LOGGER.trace("getXML {}", url);
-    return XMLHelper.getDocument(manager.getContentStream(url, null, false));
-  }
+    public Document getXML(String url) throws ParserConfigurationException, IOException,
+            ManagerSetupException, ManagerException {
+        LOGGER.trace("getXML {}", url);
+        return XMLHelper.getDocument(manager.getContentStream(url, null, false));
+    }
 
-  public Document getXMLDisk(String url) throws ManagerSetupException, ManagerException,
-      ParserConfigurationException, SAXException, IOException {
-    LOGGER.trace("getXMLDisk {}", url);
-    String content = manager.getContent(url, null, true);
-    // Bierdopje issue! OElig
-    content = content.replaceAll("&OElig;", "Œ");
-    // Bierdopje issue! &Pi;
-    content = content.replaceAll("&Pi;", "\u003A0").replaceAll("&pi;", "\u003A0");
-    // BIerdopje issue! &hellip;
-    content = content.replaceAll("&hellip;", "...");
-    return XMLHelper.getDocument(content);
-  }
+    public Document getXMLDisk(String url) throws ManagerSetupException, ManagerException,
+            ParserConfigurationException, SAXException, IOException {
+        LOGGER.trace("getXMLDisk {}", url);
+        String content = manager.getContent(url, null, true);
+        // Bierdopje issue! OElig
+        content = content.replace("&OElig;", "Œ");
+        // Bierdopje issue! &Pi;
+        content = content.replace("&Pi;", "\u003A0").replace("&pi;", "\u003A0");
+        // BIerdopje issue! &hellip;
+        content = content.replace("&hellip;", "...");
+        return XMLHelper.getDocument(content);
+    }
 
-  public void removeCacheEntry(String url) throws ManagerSetupException {
-    LOGGER.trace("removeCacheEntry {}", url);
-    manager.removeCacheObject(url);
-  }
+    public void removeCacheEntry(String url) throws ManagerSetupException {
+        LOGGER.trace("removeCacheEntry {}", url);
+        manager.removeCacheObject(url);
+    }
 
 }

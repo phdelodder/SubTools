@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.TreeSet;
 
 public class FilenameContainsFilter implements FilenameFilter {
-    private final TreeSet<String> contains = new TreeSet<String>();
+    private final TreeSet<String> contains = new TreeSet<>();
 
     public FilenameContainsFilter(String s) {
         contains.add(s.trim());
@@ -18,7 +18,7 @@ public class FilenameContainsFilter implements FilenameFilter {
         }
         contains.remove("");
     }
-    
+
     @Override
     public boolean accept(File dir, String name) {
         for (String contain : contains) {

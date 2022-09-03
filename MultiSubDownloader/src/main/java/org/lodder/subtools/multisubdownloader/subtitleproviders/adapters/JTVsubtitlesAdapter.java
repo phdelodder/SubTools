@@ -20,71 +20,74 @@ import org.slf4j.LoggerFactory;
 
 public class JTVsubtitlesAdapter implements JSubAdapter, SubtitleProvider {
 
-  private static JTVSubtitlesApi jtvapi;
-  private static final Logger LOGGER = LoggerFactory.getLogger(JTVsubtitlesAdapter.class);
+    private static JTVSubtitlesApi jtvapi;
+    private static final Logger LOGGER = LoggerFactory.getLogger(JTVsubtitlesAdapter.class);
 
-  public JTVsubtitlesAdapter(Manager manager) {
-    try {
-      if (jtvapi == null) jtvapi = new JTVSubtitlesApi(manager);
-    } catch (Exception e) {
-      LOGGER.error("API JTVsubtitles INIT", e);
-    }
-  }
-
-  @Override
-  public String getName() {
-    return "TvSubtitles";
-  }
-
-  @Override
-  public List<Subtitle> search(Release release, String languageCode) {
-    if (release instanceof MovieRelease) {
-      return this.searchSubtitles((MovieRelease) release, languageCode);
-    } else if (release instanceof TvRelease) {
-      return this.searchSubtitles((TvRelease) release, languageCode);
-    }
-    return new ArrayList<Subtitle>();
-  }
-
-  @Override
-  public List<Subtitle> searchSubtitles(TvRelease tvRelease, String... sublanguageids) {
-    List<TVsubtitlesSubtitleDescriptor> lSubtitles = new ArrayList<TVsubtitlesSubtitleDescriptor>();
-    List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
-    try {
-      String showName = "";
-      if (tvRelease.getOriginalShowName().length() > 0) {
-        showName = tvRelease.getOriginalShowName();
-      } else {
-        showName = tvRelease.getShow();
-      }
-
-      if (showName.length() > 0) {
-        if (showName.contains("(") && showName.contains(")")) {
-          String alterName = showName.substring(0, showName.indexOf("(") - 1).trim();
-          lSubtitles =
-              jtvapi.searchSubtitles(alterName, tvRelease.getSeason(), tvRelease
-                  .getEpisodeNumbers().get(0), tvRelease.getTitle(), sublanguageids[0]);
+    public JTVsubtitlesAdapter(Manager manager) {
+        try {
+            if (jtvapi == null) {
+                jtvapi = new JTVSubtitlesApi(manager);
+            }
+        } catch (Exception e) {
+            LOGGER.error("API JTVsubtitles INIT", e);
         }
-        lSubtitles.addAll(jtvapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease
-            .getEpisodeNumbers().get(0), tvRelease.getTitle(), sublanguageids[0]));
-      }
-    } catch (Exception e) {
-      LOGGER.error("API JTVsubtitles searchSubtitles using title", e);
     }
-    for (TVsubtitlesSubtitleDescriptor sub : lSubtitles) {
-      listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.TVSUBTITLES, sub.Filename,
-          sub.Url, sublanguageids[0],
-          ReleaseParser.getQualityKeyword(sub.Filename + " " + sub.Rip),
-          SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(sub.Filename,
-              FilenameUtils.isExtension(sub.Filename, "srt")), sub.Author, false));
-    }
-    return listFoundSubtitles;
-  }
 
-  @Override
-  public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... sublanguageids) {
-    // TODO Auto-generated method stub
-    return null;
-  }
+    @Override
+    public String getName() {
+        return "TvSubtitles";
+    }
+
+    @Override
+    public List<Subtitle> search(Release release, String languageCode) {
+        if (release instanceof MovieRelease) {
+            return this.searchSubtitles((MovieRelease) release, languageCode);
+        } else if (release instanceof TvRelease) {
+            return this.searchSubtitles((TvRelease) release, languageCode);
+        }
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<Subtitle> searchSubtitles(TvRelease tvRelease, String... sublanguageids) {
+        List<TVsubtitlesSubtitleDescriptor> lSubtitles = new ArrayList<>();
+        List<Subtitle> listFoundSubtitles = new ArrayList<>();
+        try {
+            String showName = "";
+            if (tvRelease.getOriginalShowName().length() > 0) {
+                showName = tvRelease.getOriginalShowName();
+            } else {
+                showName = tvRelease.getShow();
+            }
+
+            if (showName.length() > 0) {
+                if (showName.contains("(") && showName.contains(")")) {
+                    String alterName = showName.substring(0, showName.indexOf("(") - 1).trim();
+                    lSubtitles =
+                            jtvapi.searchSubtitles(alterName, tvRelease.getSeason(), tvRelease
+                                    .getEpisodeNumbers().get(0), tvRelease.getTitle(), sublanguageids[0]);
+                }
+                lSubtitles.addAll(jtvapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease
+                        .getEpisodeNumbers().get(0), tvRelease.getTitle(), sublanguageids[0]));
+            }
+        } catch (Exception e) {
+            LOGGER.error("API JTVsubtitles searchSubtitles using title", e);
+        }
+        for (TVsubtitlesSubtitleDescriptor sub : lSubtitles) {
+            listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.TVSUBTITLES, sub.Filename,
+                    sub.Url, sublanguageids[0],
+                    ReleaseParser.getQualityKeyword(sub.Filename + " " + sub.Rip),
+                    SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(sub.Filename,
+                            FilenameUtils.isExtension(sub.Filename, "srt")),
+                    sub.Author, false));
+        }
+        return listFoundSubtitles;
+    }
+
+    @Override
+    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... sublanguageids) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

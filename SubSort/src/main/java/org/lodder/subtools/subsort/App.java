@@ -19,67 +19,68 @@ import ch.qos.logback.core.ConsoleAppender;
 
 public class App {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
-  
-  public static void main(String[] args) {
-    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-    PatternLayoutEncoder ple = new PatternLayoutEncoder();
-    
-    ple.setPattern("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
-    ple.setContext(lc);
-    ple.start();
-    
-    ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<ILoggingEvent>();
-    consoleAppender.setEncoder(ple);
-    consoleAppender.setContext(lc);
-    consoleAppender.start();
-    
-    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
-    root.addAppender(consoleAppender);
-    root.setLevel(Level.INFO);
+    private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
-    CommandLineParser parser = new GnuParser();
-    HelpFormatter formatter = new HelpFormatter();
+    public static void main(String[] args) {
+        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+        PatternLayoutEncoder ple = new PatternLayoutEncoder();
 
-    CommandLine line = null;
+        ple.setPattern("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
+        ple.setContext(lc);
+        ple.start();
 
-    try {
-      line = parser.parse(getCLIOptions(), args);
-    } catch (ParseException e) {
-      LOGGER.error("Unable to parse cli options", e);
-    }
+        ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<>();
+        consoleAppender.setEncoder(ple);
+        consoleAppender.setContext(lc);
+        consoleAppender.start();
 
-    if (line != null) {
-      if (line.hasOption("help")) {
-        formatter.printHelp("SubSort", getCLIOptions());
-      } else {
-        SortSubtitle sortSubtitle = new SortSubtitle();
-        if (line.hasOption("rebuildindex")) {
-          sortSubtitle.reBuildIndex(new File(line.getOptionValue("outputfolder")));
-        } else if (line.hasOption("removefromarchive")) {
-          sortSubtitle.removeFromRepo(new File(line.getOptionValue("removefromarchive")), new File(
-              line.getOptionValue("outputfolder")));
-        } else {
-          sortSubtitle.run(line.hasOption("remove"), new File(line.getOptionValue("inputfolder")),
-              new File(line.getOptionValue("outputfolder")), line.hasOption("cleanup"));
+        ch.qos.logback.classic.Logger root =
+                (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root.addAppender(consoleAppender);
+        root.setLevel(Level.INFO);
+
+        CommandLineParser parser = new GnuParser();
+        HelpFormatter formatter = new HelpFormatter();
+
+        CommandLine line = null;
+
+        try {
+            line = parser.parse(getCLIOptions(), args);
+        } catch (ParseException e) {
+            LOGGER.error("Unable to parse cli options", e);
         }
-      }
+
+        if (line != null) {
+            if (line.hasOption("help")) {
+                formatter.printHelp("SubSort", getCLIOptions());
+            } else {
+                SortSubtitle sortSubtitle = new SortSubtitle();
+                if (line.hasOption("rebuildindex")) {
+                    sortSubtitle.reBuildIndex(new File(line.getOptionValue("outputfolder")));
+                } else if (line.hasOption("removefromarchive")) {
+                    sortSubtitle.removeFromRepo(new File(line.getOptionValue("removefromarchive")), new File(
+                            line.getOptionValue("outputfolder")));
+                } else {
+                    sortSubtitle.run(line.hasOption("remove"), new File(line.getOptionValue("inputfolder")),
+                            new File(line.getOptionValue("outputfolder")), line.hasOption("cleanup"));
+                }
+            }
+        }
     }
-  }
 
-  private static Options getCLIOptions() {
-    /**
-     * CLI Options
-     */
-    Options options = new Options();
-    options.addOption("help", false, "print this message");
-    options.addOption("removefromarchive", true, "remove subtitle from archive");
-    options.addOption("remove", false, "remove subtitles when copy to the index folder");
-    options.addOption("rebuildindex", false, "rebuild index, ignoring the current index");
-    options.addOption("inputfolder", true, "the folder to be sorted");
-    options.addOption("outputfolder", true, "the folder containing the index");
-    options.addOption("cleanup", false, "clean up none exising subtitles in index");
+    private static Options getCLIOptions() {
+        /**
+         * CLI Options
+         */
+        Options options = new Options();
+        options.addOption("help", false, "print this message");
+        options.addOption("removefromarchive", true, "remove subtitle from archive");
+        options.addOption("remove", false, "remove subtitles when copy to the index folder");
+        options.addOption("rebuildindex", false, "rebuild index, ignoring the current index");
+        options.addOption("inputfolder", true, "the folder to be sorted");
+        options.addOption("outputfolder", true, "the folder containing the index");
+        options.addOption("cleanup", false, "clean up none exising subtitles in index");
 
-    return options;
-  }
+        return options;
+    }
 }

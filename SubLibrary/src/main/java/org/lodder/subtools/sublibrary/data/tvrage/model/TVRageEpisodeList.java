@@ -53,7 +53,7 @@ public class TVRageEpisodeList implements Serializable {
     public TVRageEpisodeList() {
         showName = TVRageApi.UNKNOWN;
         totalSeasons = 0;
-        episodeList = new TreeMap<TVRageEpisodeNumber, TVRageEpisode>();
+        episodeList = new TreeMap<>();
     }
 
     public boolean isValid() {

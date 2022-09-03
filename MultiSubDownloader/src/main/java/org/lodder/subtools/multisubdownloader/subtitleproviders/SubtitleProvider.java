@@ -6,17 +6,17 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 
 public interface SubtitleProvider {
 
-  /**
-   * @return The name of the SubtitleProvider
-   */
-  public abstract String getName();
+    /**
+     * @return The name of the SubtitleProvider
+     */
+    public abstract String getName();
 
-  /**
-   * Starts a search for subtitles
-   *
-   * @param release The release being searched for
-   * @param languageCode The language of the desired subtitles
-   * @return The found subtitles
-   */
-  public List<Subtitle> search(Release release, String languageCode);
+    /**
+     * Starts a search for subtitles
+     *
+     * @param release The release being searched for
+     * @param languageCode The language of the desired subtitles
+     * @return The found subtitles
+     */
+    public List<Subtitle> search(Release release, String languageCode);
 }

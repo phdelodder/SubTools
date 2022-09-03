@@ -2,7 +2,6 @@ package org.lodder.subtools.sublibrary.model;
 
 import java.io.File;
 
-
 public class MovieRelease extends Release {
 
     private String title;
@@ -46,16 +45,17 @@ public class MovieRelease extends Release {
         this.imdbid = imdbid;
     }
 
-    public String getImdbidAsString(){
+    public String getImdbidAsString() {
         String imdbidstr = String.valueOf(this.getImdbid());
-        while (imdbidstr.length() < 7){
+        while (imdbidstr.length() < 7) {
             imdbidstr = 0 + imdbidstr;
         }
         return "tt" + imdbidstr;
     }
 
+    @Override
     public String toString() {
         return this.getClass().getSimpleName() + ": " + this.getTitle() + " " + this.getQuality() + " "
-          + this.getReleasegroup();
+                + this.getReleasegroup();
     }
 }

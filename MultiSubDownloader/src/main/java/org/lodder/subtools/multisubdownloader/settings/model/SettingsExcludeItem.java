@@ -26,5 +26,4 @@ public class SettingsExcludeItem {
         return type;
     }
 
-
 }
