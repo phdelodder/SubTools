@@ -22,9 +22,7 @@ public class JTheTVDBAdapter {
         this.jtvapi = null;
         try {
             this.jtvapi = new TheTVDBApiV2("A1720D2DDFDCE82D");
-            exceptions =
-                    manager
-                            .downloadText2("https://raw.githubusercontent.com/midgetspy/sb_tvdb_scene_exceptions/gh-pages/exceptions.txt");
+            exceptions = manager.downloadText2("https://raw.githubusercontent.com/midgetspy/sb_tvdb_scene_exceptions/gh-pages/exceptions.txt");
         } catch (TheTVDBException | ManagerException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -109,9 +107,6 @@ public class JTheTVDBAdapter {
         return 0;
     }
 
-    /**
-     * @return JTheTVDBAdapter
-     */
     public synchronized static JTheTVDBAdapter getAdapter(Manager manager) {
         if (adapter == null) {
             adapter = new JTheTVDBAdapter(manager);

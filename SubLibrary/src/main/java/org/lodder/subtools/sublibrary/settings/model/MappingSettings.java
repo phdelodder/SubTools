@@ -27,16 +27,10 @@ public class MappingSettings {
         this.mappingList = mappingList;
     }
 
-    /**
-     * @return the mappingVersion
-     */
     public int getMappingVersion() {
         return mappingVersion;
     }
 
-    /**
-     * @param mappingVersion the mappingVersion to set
-     */
     public void setMappingVersion(int mappingVersion) {
         this.mappingVersion = mappingVersion;
     }

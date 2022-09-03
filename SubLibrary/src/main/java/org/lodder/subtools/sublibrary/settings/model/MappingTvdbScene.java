@@ -21,16 +21,10 @@ public class MappingTvdbScene implements Serializable {
         return sceneName;
     }
 
-    /**
-     * @return the tvdbId
-     */
     public int getTvdbId() {
         return tvdbId;
     }
 
-    /**
-     * @param tvdbId the tvdbId to set
-     */
     public void setTvdbId(int tvdbId) {
         this.tvdbId = tvdbId;
     }

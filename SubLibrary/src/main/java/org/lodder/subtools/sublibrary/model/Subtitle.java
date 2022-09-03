@@ -124,30 +124,18 @@ public class Subtitle {
         return subtitleSource;
     }
 
-    /**
-     * @return the releasegroup
-     */
     public String getReleasegroup() {
         return releasegroup;
     }
 
-    /**
-     * @param releasegroup the releasegroup to set
-     */
     public void setReleasegroup(String releasegroup) {
         this.releasegroup = releasegroup;
     }
 
-    /**
-     * @return the uploader
-     */
     public String getUploader() {
         return uploader;
     }
 
-    /**
-     * @param uploader the uploader to set
-     */
     public void setUploader(String uploader) {
         if (uploader == null) {
             uploader = "";
@@ -155,16 +143,10 @@ public class Subtitle {
         this.uploader = uploader;
     }
 
-    /**
-     * @return the hearingImpaired
-     */
     public boolean isHearingImpaired() {
         return hearingImpaired;
     }
 
-    /**
-     * @param hearingImpaired the hearingImpaired to set
-     */
     public void setHearingImpaired(boolean hearingImpaired) {
         this.hearingImpaired = hearingImpaired;
     }

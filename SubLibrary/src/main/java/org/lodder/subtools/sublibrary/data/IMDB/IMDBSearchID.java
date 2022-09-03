@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 public class IMDBSearchID {
 
-    private Manager manager;
+    private final Manager manager;
     private static String DEFAULTUSERAGENT = "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)";
     private static final Logger LOGGER = LoggerFactory.getLogger(IMDBSearchID.class);
 
@@ -30,8 +30,7 @@ public class IMDBSearchID {
         String xml = "";
 
         try {
-            StringBuilder sb =
-                    new StringBuilder("http://search.yahoo.com/search;_ylt=A1f4cfvx9C1I1qQAACVjAQx.?p=");
+            StringBuilder sb = new StringBuilder("http://search.yahoo.com/search;_ylt=A1f4cfvx9C1I1qQAACVjAQx.?p=");
             sb.append(URLEncoder.encode(title, "UTF-8"));
 
             if (year > 0) {

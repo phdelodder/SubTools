@@ -31,7 +31,7 @@ import java.util.StringTokenizer;
 
 public class CookieManager {
 
-    private Map<String, Map<String, Map<String, String>>> store;
+    private final Map<String, Map<String, Map<String, String>>> store;
 
     private static final String SET_COOKIE = "Set-Cookie";
     private static final String COOKIE_VALUE_DELIMITER = ";";
@@ -44,7 +44,7 @@ public class CookieManager {
     private static final char NAME_VALUE_SEPARATOR = '=';
     private static final char DOT = '.';
 
-    private DateFormat dateFormat;
+    private final DateFormat dateFormat;
 
     public CookieManager() {
         store = new HashMap<>();
@@ -191,7 +191,6 @@ public class CookieManager {
     /**
      * Returns a string representation of stored cookies organized by domain.
      */
-
     @Override
     public String toString() {
         return store.toString();

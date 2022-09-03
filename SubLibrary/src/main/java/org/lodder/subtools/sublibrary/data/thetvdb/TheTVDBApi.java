@@ -1,12 +1,10 @@
 package org.lodder.subtools.sublibrary.data.thetvdb;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.lodder.subtools.sublibrary.Manager;
@@ -70,21 +68,13 @@ public class TheTVDBApi {
 
                 Element eElement = (Element) nList.item(i);
                 if (eElement != null) {
-                    String seriesName =
-                            org.lodder.subtools.sublibrary.xml.XMLHelper
-                                    .getStringTagValue("SeriesName", eElement);
-                    if (seriesName.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(
-                            seriename.replaceAll("[^A-Za-z]", ""))) {
-                        return org.lodder.subtools.sublibrary.xml.XMLHelper
-                                .getIntTagValue("seriesid", eElement);
+                    String seriesName = org.lodder.subtools.sublibrary.xml.XMLHelper.getStringTagValue("SeriesName", eElement);
+                    if (seriesName.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(seriename.replaceAll("[^A-Za-z]", ""))) {
+                        return org.lodder.subtools.sublibrary.xml.XMLHelper.getIntTagValue("seriesid", eElement);
                     }
-                    String aliasNames =
-                            org.lodder.subtools.sublibrary.xml.XMLHelper
-                                    .getStringTagValue("AliasNames", eElement);
-                    if (aliasNames.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(
-                            seriename.replaceAll("[^A-Za-z]", ""))) {
-                        return org.lodder.subtools.sublibrary.xml.XMLHelper
-                                .getIntTagValue("seriesid", eElement);
+                    String aliasNames = org.lodder.subtools.sublibrary.xml.XMLHelper.getStringTagValue("AliasNames", eElement);
+                    if (aliasNames.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(seriename.replaceAll("[^A-Za-z]", ""))) {
+                        return org.lodder.subtools.sublibrary.xml.XMLHelper.getIntTagValue("seriesid", eElement);
                     }
                 }
             }
@@ -104,8 +94,7 @@ public class TheTVDBApi {
                 String urlAll = createApiUrl("series", new String[] { Integer.toString(tvdbid), ALL_URL });
                 NodeList nList = tryGettingData(new String[] { url, url, urlAll });
 
-                if (nList != null && nList.getLength() > 0
-                        && nList.item(0).getNodeType() == Node.ELEMENT_NODE) {
+                if (nList != null && nList.getLength() > 0 && nList.item(0).getNodeType() == Node.ELEMENT_NODE) {
                     return parseSerieNode((Element) nList.item(0));
                 }
             } else {
@@ -166,8 +155,7 @@ public class TheTVDBApi {
         return epList;
     }
 
-    public TheTVDBEpisode getEpisode(int tvdbid, int season, int episode, String language)
-            throws TheTVDBException {
+    public TheTVDBEpisode getEpisode(int tvdbid, int season, int episode, String language) throws TheTVDBException {
         StringBuilder urlString = new StringBuilder();
         try {
             urlString.append(getXmlMirror());

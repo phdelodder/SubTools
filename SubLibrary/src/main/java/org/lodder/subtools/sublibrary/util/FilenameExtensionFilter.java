@@ -29,19 +29,11 @@ public class FilenameExtensionFilter implements FilenameFilter {
     }
 
     public FilenameExtensionFilter(String[] extensions) {
-        for (String s : Arrays.asList(extensions)) {
-            exts.add("." + s.toLowerCase().trim());
-        }
-        exts.remove("");
+        Arrays.stream(extensions).map(s -> s.toLowerCase().trim()).filter(""::equals).forEach(exts::add);
     }
 
     @Override
     public boolean accept(File dir, String name) {
-        for (String ext : exts) {
-            if (name.toLowerCase().endsWith(ext)) {
-                return true;
-            }
-        }
-        return false;
+        return exts.stream().anyMatch(name.toLowerCase()::endsWith);
     }
 }

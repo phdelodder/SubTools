@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.Console;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -48,8 +47,8 @@ import org.w3c.dom.NodeList;
 public class SortSubtitle {
 
     private static final String BACKING_STORE_AVAIL = "BackingStoreAvail";
-    private Preferences preferences;
-    private MappingSettingsControl mappingSettingsCtrl;
+    private final Preferences preferences;
+    private final MappingSettingsControl mappingSettingsCtrl;
     private static Manager manager = new Manager();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSubtitle.class);
@@ -393,11 +392,7 @@ public class SortSubtitle {
         }
         if (cleanUp) {
             LOGGER.info("Performing clean up!");
-            try {
-                Files.deleteEmptyFolders(inputDir);
-            } catch (FileNotFoundException e) {
-                LOGGER.error("", e);
-            }
+            Files.deleteEmptyFolders(inputDir);
         }
 
         Iterator<IndexSubtitle> i = index.iterator();

@@ -78,10 +78,6 @@ public class DropBoxClient {
         // }
     }
 
-    /**
-     * @param location
-     * @return
-     */
     public String getFile(String location) {
         String content = "";
         try {

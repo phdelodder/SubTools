@@ -20,8 +20,7 @@ public class ManagerException extends Exception {
         super(cause);
     }
 
-    protected ManagerException(String message, Throwable cause, boolean enableSuppression,
-            boolean writableStackTrace) {
+    protected ManagerException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

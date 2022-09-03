@@ -1,12 +1,13 @@
 package org.lodder.subtools.sublibrary.util;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class NamedMatcher implements NamedMatchResult {
 
@@ -96,11 +97,7 @@ public class NamedMatcher implements NamedMatchResult {
 
     @Override
     public List<String> orderedGroups() {
-        ArrayList<String> groups = new ArrayList<>();
-        for (int i = 1; i <= groupCount(); i++) {
-            groups.add(group(i));
-        }
-        return groups;
+        return IntStream.rangeClosed(1, groupCount()).sequential().mapToObj(this::group).collect(Collectors.toList());
     }
 
     @Override
@@ -110,15 +107,10 @@ public class NamedMatcher implements NamedMatchResult {
 
     @Override
     public Map<String, String> namedGroups() {
-        Map<String, String> result = new LinkedHashMap<>();
-
-        for (int i = 1; i <= groupCount(); i++) {
-            String groupName = parentPattern.groupNames().get(i - 1);
-            String groupValue = matcher.group(i);
-            result.put(groupName, groupValue);
-        }
-
-        return result;
+        return IntStream.rangeClosed(1, groupCount()).sequential()
+                .collect(LinkedHashMap::new,
+                        (map, i) -> map.put(parentPattern.groupNames().get(i - 1), matcher.group(i)),
+                        Map::putAll);
     }
 
     private int groupIndex(String groupName) {

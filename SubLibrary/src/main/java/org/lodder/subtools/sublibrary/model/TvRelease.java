@@ -73,30 +73,18 @@ public class TvRelease extends Release {
         return title;
     }
 
-    /**
-     * @return the tvdbid
-     */
     public int getTvdbid() {
         return tvdbid;
     }
 
-    /**
-     * @param tvdbid the tvdbid to set
-     */
     public void setTvdbid(int tvdbid) {
         this.tvdbid = tvdbid;
     }
 
-    /**
-     * @return the orignalShowName
-     */
     public String getOriginalShowName() {
         return originalShowName;
     }
 
-    /**
-     * @param orignalShowName the orignalShowName to set
-     */
     public void setOriginalShowName(String originalShowName) {
         this.originalShowName = originalShowName;
     }
@@ -113,30 +101,18 @@ public class TvRelease extends Release {
         this.setTitle(tvdbEpisode.getEpisodeName()); // update to reflect correct episode title
     }
 
-    /**
-     * @return the tvrageid
-     */
     public int getTvrageid() {
         return tvrageid;
     }
 
-    /**
-     * @param tvrageid the tvrageid to set
-     */
     public void setTvrageid(int tvrageid) {
         this.tvrageid = tvrageid;
     }
 
-    /**
-     * @return the special
-     */
     public boolean isSpecial() {
         return special;
     }
 
-    /**
-     * @param special the special to set
-     */
     public void setSpecial(boolean special) {
         this.special = special;
     }

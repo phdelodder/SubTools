@@ -55,7 +55,6 @@ public class MovieRelease extends Release {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + ": " + this.getTitle() + " " + this.getQuality() + " "
-                + this.getReleasegroup();
+        return this.getClass().getSimpleName() + ": " + this.getTitle() + " " + this.getQuality() + " " + this.getReleasegroup();
     }
 }

@@ -6,7 +6,6 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -142,7 +141,7 @@ public class Files {
         }
     }
 
-    public static void deleteEmptyFolders(File aStartingDir) throws FileNotFoundException {
+    public static void deleteEmptyFolders(File aStartingDir) {
         List<File> emptyFolders = new ArrayList<>();
         findEmptyFoldersInDir(aStartingDir, emptyFolders);
 

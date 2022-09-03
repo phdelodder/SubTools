@@ -41,13 +41,7 @@ import org.lodder.subtools.sublibrary.data.tvrage.TVRageParser;
  */
 public class TVRageShowInfo implements Serializable {
 
-    /*
-     * Serial Version
-     */
     private static final long serialVersionUID = 1L;
-    /*
-     * Properties
-     */
     private String airDay = TVRageApi.UNKNOWN;
     private String airTime = TVRageApi.UNKNOWN;
     private List<TVRageCountryDetail> akas = new ArrayList<>();
@@ -210,19 +204,11 @@ public class TVRageShowInfo implements Serializable {
     }
 
     public void setAirDay(String airDay) {
-        if (isValidString(airDay)) {
-            this.airDay = airDay;
-        } else {
-            this.airDay = TVRageApi.UNKNOWN;
-        }
+        this.airDay = isValidString(airDay) ? airDay : TVRageApi.UNKNOWN;
     }
 
     public void setAirTime(String airTime) {
-        if (isValidString(airTime)) {
-            this.airTime = airTime;
-        } else {
-            this.airTime = TVRageApi.UNKNOWN;
-        }
+        this.airTime = isValidString(airTime) ? airTime : TVRageApi.UNKNOWN;
     }
 
     public void setAkas(List<TVRageCountryDetail> akas) {
@@ -230,27 +216,15 @@ public class TVRageShowInfo implements Serializable {
     }
 
     public void setClassification(String classification) {
-        if (isValidString(classification)) {
-            this.classification = classification;
-        } else {
-            this.classification = TVRageApi.UNKNOWN;
-        }
+        this.classification = isValidString(classification) ? classification : TVRageApi.UNKNOWN;
     }
 
     public void setCountry(String country) {
-        if (isValidString(country)) {
-            this.country = country;
-        } else {
-            this.country = TVRageApi.UNKNOWN;
-        }
+        this.country = isValidString(country) ? country : TVRageApi.UNKNOWN;
     }
 
     public void setEnded(String ended) {
-        if (isValidString(ended)) {
-            this.ended = ended;
-        } else {
-            this.ended = TVRageApi.UNKNOWN;
-        }
+        this.ended = isValidString(ended) ? ended : TVRageApi.UNKNOWN;
     }
 
     public void setGenres(List<String> genres) {
@@ -262,11 +236,7 @@ public class TVRageShowInfo implements Serializable {
     }
 
     public void setOriginCountry(String originCountry) {
-        if (isValidString(originCountry)) {
-            this.originCountry = originCountry;
-        } else {
-            this.originCountry = TVRageApi.UNKNOWN;
-        }
+        this.originCountry = isValidString(originCountry) ? originCountry : TVRageApi.UNKNOWN;
     }
 
     public void setRuntime(int runtime) {
@@ -286,19 +256,11 @@ public class TVRageShowInfo implements Serializable {
     }
 
     public void setShowLink(String showLink) {
-        if (isValidString(showLink)) {
-            this.showLink = showLink;
-        } else {
-            this.showLink = TVRageApi.UNKNOWN;
-        }
+        this.showLink = isValidString(showLink) ? showLink : TVRageApi.UNKNOWN;
     }
 
     public void setShowName(String showName) {
-        if (isValidString(showName)) {
-            this.showName = showName;
-        } else {
-            this.showName = TVRageApi.UNKNOWN;
-        }
+        this.showName = isValidString(showName) ? showName : TVRageApi.UNKNOWN;
     }
 
     public void setStartDate(Date startDate) {
@@ -325,27 +287,15 @@ public class TVRageShowInfo implements Serializable {
     }
 
     public void setStatus(String status) {
-        if (isValidString(status)) {
-            this.status = status;
-        } else {
-            this.status = TVRageApi.UNKNOWN;
-        }
+        this.status = isValidString(status) ? status : TVRageApi.UNKNOWN;
     }
 
     public void setSummary(String summary) {
-        if (isValidString(summary)) {
-            this.summary = summary;
-        } else {
-            this.summary = TVRageApi.UNKNOWN;
-        }
+        this.summary = isValidString(summary) ? summary : TVRageApi.UNKNOWN;
     }
 
     public void setTimezone(String timezone) {
-        if (isValidString(timezone)) {
-            this.timezone = timezone;
-        } else {
-            this.timezone = TVRageApi.UNKNOWN;
-        }
+        this.timezone = isValidString(timezone) ? timezone : TVRageApi.UNKNOWN;
     }
 
     public void setTotalSeasons(int totalSeasons) {

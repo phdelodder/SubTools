@@ -13,19 +13,11 @@ public class FilenameContainsFilter implements FilenameFilter {
     }
 
     public FilenameContainsFilter(String[] sarray) {
-        for (String s : Arrays.asList(sarray)) {
-            contains.add(s.trim());
-        }
-        contains.remove("");
+        Arrays.stream(sarray).map(String::trim).filter(""::equals).forEach(contains::add);
     }
 
     @Override
     public boolean accept(File dir, String name) {
-        for (String contain : contains) {
-            if (name.contains(contain)) {
-                return true;
-            }
-        }
-        return false;
+        return contains.stream().anyMatch(name::contains);
     }
 }

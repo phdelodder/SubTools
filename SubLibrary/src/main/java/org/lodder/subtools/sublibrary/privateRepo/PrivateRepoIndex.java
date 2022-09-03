@@ -262,10 +262,6 @@ public class PrivateRepoIndex {
         }
     }
 
-    /**
-     * @param filename
-     * @return
-     */
     public static String extractOriginalFilename(String name) {
         if (name.contains("--")) {
             return name.split("--")[0] + "." + FilenameUtils.getExtension(name);
@@ -273,10 +269,6 @@ public class PrivateRepoIndex {
         return name;
     }
 
-    /**
-     * @param indexSubtitle
-     * @return
-     */
     public static String getFullFilename(IndexSubtitle indexSubtitle) {
         return getFullFilename(indexSubtitle.getFilename(), indexSubtitle.getUploader(),
                 indexSubtitle.getOriginalSource());

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 import org.lodder.subtools.sublibrary.exception.ReleaseParseException;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
@@ -91,10 +92,8 @@ public class ReleaseParser {
                     number = namedMatcher.group("romanepisode");
                 }
 
-                return new Object[] {
-                        cleanUnwantedChars(namedMatcher.group("moviename") + " " + namedMatcher.group("part")
-                                + " " + number),
-                        year, description };
+                return new Object[] { cleanUnwantedChars(namedMatcher.group("moviename") + " " + namedMatcher.group("part") + " " + number), year,
+                        description };
             } else {
                 return new Object[] { cleanUnwantedChars(namedMatcher.group("moviename")), year, description };
             }
@@ -112,8 +111,7 @@ public class ReleaseParser {
             }
             Collections.sort(episodenumbers);
         } else if (namedgroups.contains("episodenumberstart")) {
-            LOGGER.trace("parsePatternResult: episodenumberstart: {}",
-                    namedMatcher.group("episodenumberstart"));
+            LOGGER.trace("parsePatternResult: episodenumberstart: {}", namedMatcher.group("episodenumberstart"));
             // Multiple episodes, regex specifies start and end number
             int start = Integer.parseInt(namedMatcher.group("episodenumberstart"));
             int end = Integer.parseInt(namedMatcher.group("episodenumberend"));
@@ -122,14 +120,11 @@ public class ReleaseParser {
                 start = end;
                 end = temp;
             }
-            for (int i = start; i <= end; i++) {
-                episodenumbers.add(i);
-            }
+            IntStream.rangeClosed(start, end).forEach(episodenumbers::add);
         } else if (namedgroups.contains("episodenumber")) {
             LOGGER.trace("parsePatternResult: episodenumber: {}", namedMatcher.group("episodenumber"));
             episodenumbers.add(Integer.parseInt(namedMatcher.group("episodenumber")));
-        } else if (namedgroups.contains("year") || namedgroups.contains("month")
-                || namedgroups.contains("day")) {
+        } else if (namedgroups.contains("year") || namedgroups.contains("month") || namedgroups.contains("day")) {
             // need to implement
         } else if (namedgroups.contains("romanepisode") && !namedgroups.contains("year")) {
             episodenumbers.add(Roman.decode(namedMatcher.group("romanepisode")));
@@ -150,8 +145,7 @@ public class ReleaseParser {
         } else if (namedgroups.contains("part") && !namedgroups.contains("year")) {
             seasonnumber = 1;
             return new Object[] { seriesname, seasonnumber, episodenumbers, description };
-        } else if (namedgroups.contains("year") && namedgroups.contains("month")
-                && namedgroups.contains("day")) {
+        } else if (namedgroups.contains("year") && namedgroups.contains("month") && namedgroups.contains("day")) {
             // need to implement
         } else if (namedgroups.contains("season_episode")) {
             LOGGER.trace("parsePatternResult: season_episode: {}", namedMatcher.group("season_episode"));
@@ -186,8 +180,7 @@ public class ReleaseParser {
         text = text.replace(")", ""); // remove ) for castle (2009)
         text = text.replace("'", "");
 
-        if (text.endsWith("-")) // implemented if for "hawaii five-0"
-        {
+        if (text.endsWith("-")) { // implemented if for "hawaii five-0"
             text = text.replace("-", ""); // remove space dash "altiplano-cd1"
         }
 

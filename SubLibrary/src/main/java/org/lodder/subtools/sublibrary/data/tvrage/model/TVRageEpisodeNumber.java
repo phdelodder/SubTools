@@ -29,13 +29,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 public class TVRageEpisodeNumber implements Comparable<TVRageEpisodeNumber>, Serializable {
 
-    /*
-     * Serial Version
-     */
     private static final long serialVersionUID = 1L;
-    /*
-     * Properties
-     */
     private static final int FACTOR = 1000;
     // The absolute episode number across all seasons
     private int absolute;

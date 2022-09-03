@@ -17,7 +17,7 @@ import org.lodder.subtools.sublibrary.xml.XMLMappingTvdbScene;
 public class MappingSettingsControl {
 
     private MappingSettings mappingSettings;
-    private Preferences preferences;
+    private final Preferences preferences;
 
     public MappingSettingsControl(Preferences preferences) {
         setMappingSettings(new MappingSettings());
@@ -83,16 +83,10 @@ public class MappingSettingsControl {
         // }
     }
 
-    /**
-     * @return the mappingSettings
-     */
     public MappingSettings getMappingSettings() {
         return mappingSettings;
     }
 
-    /**
-     * @param mappingSettings the mappingSettings to set
-     */
     public void setMappingSettings(MappingSettings mappingSettings) {
         this.mappingSettings = mappingSettings;
     }

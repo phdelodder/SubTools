@@ -24,30 +24,19 @@ public class DiskCache<K, T> extends InMemoryCache<K, T> {
         if (!path.exists() && !path.mkdir()) {
             throw new RuntimeException("Could not create folder " + path);
         }
-        PreparedStatement prep = null;
         try {
             Class.forName("org.hsqldb.jdbcDriver");
-            conn =
-                    DriverManager.getConnection("jdbc:hsqldb:file:" + path.toString()
-                            + "/diskcache.hsqldb;hsqldb.write_delay=false;shutdown=true", username, password);
-
-            prep =
-                    conn.prepareStatement("create table IF NOT EXISTS cacheobjects (key OTHER, cacheobject OTHER);");
-            prep.execute();
-            prep.close();
-            fillCacheMap();
+            conn = DriverManager.getConnection("jdbc:hsqldb:file:" + path.toString() + "/diskcache.hsqldb;hsqldb.write_delay=false;shutdown=true",
+                    username, password);
+            try (PreparedStatement prep = conn.prepareStatement("create table IF NOT EXISTS cacheobjects (key OTHER, cacheobject OTHER);")) {
+                prep.execute();
+                prep.close();
+                fillCacheMap();
+            }
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Unable to load jdbcdriver for diskcache");
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        } finally {
-            try {
-                if (prep != null) {
-                    prep.close();
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
         }
     }
 
@@ -81,8 +70,7 @@ public class DiskCache<K, T> extends InMemoryCache<K, T> {
     @Override
     public void put(K key, T value) {
         super.put(key, value);
-        try (PreparedStatement prep =
-                conn.prepareCall("INSERT INTO cacheobjects (key,cacheobject) VALUES (?,?)")) {
+        try (PreparedStatement prep = conn.prepareCall("INSERT INTO cacheobjects (key,cacheobject) VALUES (?,?)")) {
             prep.clearParameters();
             prep.setObject(1, key);
             synchronized (cacheMap) {

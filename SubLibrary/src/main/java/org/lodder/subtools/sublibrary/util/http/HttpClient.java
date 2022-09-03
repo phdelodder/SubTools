@@ -15,7 +15,6 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -65,21 +64,15 @@ public class HttpClient {
         throw new HttpClientException((HttpURLConnection) conn);
     }
 
-    public String doPost(URL url, String userAgent, Map<String, String> data)
-            throws HttpClientSetupException, HttpClientException {
+    public String doPost(URL url, String userAgent, Map<String, String> data) throws HttpClientSetupException, HttpClientException {
         validate();
 
         HttpURLConnection conn = null;
-        StringBuilder urlParameters = new StringBuilder();
 
         try {
-
-            for (Entry<String, String> entry : data.entrySet()) {
-                if (urlParameters.length() > 0) {
-                    urlParameters.append("&");
-                }
-                urlParameters.append(entry.getKey()).append("=").append(URLEncoder.encode(entry.getValue(), "UTF-8"));
-            }
+            String urlParameters = data.entrySet().stream()
+                    .map(entry -> entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8))
+                    .collect(Collectors.joining("&"));
 
             conn = (HttpURLConnection) url.openConnection();
             cookieManager.setCookies(conn);
@@ -88,15 +81,14 @@ public class HttpClient {
                 conn.setRequestProperty("user-agent", userAgent);
             }
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            conn.setRequestProperty("Content-Length",
-                    "" + Integer.toString(urlParameters.toString().getBytes("UTF-8").length));
+            conn.setRequestProperty("Content-Length", "" + Integer.toString(urlParameters.getBytes("UTF-8").length));
             conn.setUseCaches(false);
             conn.setDoInput(true);
             conn.setDoOutput(true);
             conn.setInstanceFollowRedirects(false);
 
             try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
-                out.writeBytes(urlParameters.toString());
+                out.writeBytes(urlParameters);
                 out.flush();
                 out.close();
             }
@@ -201,26 +193,16 @@ public class HttpClient {
     }
 
     public static boolean isUrl(String str) {
-        Pattern urlPattern = Pattern.compile(
-                "((https?|ftp|gopher|telnet|file):((//)|(\\\\\\\\))+[\\\\w\\\\d:#@%/;$()~_?\\\\+-=\\\\\\\\\\\\.&]*)",
+        Pattern urlPattern = Pattern.compile("((https?|ftp|gopher|telnet|file):((//)|(\\\\\\\\))+[\\\\w\\\\d:#@%/;$()~_?\\\\+-=\\\\\\\\\\\\.&]*)",
                 Pattern.CASE_INSENSITIVE);
         Matcher matcher = urlPattern.matcher(str);
         return matcher.find();
     }
 
     public String downloadText(String url) throws java.io.IOException {
-        BufferedReader in = null;
-        String content = null;
-        try {
-            in = new BufferedReader(new InputStreamReader(new URL(url).openStream(), StandardCharsets.UTF_8));
-            content = in.lines().collect(Collectors.joining());
-
-        } finally {
-            if (in != null) {
-                in.close();
-            }
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(new URL(url).openStream(), StandardCharsets.UTF_8))) {
+            return in.lines().collect(Collectors.joining());
         }
-        return content.toString();
     }
 
 }

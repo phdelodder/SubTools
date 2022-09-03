@@ -44,8 +44,7 @@ public class PrivateRepo {
             if (rVersion.exists()) {
                 localVersion = Integer.parseInt(Files.read(rVersion).trim());
             }
-            indexVersion =
-                    Integer.parseInt(DropBoxClient.getDropBoxClient().getFile(indexVersionUrl).trim());
+            indexVersion = Integer.parseInt(DropBoxClient.getDropBoxClient().getFile(indexVersionUrl).trim());
             if (indexVersion > localVersion || !rIndex.exists()) {
                 strIndex = DropBoxClient.getDropBoxClient().getFile(indexUrl);
                 Files.write(rIndex, strIndex);

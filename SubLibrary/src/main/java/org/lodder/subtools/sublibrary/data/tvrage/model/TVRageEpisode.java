@@ -33,13 +33,7 @@ import org.lodder.subtools.sublibrary.data.tvrage.TVRageParser;
 
 public class TVRageEpisode implements Serializable {
 
-    /*
-     * Serial Version
-     */
     private static final long serialVersionUID = 1L;
-    /*
-     * Properties
-     */
     private static final String UNKNOWN = TVRageApi.UNKNOWN;
     private TVRageEpisodeNumber episodeNumber = new TVRageEpisodeNumber(0, 0);
     private String productionId = UNKNOWN;
@@ -85,11 +79,7 @@ public class TVRageEpisode implements Serializable {
     }
 
     public void setProductionId(String productionId) {
-        if (isValidString(productionId)) {
-            this.productionId = productionId.trim();
-        } else {
-            this.productionId = UNKNOWN;
-        }
+        this.productionId = isValidString(productionId) ? productionId.trim() : UNKNOWN;
     }
 
     public Date getAirDate() {
@@ -117,11 +107,7 @@ public class TVRageEpisode implements Serializable {
     }
 
     public void setLink(String link) {
-        if (isValidString(link)) {
-            this.link = link.trim();
-        } else {
-            this.link = UNKNOWN;
-        }
+        this.link = isValidString(link) ? link.trim() : UNKNOWN;
     }
 
     public String getTitle() {
@@ -129,11 +115,7 @@ public class TVRageEpisode implements Serializable {
     }
 
     public void setTitle(String title) {
-        if (isValidString(title)) {
-            this.title = title.trim();
-        } else {
-            this.title = UNKNOWN;
-        }
+        this.title = isValidString(title) ? title.trim() : UNKNOWN;
     }
 
     public String getSummary() {
@@ -141,11 +123,7 @@ public class TVRageEpisode implements Serializable {
     }
 
     public void setSummary(String summary) {
-        if (isValidString(summary)) {
-            this.summary = summary.trim();
-        } else {
-            this.summary = UNKNOWN;
-        }
+        this.summary = isValidString(summary) ? summary.trim() : UNKNOWN;
     }
 
     public float getRating() {
@@ -170,10 +148,6 @@ public class TVRageEpisode implements Serializable {
     }
 
     public void setScreenCap(String screenCap) {
-        if (isValidString(screenCap)) {
-            this.screenCap = screenCap.trim();
-        } else {
-            this.screenCap = UNKNOWN;
-        }
+        this.screenCap = isValidString(screenCap) ? screenCap.trim() : UNKNOWN;
     }
 }
