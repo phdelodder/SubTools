@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -45,8 +46,8 @@ public class Manager {
     }
 
     public InputStream getContentStream(String urlString, String userAgent, boolean longTermCache)
-            throws ManagerSetupException, ManagerException, IOException {
-        return IOUtils.toInputStream(getContent(urlString, userAgent, longTermCache), "UTF-8");
+            throws ManagerSetupException, ManagerException {
+        return IOUtils.toInputStream(getContent(urlString, userAgent, longTermCache), StandardCharsets.UTF_8);
     }
 
     public String getContent(String urlString, String userAgent, boolean longTermCache)

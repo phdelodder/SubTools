@@ -2,9 +2,11 @@ package org.lodder.subtools.sublibrary.data.thetvdb;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.lodder.subtools.sublibrary.Manager;
@@ -48,7 +50,7 @@ public class TheTVDBApi {
         String url = getXmlMirror() + "/api/GetSeries.php?seriesname=";
 
         try {
-            url = url + URLEncoder.encode(seriename, "UTF-8");
+            url = url + URLEncoder.encode(seriename, StandardCharsets.UTF_8);
 
             Document doc = xmlHTTPAPI.getXMLDisk(url);
             NodeList nList = null;

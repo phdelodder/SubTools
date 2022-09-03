@@ -34,8 +34,7 @@ public class App {
         consoleAppender.setContext(lc);
         consoleAppender.start();
 
-        ch.qos.logback.classic.Logger root =
-                (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root.addAppender(consoleAppender);
         root.setLevel(Level.INFO);
 

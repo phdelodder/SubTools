@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -17,8 +18,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -108,7 +109,7 @@ public class XMLHelper {
     public static void writeToFile(File file, Document doc) throws Exception {
         String xmlString = getXMLAsString(doc);
         try (FileOutputStream os = new FileOutputStream(file)) {
-            byte[] xmlStringContent = xmlString.getBytes("UTF-8");
+            byte[] xmlStringContent = xmlString.getBytes(StandardCharsets.UTF_8);
             os.write(xmlStringContent);
             os.close();
         }
@@ -136,9 +137,8 @@ public class XMLHelper {
         return result.getWriter().toString();
     }
 
-    public static Document getDocument(String string) throws ParserConfigurationException,
-            SAXException, IOException {
-        return getDocument(new ByteArrayInputStream(string.getBytes("UTF-8")));
+    public static Document getDocument(String string) throws ParserConfigurationException, SAXException, IOException {
+        return getDocument(new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8)));
     }
 
     public static Document getDocument(InputStream inputStream) throws ParserConfigurationException,

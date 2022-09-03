@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -54,11 +55,9 @@ public class SortSubtitle {
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSubtitle.class);
 
     public SortSubtitle() {
-        DiskCache<String, String> diskCache = new DiskCache<>(
-                TimeUnit.SECONDS.convert(5, TimeUnit.DAYS), 100, 500, "user", "pass");
+        DiskCache<String, String> diskCache = new DiskCache<>(TimeUnit.SECONDS.convert(5, TimeUnit.DAYS), 100, 500, "user", "pass");
         manager.setDiskCache(diskCache);
-        InMemoryCache<String, String> inMemoryCache =
-                new InMemoryCache<>(TimeUnit.SECONDS.convert(10, TimeUnit.MINUTES), 10, 500);
+        InMemoryCache<String, String> inMemoryCache = new InMemoryCache<>(TimeUnit.SECONDS.convert(10, TimeUnit.MINUTES), 10, 500);
         manager.setInMemoryCache(inMemoryCache);
         HttpClient httpClient = new HttpClient();
         httpClient.setCookieManager(new CookieManager());
@@ -132,25 +131,18 @@ public class SortSubtitle {
                     int tvdbid = 0;
                     for (MappingTvdbScene mapping : mappingSettingsCtrl.getMappingSettings()
                             .getMappingList()) {
-                        if (mapping.getSceneName().replaceAll("[^A-Za-z]", "")
-                                .equalsIgnoreCase(tvRelease.getShow().replaceAll("[^A-Za-z]", ""))) {
+                        if (mapping.getSceneName().replaceAll("[^A-Za-z]", "").equalsIgnoreCase(tvRelease.getShow().replaceAll("[^A-Za-z]", ""))) {
                             tvdbid = mapping.getTvdbId();
                             break;
                         }
                     }
 
-                    TheTVDBSerie thetvdbserie = null;
-                    if (tvdbid == 0) {
-                        thetvdbserie = jtvdb.getSerie(tvRelease);
-                    } else {
-                        thetvdbserie = jtvdb.getSerie(tvdbid);
-                    }
+                    TheTVDBSerie thetvdbserie = tvdbid == 0 ? jtvdb.getSerie(tvRelease) : jtvdb.getSerie(tvdbid);
 
                     if (thetvdbserie != null) {
                         LOGGER.info("Got serie info: {} ", thetvdbserie.getId());
                         final String show = replaceWindowsChars(thetvdbserie.getSerieName());
-                        String path =
-                                outputDir + File.separator + show + File.separator + tvRelease.getSeason();
+                        String path = outputDir + File.separator + show + File.separator + tvRelease.getSeason();
                         String language = "";
                         try {
                             language = file.getParent();
@@ -161,9 +153,8 @@ public class SortSubtitle {
                             LOGGER.error("Exception during detectlanguage", e);
                         }
                         for (int i = 0; i < tvRelease.getEpisodeNumbers().size(); i++) {
-                            final File pathFolder =
-                                    new File(path + File.separator + tvRelease.getEpisodeNumbers().get(i)
-                                            + File.separator + language + File.separator);
+                            final File pathFolder = new File(path + File.separator + tvRelease.getEpisodeNumbers().get(i)
+                                    + File.separator + language + File.separator);
                             final File to = new File(pathFolder, release.getFilename());
                             if (to.exists()) {
                                 index.add(new IndexSubtitle(show, tvRelease.getSeason(),
@@ -494,11 +485,8 @@ public class SortSubtitle {
         StringBuilder builder2 = new StringBuilder();
         String y = "", z = "";
 
-        try (
-                BufferedReader bfr =
-                        new BufferedReader(new InputStreamReader(new FileInputStream(f1), "UTF-8"));
-                BufferedReader bfr1 =
-                        new BufferedReader(new InputStreamReader(new FileInputStream(f2), "UTF-8"))) {
+        try (BufferedReader bfr = new BufferedReader(new InputStreamReader(new FileInputStream(f1), StandardCharsets.UTF_8));
+                BufferedReader bfr1 = new BufferedReader(new InputStreamReader(new FileInputStream(f2), StandardCharsets.UTF_8))) {
 
             while ((y = bfr.readLine()) != null) {
                 builder1.append(y);

@@ -2,6 +2,7 @@ package org.lodder.subtools.sublibrary.data.thetvdb;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class TheTVDBApiV2 {
 
     public int searchSerie(String seriename, String language) throws TheTVDBException {
         try {
-            String encodedSerieName = URLEncoder.encode(seriename, "UTF-8");
+            String encodedSerieName = URLEncoder.encode(seriename, StandardCharsets.UTF_8);
             Response<SeriesResultsResponse> response = theTvdb.search().series(encodedSerieName, null, null, null, language).execute();
             if (response.isSuccessful()) {
                 List<Series> series = response.body().data;

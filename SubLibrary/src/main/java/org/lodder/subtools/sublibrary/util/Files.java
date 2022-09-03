@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -52,7 +53,7 @@ public class Files {
     }
 
     public static String read(File file) throws IOException {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
             StringBuilder sb = new StringBuilder();
             String line = br.readLine();
 
@@ -67,7 +68,7 @@ public class Files {
 
     public static void write(File file, String content) throws IOException {
         try (FileOutputStream os = new FileOutputStream(file)) {
-            byte[] bytesContent = content.getBytes("UTF-8");
+            byte[] bytesContent = content.getBytes(StandardCharsets.UTF_8);
             os.write(bytesContent);
         }
     }

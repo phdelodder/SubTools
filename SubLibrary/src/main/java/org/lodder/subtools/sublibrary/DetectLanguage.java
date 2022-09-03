@@ -3,13 +3,13 @@ package org.lodder.subtools.sublibrary;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
-import me.champeau.ld.UberLanguageDetector;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.FileUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import me.champeau.ld.UberLanguageDetector;
 
 public class DetectLanguage {
 
@@ -37,7 +37,7 @@ public class DetectLanguage {
     private static String readText(File file) {
         String text = "";
         try {
-            text = FileUtils.readFileToString(file, "UTF-8");
+            text = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
         } catch (FileNotFoundException e) {
             LOGGER.error("File not found to detect language", e);
         } catch (IOException e) {

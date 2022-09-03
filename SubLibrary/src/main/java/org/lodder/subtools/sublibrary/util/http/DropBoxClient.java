@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,11 +81,9 @@ public class DropBoxClient {
 
     public String getFile(String location) {
         String content = "";
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             dbxClient.files().download(location).download(outputStream);
-            content = outputStream.toString("UTF-8");
-            outputStream.close();
+            content = outputStream.toString(StandardCharsets.UTF_8);
         } catch (DbxException | IOException e) {
             LOGGER.error("getFile", e);
         }

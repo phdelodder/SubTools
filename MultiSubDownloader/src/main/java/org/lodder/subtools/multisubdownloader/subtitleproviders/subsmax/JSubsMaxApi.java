@@ -1,6 +1,7 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,8 +24,7 @@ public class JSubsMaxApi extends Html {
         super(manager, DEFAULTUSERAGENT);
     }
 
-    public List<SubMaxSubtitleDescriptor> searchSubtitles(String name, int season, int episode,
-            String languageid) {
+    public List<SubMaxSubtitleDescriptor> searchSubtitles(String name, int season, int episode, String languageid) {
 
         List<SubMaxSubtitleDescriptor> lSubtitles = new ArrayList<>();
         SubMaxSubtitleDescriptor submaxitem = null;
@@ -42,7 +42,7 @@ public class JSubsMaxApi extends Html {
         byte[] byteArray;
         try {
             String html = this.getHtml(url);
-            byteArray = html.getBytes("UTF-8");
+            byteArray = html.getBytes(StandardCharsets.UTF_8);
 
             ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArray);
             XMLInputFactory inputFactory = XMLInputFactory.newInstance();

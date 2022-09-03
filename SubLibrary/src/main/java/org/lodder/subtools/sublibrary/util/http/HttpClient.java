@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -57,7 +56,7 @@ public class HttpClient {
         int respCode = ((HttpURLConnection) conn).getResponseCode();
 
         if (respCode == 200) {
-            String result = IOUtils.toString(conn.getInputStream(), "UTF-8");
+            String result = IOUtils.toString(conn.getInputStream(), StandardCharsets.UTF_8);
             ((HttpURLConnection) conn).disconnect();
             return result;
         }
@@ -81,7 +80,7 @@ public class HttpClient {
                 conn.setRequestProperty("user-agent", userAgent);
             }
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            conn.setRequestProperty("Content-Length", "" + Integer.toString(urlParameters.getBytes("UTF-8").length));
+            conn.setRequestProperty("Content-Length", "" + Integer.toString(urlParameters.getBytes(StandardCharsets.UTF_8).length));
             conn.setUseCaches(false);
             conn.setDoInput(true);
             conn.setDoOutput(true);
@@ -99,12 +98,10 @@ public class HttpClient {
                 return doGet(new URL(conn.getHeaderField("Location")), userAgent);
             }
 
-            String result = IOUtils.toString(conn.getInputStream(), "UTF-8");
+            String result = IOUtils.toString(conn.getInputStream(), StandardCharsets.UTF_8);
             conn.disconnect();
             return result;
 
-        } catch (UnsupportedEncodingException e) {
-            throw new HttpClientException(e, null);
         } catch (IOException e) {
             throw new HttpClientException(e, conn);
         } finally {
@@ -135,7 +132,7 @@ public class HttpClient {
                 if (Files.isGZipCompressed(data)) {
                     data = Files.decompressGZip(data);
                 }
-                String content = new String(data, "UTF-8");
+                String content = new String(data, StandardCharsets.UTF_8);
                 if (content.contains("Daily Download count exceeded")) {
                     LOGGER.error("Download problem: Addic7ed Daily Download count exceeded!");
                     success = false;

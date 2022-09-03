@@ -1,6 +1,7 @@
 package org.lodder.subtools.sublibrary.data.IMDB;
 
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.StringTokenizer;
 
 import org.lodder.subtools.sublibrary.Manager;
@@ -31,7 +32,7 @@ public class IMDBSearchID {
 
         try {
             StringBuilder sb = new StringBuilder("http://search.yahoo.com/search;_ylt=A1f4cfvx9C1I1qQAACVjAQx.?p=");
-            sb.append(URLEncoder.encode(title, "UTF-8"));
+            sb.append(URLEncoder.encode(title, StandardCharsets.UTF_8));
 
             if (year > 0) {
                 sb.append("+%28").append(year).append("%29");
@@ -60,7 +61,7 @@ public class IMDBSearchID {
 
         try {
             StringBuilder sb = new StringBuilder("http://www.google.com/search?q=");
-            sb.append(URLEncoder.encode(title, "UTF-8"));
+            sb.append(URLEncoder.encode(title, StandardCharsets.UTF_8));
 
             if (year > 0) {
                 sb.append("+%28").append(year).append("%29");

@@ -4,6 +4,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -86,7 +87,7 @@ public class JAddic7edApi extends Html {
     }
 
     private String searchName(String name) throws Exception {
-        String url = "http://www.addic7ed.com/search.php?search=" + URLEncoder.encode(name, "UTF-8") + "&Submit=Search";
+        String url = "http://www.addic7ed.com/search.php?search=" + URLEncoder.encode(name, StandardCharsets.UTF_8) + "&Submit=Search";
 
         String content = this.getContent(true, url);
 

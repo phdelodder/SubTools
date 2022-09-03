@@ -2,7 +2,7 @@ package org.lodder.subtools.sublibrary.privateRepo;
 
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +41,7 @@ public class PrivateRepoIndex {
 
         byte[] byteArray;
         try {
-            byteArray = index.getBytes("UTF-8");
+            byteArray = index.getBytes(StandardCharsets.UTF_8);
 
             ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArray);
             XMLInputFactory inputFactory = XMLInputFactory.newInstance();
@@ -149,7 +149,7 @@ public class PrivateRepoIndex {
 
             }
 
-        } catch (UnsupportedEncodingException | XMLStreamException e) {
+        } catch (XMLStreamException e) {
             LOGGER.error("getIndex()", e);
         }
 

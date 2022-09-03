@@ -1,7 +1,7 @@
 package org.lodder.subtools.sublibrary.data.tvrage;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,13 +86,7 @@ public class TVRageApi {
         tvrageURL.append(urlParameter);
         tvrageURL.append("?");
 
-        String encUrlData = urlData;
-        try {
-            encUrlData = URLEncoder.encode(urlData, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        String encUrlData = URLEncoder.encode(urlData, StandardCharsets.UTF_8);
 
         if (API_SEARCH.equalsIgnoreCase(urlParameter)) {
             tvrageURL.append("show=").append(encUrlData);

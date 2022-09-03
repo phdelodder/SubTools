@@ -1,9 +1,9 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
@@ -65,29 +65,22 @@ public class JPodnapisiAdapter implements JSubAdapter, SubtitleProvider {
             }
         }
         if (lSubtitles.size() == 0) {
-            try {
-                lSubtitles.addAll(jpapi.searchSubtitles(movieRelease.getTitle(), movieRelease.getYear(), 0, 0, sublanguageid[0]));
-            } catch (Exception e) {
-                LOGGER.error("API PODNAPISI searchSubtitles using title", e);
-            }
+            lSubtitles.addAll(jpapi.searchSubtitles(movieRelease.getTitle(), movieRelease.getYear(), 0, 0, sublanguageid[0]));
         }
         return buildListSubtitles(sublanguageid[0], lSubtitles);
     }
 
     @Override
     public List<Subtitle> searchSubtitles(TvRelease tvRelease, String... sublanguageid) {
-        List<PodnapisiSubtitleDescriptor> lSubtitles = new ArrayList<>();
 
         String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getShow();
+        List<PodnapisiSubtitleDescriptor> lSubtitles;
         if (showName.length() > 0) {
-
-            for (int episode : tvRelease.getEpisodeNumbers()) {
-                try {
-                    lSubtitles = jpapi.searchSubtitles(showName, 0, tvRelease.getSeason(), episode, sublanguageid[0]);
-                } catch (IOException e) {
-                    LOGGER.error("API PODNAPISI searchSubtitles", e);
-                }
-            }
+            lSubtitles = tvRelease.getEpisodeNumbers().stream()
+                    .flatMap(episode -> jpapi.searchSubtitles(showName, 0, tvRelease.getSeason(), episode, sublanguageid[0]).stream())
+                    .collect(Collectors.toList());
+        } else {
+            lSubtitles = new ArrayList<>();
         }
         return buildListSubtitles(sublanguageid[0], lSubtitles);
     }

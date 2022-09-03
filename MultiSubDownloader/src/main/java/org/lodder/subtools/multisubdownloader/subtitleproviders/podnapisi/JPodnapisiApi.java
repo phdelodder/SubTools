@@ -1,8 +1,8 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -50,17 +50,16 @@ public class JPodnapisiApi extends XmlRPC {
             final MessageDigest sha = MessageDigest.getInstance("SHA-256");
             sha.reset();
 
-            final byte[] md5Digest = md.digest(password.getBytes("UTF-8"));
+            final byte[] md5Digest = md.digest(password.getBytes(StandardCharsets.UTF_8));
             final BigInteger md5Number = new BigInteger(1, md5Digest);
             final String md5String = md5Number.toString(16);
 
-            sha.update(md5String.getBytes("UTF-8"));
-            sha.update(nonce.getBytes("UTF-8"));
+            sha.update(md5String.getBytes(StandardCharsets.UTF_8));
+            sha.update(nonce.getBytes(StandardCharsets.UTF_8));
             final BigInteger shaNumber = new BigInteger(1, sha.digest());
             final String shaString = shaNumber.toString(16);
 
-            Map<?, ?> responseLogin =
-                    invoke("authenticate", new String[] { getToken(), username, shaString });
+            Map<?, ?> responseLogin = invoke("authenticate", new String[] { getToken(), username, shaString });
             lastCheck = new Date(System.currentTimeMillis() + maxAge);
             if (!"200".equals(responseLogin.get("status").toString())) {
                 setToken(null);
@@ -97,11 +96,11 @@ public class JPodnapisiApi extends XmlRPC {
         return subtitles;
     }
 
-    public List<PodnapisiSubtitleDescriptor> searchSubtitles(String filename, int year, int season, int episode, String sublanguageid)
-            throws IOException {
+    public List<PodnapisiSubtitleDescriptor> searchSubtitles(String filename, int year, int season, int episode, String sublanguageid) {
         List<PodnapisiSubtitleDescriptor> subtitles = new ArrayList<>();
 
-        StringBuilder url = new StringBuilder("http://www.podnapisi.net/sl/ppodnapisi/search?sK=").append(URLEncoder.encode(filename, "UTF-8"))
+        StringBuilder url = new StringBuilder("http://www.podnapisi.net/sl/ppodnapisi/search?sK=")
+                .append(URLEncoder.encode(filename, StandardCharsets.UTF_8))
                 .append("&sJ=").append(PODNAPISI_LANGS.get(sublanguageid));
         if (year > 0) {
             url.append("&sY=").append(year);
