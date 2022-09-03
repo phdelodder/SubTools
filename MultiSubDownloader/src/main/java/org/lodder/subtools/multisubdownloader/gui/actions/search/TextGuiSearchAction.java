@@ -67,22 +67,20 @@ public class TextGuiSearchAction extends GuiSearchAction {
     }
 
     private Release createMovieRelease(String name, String quality) {
-        Release release;
-        release = new MovieRelease();
-        ((MovieRelease) release).setTitle(name);
+        MovieRelease release= new MovieRelease();
+        release.setTitle(name);
         release.setQuality(quality);
         return release;
     }
 
     private Release createTvRelease(String name, int season, int episode, String quality) {
-        Release release;
         List<Integer> episodes = new ArrayList<>();
         episodes.add(episode);
 
-        release = new TvRelease();
-        ((TvRelease) release).setShow(name);
-        ((TvRelease) release).setSeason(season);
-        ((TvRelease) release).setEpisodeNumbers(episodes);
+        TvRelease release = new TvRelease();
+        release.setShow(name);
+        release.setSeason(season);
+        release.setEpisodeNumbers(episodes);
         release.setQuality(quality);
         return release;
     }

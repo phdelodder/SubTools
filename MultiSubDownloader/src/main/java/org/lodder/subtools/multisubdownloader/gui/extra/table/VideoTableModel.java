@@ -126,7 +126,7 @@ public class VideoTableModel extends DefaultTableModel {
             return;
         }
 
-        if (showOnlyFound && release.getMatchingSubs().size() > 0 || !showOnlyFound) {
+        if (!showOnlyFound || release.getMatchingSubs().size() > 0) {
             rowMap.put(release, this.getRowCount());
 
             Object[] row = createRow(release);

@@ -37,8 +37,6 @@ public class Files {
                 }
                 output.write(buf, 0, r);
             }
-        } catch (IOException e) {
-            throw e;
         }
     }
 
@@ -72,8 +70,6 @@ public class Files {
         try (FileOutputStream os = new FileOutputStream(file)) {
             byte[] bytesContent = content.getBytes("UTF-8");
             os.write(bytesContent);
-        } catch (IOException e) {
-            throw e;
         }
     }
 
@@ -90,13 +86,9 @@ public class Files {
                         while ((l = zis.read(buff)) > 0) {
                             fos.write(buff, 0, l);
                         }
-                    } catch (IOException e) {
-                        throw e;
                     }
                 }
             }
-        } catch (IOException e) {
-            throw e;
         }
 
     }
@@ -116,8 +108,6 @@ public class Files {
 
         try (FileInputStream fis = new FileInputStream(file)) {
             isZip = isZipFile(fis);
-        } catch (IOException e) {
-            throw e;
         }
 
         return isZip;
@@ -127,8 +117,6 @@ public class Files {
         int test = -1;
         try (DataInputStream in = new DataInputStream(new BufferedInputStream(inputStream))) {
             test = in.readInt();
-        } catch (IOException e) {
-            throw e;
         }
 
         return test == 0x504b0304;
@@ -208,8 +196,6 @@ public class Files {
         try (ByteArrayInputStream binput = new ByteArrayInputStream(data);
                 GZIPInputStream gzinput = new GZIPInputStream(binput)) {
             decompressedData = IOUtils.toByteArray(gzinput);
-        } catch (IOException e) {
-            throw e;
         }
         return decompressedData;
     }

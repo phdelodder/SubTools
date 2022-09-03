@@ -9,7 +9,7 @@ public interface SubtitleProvider {
     /**
      * @return The name of the SubtitleProvider
      */
-    public abstract String getName();
+    String getName();
 
     /**
      * Starts a search for subtitles
@@ -18,5 +18,5 @@ public interface SubtitleProvider {
      * @param languageCode The language of the desired subtitles
      * @return The found subtitles
      */
-    public List<Subtitle> search(Release release, String languageCode);
+    List<Subtitle> search(Release release, String languageCode);
 }

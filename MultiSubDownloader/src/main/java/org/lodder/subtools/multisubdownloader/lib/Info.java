@@ -16,30 +16,15 @@ public class Info {
             LOGGER.info("----- Subtitle Providers ------");
         }
         for (SubtitleSource source : SubtitleSource.values()) {
-            boolean enabled = false;
-            switch (source) {
-                case ADDIC7ED:
-                    enabled = settings.isSerieSourceAddic7ed();
-                    break;
-                case LOCAL:
-                    enabled = settings.isSerieSourceLocal();
-                    break;
-                case OPENSUBTITLES:
-                    enabled = settings.isSerieSourceOpensubtitles();
-                    break;
-                case PODNAPISI:
-                    enabled = settings.isSerieSourcePodnapisi();
-                    break;
-                case SUBSMAX:
-                    enabled = settings.isSerieSourceSubsMax();
-                    break;
-                case TVSUBTITLES:
-                    enabled = settings.isSerieSourceTvSubtitles();
-                    break;
-                default:
-                    break;
-
-            }
+            boolean enabled =  switch (source) {
+                case ADDIC7ED ->  settings.isSerieSourceAddic7ed();
+                case LOCAL ->  settings.isSerieSourceLocal();
+                case OPENSUBTITLES ->  settings.isSerieSourceOpensubtitles();
+                case PODNAPISI ->  settings.isSerieSourcePodnapisi();
+                case SUBSMAX -> settings.isSerieSourceSubsMax();
+                case TVSUBTITLES ->  settings.isSerieSourceTvSubtitles();
+                default ->  false;
+            };
             if (isCli) {
                 System.out.println(" - provider : " + source.toString() + " enabled: " + enabled);
             } else {

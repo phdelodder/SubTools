@@ -166,30 +166,27 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
         }
 
         switch (structureType) {
-            case FILE:
+            case FILE -> {
                 librarySettings.setLibraryFilenameStructure(txtStructure.getText());
                 FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager);
                 lblPreview.setText(filenameLibraryBuilder.build(release));
-                break;
-            case FOLDER:
+            }
+            case FOLDER -> {
                 librarySettings.setLibraryFolderStructure(txtStructure.getText());
                 PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager);
                 lblPreview.setText(pathLibraryBuilder.build(release));
-                break;
-            default:
-                break;
+            }
+            default -> {
+            }
         }
     }
 
     private Release getGenerateRelease() {
-        switch (videoType) {
-            case EPISODE:
-                return ep;
-            case MOVIE:
-                return mo;
-            default:
-                return null;
-        }
+        return switch (videoType) {
+            case EPISODE -> ep;
+            case MOVIE -> mo;
+            default -> null;
+        };
     }
 
     @Override

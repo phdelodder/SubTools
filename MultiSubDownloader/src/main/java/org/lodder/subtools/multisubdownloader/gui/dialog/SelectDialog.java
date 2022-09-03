@@ -29,7 +29,7 @@ public class SelectDialog extends MultiSubDialog {
     public enum SelectionType {
         OK(1), ALL(999999), CANCEL(-1);
 
-        private int code;
+        private final int code;
 
         private SelectionType(int c) {
             code = c;

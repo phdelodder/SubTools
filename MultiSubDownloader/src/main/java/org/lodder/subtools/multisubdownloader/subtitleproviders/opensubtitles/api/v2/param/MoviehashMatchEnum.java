@@ -3,7 +3,7 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.a
 public enum MoviehashMatchEnum implements ParamIntf {
     INCLUDE("include"), ONLY("only");
 
-    private String value;
+    private final String value;
 
     MoviehashMatchEnum(String value) {
         this.value = value;

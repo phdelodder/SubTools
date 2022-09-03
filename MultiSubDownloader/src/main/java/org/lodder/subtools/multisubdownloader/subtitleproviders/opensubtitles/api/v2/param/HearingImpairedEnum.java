@@ -3,7 +3,7 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.a
 public enum HearingImpairedEnum implements ParamIntf {
     EXCLUDE("exclude"), INCLUDE("include"), ONLY("only");
 
-    private String value;
+    private final String value;
 
     HearingImpairedEnum(String value) {
         this.value = value;

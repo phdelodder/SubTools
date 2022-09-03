@@ -3,7 +3,7 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.a
 public enum TrustedSourcesEnum implements ParamIntf {
     INCLUDE("include"), ONLY("only");
 
-    private String value;
+    private final String value;
 
     TrustedSourcesEnum(String value) {
         this.value = value;

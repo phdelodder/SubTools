@@ -3,7 +3,7 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.a
 public enum AiTranslatedEnum implements ParamIntf {
     EXCLUDE("exclude"), INCLUDE("include");
 
-    private String value;
+    private final String value;
 
     AiTranslatedEnum(String value) {
         this.value = value;

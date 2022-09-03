@@ -3,7 +3,7 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.a
 public enum TypeEnum implements ParamIntf {
     MOVIE("movie"), EPISODE("episode"), ALL("all");
 
-    private String value;
+    private final String value;
 
     TypeEnum(String value) {
         this.value = value;

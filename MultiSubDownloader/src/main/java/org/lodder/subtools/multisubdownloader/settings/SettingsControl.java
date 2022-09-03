@@ -449,29 +449,19 @@ public class SettingsControl {
     }
 
     private String checkForOldStructure(String oldStructure) {
-        switch (oldStructure) {
-            case "Show\\Season":
-                return "%SHOW NAME%%SEPARATOR%Season %S%";
-            case "Show\\Series":
-                return "%SHOW NAME%%SEPARATOR%Series %S%";
-            case "\\":
-                return "%SEPARATOR%";
-            case "Show S00E00.extension":
-                return "%SHOW NAME% S%SS%E%EE%";
-            case "Show S00E00 Title.extension":
-                return "%SHOW NAME% S%SS%E%EE% %TITLE%";
-            case "Show 00X00 Title.extension":
-                return "%SHOW NAME% %SS%X%EE% %TITLE%";
-            case "Show - S00E00.extension":
-                return "%SHOW NAME% - S%SS%E%EE%";
-            case "Show S00E00 Title Quality.extension":
-                return "%SHOW NAME% S%SS%E%EE% %TITLE% %QUALITY%";
-            case "Movie (Year)":
-                return "%MOVIE TITLE% (%YEAR%)";
-            case "Year\\Movie":
-                return "%YEAR%%SEPARATOR%%MOVIE TITLE%";
-        }
-        return oldStructure;
+        return switch (oldStructure) {
+            case "Show\\Season" -> "%SHOW NAME%%SEPARATOR%Season %S%";
+            case "Show\\Series" -> "%SHOW NAME%%SEPARATOR%Series %S%";
+            case "\\" -> "%SEPARATOR%";
+            case "Show S00E00.extension" -> "%SHOW NAME% S%SS%E%EE%";
+            case "Show S00E00 Title.extension" -> "%SHOW NAME% S%SS%E%EE% %TITLE%";
+            case "Show 00X00 Title.extension" -> "%SHOW NAME% %SS%X%EE% %TITLE%";
+            case "Show - S00E00.extension" -> "%SHOW NAME% - S%SS%E%EE%";
+            case "Show S00E00 Title Quality.extension" -> "%SHOW NAME% S%SS%E%EE% %TITLE% %QUALITY%";
+            case "Movie (Year)" -> "%MOVIE TITLE% (%YEAR%)";
+            case "Year\\Movie" -> "%YEAR%%SEPARATOR%%MOVIE TITLE%";
+            default -> oldStructure;
+        };
     }
 
     public void exportPreferences(File file) {

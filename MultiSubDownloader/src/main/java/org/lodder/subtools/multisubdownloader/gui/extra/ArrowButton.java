@@ -150,7 +150,7 @@ public class ArrowButton extends JButton {
         g.translate(x, y);
 
         switch (direction) {
-            case NORTH:
+            case NORTH -> {
                 for (i = 0; i < arrowSize; i++) {
                     g.drawLine(mid - i, i, mid + i, i);
                 }
@@ -158,8 +158,8 @@ public class ArrowButton extends JButton {
                     g.setColor(highlight);
                     g.drawLine(mid - i + 2, i, mid + i, i);
                 }
-                break;
-            case SOUTH:
+            }
+            case SOUTH -> {
                 if (!isEnabled) {
                     g.translate(1, 1);
                     g.setColor(highlight);
@@ -175,8 +175,8 @@ public class ArrowButton extends JButton {
                     g.drawLine(mid - i, j, mid + i, j);
                     j++;
                 }
-                break;
-            case WEST:
+            }
+            case WEST -> {
                 for (i = 0; i < arrowSize; i++) {
                     g.drawLine(i, mid - i, i, mid + i);
                 }
@@ -184,8 +184,8 @@ public class ArrowButton extends JButton {
                     g.setColor(highlight);
                     g.drawLine(i, mid - i + 2, i, mid + i);
                 }
-                break;
-            case EAST:
+            }
+            case EAST -> {
                 if (!isEnabled) {
                     g.translate(1, 1);
                     g.setColor(highlight);
@@ -201,9 +201,9 @@ public class ArrowButton extends JButton {
                     g.drawLine(j, mid - i, j, mid + i);
                     j++;
                 }
-                break;
-            default:
-                break;
+            }
+            default -> {
+            }
         }
 
         g.translate(-x, -y);

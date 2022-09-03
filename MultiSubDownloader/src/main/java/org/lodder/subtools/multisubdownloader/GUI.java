@@ -558,7 +558,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
             Export e = new Export(settingsControl);
             File f = fc.getSelectedFile();
             if (!"xml".equalsIgnoreCase(XmlFileFilter.getExtension(f))) {
-                f = new File(f.toString() + ".xml");
+                f = new File(f + ".xml");
             }
             e.doExport(listType, f);
         }

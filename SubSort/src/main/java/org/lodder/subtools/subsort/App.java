@@ -69,9 +69,6 @@ public class App {
     }
 
     private static Options getCLIOptions() {
-        /**
-         * CLI Options
-         */
         Options options = new Options();
         options.addOption("help", false, "print this message");
         options.addOption("removefromarchive", true, "remove subtitle from archive");

@@ -63,8 +63,6 @@ public class DiskCache<K, T> extends InMemoryCache<K, T> {
             rs.close();
         } catch (SQLException e) {
             LOGGER.error("Unable to insert object in disk cache!", e);
-        } finally {
-
         }
     }
 

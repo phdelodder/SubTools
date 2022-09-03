@@ -146,9 +146,6 @@ public class App {
     }
 
     public static Options getCLIOptions() {
-        /**
-         * CLI Options
-         */
         Options options = new Options();
         options.addOption("help", false, Messages.getString("App.OptionHelpMsg"));
         options.addOption("nogui", false, Messages.getString("App.OptionNoGuiMsg"));

@@ -36,7 +36,6 @@ public class UpdateAvailableDropbox {
         try {
             return switch (updateCheckPeriod) {
                 case DAILY -> check(programName, extension);
-                case MANUAL -> false;
                 case MONTHLY -> {
                     if (LocalDate.now().getDayOfMonth() == 1) {
                         LOGGER.info(Messages.getString("UpdateAvailableDropbox.CheckingForUpdate"));
@@ -53,6 +52,7 @@ public class UpdateAvailableDropbox {
                         yield false;
                     }
                 }
+                case MANUAL -> false;
                 default -> false;
             };
         } catch (Exception e) {

@@ -3,7 +3,7 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.a
 public enum OrderDirectionEnum implements ParamIntf {
     ACSENDING("asc"), DESCENDING("desc");
 
-    private String value;
+    private final String value;
 
     OrderDirectionEnum(String value) {
         this.value = value;

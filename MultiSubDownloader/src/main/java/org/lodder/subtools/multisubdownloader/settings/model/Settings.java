@@ -437,22 +437,15 @@ public class Settings {
 
     public boolean isSerieSource(String subtitleProviderName) {
         // TODO: dynamically inject SubtitleProvider to settings
-        switch (subtitleProviderName) {
-            case "Addic7ed":
-                return this.isSerieSourceAddic7ed();
-            case "OpenSubtitles":
-                return this.isSerieSourceOpensubtitles();
-            case "Podnapisi":
-                return this.isSerieSourcePodnapisi();
-            case "SubsMax":
-                return this.isSerieSourceSubsMax();
-            case "TvSubtitles":
-                return this.isSerieSourceTvSubtitles();
-            case "Local":
-                return this.isSerieSourceLocal();
-            default:
-                return false;
-        }
+        return switch (subtitleProviderName) {
+            case "Addic7ed" -> this.isSerieSourceAddic7ed();
+            case "OpenSubtitles" -> this.isSerieSourceOpensubtitles();
+            case "Podnapisi" -> this.isSerieSourcePodnapisi();
+            case "SubsMax" -> this.isSerieSourceSubsMax();
+            case "TvSubtitles" -> this.isSerieSourceTvSubtitles();
+            case "Local" -> this.isSerieSourceLocal();
+            default -> false;
+        };
     }
 
     public boolean isOptionsMinAutomaticSelection() {

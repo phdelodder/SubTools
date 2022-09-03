@@ -313,15 +313,15 @@ public class TheTVDBApi {
     private String createApiUrl(String command, String[] params) {
         LOGGER.trace("createApiUrl, command [{}], params [{}]", command, params);
         command = command.replace("/", "");
-        String urlParam = "";
+        java.lang.StringBuilder urlParam = new java.lang.StringBuilder();
         for (int i = 0; i < params.length; i++) {
             if (i == 0) {
-                urlParam = params[i].replace("/", "");
+                urlParam = new java.lang.StringBuilder(params[i].replace("/", ""));
             } else {
-                urlParam = urlParam + "/" + params[i].replace("/", "");
+                urlParam.append("/").append(params[i].replace("/", ""));
             }
         }
-        LOGGER.trace("createApiUrl, createpart /  command [{}] / urlParam [{}]", command, urlParam);
+        LOGGER.trace("createApiUrl, createpart /  command [{}] / urlParam [{}]", command, urlParam.toString());
         return getXmlMirror() + "/api/" + this.getApiKey() + "/" + command + "/" + urlParam;
     }
 

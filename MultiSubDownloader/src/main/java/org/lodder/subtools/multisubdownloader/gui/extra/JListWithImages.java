@@ -23,8 +23,6 @@ public class JListWithImages extends JList<JPanel> {
         Image img;
 
         switch (type) {
-            case FILE:
-                break;
             case FOLDER:
                 img = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/folder.png"));
                 icon = resizeIcon(new ImageIcon(img), 20, 20);
@@ -33,6 +31,7 @@ public class JListWithImages extends JList<JPanel> {
                 img = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/regex.gif"));
                 icon = resizeIcon(new ImageIcon(img), 20, 20);
                 break;
+            case FILE:
             default:
                 break;
         }

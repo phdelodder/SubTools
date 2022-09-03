@@ -29,9 +29,8 @@ public class RenameAction {
 
     public void rename(File f, Release release) {
         String filename = switch (librarySettings.getLibraryAction()) {
-            case MOVE -> f.getName();
+            case MOVE, NOTHING -> f.getName();
             case MOVEANDRENAME -> getNewFilename(f, release);
-            case NOTHING -> f.getName();
             case RENAME -> getNewFilename(f, release);
             default -> "";
         };

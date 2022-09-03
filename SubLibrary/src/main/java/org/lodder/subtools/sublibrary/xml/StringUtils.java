@@ -92,11 +92,10 @@ public class StringUtils {
                     String value = htmlEntities.get(entityToLookFor);
                     if (value != null) {
                         source = source.substring(0, i) + value + source.substring(j + 1);
-                        continueLoop = true;
                     } else {
                         skip = i + 1;
-                        continueLoop = true;
                     }
+                    continueLoop = true;
                 }
             }
         } while (continueLoop);

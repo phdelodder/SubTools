@@ -104,14 +104,14 @@ public class ZebraJTable extends javax.swing.JTable {
         return c;
     }
 
-    /** Force the table to fill the viewport's height. */
+    /* Force the table to fill the viewport's height. */
     @Override
     public boolean getScrollableTracksViewportHeight() {
         final java.awt.Component p = getParent();
-        /**
+        /*
          * if ( !(p instanceof javax.swing.JViewport) ) return false; return
          * ((javax.swing.JViewport)p).getHeight() > getPreferredSize().height;
-         **/
+         */
         Dimension preferredSize = getPreferredSize();
         if (preferredSize == null) {
             return false;
@@ -120,7 +120,7 @@ public class ZebraJTable extends javax.swing.JTable {
         return p instanceof javax.swing.JViewport && p.getHeight() > preferredSize.height;
     }
 
-    /** Compute zebra background stripe colors. */
+    /* Compute zebra background stripe colors. */
     private void updateZebraColors() {
         rowColors[0] = getBackground();
         if (rowColors[0] == null) {

@@ -65,27 +65,15 @@ public abstract class VideoLibraryPanel extends JPanel {
                 LibraryOtherFileActionType ofa =
                         (LibraryOtherFileActionType) cbxLibraryOtherFileAction.getItemAt(i);
                 if (LibraryActionType.MOVE.equals(libraryActionType)) {
-                    if (LibraryOtherFileActionType.MOVEANDRENAME.equals(ofa)
-                            || LibraryOtherFileActionType.RENAME.equals(ofa)) {
-                        cbxLibraryOtherFileAction.setItemEnabled(i, false);
-                    } else {
-                        cbxLibraryOtherFileAction.setItemEnabled(i, true);
-                    }
+                    cbxLibraryOtherFileAction.setItemEnabled(i, !LibraryOtherFileActionType.MOVEANDRENAME.equals(ofa)
+                            && !LibraryOtherFileActionType.RENAME.equals(ofa));
                 } else if (LibraryActionType.RENAME.equals(libraryActionType)) {
-                    if (LibraryOtherFileActionType.MOVEANDRENAME.equals(ofa)
-                            || LibraryOtherFileActionType.MOVE.equals(ofa)) {
-                        cbxLibraryOtherFileAction.setItemEnabled(i, false);
-                    } else {
-                        cbxLibraryOtherFileAction.setItemEnabled(i, true);
-                    }
+                    cbxLibraryOtherFileAction.setItemEnabled(i, !LibraryOtherFileActionType.MOVEANDRENAME.equals(ofa)
+                            && !LibraryOtherFileActionType.MOVE.equals(ofa));
                 } else if (LibraryActionType.MOVEANDRENAME.equals(libraryActionType)) {
                     // no disable needed
                     cbxLibraryOtherFileAction.setItemEnabled(i, true);
-                } else if (LibraryOtherFileActionType.NOTHING.equals(ofa)) {
-                    cbxLibraryOtherFileAction.setItemEnabled(i, true);
-                } else {
-                    cbxLibraryOtherFileAction.setItemEnabled(i, false);
-                }
+                } else cbxLibraryOtherFileAction.setItemEnabled(i, LibraryOtherFileActionType.NOTHING.equals(ofa));
             }
         }
     }

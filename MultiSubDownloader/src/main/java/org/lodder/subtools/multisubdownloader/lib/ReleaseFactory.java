@@ -38,14 +38,10 @@ public class ReleaseFactory {
             r = releaseParser.parse(file);
 
             switch (r.getVideoType()) {
-                case EPISODE:
-                    releaseControl = new TvReleaseControl((TvRelease) r, settings, manager);
-                    break;
-                case MOVIE:
-                    releaseControl = new MovieReleaseControl((MovieRelease) r, settings, manager);
-                    break;
-                default:
-                    break;
+                case EPISODE -> releaseControl = new TvReleaseControl((TvRelease) r, settings, manager);
+                case MOVIE -> releaseControl = new MovieReleaseControl((MovieRelease) r, settings, manager);
+                default -> {
+                }
             }
 
             releaseControl.process(settings.getMappingSettings().getMappingList());

@@ -70,7 +70,7 @@ public class XmlRPC {
         return apiServer;
     }
 
-    public String generateXmlRpc(String procname, String s[]) {
+    public String generateXmlRpc(String procname, String[] s) {
         StringBuilder str = new StringBuilder();
         str.append("<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>");
         str.append(procname).append("</methodName><params>");
