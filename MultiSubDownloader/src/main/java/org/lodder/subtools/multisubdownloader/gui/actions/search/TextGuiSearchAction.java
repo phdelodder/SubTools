@@ -38,8 +38,7 @@ public class TextGuiSearchAction extends GuiSearchAction {
         String name = getInputPanel().getReleaseName();
         VideoSearchType type = getInputPanel().getType();
 
-        VideoTableModel model =
-                (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
+        VideoTableModel model = (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
         model.clearTable();
 
         // TODO: Redefine what a "release" is.
@@ -67,7 +66,7 @@ public class TextGuiSearchAction extends GuiSearchAction {
     }
 
     private Release createMovieRelease(String name, String quality) {
-        MovieRelease release= new MovieRelease();
+        MovieRelease release = new MovieRelease();
         release.setTitle(name);
         release.setQuality(quality);
         return release;
@@ -87,8 +86,7 @@ public class TextGuiSearchAction extends GuiSearchAction {
 
     @Override
     public void onFound(Release release, List<Subtitle> subtitles) {
-        VideoTableModel model =
-                (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
+        VideoTableModel model = (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
 
         if (filtering != null) {
             subtitles = filtering.getFiltered(subtitles, release);

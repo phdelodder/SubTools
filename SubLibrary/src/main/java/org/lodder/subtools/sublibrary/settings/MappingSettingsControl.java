@@ -24,9 +24,6 @@ public class MappingSettingsControl {
         this.preferences = preferences;
     }
 
-    /**
-     *
-     */
     public void store() {
         int last = 0;
         for (int i = 0; i < mappingSettings.getMappingList().size(); i++) {

@@ -44,8 +44,7 @@ public class XMLExclude {
             if (nList.item(i).getNodeType() == Node.ELEMENT_NODE) {
                 String type = XMLHelper.getStringTagValue("type", (Element) nList.item(i));
                 String description = XMLHelper.getStringTagValue("description", (Element) nList.item(i));
-                SettingsExcludeItem item =
-                        new SettingsExcludeItem(description, SettingsExcludeType.valueOf(type));
+                SettingsExcludeItem item = new SettingsExcludeItem(description, SettingsExcludeType.valueOf(type));
                 list.add(item);
             }
         }

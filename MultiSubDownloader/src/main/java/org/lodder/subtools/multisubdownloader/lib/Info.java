@@ -16,14 +16,14 @@ public class Info {
             LOGGER.info("----- Subtitle Providers ------");
         }
         for (SubtitleSource source : SubtitleSource.values()) {
-            boolean enabled =  switch (source) {
-                case ADDIC7ED ->  settings.isSerieSourceAddic7ed();
-                case LOCAL ->  settings.isSerieSourceLocal();
-                case OPENSUBTITLES ->  settings.isSerieSourceOpensubtitles();
-                case PODNAPISI ->  settings.isSerieSourcePodnapisi();
+            boolean enabled = switch (source) {
+                case ADDIC7ED -> settings.isSerieSourceAddic7ed();
+                case LOCAL -> settings.isSerieSourceLocal();
+                case OPENSUBTITLES -> settings.isSerieSourceOpensubtitles();
+                case PODNAPISI -> settings.isSerieSourcePodnapisi();
                 case SUBSMAX -> settings.isSerieSourceSubsMax();
-                case TVSUBTITLES ->  settings.isSerieSourceTvSubtitles();
-                default ->  false;
+                case TVSUBTITLES -> settings.isSerieSourceTvSubtitles();
+                default -> false;
             };
             if (isCli) {
                 System.out.println(" - provider : " + source.toString() + " enabled: " + enabled);
@@ -42,17 +42,14 @@ public class Info {
         if (isClie) {
             System.out.println("----- Subtitle Filtering ------");
             System.out.println(" - OptionSubtitleExactMatch : " + settings.isOptionSubtitleExactMatch());
-            System.out.println(" - OptionSubtitleKeywordMatch : "
-                    + settings.isOptionSubtitleKeywordMatch());
-            System.out.println(" - OptionSubtitleExcludeHearingImpaired : "
-                    + settings.isOptionSubtitleExcludeHearingImpaired());
+            System.out.println(" - OptionSubtitleKeywordMatch : " + settings.isOptionSubtitleKeywordMatch());
+            System.out.println(" - OptionSubtitleExcludeHearingImpaired : " + settings.isOptionSubtitleExcludeHearingImpaired());
             System.out.println("-------------------------------");
         } else {
             LOGGER.info("----- Subtitle Filtering ------");
             LOGGER.info(" - OptionSubtitleExactMatch: {} ", settings.isOptionSubtitleExactMatch());
             LOGGER.info(" - OptionSubtitleKeywordMatch: {} ", settings.isOptionSubtitleKeywordMatch());
-            LOGGER.info(" - OptionSubtitleExcludeHearingImpaired: {} ",
-                    settings.isOptionSubtitleExcludeHearingImpaired());
+            LOGGER.info(" - OptionSubtitleExcludeHearingImpaired: {} ", settings.isOptionSubtitleExcludeHearingImpaired());
             LOGGER.info("-------------------------------");
         }
 

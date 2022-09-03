@@ -11,9 +11,6 @@ import org.lodder.subtools.multisubdownloader.Messages;
 
 public class Menu extends JMenuBar {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -7384297314593169280L;
     private JMenu mnFile;
     private JMenuItem mntmQuit;

@@ -36,9 +36,6 @@ import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 
 public class RenameDialog extends MultiSubDialog implements PropertyChangeListener {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
     private VideoLibraryPanel pnlLibrary;
     private JTextField txtRenameLocation;

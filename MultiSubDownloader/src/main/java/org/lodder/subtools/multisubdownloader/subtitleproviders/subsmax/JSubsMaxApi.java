@@ -1,14 +1,11 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax;
 
 import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax.model.SubMaxSubtitleDescriptor;
@@ -40,9 +37,7 @@ public class JSubsMaxApi extends Html {
             language = "english";
         }
 
-        String url =
-                "http://subsmax.com/api/50/" + name.replace(" ", "%20") + "-s" + season + "e" + episode
-                        + "-" + language;
+        String url = "http://subsmax.com/api/50/" + name.replace(" ", "%20") + "-s" + season + "e" + episode + "-" + language;
 
         byte[] byteArray;
         try {

@@ -1,8 +1,10 @@
 package org.lodder.subtools.multisubdownloader.lib.library;
 
 public enum LibraryActionType {
-    NOTHING("-- Maak uw keuze --"), RENAME("Hernoemen"), MOVE("Verplaatsen"), MOVEANDRENAME(
-            "Verplaats en Hernoemen");
+    NOTHING("-- Maak uw keuze --"),
+    RENAME("Hernoemen"),
+    MOVE("Verplaatsen"),
+    MOVEANDRENAME("Verplaats en Hernoemen");
 
     private final String description;
 

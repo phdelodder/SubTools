@@ -31,7 +31,6 @@ public class OpenSubtitlesMovieDescriptor {
         if (object instanceof OpenSubtitlesMovieDescriptor other) {
             return imdbId == other.imdbId && year == other.year && name.equals(other.name);
         }
-
         return false;
     }
 

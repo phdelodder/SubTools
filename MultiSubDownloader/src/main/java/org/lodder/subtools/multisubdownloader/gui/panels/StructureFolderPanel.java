@@ -12,9 +12,6 @@ import net.miginfocom.swing.MigLayout;
 
 public class StructureFolderPanel extends StructurePanel {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 3476596236588408382L;
     private JLabel lblLocatie;
     private JTextField txtLibraryFolder;

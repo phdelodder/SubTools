@@ -12,9 +12,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class ProgressDialog extends MultiSubDialog implements Messenger {
-    /**
-     *
-     */
+
     private static final long serialVersionUID = -2320149791421648965L;
     private JProgressBar progressBar;
     private JLabel label;

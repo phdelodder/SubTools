@@ -25,8 +25,7 @@ public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edAdapter.class);
 
-    public JAddic7edAdapter(boolean isLoginEnabled, String username, String password, boolean speedy,
-            Manager manager) {
+    public JAddic7edAdapter(boolean isLoginEnabled, String username, String password, boolean speedy, Manager manager) {
         try {
             if (jaapi == null) {
                 if (isLoginEnabled) {
@@ -47,10 +46,10 @@ public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider {
 
     @Override
     public List<Subtitle> search(Release release, String languageCode) {
-        if (release instanceof MovieRelease) {
-            return this.searchSubtitles((MovieRelease) release, languageCode);
-        } else if (release instanceof TvRelease) {
-            return this.searchSubtitles((TvRelease) release, languageCode);
+        if (release instanceof MovieRelease movieRelease) {
+            return this.searchSubtitles(movieRelease, languageCode);
+        } else if (release instanceof TvRelease tvRelease) {
+            return this.searchSubtitles(tvRelease, languageCode);
         }
         return new ArrayList<>();
     }
@@ -86,16 +85,14 @@ public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider {
                 sub.setLanguage("en");
             }
             if (sublanguageids[0].equals(sub.getLanguage())) {
-                listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.ADDIC7ED, StringUtils
-                        .removeIllegalFilenameChars(sub.getTitel() + " " + sub.getVersion()), sub.getUrl(),
-                        sub
-                                .getLanguage(),
+                listFoundSubtitles.add(new Subtitle(
+                        Subtitle.SubtitleSource.ADDIC7ED,
+                        StringUtils.removeIllegalFilenameChars(sub.getTitel() + " " + sub.getVersion()), sub.getUrl(), sub.getLanguage(),
                         ReleaseParser.getQualityKeyword(sub.getTitel() + " " + sub.getVersion()),
-                        SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(sub.getTitel() + " "
-                                + sub.getVersion(),
+                        SubtitleMatchType.EVERYTHING,
+                        ReleaseParser.extractReleasegroup(sub.getTitel() + " " + sub.getVersion(),
                                 FilenameUtils.isExtension(sub.getTitel() + " " + sub.getVersion(), "srt")),
-                        sub
-                                .getUploader(),
+                        sub.getUploader(),
                         sub.isHearingImpaired()));
             }
         }

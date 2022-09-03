@@ -6,9 +6,6 @@ public class ControlFactoryException extends Exception {
         super(string);
     }
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -7387961966699689531L;
 
 }

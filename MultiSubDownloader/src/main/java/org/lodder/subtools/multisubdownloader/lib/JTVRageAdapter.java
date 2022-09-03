@@ -1,7 +1,5 @@
 package org.lodder.subtools.multisubdownloader.lib;
 
-import java.util.List;
-
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.data.tvrage.TVRageApi;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
@@ -21,17 +19,10 @@ public class JTVRageAdapter {
     }
 
     public TVRageShowInfo searchShow(String showName) {
-        List<TVRageShowInfo> tvrageShowInfos = trapi.searchShow(showName);
-        for (TVRageShowInfo show : tvrageShowInfos) {
-            if (show.getShowName().equals(showName)) {
-                return show;
-            }
-        }
-        return null;
+        return trapi.searchShow(showName).stream().filter(show -> show.getShowName().equals(showName)).findAny().orElse(null);
     }
 
     public TVRageEpisode getEpisodeInfo(int showID, int seasonId, Integer episodeId) {
-        return trapi.getEpisodeInfo(String.valueOf(showID), String.valueOf(seasonId),
-                String.valueOf(episodeId));
+        return trapi.getEpisodeInfo(String.valueOf(showID), String.valueOf(seasonId), String.valueOf(episodeId));
     }
 }

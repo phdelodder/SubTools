@@ -227,170 +227,98 @@ public class Settings {
         return this.loginOpenSubtitlesPassword;
     }
 
-    /**
-     * @return the localSourcesFolders
-     */
     public List<File> getLocalSourcesFolders() {
         return localSourcesFolders;
     }
 
-    /**
-     * @param localSourcesFolders the localSourcesFolders to set
-     */
     public void setLocalSourcesFolders(List<File> localSourcesFolders) {
         this.localSourcesFolders = localSourcesFolders;
     }
 
-    /**
-     * @return the serieSourceAddic7ed
-     */
     public boolean isSerieSourceAddic7ed() {
         return serieSourceAddic7ed;
     }
 
-    /**
-     * @param serieSourceAddic7ed the serieSourceAddic7ed to set
-     */
     public void setSerieSourceAddic7ed(boolean serieSourceAddic7ed) {
         this.serieSourceAddic7ed = serieSourceAddic7ed;
     }
 
-    /**
-     * @return the serieSourceTvSubtitles
-     */
     public boolean isSerieSourceTvSubtitles() {
         return serieSourceTvSubtitles;
     }
 
-    /**
-     * @param serieSourceTvSubtitles the serieSourceTvSubtitles to set
-     */
     public void setSerieSourceTvSubtitles(boolean serieSourceTvSubtitles) {
         this.serieSourceTvSubtitles = serieSourceTvSubtitles;
     }
 
-    /**
-     * @return the serieSourcePodnapisi
-     */
     public boolean isSerieSourcePodnapisi() {
         return serieSourcePodnapisi;
     }
 
-    /**
-     * @param serieSourcePodnapisi the serieSourcePodnapisi to set
-     */
     public void setSerieSourcePodnapisi(boolean serieSourcePodnapisi) {
         this.serieSourcePodnapisi = serieSourcePodnapisi;
     }
 
-    /**
-     * @return the serieSourceOpensubtitles
-     */
     public boolean isSerieSourceOpensubtitles() {
         return serieSourceOpensubtitles;
     }
 
-    /**
-     * @param serieSourceOpensubtitles the serieSourceOpensubtitles to set
-     */
     public void setSerieSourceOpensubtitles(boolean serieSourceOpensubtitles) {
         this.serieSourceOpensubtitles = serieSourceOpensubtitles;
     }
 
-    /**
-     * @return the serieSourceLocal
-     */
     public boolean isSerieSourceLocal() {
         return serieSourceLocal;
     }
 
-    /**
-     * @param serieSourceLocal the serieSourceLocal to set
-     */
     public void setSerieSourceLocal(boolean serieSourceLocal) {
         this.serieSourceLocal = serieSourceLocal;
     }
 
-    /**
-     * @return the autoUpdateMapping
-     */
     public boolean isAutoUpdateMapping() {
         return autoUpdateMapping;
     }
 
-    /**
-     * @param autoUpdateMapping the autoUpdateMapping to set
-     */
     public void setAutoUpdateMapping(boolean autoUpdateMapping) {
         this.autoUpdateMapping = autoUpdateMapping;
     }
 
-    /**
-     * @return the optionSubtitleExactMatch
-     */
     public boolean isOptionSubtitleExactMatch() {
         return optionSubtitleExactMatch;
     }
 
-    /**
-     * @param optionSubtitleExactMatch the optionSubtitleExactMatch to set
-     */
     public void setOptionSubtitleExactMatch(boolean optionSubtitleExactMatch) {
         this.optionSubtitleExactMatch = optionSubtitleExactMatch;
     }
 
-    /**
-     * @return the optionSubtitleKeywordMatch
-     */
     public boolean isOptionSubtitleKeywordMatch() {
         return optionSubtitleKeywordMatch;
     }
 
-    /**
-     * @param optionSubtitleKeywordMatch the optionSubtitleKeywordMatch to set
-     */
     public void setOptionSubtitleKeywordMatch(boolean optionSubtitleKeywordMatch) {
         this.optionSubtitleKeywordMatch = optionSubtitleKeywordMatch;
     }
 
-    /**
-     * @return the processEpisodeSource
-     */
     public SettingsProcessEpisodeSource getProcessEpisodeSource() {
         return processEpisodeSource;
     }
 
-    /**
-     * @param processEpisodeSource the processEpisodeSource to set
-     */
     public void setProcessEpisodeSource(SettingsProcessEpisodeSource processEpisodeSource) {
         this.processEpisodeSource = processEpisodeSource;
     }
 
-    /**
-     * @return the mappingSettings
-     */
     public MappingSettings getMappingSettings() {
         return mappingSettings;
     }
 
-    /**
-     * @param mappingSettings the mappingSettings to set
-     */
     public void setMappingSettings(MappingSettings mappingSettings) {
         this.mappingSettings = mappingSettings;
     }
 
-    /**
-     * @return the optionSubtitleExcludeHearingImpaired
-     */
     public boolean isOptionSubtitleExcludeHearingImpaired() {
         return optionSubtitleExcludeHearingImpaired;
     }
 
-    /**
-     * @param optionSubtitleExcludeHearingImpaired the optionSubtitleExcludeHearingImpaired to set
-     */
     public void setOptionSubtitleExcludeHearingImpaired(boolean optionSubtitleExcludeHearingImpaired) {
         this.optionSubtitleExcludeHearingImpaired = optionSubtitleExcludeHearingImpaired;
     }
@@ -416,9 +344,7 @@ public class Settings {
         sortWeights = new HashMap<>();
         sortWeights.put("%GROUP%", 5);
         VideoPatterns videoPatterns = new VideoPatterns();
-        for (String keyword : videoPatterns.getQualityKeywords()) {
-            sortWeights.put(keyword, 2);
-        }
+        videoPatterns.getQualityKeywords().forEach(keyword -> sortWeights.put(keyword, 2));
         /* overwrite keywords that should have low weight */
         // keywords that tend to have a lot of different sources:
         sortWeights.put("ts", 1);

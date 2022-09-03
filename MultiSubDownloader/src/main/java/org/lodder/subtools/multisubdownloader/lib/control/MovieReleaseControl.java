@@ -38,7 +38,7 @@ public class MovieReleaseControl extends ReleaseControl {
         if ("".equals(movieRelease.getTitle())) {
             throw new ReleaseControlException("Unable to extract/find title, check file", release);
         } else {
-            int imdbid = -1;
+            int imdbid;
             try {
                 imdbid = imdbSearchID.getImdbId(movieRelease.getTitle(), movieRelease.getYear());
             } catch (IMDBSearchIDException e) {
@@ -47,9 +47,7 @@ public class MovieReleaseControl extends ReleaseControl {
             try {
                 if (imdbid > 0) {
                     movieRelease.setImdbid(imdbid);
-                    IMDBDetails imdbinfo;
-
-                    imdbinfo = imdbapi.getIMDBMovieDetails(movieRelease.getImdbidAsString());
+                    IMDBDetails imdbinfo = imdbapi.getIMDBMovieDetails(movieRelease.getImdbidAsString());
                     if (imdbinfo != null) {
                         movieRelease.setYear(imdbinfo.getYear());
                         movieRelease.setTitle(imdbinfo.getTitle());
@@ -61,10 +59,9 @@ public class MovieReleaseControl extends ReleaseControl {
                 }
             } catch (IMDBException e) {
                 LOGGER.warn("IMDBAPI Failed {}, using OMDBAPI as fallback", release);
-                OMDBDetails omdbinfo;
 
                 try {
-                    omdbinfo = omdbapi.getOMDBMovieDetails(movieRelease.getImdbidAsString());
+                    OMDBDetails omdbinfo = omdbapi.getOMDBMovieDetails(movieRelease.getImdbidAsString());
                     if (omdbinfo != null) {
                         movieRelease.setYear(omdbinfo.getYear());
                         movieRelease.setTitle(omdbinfo.getTitle());

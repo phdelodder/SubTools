@@ -1,10 +1,11 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
-import java.awt.Component;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -24,12 +25,9 @@ import org.lodder.subtools.sublibrary.control.VideoPatterns;
 
 public class DefaultSelectionPanel extends JPanel {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 2925926997236198235L;
     private JTable defaultSelectionTable;
-    private VideoPatterns videoPatterns = new VideoPatterns();
+    private final VideoPatterns videoPatterns = new VideoPatterns();
 
     public DefaultSelectionPanel() {
         initialize_ui();
@@ -92,8 +90,7 @@ public class DefaultSelectionPanel extends JPanel {
 
     protected void moveRuleRowDown() {
         DefaultTableModel model = (DefaultTableModel) defaultSelectionTable.getModel();
-        if (defaultSelectionTable.getSelectedRow() >= 0
-                && defaultSelectionTable.getSelectedRow() < model.getRowCount()) {
+        if (defaultSelectionTable.getSelectedRow() >= 0 && defaultSelectionTable.getSelectedRow() < model.getRowCount()) {
             Object oSelected = model.getValueAt(defaultSelectionTable.getSelectedRow(), 1);
             Object oDown = model.getValueAt(defaultSelectionTable.getSelectedRow() + 1, 1);
             model.setValueAt(oSelected, defaultSelectionTable.getSelectedRow() + 1, 1);
@@ -114,25 +111,15 @@ public class DefaultSelectionPanel extends JPanel {
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        for (Component c : this.getComponents()) {
-            c.setEnabled(enabled);
-        }
+        Arrays.stream(this.getComponents()).forEach(c -> c.setEnabled(enabled));
     }
 
     public List<String> getDefaultSelectionList() {
-        List<String> list = new ArrayList<>();
-
         DefaultTableModel model = (DefaultTableModel) defaultSelectionTable.getModel();
-        for (int i = 0; i < model.getRowCount(); i++) {
-            list.add((String) model.getValueAt(i, 1));
-        }
-        return list;
+        return IntStream.range(0, model.getRowCount()).mapToObj(i -> (String) model.getValueAt(i, 1)).collect(Collectors.toList());
     }
 
     public void setDefaultSelectionList(List<String> optionsDefaultSelectionQualityList) {
-        for (String item : optionsDefaultSelectionQualityList) {
-            addRuleRow(item);
-        }
-
+        optionsDefaultSelectionQualityList.forEach(this::addRuleRow);
     }
 }

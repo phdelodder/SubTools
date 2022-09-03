@@ -5,9 +5,6 @@ import java.net.HttpURLConnection;
 
 public class HttpClientException extends Exception {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 5583416046207372599L;
     private int responseCode = -1;
     private String responseMessage = "";

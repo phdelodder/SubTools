@@ -44,8 +44,7 @@ public class Export {
             } else if (listType == ExportListType.EXCLUDE) {
                 XMLExclude.write(settingsControl.getSettings().getExcludeList(), file);
             } else if (listType == ExportListType.TRANSLATE) {
-                XMLMappingTvdbScene.write(settingsControl.getSettings().getMappingSettings()
-                        .getMappingList(), file);
+                XMLMappingTvdbScene.write(settingsControl.getSettings().getMappingSettings().getMappingList(), file);
             }
         } catch (final Throwable e) {
             LOGGER.error("doExport", e);

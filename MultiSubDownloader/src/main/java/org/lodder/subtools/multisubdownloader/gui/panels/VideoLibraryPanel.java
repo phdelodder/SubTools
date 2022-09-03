@@ -30,26 +30,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class VideoLibraryPanel extends JPanel {
-    /**
-     *
-     */
+
     private static final long serialVersionUID = -9175813173306481849L;
     private LibrarySettings libSettings;
     protected StructureFolderPanel pnlStructureFolder;
     protected StructureFilePanel pnlStructureFile;
-    private VideoType videoType;
+    private final VideoType videoType;
     private JComboBox<LibraryActionType> cbxLibraryAction;
     private JCheckBox chkReplaceWindowsChar;
     private JCheckBox chkUseTVDBNaming;
     private PartialDisableComboBox cbxLibraryOtherFileAction;
     private SubtitleBackupPanel pnlBackup;
-    private Manager manager;
-    private Boolean renameMode;
+    private final Manager manager;
+    private final Boolean renameMode;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoLibraryPanel.class);
 
-    public VideoLibraryPanel(LibrarySettings libSettings, VideoType videoType, Manager manager,
-            Boolean renameMode) {
+    public VideoLibraryPanel(LibrarySettings libSettings, VideoType videoType, Manager manager, Boolean renameMode) {
         this.videoType = videoType;
         this.manager = manager;
         this.renameMode = renameMode;
@@ -73,7 +70,9 @@ public abstract class VideoLibraryPanel extends JPanel {
                 } else if (LibraryActionType.MOVEANDRENAME.equals(libraryActionType)) {
                     // no disable needed
                     cbxLibraryOtherFileAction.setItemEnabled(i, true);
-                } else cbxLibraryOtherFileAction.setItemEnabled(i, LibraryOtherFileActionType.NOTHING.equals(ofa));
+                } else {
+                    cbxLibraryOtherFileAction.setItemEnabled(i, LibraryOtherFileActionType.NOTHING.equals(ofa));
+                }
             }
         }
     }
@@ -126,12 +125,9 @@ public abstract class VideoLibraryPanel extends JPanel {
                 File f = new File(pnlStructureFolder.getLibraryFolder());
                 try {
                     if (!f.getCanonicalFile().isDirectory()) {
-                        final String message =
-                                "Geen geldig pad is ingegeven in 'Map - Locatie' op Bibliotheek info ";
-                        JOptionPane.showConfirmDialog(this, message, "MultiSubDownloader",
-                                JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
-                        LOGGER
-                                .debug("isValidPanelValues: Geen geldig pad is ingegeven in 'Map - Locatie' op Bibliotheek info.");
+                        final String message = "Geen geldig pad is ingegeven in 'Map - Locatie' op Bibliotheek info ";
+                        JOptionPane.showConfirmDialog(this, message, "MultiSubDownloader", JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
+                        LOGGER.debug("isValidPanelValues: Geen geldig pad is ingegeven in 'Map - Locatie' op Bibliotheek info.");
                         return false;
                     }
                 } catch (HeadlessException | IOException e) {
@@ -148,8 +144,7 @@ public abstract class VideoLibraryPanel extends JPanel {
         if (!renameMode) {
             pnlBackup.setBackupSubtitleSelected(libSettings.isLibraryBackupSubtitle());
             pnlBackup.setBackupSubtitlePath(libSettings.getLibraryBackupSubtitlePath().getAbsolutePath());
-            pnlBackup
-                    .setBackupUseWebsiteFilenameSelected(libSettings.isLibraryBackupUseWebsiteFileName());
+            pnlBackup.setBackupUseWebsiteFilenameSelected(libSettings.isLibraryBackupUseWebsiteFileName());
         }
         this.cbxLibraryAction.setSelectedItem(libSettings.getLibraryAction());
         this.chkUseTVDBNaming.setSelected(libSettings.isLibraryUseTVDBNaming());
@@ -184,15 +179,12 @@ public abstract class VideoLibraryPanel extends JPanel {
         if (!renameMode) {
             this.libSettings.setLibraryBackupSubtitle(pnlBackup.isBackupSubtitleSelected());
             this.libSettings.setLibraryBackupSubtitlePath(new File(pnlBackup.getBackupSubtitlePath()));
-            this.libSettings.setLibraryBackupUseWebsiteFileName(pnlBackup
-                    .isBackupUseWebsiteFilenameSelected());
+            this.libSettings.setLibraryBackupUseWebsiteFileName(pnlBackup.isBackupUseWebsiteFilenameSelected());
         }
         this.libSettings.setLibraryAction((LibraryActionType) this.cbxLibraryAction.getSelectedItem());
         this.libSettings.setLibraryUseTVDBNaming(this.chkUseTVDBNaming.isSelected());
         this.libSettings.setLibraryReplaceChars(this.chkReplaceWindowsChar.isSelected());
-        this.libSettings
-                .setLibraryOtherFileAction((LibraryOtherFileActionType) this.cbxLibraryOtherFileAction
-                        .getSelectedItem());
+        this.libSettings.setLibraryOtherFileAction((LibraryOtherFileActionType) this.cbxLibraryOtherFileAction.getSelectedItem());
 
         this.libSettings.setLibraryFolder(new File(pnlStructureFolder.getLibraryFolder()));
         this.libSettings.setLibraryFolderStructure(pnlStructureFolder.getStructure().getText());
@@ -207,8 +199,7 @@ public abstract class VideoLibraryPanel extends JPanel {
         if (pnlStructureFolder.isReplaceSpaceSelected()) {
             this.libSettings.setLibraryFolderReplacingSpaceSign(pnlStructureFolder.getReplaceSpaceChar());
         }
-        this.libSettings
-                .setLibraryIncludeLanguageCode(pnlStructureFile.isIncludeLanguageCodeSelected());
+        this.libSettings.setLibraryIncludeLanguageCode(pnlStructureFile.isIncludeLanguageCodeSelected());
         this.libSettings.setDefaultEnText(pnlStructureFile.getTxtDefaultEnText().getText());
         this.libSettings.setDefaultNlText(pnlStructureFile.getTxtDefaultNlText().getText());
 
@@ -231,8 +222,7 @@ public abstract class VideoLibraryPanel extends JPanel {
         add(new JLabel("Volgende acties uitvoeren:"), "cell 0 2,alignx left");
 
         cbxLibraryAction = new JComboBox<>();
-        cbxLibraryAction.setModel(new DefaultComboBoxModel<>(LibraryActionType
-                .values()));
+        cbxLibraryAction.setModel(new DefaultComboBoxModel<>(LibraryActionType.values()));
         cbxLibraryAction.addItemListener(arg0 -> {
             checkEnableStatusPanel();
             checkPosibleOtherFileActions();
@@ -245,9 +235,7 @@ public abstract class VideoLibraryPanel extends JPanel {
         chkReplaceWindowsChar = new JCheckBox("Ongeldige Windows karakters vervangen");
         add(chkReplaceWindowsChar, "cell 0 3 2 1");
 
-        chkUseTVDBNaming =
-                new JCheckBox(
-                        "Gebruik de benaming van TheTVDB in plaats van de serie naam in de bestandsnaam");
+        chkUseTVDBNaming = new JCheckBox("Gebruik de benaming van TheTVDB in plaats van de serie naam in de bestandsnaam");
         if (VideoType.MOVIE.equals(videoType)) {
             chkUseTVDBNaming.setVisible(false);
         }
@@ -269,9 +257,7 @@ public abstract class VideoLibraryPanel extends JPanel {
         pnlBackup = new SubtitleBackupPanel();
 
         pnlBackup.setBrowseBackupAction(arg0 -> {
-            File path =
-                    MemoryFolderChooser.getInstance().selectDirectory(VideoLibraryPanel.this.getRootPane(),
-                            "Selecteer Ondertitel Backup map");
+            File path = MemoryFolderChooser.getInstance().selectDirectory(VideoLibraryPanel.this.getRootPane(), "Selecteer Ondertitel Backup map");
             pnlBackup.setBackupSubtitlePath(path.getAbsolutePath());
         });
     }
@@ -280,9 +266,7 @@ public abstract class VideoLibraryPanel extends JPanel {
         pnlStructureFolder = new StructureFolderPanel();
 
         pnlStructureFolder.setBrowseAction(arg0 -> {
-            File path =
-                    MemoryFolderChooser.getInstance().selectDirectory(VideoLibraryPanel.this.getRootPane(),
-                            "Selecteer Bibiliotheek map");
+            File path = MemoryFolderChooser.getInstance().selectDirectory(VideoLibraryPanel.this.getRootPane(), "Selecteer Bibiliotheek map");
             pnlStructureFolder.setLibraryFolder(path.getAbsolutePath());
         });
 

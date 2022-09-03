@@ -5,9 +5,6 @@ import java.awt.*;
 
 public class ArrowButton extends JButton {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -4630720317499130016L;
 
     /**

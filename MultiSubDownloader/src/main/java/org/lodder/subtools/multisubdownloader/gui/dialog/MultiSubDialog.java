@@ -5,9 +5,6 @@ import java.awt.*;
 
 public class MultiSubDialog extends JDialog {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -2357021997104425566L;
 
     public MultiSubDialog(JFrame frame, String title, boolean modal) {

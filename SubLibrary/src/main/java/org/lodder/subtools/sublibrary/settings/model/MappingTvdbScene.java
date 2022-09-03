@@ -4,9 +4,6 @@ import java.io.Serializable;
 
 public class MappingTvdbScene implements Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 3125949308808140323L;
     private String sceneName;
     private int tvdbId;

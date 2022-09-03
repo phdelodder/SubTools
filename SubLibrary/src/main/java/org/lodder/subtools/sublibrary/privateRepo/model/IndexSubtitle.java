@@ -5,9 +5,7 @@ import java.io.Serializable;
 import org.lodder.subtools.sublibrary.model.VideoType;
 
 public class IndexSubtitle implements Serializable {
-    /**
-     *
-     */
+
     private static final long serialVersionUID = -7687377134723402960L;
     private String name;
     private int season;

@@ -9,9 +9,7 @@ import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.actions.SearchAction;
 
 public abstract class InputPanel extends JPanel {
-    /**
-     *
-     */
+
     private static final long serialVersionUID = 7753220002440733463L;
     private JButton btnSearch;
     private JComboBox<String> cbxLanguage;

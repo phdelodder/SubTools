@@ -31,7 +31,7 @@ public class JAddic7edApi extends Html {
 
     private final Pattern pattern;
     private final static long RATEDURATION = MILLISECONDS.convert(15, TimeUnit.SECONDS);
-    private boolean speedy;
+    private final boolean speedy;
     private Date lastRequest = new Date();
     private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edApi.class);
 
@@ -41,8 +41,7 @@ public class JAddic7edApi extends Html {
         this.speedy = speedy;
     }
 
-    public JAddic7edApi(String username, String password, boolean speedy, Manager manager)
-            throws ManagerException {
+    public JAddic7edApi(String username, String password, boolean speedy, Manager manager) throws ManagerException {
         super(manager, "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
         pattern = Pattern.compile("Version (.+), ([0-9]+).([0-9])+ MBs");
         login(username, password);
@@ -64,8 +63,7 @@ public class JAddic7edApi extends Html {
         Elements aTagWithSerie = doc.select("a[debug]");
 
         for (Element serieFound : aTagWithSerie) {
-            String text =
-                    serieFound.text().split(" - ")[0].replaceAll("[^A-Za-z]", "").trim().toLowerCase();
+            String text = serieFound.text().split(" - ")[0].replaceAll("[^A-Za-z]", "").trim().toLowerCase();
             name = name.replaceAll("[^A-Za-z]", "").trim().toLowerCase();
             if (text.contains(name)) {
                 String link = serieFound.attr("href");
@@ -88,9 +86,7 @@ public class JAddic7edApi extends Html {
     }
 
     private String searchName(String name) throws Exception {
-        String url =
-                "http://www.addic7ed.com/search.php?search=" + URLEncoder.encode(name, "UTF-8")
-                        + "&Submit=Search";
+        String url = "http://www.addic7ed.com/search.php?search=" + URLEncoder.encode(name, "UTF-8") + "&Submit=Search";
 
         String content = this.getContent(true, url);
 
@@ -109,9 +105,8 @@ public class JAddic7edApi extends Html {
     public List<Addic7edSubtitleDescriptor> searchSubtitles(String showname, int season, int episode,
             String title) throws Exception {
         // http://www.addic7ed.com/serie/Smallville/9/11/Absolute_Justice
-        String url =
-                "http://www.addic7ed.com/serie/" + showname.toLowerCase().replace(" ", "_") + "/" + season
-                        + "/" + episode + "/" + title.toLowerCase().replace(" ", "_").replace("#", "");
+        String url = "http://www.addic7ed.com/serie/" + showname.toLowerCase().replace(" ", "_") + "/" + season
+                + "/" + episode + "/" + title.toLowerCase().replace(" ", "_").replace("#", "");
         String content = this.getContent(false, url);
         List<Addic7edSubtitleDescriptor> lSubtitles = new ArrayList<>();
         Document doc = Jsoup.parse(content);
@@ -143,9 +138,7 @@ public class JAddic7edApi extends Html {
                 if (!m.find()) {
                     break;
                 } else {
-                    version =
-                            m.group().substring(0, m.group().lastIndexOf(",")).replace("Version", "") + " "
-                                    + classesNewsDate.get(0).text().trim();
+                    version = m.group().substring(0, m.group().lastIndexOf(",")).replace("Version", "") + " " + classesNewsDate.get(0).text().trim();
                     uploader = block.getElementsByTag("a").select("a[href*=user/]").get(0).text();
                     hearingImpaired = imgHearingImpaired.size() > 0;
                 }
@@ -159,7 +152,7 @@ public class JAddic7edApi extends Html {
                         lang = td.html().substring(0, td.html().indexOf("<"));
                     }
 
-                    // incompleted not wanted
+                    // incomplete not wanted
                     if ((lang != null && td.toString().toLowerCase().contains("completed")) && td.html().toLowerCase().contains("% completed")) {
                         lang = null;
                     }
@@ -195,23 +188,18 @@ public class JAddic7edApi extends Html {
 
     }
 
-    public boolean isDuplicate(List<Addic7edSubtitleDescriptor> lSubtitles,
-            Addic7edSubtitleDescriptor sub) {
-        for (Addic7edSubtitleDescriptor s : lSubtitles) {
-            if (s.getLanguage().equals(sub.getLanguage()) && s.getUrl().equals(sub.getUrl())
-                    && s.getVersion().equals(sub.getVersion())) {
-                return true;
-            }
-        }
-        return false;
+    public boolean isDuplicate(List<Addic7edSubtitleDescriptor> lSubtitles, Addic7edSubtitleDescriptor sub) {
+        return lSubtitles.stream()
+                .anyMatch(s -> s.getLanguage().equals(sub.getLanguage())
+                        && s.getUrl().equals(sub.getUrl())
+                        && s.getVersion().equals(sub.getVersion()));
     }
 
     private String getContent(boolean disk, String url) {
-        String content = "";
 
         try {
             if (disk) {
-                content = this.getHtmlDisk(url);
+                return this.getHtmlDisk(url);
             } else {
                 if (!speedy && !this.isCached(url)) {
                     long dur = new Date().getTime() - lastRequest.getTime();
@@ -223,19 +211,17 @@ public class JAddic7edApi extends Html {
                             // Pause for 1 seconds
                             TimeUnit.SECONDS.sleep(1);
                         } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt(); // restore
-                                                                // interrupted
-                                                                // status
+                            // restore interrupted status
+                            Thread.currentThread().interrupt();
                         }
                     }
                     lastRequest = new Date();
                 }
-                content = this.getHtml(url);
+                return this.getHtml(url);
             }
         } catch (HttpClientException | IOException | ManagerSetupException | ManagerException e) {
             LOGGER.error(e.getMessage(), e);
         }
-
-        return content;
+        return "";
     }
 }

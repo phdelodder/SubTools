@@ -40,9 +40,6 @@ public class SelectDialog extends MultiSubDialog {
         }
     }
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -4092909537478305235L;
     private SelectionType answer = SelectionType.CANCEL;
     private List<Subtitle> subtitles;

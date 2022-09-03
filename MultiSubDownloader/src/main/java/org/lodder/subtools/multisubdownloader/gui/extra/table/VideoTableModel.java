@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import javax.swing.table.DefaultTableModel;
 
@@ -16,15 +17,12 @@ import java.util.List;
 
 public class VideoTableModel extends DefaultTableModel {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 4205143311042280620L;
 
-    private Class<?>[] columnTypes;
+    private final Class<?>[] columnTypes;
     final boolean[] columnEditables;
     private boolean showOnlyFound = false;
-    private Map<Release, Integer> rowMap = new HashMap<>();
+    private final Map<Release, Integer> rowMap = new HashMap<>();
     private SubtitleSelection subtitleSelection;
 
     public VideoTableModel(Object[][] data, Object[] columnNames) {
@@ -114,9 +112,7 @@ public class VideoTableModel extends DefaultTableModel {
     }
 
     public void addRows(List<Release> l) {
-        for (Release e : l) {
-            addRow(e);
-        }
+        l.forEach(this::addRow);
     }
 
     public void addRow(Release release) {
@@ -211,13 +207,7 @@ public class VideoTableModel extends DefaultTableModel {
     }
 
     public Integer getSelectedCount(int column) {
-        int k = 0;
-        for (int i = 0; i < getRowCount(); i++) {
-            if ((Boolean) getValueAt(i, column)) {
-                k++;
-            }
-        }
-        return k;
+        return (int) IntStream.range(0, getRowCount()).filter(i -> (Boolean) getValueAt(i, column)).sum();
     }
 
     private void updateTable() {

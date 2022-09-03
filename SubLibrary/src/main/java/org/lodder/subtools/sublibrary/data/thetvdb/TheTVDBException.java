@@ -1,9 +1,7 @@
 package org.lodder.subtools.sublibrary.data.thetvdb;
 
 public class TheTVDBException extends Exception {
-    /**
-     *
-     */
+
     private static final long serialVersionUID = 230737234160207201L;
 
     public TheTVDBException() {

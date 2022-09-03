@@ -12,9 +12,6 @@ import org.slf4j.LoggerFactory;
 
 public class ImageListCellRenderer extends JLabel implements ListCellRenderer<Object> {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 2640608321583922789L;
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageListCellRenderer.class);
 

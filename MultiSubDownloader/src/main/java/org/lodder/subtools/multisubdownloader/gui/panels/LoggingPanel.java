@@ -16,14 +16,10 @@ import ch.qos.logback.classic.Level;
 
 public class LoggingPanel extends JPanel {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1578326761175927376L;
-    private JTextArea txtLogging;
-    private ch.qos.logback.classic.Logger root =
-            (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory
-                    .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+    private final JTextArea txtLogging;
+    private final ch.qos.logback.classic.Logger root =
+            (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
 
     public LoggingPanel() {
         this.setLayout(new MigLayout("", "[698px,grow][]", "[][70px,grow]"));
@@ -33,8 +29,7 @@ public class LoggingPanel extends JPanel {
         this.add(new JSeparator(), "cell 0 0,growx,gaptop 5");
 
         final JComboBox<Level> cbxLogLevel = new JComboBox<>();
-        Level[] logLevels =
-                { Level.ALL, Level.TRACE, Level.DEBUG, Level.INFO, Level.WARN, Level.ERROR };
+        Level[] logLevels = { Level.ALL, Level.TRACE, Level.DEBUG, Level.INFO, Level.WARN, Level.ERROR };
         cbxLogLevel.setModel(new DefaultComboBoxModel<>(logLevels));
         cbxLogLevel.setSelectedItem(root.getLevel());
         cbxLogLevel.addActionListener(arg0 -> root.setLevel((Level) cbxLogLevel.getSelectedItem()));

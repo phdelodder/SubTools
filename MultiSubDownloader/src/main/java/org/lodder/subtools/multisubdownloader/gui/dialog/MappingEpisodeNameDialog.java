@@ -32,17 +32,14 @@ import org.slf4j.LoggerFactory;
 
 public class MappingEpisodeNameDialog extends MultiSubDialog {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = LoggerFactory.getLogger(MappingEpisodeNameDialog.class);
+
     private final JPanel contentPanel = new JPanel();
     private JTable table;
     private final SettingsControl prefCtrl;
     private final Settings pref;
     private JCheckBox chkAutoUpdateMapping;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MappingEpisodeNameDialog.class);
 
     /**
      * Create the dialog.

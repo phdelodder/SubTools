@@ -12,7 +12,7 @@ import java.util.List;
 public abstract class LibraryBuilder {
 
     protected final LibrarySettings librarySettings;
-    private Manager manager;
+    private final Manager manager;
 
     public LibraryBuilder(LibrarySettings librarySettings, Manager manager) {
         this.librarySettings = librarySettings;
@@ -22,39 +22,34 @@ public abstract class LibraryBuilder {
     public abstract String build(Release release);
 
     protected String getShowName(TvRelease tvRelease) {
-        String show = "";
         if (librarySettings.isLibraryUseTVDBNaming()) {
-            final JTheTVDBAdapter jtvdb = JTheTVDBAdapter.getAdapter(manager);
-            TheTVDBSerie tvdbs = jtvdb.getSerie(tvRelease);
+            TheTVDBSerie tvdbs = JTheTVDBAdapter.getAdapter(manager).getSerie(tvRelease);
             if (tvdbs == null) {
                 // use showname found for release as tvdb returns null
-                show = tvRelease.getShow();
+                return tvRelease.getShow();
             } else {
-                show = tvdbs.getSerieName();
+                return tvdbs.getSerieName();
             }
         } else {
-            show = tvRelease.getShow();
+            return tvRelease.getShow();
         }
-        return show;
     }
 
-    protected String replaceFormatedEpisodeNumber(String structure, String tag,
-            List<Integer> episodeNumbers, boolean leadingZero) {
-
+    protected String replaceFormatedEpisodeNumber(String structure, String tag, List<Integer> episodeNumbers, boolean leadingZero) {
         String formatedEpisodeNumber = "";
         if (structure.contains(tag)) {
             int posEnd = structure.indexOf(tag);
             String structurePart = structure.substring(0, posEnd);
             int posBegin = structurePart.lastIndexOf("%");
-            String seperator = structure.substring(posBegin + 1, posEnd);
+            String separator = structure.substring(posBegin + 1, posEnd);
 
             StringBuilder builder = new StringBuilder();
             for (final int epNum : episodeNumbers) {
-                builder.append(seperator).append(formatedNumber(epNum, leadingZero));
+                builder.append(separator).append(formatedNumber(epNum, leadingZero));
             }
             formatedEpisodeNumber += builder.toString();
 
-            // strip the first seperator off
+            // strip the first separator off
             formatedEpisodeNumber = formatedEpisodeNumber.substring(1);
         }
         return structure.replace(tag, formatedEpisodeNumber);

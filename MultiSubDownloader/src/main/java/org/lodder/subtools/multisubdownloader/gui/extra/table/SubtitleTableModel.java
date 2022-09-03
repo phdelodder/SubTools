@@ -10,14 +10,11 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 
 public class SubtitleTableModel extends DefaultTableModel {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 4205143311042280620L;
 
-    private Class<?>[] columnTypes;
+    private final Class<?>[] columnTypes;
     final boolean[] columnEditables;
-    private Map<Release, Integer> rowMap = new HashMap<>();
+    private final Map<Release, Integer> rowMap = new HashMap<>();
 
     public SubtitleTableModel(Object[][] data, Object[] columnNames) {
         super(data, columnNames);

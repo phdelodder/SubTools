@@ -20,10 +20,10 @@ public class PathLibraryBuilder extends LibraryBuilder {
         if (LibraryActionType.MOVE.equals(librarySettings.getLibraryAction())
                 || LibraryActionType.MOVEANDRENAME.equals(librarySettings.getLibraryAction())) {
             String folder = "";
-            if (release instanceof TvRelease) {
-                folder = buildEpisode((TvRelease) release);
-            } else if (release instanceof MovieRelease) {
-                folder = buildMovie((MovieRelease) release);
+            if (release instanceof TvRelease tvRelease) {
+                folder = buildEpisode(tvRelease);
+            } else if (release instanceof MovieRelease movieRelease) {
+                folder = buildMovie(movieRelease);
             }
             return new File(librarySettings.getLibraryFolder(), folder).toString();
         } else {
@@ -49,9 +49,8 @@ public class PathLibraryBuilder extends LibraryBuilder {
         folder = folder.replaceAll("%TITLE%", tvRelease.getTitle());
         try {
             folder = folder.replaceAll("%SEPARATOR%", File.separator);
-        } catch (IndexOutOfBoundsException | IllegalArgumentException ioobe) // windows hack needs "\\"
-                                                                             // instead of "\"
-        {
+        } catch (IndexOutOfBoundsException | IllegalArgumentException ioobe) {
+            // windows hack needs "\\" instead of "\"
             folder = folder.replaceAll("%SEPARATOR%", File.separator + File.separator);
         }
         folder = folder.replaceAll("%QUALITY%", tvRelease.getQuality());

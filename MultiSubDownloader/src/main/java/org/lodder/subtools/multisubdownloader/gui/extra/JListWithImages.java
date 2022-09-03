@@ -8,9 +8,6 @@ import java.awt.*;
 
 public class JListWithImages extends JList<JPanel> {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 342783165266555869L;
 
     public JListWithImages() {
@@ -23,17 +20,18 @@ public class JListWithImages extends JList<JPanel> {
         Image img;
 
         switch (type) {
-            case FOLDER:
+            case FOLDER -> {
                 img = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/folder.png"));
                 icon = resizeIcon(new ImageIcon(img), 20, 20);
-                break;
-            case REGEX:
+            }
+            case REGEX -> {
                 img = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/regex.gif"));
                 icon = resizeIcon(new ImageIcon(img), 20, 20);
-                break;
-            case FILE:
-            default:
-                break;
+            }
+            case FILE -> {
+            }
+            default -> {
+            }
         }
 
         icon.setDescription(type.toString());

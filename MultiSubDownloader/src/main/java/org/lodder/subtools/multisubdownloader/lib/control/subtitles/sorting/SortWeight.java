@@ -50,9 +50,7 @@ public class SortWeight {
     }
 
     private void replaceReservedKeywords(Release release, Map<String, Integer> weights) {
-        for (KeywordReplacer replacer : SortWeight.keywordReplacers) {
-            replacer.replace(release, weights);
-        }
+        SortWeight.keywordReplacers.forEach(replacer -> replacer.replace(release, weights));
     }
 
     public Map<String, Integer> getWeights() {

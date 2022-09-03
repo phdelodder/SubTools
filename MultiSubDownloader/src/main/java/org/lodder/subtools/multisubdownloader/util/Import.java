@@ -45,24 +45,19 @@ public class Import {
         try {
             if (listType == ImportListType.PREFERENCES) {
                 settingsControl.importPreferences(file);
-            } else if (listType == ImportListType.TRANSLATE
-                    && settingsControl.getSettings().getMappingSettings().getMappingList().size() == 0) {
-                settingsControl.getSettings().getMappingSettings()
-                        .setMappingList(XMLMappingTvdbScene.read(file));
-            } else if (listType == ImportListType.EXCLUDE
-                    && settingsControl.getSettings().getExcludeList().size() == 0) {
+            } else if (listType == ImportListType.TRANSLATE && settingsControl.getSettings().getMappingSettings().getMappingList().size() == 0) {
+                settingsControl.getSettings().getMappingSettings().setMappingList(XMLMappingTvdbScene.read(file));
+            } else if (listType == ImportListType.EXCLUDE && settingsControl.getSettings().getExcludeList().size() == 0) {
                 settingsControl.getSettings().setExcludeList(XMLExclude.read(file));
             } else {
-                final int response =
-                        JOptionPane.showConfirmDialog(frame,
-                                "Do you want to add the imported list to the existing list?", "Confirm",
-                                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                final int response = JOptionPane.showConfirmDialog(frame,
+                        "Do you want to add the imported list to the existing list?", "Confirm",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                 if (response == JOptionPane.YES_OPTION) {
                     if (listType == ImportListType.EXCLUDE) {
                         settingsControl.getSettings().getExcludeList().addAll(XMLExclude.read(file));
                     } else if (listType == ImportListType.TRANSLATE) {
-                        settingsControl.getSettings().getMappingSettings().getMappingList()
-                                .addAll(XMLMappingTvdbScene.read(file));
+                        settingsControl.getSettings().getMappingSettings().getMappingList().addAll(XMLMappingTvdbScene.read(file));
                     }
                 }
             }

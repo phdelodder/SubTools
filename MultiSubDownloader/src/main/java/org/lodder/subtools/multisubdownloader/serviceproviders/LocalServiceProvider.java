@@ -22,7 +22,6 @@ public class LocalServiceProvider implements ServiceProvider {
 
     @Override
     public void register(Container app) {
-
         this.app = app;
 
         /* Resolve the SubtitleProviderStore from the IoC Container */

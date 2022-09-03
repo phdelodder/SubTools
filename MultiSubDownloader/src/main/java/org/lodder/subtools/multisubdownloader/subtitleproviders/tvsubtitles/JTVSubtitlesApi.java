@@ -34,13 +34,10 @@ public class JTVSubtitlesApi extends Html {
             String episodeUrl = getEpisodeUrl(showUrl, season, episode);
 
             if (episodeUrl != null) {
-                episodeUrl =
-                        "http://www.tvsubtitles.net/" + episodeUrl.substring(0, episodeUrl.indexOf(".")) + "-"
-                                + languageid + ".html";
+                episodeUrl = "http://www.tvsubtitles.net/" + episodeUrl.substring(0, episodeUrl.indexOf(".")) + "-" + languageid + ".html";
                 String searchEpisode = this.getHtml(episodeUrl);
                 Document searchEpisodeDoc = Jsoup.parse(searchEpisode);
-                Elements searchEpisodes =
-                        searchEpisodeDoc.getElementsByClass("left_articles").get(0).getElementsByTag("a");
+                Elements searchEpisodes = searchEpisodeDoc.getElementsByClass("left_articles").get(0).getElementsByTag("a");
 
                 for (Element ep : searchEpisodes) {
                     String url = ep.attr("href");
@@ -95,9 +92,7 @@ public class JTVSubtitlesApi extends Html {
 
     private String getEpisodeUrl(String showUrl, int season, int episode) throws IOException,
             HttpClientException, ManagerSetupException, ManagerException {
-        String seasonUrl =
-                "http://www.tvsubtitles.net/" + showUrl.substring(0, showUrl.indexOf(".")) + "-" + season
-                        + ".html";
+        String seasonUrl = "http://www.tvsubtitles.net/" + showUrl.substring(0, showUrl.indexOf(".")) + "-" + season + ".html";
         String searchSeason = this.getHtmlDisk(seasonUrl);
         Document searchSeasonDoc = Jsoup.parse(searchSeason);
         if (searchSeasonDoc == null) {
@@ -136,22 +131,16 @@ public class JTVSubtitlesApi extends Html {
         data.put("q", showName);
 
         String searchShow = this.postHtml("http://www.tvsubtitles.net/search.php", data);
-        String showUrl = null;
 
         Document searchShowDoc = Jsoup.parse(searchShow);
         if (searchShowDoc == null) {
-            return showUrl;
+            return null;
         }
 
-        Elements shows = searchShowDoc.getElementsByTag("li");
-        for (Element show : shows) {
-            Elements links = show.getElementsByTag("a");
-            if (links.size() == 1 && links.get(0).text().toLowerCase().contains(showName.toLowerCase())) {
-                showUrl = links.get(0).attr("href");
-                break;
-            }
-        }
-
-        return showUrl;
+        return searchShowDoc.getElementsByTag("li").stream()
+                .map(show -> show.getElementsByTag("a"))
+                .filter(links -> links.size() == 1 && links.get(0).text().toLowerCase().contains(showName.toLowerCase()))
+                .map(links -> links.get(0).attr("href"))
+                .findFirst().orElse(null);
     }
 }

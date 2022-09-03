@@ -4,17 +4,15 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 
 public class ScoreCalculator {
 
-    private SortWeight weights;
+    private final SortWeight weights;
 
     public ScoreCalculator(SortWeight weights) {
         this.weights = weights;
     }
 
     public int calculate(Subtitle subtitle) {
-        int score = 0;
-
         if (weights.getMaxScore() <= 0) {
-            return score;
+            return 0;
         }
 
         String subtitleInfo = subtitle.getFilename();
@@ -23,12 +21,7 @@ public class ScoreCalculator {
 
         subtitleInfo = subtitleInfo.trim().toLowerCase();
 
-        for (String keyname : weights.getWeights().keySet()) {
-            if (subtitleInfo.contains(keyname)) {
-                score += weights.getWeights().get(keyname);
-            }
-        }
-
+        int score = weights.getWeights().keySet().stream().filter(subtitleInfo::contains).mapToInt(weights.getWeights()::get).sum();
         return (int) Math.ceil((float) score / weights.getMaxScore() * 100);
     }
 }

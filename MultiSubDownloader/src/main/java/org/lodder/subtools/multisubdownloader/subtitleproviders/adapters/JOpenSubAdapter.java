@@ -53,10 +53,10 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
 
     @Override
     public List<Subtitle> search(Release release, String languageCode) {
-        if (release instanceof MovieRelease) {
-            return this.searchSubtitles((MovieRelease) release, languageCode);
-        } else if (release instanceof TvRelease) {
-            return this.searchSubtitles((TvRelease) release, languageCode);
+        if (release instanceof MovieRelease movieRelease) {
+            return this.searchSubtitles(movieRelease, languageCode);
+        } else if (release instanceof TvRelease tvRelease) {
+            return this.searchSubtitles(tvRelease, languageCode);
         }
         return new ArrayList<>();
     }

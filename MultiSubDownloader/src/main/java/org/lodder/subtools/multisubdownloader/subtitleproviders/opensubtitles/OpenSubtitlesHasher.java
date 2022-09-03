@@ -23,16 +23,12 @@ public class OpenSubtitlesHasher {
         long size = file.length();
         long chunkSizeForFile = Math.min(HASH_CHUNK_SIZE, size);
 
-        FileInputStream fiStream = new FileInputStream(file);
-        FileChannel fileChannel = fiStream.getChannel();
-
-        try (fileChannel) {
+        try (FileInputStream fiStream = new FileInputStream(file);
+                FileChannel fileChannel = fiStream.getChannel();) {
             long head = computeHashForChunk(fileChannel.map(MapMode.READ_ONLY, 0, chunkSizeForFile));
             long tail = computeHashForChunk(fileChannel.map(MapMode.READ_ONLY, Math.max(size - HASH_CHUNK_SIZE, 0), chunkSizeForFile));
 
             return String.format("%016x", size + head + tail);
-        } finally {
-            fiStream.close();
         }
     }
 
@@ -53,7 +49,7 @@ public class OpenSubtitlesHasher {
 
         // seek to position of the tail chunk, or not at all if length is smaller than two chunks
         while (position < tailChunkPosition && (position += in.skip(tailChunkPosition - position)) >= 0) {
-            ;
+            
         }
 
         // second chunk, or the rest of the data if length is smaller than two chunks

@@ -2,12 +2,14 @@ package org.lodder.subtools.multisubdownloader.gui.extra;
 
 import javax.swing.*;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.awt.*;
 import java.io.File;
 
 public class MemoryFolderChooser {
 
-    private JFileChooser chooser;
+    private final JFileChooser chooser;
     private static MemoryFolderChooser instance;
     private File memory;
 
@@ -26,7 +28,7 @@ public class MemoryFolderChooser {
 
     public File selectDirectory(Component c, String title, File file) {
         chooser.setDialogTitle(title);
-        if (file == null || !"".equals(file.getAbsolutePath())) {
+        if (file == null || !StringUtils.isBlank(file.getAbsolutePath())) {
             if (memory == null) {
                 chooser.setCurrentDirectory(new File("."));
             } else {

@@ -10,9 +10,6 @@ import javax.swing.JPanel;
 
 public abstract class StructurePanel extends JPanel {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 7507970016496546514L;
     private ActionListener buildStructureAction;
     protected JButton btnBuildStructure;
@@ -38,8 +35,7 @@ public abstract class StructurePanel extends JPanel {
         chkReplaceSpace = new JCheckBox("Vervangen spatie door: ");
 
         cbxReplaceSpaceChar = new JComboBox<>();
-        cbxReplaceSpaceChar.setModel(new DefaultComboBoxModel<>(new String[] { "-", ".",
-                "_" }));
+        cbxReplaceSpaceChar.setModel(new DefaultComboBoxModel<>(new String[] { "-", ".", "_" }));
     }
 
     protected JCheckBox getChkReplaceSpace() {

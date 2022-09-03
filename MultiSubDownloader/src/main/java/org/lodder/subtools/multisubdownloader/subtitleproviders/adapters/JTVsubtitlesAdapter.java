@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
@@ -40,10 +41,10 @@ public class JTVsubtitlesAdapter implements JSubAdapter, SubtitleProvider {
 
     @Override
     public List<Subtitle> search(Release release, String languageCode) {
-        if (release instanceof MovieRelease) {
-            return this.searchSubtitles((MovieRelease) release, languageCode);
-        } else if (release instanceof TvRelease) {
-            return this.searchSubtitles((TvRelease) release, languageCode);
+        if (release instanceof MovieRelease movieRelease) {
+            return this.searchSubtitles(movieRelease, languageCode);
+        } else if (release instanceof TvRelease tvRelease) {
+            return this.searchSubtitles(tvRelease, languageCode);
         }
         return new ArrayList<>();
     }
@@ -51,21 +52,14 @@ public class JTVsubtitlesAdapter implements JSubAdapter, SubtitleProvider {
     @Override
     public List<Subtitle> searchSubtitles(TvRelease tvRelease, String... sublanguageids) {
         List<TVsubtitlesSubtitleDescriptor> lSubtitles = new ArrayList<>();
-        List<Subtitle> listFoundSubtitles = new ArrayList<>();
         try {
-            String showName = "";
-            if (tvRelease.getOriginalShowName().length() > 0) {
-                showName = tvRelease.getOriginalShowName();
-            } else {
-                showName = tvRelease.getShow();
-            }
+            String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getShow();
 
             if (showName.length() > 0) {
                 if (showName.contains("(") && showName.contains(")")) {
                     String alterName = showName.substring(0, showName.indexOf("(") - 1).trim();
-                    lSubtitles =
-                            jtvapi.searchSubtitles(alterName, tvRelease.getSeason(), tvRelease
-                                    .getEpisodeNumbers().get(0), tvRelease.getTitle(), sublanguageids[0]);
+                    lSubtitles = jtvapi.searchSubtitles(alterName, tvRelease.getSeason(), tvRelease
+                            .getEpisodeNumbers().get(0), tvRelease.getTitle(), sublanguageids[0]);
                 }
                 lSubtitles.addAll(jtvapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease
                         .getEpisodeNumbers().get(0), tvRelease.getTitle(), sublanguageids[0]));
@@ -73,15 +67,16 @@ public class JTVsubtitlesAdapter implements JSubAdapter, SubtitleProvider {
         } catch (Exception e) {
             LOGGER.error("API JTVsubtitles searchSubtitles using title", e);
         }
-        for (TVsubtitlesSubtitleDescriptor sub : lSubtitles) {
-            listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.TVSUBTITLES, sub.Filename,
-                    sub.Url, sublanguageids[0],
-                    ReleaseParser.getQualityKeyword(sub.Filename + " " + sub.Rip),
-                    SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(sub.Filename,
-                            FilenameUtils.isExtension(sub.Filename, "srt")),
-                    sub.Author, false));
-        }
-        return listFoundSubtitles;
+        return lSubtitles.stream().map(sub -> new Subtitle(
+                Subtitle.SubtitleSource.TVSUBTITLES,
+                sub.Filename,
+                sub.Url,
+                sublanguageids[0],
+                ReleaseParser.getQualityKeyword(sub.Filename + " " + sub.Rip),
+                SubtitleMatchType.EVERYTHING,
+                ReleaseParser.extractReleasegroup(sub.Filename, FilenameUtils.isExtension(sub.Filename, "srt")),
+                sub.Author,
+                false)).collect(Collectors.toList());
     }
 
     @Override

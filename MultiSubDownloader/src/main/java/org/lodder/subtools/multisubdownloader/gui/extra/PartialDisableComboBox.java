@@ -14,7 +14,7 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 public class PartialDisableComboBox extends JComboBox<Object> {
     private static final long serialVersionUID = -1690671707274328126L;
 
-    private ArrayList<Boolean> itemsState = new ArrayList<>();
+    private final ArrayList<Boolean> itemsState = new ArrayList<>();
 
     @SuppressWarnings("unchecked")
     public PartialDisableComboBox(Object[] items) {
@@ -27,10 +27,8 @@ public class PartialDisableComboBox extends JComboBox<Object> {
 
             @SuppressWarnings("rawtypes")
             @Override
-            public Component getListCellRendererComponent(JList list, Object value, int index,
-                    boolean isSelected, boolean cellHasFocus) {
-                Component c =
-                        super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 boolean disabled = index >= 0 && index < itemsState.size() && !itemsState.get(index);
                 c.setEnabled(!disabled);
                 c.setFocusable(!disabled);

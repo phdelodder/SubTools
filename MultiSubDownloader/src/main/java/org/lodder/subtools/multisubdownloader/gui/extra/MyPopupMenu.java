@@ -7,9 +7,6 @@ import javax.swing.JPopupMenu;
 
 public class MyPopupMenu extends JPopupMenu {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1084650376633196066L;
     private Point clickLocation;
 

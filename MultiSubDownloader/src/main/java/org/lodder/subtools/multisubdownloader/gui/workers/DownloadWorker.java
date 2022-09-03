@@ -30,8 +30,8 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
 
     private final CustomTable table;
     private final Settings settings;
-    private DownloadAction downloadAction;
-    private SubtitleSelectionAction subtitleSelectionAction;
+    private final DownloadAction downloadAction;
+    private final SubtitleSelectionAction subtitleSelectionAction;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DownloadWorker.class);
 
@@ -89,14 +89,11 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
 
     @Override
     protected void process(List<String> data) {
-        for (String s : data) {
-            StatusMessenger.instance.message("Ondertitel downloaden voor: " + s);
-        }
+        data.forEach(s -> StatusMessenger.instance.message("Ondertitel downloaden voor: " + s));
     }
 
     private void showErrorMessage(String message) {
-        JOptionPane.showConfirmDialog(null, message, "JBierSubDownloader", JOptionPane.CLOSED_OPTION,
-                JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showConfirmDialog(null, message, "JBierSubDownloader", JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
     }
 
 }

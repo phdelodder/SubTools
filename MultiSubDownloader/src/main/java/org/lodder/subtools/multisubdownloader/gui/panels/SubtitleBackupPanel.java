@@ -13,9 +13,6 @@ import net.miginfocom.swing.MigLayout;
 
 public class SubtitleBackupPanel extends JPanel {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -1498846730946617177L;
     private JCheckBox chkBackupSubtitle;
     private JLabel lblBackupLocatie;

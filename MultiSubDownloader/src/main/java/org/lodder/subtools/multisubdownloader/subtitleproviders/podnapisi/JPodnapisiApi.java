@@ -2,7 +2,6 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -12,8 +11,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.model.PodnapisiSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.Manager;
@@ -31,7 +28,7 @@ import org.w3c.dom.NodeList;
 public class JPodnapisiApi extends XmlRPC {
 
     private Date lastCheck;
-    private Manager manager;
+    private final Manager manager;
     public static final int maxAge = 90000;
     private static final Logger LOGGER = LoggerFactory.getLogger(JPodnapisiApi.class);
 
@@ -85,30 +82,27 @@ public class JPodnapisiApi extends XmlRPC {
 
         List<PodnapisiSubtitleDescriptor> subtitles = new ArrayList<>();
 
-        Map<String, List<Map<String, String>>> response = invoke("search", new Object[] { getToken(), filehash });
+        Map<String, List<Map<String, String>>> response = (Map) invoke("search", new Object[] { getToken(), filehash });
         try {
             List<Map<String, String>> subtitleData =
-                    response.get("subtitles") == null
-                            ? new ArrayList<>()
-                            : (List<Map<String, String>>) response.get("subtitles");
+                    response.get("subtitles") == null ? new ArrayList<>() : (List<Map<String, String>>) response.get("subtitles");
 
-            for (Map<String, String> subtitle : subtitleData) {
-                if (subtitle.get("LanguageCode").equals(PODNAPISI_LANGS.get(sublanguageid))) {
-                    subtitles.add(parsePodnapisiSubtitle(subtitle));
-                }
-            }
+            subtitleData.stream()
+                    .filter(subtitle -> subtitle.get("LanguageCode").equals(PODNAPISI_LANGS.get(sublanguageid)))
+                    .map(this::parsePodnapisiSubtitle)
+                    .forEach(subtitles::add);
         } catch (Exception e) {
             LOGGER.error("API PODNAPISI searchSubtitles", e);
         }
         return subtitles;
     }
 
-    public List<PodnapisiSubtitleDescriptor> searchSubtitles(String filename, int year, int season,
-            int episode, String sublanguageid) throws IOException {
+    public List<PodnapisiSubtitleDescriptor> searchSubtitles(String filename, int year, int season, int episode, String sublanguageid)
+            throws IOException {
         List<PodnapisiSubtitleDescriptor> subtitles = new ArrayList<>();
 
-        StringBuilder url =
-                new StringBuilder("http://www.podnapisi.net/sl/ppodnapisi/search?sK=").append(URLEncoder.encode(filename, "UTF-8")).append("&sJ=").append(PODNAPISI_LANGS.get(sublanguageid));
+        StringBuilder url = new StringBuilder("http://www.podnapisi.net/sl/ppodnapisi/search?sK=").append(URLEncoder.encode(filename, "UTF-8"))
+                .append("&sJ=").append(PODNAPISI_LANGS.get(sublanguageid));
         if (year > 0) {
             url.append("&sY=").append(year);
         }
@@ -129,8 +123,7 @@ public class JPodnapisiApi extends XmlRPC {
             NodeList nList = doc.getElementsByTagName("subtitle");
 
             for (int i = 0; i < nList.getLength(); i++) {
-                if (nList.item(i).getNodeType() == Node.ELEMENT_NODE
-                        && "subtitle".equals(nList.item(i).getNodeName())) {
+                if (nList.item(i).getNodeType() == Node.ELEMENT_NODE && "subtitle".equals(nList.item(i).getNodeName())) {
                     Element eElement = (Element) nList.item(i);
                     subtitles.add(parsePodnapisiSubtitle(eElement));
                 }
@@ -171,9 +164,7 @@ public class JPodnapisiApi extends XmlRPC {
             url = xml.substring(startIndex + 2, downloadStartIndex + 9);
             return "http://www.podnapisi.net/" + url;
         } else {
-            LOGGER.error(
-                    "Download URL for subtitleID {} can't be found, set to debug for more information!",
-                    subtitleId);
+            LOGGER.error("Download URL for subtitleID {} can't be found, set to debug for more information!", subtitleId);
             LOGGER.debug("The URL {}", url);
             LOGGER.debug("The Page {}", xml);
             return null;
@@ -199,8 +190,6 @@ public class JPodnapisiApi extends XmlRPC {
     protected Document getXML(String url) {
         try {
             return XMLHelper.getDocument(manager.getContent(url, getUserAgent(), false));
-        } catch (ParserConfigurationException | IOException e) {
-            LOGGER.error("API PODNAPISI getXML", e);
         } catch (Exception e) {
             LOGGER.error("API PODNAPISI getXML", e);
         }
@@ -236,9 +225,6 @@ public class JPodnapisiApi extends XmlRPC {
 
     private static final Map<String, String> PODNAPISI_LANGS = Collections
             .unmodifiableMap(new HashMap<String, String>() {
-                /**
-                		 *
-                		 */
                 private static final long serialVersionUID = 2950169212654074275L;
 
                 {

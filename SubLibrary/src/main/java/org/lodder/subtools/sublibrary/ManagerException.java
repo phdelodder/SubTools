@@ -1,9 +1,7 @@
 package org.lodder.subtools.sublibrary;
 
 public class ManagerException extends Exception {
-    /**
-     *
-     */
+
     private static final long serialVersionUID = -7937716379280570736L;
 
     public ManagerException() {

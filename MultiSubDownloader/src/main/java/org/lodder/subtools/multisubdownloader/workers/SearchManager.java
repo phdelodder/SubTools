@@ -47,9 +47,7 @@ public class SearchManager implements Cancelable {
     }
 
     public void addRelease(Release release) {
-        for (Entry<SubtitleProvider, Queue<Release>> provider : this.queue.entrySet()) {
-            queue.get(provider.getKey()).add(release);
-        }
+        this.queue.entrySet().forEach(provider -> queue.get(provider.getKey()).add(release));
 
         /* Create a scoreCalculator so we can score subtitles for this release */
         // TODO: extract to factory
@@ -96,9 +94,7 @@ public class SearchManager implements Cancelable {
 
         /* set the score of the found subtitles */
         ScoreCalculator calculator = this.scoreCalculators.get(release);
-        for (Subtitle subtitle : subtitles) {
-            subtitle.setScore(calculator.calculate(subtitle));
-        }
+        subtitles.forEach(subtitle -> subtitle.setScore(calculator.calculate(subtitle)));
 
         /* Tell the progresslistener our total progress */
         this.progressListener.progress(this.getProgress());
@@ -108,10 +104,7 @@ public class SearchManager implements Cancelable {
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        for (Entry<SubtitleProvider, SearchWorker> worker : workers.entrySet()) {
-            worker.getValue().interrupt();
-        }
-
+        workers.entrySet().forEach(worker -> worker.getValue().interrupt());
         return true;
     }
 

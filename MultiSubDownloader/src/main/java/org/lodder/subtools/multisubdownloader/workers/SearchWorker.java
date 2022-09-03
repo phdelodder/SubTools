@@ -47,8 +47,7 @@ public class SearchWorker extends Thread {
             this.subtitles = new ArrayList<>(subtitles);
 
             this.busy = false;
-            LOGGER.debug("[Search] {} found {} subtitles for {} ", this.provider.getName(),
-                    subtitles.size(), release.toString());
+            LOGGER.debug("[Search] {} found {} subtitles for {} ", this.provider.getName(), subtitles.size(), release.toString());
 
             if (!this.isInterrupted()) {
                 this.scheduler.onCompleted(this);

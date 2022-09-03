@@ -62,9 +62,8 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
             return;
         }
 
-        for (final File file : contents) {
-            if (file.isFile() && !file.getName().contains("sample")
-                    && patterns.accept(file.getAbsoluteFile(), file.getName())) {
+        for (File file : contents) {
+            if (file.isFile() && !file.getName().contains("sample") && patterns.accept(file.getAbsoluteFile(), file.getName())) {
                 Release release;
                 try {
                     release = releaseFactory.createRelease(file);
@@ -85,8 +84,6 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
 
     @Override
     protected void process(List<String> data) {
-        for (String s : data) {
-            StatusMessenger.instance.message("Bestand hernoemen: " + s);
-        }
+        data.forEach(s -> StatusMessenger.instance.message("Bestand hernoemen: " + s));
     }
 }

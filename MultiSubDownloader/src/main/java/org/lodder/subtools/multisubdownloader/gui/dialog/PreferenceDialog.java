@@ -45,14 +45,10 @@ import org.slf4j.LoggerFactory;
 
 public class PreferenceDialog extends MultiSubDialog {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -5730220264781738564L;
     private final JPanel contentPanel = new JPanel();
     private final Emitter eventEmitter;
-    private JCheckBox chkOnlyFound, chkAlwaysConfirm, chkSubtitleExactMethod,
-            chkSubtitleKeywordMethod;
+    private JCheckBox chkOnlyFound, chkAlwaysConfirm, chkSubtitleExactMethod, chkSubtitleKeywordMethod;
     private final SettingsControl settingsCtrl;
     private EpisodeLibraryPanel pnlEpisodeLibrary;
     private JListWithImages excludeList;
@@ -560,7 +556,8 @@ public class PreferenceDialog extends MultiSubDialog {
             LOGGER.debug("testSerieSourcesTab: Addic7ed login geselecteerd! Gelieve een username en pasword in te vullen.");
             return false;
         }
-        if (chkUserOpenSubtitlesLogin.isSelected() && (txtOpenSubtitlesUsername.getText().isEmpty() || txtOpenSubtitlesPassword.getText().isEmpty())) {
+        if (chkUserOpenSubtitlesLogin.isSelected()
+                && (txtOpenSubtitlesUsername.getText().isEmpty() || txtOpenSubtitlesPassword.getText().isEmpty())) {
             String message =
                     Messages.getString("PreferenceDialog.OpenSubtitlesLoginSelectEnterUsernamePassword");
             JOptionPane.showConfirmDialog(this, message, Messages.getString("PreferenceDialog.Name"),

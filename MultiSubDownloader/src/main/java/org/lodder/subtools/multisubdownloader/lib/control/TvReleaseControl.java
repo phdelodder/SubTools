@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 public class TvReleaseControl extends ReleaseControl {
 
-    private JTheTVDBAdapter jtvdba;
+    private final JTheTVDBAdapter jtvdba;
     private final JTVRageAdapter tvra;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TvReleaseControl.class);
@@ -32,14 +32,14 @@ public class TvReleaseControl extends ReleaseControl {
 
     public void processTvdb(List<MappingTvdbScene> dict) throws ReleaseControlException {
         setTvdbID(dict);
-        if (((TvRelease) release).getTvdbid() > 0) {
-            TheTVDBEpisode thetvdbepisode = jtvdba.getEpisode((TvRelease) release);
+        TvRelease tvRelease = (TvRelease) release;
+        if (tvRelease.getTvdbid() > 0) {
+            TheTVDBEpisode thetvdbepisode = jtvdba.getEpisode(tvRelease);
             if (thetvdbepisode != null) {
-                ((TvRelease) release).updateTvdbEpisodeInfo(thetvdbepisode);
+                tvRelease.updateTvdbEpisodeInfo(thetvdbepisode);
             } else {
-                throw new ReleaseControlException("Season " + ((TvRelease) release).getSeason()
-                        + " Episode " + ((TvRelease) release).getEpisodeNumbers().toString()
-                        + "not found, check file", release);
+                throw new ReleaseControlException("Season " + tvRelease.getSeason()
+                        + " Episode " + tvRelease.getEpisodeNumbers().toString() + "not found, check file", release);
             }
         } else {
             throw new ReleaseControlException("Show not found, check file", release);
@@ -48,14 +48,13 @@ public class TvReleaseControl extends ReleaseControl {
 
     public void processTVRage() throws ReleaseControlException {
         setTvrageID();
-        TVRageEpisode tvrEpisode =
-                tvra.getEpisodeInfo(((TvRelease) release).getTvrageid(), ((TvRelease) release).getSeason(),
-                        ((TvRelease) release).getEpisodeNumbers().get(0));
+        TvRelease tvRelease = (TvRelease) release;
+        TVRageEpisode tvrEpisode = tvra.getEpisodeInfo(tvRelease.getTvrageid(), tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0));
         if (tvrEpisode != null) {
-            ((TvRelease) release).updateTVRageEpisodeInfo(tvrEpisode);
+            tvRelease.updateTVRageEpisodeInfo(tvrEpisode);
         } else {
-            throw new ReleaseControlException("Season " + ((TvRelease) release).getSeason() + " Episode "
-                    + ((TvRelease) release).getEpisodeNumbers().toString() + "not found, check file", release);
+            throw new ReleaseControlException("Season " + tvRelease.getSeason() + " Episode "
+                    + tvRelease.getEpisodeNumbers().toString() + "not found, check file", release);
         }
     }
 
@@ -89,46 +88,37 @@ public class TvReleaseControl extends ReleaseControl {
         TVRageEpisode tvrEpisode = null;
         TheTVDBEpisode thetvdbepisode = null;
         setTvrageID();
-        if (((TvRelease) release).getTvrageid() > 0) {
-            tvrEpisode =
-                    tvra.getEpisodeInfo(((TvRelease) release).getTvrageid(),
-                            ((TvRelease) release).getSeason(), ((TvRelease) release).getEpisodeNumbers().get(0));
-            if (tvrEpisode != null
-                    && settings.getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVRAGE) {
-                ((TvRelease) release).updateTVRageEpisodeInfo(tvrEpisode);
+        TvRelease tvRelease = (TvRelease) release;
+        if (tvRelease.getTvrageid() > 0) {
+            tvrEpisode = tvra.getEpisodeInfo(tvRelease.getTvrageid(), tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0));
+            if (tvrEpisode != null && settings.getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVRAGE) {
+                tvRelease.updateTVRageEpisodeInfo(tvrEpisode);
             }
         }
         setTvdbID(dict);
-        if (((TvRelease) release).getTvdbid() > 0) {
-            thetvdbepisode = jtvdba.getEpisode((TvRelease) release);
-            if (thetvdbepisode != null
-                    && settings.getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVDB) {
-                ((TvRelease) release).updateTvdbEpisodeInfo(thetvdbepisode);
+        if (tvRelease.getTvdbid() > 0) {
+            thetvdbepisode = jtvdba.getEpisode(tvRelease);
+            if (thetvdbepisode != null && settings.getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVDB) {
+                tvRelease.updateTvdbEpisodeInfo(thetvdbepisode);
             }
         }
     }
 
     private void setTvdbID(List<MappingTvdbScene> dict) throws ReleaseControlException {
-        int tvdbid = 0;
-        for (MappingTvdbScene mapping : dict) {
-            if (mapping.getSceneName().replaceAll("[^A-Za-z]", "")
-                    .equalsIgnoreCase(((TvRelease) release).getShow().replaceAll("[^A-Za-z]", ""))) {
-                tvdbid = mapping.getTvdbId();
-            }
-        }
+        TvRelease tvRelease = (TvRelease) release;
+        int tvdbid = dict.stream()
+                .filter(mapping -> mapping.getSceneName().replaceAll("[^A-Za-z]", "")
+                        .equalsIgnoreCase(tvRelease.getShow().replaceAll("[^A-Za-z]", "")))
+                .map(MappingTvdbScene::getTvdbId)
+                .findAny().orElse(0);
 
-        TheTVDBSerie thetvdbserie = null;
-        if (tvdbid == 0) {
-            thetvdbserie = jtvdba.getSerie((TvRelease) release);
-        } else {
-            thetvdbserie = jtvdba.getSerie(tvdbid);
-        }
+        TheTVDBSerie thetvdbserie = tvdbid == 0 ? jtvdba.getSerie(tvRelease) : jtvdba.getSerie(tvdbid);
 
         if (thetvdbserie == null) {
             throw new ReleaseControlException("Tvdb API, returned no result", release);
         }
-        ((TvRelease) release).setOriginalShowName(thetvdbserie.getSerieName());
-        ((TvRelease) release).setTvdbid(Integer.parseInt(thetvdbserie.getId()));
+        tvRelease.setOriginalShowName(thetvdbserie.getSerieName());
+        tvRelease.setTvdbid(Integer.parseInt(thetvdbserie.getId()));
     }
 
     private void setTvrageID() {

@@ -24,10 +24,10 @@ import org.slf4j.LoggerFactory;
  */
 public class RenameWorker extends SwingWorker<Void, String> implements Cancelable {
 
-    private CustomTable table;
-    private Settings settings;
+    private final CustomTable table;
+    private final Settings settings;
     private RenameAction renameAction;
-    private Manager manager;
+    private final Manager manager;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RenameWorker.class);
 
@@ -74,8 +74,6 @@ public class RenameWorker extends SwingWorker<Void, String> implements Cancelabl
 
     @Override
     protected void process(List<String> data) {
-        for (String s : data) {
-            StatusMessenger.instance.message("Bestand hernoemen: " + s);
-        }
+        data.forEach(s -> StatusMessenger.instance.message("Bestand hernoemen: " + s));
     }
 }

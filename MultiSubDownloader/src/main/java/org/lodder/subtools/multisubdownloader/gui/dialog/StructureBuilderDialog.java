@@ -36,9 +36,6 @@ import org.lodder.subtools.sublibrary.model.VideoType;
 
 public class StructureBuilderDialog extends MultiSubDialog implements DocumentListener {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -5174968778375028124L;
     private final JPanel contentPanel = new JPanel();
     private JTextField txtStructure;

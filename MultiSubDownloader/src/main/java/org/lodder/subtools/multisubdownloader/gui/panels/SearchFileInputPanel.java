@@ -6,9 +6,6 @@ import net.miginfocom.swing.MigLayout;
 
 public class SearchFileInputPanel extends InputPanel {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 6522020963519514345L;
     private JTextField txtIncomingPath;
     private JCheckBox chkRecursive;

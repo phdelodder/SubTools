@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader.gui.actions.search;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.actions.ActionException;
@@ -32,8 +33,7 @@ public class FileGuiSearchAction extends GuiSearchAction {
 
     @Override
     public void onFound(Release release, List<Subtitle> subtitles) {
-        VideoTableModel model =
-                (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
+        VideoTableModel model = (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
 
         if (filtering != null) {
             subtitles = filtering.getFiltered(subtitles, release);
@@ -56,8 +56,7 @@ public class FileGuiSearchAction extends GuiSearchAction {
         boolean recursive = inputPanel.isRecursiveSelected();
         boolean overwriteExistingSubtitles = inputPanel.isForceOverwrite();
 
-        VideoTableModel model =
-                (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
+        VideoTableModel model = (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
         model.clearTable();
 
         /* get a list of videofiles */
@@ -96,8 +95,7 @@ public class FileGuiSearchAction extends GuiSearchAction {
         return releases;
     }
 
-    private List<File> getFiles(String filePath, String languageCode, boolean recursive,
-            boolean overwriteExistingSubtitles) {
+    private List<File> getFiles(String filePath, String languageCode, boolean recursive, boolean overwriteExistingSubtitles) {
         /* Get a list of selected directories */
         List<File> dirs = new ArrayList<>();
         if (!filePath.isEmpty()) {
@@ -107,17 +105,13 @@ public class FileGuiSearchAction extends GuiSearchAction {
         }
 
         /* Scan directories for videofiles */
-        List<File> files = new ArrayList<>();
-
         /* Tell Action where to send progressUpdates */
         this.filelistAction.setIndexingProgressListener(this.indexingProgressListener);
 
         /* Start the getFileListing Action */
-        for (File dir : dirs) {
-            files.addAll(
-                    this.filelistAction.getFileListing(dir, recursive, languageCode, overwriteExistingSubtitles));
-        }
-        return files;
+        return dirs.stream()
+                .flatMap(dir -> this.filelistAction.getFileListing(dir, recursive, languageCode, overwriteExistingSubtitles).stream())
+                .collect(Collectors.toList());
     }
 
     @Override

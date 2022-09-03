@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader.framework.event;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Emitter {
     private final Map<String, ArrayList<Handler>> eventListeners = new HashMap<>();

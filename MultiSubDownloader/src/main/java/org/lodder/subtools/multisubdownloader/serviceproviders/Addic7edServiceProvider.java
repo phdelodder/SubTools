@@ -24,12 +24,10 @@ public class Addic7edServiceProvider implements ServiceProvider {
 
     @Override
     public void register(Container app) {
-
         this.app = app;
 
         /* Resolve the SubtitleProviderStore from the IoC Container */
-        final SubtitleProviderStore subtitleProviderStore =
-                (SubtitleProviderStore) app.make("SubtitleProviderStore");
+        final SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) app.make("SubtitleProviderStore");
 
         /* Create the SubtitleProvider */
         subtitleProvider = createProvider();
@@ -64,8 +62,7 @@ public class Addic7edServiceProvider implements ServiceProvider {
             loginEnabled = false;
         }
 
-        return new JAddic7edAdapter(loginEnabled, username, password, preferences.getBoolean("speedy",
-                false), manager);
+        return new JAddic7edAdapter(loginEnabled, username, password, preferences.getBoolean("speedy", false), manager);
     }
 
     private void registerListener(final SubtitleProviderStore subtitleProviderStore) {

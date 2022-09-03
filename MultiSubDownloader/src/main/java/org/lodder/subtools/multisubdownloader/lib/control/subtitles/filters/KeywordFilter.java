@@ -34,7 +34,6 @@ public class KeywordFilter extends Filter {
                 filteredList.add(subtitle);
             }
         }
-
         return filteredList;
     }
 
