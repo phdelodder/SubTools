@@ -1,11 +1,10 @@
 /**
- * 
+ *
  */
 package org.lodder.subtools.sublibrary.util.http;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -18,14 +17,14 @@ import com.dropbox.core.v2.DbxClientV2;
 
 /**
  * @author lodder
- * 
+ *
  */
 public class DropBoxClient {
 
   private static DropBoxClient dbc;
   private DbxClientV2 dbxClient;
-  private String locationOffset = "/Ondertitels/PrivateRepo/";
-  private String unSortedLocationOffset = "/Ondertitels/Unsorted";
+  private final String locationOffset = "/Ondertitels/PrivateRepo/";
+  private final String unSortedLocationOffset = "/Ondertitels/Unsorted";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DropBoxClient.class);
 
@@ -34,14 +33,16 @@ public class DropBoxClient {
   }
 
   public static DropBoxClient getDropBoxClient() {
-    if (dbc == null) dbc = new DropBoxClient();
+    if (dbc == null) {
+		dbc = new DropBoxClient();
+	}
     return dbc;
   }
 
   private void dropboxInit() {
     final String accessToken = "3x5qOT-XdxgAAAAAAAAAAVa2Hrj23e7EiO98AZqw-UqGEr7I4lJG6eL8M1s9LlG0";
 
-    DbxRequestConfig config = new DbxRequestConfig("PersonalDownload/1.0");	
+    DbxRequestConfig config = new DbxRequestConfig("PersonalDownload/1.0");
 
     dbxClient = new DbxClientV2(config, accessToken);
   }
@@ -59,22 +60,22 @@ public class DropBoxClient {
   }
 
   public void put(File inputFile, String filename, String languageCode) {
-    FileInputStream inputStream = null;
-    try {
-      inputStream = new FileInputStream(inputFile);
-      dbxClient.files().upload(unSortedLocationOffset + "/" + languageCode + "/" + filename).uploadAndFinish(inputStream, inputFile.length());
-    } catch (DbxException | IOException e) {
-      LOGGER.error("upload path: " + unSortedLocationOffset + "/" + languageCode + "/" + filename );
-      LOGGER.error("put", e);
-    } finally {
-      if (inputStream != null) {
-        try {
-          inputStream.close();
-        } catch (IOException e) {
-          LOGGER.error("put close inputStream", e);
-        }
-      }
-    }
+		// FileInputStream inputStream = null;
+		// try {
+		// inputStream = new FileInputStream(inputFile);
+		// dbxClient.files().upload(unSortedLocationOffset + "/" + languageCode + "/" + filename).uploadAndFinish(inputStream, inputFile.length());
+		// } catch (DbxException | IOException e) {
+		// LOGGER.error("upload path: " + unSortedLocationOffset + "/" + languageCode + "/" + filename );
+		// LOGGER.error("put", e);
+		// } finally {
+		// if (inputStream != null) {
+		// try {
+		// inputStream.close();
+		// } catch (IOException e) {
+		// LOGGER.error("put close inputStream", e);
+		// }
+		// }
+		// }
   }
 
   /**

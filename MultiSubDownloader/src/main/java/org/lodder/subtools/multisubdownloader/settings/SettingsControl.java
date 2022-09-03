@@ -246,6 +246,9 @@ public class SettingsControl {
     preferences.putBoolean("loginAddic7edEnabled", settings.isLoginAddic7edEnabled());
     preferences.put("loginAddic7edUsername", settings.getLoginAddic7edUsername());
     preferences.put("loginAddic7edPassword", settings.getLoginAddic7edPassword());
+    preferences.putBoolean("loginOpenSubtitlesEnabled", settings.isLoginOpenSubtitlesEnabled());
+    preferences.put("loginOpenSubtitlesUsername", settings.getLoginOpenSubtitlesUsername());
+    preferences.put("loginOpenSubtitlesPassword", settings.getLoginOpenSubtitlesPassword());
     preferences.putBoolean("serieSourceAddic7ed", settings.isSerieSourceAddic7ed());
     preferences.putBoolean("serieSourceLocal", settings.isSerieSourceLocal());
     preferences.putBoolean("serieSourceOpensubtitles", settings.isSerieSourceOpensubtitles());
@@ -430,6 +433,9 @@ public class SettingsControl {
     settings.setLoginAddic7edEnabled(preferences.getBoolean("loginAddic7edEnabled", false));
     settings.setLoginAddic7edUsername(preferences.get("loginAddic7edUsername", ""));
     settings.setLoginAddic7edPassword(preferences.get("loginAddic7edPassword", ""));
+    settings.setLoginOpenSubtitlesEnabled(preferences.getBoolean("loginOpenSubtitlesEnabled", false));
+    settings.setLoginOpenSubtitlesUsername(preferences.get("loginOpenSubtitlesUsername", ""));
+    settings.setLoginOpenSubtitlesPassword(preferences.get("loginOpenSubtitlesPassword", ""));
     settings.setSerieSourceAddic7ed(preferences.getBoolean("serieSourceAddic7ed", true));
     settings.setSerieSourceLocal(preferences.getBoolean("serieSourceLocal", true));
     settings.setSerieSourceOpensubtitles(preferences.getBoolean("serieSourceOpensubtitles", true));

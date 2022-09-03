@@ -17,7 +17,6 @@ import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.lodder.subtools.sublibrary.util.http.DropBoxClient;
-import org.lodder.subtools.sublibrary.util.http.HttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,11 +24,11 @@ public class DownloadAction {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DownloadAction.class);
 
-  private Settings settings;
-  private Manager manager;
+  private final Settings settings;
+  private final Manager manager;
 
   /**
-   * 
+   *
    * @param settings
    */
   public DownloadAction(Settings settings, Manager manager) {
@@ -38,7 +37,7 @@ public class DownloadAction {
   }
 
   /**
-   * 
+   *
    * @param release
    * @param subtitle
    * @param version
@@ -53,7 +52,7 @@ public class DownloadAction {
   }
 
   /**
-   * 
+   *
    * @param release
    * @param subtitle
    * @throws Exception
@@ -92,14 +91,15 @@ public class DownloadAction {
     final File subFile = new File(path, subFileName);
 
     boolean success;
-
-    if (HttpClient.isUrl(subtitle.getDownloadlink())) {
-      success = manager.store(subtitle.getDownloadlink(), subFile);
-      LOGGER.debug("doDownload file was [{}] ", success);
+    if (subtitle.getSourceLcation() == Subtitle.SourceLocation.FILE) {
+        Files.copy(subtitle.getFile(), subFile);
+        success = true;
     } else {
-      Files.copy(new File(subtitle.getDownloadlink()), subFile);
-      success = true;
+        String url = subtitle.getSourceLcation() == Subtitle.SourceLocation.URL ? subtitle.getUrl() : subtitle.getUrlSupplier().get();
+        success = manager.store(url, subFile);
+        LOGGER.debug("doDownload file was [{}] ", success);
     }
+
     if (ReleaseParser.getQualityKeyword(release.getFilename()).split(" ").length > 1) {
       String dropBoxName = "";
       if (subtitle.getSubtitleSource() == SubtitleSource.LOCAL) {
