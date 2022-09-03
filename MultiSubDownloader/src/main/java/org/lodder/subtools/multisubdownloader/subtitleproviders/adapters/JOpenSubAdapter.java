@@ -1,203 +1,171 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
-import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.JOpenSubtitlesApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesHasher;
-import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.model.OpenSubtitlesMovieDescriptor;
-import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.model.OpenSubtitlesSubtitleDescriptor;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.OpenSubtitlesApi;
 import org.lodder.subtools.sublibrary.JSubAdapter;
+import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.opensubtitles.invoker.ApiException;
+import org.opensubtitles.model.Latest200ResponseDataInnerAttributesFilesInner;
+import org.opensubtitles.model.SubtitleAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pivovarit.function.ThrowingSupplier;
+
 public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
 
-  private static JOpenSubtitlesApi joapi;
-  private static final Logger LOGGER = LoggerFactory.getLogger(JOpenSubAdapter.class);
+	private static OpenSubtitlesApi osApi;
+	private static final Logger LOGGER = LoggerFactory.getLogger(JOpenSubAdapter.class);
 
-  public JOpenSubAdapter() {
-    try {
-      if (joapi == null)
-      // joapi = new JOpenSubtitlesApi("OS Test User Agent");
-        joapi = new JOpenSubtitlesApi("JBierSubDownloader");
-      if (!joapi.isLoggedOn()) {
-        joapi.loginAnonymous();
-      }
-    } catch (Exception e) {
-      LOGGER.error("API OPENSUBTITLES INIT", e);
-    }
-  }
+	public JOpenSubAdapter(boolean isLoginEnabled, String username, String password, Manager manager) {
+		try {
+			if (osApi == null) {
+				if (isLoginEnabled) {
+					osApi = new OpenSubtitlesApi(username, password);
+				} else {
+					osApi = new OpenSubtitlesApi();
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("API OPENSUBTITLES INIT", e);
+		}
+	}
 
-  @Override
-  public String getName() {
-    return "OpenSubtitles";
-  }
+	@Override
+	public String getName() {
+		return "OpenSubtitles";
+	}
 
-  @Override
-  public List<Subtitle> search(Release release, String languageCode) {
-    if (release instanceof MovieRelease) {
-      return this.searchSubtitles((MovieRelease) release, languageCode);
-    } else if (release instanceof TvRelease) {
-      return this.searchSubtitles((TvRelease) release, languageCode);
-    }
-    return new ArrayList<Subtitle>();
-  }
+	@Override
+	public List<Subtitle> search(Release release, String languageCode) {
+		if (release instanceof MovieRelease) {
+			return this.searchSubtitles((MovieRelease) release, languageCode);
+		} else if (release instanceof TvRelease) {
+			return this.searchSubtitles((TvRelease) release, languageCode);
+		}
+		return new ArrayList<>();
+	}
 
-  protected void finalize() throws Throwable { // do finalization here
-    if (joapi.isLoggedOn()) joapi.logout();
-    super.finalize(); // not necessar if extending Object.
-  }
+	@Override
+	public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... languageIds) {
+		List<org.opensubtitles.model.Subtitle> subtitles = new ArrayList<>();
+		if (!"".equals(movieRelease.getFilename())) {
+			File file = new File(movieRelease.getPath(), movieRelease.getFilename());
+			if (file.exists()) {
+				try {
+					osApi.searchSubtitles()
+							.moviehash(OpenSubtitlesHasher.computeHash(file))
+							.languages(languageIds)
+							.searchSubtitles()
+							.getData().forEach(subtitles::add);
+				} catch (ApiException e) {
+					LOGGER.error("API OPENSUBTITLES searchSubtitles using file hash", e);
+				} catch (IOException e) {
+					LOGGER.error("Error calculating file hash", e);
+				}
+			}
+		}
+		if (movieRelease.getImdbid() != 0) {
+			try {
+				osApi.searchSubtitles()
+						.imdbId(movieRelease.getImdbid())
+						.languages(languageIds)
+						.searchSubtitles()
+						.getData().forEach(subtitles::add);
+			} catch (ApiException e) {
+				LOGGER.error("API OPENSUBTITLES searchSubtitles using imdbid", e);
+			}
+		}
+		if (subtitles.isEmpty()) {
+			try {
+				osApi.searchSubtitles()
+						.query(movieRelease.getTitle())
+						.languages(languageIds)
+						.searchSubtitles()
+						.getData().forEach(subtitles::add);
+			} catch (ApiException e) {
+				LOGGER.error("API OPENSUBTITLES searchSubtitles using title", e);
+			}
+		}
+		return subtitles.stream().map(org.opensubtitles.model.Subtitle::getAttributes)
+				.filter(attributes -> movieRelease.getYear() == attributes.getFeatureDetails().getYear().intValue())
+				.flatMap(attributes -> attributes.getFiles().stream().map(file -> createSubtitle(file, attributes)))
+				.collect(Collectors.toList());
+	}
 
-  public boolean isLoginOk() {
-    if (!joapi.isLoggedOn()) {
-      try {
-        joapi.loginAnonymous();
-        return true;
-      } catch (Exception e) {
-        return false;
-      }
-    } else {
-      return true;
-    }
-  }
+	@Override
+	public List<Subtitle> searchSubtitles(TvRelease tvRelease, String... languageIds) {
+		List<org.opensubtitles.model.Subtitle> subtitles = new ArrayList<>();
+		if (tvRelease.getOriginalShowName().length() > 0) {
+			tvRelease.getEpisodeNumbers().forEach(episode -> {
+				try {
+					osApi.searchSubtitles()
+							.query(tvRelease.getOriginalShowName())
+							.season(tvRelease.getSeason())
+							.episode(episode)
+							.languages(languageIds)
+							.searchSubtitles()
+							.getData().forEach(subtitles::add);
+				} catch (ApiException e) {
+					LOGGER.error("API OPENSUBTITLES searchSubtitles using title", e);
+				}
+			});
+		}
+		if (tvRelease.getOriginalShowName().length() == 0 || !tvRelease.getOriginalShowName().equalsIgnoreCase(tvRelease.getShow())) {
+			tvRelease.getEpisodeNumbers().forEach(episode -> {
+				try {
+					osApi.searchSubtitles()
+							.query(tvRelease.getShow())
+							.season(tvRelease.getSeason())
+							.episode(episode)
+							.languages(languageIds)
+							.searchSubtitles()
+							.getData().forEach(subtitles::add);
+				} catch (ApiException e) {
+					LOGGER.error("API OPENSUBTITLES searchSubtitles using title", e);
+				}
+			});
+		}
 
-  @Override
-  public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... sublanguageids) {
-    List<OpenSubtitlesSubtitleDescriptor> lSubtitles =
-        new ArrayList<OpenSubtitlesSubtitleDescriptor>();
-    List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
-    try {
-      if (isLoginOk()) {
-        if (!movieRelease.getFilename().equals("")) {
-          File file = new File(movieRelease.getPath(), movieRelease.getFilename());
-          if (file.exists())
-            try {
-              lSubtitles =
-                  joapi.searchSubtitles(OpenSubtitlesHasher.computeHash(file),
-                      String.valueOf(file.length()), sublanguageids);
-            } catch (Exception e) {
-              LOGGER.error("API OPENSUBTITLES searchSubtitles using file hash", e);
-            }
-        }
-        if (movieRelease.getImdbid() != 0) {
-          try {
-            lSubtitles.addAll(joapi.searchSubtitles(movieRelease.getImdbid(), sublanguageids));
-          } catch (Exception e) {
-            LOGGER.error("API OPENSUBTITLES searchSubtitles using imdbid", e);
-          }
-        }
-        if (lSubtitles.size() == 0) {
-          try {
-            lSubtitles.addAll(joapi.searchSubtitles(movieRelease.getTitle(), sublanguageids));
-          } catch (Exception e) {
-            LOGGER.error("API OPENSUBTITLES searchSubtitles using title", e);
-          }
-        }
-      }
-    } catch (Exception e) {
-      LOGGER.error("API OPENSUBTITLES searchSubtitles", e);
-    }
-    for (OpenSubtitlesSubtitleDescriptor ossd : lSubtitles) {
-      if (movieRelease.getYear() == ossd.getMovieYear()) {
-        listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.OPENSUBTITLES, ossd
-            .getSubFileName(), ossd.getSubDownloadLink(), ossd.getISO639(), ReleaseParser
-            .getQualityKeyword(ossd.getSubFileName()), SubtitleMatchType.EVERYTHING, ReleaseParser
-            .extractReleasegroup(ossd.getSubFileName(),
-                FilenameUtils.isExtension(ossd.getSubFileName(), "srt")), ossd.getUserNickName(),
-            Boolean.valueOf(ossd.getSubHearingImpaired())));
-      }
-    }
-    return listFoundSubtitles;
-  }
+		String name = tvRelease.getShow().replaceAll("[^A-Za-z]", "").toLowerCase();
+		String originalName = tvRelease.getOriginalShowName().replaceAll("[^A-Za-z]", "").toLowerCase();
 
-  public int searchMovieOnIMDB(MovieRelease movieRelease) {
-    List<OpenSubtitlesMovieDescriptor> losm = new ArrayList<OpenSubtitlesMovieDescriptor>();
-    try {
-      if (isLoginOk()) losm = joapi.searchMoviesOnIMDB(movieRelease.getTitle());
-    } catch (Exception e) {
-      LOGGER.error("API OPENSUBTITLES searchMovieOnIMDB", e);
-    }
+		return subtitles.stream().map(org.opensubtitles.model.Subtitle::getAttributes)
+				.flatMap(attributes -> attributes.getFiles().stream()
+						.filter(file -> {
+							String subFileName = file.getFileName().replaceAll("[^A-Za-z]", "").toLowerCase();
+							return subFileName.contains(name) || (originalName.length() > 0 && subFileName.contains(originalName));
+						})
+						.map(file -> createSubtitle(file, attributes)))
+				.collect(Collectors.toList());
+	}
 
-    Pattern p = Pattern.compile(movieRelease.getTitle(), Pattern.CASE_INSENSITIVE);
-    Matcher m;
-
-    for (OpenSubtitlesMovieDescriptor osm : losm) {
-      m = p.matcher(osm.getName());
-      if (m.find()) {
-        if (movieRelease.getYear() > 0) {
-          if (osm.getYear() == movieRelease.getYear()) return osm.getImdbId();
-        } else {
-          return osm.getImdbId();
-        }
-      }
-
-    }
-
-    return 0;
-  }
-
-  public OpenSubtitlesMovieDescriptor getIMDBMovieDetails(MovieRelease movieRelease) {
-    OpenSubtitlesMovieDescriptor osm = null;
-    try {
-      if (isLoginOk()) osm = joapi.getIMDBMovieDetails(movieRelease.getImdbid());
-    } catch (Exception e) {
-      LOGGER.error("API OPENSUBTITLES getIMDBMovieDetails", e);
-    }
-    return osm;
-  }
-
-  @Override
-  public List<Subtitle> searchSubtitles(TvRelease tvRelease, String... sublanguageids) {
-    List<OpenSubtitlesSubtitleDescriptor> lSubtitles =
-        new ArrayList<OpenSubtitlesSubtitleDescriptor>();
-    List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
-    try {
-      if (isLoginOk()) {
-        try {
-
-          if (tvRelease.getOriginalShowName().length() > 0) {
-            lSubtitles.addAll(joapi.searchSubtitles(tvRelease.getOriginalShowName(), tvRelease.getSeason(),
-                tvRelease.getEpisodeNumbers(), sublanguageids));
-            lSubtitles.addAll(joapi.searchSubtitles(tvRelease.getShow(), tvRelease.getSeason(),
-                tvRelease.getEpisodeNumbers(), sublanguageids));
-          }else{
-            lSubtitles.addAll(joapi.searchSubtitles(tvRelease.getShow(), tvRelease.getSeason(),
-                tvRelease.getEpisodeNumbers(), sublanguageids));
-          }
-          
-        } catch (Exception e) {
-          LOGGER.error("API OPENSUBTITLES searchSubtitles using title", e);
-        }
-      }
-    } catch (Exception e) {
-      LOGGER.error("API OPENSUBTITLES searchSubtitles", e);
-    }
-    String name = tvRelease.getShow().replaceAll("[^A-Za-z]", "").toLowerCase();
-    String originalName = tvRelease.getOriginalShowName().replaceAll("[^A-Za-z]", "").toLowerCase();
-    for (OpenSubtitlesSubtitleDescriptor ossd : lSubtitles) {
-      String subFileName = ossd.getSubFileName().replaceAll("[^A-Za-z]", "").toLowerCase();
-      if (subFileName.contains(name)
-          || (originalName.length() > 0 && subFileName.contains(originalName))) {
-        listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.OPENSUBTITLES, ossd
-            .getSubFileName(), ossd.getSubDownloadLink(), ossd.getISO639(), ReleaseParser
-            .getQualityKeyword(ossd.getSubFileName()), SubtitleMatchType.EVERYTHING, ReleaseParser
-            .extractReleasegroup(ossd.getSubFileName(),
-                FilenameUtils.isExtension(ossd.getSubFileName(), "srt")), ossd.getUserNickName(),
-            Boolean.valueOf(ossd.getSubHearingImpaired())));
-      }
-    }
-    return listFoundSubtitles;
-  }
+	private Subtitle createSubtitle(Latest200ResponseDataInnerAttributesFilesInner file, SubtitleAttributes attributes) {
+		ThrowingSupplier<String, ManagerException> urlSupplier = () -> {
+			try {
+				return osApi.downloadSubtitle().fileId(file.getFileId().intValue()).download().getLink();
+			} catch (ApiException e) {
+				throw new ManagerException(e);
+			}
+		};
+		return new Subtitle(Subtitle.SubtitleSource.OPENSUBTITLES, file.getFileName(), urlSupplier, attributes.getLanguage(),
+				ReleaseParser.getQualityKeyword(file.getFileName()), SubtitleMatchType.EVERYTHING,
+				ReleaseParser.extractReleasegroup(file.getFileName(), FilenameUtils.isExtension(file.getFileName(), "srt")),
+				attributes.getUploader().getName(), attributes.isHearingImpaired());
+	}
 }

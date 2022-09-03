@@ -28,6 +28,9 @@ public class Settings {
   private boolean loginAddic7edEnabled;
   private String loginAddic7edUsername;
   private String loginAddic7edPassword;
+  private boolean loginOpenSubtitlesEnabled;
+  private String loginOpenSubtitlesUsername;
+  private String loginOpenSubtitlesPassword;
   private boolean serieSourceAddic7ed, serieSourceTvSubtitles, serieSourcePodnapisi,
       serieSourceOpensubtitles, serieSourceLocal, serieSourceSubsMax;
   private boolean autoUpdateMapping;
@@ -55,7 +58,7 @@ public class Settings {
     generalProxyEnabled = false;
     optionRecursive = false;
     screenSettings = new ScreenSettings();
-    localSourcesFolders = new ArrayList<File>();
+    localSourcesFolders = new ArrayList<>();
     serieSourceAddic7ed = true;
     serieSourceTvSubtitles = true;
     serieSourcePodnapisi = true;
@@ -198,6 +201,30 @@ public class Settings {
 
   public String getLoginAddic7edPassword() {
     return this.loginAddic7edPassword;
+  }
+
+  public void setLoginOpenSubtitlesEnabled(boolean loginOpenSubtitlesEnabled) {
+    this.loginOpenSubtitlesEnabled = loginOpenSubtitlesEnabled;
+  }
+
+  public boolean isLoginOpenSubtitlesEnabled() {
+    return this.loginOpenSubtitlesEnabled;
+  }
+
+  public void setLoginOpenSubtitlesUsername(String loginOpenSubtitlesUsername) {
+    this.loginOpenSubtitlesUsername = loginOpenSubtitlesUsername;
+  }
+
+  public String getLoginOpenSubtitlesUsername() {
+    return this.loginOpenSubtitlesUsername;
+  }
+
+  public void setLoginOpenSubtitlesPassword(String loginOpenSubtitlesPassword) {
+    this.loginOpenSubtitlesPassword = loginOpenSubtitlesPassword;
+  }
+
+  public String getLoginOpenSubtitlesPassword() {
+    return this.loginOpenSubtitlesPassword;
   }
 
   /**

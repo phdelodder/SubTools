@@ -24,8 +24,8 @@ public class Local implements SubtitleProvider {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Local.class);
 
-  private Settings settings;
-  private Manager manager;
+  private final Settings settings;
+  private final Manager manager;
 
   public Local(Settings settings, Manager manager) {
     this.settings = settings;
@@ -44,11 +44,11 @@ public class Local implements SubtitleProvider {
     } else if (release instanceof TvRelease) {
       return this.search((TvRelease) release, languageCode);
     }
-    return new ArrayList<Subtitle>();
+    return new ArrayList<>();
   }
 
   private List<File> getPossibleSubtitles(String filter) {
-    List<File> possibleSubtitles = new ArrayList<File>();
+    List<File> possibleSubtitles = new ArrayList<>();
     for (File local : settings.getLocalSourcesFolders()) {
       possibleSubtitles.addAll(getAllSubtitlesFiles(local, filter));
     }
@@ -58,7 +58,7 @@ public class Local implements SubtitleProvider {
 
 
   public List<Subtitle> search(TvRelease tvRelease, String languagecode) {
-    List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
+    List<Subtitle> listFoundSubtitles = new ArrayList<>();
     ReleaseParser vfp = new ReleaseParser();
 
     String filter = "";
@@ -83,7 +83,7 @@ public class Local implements SubtitleProvider {
               if (detectedLang.equals(languagecode)) {
                 LOGGER.debug("Local Sub found, adding [{}]", fileSub.toString());
                 listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.LOCAL,
-                    fileSub.getName(), fileSub.toString(), languagecode,
+                    fileSub.getName(), fileSub, languagecode,
                     ReleaseParser.getQualityKeyword(fileSub.getName()),
                     SubtitleMatchType.EVERYTHING,
                     ReleaseParser.extractReleasegroup(fileSub.getName(), true),
@@ -105,7 +105,7 @@ public class Local implements SubtitleProvider {
   }
 
   public List<Subtitle> search(MovieRelease movieRelease, String languagecode) {
-    List<Subtitle> listFoundSubtitles = new ArrayList<Subtitle>();
+    List<Subtitle> listFoundSubtitles = new ArrayList<>();
     ReleaseParser releaseParser = new ReleaseParser();
 
     String filter = movieRelease.getTitle();
@@ -122,7 +122,7 @@ public class Local implements SubtitleProvider {
             if (detectedLang.equals(languagecode)) {
               LOGGER.debug("Local Sub found, adding {}", fileSub.toString());
               listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub.getName(),
-                  fileSub.toString(), "", ReleaseParser.getQualityKeyword(fileSub.getName()),
+                  fileSub, "", ReleaseParser.getQualityKeyword(fileSub.getName()),
                   SubtitleMatchType.EVERYTHING,
                   ReleaseParser.extractReleasegroup(fileSub.getName(), true),
                   fileSub.getAbsolutePath(), false));
@@ -142,7 +142,7 @@ public class Local implements SubtitleProvider {
   }
 
   private List<File> getAllSubtitlesFiles(File dir, String filter) {
-    final List<File> filelist = new ArrayList<File>();
+    final List<File> filelist = new ArrayList<>();
     final File[] contents = dir.listFiles();
     if (contents != null) {
       for (final File file : contents) {

@@ -1,128 +1,185 @@
 package org.lodder.subtools.sublibrary.model;
 
+import java.io.File;
+import org.lodder.subtools.sublibrary.ManagerException;
+import com.pivovarit.function.ThrowingSupplier;
+
 public class Subtitle {
 
-  private String filename, downloadlink, languagecode, quality, releasegroup, uploader;
-  private SubtitleMatchType subtitleMatchType;
-  private SubtitleSource subtitleSource;
-  private boolean hearingImpaired;
-  private int score;
+	private String filename, languagecode, quality, releasegroup, uploader;
+	private SubtitleMatchType subtitleMatchType;
+	private final SubtitleSource subtitleSource;
+	private boolean hearingImpaired;
+	private int score;
+	private final ThrowingSupplier<String, ManagerException> urlSupplier;
+	private final String url;
+	private final File file;
+	private final SourceLocation sourceLcation;
 
-  public enum SubtitleSource {
-    OPENSUBTITLES, PODNAPISI, ADDIC7ED, TVSUBTITLES, LOCAL, SUBSMAX
-  }
+	public enum SubtitleSource {
+		OPENSUBTITLES, PODNAPISI, ADDIC7ED, TVSUBTITLES, LOCAL, SUBSMAX
+	}
 
-  public Subtitle(SubtitleSource subtitleSource, String filename, String downloadlink,
-      String languagecode, String quality, SubtitleMatchType subtitleMatchType,
-      String releasegroup, String uploader, boolean hearingImp) {
-    this.subtitleSource = subtitleSource;
-    this.filename = filename;
-    this.downloadlink = downloadlink;
-    this.languagecode = languagecode;
-    this.quality = quality;
-    this.subtitleMatchType = subtitleMatchType;
-    this.setReleasegroup(releasegroup);
-    this.setUploader(uploader);
-    this.setHearingImpaired(hearingImp);
-  }
+	public enum SourceLocation {
+		URL, URL_SUPPLIER, FILE;
+	}
 
-  public String getFilename() {
-    return filename;
-  }
+	public Subtitle(SubtitleSource subtitleSource, String filename, ThrowingSupplier<String, ManagerException> urlSupplier, String languagecode,
+			String quality, SubtitleMatchType subtitleMatchType, String releasegroup, String uploader, boolean hearingImpaired) {
+		this.subtitleSource = subtitleSource;
+		this.filename = filename;
+		this.urlSupplier = urlSupplier;
+		this.url = null;
+		this.file = null;
+		this.languagecode = languagecode;
+		this.quality = quality;
+		this.subtitleMatchType = subtitleMatchType;
+		this.releasegroup = releasegroup;
+		this.uploader = uploader;
+		this.hearingImpaired = hearingImpaired;
+		this.sourceLcation = SourceLocation.URL_SUPPLIER;
+	}
 
-  public void setFilename(String filename) {
-    this.filename = filename;
-  }
+	public Subtitle(SubtitleSource subtitleSource, String filename, String url, String languagecode, String quality,
+			SubtitleMatchType subtitleMatchType, String releasegroup, String uploader, boolean hearingImpaired) {
+		this.subtitleSource = subtitleSource;
+		this.filename = filename;
+		this.urlSupplier = null;
+		this.url = url;
+		this.file = null;
+		this.languagecode = languagecode;
+		this.quality = quality;
+		this.subtitleMatchType = subtitleMatchType;
+		this.releasegroup = releasegroup;
+		this.uploader = uploader;
+		this.hearingImpaired = hearingImpaired;
+		this.sourceLcation = SourceLocation.URL;
+	}
 
-  public String getDownloadlink() {
-    return downloadlink;
-  }
+	public Subtitle(SubtitleSource subtitleSource, String filename, File file, String languagecode, String quality,
+			SubtitleMatchType subtitleMatchType, String releasegroup, String uploader, boolean hearingImpaired) {
+		this.subtitleSource = subtitleSource;
+		this.filename = filename;
+		this.urlSupplier = null;
+		this.url = null;
+		this.file = file;
+		this.languagecode = languagecode;
+		this.quality = quality;
+		this.subtitleMatchType = subtitleMatchType;
+		this.releasegroup = releasegroup;
+		this.uploader = uploader;
+		this.hearingImpaired = hearingImpaired;
+		this.sourceLcation = SourceLocation.FILE;
+	}
 
-  public void setDownloadlink(String downloadlink) {
-    this.downloadlink = downloadlink;
-  }
+	public String getUrl() {
+		return url;
+	}
 
-  public String getLanguagecode() {
-    return languagecode;
-  }
+	public ThrowingSupplier<String, ManagerException> getUrlSupplier() {
+		return urlSupplier;
+	}
 
-  public void setLanguagecode(String languagecode) {
-    this.languagecode = languagecode;
-  }
+	public File getFile() {
+		return file;
+	}
 
-  public void setQuality(String quality) {
-    this.quality = quality;
-  }
+	public SourceLocation getSourceLcation() {
+		return sourceLcation;
+	}
 
-  public String getQuality() {
-    return quality;
-  }
+	public String getFilename() {
+		return filename;
+	}
 
-  public void setSubtitleMatchType(SubtitleMatchType subtitleMatchType) {
-    this.subtitleMatchType = subtitleMatchType;
-  }
+	public void setFilename(String filename) {
+		this.filename = filename;
+	}
 
-  public SubtitleMatchType getSubtitleMatchType() {
-    return subtitleMatchType;
-  }
+	public String getLanguagecode() {
+		return languagecode;
+	}
 
-  public SubtitleSource getSubtitleSource() {
-    return subtitleSource;
-  }
+	public void setLanguagecode(String languagecode) {
+		this.languagecode = languagecode;
+	}
 
-  /**
-   * @return the releasegroup
-   */
-  public String getReleasegroup() {
-    return releasegroup;
-  }
+	public void setQuality(String quality) {
+		this.quality = quality;
+	}
 
-  /**
-   * @param releasegroup the releasegroup to set
-   */
-  public void setReleasegroup(String releasegroup) {
-    this.releasegroup = releasegroup;
-  }
+	public String getQuality() {
+		return quality;
+	}
 
-  /**
-   * @return the uploader
-   */
-  public String getUploader() {
-    return uploader;
-  }
+	public void setSubtitleMatchType(SubtitleMatchType subtitleMatchType) {
+		this.subtitleMatchType = subtitleMatchType;
+	}
 
-  /**
-   * @param uploader the uploader to set
-   */
-  public void setUploader(String uploader) {
-    if (uploader == null) uploader = "";
-    this.uploader = uploader;
-  }
+	public SubtitleMatchType getSubtitleMatchType() {
+		return subtitleMatchType;
+	}
 
-  /**
-   * @return the hearingImpaired
-   */
-  public boolean isHearingImpaired() {
-    return hearingImpaired;
-  }
+	public SubtitleSource getSubtitleSource() {
+		return subtitleSource;
+	}
 
-  /**
-   * @param hearingImpaired the hearingImpaired to set
-   */
-  public void setHearingImpaired(boolean hearingImpaired) {
-    this.hearingImpaired = hearingImpaired;
-  }
+	/**
+	 * @return the releasegroup
+	 */
+	public String getReleasegroup() {
+		return releasegroup;
+	}
 
-  public int getScore() {
-    return score;
-  }
+	/**
+	 * @param releasegroup the releasegroup to set
+	 */
+	public void setReleasegroup(String releasegroup) {
+		this.releasegroup = releasegroup;
+	}
 
-  public void setScore(int score) {
-    this.score = score;
-  }
+	/**
+	 * @return the uploader
+	 */
+	public String getUploader() {
+		return uploader;
+	}
 
-  public String toString() {
-    return this.getClass().getSimpleName() + ": " + this.getFilename() + " " + this.getQuality();
-  }
+	/**
+	 * @param uploader the uploader to set
+	 */
+	public void setUploader(String uploader) {
+		if (uploader == null) {
+			uploader = "";
+		}
+		this.uploader = uploader;
+	}
+
+	/**
+	 * @return the hearingImpaired
+	 */
+	public boolean isHearingImpaired() {
+		return hearingImpaired;
+	}
+
+	/**
+	 * @param hearingImpaired the hearingImpaired to set
+	 */
+	public void setHearingImpaired(boolean hearingImpaired) {
+		this.hearingImpaired = hearingImpaired;
+	}
+
+	public int getScore() {
+		return score;
+	}
+
+	public void setScore(int score) {
+		this.score = score;
+	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + ": " + this.getFilename() + " " + this.getQuality();
+	}
 
 }
