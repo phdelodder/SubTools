@@ -1,6 +1,7 @@
 package org.lodder.subtools.multisubdownloader.actions;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
@@ -9,6 +10,7 @@ import org.lodder.subtools.multisubdownloader.lib.library.PathLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -31,7 +33,7 @@ public class DownloadAction {
         this.manager = manager;
     }
 
-    public void download(Release release, Subtitle subtitle, int version) throws Exception {
+    public void download(Release release, Subtitle subtitle, int version) throws IOException, ManagerException {
         switch (release.getVideoType()) {
             case EPISODE -> download(release, subtitle, settings.getEpisodeLibrarySettings(), version);
             case MOVIE -> download(release, subtitle, settings.getMovieLibrarySettings(), version);
@@ -39,20 +41,19 @@ public class DownloadAction {
         }
     }
 
-    public void download(Release release, Subtitle subtitle) throws Exception {
+    public void download(Release release, Subtitle subtitle) throws IOException, ManagerException {
         LOGGER.info("Downloading subtitle: [{}] for release: [{}]", subtitle.getFilename(), release.getFilename());
         download(release, subtitle, 0);
     }
 
-    private void download(Release release, Subtitle subtitle, LibrarySettings librarySettings,
-            int version) throws Exception {
+    private void download(Release release, Subtitle subtitle, LibrarySettings librarySettings, int version) throws IOException, ManagerException {
         LOGGER.trace("cleanUpFiles: LibraryAction", librarySettings.getLibraryAction());
         PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager);
         final File path = new File(pathLibraryBuilder.build(release));
         if (!path.exists()) {
             LOGGER.debug("Download creating folder [{}] ", path.getAbsolutePath());
             if (!path.mkdirs()) {
-                throw new Exception("Download unable to create folder: " + path.getAbsolutePath());
+                throw new IOException("Download unable to create folder: " + path.getAbsolutePath());
             }
         }
 
@@ -111,7 +112,7 @@ public class DownloadAction {
                 File backupPath = new File(librarySettings.getLibraryBackupSubtitlePath() + File.separator + langFolder + File.separator);
 
                 if (!backupPath.exists() && !backupPath.mkdirs()) {
-                    throw new Exception("Download unable to create folder: " + backupPath.getAbsolutePath());
+                    throw new IOException("Download unable to create folder: " + backupPath.getAbsolutePath());
                 }
 
                 if (librarySettings.isLibraryBackupUseWebsiteFileName()) {

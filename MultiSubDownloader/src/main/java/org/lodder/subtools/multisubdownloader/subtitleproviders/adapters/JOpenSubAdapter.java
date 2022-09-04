@@ -10,6 +10,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesHasher;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.OpenSubtitlesApi;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.exception.OpenSubtitlesException;
 import org.lodder.subtools.sublibrary.JSubAdapter;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
@@ -41,7 +42,7 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
                     osApi = new OpenSubtitlesApi();
                 }
             }
-        } catch (Exception e) {
+        } catch (OpenSubtitlesException e) {
             LOGGER.error("API OPENSUBTITLES INIT", e);
         }
     }

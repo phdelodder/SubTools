@@ -27,7 +27,7 @@ public class SubtitleSelectionCLI extends SubtitleSelection {
         try {
             selected = Integer.parseInt(selectedSubtitle);
             selected--;
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             return -1;
         }
         return selected;

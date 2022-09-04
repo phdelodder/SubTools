@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.JAddic7edApi;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.exception.Addic7edException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.model.Addic7edSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.JSubAdapter;
 import org.lodder.subtools.sublibrary.Manager;
@@ -34,7 +35,7 @@ public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider {
                     jaapi = new JAddic7edApi(speedy, manager);
                 }
             }
-        } catch (Exception e) {
+        } catch (Addic7edException e) {
             LOGGER.error("API JAddic7ed INIT: ", e);
         }
     }
@@ -74,7 +75,7 @@ public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider {
                         .getEpisodeNumbers().get(0), tvRelease.getTitle()));
             }
 
-        } catch (Exception e) {
+        } catch (Addic7edException e) {
             LOGGER.error("API JAddic7ed searchSubtitles using title ", e);
         }
         for (Addic7edSubtitleDescriptor sub : lSubtitles) {

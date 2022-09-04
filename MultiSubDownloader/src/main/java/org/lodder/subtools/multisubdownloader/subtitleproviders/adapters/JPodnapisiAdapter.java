@@ -1,11 +1,13 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.xmlrpc.XmlRpcException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesHasher;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.JPodnapisiApi;
@@ -59,7 +61,7 @@ public class JPodnapisiAdapter implements JSubAdapter, SubtitleProvider {
             if (file.exists()) {
                 try {
                     lSubtitles = jpapi.searchSubtitles(new String[] { OpenSubtitlesHasher.computeHash(file) }, sublanguageid[0]);
-                } catch (Exception e) {
+                } catch (IOException | XmlRpcException e) {
                     LOGGER.error("API PODNAPISI searchSubtitles using file hash", e);
                 }
             }

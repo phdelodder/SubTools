@@ -1,6 +1,7 @@
 package org.lodder.subtools.multisubdownloader;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import org.lodder.subtools.multisubdownloader.actions.SubtitleSelectionAction;
 import org.lodder.subtools.multisubdownloader.cli.actions.CliSearchAction;
 import org.lodder.subtools.multisubdownloader.cli.progress.CLIFileindexerProgress;
 import org.lodder.subtools.multisubdownloader.cli.progress.CLISearchProgress;
+import org.lodder.subtools.multisubdownloader.exceptions.CliException;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
@@ -19,6 +21,7 @@ import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +59,7 @@ public class CLI {
         }
     }
 
-    public void setUp(CommandLine line) throws Exception {
+    public void setUp(CommandLine line) throws CliException {
         this.folders = getFolders(line);
         this.languagecode = getLanguageCode(line);
         this.force = line.hasOption("force");
@@ -78,7 +81,7 @@ public class CLI {
         for (Release release : releases) {
             try {
                 this.download(release);
-            } catch (Exception e) {
+            } catch (IOException | ManagerException e) {
                 LOGGER.error("executeArgs: search", e);
             }
         }
@@ -112,7 +115,7 @@ public class CLI {
         searchAction.run();
     }
 
-    private void download(Release release) throws Exception {
+    private void download(Release release) throws IOException, ManagerException {
         int selection = subtitleSelectionAction.subtitleSelection(release, subtitleSelection, dryRun);
         if (selection >= 0) {
             if (downloadall) {
@@ -140,11 +143,11 @@ public class CLI {
         }
     }
 
-    private String getLanguageCode(CommandLine line) throws Exception {
+    private String getLanguageCode(CommandLine line) throws CliException {
         if (line.hasOption("language")) {
             String languagecode = line.getOptionValue("language").toLowerCase();
             if (!isValidlanguageCode(languagecode)) {
-                throw new Exception(Messages.getString("App.NoValidLanguage"));
+                throw new CliException(Messages.getString("App.NoValidLanguage"));
             }
             return languagecode;
         } else {

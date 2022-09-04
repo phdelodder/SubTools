@@ -1,5 +1,6 @@
 package org.lodder.subtools.sublibrary.data;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,7 +23,7 @@ public class XmlRPC {
         this.userAgent = userAgent;
     }
 
-    protected Map<?, ?> invoke(String method, Object[] arguments) throws Exception {
+    protected Map<?, ?> invoke(String method, Object[] arguments) throws MalformedURLException, XmlRpcException {
 
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
         config.setServerURL(new URL(getApiServer()));
@@ -33,7 +34,7 @@ public class XmlRPC {
         return response;
     }
 
-    protected Map<?, ?> invoke(String method, Vector<Object> arguments) throws Exception {
+    protected Map<?, ?> invoke(String method, Vector<Object> arguments) throws MalformedURLException, XmlRpcException {
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
         config.setServerURL(new URL(getApiServer()));
         XmlRpcClient client = new XmlRpcClient();
@@ -47,9 +48,9 @@ public class XmlRPC {
      * Check whether status is OK or not status code and message (e.g. 200 OK, 401 Unauthorized, ...)
      *
      * @param response
-     * @throws XmlRpcFault thrown if status code is not OK
+     * @throws XmlRpcException thrown if status code is not OK
      */
-    protected void checkResponse(Map<?, ?> response) throws Exception {
+    protected void checkResponse(Map<?, ?> response) throws XmlRpcException {
         String status = response.get("status").toString();
 
         if (status == null || "200 OK".equals(status) || "200".equals(status)) {
@@ -60,7 +61,7 @@ public class XmlRPC {
             Scanner scanner = new Scanner(status);
             int nextInt = scanner.nextInt();
             scanner.close();
-            throw new Exception(nextInt + " : " + status);
+            throw new XmlRpcException(nextInt + " : " + status);
         } catch (NoSuchElementException e) {
         }
         throw new XmlRpcException("Illegal status code: " + status);

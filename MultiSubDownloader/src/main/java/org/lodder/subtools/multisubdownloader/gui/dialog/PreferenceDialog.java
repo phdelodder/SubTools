@@ -1,8 +1,5 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-
 import java.io.File;
 import java.util.ArrayList;
 
@@ -23,8 +20,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
 import org.lodder.subtools.multisubdownloader.framework.event.Event;
@@ -42,6 +37,11 @@ import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.sublibrary.Manager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+
+import net.miginfocom.swing.MigLayout;
 
 public class PreferenceDialog extends MultiSubDialog {
 
@@ -537,14 +537,14 @@ public class PreferenceDialog extends MultiSubDialog {
     protected boolean testGeneralTab() {
         try {
             Integer.parseInt(txtProxyPort.getText());
-        } catch (Exception e) {
+            return true;
+        } catch (NumberFormatException e) {
             String message = Messages.getString("PreferenceDialog.ProxyPortNumericRequired");
             JOptionPane.showConfirmDialog(this, message, Messages.getString("PreferenceDialog.Name"),
                     JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
             LOGGER.debug("testGeneralTab: De proxy poort moet een numerische waarde zijn!");
             return false;
         }
-        return true;
     }
 
     protected boolean testSerieSourcesTab() {

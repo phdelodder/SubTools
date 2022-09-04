@@ -4,8 +4,10 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.prefs.BackingStoreException;
+import java.util.prefs.InvalidPreferencesFormatException;
 import java.util.prefs.Preferences;
 import java.util.stream.IntStream;
 
@@ -296,7 +298,7 @@ public class SettingsControl {
             SettingsExcludeItem sei;
             try {
                 sei = new SettingsExcludeItem(description, SettingsExcludeType.valueOf(type));
-            } catch (Exception e) {
+            } catch (IllegalArgumentException e) {
                 sei = new SettingsExcludeItem(description, SettingsExcludeType.FOLDER);
             }
 
@@ -395,7 +397,7 @@ public class SettingsControl {
         store();
         try (FileOutputStream fos = new FileOutputStream(file)) {
             preferences.exportSubtree(fos);
-        } catch (Exception e) {
+        } catch (IOException | BackingStoreException e) {
             LOGGER.error("exportPreferences", e);
         }
     }
@@ -405,7 +407,7 @@ public class SettingsControl {
             preferences.clear();
             Preferences.importPreferences(is);
             load();
-        } catch (Exception e) {
+        } catch (IOException | BackingStoreException | InvalidPreferencesFormatException e) {
             LOGGER.error("importPreferences", e);
         }
     }

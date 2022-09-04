@@ -8,8 +8,8 @@ import javax.swing.SwingWorker;
 import org.lodder.subtools.multisubdownloader.actions.RenameAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
-import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
+import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
@@ -38,7 +38,7 @@ public class RenameWorker extends SwingWorker<Void, String> implements Cancelabl
     }
 
     @Override
-    protected Void doInBackground() throws Exception {
+    protected Void doInBackground() {
         final VideoTableModel model = (VideoTableModel) table.getModel();
         int selectedCount = model.getSelectedCount(table.getColumnIdByName(SearchColumnName.SELECT));
         int progress = 0;

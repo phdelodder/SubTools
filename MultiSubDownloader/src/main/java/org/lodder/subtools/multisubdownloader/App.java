@@ -1,11 +1,11 @@
 package org.lodder.subtools.multisubdownloader;
 
-import java.awt.EventQueue;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -13,6 +13,7 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.lodder.subtools.multisubdownloader.exceptions.CliException;
 import org.lodder.subtools.multisubdownloader.framework.Bootstrapper;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.gui.Splash;
@@ -27,6 +28,8 @@ import org.lodder.subtools.sublibrary.util.http.HttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.EventQueue;
+
 import ch.qos.logback.classic.Level;
 
 public class App {
@@ -35,7 +38,7 @@ public class App {
     private static Splash splash;
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws ReflectiveOperationException, UnsupportedLookAndFeelException {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
         CommandLineParser parser = new GnuParser();
@@ -85,7 +88,7 @@ public class App {
 
             try {
                 cmd.setUp(line);
-            } catch (Exception e) {
+            } catch (CliException e) {
                 System.out.println("Error: " + e.getMessage());
                 return;
             }

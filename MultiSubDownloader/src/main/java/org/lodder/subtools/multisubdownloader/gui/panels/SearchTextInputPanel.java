@@ -4,8 +4,10 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
-import net.miginfocom.swing.MigLayout;
+
 import org.lodder.subtools.sublibrary.model.VideoSearchType;
+
+import net.miginfocom.swing.MigLayout;
 
 public class SearchTextInputPanel extends InputPanel {
 
@@ -91,7 +93,7 @@ public class SearchTextInputPanel extends InputPanel {
         String strSeason = txtInputSeason.getText().trim();
         try {
             season = strSeason.isEmpty() ? 0 : Integer.parseInt(strSeason);
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             season = 0;
         }
         txtInputSeason.setText("" + season);
@@ -104,7 +106,7 @@ public class SearchTextInputPanel extends InputPanel {
         String strEpisode = txtInputEpisode.getText().trim();
         try {
             episode = strEpisode.isEmpty() ? 0 : Integer.parseInt(strEpisode);
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             episode = 0;
         }
         txtInputEpisode.setText("" + episode);

@@ -20,6 +20,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.exception.Addic7edException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.model.Addic7edSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
@@ -43,22 +44,26 @@ public class JAddic7edApi extends Html {
         this.speedy = speedy;
     }
 
-    public JAddic7edApi(String username, String password, boolean speedy, Manager manager) throws ManagerException {
+    public JAddic7edApi(String username, String password, boolean speedy, Manager manager) throws Addic7edException {
         super(manager, "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
-        pattern = Pattern.compile("Version (.+), ([0-9]+).([0-9])+ MBs");
-        login(username, password);
         this.speedy = speedy;
+        this.pattern = Pattern.compile("Version (.+), ([0-9]+).([0-9])+ MBs");
+        login(username, password);
     }
 
-    public void login(String username, String password) throws ManagerException {
+    public void login(String username, String password) throws Addic7edException {
         Map<String, String> data = new HashMap<>();
         data.put("username", username);
         data.put("password", password);
         data.put("remember", "false");
-        this.postHtml("http://www.addic7ed.com/dologin.php", data);
+        try {
+            this.postHtml("http://www.addic7ed.com/dologin.php", data);
+        } catch (ManagerException e) {
+            throw new Addic7edException(e);
+        }
     }
 
-    public String searchSerieName(String name) throws Exception {
+    public String searchSerieName(String name) throws Addic7edException {
         String content = searchName(name);
 
         Document doc = Jsoup.parse(content);
@@ -76,7 +81,7 @@ public class JAddic7edApi extends Html {
         return "";
     }
 
-    public String searchMovieName(String name) throws Exception {
+    public String searchMovieName(String name) throws Addic7edException {
         String content = searchName(name);
 
         Document doc = Jsoup.parse(content);
@@ -87,7 +92,7 @@ public class JAddic7edApi extends Html {
         return moviename.substring(0, moviename.indexOf("/"));
     }
 
-    private String searchName(String name) throws Exception {
+    private String searchName(String name) throws Addic7edException {
         String url = "http://www.addic7ed.com/search.php?search=" + URLEncoder.encode(name, StandardCharsets.UTF_8) + "&Submit=Search";
 
         String content = this.getContent(true, url);
@@ -97,15 +102,14 @@ public class JAddic7edApi extends Html {
                 name = name.replace(":", "");
                 return searchName(name);
             } else {
-                throw new Exception("Can't find it on addic7ed, please contact developer!");
+                throw new Addic7edException("Can't find it on addic7ed, please contact developer!");
             }
         }
 
         return content;
     }
 
-    public List<Addic7edSubtitleDescriptor> searchSubtitles(String showname, int season, int episode,
-            String title) throws Exception {
+    public List<Addic7edSubtitleDescriptor> searchSubtitles(String showname, int season, int episode, String title) {
         // http://www.addic7ed.com/serie/Smallville/9/11/Absolute_Justice
         String url = "http://www.addic7ed.com/serie/" + showname.toLowerCase().replace(" ", "_") + "/" + season
                 + "/" + episode + "/" + title.toLowerCase().replace(" ", "_").replace("#", "");

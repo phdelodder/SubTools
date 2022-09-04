@@ -51,7 +51,7 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
     }
 
     @Override
-    protected Void doInBackground() throws Exception {
+    protected Void doInBackground() {
         rename(dir);
         return null;
     }
@@ -65,16 +65,12 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
         for (File file : contents) {
             if (file.isFile() && !file.getName().contains("sample") && patterns.accept(file.getAbsoluteFile(), file.getName())) {
                 Release release;
-                try {
-                    release = releaseFactory.createRelease(file);
-                    if (release != null) {
-                        publish(release.getFilename());
-                        if (release.getVideoType() == videoType) {
-                            renameAction.rename(file, release);
-                        }
+                release = releaseFactory.createRelease(file);
+                if (release != null) {
+                    publish(release.getFilename());
+                    if (release.getVideoType() == videoType) {
+                        renameAction.rename(file, release);
                     }
-                } catch (Exception e) {
-                    LOGGER.error("Series Rename", e);
                 }
             } else if (file.isDirectory() && isRecursive) {
                 rename(file);

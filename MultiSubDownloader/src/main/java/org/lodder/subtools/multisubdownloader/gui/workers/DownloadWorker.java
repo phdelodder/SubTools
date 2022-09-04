@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.workers;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -11,13 +12,14 @@ import org.lodder.subtools.multisubdownloader.actions.SubtitleSelectionAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.dialog.SelectDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
-import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
+import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.SubtitleSelectionGUI;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +46,7 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
     }
 
     @Override
-    protected Void doInBackground() throws Exception {
+    protected Void doInBackground() {
         LOGGER.trace("doInBackground: Rows to thread: {} ", table.getModel().getRowCount());
         Info.downloadOptions(settings, false);
         final VideoTableModel model = (VideoTableModel) table.getModel();
@@ -77,7 +79,7 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
                         }
                         model.removeRow(i);
                         i--;
-                    } catch (final Exception e) {
+                    } catch (IOException | ManagerException e) {
                         LOGGER.error(e.getMessage(), e);
                         showErrorMessage(e.toString());
                     }

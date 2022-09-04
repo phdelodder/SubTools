@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2;
 
+import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.exception.OpenSubtitlesException;
 import org.opensubtitles.api.AuthenticationApi;
 import org.opensubtitles.invoker.ApiClient;
 import org.opensubtitles.invoker.ApiException;
@@ -17,15 +18,19 @@ public class OpenSubtitlesApi {
         apiClient.setApiKey(apikey);
     }
 
-    public OpenSubtitlesApi(String userName, String password) throws ApiException {
+    public OpenSubtitlesApi(String userName, String password) throws OpenSubtitlesException {
         this();
         login(userName, password);
     }
 
-    public void login(String userName, String password) throws ApiException {
-        Login200Response loginResponse =
-                new AuthenticationApi(apiClient).login("application/json", new LoginRequest().username(userName).password(password));
-        apiClient.setBearerToken(loginResponse.getToken());
+    public void login(String userName, String password) throws OpenSubtitlesException {
+        try {
+            Login200Response loginResponse =
+                    new AuthenticationApi(apiClient).login("application/json", new LoginRequest().username(userName).password(password));
+            apiClient.setBearerToken(loginResponse.getToken());
+        } catch (ApiException e) {
+            throw new OpenSubtitlesException(e);
+        }
     }
 
     public SearchSubtitles searchSubtitles() {

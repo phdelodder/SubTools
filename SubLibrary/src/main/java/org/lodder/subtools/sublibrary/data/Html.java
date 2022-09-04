@@ -10,7 +10,7 @@ import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 
 public class Html {
 
-    private Manager manager;
+    private final Manager manager;
     private String userAgent;
 
     public Html(Manager manager) {
@@ -27,13 +27,11 @@ public class Html {
         this.userAgent = userAgent;
     }
 
-    public String getHtml(String url) throws IOException, HttpClientException,
-            ManagerSetupException, ManagerException {
+    public String getHtml(String url) throws IOException, HttpClientException, ManagerSetupException, ManagerException {
         return manager.getContent(url, userAgent, false);
     }
 
-    public String getHtmlDisk(String url) throws IOException,
-            HttpClientException, ManagerSetupException, ManagerException {
+    public String getHtmlDisk(String url) throws IOException, HttpClientException, ManagerSetupException, ManagerException {
         return manager.getContent(url, userAgent, false);
     }
 

@@ -1,6 +1,7 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi;
 
 import java.math.BigInteger;
+import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.xmlrpc.XmlRpcException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.model.PodnapisiSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
@@ -37,7 +39,7 @@ public class JPodnapisiApi extends XmlRPC {
         this.manager = manager;
     }
 
-    private void login() throws Exception {
+    private void login() throws MalformedURLException, XmlRpcException {
         Map<?, ?> response = invoke("initiate", new String[] { getUserAgent() });
         setToken(response.get("session").toString());
         String nonce = response.get("nonce").toString();
@@ -75,8 +77,7 @@ public class JPodnapisiApi extends XmlRPC {
     }
 
     @SuppressWarnings("unchecked")
-    public List<PodnapisiSubtitleDescriptor> searchSubtitles(String[] filehash, String sublanguageid)
-            throws Exception {
+    public List<PodnapisiSubtitleDescriptor> searchSubtitles(String[] filehash, String sublanguageid) throws MalformedURLException, XmlRpcException {
         checkLoginStatus();
 
         List<PodnapisiSubtitleDescriptor> subtitles = new ArrayList<>();
@@ -134,7 +135,7 @@ public class JPodnapisiApi extends XmlRPC {
     }
 
     @SuppressWarnings("unchecked")
-    public String download(String subtitleId) throws Exception {
+    public String download(String subtitleId) throws MalformedURLException, XmlRpcException {
         checkLoginStatus();
 
         Map<?, ?> response = invoke("download", new Object[] { getToken(), subtitleId });
@@ -170,7 +171,7 @@ public class JPodnapisiApi extends XmlRPC {
         }
     }
 
-    private void checkLoginStatus() throws Exception {
+    private void checkLoginStatus() throws MalformedURLException, XmlRpcException {
         if (!isLoggedOn()) {
             login();
         } else {
@@ -178,7 +179,7 @@ public class JPodnapisiApi extends XmlRPC {
         }
     }
 
-    private void keepAlive() throws Exception {
+    private void keepAlive() throws MalformedURLException, XmlRpcException {
         if (LocalDateTime.now().isAfter(nextCheck)) {
             invoke("keepalive", new Object[] { getToken() });
             nextCheck = LocalDateTime.now().plusSeconds(maxAge);
