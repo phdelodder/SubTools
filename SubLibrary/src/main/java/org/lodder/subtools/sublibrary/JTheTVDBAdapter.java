@@ -2,7 +2,6 @@ package org.lodder.subtools.sublibrary;
 
 import java.util.List;
 
-import org.lodder.subtools.sublibrary.data.thetvdb.TheTVDBApi;
 import org.lodder.subtools.sublibrary.data.thetvdb.TheTVDBApiV2;
 import org.lodder.subtools.sublibrary.data.thetvdb.TheTVDBException;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
@@ -26,9 +25,7 @@ public class JTheTVDBAdapter {
       exceptions =
           manager
               .downloadText2("https://raw.githubusercontent.com/midgetspy/sb_tvdb_scene_exceptions/gh-pages/exceptions.txt");
-    } catch (TheTVDBException e) {
-      LOGGER.error(e.getMessage(), e);
-    } catch (ManagerException e) {
+    } catch (TheTVDBException | ManagerException e) {
       LOGGER.error(e.getMessage(), e);
     }
 

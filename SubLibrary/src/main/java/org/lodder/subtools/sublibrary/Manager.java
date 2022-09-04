@@ -33,7 +33,7 @@ public class Manager {
       throw new ManagerException(e);
     }
   }
-  
+
   public String downloadText2(String urlString) throws ManagerException {
 	    try {
 	      return httpClient.downloadText(urlString);
@@ -74,12 +74,10 @@ public class Manager {
       }
     } catch (MalformedURLException e) {
       throw new ManagerException("incorrect url", e);
-    } catch (IOException e) {
-      throw new ManagerException(e);
     } catch (HttpClientException e) {
       throw new ManagerException("Error occured with httpclient response: " + e.getResponseCode()
           + " " + e.getResponseMessage());
-    } catch (HttpClientSetupException e) {
+    } catch (IOException | HttpClientSetupException e) {
       throw new ManagerException(e);
     }
 
@@ -96,7 +94,6 @@ public class Manager {
     }
   }
 
-
   public String post(String urlString, String userAgent, Map<String, String> data)
       throws ManagerException {
     URL url;
@@ -105,9 +102,7 @@ public class Manager {
       return httpClient.doPost(url, userAgent, data);
     } catch (MalformedURLException e) {
       throw new ManagerException("incorrect url", e);
-    } catch (HttpClientSetupException e) {
-      throw new ManagerException(e);
-    } catch (HttpClientException e) {
+    } catch (HttpClientSetupException | HttpClientException e) {
       throw new ManagerException(e);
     }
 
@@ -126,9 +121,15 @@ public class Manager {
   }
 
   private void validate() throws ManagerSetupException {
-    if (httpClient == null) throw new ManagerSetupException("HttpClient is not initialized");
-    if (inMemoryCache == null) throw new ManagerSetupException("InMemoryCache is not initialized");
-    if (diskCache == null) throw new ManagerSetupException("DiskCache is not initialized");
+    if (httpClient == null) {
+		throw new ManagerSetupException("HttpClient is not initialized");
+	}
+    if (inMemoryCache == null) {
+		throw new ManagerSetupException("InMemoryCache is not initialized");
+	}
+    if (diskCache == null) {
+		throw new ManagerSetupException("DiskCache is not initialized");
+	}
   }
 
   public void removeCacheObject(String url) throws ManagerSetupException {
@@ -138,9 +139,10 @@ public class Manager {
   }
 
   public boolean isCached(String url) {
-    if (inMemoryCache.exists(url))
-      return true;
-    else
-      return diskCache.exists(url);
+    if (inMemoryCache.exists(url)) {
+		return true;
+	} else {
+		return diskCache.exists(url);
+	}
   }
 }
