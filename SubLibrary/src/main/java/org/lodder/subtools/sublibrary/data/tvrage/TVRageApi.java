@@ -1,7 +1,7 @@
 package org.lodder.subtools.sublibrary.data.tvrage;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,21 +11,21 @@ import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisodeList;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageShowInfo;
 
-public class TVRageApi{
+public class TVRageApi {
 
-	private static final String API_EPISODE_INFO = "episodeinfo.php";
+    private static final String API_EPISODE_INFO = "episodeinfo.php";
     private static final String API_EPISODE_LIST = "episode_list.php";
     private static final String API_SEARCH = "search.php";
     private static final String API_SHOWINFO = "showinfo.php";
     private static final String API_SITE = "http://services.tvrage.com/feeds/";
     public static final String UNKNOWN = "UNKNOWN";
     private final TVRageParser tvrParser;
-	
-    public TVRageApi(Manager manager){
-    	tvrParser = new TVRageParser(manager);
+
+    public TVRageApi(Manager manager) {
+        tvrParser = new TVRageParser(manager);
     }
-    
-	/**
+
+    /**
      * Search for the show using the show name
      *
      * @param showName
@@ -33,13 +33,13 @@ public class TVRageApi{
      */
     public List<TVRageShowInfo> searchShow(String showName) {
         if (!isValidString(showName)) {
-            return new ArrayList<TVRageShowInfo>();
+            return new ArrayList<>();
         }
 
         String tvrageURL = buildURL(API_SEARCH, showName).toString();
         return tvrParser.getSearchShow(tvrageURL);
     }
-    
+
     /**
      * Get the episode information for all episodes for a show
      *
@@ -54,7 +54,7 @@ public class TVRageApi{
         String tvrageURL = buildURL(API_EPISODE_LIST, showID).toString();
         return tvrParser.getEpisodeList(tvrageURL);
     }
-    
+
     /**
      * Get the information for a specific episode
      *
@@ -75,32 +75,26 @@ public class TVRageApi{
 
         return tvrParser.getEpisodeInfo(tvrageURL.toString());
     }
-	
-	private StringBuilder buildURL(String urlParameter, String urlData) {
-        // apiSite + search.php          + ?show=buffy
-        // apiSite + showinfo.php        + ?sid=2930
-        // apiSite + episode_list.php     + ?sid=2930
+
+    private StringBuilder buildURL(String urlParameter, String urlData) {
+        // apiSite + search.php + ?show=buffy
+        // apiSite + showinfo.php + ?sid=2930
+        // apiSite + episode_list.php + ?sid=2930
 
         StringBuilder tvrageURL = new StringBuilder();
         tvrageURL.append(API_SITE);
         tvrageURL.append(urlParameter);
         tvrageURL.append("?");
-        
-        String encUrlData = urlData;
-        try {
-          encUrlData = URLEncoder.encode(urlData, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
 
-        if (urlParameter.equalsIgnoreCase(API_SEARCH)) {
+        String encUrlData = URLEncoder.encode(urlData, StandardCharsets.UTF_8);
+
+        if (API_SEARCH.equalsIgnoreCase(urlParameter)) {
             tvrageURL.append("show=").append(encUrlData);
-        } else if (urlParameter.equalsIgnoreCase(API_SHOWINFO)) {
+        } else if (API_SHOWINFO.equalsIgnoreCase(urlParameter)) {
             tvrageURL.append("sid=").append(encUrlData);
-        } else if (urlParameter.equalsIgnoreCase(API_EPISODE_LIST)) {
+        } else if (API_EPISODE_LIST.equalsIgnoreCase(urlParameter)) {
             tvrageURL.append("sid=").append(encUrlData);
-        } else if (urlParameter.equalsIgnoreCase(API_EPISODE_INFO)) {
+        } else if (API_EPISODE_INFO.equalsIgnoreCase(urlParameter)) {
             tvrageURL.append("sid=").append(encUrlData);
             // Note this needs the season & episode appending to the url
         } else {
@@ -109,14 +103,14 @@ public class TVRageApi{
 
         return tvrageURL;
     }
-	
-	/**
+
+    /**
      * Check the string passed to see if it contains a value.
      *
      * @param testString The string to test
      * @return False if the string is empty, null or UNKNOWN, True otherwise
      */
-	public static boolean isValidString(String testString) {
-        return StringUtils.isNotBlank(testString) && (!testString.equalsIgnoreCase(TVRageApi.UNKNOWN));
+    public static boolean isValidString(String testString) {
+        return StringUtils.isNotBlank(testString) && !TVRageApi.UNKNOWN.equalsIgnoreCase(testString);
     }
 }

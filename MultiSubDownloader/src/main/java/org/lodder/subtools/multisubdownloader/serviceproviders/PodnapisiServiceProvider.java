@@ -8,22 +8,22 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.adapters.JPodnap
 import org.lodder.subtools.sublibrary.Manager;
 
 public class PodnapisiServiceProvider implements ServiceProvider {
-  @Override
-  public int getPriority() {
-    /* We define a priority lower than SubtitleServiceProvider */
-    return 1;
-  }
+    @Override
+    public int getPriority() {
+        /* We define a priority lower than SubtitleServiceProvider */
+        return 1;
+    }
 
-  @Override
-  public void register(Container app) {
-    /* Resolve the SubtitleProviderStore from the IoC Container */
-    SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) app.make("SubtitleProviderStore");
+    @Override
+    public void register(Container app) {
+        /* Resolve the SubtitleProviderStore from the IoC Container */
+        SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) app.make("SubtitleProviderStore");
 
-    /* Create the SubtitleProvider */
-    Manager manager = (Manager) app.make("Manager");
-    SubtitleProvider podnapisiAdapter = new JPodnapisiAdapter(manager);
+        /* Create the SubtitleProvider */
+        Manager manager = (Manager) app.make("Manager");
+        SubtitleProvider podnapisiAdapter = new JPodnapisiAdapter(manager);
 
-    /* Add the SubtitleProvider to the store */
-    subtitleProviderStore.addProvider(podnapisiAdapter);
-  }
+        /* Add the SubtitleProvider to the store */
+        subtitleProviderStore.addProvider(podnapisiAdapter);
+    }
 }

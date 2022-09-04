@@ -8,22 +8,22 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.adapters.JTVsubt
 import org.lodder.subtools.sublibrary.Manager;
 
 public class TvSubtitlesServiceProvider implements ServiceProvider {
-  @Override
-  public int getPriority() {
-    /* We define a priority lower than SubtitleServiceProvider */
-    return 1;
-  }
+    @Override
+    public int getPriority() {
+        /* We define a priority lower than SubtitleServiceProvider */
+        return 1;
+    }
 
-  @Override
-  public void register(Container app) {
-    /* Resolve the SubtitleProviderStore from the IoC Container */
-    SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) app.make("SubtitleProviderStore");
+    @Override
+    public void register(Container app) {
+        /* Resolve the SubtitleProviderStore from the IoC Container */
+        SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) app.make("SubtitleProviderStore");
 
-    /* Create the SubtitleProvider */
-    Manager manager = (Manager) app.make("Manager");
-    SubtitleProvider tvsubtitlesAdapter = new JTVsubtitlesAdapter(manager);
+        /* Create the SubtitleProvider */
+        Manager manager = (Manager) app.make("Manager");
+        SubtitleProvider tvsubtitlesAdapter = new JTVsubtitlesAdapter(manager);
 
-    /* Add the SubtitleProvider to the store */
-    subtitleProviderStore.addProvider(tvsubtitlesAdapter);
-  }
+        /* Add the SubtitleProvider to the store */
+        subtitleProviderStore.addProvider(tvsubtitlesAdapter);
+    }
 }

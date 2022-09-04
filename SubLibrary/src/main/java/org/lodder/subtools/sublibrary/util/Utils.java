@@ -5,17 +5,17 @@ import java.util.List;
 import java.util.Set;
 
 public class Utils {
-	
-	public static boolean containsAll(List<Integer> listA, List<Integer> listB) {
-		Set<Integer> listAAsSet = new HashSet<Integer>(listA);
 
-		for (Integer integer : listB) {
+    public static boolean containsAll(List<Integer> listA, List<Integer> listB) {
+        Set<Integer> listAAsSet = new HashSet<>(listA);
 
-			if (!listAAsSet.contains(integer)) {
-				return false;
-			}
-		}
-		return true;
-	}
+        for (Integer integer : listB) {
+
+            if (!listAAsSet.contains(integer)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 }

@@ -20,107 +20,102 @@ import org.slf4j.LoggerFactory;
 
 public class PrivateRepo {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PrivateRepo.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PrivateRepo.class);
 
-  private List<IndexSubtitle> index = new ArrayList<>();
-  private final String indexUrl = "/Ondertitels/PrivateRepo/index";
-  private final String indexVersionUrl = "/Ondertitels/PrivateRepo/index.version";
-  private static PrivateRepo privateRepo;
-  private final File path = new File(System.getProperty("user.home"), ".MultiSubDownloader");
-  private final File rVersion = new File(path, "rVersion");
-  private final File rIndex = new File(path, "rIndex");
+    private List<IndexSubtitle> index = new ArrayList<>();
+    private final String indexUrl = "/Ondertitels/PrivateRepo/index";
+    private final String indexVersionUrl = "/Ondertitels/PrivateRepo/index.version";
+    private static PrivateRepo privateRepo;
+    private final File path = new File(System.getProperty("user.home"), ".MultiSubDownloader");
+    private final File rVersion = new File(path, "rVersion");
+    private final File rIndex = new File(path, "rIndex");
 
-  @SuppressWarnings("unused")
-  PrivateRepo() {
-    int localVersion = 0;
-    String strIndex = "";
-    int indexVersion = 0;
+    @SuppressWarnings("unused")
+    PrivateRepo() {
+        int localVersion = 0;
+        String strIndex = "";
+        int indexVersion = 0;
 
-    if (!path.exists()) {
-      boolean isCreated = path.mkdir();
-    }
-
-    try {
-      if (rVersion.exists()) {
-        localVersion = Integer.parseInt(Files.read(rVersion).trim());
-      }
-      indexVersion =
-          Integer.parseInt(DropBoxClient.getDropBoxClient().getFile(indexVersionUrl).trim());
-      if (indexVersion > localVersion || !rIndex.exists()) {
-        strIndex = DropBoxClient.getDropBoxClient().getFile(indexUrl);
-        Files.write(rIndex, strIndex);
-        Files.write(rVersion, Integer.toString(indexVersion).trim());
-      } else {
-        strIndex = Files.read(rIndex);
-      }
-    } catch (Exception e) {
-      LOGGER.error("Unable to get latest version number", e);
-    }
-    index = PrivateRepoIndex.getIndex(strIndex);
-  }
-
-  public static PrivateRepo getPrivateRepo() {
-    if (privateRepo == null) {
-      privateRepo = new PrivateRepo();
-    }
-    return privateRepo;
-  }
-
-  public List<Subtitle> searchSubtitles(TvRelease tvRelease, String languageCode)
-      throws UnsupportedEncodingException {
-    List<Subtitle> results = new ArrayList<>();
-    for (IndexSubtitle indexSubtitle : index) {
-      if (indexSubtitle.getVideoType() == tvRelease.getVideoType()) {
-        if (indexSubtitle.getTvdbid() == tvRelease.getTvdbid()) {
-          if (indexSubtitle.getSeason() == tvRelease.getSeason()
-              && indexSubtitle.getEpisode() == tvRelease.getEpisodeNumbers().get(0)) {
-            if (indexSubtitle.getLanguage().equalsIgnoreCase(languageCode)) {
-              File location =
-                  new File(indexSubtitle.getName() + "/" + indexSubtitle.getSeason() + "/"
-                      + indexSubtitle.getEpisode() + "/" + indexSubtitle.getLanguage() + "/"
-                      + PrivateRepoIndex.getFullFilename(indexSubtitle));
-
-              Subtitle tempSub =
-                  new Subtitle(Subtitle.SubtitleSource.LOCAL, indexSubtitle.getFilename(),
-                      location, indexSubtitle.getLanguage(),
-                      ReleaseParser.getQualityKeyword(indexSubtitle.getFilename()),
-                      SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(
-                          indexSubtitle.getFilename(),
-                          FilenameUtils.isExtension(indexSubtitle.getFilename(), "srt")),
-                      "", false);
-              results.add(tempSub);
-            }
-          }
+        if (!path.exists()) {
+            boolean isCreated = path.mkdir();
         }
-      }
-    }
-    return results;
-  }
 
-  public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String languageCode) {
-    List<Subtitle> results = new ArrayList<>();
-    for (IndexSubtitle indexSubtitle : index) {
-      if (indexSubtitle.getVideoType() == movieRelease.getVideoType()) {
-        if (indexSubtitle.getImdbid() == movieRelease.getImdbid()) {
-          if (indexSubtitle.getYear() == movieRelease.getYear()) {
-            if (indexSubtitle.getLanguage().equalsIgnoreCase(languageCode)) {
-              String location =
-                  "/movies/" + indexSubtitle.getName() + " " + indexSubtitle.getYear() + "/"
-                      + indexSubtitle.getLanguage() + "/"
-                      + PrivateRepoIndex.getFullFilename(indexSubtitle);
-
-              Subtitle tempSub =
-                  new Subtitle(Subtitle.SubtitleSource.LOCAL, indexSubtitle.getFilename(),
-                      location, indexSubtitle.getLanguage(), "", SubtitleMatchType.EVERYTHING,
-                      ReleaseParser.extractReleasegroup(indexSubtitle.getFilename(),
-                          FilenameUtils.isExtension(indexSubtitle.getFilename(), "srt")),
-                      "", false);
-              results.add(tempSub);
+        try {
+            if (rVersion.exists()) {
+                localVersion = Integer.parseInt(Files.read(rVersion).trim());
             }
-          }
+            indexVersion = Integer.parseInt(DropBoxClient.getDropBoxClient().getFile(indexVersionUrl).trim());
+            if (indexVersion > localVersion || !rIndex.exists()) {
+                strIndex = DropBoxClient.getDropBoxClient().getFile(indexUrl);
+                Files.write(rIndex, strIndex);
+                Files.write(rVersion, Integer.toString(indexVersion).trim());
+            } else {
+                strIndex = Files.read(rIndex);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Unable to get latest version number", e);
         }
-      }
+        index = PrivateRepoIndex.getIndex(strIndex);
     }
-    return results;
-  }
+
+    public static PrivateRepo getPrivateRepo() {
+        if (privateRepo == null) {
+            privateRepo = new PrivateRepo();
+        }
+        return privateRepo;
+    }
+
+    public List<Subtitle> searchSubtitles(TvRelease tvRelease, String languageCode)
+            throws UnsupportedEncodingException {
+        List<Subtitle> results = new ArrayList<>();
+        for (IndexSubtitle indexSubtitle : index) {
+            if ((indexSubtitle.getVideoType() == tvRelease.getVideoType()) && (indexSubtitle.getTvdbid() == tvRelease.getTvdbid())) {
+                if (indexSubtitle.getSeason() == tvRelease.getSeason()
+                        && indexSubtitle.getEpisode() == tvRelease.getEpisodeNumbers().get(0)) {
+                    if (indexSubtitle.getLanguage().equalsIgnoreCase(languageCode)) {
+                        File location =
+                                new File(indexSubtitle.getName() + "/" + indexSubtitle.getSeason() + "/"
+                                        + indexSubtitle.getEpisode() + "/" + indexSubtitle.getLanguage() + "/"
+                                        + PrivateRepoIndex.getFullFilename(indexSubtitle));
+
+                        Subtitle tempSub =
+                                new Subtitle(Subtitle.SubtitleSource.LOCAL, indexSubtitle.getFilename(),
+                                        location, indexSubtitle.getLanguage(),
+                                        ReleaseParser.getQualityKeyword(indexSubtitle.getFilename()),
+                                        SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(
+                                                indexSubtitle.getFilename(),
+                                                FilenameUtils.isExtension(indexSubtitle.getFilename(), "srt")),
+                                        "", false);
+                        results.add(tempSub);
+                    }
+                }
+            }
+        }
+        return results;
+    }
+
+    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String languageCode) {
+        List<Subtitle> results = new ArrayList<>();
+        for (IndexSubtitle indexSubtitle : index) {
+            if ((indexSubtitle.getVideoType() == movieRelease.getVideoType()) && (indexSubtitle.getImdbid() == movieRelease.getImdbid())) {
+                if (indexSubtitle.getYear() == movieRelease.getYear()) {
+                    if (indexSubtitle.getLanguage().equalsIgnoreCase(languageCode)) {
+                        String location =
+                                "/movies/" + indexSubtitle.getName() + " " + indexSubtitle.getYear() + "/"
+                                        + indexSubtitle.getLanguage() + "/"
+                                        + PrivateRepoIndex.getFullFilename(indexSubtitle);
+
+                        Subtitle tempSub =
+                                new Subtitle(Subtitle.SubtitleSource.LOCAL, indexSubtitle.getFilename(),
+                                        location, indexSubtitle.getLanguage(), "", SubtitleMatchType.EVERYTHING,
+                                        ReleaseParser.extractReleasegroup(indexSubtitle.getFilename(),
+                                                FilenameUtils.isExtension(indexSubtitle.getFilename(), "srt")),
+                                        "", false);
+                        results.add(tempSub);
+                    }
+                }
+            }
+        }
+        return results;
+    }
 }

@@ -10,22 +10,23 @@ import org.slf4j.LoggerFactory;
 
 public class EpisodeFileControl extends VideoFileControl {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(EpisodeFileControl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EpisodeFileControl.class);
 
-  public EpisodeFileControl(TvRelease tvRelease) {
-    super(tvRelease);
-  }
-
-  public TvRelease process(List<MappingTvdbScene> dict) throws ReleaseControlException {
-    TvRelease tvRelease = (TvRelease) release;
-    // return episodeFile;
-    if (tvRelease.getShow().equals("")) {
-      throw new ReleaseControlException("Unable to extract episode details, check file", release);
-    } else {
-      LOGGER.debug("process: showname [{}], season [{}], episode [{}]", tvRelease.getShow(),
-          tvRelease.getSeason(), tvRelease.getEpisodeNumbers());
-
-      return tvRelease;
+    public EpisodeFileControl(TvRelease tvRelease) {
+        super(tvRelease);
     }
-  }
+
+    @Override
+    public TvRelease process(List<MappingTvdbScene> dict) throws ReleaseControlException {
+        TvRelease tvRelease = (TvRelease) release;
+        // return episodeFile;
+        if ("".equals(tvRelease.getShow())) {
+            throw new ReleaseControlException("Unable to extract episode details, check file", release);
+        } else {
+            LOGGER.debug("process: showname [{}], season [{}], episode [{}]", tvRelease.getShow(),
+                    tvRelease.getSeason(), tvRelease.getEpisodeNumbers());
+
+            return tvRelease;
+        }
+    }
 }

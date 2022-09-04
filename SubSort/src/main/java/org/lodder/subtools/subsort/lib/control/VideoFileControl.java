@@ -20,11 +20,11 @@ public abstract class VideoFileControl {
     public Release process() throws ReleaseControlException {
         return this.process(new ArrayList<MappingTvdbScene>());
     }
-    
+
     public void setVideoFile(Release release) {
         this.release = release;
     }
-    
+
     public Release getVideoFile() {
         return release;
     }

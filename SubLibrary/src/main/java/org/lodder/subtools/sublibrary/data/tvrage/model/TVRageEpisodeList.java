@@ -39,13 +39,7 @@ import org.lodder.subtools.sublibrary.data.tvrage.TVRageApi;
  */
 public class TVRageEpisodeList implements Serializable {
 
-    /*
-     * Serial Version
-     */
     private static final long serialVersionUID = 1L;
-    /*
-     * Properties
-     */
     private String showName;
     private int totalSeasons;
     private Map<TVRageEpisodeNumber, TVRageEpisode> episodeList;
@@ -53,7 +47,7 @@ public class TVRageEpisodeList implements Serializable {
     public TVRageEpisodeList() {
         showName = TVRageApi.UNKNOWN;
         totalSeasons = 0;
-        episodeList = new TreeMap<TVRageEpisodeNumber, TVRageEpisode>();
+        episodeList = new TreeMap<>();
     }
 
     public boolean isValid() {
@@ -93,11 +87,7 @@ public class TVRageEpisodeList implements Serializable {
     }
 
     public void setShowName(String showName) {
-        if (isValidString(showName)) {
-            this.showName = showName.trim();
-        } else {
-            this.showName = TVRageApi.UNKNOWN;
-        }
+        this.showName = isValidString(showName) ? showName.trim() : TVRageApi.UNKNOWN;
     }
 
     public void setTotalSeasons(int totalSeasons) {

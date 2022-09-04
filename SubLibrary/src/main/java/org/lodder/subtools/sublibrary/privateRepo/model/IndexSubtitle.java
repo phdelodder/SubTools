@@ -5,195 +5,137 @@ import java.io.Serializable;
 import org.lodder.subtools.sublibrary.model.VideoType;
 
 public class IndexSubtitle implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7687377134723402960L;
-	private String name;
-	private int season;
-	private int episode;
-	private String filename;
-	private String language;
-	private String uploader;
-	private String originalSource;
-	private int tvdbid;
-	private VideoType videoType;
-	private int imdbid;
-	private int year;
 
-	public IndexSubtitle() {
+    private static final long serialVersionUID = -7687377134723402960L;
+    private String name;
+    private int season;
+    private int episode;
+    private String filename;
+    private String language;
+    private String uploader;
+    private String originalSource;
+    private int tvdbid;
+    private VideoType videoType;
+    private int imdbid;
+    private int year;
 
-	}
+    public IndexSubtitle() {
 
-	public IndexSubtitle(String name, int season, int episode, String filename,
-			String language, int tvdbid, String uploader,
-			String originalSource, VideoType videoType) {
-		setName(name);
-		setSeason(season);
-		setEpisode(episode);
-		setFilename(filename);
-		setLanguage(language);
-		setTvdbid(tvdbid);
-		setUploader(uploader);
-		setOriginalSource(originalSource);
-		setVideoType(videoType);
-	}
+    }
 
-	public IndexSubtitle(String name, String filename, String language,
-			String uploader, String originalSource, VideoType videoType,
-			int imdbid, int year) {
-		setName(name);
-		setFilename(filename);
-		setLanguage(language);
-		setUploader(uploader);
-		setOriginalSource(originalSource);
-		setVideoType(videoType);
-		setImdbid(imdbid);
-		setYear(year);
-	}
+    public IndexSubtitle(String name, int season, int episode, String filename,
+            String language, int tvdbid, String uploader,
+            String originalSource, VideoType videoType) {
+        setName(name);
+        setSeason(season);
+        setEpisode(episode);
+        setFilename(filename);
+        setLanguage(language);
+        setTvdbid(tvdbid);
+        setUploader(uploader);
+        setOriginalSource(originalSource);
+        setVideoType(videoType);
+    }
 
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
+    public IndexSubtitle(String name, String filename, String language,
+            String uploader, String originalSource, VideoType videoType,
+            int imdbid, int year) {
+        setName(name);
+        setFilename(filename);
+        setLanguage(language);
+        setUploader(uploader);
+        setOriginalSource(originalSource);
+        setVideoType(videoType);
+        setImdbid(imdbid);
+        setYear(year);
+    }
 
-	/**
-	 * @param name
-	 *            the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * @return the season
-	 */
-	public int getSeason() {
-		return season;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	/**
-	 * @param season
-	 *            the season to set
-	 */
-	public void setSeason(int season) {
-		this.season = season;
-	}
+    public int getSeason() {
+        return season;
+    }
 
-	/**
-	 * @return the episode
-	 */
-	public int getEpisode() {
-		return episode;
-	}
+    public void setSeason(int season) {
+        this.season = season;
+    }
 
-	/**
-	 * @param episode
-	 *            the episode to set
-	 */
-	public void setEpisode(int episode) {
-		this.episode = episode;
-	}
+    public int getEpisode() {
+        return episode;
+    }
 
-	/**
-	 * @return the filename
-	 */
-	public String getFilename() {
-		return filename;
-	}
+    public void setEpisode(int episode) {
+        this.episode = episode;
+    }
 
-	/**
-	 * @param filename
-	 *            the filename to set
-	 */
-	public void setFilename(String filename) {
-		this.filename = filename;
-	}
+    public String getFilename() {
+        return filename;
+    }
 
-	/**
-	 * @return the language
-	 */
-	public String getLanguage() {
-		return language;
-	}
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
 
-	/**
-	 * @param language
-	 *            the language to set
-	 */
-	public void setLanguage(String language) {
-		this.language = language;
-	}
+    public String getLanguage() {
+        return language;
+    }
 
-	/**
-	 * @return the tvdbid
-	 */
-	public int getTvdbid() {
-		return tvdbid;
-	}
+    public void setLanguage(String language) {
+        this.language = language;
+    }
 
-	/**
-	 * @param tvdbid
-	 *            the tvdbid to set
-	 */
-	public void setTvdbid(int tvdbid) {
-		this.tvdbid = tvdbid;
-	}
+    public int getTvdbid() {
+        return tvdbid;
+    }
 
-	/**
-	 * @return the uploader
-	 */
-	public String getUploader() {
-		return uploader;
-	}
+    public void setTvdbid(int tvdbid) {
+        this.tvdbid = tvdbid;
+    }
 
-	/**
-	 * @param uploader
-	 *            the uploader to set
-	 */
-	public void setUploader(String uploader) {
-		this.uploader = uploader;
-	}
+    public String getUploader() {
+        return uploader;
+    }
 
-	/**
-	 * @return the originalSource
-	 */
-	public String getOriginalSource() {
-		return originalSource;
-	}
+    public void setUploader(String uploader) {
+        this.uploader = uploader;
+    }
 
-	/**
-	 * @param originalSource
-	 *            the originalSource to set
-	 */
-	public void setOriginalSource(String originalSource) {
-		this.originalSource = originalSource;
-	}
+    public String getOriginalSource() {
+        return originalSource;
+    }
 
-	public VideoType getVideoType() {
-		return videoType;
-	}
+    public void setOriginalSource(String originalSource) {
+        this.originalSource = originalSource;
+    }
 
-	public void setVideoType(VideoType videoType) {
-		this.videoType = videoType;
-	}
+    public VideoType getVideoType() {
+        return videoType;
+    }
 
-	public int getImdbid() {
-		return imdbid;
-	}
+    public void setVideoType(VideoType videoType) {
+        this.videoType = videoType;
+    }
 
-	public void setImdbid(int imdbid) {
-		this.imdbid = imdbid;
-	}
+    public int getImdbid() {
+        return imdbid;
+    }
 
-	public int getYear() {
-		return year;
-	}
+    public void setImdbid(int imdbid) {
+        this.imdbid = imdbid;
+    }
 
-	public void setYear(int year) {
-		this.year = year;
-	}
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
 
 }

@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.lib;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -9,39 +10,37 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 
 public abstract class SubtitleSelection {
 
-  private Settings settings;
+    private final Settings settings;
 
-  public SubtitleSelection(Settings settings) {
-    this.settings = settings;
-  }
-
-  public List<Subtitle> getAutomaticSelection(List<Subtitle> subtitles) {
-    List<Subtitle> shortlist = new ArrayList<Subtitle>(subtitles);
-
-    if (settings.isOptionsMinAutomaticSelection()) {
-      for (int i = shortlist.size() - 1; i >= 0; i--) {
-        if (shortlist.get(i).getScore() < settings.getOptionsMinAutomaticSelectionValue())
-          shortlist.remove(i);
-      }
+    public SubtitleSelection(Settings settings) {
+        this.settings = settings;
     }
 
-    if (settings.isOptionsDefaultSelection()) {
-      List<Subtitle> defaultSelectionsFound = new ArrayList<Subtitle>();
-      for (String q : settings.getOptionsDefaultSelectionQualityList()) {
-        for (Subtitle subtitle : shortlist) {
-          if (subtitle.getQuality().toLowerCase().contains(q.toLowerCase())) {
-            if (!defaultSelectionsFound.contains(subtitle)) defaultSelectionsFound.add(subtitle);
-          }
+    public List<Subtitle> getAutomaticSelection(List<Subtitle> subtitles) {
+        final List<Subtitle> shortlist;
+
+        if (settings.isOptionsMinAutomaticSelection()) {
+            shortlist = subtitles.stream()
+                    .filter(subtitle -> subtitle.getScore() >= settings.getOptionsMinAutomaticSelectionValue())
+                    .collect(Collectors.toList());
+        } else {
+            shortlist = new ArrayList<>(subtitles);
         }
-      }
 
-      if (defaultSelectionsFound.size() > 0) shortlist = defaultSelectionsFound;
+        if (settings.isOptionsDefaultSelection()) {
+            List<Subtitle> defaultSelectionsFound = settings.getOptionsDefaultSelectionQualityList().stream()
+                    .flatMap(q -> shortlist.stream().filter(subtitle -> subtitle.getQuality().toLowerCase().contains(q.toLowerCase())))
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            if (defaultSelectionsFound.size() > 0) {
+                return defaultSelectionsFound;
+            }
+        }
+        return shortlist;
     }
 
-    return shortlist;
-  }
+    public abstract int getUserInput(Release release);
 
-  public abstract int getUserInput(Release release);
-  
-  public abstract void dryRunOutput(Release release);
+    public abstract void dryRunOutput(Release release);
 }

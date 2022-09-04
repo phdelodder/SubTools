@@ -36,13 +36,7 @@ import static org.lodder.subtools.sublibrary.data.tvrage.TVRageApi.isValidString
  */
 public class TVRageCountryDetail implements Serializable {
 
-    /*
-     * Serial Version
-     */
     private static final long serialVersionUID = 1L;
-    /*
-     * Properties
-     */
     private String country;
     private String detail;
 
@@ -61,11 +55,7 @@ public class TVRageCountryDetail implements Serializable {
     }
 
     public void setCountry(String country) {
-        if (isValidString(country)) {
-            this.country = country.trim();
-        } else {
-            this.country = TVRageApi.UNKNOWN;
-        }
+        this.country = isValidString(country) ? country.trim() : TVRageApi.UNKNOWN;
     }
 
     public String getDetail() {
@@ -73,11 +63,7 @@ public class TVRageCountryDetail implements Serializable {
     }
 
     public void setDetail(String detail) {
-        if (isValidString(detail)) {
-            this.detail = detail.trim();
-        } else {
-            this.detail = TVRageApi.UNKNOWN;
-        }
+        this.detail = isValidString(detail) ? detail.trim() : TVRageApi.UNKNOWN;
     }
 
     @Override

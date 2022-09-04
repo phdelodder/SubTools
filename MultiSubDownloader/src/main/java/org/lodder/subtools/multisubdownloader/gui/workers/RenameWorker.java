@@ -8,8 +8,8 @@ import javax.swing.SwingWorker;
 import org.lodder.subtools.multisubdownloader.actions.RenameAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
-import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
+import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
@@ -24,50 +24,56 @@ import org.slf4j.LoggerFactory;
  */
 public class RenameWorker extends SwingWorker<Void, String> implements Cancelable {
 
-  private CustomTable table;
-  private Settings settings;
-  private RenameAction renameAction;
-  private Manager manager;
-  
-  private static final Logger LOGGER = LoggerFactory.getLogger(RenameWorker.class);
+    private final CustomTable table;
+    private final Settings settings;
+    private RenameAction renameAction;
+    private final Manager manager;
 
-  public RenameWorker(CustomTable table, Settings settings, Manager manager) {
-    this.table = table;
-    this.settings = settings;
-    this.manager = manager;
-  }
+    private static final Logger LOGGER = LoggerFactory.getLogger(RenameWorker.class);
 
-  protected Void doInBackground() throws Exception {
-    final VideoTableModel model = (VideoTableModel) table.getModel();
-    int selectedCount = model.getSelectedCount(table.getColumnIdByName(SearchColumnName.SELECT));
-    int progress = 0;
-    int k = 0;
-    for (int i = 0; i < model.getRowCount(); i++) {
-      if ((Boolean) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.SELECT))) {
-        k++;
-        if (k > 0) progress = 100 * k / selectedCount;
-        if (progress == 0 && selectedCount > 1) progress = 1;
-        setProgress(progress);
-        final Release release =
-            (Release) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.OBJECT));
-        if (release.getVideoType() == VideoType.EPISODE) {
-          LOGGER.debug("Treat as EPISODE");
-          renameAction = new RenameAction(settings.getEpisodeLibrarySettings(), manager);
-        } else if (release.getVideoType() == VideoType.MOVIE) {
-          LOGGER.debug("Treat as MOVIE");
-          renameAction = new RenameAction(settings.getMovieLibrarySettings(), manager);
-        }
-        if (renameAction != null)
-          renameAction.rename(new File(release.getPath(), release.getFilename()), release);
-        model.removeRow(i);
-        i--;
-      }
+    public RenameWorker(CustomTable table, Settings settings, Manager manager) {
+        this.table = table;
+        this.settings = settings;
+        this.manager = manager;
     }
-    return null;
-  }
 
-  protected void process(List<String> data) {
-    for (String s : data)
-      StatusMessenger.instance.message("Bestand hernoemen: " + s);
-  }
+    @Override
+    protected Void doInBackground() {
+        final VideoTableModel model = (VideoTableModel) table.getModel();
+        int selectedCount = model.getSelectedCount(table.getColumnIdByName(SearchColumnName.SELECT));
+        int progress = 0;
+        int k = 0;
+        for (int i = 0; i < model.getRowCount(); i++) {
+            if ((Boolean) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.SELECT))) {
+                k++;
+                if (k > 0) {
+                    progress = 100 * k / selectedCount;
+                }
+                if (progress == 0 && selectedCount > 1) {
+                    progress = 1;
+                }
+                setProgress(progress);
+                final Release release =
+                        (Release) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.OBJECT));
+                if (release.getVideoType() == VideoType.EPISODE) {
+                    LOGGER.debug("Treat as EPISODE");
+                    renameAction = new RenameAction(settings.getEpisodeLibrarySettings(), manager);
+                } else if (release.getVideoType() == VideoType.MOVIE) {
+                    LOGGER.debug("Treat as MOVIE");
+                    renameAction = new RenameAction(settings.getMovieLibrarySettings(), manager);
+                }
+                if (renameAction != null) {
+                    renameAction.rename(new File(release.getPath(), release.getFilename()), release);
+                }
+                model.removeRow(i);
+                i--;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    protected void process(List<String> data) {
+        data.forEach(s -> StatusMessenger.instance.message("Bestand hernoemen: " + s));
+    }
 }

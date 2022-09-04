@@ -1,6 +1,5 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.model;
 
-
 /**
  * Created by IntelliJ IDEA.
  * User: lodder

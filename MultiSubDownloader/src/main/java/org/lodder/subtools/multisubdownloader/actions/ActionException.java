@@ -2,28 +2,25 @@ package org.lodder.subtools.multisubdownloader.actions;
 
 public class ActionException extends Exception {
 
-  /**
-   * 
-   */
-  private static final long serialVersionUID = -7453153452045851404L;
+    private static final long serialVersionUID = -7453153452045851404L;
 
-  public ActionException() {
-    super();
-  }
+    public ActionException() {
+        super();
+    }
 
-  public ActionException(String message) {
-    super(message);
-  }
+    public ActionException(String message) {
+        super(message);
+    }
 
-  public ActionException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public ActionException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-  public ActionException(Throwable cause) {
-    super(cause);
-  }
+    public ActionException(Throwable cause) {
+        super(cause);
+    }
 
-  protected ActionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-    super(message, cause, enableSuppression, writableStackTrace);
-  }
+    protected ActionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 }

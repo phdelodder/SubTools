@@ -2,56 +2,60 @@ package org.lodder.subtools.multisubdownloader.gui.extra;
 
 import javax.swing.*;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.awt.*;
 import java.io.File;
 
 public class MemoryFolderChooser {
 
-  private JFileChooser chooser;
-  private static MemoryFolderChooser instance;
-  private File memory;
+    private final JFileChooser chooser;
+    private static MemoryFolderChooser instance;
+    private File memory;
 
-  private MemoryFolderChooser() {
-    chooser = new JFileChooser();
-    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-    chooser.setAcceptAllFileFilterUsed(false);
-  }
-
-  public static MemoryFolderChooser getInstance() {
-    if (instance == null) instance = new MemoryFolderChooser();
-    return instance;
-  }
-
-  public File selectDirectory(Component c, String title, File file) {
-    chooser.setDialogTitle(title);
-    if (file == null || !file.getAbsolutePath().equals("")) {
-      if (memory == null) {
-        chooser.setCurrentDirectory(new File("."));
-      } else {
-        chooser.setCurrentDirectory(memory);
-      }
-    } else {
-      chooser.setCurrentDirectory(file);
+    private MemoryFolderChooser() {
+        chooser = new JFileChooser();
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(false);
     }
 
-    int result = chooser.showOpenDialog(c);
-    if (result == JFileChooser.APPROVE_OPTION) {
-      memory = chooser.getSelectedFile();
-      return chooser.getSelectedFile();
+    public static MemoryFolderChooser getInstance() {
+        if (instance == null) {
+            instance = new MemoryFolderChooser();
+        }
+        return instance;
     }
-    return new File("");
-  }
 
-  public File selectDirectory(Component c, String title) {
-    return selectDirectory(c, title, memory);
-  }
+    public File selectDirectory(Component c, String title, File file) {
+        chooser.setDialogTitle(title);
+        if (file == null || !StringUtils.isBlank(file.getAbsolutePath())) {
+            if (memory == null) {
+                chooser.setCurrentDirectory(new File("."));
+            } else {
+                chooser.setCurrentDirectory(memory);
+            }
+        } else {
+            chooser.setCurrentDirectory(file);
+        }
 
-  public void setMemory(File memory) {
-    this.memory = memory;
-  }
+        int result = chooser.showOpenDialog(c);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            memory = chooser.getSelectedFile();
+            return chooser.getSelectedFile();
+        }
+        return new File("");
+    }
 
-  public File getMemory() {
-    return memory;
-  }
+    public File selectDirectory(Component c, String title) {
+        return selectDirectory(c, title, memory);
+    }
+
+    public void setMemory(File memory) {
+        this.memory = memory;
+    }
+
+    public File getMemory() {
+        return memory;
+    }
 
 }

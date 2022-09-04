@@ -16,47 +16,55 @@ import org.slf4j.LoggerFactory;
 
 public class Filtering {
 
-  private Settings settings;
-  private Filter exactname;
-  private Filter keyword;
-  private Filter releasegroup;
-  
-  private static final Logger LOGGER = LoggerFactory.getLogger(Filtering.class);
+    private Settings settings;
+    private Filter exactname;
+    private Filter keyword;
+    private Filter releasegroup;
 
-  public Filtering(Settings settings) {
-    this.settings = settings;
-    exactname = new ExactNameFilter();
-    keyword = new KeywordFilter();
-    releasegroup = new ReleasegroupFilter();
-  }
+    private static final Logger LOGGER = LoggerFactory.getLogger(Filtering.class);
 
-  public List<Subtitle> getFiltered(List<Subtitle> listFoundSubtitles, Release release) {
-    LOGGER.trace("getFiltered: release [{}] available subtitles [{}]", release, listFoundSubtitles);
-
-    List<Subtitle> listFilteredSubtitles;
-    listFilteredSubtitles = new ArrayList<Subtitle>();
-
-    if (settings.isOptionSubtitleExcludeHearingImpaired()) {
-      Iterator<Subtitle> i = listFoundSubtitles.iterator();
-      while (i.hasNext()) {
-        Subtitle sub = i.next();
-        if (sub.isHearingImpaired()) i.remove();
-      }
-    }
-    
-    if (settings.isOptionSubtitleKeywordMatch()) {
-      listFilteredSubtitles = keyword.doFilter(release, listFoundSubtitles);
-      if (listFilteredSubtitles.size() > 0) listFoundSubtitles = listFilteredSubtitles;
-      listFilteredSubtitles = releasegroup.doFilter(release, listFoundSubtitles);
-      if (listFilteredSubtitles.size() > 0) listFoundSubtitles = listFilteredSubtitles;
+    public Filtering(Settings settings) {
+        this.settings = settings;
+        exactname = new ExactNameFilter();
+        keyword = new KeywordFilter();
+        releasegroup = new ReleasegroupFilter();
     }
 
-    if (settings.isOptionSubtitleExactMatch()) {
-      listFilteredSubtitles = exactname.doFilter(release, listFoundSubtitles);
-      if (listFilteredSubtitles.size() > 0) listFoundSubtitles = listFilteredSubtitles;
-    }
+    public List<Subtitle> getFiltered(List<Subtitle> listFoundSubtitles, Release release) {
+        LOGGER.trace("getFiltered: release [{}] available subtitles [{}]", release, listFoundSubtitles);
 
-    return listFoundSubtitles;
-  }
+        List<Subtitle> listFilteredSubtitles;
+        listFilteredSubtitles = new ArrayList<>();
+
+        if (settings.isOptionSubtitleExcludeHearingImpaired()) {
+            Iterator<Subtitle> i = listFoundSubtitles.iterator();
+            while (i.hasNext()) {
+                Subtitle sub = i.next();
+                if (sub.isHearingImpaired()) {
+                    i.remove();
+                }
+            }
+        }
+
+        if (settings.isOptionSubtitleKeywordMatch()) {
+            listFilteredSubtitles = keyword.doFilter(release, listFoundSubtitles);
+            if (listFilteredSubtitles.size() > 0) {
+                listFoundSubtitles = listFilteredSubtitles;
+            }
+            listFilteredSubtitles = releasegroup.doFilter(release, listFoundSubtitles);
+            if (listFilteredSubtitles.size() > 0) {
+                listFoundSubtitles = listFilteredSubtitles;
+            }
+        }
+
+        if (settings.isOptionSubtitleExactMatch()) {
+            listFilteredSubtitles = exactname.doFilter(release, listFoundSubtitles);
+            if (listFilteredSubtitles.size() > 0) {
+                listFoundSubtitles = listFilteredSubtitles;
+            }
+        }
+
+        return listFoundSubtitles;
+    }
 
 }

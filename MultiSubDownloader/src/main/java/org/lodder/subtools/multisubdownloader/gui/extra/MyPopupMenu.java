@@ -7,23 +7,21 @@ import javax.swing.JPopupMenu;
 
 public class MyPopupMenu extends JPopupMenu {
 
-  /**
-	 * 
-	 */
-  private static final long serialVersionUID = 1084650376633196066L;
-  private Point clickLocation;
+    private static final long serialVersionUID = 1084650376633196066L;
+    private Point clickLocation;
 
-  public void show(Component invoker, int x, int y) {
-    super.show(invoker, x, y);
-    setClickLocation(new Point(x, y));
-  }
+    @Override
+    public void show(Component invoker, int x, int y) {
+        super.show(invoker, x, y);
+        setClickLocation(new Point(x, y));
+    }
 
-  public void setClickLocation(Point clickLocation) {
-    this.clickLocation = clickLocation;
-  }
+    public void setClickLocation(Point clickLocation) {
+        this.clickLocation = clickLocation;
+    }
 
-  public Point getClickLocation() {
-    return clickLocation;
-  }
+    public Point getClickLocation() {
+        return clickLocation;
+    }
 
 }
