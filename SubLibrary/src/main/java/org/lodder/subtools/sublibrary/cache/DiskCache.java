@@ -17,8 +17,7 @@ public class DiskCache<K, T> extends InMemoryCache<K, T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiskCache.class);
 
-    public DiskCache(long crunchifyTimeToLive, long crunchifyTimerInterval, int maxItems,
-            String username, String password) {
+    public DiskCache(long crunchifyTimeToLive, long crunchifyTimerInterval, int maxItems, String username, String password) {
         super(crunchifyTimeToLive, crunchifyTimerInterval, maxItems);
         File path = new File(System.getProperty("user.home"), ".MultiSubDownloader");
         if (!path.exists() && !path.mkdir()) {
@@ -42,14 +41,13 @@ public class DiskCache<K, T> extends InMemoryCache<K, T> {
 
     @SuppressWarnings("unchecked")
     private void fillCacheMap() {
-        try (Statement stmt = conn.createStatement()) {
-            ResultSet rs = stmt.executeQuery("SELECT key, cacheobject FROM cacheobjects");
+        try (Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery("SELECT key, cacheobject FROM cacheobjects")) {
             while (rs.next()) {
                 synchronized (cacheMap) {
                     cacheMap.put(rs.getObject("key"), rs.getObject("cacheobject"));
                 }
             }
-            rs.close();
         } catch (SQLException e) {
             LOGGER.error("Unable to insert object in disk cache!", e);
         }

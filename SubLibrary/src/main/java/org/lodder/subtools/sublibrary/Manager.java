@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
@@ -14,6 +15,8 @@ import org.lodder.subtools.sublibrary.cache.InMemoryCache;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
 import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 import org.lodder.subtools.sublibrary.util.http.HttpClientSetupException;
+
+import com.pivovarit.function.ThrowingSupplier;
 
 public class Manager {
 
@@ -45,31 +48,21 @@ public class Manager {
         }
     }
 
-    public InputStream getContentStream(String urlString, String userAgent, boolean longTermCache)
-            throws ManagerSetupException, ManagerException {
+    public InputStream getContentStream(String urlString, String userAgent, boolean longTermCache) throws ManagerSetupException, ManagerException {
         return IOUtils.toInputStream(getContent(urlString, userAgent, longTermCache), StandardCharsets.UTF_8);
     }
 
-    public String getContent(String urlString, String userAgent, boolean longTermCache)
-            throws ManagerSetupException, ManagerException {
+    public String getContent(String urlString, String userAgent, boolean longTermCache) throws ManagerSetupException, ManagerException {
         validate();
 
-        String content = null;
-
         try {
-            if (longTermCache) {
-                content = diskCache.get(urlString);
-            } else {
-                content = inMemoryCache.get(urlString);
-            }
+            InMemoryCache<String, String> cache = longTermCache ? diskCache : inMemoryCache;
+            String content = cache.get(urlString);
             if (content == null) {
                 content = httpClient.doGet(new URL(urlString), userAgent);
-                if (longTermCache) {
-                    diskCache.put(urlString, content);
-                } else {
-                    inMemoryCache.put(urlString, content);
-                }
+                cache.put(urlString, content);
             }
+            return content;
         } catch (MalformedURLException e) {
             throw new ManagerException("incorrect url", e);
         } catch (HttpClientException e) {
@@ -78,8 +71,34 @@ public class Manager {
         } catch (IOException | HttpClientSetupException e) {
             throw new ManagerException(e);
         }
+    }
 
-        return content;
+    public <X extends Exception> String getValue(String key, ThrowingSupplier<String, X> valueSupplier, boolean longTermCache)
+            throws X, ManagerSetupException {
+        validate();
+
+        InMemoryCache<String, String> cache = longTermCache ? diskCache : inMemoryCache;
+        if (cache.exists(key)) {
+            return cache.get(key);
+        } else {
+            String value = valueSupplier.get();
+            cache.put(key, value);
+            return value;
+        }
+    }
+
+    public <X extends Exception> Optional<String> getOptionalValue(String key, ThrowingSupplier<Optional<String>, X> valueSupplier,
+            boolean longTermCache) throws X, ManagerSetupException {
+        validate();
+
+        InMemoryCache<String, String> cache = longTermCache ? diskCache : inMemoryCache;
+        if (cache.exists(key)) {
+            return Optional.of(cache.get(key));
+        } else {
+            Optional<String> value = valueSupplier.get();
+            value.ifPresent(v -> cache.put(key, v));
+            return value;
+        }
     }
 
     public boolean store(String downloadlink, File file) throws ManagerException {
@@ -90,8 +109,7 @@ public class Manager {
         }
     }
 
-    public String post(String urlString, String userAgent, Map<String, String> data)
-            throws ManagerException {
+    public String post(String urlString, String userAgent, Map<String, String> data) throws ManagerException {
         try {
             return httpClient.doPost(new URL(urlString), userAgent, data);
         } catch (MalformedURLException e) {
@@ -133,10 +151,6 @@ public class Manager {
     }
 
     public boolean isCached(String url) {
-        if (inMemoryCache.exists(url)) {
-            return true;
-        } else {
-            return diskCache.exists(url);
-        }
+        return inMemoryCache.exists(url) || diskCache.exists(url);
     }
 }
