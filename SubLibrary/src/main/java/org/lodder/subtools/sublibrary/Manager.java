@@ -54,22 +54,14 @@ public class Manager {
             throws ManagerSetupException, ManagerException {
         validate();
 
-        String content = null;
-
         try {
-            if (longTermCache) {
-                content = diskCache.get(urlString);
-            } else {
-                content = inMemoryCache.get(urlString);
-            }
+            InMemoryCache<String, String> cache = longTermCache ? diskCache : inMemoryCache;
+            String content = cache.get(urlString);
             if (content == null) {
                 content = httpClient.doGet(new URL(urlString), userAgent);
-                if (longTermCache) {
-                    diskCache.put(urlString, content);
-                } else {
-                    inMemoryCache.put(urlString, content);
-                }
+                cache.put(urlString, content);
             }
+            return content;
         } catch (MalformedURLException e) {
             throw new ManagerException("incorrect url", e);
         } catch (HttpClientException e) {
@@ -79,7 +71,6 @@ public class Manager {
             throw new ManagerException(e);
         }
 
-        return content;
     }
 
     public boolean store(String downloadlink, File file) throws ManagerException {
