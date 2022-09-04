@@ -113,8 +113,13 @@ public class JAddic7edApi extends Html {
 
     public List<Addic7edSubtitleDescriptor> searchSubtitles(String showname, int season, int episode, String title) {
         // http://www.addic7ed.com/serie/Smallville/9/11/Absolute_Justice
+        // String url = "https://www.addic7ed.com/serie/" + showname.toLowerCase().replace(" ", "_") + "/" + season
+        // + "/" + episode + "/" + title.toLowerCase().replace(" ", "_").replace("#", "");
+
+        // title isn't necessary to be added. In fact, if an invalid title is used (ie. invalid chars, like '/'),
+        // a 302 error can be returned. It's better to add a valid dummy title.
         String url = "https://www.addic7ed.com/serie/" + showname.toLowerCase().replace(" ", "_") + "/" + season
-                + "/" + episode + "/" + title.toLowerCase().replace(" ", "_").replace("#", "");
+                + "/" + episode + "/a";
         String content = this.getContent(false, url);
         List<Addic7edSubtitleDescriptor> lSubtitles = new ArrayList<>();
         Document doc = Jsoup.parse(content);
