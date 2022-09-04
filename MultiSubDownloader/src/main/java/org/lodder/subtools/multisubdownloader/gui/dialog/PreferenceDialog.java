@@ -12,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
@@ -368,7 +369,7 @@ public class PreferenceDialog extends MultiSubDialog {
                     pnlAddic7edLoginSettings.add(lblAddic7edPassword, "cell 1 3,alignx trailing");
                 }
                 {
-                    txtAddic7edPassword = new JTextField();
+                    txtAddic7edPassword = new JPasswordField();
                     pnlAddic7edLoginSettings.add(txtAddic7edPassword, "cell 2 3,growx");
                     txtAddic7edPassword.setColumns(10);
                 }
@@ -399,7 +400,7 @@ public class PreferenceDialog extends MultiSubDialog {
                     pnlOpenSubtiltesLoginSettings.add(lblOpenSubtitlesPassword, "cell 1 3,alignx trailing");
                 }
                 {
-                    txtOpenSubtitlesPassword = new JTextField();
+                    txtOpenSubtitlesPassword = new JPasswordField();
                     pnlOpenSubtiltesLoginSettings.add(txtOpenSubtitlesPassword, "cell 2 3,growx");
                     txtOpenSubtitlesPassword.setColumns(10);
                 }
