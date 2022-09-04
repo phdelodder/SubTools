@@ -33,10 +33,9 @@ public class JAddic7edApi extends Html {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edApi.class);
     private final Pattern pattern = Pattern.compile("Version (.+), Duration: ([0-9]+).([0-9])+ ");
-    private final static long RATEDURATION = 15; // seconds
+    private final static long RATEDURATION = 5; // seconds
     private final boolean speedy;
     private LocalDateTime lastRequest = LocalDateTime.now();
-    private final Map<String, String> serieNameCache = new HashMap<>();
 
     public JAddic7edApi(boolean speedy, Manager manager) {
         super(manager, "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
@@ -61,45 +60,42 @@ public class JAddic7edApi extends Html {
         }
     }
 
-    public Optional<String> getAddictedSerieName(String name) {
+    public Optional<String> getAddictedSerieName(String name) throws ManagerSetupException {
         String formattedName = name.replace(":", "").replace("-", "").trim().toLowerCase();
-        if (serieNameCache.containsKey(formattedName)) {
-            return Optional.of(serieNameCache.get(formattedName));
-        }
-        return resultStringForName(name).map(content -> {
-            Document doc = Jsoup.parse(content);
-            Elements aTagWithSerie = doc.select("#season td > a");
+        return getOptionalValueDisk(formattedName, //
+                () -> resultStringForName(name).map(content -> {
+                    Document doc = Jsoup.parse(content);
+                    Elements aTagWithSerie = doc.select("#season td > a");
 
-            Optional<String> serieName = aTagWithSerie.stream()
-                    .map(serieFound -> {
-                        String link = serieFound.attr("href");
-                        String seriename = link.replace("/serie/", "");
-                        return seriename.substring(0, seriename.indexOf("/"));
-                    })
-                    .filter(seriename -> seriename.replace(":", "").replace("-", "").replace("_", " ").trim().toLowerCase()
-                            .equalsIgnoreCase(formattedName))
-                    .findAny();
-            serieName.ifPresent(sn -> serieNameCache.put(name, sn));
-            return serieName.orElse(null);
-        });
-
+                    Optional<String> serieName = aTagWithSerie.stream()
+                            .map(serieFound -> {
+                                String link = serieFound.attr("href");
+                                String seriename = link.replace("/serie/", "");
+                                return seriename.substring(0, seriename.indexOf("/"));
+                            })
+                            .filter(seriename -> seriename.replace(":", "").replace("-", "").replace("_", " ").trim().toLowerCase()
+                                    .equalsIgnoreCase(formattedName))
+                            .findAny();
+                    return serieName.orElse(null);
+                }));
     }
 
-    public Optional<String> searchMovieName(String name) {
-        return resultStringForName(name).map(content -> {
-            Document doc = Jsoup.parse(content);
-            Elements aTagWithSerie = doc.select("a[debug]");
+    public Optional<String> getAddictedMovieName(String name) throws RuntimeException, ManagerSetupException {
+        return getOptionalValueDisk(name, //
+                () -> resultStringForName(name).map(content -> {
+                    Document doc = Jsoup.parse(content);
+                    Elements aTagWithSerie = doc.select("a[debug]");
 
-            String link = aTagWithSerie.get(0).attr("href");
-            String moviename = link.replace("movie/", "");
-            return moviename.substring(0, moviename.indexOf("/"));
-        });
+                    String link = aTagWithSerie.get(0).attr("href");
+                    String moviename = link.replace("movie/", "");
+                    return moviename.substring(0, moviename.indexOf("/"));
+                }));
     }
 
     private Optional<String> resultStringForName(String name) {
         String url = "https://www.addic7ed.com/search.php?search=" + URLEncoder.encode(name, StandardCharsets.UTF_8) + "&Submit=Search";
 
-        String content = this.getContent(true, url);
+        String content = this.getContent(false, url);
 
         if (content.contains("<b>0 results found</b>")) {
             if (name.contains(":")) {
@@ -211,9 +207,9 @@ public class JAddic7edApi extends Html {
             if (disk) {
                 return this.getHtmlDisk(url);
             } else {
-                if (!speedy && !this.isCached(url)) {
+                if (!speedy && !this.isUrlCached(url)) {
                     if (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
-                        LOGGER.info("RateLimiet is bereikt voor ADDIC7ed, gelieve 15 sec te wachten");
+                        LOGGER.info("RateLimiet is bereikt voor ADDIC7ed, gelieve {} sec te wachten", RATEDURATION);
                     }
                     while (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
                         try {

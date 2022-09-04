@@ -11,6 +11,7 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.JAddic7
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.exception.Addic7edException;
 import org.lodder.subtools.sublibrary.JSubAdapter;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.ManagerSetupException;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -55,11 +56,15 @@ public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider {
     @Override
     public List<Subtitle> searchSubtitles(TvRelease release, String... sublanguageids) {
         Optional<String> serieName = Optional.empty();
-        if (release.getShow().length() > 0) {
-            serieName = jaapi.getAddictedSerieName(release.getShow());
-        }
-        if (serieName.isEmpty() && release.getOriginalShowName().length() > 0) {
-            serieName = jaapi.getAddictedSerieName(release.getOriginalShowName());
+        try {
+            if (release.getShow().length() > 0) {
+                serieName = jaapi.getAddictedSerieName(release.getShow());
+            }
+            if (serieName.isEmpty() && release.getOriginalShowName().length() > 0) {
+                serieName = jaapi.getAddictedSerieName(release.getOriginalShowName());
+            }
+        } catch (ManagerSetupException e) {
+            LOGGER.error("API JAddic7ed searchSubtitles using title ", e);
         }
         return serieName.map(name -> jaapi.searchSubtitles(name, release.getSeason(), release.getEpisodeNumbers().get(0), release.getTitle())
                 .stream()
