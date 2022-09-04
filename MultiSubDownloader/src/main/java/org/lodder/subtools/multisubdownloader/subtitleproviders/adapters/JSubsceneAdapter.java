@@ -90,8 +90,8 @@ public class JSubsceneAdapter implements JSubAdapter, SubtitleProvider {
 
     @Override
     public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... sublanguageids) {
-        // TODO Auto-generated method stub
-        return null;
+        // TODO implement this
+        return new ArrayList<>();
     }
 
 }
