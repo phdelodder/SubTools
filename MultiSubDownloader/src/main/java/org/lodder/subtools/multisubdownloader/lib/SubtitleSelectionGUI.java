@@ -8,26 +8,26 @@ import org.lodder.subtools.sublibrary.model.Release;
 
 public class SubtitleSelectionGUI extends SubtitleSelection {
 
-  private JFrame frame;
+    private JFrame frame;
 
-  public SubtitleSelectionGUI(Settings settings, JFrame frame) {
-    super(settings);
-    this.frame = frame;
-  }
-
-  @Override
-  public int getUserInput(Release release) {
-    final SelectDialog sDialog = new SelectDialog(frame, release.getMatchingSubs(), release);
-
-    if (sDialog.getAnswer() == SelectDialog.SelectionType.OK) {
-      return sDialog.getSelection();
+    public SubtitleSelectionGUI(Settings settings, JFrame frame) {
+        super(settings);
+        this.frame = frame;
     }
-    return sDialog.getAnswer().getSelectionCode();
-  }
 
-  @Override
-  public void dryRunOutput(Release release) {
-    // TODO Auto-generated method stub
-    
-  }
+    @Override
+    public int getUserInput(Release release) {
+        final SelectDialog sDialog = new SelectDialog(frame, release.getMatchingSubs(), release);
+
+        if (sDialog.getAnswer() == SelectDialog.SelectionType.OK) {
+            return sDialog.getSelection();
+        }
+        return sDialog.getAnswer().getSelectionCode();
+    }
+
+    @Override
+    public void dryRunOutput(Release release) {
+        // TODO Auto-generated method stub
+
+    }
 }

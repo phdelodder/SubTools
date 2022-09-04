@@ -2,9 +2,9 @@ package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
 public interface CustomColumnName {
 
-  public String getColumnName();
+    String getColumnName();
 
-  public boolean isEditable();
+    boolean isEditable();
 
-  public Class<?> getC();
+    Class<?> getC();
 }

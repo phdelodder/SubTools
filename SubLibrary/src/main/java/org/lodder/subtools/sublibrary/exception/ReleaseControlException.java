@@ -8,9 +8,6 @@ public class ReleaseControlException extends Exception {
         super(string + ": " + release.toString());
     }
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1958337660409078923L;
 
 }

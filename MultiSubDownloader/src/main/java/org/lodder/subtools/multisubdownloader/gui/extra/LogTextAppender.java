@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.gui.extra;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
@@ -16,20 +17,20 @@ import ch.qos.logback.core.encoder.EchoEncoder;
 import ch.qos.logback.core.encoder.Encoder;
 
 public class LogTextAppender extends AppenderBase<ILoggingEvent> {
-    private Encoder<ILoggingEvent> encoder = new EchoEncoder<>();
-    private ByteArrayOutputStream out = new ByteArrayOutputStream();
+    private final Encoder<ILoggingEvent> encoder = new EchoEncoder<>();
+    private final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-    private JTextArea jTextArea;
+    private final JTextArea jTextArea;
 
     public LogTextAppender(JTextArea jTextArea) {
         this.jTextArea = jTextArea;
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        
+
         PatternLayoutEncoder patternLayoutEncoder = new PatternLayoutEncoder();
         patternLayoutEncoder.setPattern("%msg%n");
         patternLayoutEncoder.setContext(loggerContext);
         patternLayoutEncoder.start();
-        
+
         setContext(loggerContext);
         start();
         loggerContext.getLogger("ROOT").addAppender(this);
@@ -49,14 +50,11 @@ public class LogTextAppender extends AppenderBase<ILoggingEvent> {
         try {
             encoder.doEncode(event);
             out.flush();
-            final String line = out.toString("UTF-8");
+            final String line = out.toString(StandardCharsets.UTF_8);
 
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    if (jTextArea != null) {
-                        jTextArea.append(line);
-                    }
+            SwingUtilities.invokeLater(() -> {
+                if (jTextArea != null) {
+                    jTextArea.append(line);
                 }
             });
             out.reset();

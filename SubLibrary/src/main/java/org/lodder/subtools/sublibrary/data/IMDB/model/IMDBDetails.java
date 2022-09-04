@@ -15,7 +15,7 @@ public class IMDBDetails {
     private int year;
     private URL poster;
 
-    public IMDBDetails(){
+    public IMDBDetails() {
         title = "";
         rated = "";
         released = "";
@@ -32,7 +32,7 @@ public class IMDBDetails {
         poster = null;
     }
 
-public String getTitle() {
+    public String getTitle() {
         return title;
     }
 

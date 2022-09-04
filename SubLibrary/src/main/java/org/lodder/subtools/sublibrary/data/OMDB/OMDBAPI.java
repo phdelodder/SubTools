@@ -9,33 +9,33 @@ import org.w3c.dom.NodeList;
 
 public class OMDBAPI extends XmlHTTP {
 
-	public OMDBAPI(Manager manager) {
-		super(manager);
-	}
+    public OMDBAPI(Manager manager) {
+        super(manager);
+    }
 
-	public OMDBDetails getOMDBMovieDetails(String imdbid) throws OMDBException {
-		final String xml = "http://www.omdbapi.com/?i=" + imdbid + "&plot=short&r=xml";
-		Document doc;
-		try {
-			doc = getXMLDisk(xml);
-			NodeList nodeList = doc.getElementsByTagName("movie");
-			if (nodeList.getLength() > 0) {
-				return parseOMDBDetails((Element) nodeList.item(0));
-			}
-		} catch (Exception e) {
-			throw new OMDBException("Error OMDBAPI", xml, e);
-		}
+    public OMDBDetails getOMDBMovieDetails(String imdbid) throws OMDBException {
+        final String xml = "http://www.omdbapi.com/?i=" + imdbid + "&plot=short&r=xml";
+        Document doc;
+        try {
+            doc = getXMLDisk(xml);
+            NodeList nodeList = doc.getElementsByTagName("movie");
+            if (nodeList.getLength() > 0) {
+                return parseOMDBDetails((Element) nodeList.item(0));
+            }
+        } catch (Exception e) {
+            throw new OMDBException("Error OMDBAPI", xml, e);
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	private OMDBDetails parseOMDBDetails(Element item) {
-		OMDBDetails details = new OMDBDetails();
-		
-		details.setTitle(item.getAttribute("title"));
-		details.setYear(Integer.parseInt(item.getAttribute("year")));
-		
-		return details;
-	}
+    private OMDBDetails parseOMDBDetails(Element item) {
+        OMDBDetails details = new OMDBDetails();
+
+        details.setTitle(item.getAttribute("title"));
+        details.setYear(Integer.parseInt(item.getAttribute("year")));
+
+        return details;
+    }
 
 }

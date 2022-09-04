@@ -2,7 +2,7 @@ package org.lodder.subtools.sublibrary.privateRepo;
 
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,236 +31,246 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class PrivateRepoIndex {
-  
-  private static final Logger LOGGER = LoggerFactory.getLogger(PrivateRepoIndex.class);
 
-  public static List<IndexSubtitle> getIndex(String index) {
-    List<IndexSubtitle> repoList = null;
-    IndexSubtitle currIndexSubtitle = null;
-    String tagContent = null;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PrivateRepoIndex.class);
 
-    byte[] byteArray;
-    try {
-      byteArray = index.getBytes("UTF-8");
+    public static List<IndexSubtitle> getIndex(String index) {
+        List<IndexSubtitle> repoList = null;
+        IndexSubtitle currIndexSubtitle = null;
+        String tagContent = null;
 
-      ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArray);
-      XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-      XMLStreamReader reader = inputFactory.createXMLStreamReader(inputStream);
+        byte[] byteArray;
+        try {
+            byteArray = index.getBytes(StandardCharsets.UTF_8);
 
-      int prevEvent = 0;
-      while (reader.hasNext()) {
-        int event = reader.next();
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArray);
+            XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+            XMLStreamReader reader = inputFactory.createXMLStreamReader(inputStream);
 
-        switch (event) {
-          case XMLStreamConstants.START_ELEMENT:
-            tagContent = "";
-            if ("PrivateRepoItem".equals(reader.getLocalName())) {
-              currIndexSubtitle = new IndexSubtitle();
-              // currIndexSubtitle.id = reader.getAttributeValue(0);
+            int prevEvent = 0;
+            while (reader.hasNext()) {
+                int event = reader.next();
+
+                switch (event) {
+                    case XMLStreamConstants.START_ELEMENT:
+                        tagContent = "";
+                        if ("PrivateRepoItem".equals(reader.getLocalName())) {
+                            currIndexSubtitle = new IndexSubtitle();
+                            // currIndexSubtitle.id = reader.getAttributeValue(0);
+                        }
+                        if ("PrivateRepoIndex".equals(reader.getLocalName())) {
+                            repoList = new ArrayList<>();
+                        }
+                        break;
+
+                    case XMLStreamConstants.CHARACTERS:
+                        if (prevEvent == event) {
+                            tagContent = tagContent + reader.getText();
+                        } else {
+                            tagContent = reader.getText();
+                        }
+                        break;
+
+                    case XMLStreamConstants.END_ELEMENT:
+                        switch (reader.getLocalName()) {
+                            case "PrivateRepoItem":
+                                if (repoList != null) {
+                                    repoList.add(currIndexSubtitle);
+                                }
+                                break;
+                            case "name":
+                                if (currIndexSubtitle != null) {
+                                    currIndexSubtitle.setName(tagContent);
+                                }
+                                break;
+                            case "season":
+                                if (currIndexSubtitle != null) {
+                                    currIndexSubtitle.setSeason(Integer.parseInt(tagContent));
+                                }
+                                break;
+                            case "episode":
+                                if (currIndexSubtitle != null) {
+                                    currIndexSubtitle.setEpisode(Integer.parseInt(tagContent));
+                                }
+                                break;
+                            case "language":
+                                if (currIndexSubtitle != null) {
+                                    currIndexSubtitle.setLanguage(tagContent);
+                                }
+                                break;
+                            case "filename":
+                                if (currIndexSubtitle != null) {
+                                    currIndexSubtitle.setFilename(tagContent);
+                                }
+                                break;
+                            case "tvdbid":
+                                if (currIndexSubtitle != null) {
+                                    currIndexSubtitle.setTvdbid(Integer.parseInt(tagContent));
+                                }
+                                break;
+                            case "uploader":
+                                if (currIndexSubtitle != null) {
+                                    currIndexSubtitle.setUploader(tagContent);
+                                }
+                                break;
+                            case "originalSource":
+                                if (currIndexSubtitle != null) {
+                                    currIndexSubtitle.setOriginalSource(tagContent);
+                                }
+                                break;
+                            case "videotype":
+                                if (currIndexSubtitle != null) {
+                                    currIndexSubtitle.setVideoType(VideoType.valueOf(tagContent));
+                                }
+                                break;
+                            case "imdbid":
+                                if (currIndexSubtitle != null) {
+                                    currIndexSubtitle.setImdbid(Integer.parseInt(tagContent));
+                                }
+                                break;
+                            case "year":
+                                if (currIndexSubtitle != null) {
+                                    currIndexSubtitle.setYear(Integer.parseInt(tagContent));
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+
+                    case XMLStreamConstants.START_DOCUMENT:
+                        repoList = new ArrayList<>();
+                        break;
+                    default:
+                        break;
+                }
+
+                prevEvent = event;
+
             }
-            if ("PrivateRepoIndex".equals(reader.getLocalName())) {
-              repoList = new ArrayList<>();
-            }
-            break;
 
-          case XMLStreamConstants.CHARACTERS:
-            if (prevEvent == event) {
-              tagContent = tagContent + reader.getText();
-            } else {
-              tagContent = reader.getText();
-            }
-            break;
-
-          case XMLStreamConstants.END_ELEMENT:
-            switch (reader.getLocalName()) {
-              case "PrivateRepoItem":
-                if (repoList != null) repoList.add(currIndexSubtitle);
-                break;
-              case "name":
-                if (currIndexSubtitle != null) currIndexSubtitle.setName(tagContent);
-                break;
-              case "season":
-                if (currIndexSubtitle != null)
-                  currIndexSubtitle.setSeason(Integer.parseInt(tagContent));
-                break;
-              case "episode":
-                if (currIndexSubtitle != null)
-                  currIndexSubtitle.setEpisode(Integer.parseInt(tagContent));
-                break;
-              case "language":
-                if (currIndexSubtitle != null) currIndexSubtitle.setLanguage(tagContent);
-                break;
-              case "filename":
-                if (currIndexSubtitle != null) currIndexSubtitle.setFilename(tagContent);
-                break;
-              case "tvdbid":
-                if (currIndexSubtitle != null)
-                  currIndexSubtitle.setTvdbid(Integer.parseInt(tagContent));
-                break;
-              case "uploader":
-                if (currIndexSubtitle != null) currIndexSubtitle.setUploader(tagContent);
-                break;
-              case "originalSource":
-                if (currIndexSubtitle != null) currIndexSubtitle.setOriginalSource(tagContent);
-                break;
-              case "videotype":
-                if (currIndexSubtitle != null)
-                  currIndexSubtitle.setVideoType(VideoType.valueOf(tagContent));
-                break;
-              case "imdbid":
-                if (currIndexSubtitle != null)
-                  currIndexSubtitle.setImdbid(Integer.parseInt(tagContent));
-                break;
-              case "year":
-                if (currIndexSubtitle != null)
-                  currIndexSubtitle.setYear(Integer.parseInt(tagContent));
-                break;
-              default:
-                break;
-            }
-            break;
-
-          case XMLStreamConstants.START_DOCUMENT:
-            repoList = new ArrayList<>();
-            break;
-          default:
-            break;
+        } catch (XMLStreamException e) {
+            LOGGER.error("getIndex()", e);
         }
 
-        prevEvent = event;
-
-      }
-
-    } catch (UnsupportedEncodingException e) {
-      LOGGER.error("getIndex()", e);
-    } catch (XMLStreamException e) {
-      LOGGER.error("getIndex()", e);
+        return repoList;
     }
 
-    return repoList;
-  }
-
-  public static String getStringAtributeValue(String sTag, String sAtribute, Element eElement) {
-    NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
-    return ((Element) nlList).getAttribute(sAtribute);
-  }
-
-  public static int getIntTagValue(String sTag, Element eElement) {
-    NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
-    Node nValue = nlList.item(0);
-
-    if (nValue == null) {
-      return 0;
-    } else {
-      return Integer.parseInt(nValue.getNodeValue());
+    public static String getStringAtributeValue(String sTag, String sAtribute, Element eElement) {
+        NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
+        return ((Element) nlList).getAttribute(sAtribute);
     }
 
-  }
+    public static int getIntTagValue(String sTag, Element eElement) {
+        NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
+        Node nValue = nlList.item(0);
 
-  public static String setIndex(List<IndexSubtitle> index) {
-    Document newDoc;
-    try {
-      newDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-      Element rootElement = newDoc.createElement("PrivateRepoIndex");
-      newDoc.appendChild(rootElement);
+        if (nValue == null) {
+            return 0;
+        } else {
+            return Integer.parseInt(nValue.getNodeValue());
+        }
 
-      for (IndexSubtitle item : index) {
-        Element privateRepoItem = newDoc.createElement("PrivateRepoItem");
-        Element name = newDoc.createElement("name");
-        name.appendChild(newDoc.createTextNode(item.getName()));
-        privateRepoItem.appendChild(name);
-        Element season = newDoc.createElement("season");
-        season.appendChild(newDoc.createTextNode(Integer.toString(item.getSeason())));
-        privateRepoItem.appendChild(season);
-        Element episode = newDoc.createElement("episode");
-        episode.appendChild(newDoc.createTextNode(Integer.toString(item.getEpisode())));
-        privateRepoItem.appendChild(episode);
-        Element language = newDoc.createElement("language");
-        language.appendChild(newDoc.createTextNode(item.getLanguage()));
-        privateRepoItem.appendChild(language);
-        Element filename = newDoc.createElement("filename");
-        filename.appendChild(newDoc.createTextNode(item.getFilename()));
-        privateRepoItem.appendChild(filename);
-        Element tvdbid = newDoc.createElement("tvdbid");
-        tvdbid.appendChild(newDoc.createTextNode(Integer.toString(item.getTvdbid())));
-        privateRepoItem.appendChild(tvdbid);
-        Element uploader = newDoc.createElement("uploader");
-        uploader.appendChild(newDoc.createTextNode(item.getUploader()));
-        privateRepoItem.appendChild(uploader);
-        Element originalsource = newDoc.createElement("originalSource");
-        originalsource.appendChild(newDoc.createTextNode(item.getOriginalSource()));
-        privateRepoItem.appendChild(originalsource);
-        Element videotype = newDoc.createElement("videotype");
-        videotype.appendChild(newDoc.createTextNode(item.getVideoType().toString()));
-        privateRepoItem.appendChild(videotype);
-        Element imdbid = newDoc.createElement("imdbid");
-        imdbid.appendChild(newDoc.createTextNode(Integer.toString(item.getImdbid())));
-        privateRepoItem.appendChild(imdbid);
-        Element year = newDoc.createElement("year");
-        year.appendChild(newDoc.createTextNode(Integer.toString(item.getYear())));
-        privateRepoItem.appendChild(year);
-
-        rootElement.appendChild(privateRepoItem);
-      }
-
-      Transformer transformer = TransformerFactory.newInstance().newTransformer();
-      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-
-      StreamResult result = new StreamResult(new StringWriter());
-      DOMSource source = new DOMSource(newDoc);
-      transformer.transform(source, result);
-
-      return result.getWriter().toString();
-    } catch (ParserConfigurationException |  TransformerFactoryConfigurationError | TransformerException e) {
-      LOGGER.error("setIndex()", e);
     }
-    return "";
 
-  }
+    public static String setIndex(List<IndexSubtitle> index) {
+        Document newDoc;
+        try {
+            newDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            Element rootElement = newDoc.createElement("PrivateRepoIndex");
+            newDoc.appendChild(rootElement);
 
-  public static String extractUploader(String filename) {
-    return extract(filename, "uploader-");
-  }
+            for (IndexSubtitle item : index) {
+                Element privateRepoItem = newDoc.createElement("PrivateRepoItem");
+                Element name = newDoc.createElement("name");
+                name.appendChild(newDoc.createTextNode(item.getName()));
+                privateRepoItem.appendChild(name);
+                Element season = newDoc.createElement("season");
+                season.appendChild(newDoc.createTextNode(Integer.toString(item.getSeason())));
+                privateRepoItem.appendChild(season);
+                Element episode = newDoc.createElement("episode");
+                episode.appendChild(newDoc.createTextNode(Integer.toString(item.getEpisode())));
+                privateRepoItem.appendChild(episode);
+                Element language = newDoc.createElement("language");
+                language.appendChild(newDoc.createTextNode(item.getLanguage()));
+                privateRepoItem.appendChild(language);
+                Element filename = newDoc.createElement("filename");
+                filename.appendChild(newDoc.createTextNode(item.getFilename()));
+                privateRepoItem.appendChild(filename);
+                Element tvdbid = newDoc.createElement("tvdbid");
+                tvdbid.appendChild(newDoc.createTextNode(Integer.toString(item.getTvdbid())));
+                privateRepoItem.appendChild(tvdbid);
+                Element uploader = newDoc.createElement("uploader");
+                uploader.appendChild(newDoc.createTextNode(item.getUploader()));
+                privateRepoItem.appendChild(uploader);
+                Element originalsource = newDoc.createElement("originalSource");
+                originalsource.appendChild(newDoc.createTextNode(item.getOriginalSource()));
+                privateRepoItem.appendChild(originalsource);
+                Element videotype = newDoc.createElement("videotype");
+                videotype.appendChild(newDoc.createTextNode(item.getVideoType().toString()));
+                privateRepoItem.appendChild(videotype);
+                Element imdbid = newDoc.createElement("imdbid");
+                imdbid.appendChild(newDoc.createTextNode(Integer.toString(item.getImdbid())));
+                privateRepoItem.appendChild(imdbid);
+                Element year = newDoc.createElement("year");
+                year.appendChild(newDoc.createTextNode(Integer.toString(item.getYear())));
+                privateRepoItem.appendChild(year);
 
-  public static String extractOriginalSource(String filename) {
-    return extract(filename, "originalSource-");
-  }
+                rootElement.appendChild(privateRepoItem);
+            }
 
-  public static String extract(String filename, String extractWord) {
-    String splitter = "--";
-    int intExtractWordLength = extractWord.length();
-    if (filename.contains(extractWord)) {
-      int startPos = filename.indexOf(extractWord);
-      String temp = filename.substring(startPos + intExtractWordLength);
-      return temp.split(splitter)[0];
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+
+            StreamResult result = new StreamResult(new StringWriter());
+            DOMSource source = new DOMSource(newDoc);
+            transformer.transform(source, result);
+
+            return result.getWriter().toString();
+        } catch (ParserConfigurationException | TransformerFactoryConfigurationError | TransformerException e) {
+            LOGGER.error("setIndex()", e);
+        }
+        return "";
+
     }
-    return "";
-  }
 
-  public static String getFullFilename(String filename, String uploader, String originalSource) {
-    if (uploader.isEmpty() && originalSource.isEmpty()) {
-      return filename;
-    } else {
-      return FilenameUtils.removeExtension(filename) + "--" + "uploader-" + uploader + "--"
-          + "originalSource-" + originalSource + "--" + "." + FilenameUtils.getExtension(filename);
+    public static String extractUploader(String filename) {
+        return extract(filename, "uploader-");
     }
-  }
 
-  /**
-   * @param filename
-   * @return
-   */
-  public static String extractOriginalFilename(String name) {
-    if (name.contains("--")) return name.split("--")[0] + "." + FilenameUtils.getExtension(name);
-    return name;
-  }
+    public static String extractOriginalSource(String filename) {
+        return extract(filename, "originalSource-");
+    }
 
-  /**
-   * @param indexSubtitle
-   * @return
-   */
-  public static String getFullFilename(IndexSubtitle indexSubtitle) {
-    return getFullFilename(indexSubtitle.getFilename(), indexSubtitle.getUploader(),
-        indexSubtitle.getOriginalSource());
-  }
+    public static String extract(String filename, String extractWord) {
+        String splitter = "--";
+        int intExtractWordLength = extractWord.length();
+        if (filename.contains(extractWord)) {
+            int startPos = filename.indexOf(extractWord);
+            String temp = filename.substring(startPos + intExtractWordLength);
+            return temp.split(splitter)[0];
+        }
+        return "";
+    }
+
+    public static String getFullFilename(String filename, String uploader, String originalSource) {
+        if (uploader.isEmpty() && originalSource.isEmpty()) {
+            return filename;
+        } else {
+            return FilenameUtils.removeExtension(filename) + "--" + "uploader-" + uploader + "--"
+                    + "originalSource-" + originalSource + "--" + "." + FilenameUtils.getExtension(filename);
+        }
+    }
+
+    public static String extractOriginalFilename(String name) {
+        if (name.contains("--")) {
+            return name.split("--")[0] + "." + FilenameUtils.getExtension(name);
+        }
+        return name;
+    }
+
+    public static String getFullFilename(IndexSubtitle indexSubtitle) {
+        return getFullFilename(indexSubtitle.getFilename(), indexSubtitle.getUploader(),
+                indexSubtitle.getOriginalSource());
+    }
 }

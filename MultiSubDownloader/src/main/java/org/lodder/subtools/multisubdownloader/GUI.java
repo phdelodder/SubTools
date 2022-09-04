@@ -25,6 +25,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
+import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -81,9 +83,6 @@ import org.slf4j.LoggerFactory;
 
 public class GUI extends JFrame implements PropertyChangeListener {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
     private final Container app;
     private StatusLabel lblStatus;
@@ -133,8 +132,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
                     + u.getUpdateUrl() + ">" + u.getUpdateUrl() + "</a></html>");
 
             editorPane.addHyperlinkListener(hyperlinkEvent -> {
-                if (hyperlinkEvent.getEventType() == HyperlinkEvent.EventType.ACTIVATED
-                        && Desktop.isDesktopSupported()) {
+                if (hyperlinkEvent.getEventType() == HyperlinkEvent.EventType.ACTIVATED && Desktop.isDesktopSupported()) {
                     try {
                         Desktop.getDesktop().browse(hyperlinkEvent.getURL().toURI());
                     } catch (Exception e) {
@@ -142,8 +140,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
                     }
                 }
             });
-            JOptionPane.showMessageDialog(this, editorPane,
-                    ConfigProperties.getInstance().getProperty("name"), JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, editorPane, ConfigProperties.getInstance().getProperty("name"), JOptionPane.INFORMATION_MESSAGE);
         } else if (showNoUpdate) {
             JOptionPane.showMessageDialog(this, Messages.getString("MainWindow.NoUpdateAvailable")
                     + ConfigProperties.getInstance().getProperty("version")
@@ -164,7 +161,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
             }
         });
         setBounds(100, 100, 925, 680);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         final GridBagLayout gridBagLayout = new GridBagLayout();
         gridBagLayout.columnWidths = new int[] { 448, 0 };
         gridBagLayout.rowHeights = new int[] { 0, 125, 15, 0 };
@@ -172,7 +169,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
         gridBagLayout.rowWeights = new double[] { 1.0, 1.0, 0.0, Double.MIN_VALUE };
         getContentPane().setLayout(gridBagLayout);
 
-        JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+        JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);
         GridBagConstraints gbc_tabbedPane = new GridBagConstraints();
         gbc_tabbedPane.insets = new Insets(0, 0, 5, 0);
         gbc_tabbedPane.fill = GridBagConstraints.BOTH;
@@ -308,11 +305,9 @@ public class GUI extends JFrame implements PropertyChangeListener {
         Settings settings = this.settingsControl.getSettings();
 
         /* resolve the SubtitleProviderStore from the Container */
-        SubtitleProviderStore subtitleProviderStore =
-                (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
+        SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
 
-        TextGuiSearchAction searchAction =
-                new TextGuiSearchAction(this, settings, subtitleProviderStore);
+        TextGuiSearchAction searchAction = new TextGuiSearchAction(this, settings, subtitleProviderStore);
         ResultPanel resultPanel = new ResultPanel();
         pnlSearchTextInput = new SearchTextInputPanel();
 
@@ -335,8 +330,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     private CustomTable createSubtitleTable() {
         CustomTable subtitleTable = new CustomTable();
         subtitleTable.setModel(VideoTableModel.getDefaultSubtitleTableModel());
-        final RowSorter<TableModel> sorterSubtitle =
-                new TableRowSorter<>(subtitleTable.getModel());
+        final RowSorter<TableModel> sorterSubtitle = new TableRowSorter<>(subtitleTable.getModel());
         subtitleTable.setRowSorter(sorterSubtitle);
         subtitleTable.hideColumn(SearchColumnName.OBJECT);
         return subtitleTable;
@@ -346,11 +340,9 @@ public class GUI extends JFrame implements PropertyChangeListener {
         Settings settings = this.settingsControl.getSettings();
 
         /* resolve the SubtitleProviderStore from the Container */
-        SubtitleProviderStore subtitleProviderStore =
-                (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
+        SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
 
-        FileGuiSearchAction searchAction =
-                new FileGuiSearchAction(this, settings, subtitleProviderStore);
+        FileGuiSearchAction searchAction = new FileGuiSearchAction(this, settings, subtitleProviderStore);
         ResultPanel resultPanel = new ResultPanel();
         pnlSearchFileInput = new SearchFileInputPanel();
         pnlSearchFileInput.setRecursiveSelected(settings.isOptionRecursive());
@@ -385,10 +377,8 @@ public class GUI extends JFrame implements PropertyChangeListener {
     private CustomTable createVideoTable() {
         CustomTable customTable = new CustomTable();
         customTable.setModel(VideoTableModel.getDefaultVideoTableModel());
-        ((VideoTableModel) customTable.getModel()).setShowOnlyFound(settingsControl.getSettings()
-                .isOptionsShowOnlyFound());
-        ((VideoTableModel) customTable.getModel()).setSubtitleSelection(new SubtitleSelectionGUI(
-                settingsControl.getSettings(), this));
+        ((VideoTableModel) customTable.getModel()).setShowOnlyFound(settingsControl.getSettings().isOptionsShowOnlyFound());
+        ((VideoTableModel) customTable.getModel()).setSubtitleSelection(new SubtitleSelectionGUI(settingsControl.getSettings(), this));
         final RowSorter<TableModel> sorter = new TableRowSorter<>(customTable.getModel());
         customTable.setRowSorter(sorter);
         customTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
@@ -505,15 +495,11 @@ public class GUI extends JFrame implements PropertyChangeListener {
     private void downloadText() {
         CustomTable subtitleTable = pnlSearchText.getResultPanel().getTable();
         final VideoTableModel model = (VideoTableModel) subtitleTable.getModel();
-        File path =
-                MemoryFolderChooser.getInstance().selectDirectory(getContentPane(),
-                        Messages.getString("MainWindow.SelectFolder"));
+        File path = MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), Messages.getString("MainWindow.SelectFolder"));
 
         for (int i = 0; i < model.getRowCount(); i++) {
             if ((Boolean) model.getValueAt(i, subtitleTable.getColumnIdByName(SearchColumnName.SELECT))) {
-                final Subtitle subtitle =
-                        (Subtitle) model
-                                .getValueAt(i, subtitleTable.getColumnIdByName(SearchColumnName.OBJECT));
+                final Subtitle subtitle = (Subtitle) model.getValueAt(i, subtitleTable.getColumnIdByName(SearchColumnName.OBJECT));
                 String filename = "";
                 if (!subtitle.getFilename().endsWith(".srt")) {
                     filename = subtitle.getFilename() + ".srt";
@@ -544,8 +530,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     }
 
     public void showErrorMessage(String message) {
-        JOptionPane.showConfirmDialog(this, message,
-                ConfigProperties.getInstance().getProperty("name"), JOptionPane.CLOSED_OPTION,
+        JOptionPane.showConfirmDialog(this, message, ConfigProperties.getInstance().getProperty("name"), JOptionPane.CLOSED_OPTION,
                 JOptionPane.ERROR_MESSAGE);
     }
 
@@ -572,8 +557,8 @@ public class GUI extends JFrame implements PropertyChangeListener {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             Export e = new Export(settingsControl);
             File f = fc.getSelectedFile();
-            if (!XmlFileFilter.getExtension(f).equalsIgnoreCase("xml")) {
-                f = new File(f.toString() + ".xml");
+            if (!"xml".equalsIgnoreCase(XmlFileFilter.getExtension(f))) {
+                f = new File(f + ".xml");
             }
             e.doExport(listType, f);
         }
@@ -581,9 +566,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     }
 
     private void selectIncomingFolder() {
-        File path =
-                MemoryFolderChooser.getInstance().selectDirectory(getThis(),
-                        Messages.getString("MainWindow.SelectFolder"));
+        File path = MemoryFolderChooser.getInstance().selectDirectory(getThis(), Messages.getString("MainWindow.SelectFolder"));
         pnlSearchFileInput.setIncomingPath(path.getAbsolutePath());
     }
 
@@ -620,16 +603,11 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
     private void storeScreenSettings() {
         CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
-        settingsControl.getSettings().getScreenSettings()
-                .setHideEpisode(customTable.isHideColumn(SearchColumnName.EPISODE));
-        settingsControl.getSettings().getScreenSettings()
-                .setHideFilename(customTable.isHideColumn(SearchColumnName.FILENAME));
-        settingsControl.getSettings().getScreenSettings()
-                .setHideSeason(customTable.isHideColumn(SearchColumnName.SEASON));
-        settingsControl.getSettings().getScreenSettings()
-                .setHideTitle(customTable.isHideColumn(SearchColumnName.TITLE));
-        settingsControl.getSettings().getScreenSettings()
-                .setHideType(customTable.isHideColumn(SearchColumnName.TYPE));
+        settingsControl.getSettings().getScreenSettings().setHideEpisode(customTable.isHideColumn(SearchColumnName.EPISODE));
+        settingsControl.getSettings().getScreenSettings().setHideFilename(customTable.isHideColumn(SearchColumnName.FILENAME));
+        settingsControl.getSettings().getScreenSettings().setHideSeason(customTable.isHideColumn(SearchColumnName.SEASON));
+        settingsControl.getSettings().getScreenSettings().setHideTitle(customTable.isHideColumn(SearchColumnName.TITLE));
+        settingsControl.getSettings().getScreenSettings().setHideType(customTable.isHideColumn(SearchColumnName.TYPE));
 
     }
 

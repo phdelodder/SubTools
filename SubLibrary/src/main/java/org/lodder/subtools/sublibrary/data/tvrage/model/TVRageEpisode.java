@@ -19,11 +19,11 @@ package org.lodder.subtools.sublibrary.data.tvrage.model;
  *      along with TVRage API.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-import static org.lodder.subtools.sublibrary.data.tvrage.TVRageApi.isValidString;
+import static org.lodder.subtools.sublibrary.data.tvrage.TVRageApi.*;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -33,17 +33,11 @@ import org.lodder.subtools.sublibrary.data.tvrage.TVRageParser;
 
 public class TVRageEpisode implements Serializable {
 
-    /*
-     * Serial Version
-     */
     private static final long serialVersionUID = 1L;
-    /*
-     * Properties
-     */
     private static final String UNKNOWN = TVRageApi.UNKNOWN;
     private TVRageEpisodeNumber episodeNumber = new TVRageEpisodeNumber(0, 0);
     private String productionId = UNKNOWN;
-    private Date airDate = null;
+    private LocalDate airDate = null;
     private String link = UNKNOWN;
     private String title = UNKNOWN;
     private String summary = UNKNOWN;
@@ -85,26 +79,22 @@ public class TVRageEpisode implements Serializable {
     }
 
     public void setProductionId(String productionId) {
-        if (isValidString(productionId)) {
-            this.productionId = productionId.trim();
-        } else {
-            this.productionId = UNKNOWN;
-        }
+        this.productionId = isValidString(productionId) ? productionId.trim() : UNKNOWN;
     }
 
-    public Date getAirDate() {
-        return (Date) airDate.clone();
+    public LocalDate getAirDate() {
+        return airDate;
     }
 
-    public void setAirDate(Date airDate) {
-        this.airDate = (Date) airDate.clone();
+    public void setAirDate(LocalDate airDate) {
+        this.airDate = airDate;
     }
 
     public void setAirDate(String airDate) {
         if (isValidString(airDate)) {
             try {
                 this.airDate = TVRageParser.parseDate(airDate);
-            } catch (Exception ex) {
+            } catch (DateTimeParseException ex) {
                 this.airDate = null;
             }
         } else {
@@ -117,11 +107,7 @@ public class TVRageEpisode implements Serializable {
     }
 
     public void setLink(String link) {
-        if (isValidString(link)) {
-            this.link = link.trim();
-        } else {
-            this.link = UNKNOWN;
-        }
+        this.link = isValidString(link) ? link.trim() : UNKNOWN;
     }
 
     public String getTitle() {
@@ -129,11 +115,7 @@ public class TVRageEpisode implements Serializable {
     }
 
     public void setTitle(String title) {
-        if (isValidString(title)) {
-            this.title = title.trim();
-        } else {
-            this.title = UNKNOWN;
-        }
+        this.title = isValidString(title) ? title.trim() : UNKNOWN;
     }
 
     public String getSummary() {
@@ -141,11 +123,7 @@ public class TVRageEpisode implements Serializable {
     }
 
     public void setSummary(String summary) {
-        if (isValidString(summary)) {
-            this.summary = summary.trim();
-        } else {
-            this.summary = UNKNOWN;
-        }
+        this.summary = isValidString(summary) ? summary.trim() : UNKNOWN;
     }
 
     public float getRating() {
@@ -170,10 +148,6 @@ public class TVRageEpisode implements Serializable {
     }
 
     public void setScreenCap(String screenCap) {
-        if (isValidString(screenCap)) {
-            this.screenCap = screenCap.trim();
-        } else {
-            this.screenCap = UNKNOWN;
-        }
+        this.screenCap = isValidString(screenCap) ? screenCap.trim() : UNKNOWN;
     }
 }

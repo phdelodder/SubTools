@@ -21,19 +21,15 @@ package org.lodder.subtools.sublibrary.data.tvrage.model;
  */
 
 import java.io.Serializable;
+import java.util.Objects;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.math.NumberUtils;
 
 public class TVRageEpisodeNumber implements Comparable<TVRageEpisodeNumber>, Serializable {
 
-    /*
-     * Serial Version
-     */
     private static final long serialVersionUID = 1L;
-    /*
-     * Properties
-     */
     private static final int FACTOR = 1000;
     // The absolute episode number across all seasons
     private int absolute;
@@ -76,7 +72,7 @@ public class TVRageEpisodeNumber implements Comparable<TVRageEpisodeNumber>, Ser
 
     private int calculateAbsolute(int season, int episode) {
         // Make the season very large for comparison purposes (will handle up to 1,000 episodes)
-        return ((season * FACTOR) + episode);
+        return season * FACTOR + episode;
     }
 
     @Override
@@ -138,17 +134,12 @@ public class TVRageEpisodeNumber implements Comparable<TVRageEpisodeNumber>, Ser
 
     public boolean isValid() {
         // False if either is 0
-        return (season * episode > 0);
+        return season * episode > 0;
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + absolute;
-        result = prime * result + episode;
-        result = prime * result + season;
-        return result;
+        return Objects.hash(absolute, episode, season);
     }
 
     @Override
@@ -157,11 +148,7 @@ public class TVRageEpisodeNumber implements Comparable<TVRageEpisodeNumber>, Ser
             return true;
         }
 
-        if (obj == null) {
-            return false;
-        }
-
-        if (getClass() != obj.getClass()) {
+        if ((obj == null) || (getClass() != obj.getClass())) {
             return false;
         }
 

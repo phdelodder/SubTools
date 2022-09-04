@@ -1,23 +1,23 @@
 package org.lodder.subtools.sublibrary.model;
 
 public class Video {
-	
-	private VideoType videoType;
-	
-	public Video(){
-		
-	}
-	
-	public Video(VideoType videoType){
-		this.setVideoType(videoType);
-	}
 
-	public void setVideoType(VideoType videoType) {
-		this.videoType = videoType;
-	}
+    private VideoType videoType;
 
-	public VideoType getVideoType() {
-		return videoType;
-	}
+    public Video() {
+
+    }
+
+    public Video(VideoType videoType) {
+        this.setVideoType(videoType);
+    }
+
+    public void setVideoType(VideoType videoType) {
+        this.videoType = videoType;
+    }
+
+    public VideoType getVideoType() {
+        return videoType;
+    }
 
 }

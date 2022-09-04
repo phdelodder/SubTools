@@ -2,9 +2,9 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.mod
 
 public class TVsubtitlesSubtitleDescriptor {
 
-	public String Filename;
-	public String Url;
-	public String Rip;
-	public String Author;
+    public String Filename;
+    public String Url;
+    public String Rip;
+    public String Author;
 
 }
