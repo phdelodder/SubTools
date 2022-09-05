@@ -98,6 +98,17 @@
 			<artifactId>jackson-databind</artifactId>
 			<version>2.13.3</version>
 		</dependency>
+		<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+			<version>71.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.24</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources>
@@ -125,7 +136,7 @@
 							<invokerPackage>org.opensubtitles.invoker</invokerPackage>
 							<packageName>org.opensubtitles</packageName>
 							<configOptions>
-							<typeMappings>integer=ing,int=int</typeMappings>
+								<typeMappings>integer=ing,int=int</typeMappings>
 								<useSwaggerAnnotations>false</useSwaggerAnnotations>
 								<serializableModel>true</serializableModel>
 								<booleanGetterPrefix>is</booleanGetterPrefix>

@@ -9,6 +9,11 @@ import java.util.Map;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.settings.model.MappingSettings;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class Settings {
 
     private File lastOutputDir;
@@ -32,7 +37,7 @@ public class Settings {
     private String loginOpenSubtitlesUsername;
     private String loginOpenSubtitlesPassword;
     private boolean serieSourceAddic7ed, serieSourceTvSubtitles, serieSourcePodnapisi,
-            serieSourceOpensubtitles, serieSourceLocal, serieSourceSubsMax;
+            serieSourceOpensubtitles, serieSourceLocal, serieSourceSubsMax, serieSourceSubscene;
     private boolean autoUpdateMapping;
     private SettingsProcessEpisodeSource processEpisodeSource;
     private MappingSettings mappingSettings;
@@ -75,261 +80,6 @@ public class Settings {
         setOptionsDefaultSelectionQualityList(new ArrayList<String>());
     }
 
-    public boolean isOptionsAlwaysConfirm() {
-        return optionsAlwaysConfirm;
-    }
-
-    public void setOptionsAlwaysConfirm(boolean optionsAlwaysConfirm) {
-        this.optionsAlwaysConfirm = optionsAlwaysConfirm;
-    }
-
-    public boolean isOptionsShowOnlyFound() {
-        return optionsShowOnlyFound;
-    }
-
-    public void setOptionsShowOnlyFound(boolean optionsShowOnlyFound) {
-        this.optionsShowOnlyFound = optionsShowOnlyFound;
-    }
-
-    public void setLastOutputDir(File lastOutputDir) {
-        this.lastOutputDir = lastOutputDir;
-    }
-
-    public File getLastOutputDir() {
-        return lastOutputDir;
-    }
-
-    public void setExcludeList(List<SettingsExcludeItem> excludeList) {
-        this.excludeList = excludeList;
-    }
-
-    public List<SettingsExcludeItem> getExcludeList() {
-        return excludeList;
-    }
-
-    public void setOptionsStopOnSearchError(boolean optionsStopOnSearchError) {
-        this.optionsStopOnSearchError = optionsStopOnSearchError;
-    }
-
-    public boolean isOptionsStopOnSearchError() {
-        return optionsStopOnSearchError;
-    }
-
-    public void setEpisodeLibrarySettings(LibrarySettings episodeLibrarySettings) {
-        this.episodeLibrarySettings = episodeLibrarySettings;
-    }
-
-    public LibrarySettings getEpisodeLibrarySettings() {
-        return episodeLibrarySettings;
-    }
-
-    public void setMovieLibrarySettings(LibrarySettings movieLibrarySettings) {
-        this.movieLibrarySettings = movieLibrarySettings;
-    }
-
-    public LibrarySettings getMovieLibrarySettings() {
-        return movieLibrarySettings;
-    }
-
-    public String getGeneralProxyHost() {
-        return generalProxyHost;
-    }
-
-    public void setGeneralProxyHost(String generalProxyHost) {
-        this.generalProxyHost = generalProxyHost;
-    }
-
-    public int getGeneralProxyPort() {
-        return generalProxyPort;
-    }
-
-    public void setGeneralProxyPort(int generalProxyPort) {
-        this.generalProxyPort = generalProxyPort;
-    }
-
-    public boolean isGeneralProxyEnabled() {
-        return generalProxyEnabled;
-    }
-
-    public void setGeneralProxyEnabled(boolean generalProxyEnabled) {
-        this.generalProxyEnabled = generalProxyEnabled;
-    }
-
-    public void setDefaultIncomingFolders(List<File> defaultIncomingFolders) {
-        this.defaultIncomingFolders = defaultIncomingFolders;
-    }
-
-    public List<File> getDefaultIncomingFolders() {
-        return defaultIncomingFolders;
-    }
-
-    public void setOptionRecursive(boolean optionRecursive) {
-        this.optionRecursive = optionRecursive;
-    }
-
-    public boolean isOptionRecursive() {
-        return optionRecursive;
-    }
-
-    public ScreenSettings getScreenSettings() {
-        return screenSettings;
-    }
-
-    public void setScreenSettings(ScreenSettings screenSettings) {
-        this.screenSettings = screenSettings;
-    }
-
-    public void setLoginAddic7edEnabled(boolean loginAddic7edEnabled) {
-        this.loginAddic7edEnabled = loginAddic7edEnabled;
-    }
-
-    public boolean isLoginAddic7edEnabled() {
-        return this.loginAddic7edEnabled;
-    }
-
-    public void setLoginAddic7edUsername(String loginAddic7edUsername) {
-        this.loginAddic7edUsername = loginAddic7edUsername;
-    }
-
-    public String getLoginAddic7edUsername() {
-        return this.loginAddic7edUsername;
-    }
-
-    public void setLoginAddic7edPassword(String loginAddic7edPassword) {
-        this.loginAddic7edPassword = loginAddic7edPassword;
-    }
-
-    public String getLoginAddic7edPassword() {
-        return this.loginAddic7edPassword;
-    }
-
-    public void setLoginOpenSubtitlesEnabled(boolean loginOpenSubtitlesEnabled) {
-        this.loginOpenSubtitlesEnabled = loginOpenSubtitlesEnabled;
-    }
-
-    public boolean isLoginOpenSubtitlesEnabled() {
-        return this.loginOpenSubtitlesEnabled;
-    }
-
-    public void setLoginOpenSubtitlesUsername(String loginOpenSubtitlesUsername) {
-        this.loginOpenSubtitlesUsername = loginOpenSubtitlesUsername;
-    }
-
-    public String getLoginOpenSubtitlesUsername() {
-        return this.loginOpenSubtitlesUsername;
-    }
-
-    public void setLoginOpenSubtitlesPassword(String loginOpenSubtitlesPassword) {
-        this.loginOpenSubtitlesPassword = loginOpenSubtitlesPassword;
-    }
-
-    public String getLoginOpenSubtitlesPassword() {
-        return this.loginOpenSubtitlesPassword;
-    }
-
-    public List<File> getLocalSourcesFolders() {
-        return localSourcesFolders;
-    }
-
-    public void setLocalSourcesFolders(List<File> localSourcesFolders) {
-        this.localSourcesFolders = localSourcesFolders;
-    }
-
-    public boolean isSerieSourceAddic7ed() {
-        return serieSourceAddic7ed;
-    }
-
-    public void setSerieSourceAddic7ed(boolean serieSourceAddic7ed) {
-        this.serieSourceAddic7ed = serieSourceAddic7ed;
-    }
-
-    public boolean isSerieSourceTvSubtitles() {
-        return serieSourceTvSubtitles;
-    }
-
-    public void setSerieSourceTvSubtitles(boolean serieSourceTvSubtitles) {
-        this.serieSourceTvSubtitles = serieSourceTvSubtitles;
-    }
-
-    public boolean isSerieSourcePodnapisi() {
-        return serieSourcePodnapisi;
-    }
-
-    public void setSerieSourcePodnapisi(boolean serieSourcePodnapisi) {
-        this.serieSourcePodnapisi = serieSourcePodnapisi;
-    }
-
-    public boolean isSerieSourceOpensubtitles() {
-        return serieSourceOpensubtitles;
-    }
-
-    public void setSerieSourceOpensubtitles(boolean serieSourceOpensubtitles) {
-        this.serieSourceOpensubtitles = serieSourceOpensubtitles;
-    }
-
-    public boolean isSerieSourceLocal() {
-        return serieSourceLocal;
-    }
-
-    public void setSerieSourceLocal(boolean serieSourceLocal) {
-        this.serieSourceLocal = serieSourceLocal;
-    }
-
-    public boolean isAutoUpdateMapping() {
-        return autoUpdateMapping;
-    }
-
-    public void setAutoUpdateMapping(boolean autoUpdateMapping) {
-        this.autoUpdateMapping = autoUpdateMapping;
-    }
-
-    public boolean isOptionSubtitleExactMatch() {
-        return optionSubtitleExactMatch;
-    }
-
-    public void setOptionSubtitleExactMatch(boolean optionSubtitleExactMatch) {
-        this.optionSubtitleExactMatch = optionSubtitleExactMatch;
-    }
-
-    public boolean isOptionSubtitleKeywordMatch() {
-        return optionSubtitleKeywordMatch;
-    }
-
-    public void setOptionSubtitleKeywordMatch(boolean optionSubtitleKeywordMatch) {
-        this.optionSubtitleKeywordMatch = optionSubtitleKeywordMatch;
-    }
-
-    public SettingsProcessEpisodeSource getProcessEpisodeSource() {
-        return processEpisodeSource;
-    }
-
-    public void setProcessEpisodeSource(SettingsProcessEpisodeSource processEpisodeSource) {
-        this.processEpisodeSource = processEpisodeSource;
-    }
-
-    public MappingSettings getMappingSettings() {
-        return mappingSettings;
-    }
-
-    public void setMappingSettings(MappingSettings mappingSettings) {
-        this.mappingSettings = mappingSettings;
-    }
-
-    public boolean isOptionSubtitleExcludeHearingImpaired() {
-        return optionSubtitleExcludeHearingImpaired;
-    }
-
-    public void setOptionSubtitleExcludeHearingImpaired(boolean optionSubtitleExcludeHearingImpaired) {
-        this.optionSubtitleExcludeHearingImpaired = optionSubtitleExcludeHearingImpaired;
-    }
-
-    public boolean isSerieSourceSubsMax() {
-        return serieSourceSubsMax;
-    }
-
-    public void setSerieSourceSubsMax(boolean serieSourceSubsMax) {
-        this.serieSourceSubsMax = serieSourceSubsMax;
-    }
 
     public List<File> getDefaultFolders() {
         return getDefaultIncomingFolders();
@@ -370,6 +120,7 @@ public class Settings {
             case "SubsMax" -> this.isSerieSourceSubsMax();
             case "TvSubtitles" -> this.isSerieSourceTvSubtitles();
             case "Local" -> this.isSerieSourceLocal();
+            case "Subscene" -> this.isSerieSourceSubscene();
             default -> false;
         };
     }

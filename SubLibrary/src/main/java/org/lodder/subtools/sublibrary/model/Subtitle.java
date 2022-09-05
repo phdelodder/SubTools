@@ -1,7 +1,9 @@
 package org.lodder.subtools.sublibrary.model;
 
 import java.io.File;
+
 import org.lodder.subtools.sublibrary.ManagerException;
+
 import com.pivovarit.function.ThrowingSupplier;
 
 public class Subtitle {
@@ -17,7 +19,7 @@ public class Subtitle {
     private final SourceLocation sourceLcation;
 
     public enum SubtitleSource {
-        OPENSUBTITLES, PODNAPISI, ADDIC7ED, TVSUBTITLES, LOCAL, SUBSMAX
+        OPENSUBTITLES, PODNAPISI, ADDIC7ED, TVSUBTITLES, LOCAL, SUBSMAX, SUBSCENE
     }
 
     public enum SourceLocation {

@@ -223,6 +223,7 @@ public class SettingsControl {
         preferences.putBoolean("serieSourcePodnapisi", settings.isSerieSourcePodnapisi());
         preferences.putBoolean("serieSourceTvSubtitles", settings.isSerieSourceTvSubtitles());
         preferences.putBoolean("serieSourceSubsMax", settings.isSerieSourceSubsMax());
+        preferences.putBoolean("serieSourceSubscene", settings.isSerieSourceSubscene());
     }
 
     public void load() {
@@ -375,6 +376,7 @@ public class SettingsControl {
         settings.setSerieSourcePodnapisi(preferences.getBoolean("serieSourcePodnapisi", true));
         settings.setSerieSourceTvSubtitles(preferences.getBoolean("serieSourceTvSubtitles", true));
         settings.setSerieSourceSubsMax(preferences.getBoolean("serieSourceSubsMax", true));
+        settings.setSerieSourceSubscene(preferences.getBoolean("serieSourceSubscene", true));
     }
 
     private String checkForOldStructure(String oldStructure) {
