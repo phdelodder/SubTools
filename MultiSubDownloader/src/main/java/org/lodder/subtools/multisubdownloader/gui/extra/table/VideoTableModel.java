@@ -1,19 +1,18 @@
 package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
 import javax.swing.table.DefaultTableModel;
 
 import org.lodder.subtools.multisubdownloader.lib.SubtitleSelection;
-import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
-import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.Release;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 
 public class VideoTableModel extends DefaultTableModel {
 
@@ -207,7 +206,7 @@ public class VideoTableModel extends DefaultTableModel {
     }
 
     public Integer getSelectedCount(int column) {
-        return (int) IntStream.range(0, getRowCount()).filter(i -> (Boolean) getValueAt(i, column)).sum();
+        return (int) IntStream.range(0, getRowCount()).filter(i -> (Boolean) getValueAt(i, column)).count();
     }
 
     private void updateTable() {
