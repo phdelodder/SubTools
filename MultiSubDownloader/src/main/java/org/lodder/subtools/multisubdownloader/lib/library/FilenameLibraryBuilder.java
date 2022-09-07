@@ -49,7 +49,7 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
     }
 
     public String buildSubtitle(Release release, Subtitle sub, String filename, int version) {
-        return buildSubtitle(release, filename, sub.getLanguagecode(), version);
+        return buildSubtitle(release, filename, sub.getLanguageCode(), version);
     }
 
     public String buildSubtitle(Release release, String filename, String languageCode, int version) {

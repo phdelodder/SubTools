@@ -121,7 +121,7 @@ public class CLI {
             if (downloadall) {
                 System.out.println("Downloading ALL found subtitles for release: " + release.getFilename());
                 for (int j = 0; j < release.getMatchingSubs().size(); j++) {
-                    System.out.println("Downloading subtitle: " + release.getMatchingSubs().get(0).getFilename());
+                    System.out.println("Downloading subtitle: " + release.getMatchingSubs().get(0).getFileName());
                     downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
                 }
             } else {

@@ -22,7 +22,7 @@ public abstract class Filter {
     }
 
     protected boolean checkKeywordSubtitleMatch(Subtitle subtitle, String keywordsFile) {
-        String keywordsSub = ReleaseParser.getQualityKeyword(subtitle.getFilename());
+        String keywordsSub = ReleaseParser.getQualityKeyword(subtitle.getFileName());
 
         boolean foundKeywordMatch = false;
         if (keywordsFile.equalsIgnoreCase(keywordsSub)) {

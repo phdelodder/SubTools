@@ -78,12 +78,16 @@ public class Local implements SubtitleProvider {
                         String detectedLang = DetectLanguage.execute(fileSub);
                         if (detectedLang.equals(languagecode)) {
                             LOGGER.debug("Local Sub found, adding [{}]", fileSub.toString());
-                            listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.LOCAL,
-                                    fileSub.getName(), fileSub, languagecode,
-                                    ReleaseParser.getQualityKeyword(fileSub.getName()),
-                                    SubtitleMatchType.EVERYTHING,
-                                    ReleaseParser.extractReleasegroup(fileSub.getName(), true),
-                                    fileSub.getAbsolutePath(), false));
+                            listFoundSubtitles.add(
+                                    Subtitle.downloadSource(fileSub)
+                                            .subtitleSource(Subtitle.SubtitleSource.LOCAL)
+                                            .fileName(fileSub.getName())
+                                            .languageCode(languagecode)
+                                            .quality(ReleaseParser.getQualityKeyword(fileSub.getName()))
+                                            .subtitleMatchType(SubtitleMatchType.EVERYTHING)
+                                            .releaseGroup(ReleaseParser.extractReleasegroup(fileSub.getName(), true))
+                                            .uploader(fileSub.getAbsolutePath())
+                                            .hearingImpaired(false));
                         }
                     }
                 }
@@ -115,11 +119,16 @@ public class Local implements SubtitleProvider {
                         String detectedLang = DetectLanguage.execute(fileSub);
                         if (detectedLang.equals(languagecode)) {
                             LOGGER.debug("Local Sub found, adding {}", fileSub.toString());
-                            listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub.getName(),
-                                    fileSub, "", ReleaseParser.getQualityKeyword(fileSub.getName()),
-                                    SubtitleMatchType.EVERYTHING,
-                                    ReleaseParser.extractReleasegroup(fileSub.getName(), true),
-                                    fileSub.getAbsolutePath(), false));
+                            listFoundSubtitles.add(
+                                    Subtitle.downloadSource(fileSub)
+                                            .subtitleSource(Subtitle.SubtitleSource.LOCAL)
+                                            .fileName(fileSub.getName())
+                                            .languageCode("")
+                                            .quality(ReleaseParser.getQualityKeyword(fileSub.getName()))
+                                            .subtitleMatchType(SubtitleMatchType.EVERYTHING)
+                                            .releaseGroup(ReleaseParser.extractReleasegroup(fileSub.getName(), true))
+                                            .uploader(fileSub.getAbsolutePath())
+                                            .hearingImpaired(false));
                         }
                     }
                 }

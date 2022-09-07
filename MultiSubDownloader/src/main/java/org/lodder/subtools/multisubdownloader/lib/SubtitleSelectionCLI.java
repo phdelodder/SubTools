@@ -53,8 +53,8 @@ public class SubtitleSelectionCLI extends SubtitleSelection {
         for (int i = 0; i < release.getMatchingSubs().size(); i++) {
             dataTable[i] =
                     new Object[] { release.getMatchingSubs().get(i).getScore(),
-                            release.getMatchingSubs().get(i).getFilename(),
-                            release.getMatchingSubs().get(i).getReleasegroup(),
+                            release.getMatchingSubs().get(i).getFileName(),
+                            release.getMatchingSubs().get(i).getReleaseGroup(),
                             release.getMatchingSubs().get(i).getQuality(),
                             release.getMatchingSubs().get(i).getSubtitleSource(),
                             release.getMatchingSubs().get(i).getUploader(),

@@ -93,16 +93,16 @@ public class JPodnapisiAdapter implements JSubAdapter, SubtitleProvider {
             if (!"".equals(ossd.getReleaseString())) {
                 String downloadlink = getDownloadLink(ossd.getSubtitleId());
                 if (downloadlink != null) {
-                    listFoundSubtitles.add(new Subtitle(
-                            Subtitle.SubtitleSource.PODNAPISI,
-                            ossd.getReleaseString(),
-                            downloadlink,
-                            sublanguageid,
-                            ReleaseParser.getQualityKeyword(ossd.getReleaseString()),
-                            SubtitleMatchType.EVERYTHING,
-                            ReleaseParser.extractReleasegroup(ossd.getReleaseString(), FilenameUtils.isExtension(ossd.getReleaseString(), "srt")),
-                            ossd.getUploaderName(),
-                            "nhu".equals(ossd.getFlagsString())));
+                    listFoundSubtitles.add(Subtitle.downloadSource(downloadlink)
+                            .subtitleSource(Subtitle.SubtitleSource.PODNAPISI)
+                            .fileName(ossd.getReleaseString())
+                            .languageCode(sublanguageid)
+                            .quality(ReleaseParser.getQualityKeyword(ossd.getReleaseString()))
+                            .subtitleMatchType(SubtitleMatchType.EVERYTHING)
+                            .releaseGroup(ReleaseParser.extractReleasegroup(ossd.getReleaseString(),
+                                    FilenameUtils.isExtension(ossd.getReleaseString(), "srt")))
+                            .uploader(ossd.getUploaderName())
+                            .hearingImpaired("nhu".equals(ossd.getFlagsString())));
                 }
             }
         }

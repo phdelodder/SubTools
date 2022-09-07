@@ -78,14 +78,16 @@ public class PrivateRepo {
                                         + indexSubtitle.getEpisode() + "/" + indexSubtitle.getLanguage() + "/"
                                         + PrivateRepoIndex.getFullFilename(indexSubtitle));
 
-                        Subtitle tempSub =
-                                new Subtitle(Subtitle.SubtitleSource.LOCAL, indexSubtitle.getFilename(),
-                                        location, indexSubtitle.getLanguage(),
-                                        ReleaseParser.getQualityKeyword(indexSubtitle.getFilename()),
-                                        SubtitleMatchType.EVERYTHING, ReleaseParser.extractReleasegroup(
-                                                indexSubtitle.getFilename(),
-                                                FilenameUtils.isExtension(indexSubtitle.getFilename(), "srt")),
-                                        "", false);
+                        Subtitle tempSub = Subtitle.downloadSource(location)
+                                .subtitleSource(Subtitle.SubtitleSource.LOCAL)
+                                .fileName(indexSubtitle.getFilename())
+                                .languageCode(indexSubtitle.getLanguage())
+                                .quality(ReleaseParser.getQualityKeyword(indexSubtitle.getFilename()))
+                                .subtitleMatchType(SubtitleMatchType.EVERYTHING)
+                                .releaseGroup(ReleaseParser.extractReleasegroup(indexSubtitle.getFilename(),
+                                        FilenameUtils.isExtension(indexSubtitle.getFilename(), "srt")))
+                                .uploader("")
+                                .hearingImpaired(false);
                         results.add(tempSub);
                     }
                 }
@@ -104,14 +106,16 @@ public class PrivateRepo {
                                 "/movies/" + indexSubtitle.getName() + " " + indexSubtitle.getYear() + "/"
                                         + indexSubtitle.getLanguage() + "/"
                                         + PrivateRepoIndex.getFullFilename(indexSubtitle);
-
-                        Subtitle tempSub =
-                                new Subtitle(Subtitle.SubtitleSource.LOCAL, indexSubtitle.getFilename(),
-                                        location, indexSubtitle.getLanguage(), "", SubtitleMatchType.EVERYTHING,
-                                        ReleaseParser.extractReleasegroup(indexSubtitle.getFilename(),
-                                                FilenameUtils.isExtension(indexSubtitle.getFilename(), "srt")),
-                                        "", false);
-                        results.add(tempSub);
+                        results.add(Subtitle.downloadSource(location)
+                                .subtitleSource(Subtitle.SubtitleSource.LOCAL)
+                                .fileName(indexSubtitle.getFilename())
+                                .languageCode(indexSubtitle.getLanguage())
+                                .quality("")
+                                .subtitleMatchType(SubtitleMatchType.EVERYTHING)
+                                .releaseGroup(ReleaseParser.extractReleasegroup(indexSubtitle.getFilename(),
+                                        FilenameUtils.isExtension(indexSubtitle.getFilename(), "srt")))
+                                .uploader("")
+                                .hearingImpaired(false));
                     }
                 }
             }

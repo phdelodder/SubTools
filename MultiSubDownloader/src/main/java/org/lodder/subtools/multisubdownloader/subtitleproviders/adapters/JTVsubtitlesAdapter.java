@@ -68,16 +68,18 @@ public class JTVsubtitlesAdapter implements JSubAdapter, SubtitleProvider {
         } catch (TvSubtiltesException e) {
             LOGGER.error("API JTVsubtitles searchSubtitles using title", e);
         }
-        return lSubtitles.stream().map(sub -> new Subtitle(
-                Subtitle.SubtitleSource.TVSUBTITLES,
-                sub.Filename,
-                sub.Url,
-                sublanguageids[0],
-                ReleaseParser.getQualityKeyword(sub.Filename + " " + sub.Rip),
-                SubtitleMatchType.EVERYTHING,
-                ReleaseParser.extractReleasegroup(sub.Filename, FilenameUtils.isExtension(sub.Filename, "srt")),
-                sub.Author,
-                false)).collect(Collectors.toList());
+
+        return lSubtitles.stream()
+                .map(sub -> Subtitle.downloadSource(sub.Url)
+                        .subtitleSource(Subtitle.SubtitleSource.TVSUBTITLES)
+                        .fileName(sub.Filename)
+                        .languageCode(sublanguageids[0])
+                        .quality(ReleaseParser.getQualityKeyword(sub.Filename + " " + sub.Rip))
+                        .subtitleMatchType(SubtitleMatchType.EVERYTHING)
+                        .releaseGroup(ReleaseParser.extractReleasegroup(sub.Filename, FilenameUtils.isExtension(sub.Filename, "srt")))
+                        .uploader(sub.Author)
+                        .hearingImpaired(false))
+                .collect(Collectors.toList());
     }
 
     @Override

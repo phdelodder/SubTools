@@ -1,13 +1,14 @@
 package org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import java.util.HashMap;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 public class ScoreCalculatorTest {
 
@@ -64,9 +65,9 @@ public class ScoreCalculatorTest {
 
     private Subtitle createSubtitle(String filename, String quality, String team) {
         Subtitle subtitle = mock(Subtitle.class);
-        when(subtitle.getFilename()).thenReturn(filename);
+        when(subtitle.getFileName()).thenReturn(filename);
         when(subtitle.getQuality()).thenReturn(quality);
-        when(subtitle.getReleasegroup()).thenReturn(team);
+        when(subtitle.getReleaseGroup()).thenReturn(team);
         return subtitle;
     }
 

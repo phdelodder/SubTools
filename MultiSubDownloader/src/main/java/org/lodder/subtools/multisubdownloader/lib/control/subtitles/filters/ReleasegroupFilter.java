@@ -21,17 +21,17 @@ public class ReleasegroupFilter extends Filter {
 
         for (Subtitle subtitle : Subtitles) {
             // make sure the release is filled up!
-            if (subtitle.getReleasegroup().isEmpty()) {
-                subtitle.setReleasegroup(ReleaseParser.extractReleasegroup(subtitle.getFilename(),
-                        FilenameUtils.isExtension(subtitle.getFilename(), "srt")));
+            if (subtitle.getReleaseGroup().isEmpty()) {
+                subtitle.setReleaseGroup(ReleaseParser.extractReleasegroup(subtitle.getFileName(),
+                        FilenameUtils.isExtension(subtitle.getFileName(), "srt")));
             }
 
-            if (subtitle.getReleasegroup().toLowerCase()
+            if (subtitle.getReleaseGroup().toLowerCase()
                     .contains(release.getReleasegroup().toLowerCase())
                     || release.getReleasegroup().toLowerCase()
-                            .contains(subtitle.getReleasegroup().toLowerCase())) {
+                            .contains(subtitle.getReleaseGroup().toLowerCase())) {
                 LOGGER.debug("getSubtitlesFiltered: found KEYWORD based TEAM match [{}] ",
-                        subtitle.getFilename());
+                        subtitle.getFileName());
 
                 subtitle.setSubtitleMatchType(SubtitleMatchType.TEAM);
 

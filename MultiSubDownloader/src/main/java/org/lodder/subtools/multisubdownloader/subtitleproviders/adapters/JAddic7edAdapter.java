@@ -72,19 +72,22 @@ public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider {
                     switch (sub.getLanguage()) {
                         case "Dutch" -> sub.setLanguage("nl");
                         case "English" -> sub.setLanguage("en");
-                        default -> {}
+                        default -> {
+                        }
                     }
                 })
                 .filter(sub -> sublanguageids[0].equals(sub.getLanguage()))
-                .map(sub -> new Subtitle(
-                        Subtitle.SubtitleSource.ADDIC7ED,
-                        StringUtils.removeIllegalFilenameChars(sub.getTitel() + " " + sub.getVersion()), sub.getUrl(), sub.getLanguage(),
-                        ReleaseParser.getQualityKeyword(sub.getTitel() + " " + sub.getVersion()),
-                        SubtitleMatchType.EVERYTHING,
-                        ReleaseParser.extractReleasegroup(sub.getTitel() + " " + sub.getVersion(),
-                                FilenameUtils.isExtension(sub.getTitel() + " " + sub.getVersion(), "srt")),
-                        sub.getUploader(),
-                        sub.isHearingImpaired()))
+
+                .map(sub -> Subtitle.downloadSource(sub.getUrl())
+                        .subtitleSource(Subtitle.SubtitleSource.ADDIC7ED)
+                        .fileName(StringUtils.removeIllegalFilenameChars(sub.getTitel() + " " + sub.getVersion()))
+                        .languageCode(sub.getLanguage())
+                        .quality(ReleaseParser.getQualityKeyword(sub.getTitel() + " " + sub.getVersion()))
+                        .subtitleMatchType(SubtitleMatchType.EVERYTHING)
+                        .releaseGroup(ReleaseParser.extractReleasegroup(sub.getTitel() + " " + sub.getVersion(),
+                                FilenameUtils.isExtension(sub.getTitel() + " " + sub.getVersion(), "srt")))
+                        .uploader(sub.getUploader())
+                        .hearingImpaired(false))
                 .collect(Collectors.toList()))
                 .orElseGet(ArrayList::new);
     }

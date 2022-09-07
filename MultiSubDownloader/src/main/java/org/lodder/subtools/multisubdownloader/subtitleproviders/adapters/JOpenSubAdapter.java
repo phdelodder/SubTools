@@ -164,9 +164,14 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
                 throw new ManagerException(e);
             }
         };
-        return new Subtitle(Subtitle.SubtitleSource.OPENSUBTITLES, file.getFileName(), urlSupplier, attributes.getLanguage(),
-                ReleaseParser.getQualityKeyword(file.getFileName()), SubtitleMatchType.EVERYTHING,
-                ReleaseParser.extractReleasegroup(file.getFileName(), FilenameUtils.isExtension(file.getFileName(), "srt")),
-                attributes.getUploader().getName(), attributes.isHearingImpaired());
+        return Subtitle.downloadSource(urlSupplier)
+                .subtitleSource(Subtitle.SubtitleSource.OPENSUBTITLES)
+                .fileName(file.getFileName())
+                .languageCode(attributes.getLanguage())
+                .quality(ReleaseParser.getQualityKeyword(file.getFileName()))
+                .subtitleMatchType(SubtitleMatchType.EVERYTHING)
+                .releaseGroup(ReleaseParser.extractReleasegroup(file.getFileName(), FilenameUtils.isExtension(file.getFileName(), "srt")))
+                .uploader(attributes.getUploader().getName())
+                .hearingImpaired(attributes.isHearingImpaired());
     }
 }

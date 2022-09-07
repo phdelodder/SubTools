@@ -10,11 +10,11 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax.JSubsMax
 import org.lodder.subtools.sublibrary.JSubAdapter;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
-import org.lodder.subtools.sublibrary.model.Release;
-import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
+import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,16 +53,15 @@ public class JSubsMaxAdapter implements JSubAdapter, SubtitleProvider {
         String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getShow();
 
         return jsmapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0), sublanguageids[0]).stream()
-                .map(sub -> new Subtitle(
-                        Subtitle.SubtitleSource.SUBSMAX,
-                        sub.getFilename(),
-                        sub.getLink(),
-                        sublanguageids[0],
-                        ReleaseParser.getQualityKeyword(sub.getFilename()),
-                        SubtitleMatchType.EVERYTHING,
-                        ReleaseParser.extractReleasegroup(sub.getFilename(), FilenameUtils.isExtension(sub.getFilename(), "srt")),
-                        "",
-                        false))
+                .map(sub -> Subtitle.downloadSource(sub.getLink())
+                        .subtitleSource(Subtitle.SubtitleSource.SUBSMAX)
+                        .fileName(sub.getFilename())
+                        .languageCode(sublanguageids[0])
+                        .quality(ReleaseParser.getQualityKeyword(sub.getFilename()))
+                        .subtitleMatchType(SubtitleMatchType.EVERYTHING)
+                        .releaseGroup(ReleaseParser.extractReleasegroup(sub.getFilename(), FilenameUtils.isExtension(sub.getFilename(), "srt")))
+                        .uploader("")
+                        .hearingImpaired(false))
                 .collect(Collectors.toList());
     }
 

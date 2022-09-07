@@ -1,16 +1,5 @@
 package org.lodder.subtools.multisubdownloader;
 
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.HeadlessException;
-import java.awt.Insets;
-import java.awt.Toolkit;
-import java.awt.datatransfer.StringSelection;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -50,8 +39,8 @@ import org.lodder.subtools.multisubdownloader.gui.extra.MyPopupMenu;
 import org.lodder.subtools.multisubdownloader.gui.extra.PopupListener;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusLabel;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
-import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
+import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.LoggingPanel;
 import org.lodder.subtools.multisubdownloader.gui.panels.ResultPanel;
@@ -80,6 +69,18 @@ import org.lodder.subtools.sublibrary.util.StringUtils;
 import org.lodder.subtools.sublibrary.util.XmlFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.HeadlessException;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class GUI extends JFrame implements PropertyChangeListener {
 
@@ -501,20 +502,20 @@ public class GUI extends JFrame implements PropertyChangeListener {
             if ((Boolean) model.getValueAt(i, subtitleTable.getColumnIdByName(SearchColumnName.SELECT))) {
                 final Subtitle subtitle = (Subtitle) model.getValueAt(i, subtitleTable.getColumnIdByName(SearchColumnName.OBJECT));
                 String filename = "";
-                if (!subtitle.getFilename().endsWith(".srt")) {
-                    filename = subtitle.getFilename() + ".srt";
+                if (!subtitle.getFileName().endsWith(".srt")) {
+                    filename = subtitle.getFileName() + ".srt";
                 }
                 if (OsCheck.getOperatingSystemType() == OSType.Windows) {
                     filename = StringUtils.removeIllegalWindowsChars(filename);
                 }
 
                 try {
-                    if (subtitle.getSourceLcation() == Subtitle.SourceLocation.FILE) {
-                        Files.copy(subtitle.getFile(), new File(path, subtitle.getFilename()));
+                    if (subtitle.getSourceLocation() == Subtitle.SourceLocation.FILE) {
+                        Files.copy(subtitle.getFile(), new File(path, subtitle.getFileName()));
                     } else {
                         Manager manager = (Manager) this.app.make("Manager");
                         String url =
-                                subtitle.getSourceLcation() == Subtitle.SourceLocation.URL ? subtitle.getUrl() : subtitle.getUrlSupplier().get();
+                                subtitle.getSourceLocation() == Subtitle.SourceLocation.URL ? subtitle.getUrl() : subtitle.getUrlSupplier().get();
                         manager.store(url, new File(path, filename));
                     }
 

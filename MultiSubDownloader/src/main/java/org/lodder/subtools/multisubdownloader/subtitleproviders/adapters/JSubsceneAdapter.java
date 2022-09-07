@@ -70,16 +70,15 @@ public class JSubsceneAdapter implements JSubAdapter, SubtitleProvider {
                 })
                 .filter(sub -> sublanguageids[0].equals(sub.getLanguage()))
                 .filter(sub -> sub.getName().contains(getSeasonEpisodeString(release.getSeason(), release.getEpisodeNumbers().get(0))))
-                .map(sub -> new Subtitle(
-                        Subtitle.SubtitleSource.SUBSCENE,
-                        StringUtils.removeIllegalFilenameChars(sub.getName()),
-                        sub.getUrlSupplier(),
-                        sub.getLanguage(),
-                        ReleaseParser.getQualityKeyword(sub.getName()),
-                        SubtitleMatchType.EVERYTHING,
-                        ReleaseParser.extractReleasegroup(sub.getName(), false),
-                        sub.getUploader(),
-                        sub.isHearingImpaired()))
+                .map(sub -> Subtitle.downloadSource(sub.getUrlSupplier())
+                        .subtitleSource(Subtitle.SubtitleSource.SUBSCENE)
+                        .fileName(StringUtils.removeIllegalFilenameChars(sub.getName()))
+                        .languageCode(sub.getLanguage())
+                        .quality(ReleaseParser.getQualityKeyword(sub.getName()))
+                        .subtitleMatchType(SubtitleMatchType.EVERYTHING)
+                        .releaseGroup(ReleaseParser.extractReleasegroup(sub.getName(), false))
+                        .uploader(sub.getUploader())
+                        .hearingImpaired(sub.isHearingImpaired()))
                 .toList();
     }
 

@@ -89,7 +89,7 @@ public class SubtitleTableModel extends DefaultTableModel {
         for (int i = 0; i < cCount; i++) {
             columnName = this.getColumnName(i);
             if (SubtitleTableColumnName.FILENAME.getColumnName().equals(columnName)) {
-                row[i] = subtitle.getFilename();
+                row[i] = subtitle.getFileName();
             } else if (SubtitleTableColumnName.SELECT.getColumnName().equals(columnName)) {
                 row[i] = false;
             } else if (SubtitleTableColumnName.HEARINGIMPAIRED.getColumnName().equals(columnName)) {
@@ -103,7 +103,7 @@ public class SubtitleTableModel extends DefaultTableModel {
             } else if (SubtitleTableColumnName.QUALITY.getColumnName().equals(columnName)) {
                 row[i] = subtitle.getQuality();
             } else if (SubtitleTableColumnName.RELEASEGROUP.getColumnName().equals(columnName)) {
-                row[i] = subtitle.getReleasegroup();
+                row[i] = subtitle.getReleaseGroup();
             }
         }
         this.addRow(row);
