@@ -13,6 +13,7 @@ import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.slf4j.Logger;
@@ -34,8 +35,8 @@ public class JSubsMaxAdapter implements JSubAdapter, SubtitleProvider {
     }
 
     @Override
-    public String getName() {
-        return "SubsMax";
+    public SubtitleSource getSubtitleSource() {
+        return SubtitleSource.SUBSMAX;
     }
 
     @Override
@@ -54,7 +55,7 @@ public class JSubsMaxAdapter implements JSubAdapter, SubtitleProvider {
 
         return jsmapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0), sublanguageids[0]).stream()
                 .map(sub -> Subtitle.downloadSource(sub.getLink())
-                        .subtitleSource(Subtitle.SubtitleSource.SUBSMAX)
+                        .subtitleSource(getSubtitleSource())
                         .fileName(sub.getFilename())
                         .languageCode(sublanguageids[0])
                         .quality(ReleaseParser.getQualityKeyword(sub.getFilename()))

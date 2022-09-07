@@ -16,6 +16,7 @@ import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.StringUtils;
@@ -39,8 +40,8 @@ public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider {
     }
 
     @Override
-    public String getName() {
-        return "Addic7ed";
+    public SubtitleSource getSubtitleSource() {
+        return SubtitleSource.ADDIC7ED;
     }
 
     @Override
@@ -79,7 +80,7 @@ public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider {
                 .filter(sub -> sublanguageids[0].equals(sub.getLanguage()))
 
                 .map(sub -> Subtitle.downloadSource(sub.getUrl())
-                        .subtitleSource(Subtitle.SubtitleSource.ADDIC7ED)
+                        .subtitleSource(getSubtitleSource())
                         .fileName(StringUtils.removeIllegalFilenameChars(sub.getTitel() + " " + sub.getVersion()))
                         .languageCode(sub.getLanguage())
                         .quality(ReleaseParser.getQualityKeyword(sub.getTitel() + " " + sub.getVersion()))

@@ -18,6 +18,7 @@ import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.slf4j.Logger;
@@ -39,8 +40,8 @@ public class JPodnapisiAdapter implements JSubAdapter, SubtitleProvider {
     }
 
     @Override
-    public String getName() {
-        return "Podnapisi";
+    public SubtitleSource getSubtitleSource() {
+        return SubtitleSource.PODNAPISI;
     }
 
     @Override
@@ -94,7 +95,7 @@ public class JPodnapisiAdapter implements JSubAdapter, SubtitleProvider {
                 String downloadlink = getDownloadLink(ossd.getSubtitleId());
                 if (downloadlink != null) {
                     listFoundSubtitles.add(Subtitle.downloadSource(downloadlink)
-                            .subtitleSource(Subtitle.SubtitleSource.PODNAPISI)
+                            .subtitleSource(getSubtitleSource())
                             .fileName(ossd.getReleaseString())
                             .languageCode(sublanguageid)
                             .quality(ReleaseParser.getQualityKeyword(ossd.getReleaseString()))

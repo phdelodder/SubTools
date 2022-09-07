@@ -18,6 +18,7 @@ import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.opensubtitles.invoker.ApiException;
@@ -48,8 +49,8 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
     }
 
     @Override
-    public String getName() {
-        return "OpenSubtitles";
+    public SubtitleSource getSubtitleSource() {
+        return SubtitleSource.OPENSUBTITLES;
     }
 
     @Override
@@ -165,7 +166,7 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
             }
         };
         return Subtitle.downloadSource(urlSupplier)
-                .subtitleSource(Subtitle.SubtitleSource.OPENSUBTITLES)
+                .subtitleSource(getSubtitleSource())
                 .fileName(file.getFileName())
                 .languageCode(attributes.getLanguage())
                 .quality(ReleaseParser.getQualityKeyword(file.getFileName()))

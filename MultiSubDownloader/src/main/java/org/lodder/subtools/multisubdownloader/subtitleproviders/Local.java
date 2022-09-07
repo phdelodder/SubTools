@@ -14,6 +14,7 @@ import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoType;
@@ -34,8 +35,8 @@ public class Local implements SubtitleProvider {
     }
 
     @Override
-    public String getName() {
-        return "Local";
+    public SubtitleSource getSubtitleSource() {
+        return SubtitleSource.LOCAL;
     }
 
     @Override
@@ -80,7 +81,7 @@ public class Local implements SubtitleProvider {
                             LOGGER.debug("Local Sub found, adding [{}]", fileSub.toString());
                             listFoundSubtitles.add(
                                     Subtitle.downloadSource(fileSub)
-                                            .subtitleSource(Subtitle.SubtitleSource.LOCAL)
+                                            .subtitleSource(getSubtitleSource())
                                             .fileName(fileSub.getName())
                                             .languageCode(languagecode)
                                             .quality(ReleaseParser.getQualityKeyword(fileSub.getName()))
@@ -121,7 +122,7 @@ public class Local implements SubtitleProvider {
                             LOGGER.debug("Local Sub found, adding {}", fileSub.toString());
                             listFoundSubtitles.add(
                                     Subtitle.downloadSource(fileSub)
-                                            .subtitleSource(Subtitle.SubtitleSource.LOCAL)
+                                            .subtitleSource(getSubtitleSource())
                                             .fileName(fileSub.getName())
                                             .languageCode("")
                                             .quality(ReleaseParser.getQualityKeyword(fileSub.getName()))

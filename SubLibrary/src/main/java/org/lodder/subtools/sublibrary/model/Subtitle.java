@@ -7,6 +7,7 @@ import org.lodder.subtools.sublibrary.ManagerException;
 import com.pivovarit.function.ThrowingSupplier;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -32,8 +33,18 @@ public class Subtitle {
     private String quality;
     private int score;
 
+    @AllArgsConstructor
+    @Getter
     public enum SubtitleSource {
-        OPENSUBTITLES, PODNAPISI, ADDIC7ED, TVSUBTITLES, LOCAL, SUBSMAX, SUBSCENE
+        OPENSUBTITLES("OpenSubtitles"),
+        PODNAPISI("Podnapisi"),
+        ADDIC7ED("Addic7ed"),
+        TVSUBTITLES("TvSubtitles"),
+        LOCAL("Local"),
+        SUBSMAX("SubsMax"),
+        SUBSCENE("Subscene");
+
+        private final String name;
     }
 
     public enum SourceLocation {

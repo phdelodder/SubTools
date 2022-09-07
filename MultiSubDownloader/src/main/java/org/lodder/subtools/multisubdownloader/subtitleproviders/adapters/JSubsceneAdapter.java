@@ -13,6 +13,7 @@ import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.StringUtils;
@@ -32,8 +33,8 @@ public class JSubsceneAdapter implements JSubAdapter, SubtitleProvider {
     }
 
     @Override
-    public String getName() {
-        return "Subscene";
+    public SubtitleSource getSubtitleSource() {
+        return SubtitleSource.SUBSCENE;
     }
 
     @Override
@@ -71,7 +72,7 @@ public class JSubsceneAdapter implements JSubAdapter, SubtitleProvider {
                 .filter(sub -> sublanguageids[0].equals(sub.getLanguage()))
                 .filter(sub -> sub.getName().contains(getSeasonEpisodeString(release.getSeason(), release.getEpisodeNumbers().get(0))))
                 .map(sub -> Subtitle.downloadSource(sub.getUrlSupplier())
-                        .subtitleSource(Subtitle.SubtitleSource.SUBSCENE)
+                        .subtitleSource(getSubtitleSource())
                         .fileName(StringUtils.removeIllegalFilenameChars(sub.getName()))
                         .languageCode(sub.getLanguage())
                         .quality(ReleaseParser.getQualityKeyword(sub.getName()))
