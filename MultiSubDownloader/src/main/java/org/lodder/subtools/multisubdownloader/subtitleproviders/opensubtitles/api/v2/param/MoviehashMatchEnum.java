@@ -1,18 +1,15 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum MoviehashMatchEnum implements ParamIntf {
     INCLUDE("include"), ONLY("only");
 
     private final String value;
-
-    MoviehashMatchEnum(String value) {
-        this.value = value;
-    }
-
-    @Override
-    public String getValue() {
-        return value;
-    }
 
     @Override
     public String toString() {

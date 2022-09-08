@@ -77,7 +77,7 @@ public class TextGuiSearchAction extends GuiSearchAction {
         episodes.add(episode);
 
         TvRelease release = new TvRelease();
-        release.setShow(name);
+        release.setShowName(name);
         release.setSeason(season);
         release.setEpisodeNumbers(episodes);
         release.setQuality(quality);

@@ -9,7 +9,6 @@ import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener
 import org.lodder.subtools.multisubdownloader.listeners.SearchProgressListener;
 import org.lodder.subtools.multisubdownloader.listeners.StatusListener;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
-import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.multisubdownloader.workers.SearchHandler;
 import org.lodder.subtools.multisubdownloader.workers.SearchManager;
@@ -93,18 +92,12 @@ public abstract class SearchAction implements Runnable, Cancelable, SearchHandle
         this.searchManager.setLanguage(languageCode);
 
         /* Tell the manager which providers to use */
-        for (SubtitleProvider subtitleProvider : this.subtitleProviderStore.getAllProviders()) {
-            if (!settings.isSerieSource(subtitleProvider.getName())) {
-                continue;
-            }
-
-            this.searchManager.addProvider(subtitleProvider);
-        }
+        this.subtitleProviderStore.getAllProviders().stream()
+                .filter(subtitleProvider -> settings.isSerieSource(subtitleProvider.getSubtitleSource()))
+                .forEach(searchManager::addProvider);
 
         /* Tell the manager which releases to search. */
-        for (Release release : this.releases) {
-            this.searchManager.addRelease(release);
-        }
+        this.releases.forEach(searchManager::addRelease);
 
         /* Listen for when the manager tells us Subtitles are found */
         this.searchManager.onFound(this);

@@ -162,15 +162,8 @@ public class PrivateRepoIndex {
     }
 
     public static int getIntTagValue(String sTag, Element eElement) {
-        NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
-        Node nValue = nlList.item(0);
-
-        if (nValue == null) {
-            return 0;
-        } else {
-            return Integer.parseInt(nValue.getNodeValue());
-        }
-
+        Node node = eElement.getElementsByTagName(sTag).item(0).getChildNodes().item(0);
+        return node == null ? 0 : Integer.parseInt(node.getNodeValue());
     }
 
     public static String setIndex(List<IndexSubtitle> index) {

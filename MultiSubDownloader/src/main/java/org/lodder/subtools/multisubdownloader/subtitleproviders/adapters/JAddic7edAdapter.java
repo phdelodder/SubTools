@@ -46,8 +46,8 @@ public class JAddic7edAdapter implements SubtitleProvider {
     public List<Subtitle> searchSubtitles(TvRelease release, String languageId) {
         Optional<String> serieName = Optional.empty();
         try {
-            if (release.getShow().length() > 0) {
-                serieName = jaapi.getAddictedSerieName(release.getShow());
+            if (release.getShowName().length() > 0) {
+                serieName = jaapi.getAddictedSerieName(release.getShowName());
             }
             if (serieName.isEmpty() && release.getOriginalShowName().length() > 0) {
                 serieName = jaapi.getAddictedSerieName(release.getOriginalShowName());

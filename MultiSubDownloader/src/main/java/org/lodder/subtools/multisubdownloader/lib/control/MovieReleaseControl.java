@@ -46,7 +46,7 @@ public class MovieReleaseControl extends ReleaseControl {
             }
             try {
                 if (imdbid > 0) {
-                    movieRelease.setImdbid(imdbid);
+                    movieRelease.setImdbId(imdbid);
                     IMDBDetails imdbinfo = imdbapi.getIMDBMovieDetails(movieRelease.getImdbidAsString());
                     if (imdbinfo != null) {
                         movieRelease.setYear(imdbinfo.getYear());

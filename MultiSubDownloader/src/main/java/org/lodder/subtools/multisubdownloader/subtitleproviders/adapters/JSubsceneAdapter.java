@@ -40,8 +40,8 @@ public class JSubsceneAdapter implements SubtitleProvider {
 
         List<SubsceneSubtitleDescriptor> subtilteDescriptors = new ArrayList<>();
         try {
-            if (release.getShow().length() > 0) {
-                subtilteDescriptors = api.getSubtilteDescriptors(release.getShow(), release.getSeason());
+            if (release.getShowName().length() > 0) {
+                subtilteDescriptors = api.getSubtilteDescriptors(release.getShowName(), release.getSeason());
             }
             if (subtilteDescriptors.isEmpty() && release.getOriginalShowName().length() > 0) {
                 subtilteDescriptors = api.getSubtilteDescriptors(release.getOriginalShowName(), release.getSeason());

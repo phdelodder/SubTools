@@ -18,6 +18,7 @@ import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.ManagerSetupException;
 import org.lodder.subtools.sublibrary.data.Html;
+import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ import com.pivovarit.function.ThrowingSupplier;
 public class SubsceneApi extends Html {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubsceneApi.class);
-    private static final String IDENTIFIER = "SUBSCENE";
+    private static final String IDENTIFIER = SubtitleSource.SUBSCENE.name();
     private static final RuleBasedNumberFormat NUMBER_FORMAT = new RuleBasedNumberFormat(Locale.UK, RuleBasedNumberFormat.SPELLOUT);
     private static final long RATEDURATION = 1; // seconds
     private LocalDateTime lastRequest = LocalDateTime.now();

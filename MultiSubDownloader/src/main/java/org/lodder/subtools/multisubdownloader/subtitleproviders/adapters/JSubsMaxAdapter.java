@@ -38,7 +38,7 @@ public class JSubsMaxAdapter implements SubtitleProvider {
 
     @Override
     public List<Subtitle> searchSubtitles(TvRelease tvRelease, String languageId) {
-        String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getShow();
+        String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getShowName();
 
         return jsmapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0), languageId).stream()
                 .map(sub -> Subtitle.downloadSource(sub.getLink())

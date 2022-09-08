@@ -19,10 +19,10 @@ package org.lodder.subtools.sublibrary.data.tvrage;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.data.XmlHTTP;
@@ -31,6 +31,7 @@ import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisodeList;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisodeNumber;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageShowInfo;
+import org.lodder.subtools.sublibrary.xml.XmlExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -38,6 +39,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import lombok.experimental.ExtensionMethod;
+
+@ExtensionMethod({ XmlExtension.class })
 public class TVRageParser extends XmlHTTP {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TVRageParser.class);
@@ -93,24 +97,19 @@ public class TVRageParser extends XmlHTTP {
             return epList;
         }
 
-        NodeList nlEpisodeList;
-        Node nEpisodeList;
-        Element eEpisodeList;
-
-        nlEpisodeList = doc.getElementsByTagName("Show");
+        NodeList nlEpisodeList = doc.getElementsByTagName("Show");
         if (nlEpisodeList == null || nlEpisodeList.getLength() == 0) {
             return epList;
         }
 
         // Get the show name and total seasons
-        for (int loop = 0; loop < nlEpisodeList.getLength(); loop++) {
-            nEpisodeList = nlEpisodeList.item(loop);
-            if (nEpisodeList.getNodeType() == Node.ELEMENT_NODE) {
-                eEpisodeList = (Element) nEpisodeList;
-                epList.setShowName(DOMHelper.getValueFromElement(eEpisodeList, "name"));
-                epList.setTotalSeasons(DOMHelper.getValueFromElement(eEpisodeList, "totalseasons"));
-            }
-        }
+        nlEpisodeList.stream()
+                .filter(nEpisodeList -> nEpisodeList.getNodeType() == Node.ELEMENT_NODE)
+                .map(Element.class::cast)
+                .forEach(eEpisodeList -> {
+                    epList.setShowName(DOMHelper.getValueFromElement(eEpisodeList, "name"));
+                    epList.setTotalSeasons(DOMHelper.getValueFromElement(eEpisodeList, "totalseasons"));
+                });
 
         // Now process the individual seasons
         processSeasons(epList, doc.getElementsByTagName("Season"));
@@ -125,99 +124,68 @@ public class TVRageParser extends XmlHTTP {
      * @param nlSeasons
      */
     private static void processSeasons(TVRageEpisodeList epList, NodeList nlSeasons) {
-
         if (nlSeasons == null || nlSeasons.getLength() == 0) {
             return;
         }
+        nlSeasons.stream()
+                .filter(nEpisodeList -> nEpisodeList.getNodeType() == Node.ELEMENT_NODE)
+                .map(Element.class::cast)
+                .forEach(eEpisodeList -> {
+                    // Get the season number
+                    String season = eEpisodeList.getAttribute("no");
 
-        Node nEpisodeList;
-        Element eEpisodeList;
-        for (int loop = 0; loop < nlSeasons.getLength(); loop++) {
-            nEpisodeList = nlSeasons.item(loop);
-            if (nEpisodeList.getNodeType() == Node.ELEMENT_NODE) {
-                eEpisodeList = (Element) nEpisodeList;
-                // Get the season number
-                String season = eEpisodeList.getAttribute("no");
-
-                NodeList nlEpisode = eEpisodeList.getElementsByTagName(EPISODE);
-                if (nlEpisode == null || nlEpisode.getLength() == 0) {
-                    continue;
-                }
-
-                for (int eLoop = 0; eLoop < nlEpisode.getLength(); eLoop++) {
-                    Node nEpisode = nlEpisode.item(eLoop);
-                    if (nEpisode.getNodeType() == Node.ELEMENT_NODE) {
-                        Element eEpisode = (Element) nEpisode;
-                        epList.addEpisode(parseEpisode(eEpisode, season));
+                    NodeList nlEpisode = eEpisodeList.getElementsByTagName(EPISODE);
+                    if (nlEpisode != null && nlEpisode.getLength() != 0) {
+                        nlEpisode.stream()
+                                .filter(nEpisode -> nEpisode.getNodeType() == Node.ELEMENT_NODE)
+                                .map(Element.class::cast)
+                                .forEach(eEpisode -> epList.addEpisode(parseEpisode(eEpisode, season)));
                     }
-                }
-            }
-        }
+                });
     }
 
     public List<TVRageShowInfo> getSearchShow(String searchUrl) {
-        List<TVRageShowInfo> showList = new ArrayList<>();
-        TVRageShowInfo showInfo;
 
         Document doc = null;
         try {
             doc = getXML(searchUrl);
         } catch (Exception e) {
-
-        }
-
-        if (doc == null) {
-            return showList;
+            return List.of();
         }
 
         NodeList nlShowInfo = doc.getElementsByTagName("show");
 
         if (nlShowInfo == null || nlShowInfo.getLength() == 0) {
-            return showList;
+            return List.of();
         }
 
-        for (int loop = 0; loop < nlShowInfo.getLength(); loop++) {
-            Node nShowInfo = nlShowInfo.item(loop);
-            if (nShowInfo.getNodeType() == Node.ELEMENT_NODE) {
-                Element eShowInfo = (Element) nShowInfo;
-                showInfo = parseNextShowInfo(eShowInfo);
-                showList.add(showInfo);
-            }
-        }
-
-        return showList;
+        return nlShowInfo.stream()
+                .filter(nShowInfo -> nShowInfo.getNodeType() == Node.ELEMENT_NODE)
+                .map(Element.class::cast)
+                .map(TVRageParser::parseNextShowInfo)
+                .collect(Collectors.toList());
     }
 
     public List<TVRageShowInfo> getShowInfo(String searchUrl) {
-        List<TVRageShowInfo> showList = new ArrayList<>();
-        TVRageShowInfo showInfo;
 
         Document doc = null;
         try {
             doc = getXML(searchUrl);
         } catch (Exception e) {
-
-        }
-        if (doc == null) {
-            return showList;
+            return List.of();
         }
 
         NodeList nlShowInfo = doc.getElementsByTagName("Showinfo");
 
         if (nlShowInfo == null || nlShowInfo.getLength() == 0) {
-            return showList;
+            return List.of();
         }
 
-        for (int loop = 0; loop < nlShowInfo.getLength(); loop++) {
-            Node nShowInfo = nlShowInfo.item(loop);
-            if (nShowInfo.getNodeType() == Node.ELEMENT_NODE) {
-                Element eShowInfo = (Element) nShowInfo;
-                showInfo = parseNextShowInfo(eShowInfo);
-                showList.add(showInfo);
-            }
-        }
-
-        return showList;
+        return nlShowInfo.stream()
+                .filter(nShowInfo -> nShowInfo.getNodeType() == Node.ELEMENT_NODE)
+                .map(Element.class::cast)
+                .map(TVRageParser::parseNextShowInfo)
+                .collect(Collectors.toList());
     }
 
     private static TVRageEpisode parseEpisode(Element eEpisode, String season) {
@@ -266,7 +234,7 @@ public class TVRageParser extends XmlHTTP {
         String text;
 
         // ShowID
-        showInfo.setShowID(DOMHelper.getValueFromElement(eShowInfo, "showid"));
+        showInfo.setShowId(DOMHelper.getValueFromElement(eShowInfo, "showid"));
 
         // ShowName
         text = DOMHelper.getValueFromElement(eShowInfo, "showname");
@@ -341,17 +309,11 @@ public class TVRageParser extends XmlHTTP {
      * @param eShowInfo
      */
     private static void processNetwork(TVRageShowInfo showInfo, Element eShowInfo) {
-        NodeList nlNetwork = eShowInfo.getElementsByTagName("network");
-        for (int nodeLoop = 0; nodeLoop < nlNetwork.getLength(); nodeLoop++) {
-            Node nShowInfo = nlNetwork.item(nodeLoop);
-            if (nShowInfo.getNodeType() == Node.ELEMENT_NODE) {
-                Element eNetwork = (Element) nShowInfo;
-                TVRageCountryDetail newNetwork = new TVRageCountryDetail();
-                newNetwork.setCountry(eNetwork.getAttribute(COUNTRY));
-                newNetwork.setDetail(eNetwork.getTextContent());
-                showInfo.addNetwork(newNetwork);
-            }
-        }
+        eShowInfo.getElementsByTagName("network").stream()
+                .filter(nShowInfo -> nShowInfo.getNodeType() == Node.ELEMENT_NODE)
+                .map(Element.class::cast)
+                .map(eNetwork -> new TVRageCountryDetail(eNetwork.getAttribute(COUNTRY), eNetwork.getTextContent()))
+                .forEach(showInfo::addNetwork);
     }
 
     /**
@@ -361,17 +323,11 @@ public class TVRageParser extends XmlHTTP {
      * @param eShowInfo
      */
     private static void processAka(TVRageShowInfo showInfo, Element eShowInfo) {
-        NodeList nlAkas = eShowInfo.getElementsByTagName("aka");
-        for (int loop = 0; loop < nlAkas.getLength(); loop++) {
-            Node nShowInfo = nlAkas.item(loop);
-            if (nShowInfo.getNodeType() == Node.ELEMENT_NODE) {
-                Element eAka = (Element) nShowInfo;
-                TVRageCountryDetail newAka = new TVRageCountryDetail();
-                newAka.setCountry(eAka.getAttribute(COUNTRY));
-                newAka.setDetail(eAka.getTextContent());
-                showInfo.addAka(newAka);
-            }
-        }
+        eShowInfo.getElementsByTagName("aka").stream()
+                .filter(nShowInfo -> nShowInfo.getNodeType() == Node.ELEMENT_NODE)
+                .map(Element.class::cast)
+                .map(eAka -> new TVRageCountryDetail(eAka.getAttribute(COUNTRY), eAka.getTextContent()))
+                .forEach(showInfo::addAka);
     }
 
     /**
@@ -381,14 +337,11 @@ public class TVRageParser extends XmlHTTP {
      * @param eShowInfo
      */
     private static void processGenre(TVRageShowInfo showInfo, Element eShowInfo) {
-        NodeList nlGenres = eShowInfo.getElementsByTagName("genre");
-        for (int loop = 0; loop < nlGenres.getLength(); loop++) {
-            Node nGenre = nlGenres.item(loop);
-            if (nGenre.getNodeType() == Node.ELEMENT_NODE) {
-                Element eGenre = (Element) nGenre;
-                showInfo.addGenre(eGenre.getNodeValue());
-            }
-        }
+        eShowInfo.getElementsByTagName("genre").stream()
+                .filter(nShowInfo -> nShowInfo.getNodeType() == Node.ELEMENT_NODE)
+                .map(Element.class::cast)
+                .map(Element::getNodeValue)
+                .forEach(showInfo::addGenre);
     }
 
     public static LocalDate parseDate(String strDate) throws DateTimeParseException {

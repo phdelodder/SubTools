@@ -46,7 +46,7 @@ public class MovieFileControl extends VideoFileControl {
             }
             try {
                 if (imdbid > 0) {
-                    movieRelease.setImdbid(imdbid);
+                    movieRelease.setImdbId(imdbid);
                     IMDBDetails imdbinfo;
 
                     imdbinfo = imdbapi.getIMDBMovieDetails(movieRelease.getImdbidAsString());

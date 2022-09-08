@@ -2,8 +2,8 @@ package org.lodder.subtools.sublibrary.xml;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -12,8 +12,10 @@ import org.lodder.subtools.sublibrary.util.http.DropBoxClient;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
+import lombok.experimental.ExtensionMethod;
+
+@ExtensionMethod({ XmlExtension.class })
 public class XMLMappingTvdbScene {
 
     public final static String mappings = "/MultiSubDownloader/Mappings.xml";
@@ -38,29 +40,25 @@ public class XMLMappingTvdbScene {
         XMLHelper.writeToFile(f, newDoc);
     }
 
-    public static ArrayList<MappingTvdbScene> read(File f) throws Throwable {
+    public static List<MappingTvdbScene> read(File f) throws Throwable {
         Document newDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(f);
         return read(newDoc);
     }
 
-    public static ArrayList<MappingTvdbScene> getOnlineMappingCollection() throws Throwable {
+    public static List<MappingTvdbScene> getOnlineMappingCollection() throws Throwable {
         String content = DropBoxClient.getDropBoxClient().getFile(mappings);
         return read(XMLHelper.getDocument(content));
     }
 
-    public static ArrayList<MappingTvdbScene> read(Document newDoc) throws Throwable {
-        ArrayList<MappingTvdbScene> list = new ArrayList<>();
-        NodeList nList = newDoc.getElementsByTagName("mapping");
-
-        for (int i = 0; i < nList.getLength(); i++) {
-            if (nList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                int tvdbid = XMLHelper.getIntTagValue("tvdbid", (Element) nList.item(i));
-                String scene = XMLHelper.getStringTagValue("scene", (Element) nList.item(i));
-                MappingTvdbScene item = new MappingTvdbScene(scene, tvdbid);
-                list.add(item);
-            }
-        }
-        return list;
+    public static List<MappingTvdbScene> read(Document newDoc) throws Throwable {
+        return newDoc.getElementsByTagName("mapping").stream()
+                .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
+                .map(Element.class::cast)
+                .map(eList -> {
+                    int tvdbId = XMLHelper.getIntTagValue("tvdbid", eList);
+                    String scene = XMLHelper.getStringTagValue("scene", eList);
+                    return new MappingTvdbScene(scene, tvdbId);
+                }).collect(Collectors.toList());
     }
 
     public static int getMappingsVersionNumber() throws IOException {

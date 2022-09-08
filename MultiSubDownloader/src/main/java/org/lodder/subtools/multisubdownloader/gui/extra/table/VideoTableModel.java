@@ -137,7 +137,7 @@ public class VideoTableModel extends DefaultTableModel {
             columnName = this.getColumnName(i);
             if (SearchColumnName.RELEASE.getColumnName().equals(columnName)) {
                 if (release instanceof TvRelease) {
-                    row[i] = ((TvRelease) release).getShow();
+                    row[i] = ((TvRelease) release).getShowName();
                 } else if (release instanceof MovieRelease) {
                     row[i] = ((MovieRelease) release).getTitle();
                 }

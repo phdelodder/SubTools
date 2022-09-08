@@ -6,19 +6,17 @@ import org.opensubtitles.invoker.ApiException;
 import org.opensubtitles.model.Download200Response;
 import org.opensubtitles.model.DownloadRequest;
 
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
+@Accessors(fluent = true, chain = true)
+@Setter
+@RequiredArgsConstructor
 public class DownloadSubtitle extends OpenSubtitlesExecuter {
     private final ApiClient apiClient;
 
     private int fileId;
-
-    public DownloadSubtitle(ApiClient apiClient) {
-        this.apiClient = apiClient;
-    }
-
-    public DownloadSubtitle fileId(int fileId) {
-        this.fileId = fileId;
-        return this;
-    }
 
     public Download200Response download() throws ApiException {
         return execute(() -> new DownloadApi(apiClient).download(new DownloadRequest().fileId(fileId)));

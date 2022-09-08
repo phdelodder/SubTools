@@ -2,55 +2,35 @@ package org.lodder.subtools.sublibrary.model;
 
 import java.io.File;
 
+import org.apache.commons.lang3.StringUtils;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class MovieRelease extends Release {
 
     private String title;
-    private int year, imdbid;
+    private int year;
+    private int imdbId;
 
     public MovieRelease() {
         super(VideoType.MOVIE);
-        setTitle("");
-        setYear(0);
-        this.imdbid = 0;
+        this.title = "";
+        this.year = 0;
+        this.imdbId = 0;
     }
 
     public MovieRelease(String title, Integer year, File file, String extension, String description, String team) {
         super(VideoType.MOVIE, file, extension, description, team);
         this.title = title;
         this.year = year;
-        this.imdbid = 0;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setYear(int year) {
-        this.year = year;
-    }
-
-    public int getYear() {
-        return year;
-    }
-
-    public int getImdbid() {
-        return imdbid;
-    }
-
-    public void setImdbid(int imdbid) {
-        this.imdbid = imdbid;
+        this.imdbId = 0;
     }
 
     public String getImdbidAsString() {
-        String imdbidstr = String.valueOf(this.getImdbid());
-        while (imdbidstr.length() < 7) {
-            imdbidstr = 0 + imdbidstr;
-        }
-        return "tt" + imdbidstr;
+        return "tt" + StringUtils.leftPad(String.valueOf(this.getImdbId()), 7, "0");
     }
 
     @Override

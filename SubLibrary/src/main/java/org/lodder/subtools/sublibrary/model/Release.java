@@ -4,6 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class Release extends Video {
 
     private List<Subtitle> matchingSubs;
@@ -16,79 +21,24 @@ public class Release extends Video {
 
     public Release(VideoType videoType) {
         this.setVideoType(videoType);
-        extension = "";
-        matchingSubs = new ArrayList<>();
-        filename = "";
-        path = new File("");
-        quality = "";
-        description = "";
-        releasegroup = "";
+        this.extension = "";
+        this.matchingSubs = new ArrayList<>();
+        this.filename = "";
+        this.path = new File("");
+        this.quality = "";
+        this.description = "";
+        this.releasegroup = "";
     }
 
     public Release(VideoType videoFileType, File file, String extension, String description, String releasegroup) {
         this(videoFileType);
         this.extension = extension;
-        filename = file.getName();
-        path = file.getParentFile();
-        this.setDescription(description);
-        this.setReleasegroup(releasegroup);
-    }
-
-    public String getExtension() {
-        return extension;
-    }
-
-    public void setExtension(String extension) {
-        this.extension = extension;
-    }
-
-    public List<Subtitle> getMatchingSubs() {
-        return matchingSubs;
-    }
-
-    public void setMatchingSubs(List<Subtitle> matchingSubs) {
-        this.matchingSubs = matchingSubs;
-    }
-
-    public String getFilename() {
-        return filename;
-    }
-
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
-
-    public File getPath() {
-        return path;
-    }
-
-    public void setPath(File path) {
-        this.path = path;
-    }
-
-    public String getQuality() {
-        return quality;
-    }
-
-    public void setQuality(String quality) {
-        this.quality = quality;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
+        this.filename = file.getName();
+        this.path = file.getParentFile();
         this.description = description;
-    }
-
-    public String getReleasegroup() {
-        return releasegroup;
-    }
-
-    public void setReleasegroup(String releasegroup) {
         this.releasegroup = releasegroup;
     }
+
 
     @Override
     public String toString() {

@@ -26,12 +26,12 @@ public abstract class LibraryBuilder {
             TheTVDBSerie tvdbs = JTheTVDBAdapter.getAdapter(manager).getSerie(tvRelease);
             if (tvdbs == null) {
                 // use showname found for release as tvdb returns null
-                return tvRelease.getShow();
+                return tvRelease.getShowName();
             } else {
                 return tvdbs.getSerieName();
             }
         } else {
-            return tvRelease.getShow();
+            return tvRelease.getShowName();
         }
     }
 

@@ -64,7 +64,7 @@ public class JPodnapisiAdapter implements SubtitleProvider {
     @Override
     public List<Subtitle> searchSubtitles(TvRelease tvRelease, String languageId) {
 
-        String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getShow();
+        String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getShowName();
         List<PodnapisiSubtitleDescriptor> lSubtitles;
         if (showName.length() > 0) {
             lSubtitles = tvRelease.getEpisodeNumbers().stream()

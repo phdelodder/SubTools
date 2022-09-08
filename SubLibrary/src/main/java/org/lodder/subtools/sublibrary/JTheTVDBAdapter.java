@@ -32,9 +32,9 @@ public class JTheTVDBAdapter {
     public TheTVDBSerie searchSerie(TvRelease episode) {
         int tvdbid;
         try {
-            tvdbid = this.jtvapi.searchSerie(episode.getShow(), null);
+            tvdbid = this.jtvapi.searchSerie(episode.getShowName(), null);
             if (tvdbid == 0) {
-                LOGGER.error("Unknown serie name in tvdb: " + episode.getShow());
+                LOGGER.error("Unknown serie name in tvdb: " + episode.getShowName());
                 return null;
             }
             return this.jtvapi.getSerie(tvdbid, null);
@@ -46,7 +46,7 @@ public class JTheTVDBAdapter {
 
     public TheTVDBEpisode getEpisode(TvRelease episode) {
         try {
-            return this.jtvapi.getEpisode(episode.getTvdbid(), episode.getSeason(), episode
+            return this.jtvapi.getEpisode(episode.getTvdbId(), episode.getSeason(), episode
                     .getEpisodeNumbers().get(0), "en");
         } catch (TheTVDBException e) {
             LOGGER.error(e.getMessage(), e);
@@ -56,10 +56,10 @@ public class JTheTVDBAdapter {
 
     public TheTVDBSerie getSerie(TvRelease episode) {
         try {
-            if (episode.getTvdbid() > 0) {
-                return this.jtvapi.getSerie(episode.getTvdbid(), null);
+            if (episode.getTvdbId() > 0) {
+                return this.jtvapi.getSerie(episode.getTvdbId(), null);
             } else {
-                int tvdbid = sickbeardTVDBSceneExceptions(episode.getShow());
+                int tvdbid = sickbeardTVDBSceneExceptions(episode.getShowName());
                 if (tvdbid > 0) {
                     return this.jtvapi.getSerie(tvdbid, null);
                 }

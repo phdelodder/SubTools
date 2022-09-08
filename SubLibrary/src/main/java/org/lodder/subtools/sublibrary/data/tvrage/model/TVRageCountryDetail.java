@@ -1,5 +1,7 @@
 package org.lodder.subtools.sublibrary.data.tvrage.model;
 
+import static org.lodder.subtools.sublibrary.data.tvrage.TVRageApi.*;
+
 /*
  *      Copyright (c) 2004-2013 Stuart Boston
  *
@@ -26,7 +28,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.lodder.subtools.sublibrary.data.tvrage.TVRageApi;
 
-import static org.lodder.subtools.sublibrary.data.tvrage.TVRageApi.isValidString;
+import lombok.Getter;
 
 /**
  * Class to hold country along with a generic detail string
@@ -34,35 +36,15 @@ import static org.lodder.subtools.sublibrary.data.tvrage.TVRageApi.isValidString
  * @author Stuart.Boston
  *
  */
+@Getter
 public class TVRageCountryDetail implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private String country;
-    private String detail;
-
-    public TVRageCountryDetail() {
-        this.country = TVRageApi.UNKNOWN;
-        this.detail = TVRageApi.UNKNOWN;
-    }
+    private final String country;
+    private final String detail;
 
     public TVRageCountryDetail(String country, String detail) {
-        this.country = country;
-        this.detail = detail;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
         this.country = isValidString(country) ? country.trim() : TVRageApi.UNKNOWN;
-    }
-
-    public String getDetail() {
-        return detail;
-    }
-
-    public void setDetail(String detail) {
         this.detail = isValidString(detail) ? detail.trim() : TVRageApi.UNKNOWN;
     }
 

@@ -55,7 +55,7 @@ public class Local implements SubtitleProvider {
         if (tvRelease.getOriginalShowName().length() > 0) {
             filter = tvRelease.getOriginalShowName().replaceAll("[^A-Za-z]", "").trim();
         } else {
-            filter = tvRelease.getShow().replaceAll("[^A-Za-z]", "").trim();
+            filter = tvRelease.getShowName().replaceAll("[^A-Za-z]", "").trim();
         }
 
         for (File fileSub : getPossibleSubtitles(filter)) {
@@ -67,7 +67,7 @@ public class Local implements SubtitleProvider {
 
                     TvReleaseControl epCtrl = new TvReleaseControl((TvRelease) release, settings, manager);
                     epCtrl.process(settings.getMappingSettings().getMappingList());
-                    if (((TvRelease) release).getTvdbid() == tvRelease.getTvdbid()) {
+                    if (((TvRelease) release).getTvdbId() == tvRelease.getTvdbId()) {
                         String detectedLang = DetectLanguage.execute(fileSub);
                         if (detectedLang.equals(languageId)) {
                             LOGGER.debug("Local Sub found, adding [{}]", fileSub.toString());
@@ -109,7 +109,7 @@ public class Local implements SubtitleProvider {
                 if (release.getVideoType() == VideoType.MOVIE) {
                     MovieReleaseControl movieCtrl = new MovieReleaseControl((MovieRelease) release, settings, manager);
                     movieCtrl.process(settings.getMappingSettings().getMappingList());
-                    if (((MovieRelease) release).getImdbid() == movieRelease.getImdbid()) {
+                    if (((MovieRelease) release).getImdbId() == movieRelease.getImdbId()) {
                         String detectedLang = DetectLanguage.execute(fileSub);
                         if (detectedLang.equals(languageId)) {
                             LOGGER.debug("Local Sub found, adding {}", fileSub.toString());

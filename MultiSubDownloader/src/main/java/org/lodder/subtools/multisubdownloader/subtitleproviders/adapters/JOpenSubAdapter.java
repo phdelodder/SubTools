@@ -59,7 +59,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
             if (file.exists()) {
                 try {
                     osApi.searchSubtitles()
-                            .moviehash(OpenSubtitlesHasher.computeHash(file))
+                            .movieHash(OpenSubtitlesHasher.computeHash(file))
                             .language(languageId)
                             .searchSubtitles()
                             .getData().forEach(subtitles::add);
@@ -70,10 +70,10 @@ public class JOpenSubAdapter implements SubtitleProvider {
                 }
             }
         }
-        if (movieRelease.getImdbid() != 0) {
+        if (movieRelease.getImdbId() != 0) {
             try {
                 osApi.searchSubtitles()
-                        .imdbId(movieRelease.getImdbid())
+                        .imdbId(movieRelease.getImdbId())
                         .language(languageId)
                         .searchSubtitles()
                         .getData().forEach(subtitles::add);
@@ -116,11 +116,11 @@ public class JOpenSubAdapter implements SubtitleProvider {
                 }
             });
         }
-        if (tvRelease.getOriginalShowName().length() == 0 || !tvRelease.getOriginalShowName().equalsIgnoreCase(tvRelease.getShow())) {
+        if (tvRelease.getOriginalShowName().length() == 0 || !tvRelease.getOriginalShowName().equalsIgnoreCase(tvRelease.getShowName())) {
             tvRelease.getEpisodeNumbers().forEach(episode -> {
                 try {
                     osApi.searchSubtitles()
-                            .query(tvRelease.getShow())
+                            .query(tvRelease.getShowName())
                             .season(tvRelease.getSeason())
                             .episode(episode)
                             .language(languageId)
@@ -132,7 +132,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
             });
         }
 
-        String name = tvRelease.getShow().replaceAll("[^A-Za-z]", "").toLowerCase();
+        String name = tvRelease.getShowName().replaceAll("[^A-Za-z]", "").toLowerCase();
         String originalName = tvRelease.getOriginalShowName().replaceAll("[^A-Za-z]", "").toLowerCase();
 
         return subtitles.stream().map(org.opensubtitles.model.Subtitle::getAttributes)

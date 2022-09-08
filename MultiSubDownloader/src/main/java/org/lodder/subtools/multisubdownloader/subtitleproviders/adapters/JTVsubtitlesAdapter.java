@@ -43,7 +43,7 @@ public class JTVsubtitlesAdapter implements SubtitleProvider {
     public List<Subtitle> searchSubtitles(TvRelease tvRelease, String languageId) {
         List<TVsubtitlesSubtitleDescriptor> lSubtitles = new ArrayList<>();
         try {
-            String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getShow();
+            String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getShowName();
 
             if (showName.length() > 0) {
                 if (showName.contains("(") && showName.contains(")")) {

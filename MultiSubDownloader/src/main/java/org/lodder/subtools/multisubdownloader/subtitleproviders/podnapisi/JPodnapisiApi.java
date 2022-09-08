@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.model.PodnapisiSubtitleDescriptor;
@@ -20,13 +21,16 @@ import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.ManagerSetupException;
 import org.lodder.subtools.sublibrary.data.XmlRPC;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
+import org.lodder.subtools.sublibrary.xml.XmlExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
+import lombok.experimental.ExtensionMethod;
+
+@ExtensionMethod({ XmlExtension.class })
 public class JPodnapisiApi extends XmlRPC {
 
     private LocalDateTime nextCheck;
@@ -98,8 +102,6 @@ public class JPodnapisiApi extends XmlRPC {
     }
 
     public List<PodnapisiSubtitleDescriptor> searchSubtitles(String filename, int year, int season, int episode, String sublanguageid) {
-        List<PodnapisiSubtitleDescriptor> subtitles = new ArrayList<>();
-
         StringBuilder url = new StringBuilder("http://www.podnapisi.net/sl/ppodnapisi/search?sK=")
                 .append(URLEncoder.encode(filename, StandardCharsets.UTF_8))
                 .append("&sJ=").append(PODNAPISI_LANGS.get(sublanguageid));
@@ -119,19 +121,15 @@ public class JPodnapisiApi extends XmlRPC {
         Document doc = getXML(url.toString());
 
         if (doc != null) {
-
-            NodeList nList = doc.getElementsByTagName("subtitle");
-
-            for (int i = 0; i < nList.getLength(); i++) {
-                if (nList.item(i).getNodeType() == Node.ELEMENT_NODE && "subtitle".equals(nList.item(i).getNodeName())) {
-                    Element eElement = (Element) nList.item(i);
-                    subtitles.add(parsePodnapisiSubtitle(eElement));
-                }
-            }
-
+            return doc.getElementsByTagName("subtitle").stream()
+                    .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
+                    .filter(node -> "subtitle".equals(node.getNodeName()))
+                    .map(Element.class::cast)
+                    .map(this::parsePodnapisiSubtitle)
+                    .collect(Collectors.toList());
         }
 
-        return subtitles;
+        return List.of();
     }
 
     @SuppressWarnings("unchecked")

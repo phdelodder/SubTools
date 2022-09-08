@@ -131,7 +131,7 @@ public class SortSubtitle {
                     int tvdbid = 0;
                     for (MappingTvdbScene mapping : mappingSettingsCtrl.getMappingSettings()
                             .getMappingList()) {
-                        if (mapping.getSceneName().replaceAll("[^A-Za-z]", "").equalsIgnoreCase(tvRelease.getShow().replaceAll("[^A-Za-z]", ""))) {
+                        if (mapping.getSceneName().replaceAll("[^A-Za-z]", "").equalsIgnoreCase(tvRelease.getShowName().replaceAll("[^A-Za-z]", ""))) {
                             tvdbid = mapping.getTvdbId();
                             break;
                         }
@@ -189,7 +189,7 @@ public class SortSubtitle {
                         index.add(new IndexSubtitle(title, PrivateRepoIndex.extractOriginalFilename(filename),
                                 language, PrivateRepoIndex.extractUploader(filename),
                                 PrivateRepoIndex.extractOriginalSource(filename), release.getVideoType(),
-                                movieRelease.getImdbid(), movieRelease.getYear()));
+                                movieRelease.getImdbId(), movieRelease.getYear()));
                     } else {
                         System.out.println("doesn't exists: " + to.toString());
                     }
@@ -259,7 +259,7 @@ public class SortSubtitle {
                     for (MappingTvdbScene mapping : mappingSettingsCtrl.getMappingSettings()
                             .getMappingList()) {
                         if (mapping.getSceneName().replaceAll("[^A-Za-z]", "")
-                                .equalsIgnoreCase(tvRelease.getShow().replaceAll("[^A-Za-z]", ""))) {
+                                .equalsIgnoreCase(tvRelease.getShowName().replaceAll("[^A-Za-z]", ""))) {
                             tvdbid = mapping.getTvdbId();
                         }
                     }
@@ -372,7 +372,7 @@ public class SortSubtitle {
                             new IndexSubtitle(title, PrivateRepoIndex.extractOriginalFilename(filename), language,
                                     PrivateRepoIndex.extractUploader(filename),
                                     PrivateRepoIndex.extractOriginalSource(filename), release.getVideoType(),
-                                    movieRelease.getImdbid(), movieRelease.getYear());
+                                    movieRelease.getImdbId(), movieRelease.getYear());
 
                     index.add(indexSubtitle);
                 }
