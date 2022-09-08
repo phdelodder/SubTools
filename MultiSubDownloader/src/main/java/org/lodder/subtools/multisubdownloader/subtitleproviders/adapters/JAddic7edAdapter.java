@@ -9,12 +9,10 @@ import org.apache.commons.io.FilenameUtils;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.JAddic7edApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.exception.Addic7edException;
-import org.lodder.subtools.sublibrary.JSubAdapter;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerSetupException;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
-import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
@@ -23,7 +21,7 @@ import org.lodder.subtools.sublibrary.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider {
+public class JAddic7edAdapter implements SubtitleProvider {
 
     private static JAddic7edApi jaapi;
 
@@ -42,16 +40,6 @@ public class JAddic7edAdapter implements JSubAdapter, SubtitleProvider {
     @Override
     public SubtitleSource getSubtitleSource() {
         return SubtitleSource.ADDIC7ED;
-    }
-
-    @Override
-    public List<Subtitle> search(Release release, String languageCode) {
-        if (release instanceof MovieRelease movieRelease) {
-            return this.searchSubtitles(movieRelease, languageCode);
-        } else if (release instanceof TvRelease tvRelease) {
-            return this.searchSubtitles(tvRelease, languageCode);
-        }
-        return new ArrayList<>();
     }
 
     @Override

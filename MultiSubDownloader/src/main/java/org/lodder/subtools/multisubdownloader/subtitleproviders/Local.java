@@ -39,23 +39,15 @@ public class Local implements SubtitleProvider {
         return SubtitleSource.LOCAL;
     }
 
-    @Override
-    public List<Subtitle> search(Release release, String languageCode) {
-        if (release instanceof MovieRelease movieRelease) {
-            return this.search(movieRelease, languageCode);
-        } else if (release instanceof TvRelease tvRelease) {
-            return this.search(tvRelease, languageCode);
-        }
-        return new ArrayList<>();
-    }
-
     private List<File> getPossibleSubtitles(String filter) {
         return settings.getLocalSourcesFolders().stream()
                 .flatMap(local -> getAllSubtitlesFiles(local, filter).stream())
                 .collect(Collectors.toList());
     }
 
-    public List<Subtitle> search(TvRelease tvRelease, String languagecode) {
+
+    @Override
+    public List<Subtitle> searchSubtitles(TvRelease tvRelease, String... languagecode) {
         List<Subtitle> listFoundSubtitles = new ArrayList<>();
         ReleaseParser vfp = new ReleaseParser();
 
@@ -83,7 +75,7 @@ public class Local implements SubtitleProvider {
                                     Subtitle.downloadSource(fileSub)
                                             .subtitleSource(getSubtitleSource())
                                             .fileName(fileSub.getName())
-                                            .languageCode(languagecode)
+                                            .languageCode(languagecode[0])
                                             .quality(ReleaseParser.getQualityKeyword(fileSub.getName()))
                                             .subtitleMatchType(SubtitleMatchType.EVERYTHING)
                                             .releaseGroup(ReleaseParser.extractReleasegroup(fileSub.getName(), true))
@@ -104,7 +96,8 @@ public class Local implements SubtitleProvider {
         return listFoundSubtitles;
     }
 
-    public List<Subtitle> search(MovieRelease movieRelease, String languagecode) {
+    @Override
+    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... languagecode) {
         List<Subtitle> listFoundSubtitles = new ArrayList<>();
         ReleaseParser releaseParser = new ReleaseParser();
 
@@ -118,7 +111,7 @@ public class Local implements SubtitleProvider {
                     movieCtrl.process(settings.getMappingSettings().getMappingList());
                     if (((MovieRelease) release).getImdbid() == movieRelease.getImdbid()) {
                         String detectedLang = DetectLanguage.execute(fileSub);
-                        if (detectedLang.equals(languagecode)) {
+                        if (detectedLang.equals(languagecode[0])) {
                             LOGGER.debug("Local Sub found, adding {}", fileSub.toString());
                             listFoundSubtitles.add(
                                     Subtitle.downloadSource(fileSub)

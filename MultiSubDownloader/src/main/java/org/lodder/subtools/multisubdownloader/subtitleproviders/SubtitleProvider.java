@@ -1,12 +1,19 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 
 public interface SubtitleProvider {
+
+    List<Subtitle> searchSubtitles(TvRelease tvRelease, String... sublanguageids);
+
+    List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... sublanguageids);
 
     SubtitleSource getSubtitleSource();
 
@@ -24,5 +31,12 @@ public interface SubtitleProvider {
      * @param languageCode The language of the desired subtitles
      * @return The found subtitles
      */
-    List<Subtitle> search(Release release, String languageCode);
+    default List<Subtitle> search(Release release, String languageCode) {
+        if (release instanceof MovieRelease movieRelease) {
+            return this.searchSubtitles(movieRelease, languageCode);
+        } else if (release instanceof TvRelease tvRelease) {
+            return this.searchSubtitles(tvRelease, languageCode);
+        }
+        return new ArrayList<>();
+    }
 }

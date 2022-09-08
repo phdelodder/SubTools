@@ -9,11 +9,9 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.JTVSubtitlesApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.exception.TvSubtiltesException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.model.TVsubtitlesSubtitleDescriptor;
-import org.lodder.subtools.sublibrary.JSubAdapter;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
-import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
@@ -21,7 +19,7 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JTVsubtitlesAdapter implements JSubAdapter, SubtitleProvider {
+public class JTVsubtitlesAdapter implements SubtitleProvider {
 
     private static JTVSubtitlesApi jtvapi;
     private static final Logger LOGGER = LoggerFactory.getLogger(JTVsubtitlesAdapter.class);
@@ -39,16 +37,6 @@ public class JTVsubtitlesAdapter implements JSubAdapter, SubtitleProvider {
     @Override
     public SubtitleSource getSubtitleSource() {
         return SubtitleSource.TVSUBTITLES;
-    }
-
-    @Override
-    public List<Subtitle> search(Release release, String languageCode) {
-        if (release instanceof MovieRelease movieRelease) {
-            return this.searchSubtitles(movieRelease, languageCode);
-        } else if (release instanceof TvRelease tvRelease) {
-            return this.searchSubtitles(tvRelease, languageCode);
-        }
-        return new ArrayList<>();
     }
 
     @Override
