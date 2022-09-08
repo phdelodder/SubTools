@@ -43,37 +43,37 @@ public class JPodnapisiAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... sublanguageid) {
+    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String languageId) {
         List<PodnapisiSubtitleDescriptor> lSubtitles = new ArrayList<>();
         if (!"".equals(movieRelease.getFilename())) {
             File file = new File(movieRelease.getPath(), movieRelease.getFilename());
             if (file.exists()) {
                 try {
-                    lSubtitles = jpapi.searchSubtitles(new String[] { OpenSubtitlesHasher.computeHash(file) }, sublanguageid[0]);
+                    lSubtitles = jpapi.searchSubtitles(new String[] { OpenSubtitlesHasher.computeHash(file) }, languageId);
                 } catch (IOException | XmlRpcException e) {
                     LOGGER.error("API PODNAPISI searchSubtitles using file hash", e);
                 }
             }
         }
         if (lSubtitles.size() == 0) {
-            lSubtitles.addAll(jpapi.searchSubtitles(movieRelease.getTitle(), movieRelease.getYear(), 0, 0, sublanguageid[0]));
+            lSubtitles.addAll(jpapi.searchSubtitles(movieRelease.getTitle(), movieRelease.getYear(), 0, 0, languageId));
         }
-        return buildListSubtitles(sublanguageid[0], lSubtitles);
+        return buildListSubtitles(languageId, lSubtitles);
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(TvRelease tvRelease, String... sublanguageid) {
+    public List<Subtitle> searchSubtitles(TvRelease tvRelease, String languageId) {
 
         String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getShow();
         List<PodnapisiSubtitleDescriptor> lSubtitles;
         if (showName.length() > 0) {
             lSubtitles = tvRelease.getEpisodeNumbers().stream()
-                    .flatMap(episode -> jpapi.searchSubtitles(showName, 0, tvRelease.getSeason(), episode, sublanguageid[0]).stream())
+                    .flatMap(episode -> jpapi.searchSubtitles(showName, 0, tvRelease.getSeason(), episode, languageId).stream())
                     .collect(Collectors.toList());
         } else {
             lSubtitles = new ArrayList<>();
         }
-        return buildListSubtitles(sublanguageid[0], lSubtitles);
+        return buildListSubtitles(languageId, lSubtitles);
     }
 
     private List<Subtitle> buildListSubtitles(String sublanguageid, List<PodnapisiSubtitleDescriptor> lSubtitles) {

@@ -1,8 +1,5 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param.AiTranslatedEnum;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param.ForeignPartsOnlyEnum;
@@ -34,7 +31,7 @@ public class SearchSubtitles extends OpenSubtitlesExecuter {
 
     private Integer imdbId;
 
-    private String languages;
+    private String language;
 
     private MachineTranslatedEnum machineTranslated;
 
@@ -103,17 +100,13 @@ public class SearchSubtitles extends OpenSubtitlesExecuter {
     }
 
     public SearchSubtitles addLanguage(String language) {
-        this.languages = StringUtils.isBlank(language) ? language : languages + "," + language;
+        this.language = StringUtils.isBlank(language) ? language : language + "," + language;
         return this;
     }
 
-    public SearchSubtitles languages(String languages) {
-        this.languages = languages;
+    public SearchSubtitles language(String languages) {
+        this.language = languages;
         return this;
-    }
-
-    public SearchSubtitles languages(String[] languages) {
-        return languages(Arrays.stream(languages).collect(Collectors.joining(",")));
     }
 
     public SearchSubtitles machineTranslated(MachineTranslatedEnum machineTranslated) {
@@ -197,7 +190,7 @@ public class SearchSubtitles extends OpenSubtitlesExecuter {
     }
 
     public Subtitles200Response searchSubtitles() throws ApiException {
-        return execute(() -> new SubtitlesApi(apiClient).subtitles(id, imdbId, tmdbId, getValue(type), query, languages, moviehash,
+        return execute(() -> new SubtitlesApi(apiClient).subtitles(id, imdbId, tmdbId, getValue(type), query, language, moviehash,
                 userId, getValue(hearingImpaired), getValue(foreignPartsOnly), getValue(trustedSources), getValue(machineTranslated),
                 getValue(aiTranslated), orderBy == null ? null : orderBy.getParamName(), getValue(orderDirection), parentFeatureId, parentImdbId,
                 parentTmdbId, season, episode, year, getValue(moviehashMatch), page));

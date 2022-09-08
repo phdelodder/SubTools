@@ -52,7 +52,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... languageIds) {
+    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String languageId) {
         List<org.opensubtitles.model.Subtitle> subtitles = new ArrayList<>();
         if (!"".equals(movieRelease.getFilename())) {
             File file = new File(movieRelease.getPath(), movieRelease.getFilename());
@@ -60,7 +60,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
                 try {
                     osApi.searchSubtitles()
                             .moviehash(OpenSubtitlesHasher.computeHash(file))
-                            .languages(languageIds)
+                            .language(languageId)
                             .searchSubtitles()
                             .getData().forEach(subtitles::add);
                 } catch (ApiException e) {
@@ -74,7 +74,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
             try {
                 osApi.searchSubtitles()
                         .imdbId(movieRelease.getImdbid())
-                        .languages(languageIds)
+                        .language(languageId)
                         .searchSubtitles()
                         .getData().forEach(subtitles::add);
             } catch (ApiException e) {
@@ -85,7 +85,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
             try {
                 osApi.searchSubtitles()
                         .query(movieRelease.getTitle())
-                        .languages(languageIds)
+                        .language(languageId)
                         .searchSubtitles()
                         .getData().forEach(subtitles::add);
             } catch (ApiException e) {
@@ -99,7 +99,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(TvRelease tvRelease, String... languageIds) {
+    public List<Subtitle> searchSubtitles(TvRelease tvRelease, String languageId) {
         List<org.opensubtitles.model.Subtitle> subtitles = new ArrayList<>();
         if (tvRelease.getOriginalShowName().length() > 0) {
             tvRelease.getEpisodeNumbers().forEach(episode -> {
@@ -108,7 +108,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
                             .query(tvRelease.getOriginalShowName())
                             .season(tvRelease.getSeason())
                             .episode(episode)
-                            .languages(languageIds)
+                            .language(languageId)
                             .searchSubtitles()
                             .getData().forEach(subtitles::add);
                 } catch (ApiException e) {
@@ -123,7 +123,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
                             .query(tvRelease.getShow())
                             .season(tvRelease.getSeason())
                             .episode(episode)
-                            .languages(languageIds)
+                            .language(languageId)
                             .searchSubtitles()
                             .getData().forEach(subtitles::add);
                 } catch (ApiException e) {

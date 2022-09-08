@@ -43,7 +43,7 @@ public class JAddic7edAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(TvRelease release, String... sublanguageids) {
+    public List<Subtitle> searchSubtitles(TvRelease release, String languageId) {
         Optional<String> serieName = Optional.empty();
         try {
             if (release.getShow().length() > 0) {
@@ -65,7 +65,7 @@ public class JAddic7edAdapter implements SubtitleProvider {
                         }
                     }
                 })
-                .filter(sub -> sublanguageids[0].equals(sub.getLanguage()))
+                .filter(sub -> languageId.equals(sub.getLanguage()))
 
                 .map(sub -> Subtitle.downloadSource(sub.getUrl())
                         .subtitleSource(getSubtitleSource())
@@ -82,7 +82,7 @@ public class JAddic7edAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... sublanguageids) {
+    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String languageId) {
         // TODO Auto-generated method stub
         return null;
     }

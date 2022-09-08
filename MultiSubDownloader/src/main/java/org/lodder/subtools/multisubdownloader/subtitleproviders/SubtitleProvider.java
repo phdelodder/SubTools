@@ -11,9 +11,9 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 
 public interface SubtitleProvider {
 
-    List<Subtitle> searchSubtitles(TvRelease tvRelease, String... sublanguageids);
+    List<Subtitle> searchSubtitles(TvRelease tvRelease, String languageId);
 
-    List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... sublanguageids);
+    List<Subtitle> searchSubtitles(MovieRelease movieRelease, String languageId);
 
     SubtitleSource getSubtitleSource();
 

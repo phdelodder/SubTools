@@ -36,7 +36,7 @@ public class JSubsceneAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(TvRelease release, String... sublanguageids) {
+    public List<Subtitle> searchSubtitles(TvRelease release, String languageId) {
 
         List<SubsceneSubtitleDescriptor> subtilteDescriptors = new ArrayList<>();
         try {
@@ -57,7 +57,7 @@ public class JSubsceneAdapter implements SubtitleProvider {
                         default -> null;
                     };
                 })
-                .filter(sub -> sublanguageids[0].equals(sub.getLanguage()))
+                .filter(sub -> languageId.equals(sub.getLanguage()))
                 .filter(sub -> sub.getName().contains(getSeasonEpisodeString(release.getSeason(), release.getEpisodeNumbers().get(0))))
                 .map(sub -> Subtitle.downloadSource(sub.getUrlSupplier())
                         .subtitleSource(getSubtitleSource())
@@ -77,7 +77,7 @@ public class JSubsceneAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... sublanguageids) {
+    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String languageId) {
         // TODO implement this
         return new ArrayList<>();
     }

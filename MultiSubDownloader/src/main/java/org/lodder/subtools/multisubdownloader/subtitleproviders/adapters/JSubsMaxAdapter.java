@@ -37,14 +37,14 @@ public class JSubsMaxAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(TvRelease tvRelease, String... sublanguageids) {
+    public List<Subtitle> searchSubtitles(TvRelease tvRelease, String languageId) {
         String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getShow();
 
-        return jsmapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0), sublanguageids[0]).stream()
+        return jsmapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0), languageId).stream()
                 .map(sub -> Subtitle.downloadSource(sub.getLink())
                         .subtitleSource(getSubtitleSource())
                         .fileName(sub.getFilename())
-                        .languageCode(sublanguageids[0])
+                        .languageCode(languageId)
                         .quality(ReleaseParser.getQualityKeyword(sub.getFilename()))
                         .subtitleMatchType(SubtitleMatchType.EVERYTHING)
                         .releaseGroup(ReleaseParser.extractReleasegroup(sub.getFilename(), FilenameUtils.isExtension(sub.getFilename(), "srt")))
@@ -54,7 +54,7 @@ public class JSubsMaxAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... sublanguageids) {
+    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String languageId) {
         // TODO Auto-generated method stub
         return null;
     }
