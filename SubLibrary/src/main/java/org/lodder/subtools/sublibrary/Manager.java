@@ -153,4 +153,8 @@ public class Manager {
     public boolean isCached(String url) {
         return inMemoryCache.exists(url) || diskCache.exists(url);
     }
+
+    public void storeCookies(String domain, Map<String, String> cookieMap) {
+        httpClient.storeCookies(domain, cookieMap);
+    }
 }

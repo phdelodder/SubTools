@@ -65,8 +65,8 @@ public class CookieManager {
         // let's determine the domain from where these cookies are being sent
         String domain = getDomainFromHost(conn.getURL().getHost());
 
-        Map<String, Map<String, String>> domainStore; // this is where we will store cookies for this
-                                                      // domain
+        // this is where we will store cookies for this domain
+        Map<String, Map<String, String>> domainStore;
 
         // now let's check the store to see if we have an entry for this domain
         if (store.containsKey(domain)) {
@@ -105,6 +105,14 @@ public class CookieManager {
                 }
             }
         }
+    }
+
+    public void storeCookies(String domain, Map<String, String> cookieMap) {
+        if (cookieMap == null || cookieMap.isEmpty()) {
+            return;
+        }
+        Map<String, Map<String, String>> domainStore = store.computeIfAbsent(domain, key -> new HashMap<>());
+        cookieMap.forEach((k, v) -> domainStore.put(k, Map.of(k, v)));
     }
 
     /**

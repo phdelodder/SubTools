@@ -202,4 +202,8 @@ public class HttpClient {
         }
     }
 
+    public void storeCookies(String domain, Map<String, String> cookieMap) {
+        cookieManager.storeCookies(domain, cookieMap);
+    }
+
 }
