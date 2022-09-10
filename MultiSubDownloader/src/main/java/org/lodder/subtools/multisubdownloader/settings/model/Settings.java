@@ -39,7 +39,7 @@ public class Settings {
     private String loginOpenSubtitlesUsername;
     private String loginOpenSubtitlesPassword;
     private boolean serieSourceAddic7ed, serieSourceTvSubtitles, serieSourcePodnapisi,
-            serieSourceOpensubtitles, serieSourceLocal, serieSourceSubsMax, serieSourceSubscene;
+            serieSourceOpensubtitles, serieSourceLocal, serieSourceSubscene;
     private boolean autoUpdateMapping;
     private SettingsProcessEpisodeSource processEpisodeSource;
     private MappingSettings mappingSettings;
@@ -130,7 +130,6 @@ public class Settings {
             case ADDIC7ED -> this.isSerieSourceAddic7ed();
             case OPENSUBTITLES -> this.isSerieSourceOpensubtitles();
             case PODNAPISI -> this.isSerieSourcePodnapisi();
-            case SUBSMAX -> this.isSerieSourceSubsMax();
             case TVSUBTITLES -> this.isSerieSourceTvSubtitles();
             case LOCAL -> this.isSerieSourceLocal();
             case SUBSCENE -> this.isSerieSourceSubscene();

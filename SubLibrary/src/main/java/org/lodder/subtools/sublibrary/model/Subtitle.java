@@ -45,7 +45,6 @@ public class Subtitle {
         ADDIC7ED("Addic7ed"),
         TVSUBTITLES("TvSubtitles"),
         LOCAL("Local"),
-        SUBSMAX("SubsMax"),
         SUBSCENE("Subscene");
 
         private final String name;

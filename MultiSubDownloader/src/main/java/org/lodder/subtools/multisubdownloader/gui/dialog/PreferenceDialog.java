@@ -60,7 +60,7 @@ public class PreferenceDialog extends MultiSubDialog {
     private JCheckBox chkProxyserverGebruiken, chkUserAddic7edLogin, chkUserOpenSubtitlesLogin, chkExcludeHearingImpaired;
     private JListWithImages defaultIncomingFoldersList, localSourcesFoldersList;
     private JCheckBox chkSerieSourceAddic7ed, chkSerieSourceTvSubtitles, chkSerieSourcePodnapisi,
-            chkSerieSourceOpensubtitles, chkSerieSourceLocal, chkSerieSourceSubsMax, chkSerieSourceSubscene;
+            chkSerieSourceOpensubtitles, chkSerieSourceLocal, chkSerieSourceSubscene;
     private JComboBox<SettingsProcessEpisodeSource> cbxEpisodeProcessSource;
     private JCheckBox chkMinScoreSelection;
     private JSlider sldMinScoreSelection;
@@ -338,8 +338,6 @@ public class PreferenceDialog extends MultiSubDialog {
                 pnlSerieSourcesSelectionSettings.add(chkSerieSourceOpensubtitles, "cell 0 4 2 1");
                 chkSerieSourceLocal = new JCheckBox("Lokaal");
                 pnlSerieSourcesSelectionSettings.add(chkSerieSourceLocal, "cell 0 5 2 1");
-                chkSerieSourceSubsMax = new JCheckBox("SubsMax");
-                pnlSerieSourcesSelectionSettings.add(chkSerieSourceSubsMax, "cell 0 6 2 1");
                 chkSerieSourceSubscene = new JCheckBox("Subscene");
                 pnlSerieSourcesSelectionSettings.add(chkSerieSourceSubscene, "cell 0 7");
                 //
@@ -524,7 +522,6 @@ public class PreferenceDialog extends MultiSubDialog {
         chkSerieSourceOpensubtitles
                 .setSelected(settingsCtrl.getSettings().isSerieSourceOpensubtitles());
         chkSerieSourceLocal.setSelected(settingsCtrl.getSettings().isSerieSourceLocal());
-        chkSerieSourceSubsMax.setSelected(settingsCtrl.getSettings().isSerieSourceSubsMax());
         chkSerieSourceSubscene.setSelected(settingsCtrl.getSettings().isSerieSourceSubscene());
         cbxUpdateCheckPeriod.setSelectedItem(settingsCtrl.getSettings().getUpdateCheckPeriod());
         chkDefaultSelection.setSelected(settingsCtrl.getSettings().isOptionsDefaultSelection());
@@ -662,7 +659,6 @@ public class PreferenceDialog extends MultiSubDialog {
             settingsCtrl.getSettings().setSerieSourcePodnapisi(chkSerieSourcePodnapisi.isSelected());
             settingsCtrl.getSettings().setSerieSourceOpensubtitles(chkSerieSourceOpensubtitles.isSelected());
             settingsCtrl.getSettings().setSerieSourceLocal(chkSerieSourceLocal.isSelected());
-            settingsCtrl.getSettings().setSerieSourceSubsMax(chkSerieSourceSubsMax.isSelected());
             settingsCtrl.getSettings().setSerieSourceSubscene(chkSerieSourceSubscene.isSelected());
         } else {
             status = false;

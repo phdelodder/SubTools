@@ -224,7 +224,6 @@ public class SettingsControl {
         preferences.putBoolean("serieSourceOpensubtitles", settings.isSerieSourceOpensubtitles());
         preferences.putBoolean("serieSourcePodnapisi", settings.isSerieSourcePodnapisi());
         preferences.putBoolean("serieSourceTvSubtitles", settings.isSerieSourceTvSubtitles());
-        preferences.putBoolean("serieSourceSubsMax", settings.isSerieSourceSubsMax());
         preferences.putBoolean("serieSourceSubscene", settings.isSerieSourceSubscene());
     }
 
@@ -378,7 +377,6 @@ public class SettingsControl {
         settings.setSerieSourceOpensubtitles(preferences.getBoolean("serieSourceOpensubtitles", true));
         settings.setSerieSourcePodnapisi(preferences.getBoolean("serieSourcePodnapisi", true));
         settings.setSerieSourceTvSubtitles(preferences.getBoolean("serieSourceTvSubtitles", true));
-        settings.setSerieSourceSubsMax(preferences.getBoolean("serieSourceSubsMax", true));
         settings.setSerieSourceSubscene(preferences.getBoolean("serieSourceSubscene", true));
     }
 
