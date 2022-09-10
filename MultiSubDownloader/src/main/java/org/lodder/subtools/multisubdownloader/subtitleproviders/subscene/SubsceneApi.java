@@ -5,6 +5,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -36,19 +38,19 @@ public class SubsceneApi extends Html {
     private static final long RATEDURATION_LONG = 5; // seconds
     private static final String DOMAIN = "https://subscene.com";
 
-    private static final String COOKIE_LANG_NL = "11";
-    private static final String COOKIE_LANG_EN = "13";
+    private int selectedLanguage;
+    private boolean selectedIncludeHearingImpaired;
 
     private LocalDateTime lastRequest = LocalDateTime.now();
 
     public SubsceneApi(Manager manager) {
         super(manager, "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
-        Map<String, String> cookies =
-                Map.of("LanguageFilter", String.join(",", COOKIE_LANG_NL, COOKIE_LANG_EN), "HearingImpaired", "2", "ForeignOnly", "False");
-        manager.storeCookies("subscene.com", cookies);
+        addCookie("ForeignOnly", "False");
     }
 
-    public List<SubsceneSubtitleDescriptor> getSubtilteDescriptors(String serieName, int season) throws SubsceneException {
+    public List<SubsceneSubtitleDescriptor> getSubtilteDescriptors(String serieName, int season, Language language)
+            throws SubsceneException {
+        setLanguageWithCookie(language);
         return retry(() -> {
             try {
                 Optional<String> urlForSerie = getUrlForSerie(serieName, season);
@@ -137,4 +139,109 @@ public class SubsceneApi extends Html {
         lastRequest = LocalDateTime.now();
         return super.getHtml(url);
     }
+
+    private void setLanguageWithCookie(Language language) {
+        int languageId = SUBSCENE_LANGS.get(language);
+        if (selectedLanguage != languageId) {
+            addCookie("LanguageFilter", String.valueOf(languageId));
+            selectedLanguage = languageId;
+        }
+    }
+
+    private void setIncludeHearingImpairedWithCookier(boolean includeHearingImpaired) {
+        if (selectedIncludeHearingImpaired != includeHearingImpaired) {
+            addCookie("HearingImpaired", includeHearingImpaired ? "2" : "0");
+            selectedIncludeHearingImpaired = includeHearingImpaired;
+        }
+    }
+
+    private void addCookie(String cookieName, String cookieValue) {
+        getManager().storeCookies("subscene.com", Map.of(cookieName, cookieValue));
+    }
+
+    private static final Map<Language, Integer> SUBSCENE_LANGS = Collections
+            .unmodifiableMap(new EnumMap<>(Language.class) {
+                private static final long serialVersionUID = 2950169212654074275L;
+
+                {
+                    put(Language.ARABIC, 2);
+                    put(Language.BENGALI, 54);
+                    put(Language.PORTUGUESE, 4); // BRAZILLIAN PORTUGUESE
+                    put(Language.CHINESE_SIMPLIFIED, 7);
+                    put(Language.CZECH, 9);
+                    put(Language.DANISH, 10);
+                    put(Language.DUTCH, 11);
+                    put(Language.ENGLISH, 13);
+                    // put(Language.FARSI / PERSIAN, 46);
+                    put(Language.FINNISH, 17);
+                    put(Language.FRENCH, 18);
+                    put(Language.GERMAN, 19);
+                    put(Language.GREEK, 21);
+                    put(Language.HEBREW, 22);
+                    put(Language.INDONESIAN, 44);
+                    put(Language.ITALIAN, 26);
+                    put(Language.KOREAN, 28);
+                    put(Language.MALAY, 50);
+                    put(Language.NORWEGIAN, 30);
+                    put(Language.POLISH, 31);
+                    put(Language.PORTUGUESE, 32);
+                    put(Language.ROMANIAN, 33);
+                    put(Language.SPANISH, 38);
+                    put(Language.SWEDISH, 39);
+                    put(Language.THAI, 40);
+                    put(Language.TURKISH, 41);
+                    put(Language.VIETNAMESE, 45);
+                    put(Language.ALBANIAN, 1);
+                    put(Language.ARMENIAN, 73);
+                    put(Language.AZERBAIJANI, 55);
+                    // put(Language.BASQUE, 74);
+                    put(Language.BELARUSIAN, 68);
+                    put(Language.CHINESE_SIMPLIFIED, 3); // BIG 5 CODE
+                    put(Language.BOSNIAN, 60);
+                    put(Language.BULGARIAN, 5);
+                    // put(Language.BULGARIAN / ENGLISH, 6);
+                    // put(Language.BURMESE, 61);
+                    // put(Language.CAMBODIAN / KHMER, 79);
+                    put(Language.CATALAN, 49);
+                    put(Language.CROATIAN, 8);
+                    // put(Language.DUTCH / ENGLISH, 12);
+                    // put(Language.ENGLISH / GERMAN, 15);
+                    // put(Language.ESPERANTO, 47);
+                    put(Language.ESTONIAN, 16);
+                    // put(Language.GEORGIAN, 62);
+                    // put(Language.GREENLANDIC, 57);
+                    put(Language.HINDI, 51);
+                    put(Language.HUNGARIAN, 23);
+                    // put(Language.HUNGARIAN / ENGLISH, 24);
+                    put(Language.ICELANDIC, 25);
+                    put(Language.JAPANESE, 27);
+                    put(Language.KANNADA, 78);
+                    // put(Language.KINYARWANDA, 81);
+                    // put(Language.KURDISH, 52);
+                    put(Language.LATVIAN, 29);
+                    put(Language.LITHUANIAN, 43);
+                    put(Language.MACEDONIAN, 48);
+                    put(Language.MALAYALAM, 64);
+                    // put(Language.MANIPURI, 65);
+                    // put(Language.MONGOLIAN, 72);
+                    // put(Language.NEPALI, 80);
+                    // put(Language.PASHTO, 67);
+                    // put(Language.PUNJABI, 66);
+                    put(Language.RUSSIAN, 34);
+                    put(Language.SERBIAN, 35);
+                    put(Language.SINHALA, 58);
+                    put(Language.SLOVAK, 36);
+                    put(Language.SLOVENIAN, 37);
+                    // put(Language.SOMALI, 70);
+                    // put(Language.SUNDANESE, 76);
+                    // put(Language.SWAHILI, 75);
+                    put(Language.TAGALOG, 53);
+                    put(Language.TAMIL, 59);
+                    put(Language.TELUGU, 63);
+                    put(Language.UKRAINIAN, 56);
+                    // put(Language.URDU, 42);
+                    // put(Language.YORUBA, 71);
+
+                }
+            });
 }

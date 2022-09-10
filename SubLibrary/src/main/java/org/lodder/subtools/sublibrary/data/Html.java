@@ -12,8 +12,10 @@ import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 
 import com.pivovarit.function.ThrowingSupplier;
 
-public class Html {
+import lombok.Getter;
 
+public class Html {
+    @Getter
     private final Manager manager;
     private String userAgent;
 
