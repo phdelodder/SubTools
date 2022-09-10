@@ -3,6 +3,8 @@ package org.lodder.subtools.sublibrary.data.thetvdb.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lodder.subtools.sublibrary.Language;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +13,7 @@ import lombok.Setter;
 public class TheTVDBSerie {
     private String id;
     private String serieId;
-    private String language;
+    private Language language;
     private String serieName;
     private String banner;
     private String overview;

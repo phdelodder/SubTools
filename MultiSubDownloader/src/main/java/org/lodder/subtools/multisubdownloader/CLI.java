@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -20,6 +21,7 @@ import org.lodder.subtools.multisubdownloader.lib.SubtitleSelectionCLI;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -33,7 +35,7 @@ public class CLI {
     private final Container app;
     private final Settings settings;
     private boolean recursive = false;
-    private String languagecode = "";
+    private Language language;
     private boolean force = false;
     private List<File> folders = new ArrayList<>();
     private boolean downloadall = false;
@@ -61,7 +63,7 @@ public class CLI {
 
     public void setUp(CommandLine line) throws CliException {
         this.folders = getFolders(line);
-        this.languagecode = getLanguageCode(line);
+        this.language = getLanguage(line);
         this.force = line.hasOption("force");
         this.downloadall = line.hasOption("downloadall");
         this.recursive = line.hasOption("recursive");
@@ -90,14 +92,14 @@ public class CLI {
     public void search() {
         CliSearchAction searchAction = new CliSearchAction();
 
-        searchAction.setCommandLine(this);
+        searchAction.setCli(this);
         searchAction.setSettings(this.settings);
         searchAction.setProviderStore((SubtitleProviderStore) app.make("SubtitleProviderStore"));
 
         searchAction.setFolders(this.folders);
         searchAction.setRecursive(this.recursive);
         searchAction.setOverwriteSubtitles(this.force);
-        searchAction.setLanguageCode(this.languagecode);
+        searchAction.setLanguage(this.language);
 
         searchAction.setFileListAction(new FileListAction(this.settings));
         searchAction.setFiltering(new Filtering(this.settings));
@@ -135,7 +137,6 @@ public class CLI {
     }
 
     private List<File> getFolders(CommandLine line) {
-
         if (line.hasOption("folder")) {
             return List.of(new File(line.getOptionValue("folder")));
         } else {
@@ -143,21 +144,14 @@ public class CLI {
         }
     }
 
-    private String getLanguageCode(CommandLine line) throws CliException {
+    private Language getLanguage(CommandLine line) throws CliException {
         if (line.hasOption("language")) {
-            String languagecode = line.getOptionValue("language").toLowerCase();
-            if (!isValidlanguageCode(languagecode)) {
-                throw new CliException(Messages.getString("App.NoValidLanguage"));
-            }
-            return languagecode;
+            String languageString = line.getOptionValue("language");
+            return Arrays.stream(Language.values()).filter(lang -> lang.name().equalsIgnoreCase(languageString)).findAny()
+                    .orElseThrow(() -> new CliException(Messages.getString("App.NoValidLanguage")));
         } else {
             System.out.println(Messages.getString("App.NoLanguageUseDefault"));
-            return "nl";
+            return Language.DUTCH;
         }
     }
-
-    private boolean isValidlanguageCode(String languagecode) {
-        return "nl".equals(languagecode) || "en".equals(languagecode);
-    }
-
 }

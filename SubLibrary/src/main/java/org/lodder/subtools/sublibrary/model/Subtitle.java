@@ -2,6 +2,7 @@ package org.lodder.subtools.sublibrary.model;
 
 import java.io.File;
 
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.ManagerException;
 
 import com.pivovarit.function.ThrowingSupplier;
@@ -23,7 +24,7 @@ public class Subtitle {
     private final SourceLocation sourceLocation;
 
     private String fileName;
-    private String languageCode;
+    private Language language;
     private String releaseGroup;
     private String uploader;
     private SubtitleMatchType subtitleMatchType;
@@ -94,8 +95,8 @@ public class Subtitle {
         return this;
     }
 
-    public Subtitle languageCode(String languageCode) {
-        this.languageCode = languageCode;
+    public Subtitle language(Language language) {
+        this.language = language;
         return this;
     }
 

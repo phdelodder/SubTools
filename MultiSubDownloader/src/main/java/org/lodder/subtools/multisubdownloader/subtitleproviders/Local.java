@@ -9,8 +9,11 @@ import org.lodder.subtools.multisubdownloader.lib.control.MovieReleaseControl;
 import org.lodder.subtools.multisubdownloader.lib.control.TvReleaseControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.DetectLanguage;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
+import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
+import org.lodder.subtools.sublibrary.exception.ReleaseParseException;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -45,9 +48,8 @@ public class Local implements SubtitleProvider {
                 .collect(Collectors.toList());
     }
 
-
     @Override
-    public List<Subtitle> searchSubtitles(TvRelease tvRelease, String languageId) {
+    public List<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
         List<Subtitle> listFoundSubtitles = new ArrayList<>();
         ReleaseParser vfp = new ReleaseParser();
 
@@ -68,14 +70,14 @@ public class Local implements SubtitleProvider {
                     TvReleaseControl epCtrl = new TvReleaseControl((TvRelease) release, settings, manager);
                     epCtrl.process(settings.getMappingSettings().getMappingList());
                     if (((TvRelease) release).getTvdbId() == tvRelease.getTvdbId()) {
-                        String detectedLang = DetectLanguage.execute(fileSub);
-                        if (detectedLang.equals(languageId)) {
+                        Language detectedLang = DetectLanguage.execute(fileSub);
+                        if (detectedLang == language) {
                             LOGGER.debug("Local Sub found, adding [{}]", fileSub.toString());
                             listFoundSubtitles.add(
                                     Subtitle.downloadSource(fileSub)
                                             .subtitleSource(getSubtitleSource())
                                             .fileName(fileSub.getName())
-                                            .languageCode(languageId)
+                                            .language(language)
                                             .quality(ReleaseParser.getQualityKeyword(fileSub.getName()))
                                             .subtitleMatchType(SubtitleMatchType.EVERYTHING)
                                             .releaseGroup(ReleaseParser.extractReleasegroup(fileSub.getName(), true))
@@ -84,7 +86,7 @@ public class Local implements SubtitleProvider {
                         }
                     }
                 }
-            } catch (Exception e) {
+            } catch (ReleaseParseException | ReleaseControlException e) {
                 if (LOGGER.isDebugEnabled() || LOGGER.isTraceEnabled()) {
                     LOGGER.error(e.getMessage(), e);
                 } else {
@@ -97,7 +99,7 @@ public class Local implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String languageId) {
+    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
         List<Subtitle> listFoundSubtitles = new ArrayList<>();
         ReleaseParser releaseParser = new ReleaseParser();
 
@@ -110,14 +112,14 @@ public class Local implements SubtitleProvider {
                     MovieReleaseControl movieCtrl = new MovieReleaseControl((MovieRelease) release, settings, manager);
                     movieCtrl.process(settings.getMappingSettings().getMappingList());
                     if (((MovieRelease) release).getImdbId() == movieRelease.getImdbId()) {
-                        String detectedLang = DetectLanguage.execute(fileSub);
-                        if (detectedLang.equals(languageId)) {
+                        Language detectedLang = DetectLanguage.execute(fileSub);
+                        if (detectedLang == language) {
                             LOGGER.debug("Local Sub found, adding {}", fileSub.toString());
                             listFoundSubtitles.add(
                                     Subtitle.downloadSource(fileSub)
                                             .subtitleSource(getSubtitleSource())
                                             .fileName(fileSub.getName())
-                                            .languageCode("")
+                                            .language(language) // TODO previously: language(""). This was not correct?
                                             .quality(ReleaseParser.getQualityKeyword(fileSub.getName()))
                                             .subtitleMatchType(SubtitleMatchType.EVERYTHING)
                                             .releaseGroup(ReleaseParser.extractReleasegroup(fileSub.getName(), true))
@@ -126,7 +128,7 @@ public class Local implements SubtitleProvider {
                         }
                     }
                 }
-            } catch (Exception e) {
+            } catch (ReleaseParseException | ReleaseControlException e) {
                 if (LOGGER.isDebugEnabled() || LOGGER.isTraceEnabled()) {
                     LOGGER.error(e.getMessage(), e);
                 } else {

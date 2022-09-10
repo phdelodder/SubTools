@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -17,6 +18,7 @@ import java.util.prefs.Preferences;
 import org.apache.commons.io.FileUtils;
 import org.lodder.subtools.sublibrary.DetectLanguage;
 import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
 import org.lodder.subtools.sublibrary.cache.InMemoryCache;
@@ -131,7 +133,8 @@ public class SortSubtitle {
                     int tvdbid = 0;
                     for (MappingTvdbScene mapping : mappingSettingsCtrl.getMappingSettings()
                             .getMappingList()) {
-                        if (mapping.getSceneName().replaceAll("[^A-Za-z]", "").equalsIgnoreCase(tvRelease.getShowName().replaceAll("[^A-Za-z]", ""))) {
+                        if (mapping.getSceneName().replaceAll("[^A-Za-z]", "")
+                                .equalsIgnoreCase(tvRelease.getShowName().replaceAll("[^A-Za-z]", ""))) {
                             tvdbid = mapping.getTvdbId();
                             break;
                         }
@@ -143,23 +146,19 @@ public class SortSubtitle {
                         LOGGER.info("Got serie info: {} ", thetvdbserie.getId());
                         final String show = replaceWindowsChars(thetvdbserie.getSerieName());
                         String path = outputDir + File.separator + show + File.separator + tvRelease.getSeason();
-                        String language = "";
-                        try {
-                            language = file.getParent();
-                            if (!"en".equals(language) && !"nl".equals(language)) {
-                                language = DetectLanguage.execute(file);
-                            }
-                        } catch (Exception e) {
-                            LOGGER.error("Exception during detectlanguage", e);
+                        Optional<Language> language =
+                                Optional.ofNullable(Language.fromValueOptional(file.getParent()).orElseGet(() -> DetectLanguage.execute(file)));
+                        if (language.isEmpty()) {
+                            LOGGER.error("Unable to detect language, leaving language code blank");
                         }
                         for (int i = 0; i < tvRelease.getEpisodeNumbers().size(); i++) {
                             final File pathFolder = new File(path + File.separator + tvRelease.getEpisodeNumbers().get(i)
-                                    + File.separator + language + File.separator);
+                                    + File.separator + language.map(lang -> lang.getName() + File.separator).orElse(""));
                             final File to = new File(pathFolder, release.getFilename());
                             if (to.exists()) {
                                 index.add(new IndexSubtitle(show, tvRelease.getSeason(),
                                         tvRelease.getEpisodeNumbers().get(i),
-                                        PrivateRepoIndex.extractOriginalFilename(release.getFilename()), language,
+                                        PrivateRepoIndex.extractOriginalFilename(release.getFilename()), language.orElse(null),
                                         Integer.parseInt(thetvdbserie.getId()),
                                         PrivateRepoIndex.extractUploader(release.getFilename()),
                                         PrivateRepoIndex.extractOriginalSource(release.getFilename()),
@@ -171,23 +170,18 @@ public class SortSubtitle {
                     }
                 } else if (release.getVideoType() == VideoType.MOVIE) {
                     MovieRelease movieRelease = (MovieRelease) release;
-                    String language = "";
-                    try {
-                        language = DetectLanguage.execute(file);
-                    } catch (Exception e) {
-                        LOGGER.error("Exception during detectlanguage", e);
-                    }
-                    final String filename = removeLanguageCode(release.getFilename(), language);
+                    Optional<Language> language = DetectLanguage.executeOptional(file);
+                    String filename = removeLanguageCode(release.getFilename(), language.orElse(null));
                     String title = replaceWindowsChars(movieRelease.getTitle());
 
-                    final File pathFolder = new File(outputDir + File.separator + "movies" + File.separator
-                            + title + " " + movieRelease.getYear() + File.separator + language + File.separator);
+                    final File pathFolder = new File(outputDir + File.separator + "movies" + File.separator + title + " " + movieRelease.getYear()
+                            + File.separator + language.map(lang -> lang.getName() + File.separator).orElse(""));
 
                     File to = new File(pathFolder, filename);
 
                     if (to.exists()) {
                         index.add(new IndexSubtitle(title, PrivateRepoIndex.extractOriginalFilename(filename),
-                                language, PrivateRepoIndex.extractUploader(filename),
+                                language.orElse(null), PrivateRepoIndex.extractUploader(filename),
                                 PrivateRepoIndex.extractOriginalSource(filename), release.getVideoType(),
                                 movieRelease.getImdbId(), movieRelease.getYear()));
                     } else {
@@ -276,16 +270,14 @@ public class SortSubtitle {
                         final String show = replaceWindowsChars(thetvdbserie.getSerieName());
                         String path =
                                 outputDir + File.separator + show + File.separator + tvRelease.getSeason();
-                        String language = DetectLanguage.execute(file);
+                        Optional<Language> language = DetectLanguage.executeOptional(file);
                         for (int i = 0; i < tvRelease.getEpisodeNumbers().size(); i++) {
-                            final File pathFolder =
-                                    new File(path + File.separator + tvRelease.getEpisodeNumbers().get(i)
-                                            + File.separator + language + File.separator);
+                            final File pathFolder = new File(path + File.separator + tvRelease.getEpisodeNumbers().get(i) + File.separator
+                                    + language.map(lang -> lang.getName() + File.separator).orElse(""));
                             if (!pathFolder.exists() && !pathFolder.mkdirs()) {
-                                throw new Exception(
-                                        "Download unable to create folder: " + pathFolder.getAbsolutePath());
+                                throw new IOException("Download unable to create folder: " + pathFolder.getAbsolutePath());
                             }
-                            final String filename = removeLanguageCode(release.getFilename(), language);
+                            final String filename = removeLanguageCode(release.getFilename(), language.orElse(null));
 
                             File to = new File(pathFolder, filename);
                             int j = 1;
@@ -313,7 +305,7 @@ public class SortSubtitle {
                             }
                             index.add(new IndexSubtitle(show, tvRelease.getSeason(),
                                     tvRelease.getEpisodeNumbers().get(i),
-                                    PrivateRepoIndex.extractOriginalFilename(filename), language,
+                                    PrivateRepoIndex.extractOriginalFilename(filename), language.orElse(null),
                                     Integer.parseInt(thetvdbserie.getId()),
                                     PrivateRepoIndex.extractUploader(filename),
                                     PrivateRepoIndex.extractOriginalSource(filename), release.getVideoType()));
@@ -332,16 +324,16 @@ public class SortSubtitle {
                 } else if (release.getVideoType() == VideoType.MOVIE) {
                     MovieRelease movieRelease = (MovieRelease) release;
                     String title = replaceWindowsChars(movieRelease.getTitle());
-                    String language = DetectLanguage.execute(file);
+                    Optional<Language> language = DetectLanguage.executeOptional(file);
                     final File pathFolder = new File(outputDir + File.separator + "movies" + File.separator
-                            + title + " " + movieRelease.getYear() + File.separator + language + File.separator);
+                            + title + " " + movieRelease.getYear() + File.separator
+                            + language.map(lang -> lang.getName() + File.separator).orElse(""));
 
                     if (!pathFolder.exists() && !pathFolder.mkdirs()) {
-                        throw new Exception(
-                                "Download unable to create folder: " + pathFolder.getAbsolutePath());
+                        throw new IOException("Download unable to create folder: " + pathFolder.getAbsolutePath());
                     }
 
-                    final String filename = removeLanguageCode(release.getFilename(), language);
+                    String filename = removeLanguageCode(release.getFilename(), language.orElse(null));
                     File to = new File(pathFolder, filename);
 
                     int j = 1;
@@ -369,7 +361,7 @@ public class SortSubtitle {
                     }
 
                     IndexSubtitle indexSubtitle =
-                            new IndexSubtitle(title, PrivateRepoIndex.extractOriginalFilename(filename), language,
+                            new IndexSubtitle(title, PrivateRepoIndex.extractOriginalFilename(filename), language.orElse(null),
                                     PrivateRepoIndex.extractUploader(filename),
                                     PrivateRepoIndex.extractOriginalSource(filename), release.getVideoType(),
                                     movieRelease.getImdbId(), movieRelease.getYear());
@@ -377,7 +369,7 @@ public class SortSubtitle {
                     index.add(indexSubtitle);
                 }
 
-            } catch (Exception e) {
+            } catch (IOException | ControlFactoryException | ReleaseParseException | ReleaseControlException e) {
                 LOGGER.error(file.toString(), e);
             }
         }
@@ -432,7 +424,7 @@ public class SortSubtitle {
         return list;
     }
 
-    private String removeLanguageCode(String filename, String languageCode) {
+    private String removeLanguageCode(String filename, Language language) {
         int lastDot = filename.lastIndexOf(".");
         String ext = filename.substring(lastDot + 1);
         String temp = filename.substring(0, lastDot);
@@ -440,12 +432,12 @@ public class SortSubtitle {
         if (lastDot != -1) {
             String baseFileName = temp.substring(0, lastDot);
             temp = temp.substring(lastDot + 1);
-            if (languageCode != null && languageCode.length() > 0) {
-                if ("nl".equals(languageCode)) {
+            if (language != null) {
+                if (language == Language.DUTCH) {
                     if ("nld".equalsIgnoreCase(temp) || "ned".equalsIgnoreCase(temp)) {
                         return baseFileName + "." + ext;
                     }
-                } else if ("en".equals(languageCode) && "eng".equalsIgnoreCase(temp)) {
+                } else if (language == Language.ENGLISH && "eng".equalsIgnoreCase(temp)) {
                     return baseFileName + "." + ext;
                 }
             }

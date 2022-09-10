@@ -12,6 +12,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.multisubdownloader.workers.SearchHandler;
 import org.lodder.subtools.multisubdownloader.workers.SearchManager;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,7 @@ public abstract class SearchAction implements Runnable, Cancelable, SearchHandle
 
         validate();
 
-        String languageCode = this.getLanguageCode();
+        Language language = this.getLanguage();
 
         setStatusMessage(Messages.getString("SearchAction.StatusIndexing"));
 
@@ -89,7 +90,7 @@ public abstract class SearchAction implements Runnable, Cancelable, SearchHandle
         this.searchManager = new SearchManager(this.settings);
 
         /* Tell the manager which language we want */
-        this.searchManager.setLanguage(languageCode);
+        this.searchManager.setLanguage(language);
 
         /* Tell the manager which providers to use */
         this.subtitleProviderStore.getAllProviders().stream()
@@ -128,15 +129,7 @@ public abstract class SearchAction implements Runnable, Cancelable, SearchHandle
         return true;
     }
 
-    protected abstract String getLanguageCode();
-
-    protected String getLanguageCode(String language) {
-        return switch (language) {
-            case "Nederlands" -> "nl";
-            case "Engels" -> "en";
-            default -> null;
-        };
-    }
+    protected abstract Language getLanguage();
 
     protected void validate() throws SearchSetupException {
         if (this.settings == null) {

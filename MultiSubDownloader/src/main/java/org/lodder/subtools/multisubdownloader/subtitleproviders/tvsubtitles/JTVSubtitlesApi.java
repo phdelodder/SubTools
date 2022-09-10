@@ -12,6 +12,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.exception.TvSubtiltesException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.model.TVsubtitlesSubtitleDescriptor;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.ManagerSetupException;
@@ -24,8 +25,8 @@ public class JTVSubtitlesApi extends Html {
         super(manager);
     }
 
-    public List<TVsubtitlesSubtitleDescriptor> searchSubtitles(String name, int season, int episode,
-            String title, String languageid) throws TvSubtiltesException {
+    public List<TVsubtitlesSubtitleDescriptor> searchSubtitles(String name, int season, int episode, String title, Language language)
+            throws TvSubtiltesException {
         List<TVsubtitlesSubtitleDescriptor> lSubtitles = new ArrayList<>();
         try {
             String showUrl = this.getShowUrl(name);
@@ -35,7 +36,8 @@ public class JTVSubtitlesApi extends Html {
                 String episodeUrl = getEpisodeUrl(showUrl, season, episode);
 
                 if (episodeUrl != null) {
-                    episodeUrl = "http://www.tvsubtitles.net/" + episodeUrl.substring(0, episodeUrl.indexOf(".")) + "-" + languageid + ".html";
+                    episodeUrl = "http://www.tvsubtitles.net/" + episodeUrl.substring(0, episodeUrl.indexOf(".")) + "-" + language.getLangCode()
+                            + ".html";
                     String searchEpisode = this.getHtml(episodeUrl);
                     Document searchEpisodeDoc = Jsoup.parse(searchEpisode);
                     Elements searchEpisodes = searchEpisodeDoc.getElementsByClass("left_articles").get(0).getElementsByTag("a");

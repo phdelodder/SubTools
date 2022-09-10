@@ -3,16 +3,7 @@
 	<artifactId>sublibrary</artifactId>
 	<name>SubLibrary</name>
 
-	<repositories>
-		<repository>
-			<id>jlangdetect-googlecode</id>
-			<name>JLangDetect Maven repository</name>
-			<url>http://mvn.is.inf.uni-due.de:8081/nexus/content/groups/public/</url>
-		</repository>
-	</repositories>
-
 	<dependencies>
-
 		<dependency>
 			<groupId>org.openapitools</groupId>
 			<artifactId>openapi-generator-core</artifactId>
@@ -50,35 +41,10 @@
 			<version>1.5.1</version>
 		</dependency>
 
-
 		<dependency>
-			<groupId>me.champeau.jlangdetect</groupId>
-			<artifactId>jlangdetect-extra</artifactId>
-			<version>0.6</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.sun.jmx</groupId>
-					<artifactId>jmxri</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jdmk</groupId>
-					<artifactId>jmxtools</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.jms</groupId>
-					<artifactId>jms</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>me.champeau.jlangdetect</groupId>
-			<artifactId>jlangdetect-europarl</artifactId>
-			<version>0.6</version>
-		</dependency>
-		<dependency>
-			<groupId>me.champeau.jlangdetect</groupId>
-			<artifactId>jlangdetect</artifactId>
-			<version>0.6</version>
+			<groupId>com.github.pemistahl</groupId>
+			<artifactId>lingua</artifactId>
+			<version>1.2.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

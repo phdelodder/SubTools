@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.slf4j.Logger;
@@ -26,7 +27,7 @@ public class SearchWorker extends Thread {
 
     @Override
     public void run() {
-        String language = this.scheduler.getLanguage();
+        Language language = this.scheduler.getLanguage();
         this.busy = false;
         while (!this.isInterrupted()) {
             this.busy = true;

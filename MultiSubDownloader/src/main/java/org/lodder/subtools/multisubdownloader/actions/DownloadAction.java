@@ -9,6 +9,7 @@ import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileAction
 import org.lodder.subtools.multisubdownloader.lib.library.PathLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
@@ -81,7 +82,7 @@ public class DownloadAction {
                 dropBoxName = PrivateRepoIndex.getFullFilename(FilenameLibraryBuilder.changeExtension(release.getFilename(), ".srt"),
                         subtitle.getUploader(), subtitle.getSubtitleSource().toString());
             }
-            DropBoxClient.getDropBoxClient().put(subFile, dropBoxName, subtitle.getLanguageCode());
+            DropBoxClient.getDropBoxClient().put(subFile, dropBoxName, subtitle.getLanguage());
         }
 
         if (success) {
@@ -105,10 +106,7 @@ public class DownloadAction {
                 }
             }
             if (librarySettings.isLibraryBackupSubtitle()) {
-                String langFolder = switch (subtitle.getLanguageCode()) {
-                    case "nl" -> "Nederlands";
-                    default -> "Engels";
-                };
+                String langFolder = subtitle.getLanguage() == null ? Language.ENGLISH.getName() : subtitle.getLanguage().getName();
                 File backupPath = new File(librarySettings.getLibraryBackupSubtitlePath() + File.separator + langFolder + File.separator);
 
                 if (!backupPath.exists() && !backupPath.mkdirs()) {

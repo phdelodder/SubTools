@@ -3,6 +3,8 @@ package org.lodder.subtools.sublibrary.data.thetvdb.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lodder.subtools.sublibrary.Language;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,7 +25,7 @@ public class TheTVDBEpisode {
     private String firstAired;
     private List<String> guestStars = new ArrayList<>();
     private String imdbId;
-    private String language;
+    private Language language;
     private String overview;
     private String productionCode;
     private String rating;

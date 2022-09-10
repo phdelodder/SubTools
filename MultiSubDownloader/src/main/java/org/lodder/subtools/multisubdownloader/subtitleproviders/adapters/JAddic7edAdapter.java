@@ -9,6 +9,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.JAddic7edApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.exception.Addic7edException;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerSetupException;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
@@ -43,7 +44,7 @@ public class JAddic7edAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(TvRelease release, String languageId) {
+    public List<Subtitle> searchSubtitles(TvRelease release, Language language) {
         Optional<String> serieName = Optional.empty();
         try {
             if (release.getShowName().length() > 0) {
@@ -55,34 +56,26 @@ public class JAddic7edAdapter implements SubtitleProvider {
         } catch (ManagerSetupException e) {
             LOGGER.error("API JAddic7ed searchSubtitles using title ", e);
         }
-        return serieName.map(name -> jaapi.searchSubtitles(name, release.getSeason(), release.getEpisodeNumbers().get(0), release.getTitle())
-                .stream()
-                .peek(sub -> {
-                    switch (sub.getLanguage()) {
-                        case "Dutch" -> sub.setLanguage("nl");
-                        case "English" -> sub.setLanguage("en");
-                        default -> {
-                        }
-                    }
-                })
-                .filter(sub -> languageId.equals(sub.getLanguage()))
-
-                .map(sub -> Subtitle.downloadSource(sub.getUrl())
-                        .subtitleSource(getSubtitleSource())
-                        .fileName(StringUtils.removeIllegalFilenameChars(sub.getTitel() + " " + sub.getVersion()))
-                        .languageCode(sub.getLanguage())
-                        .quality(ReleaseParser.getQualityKeyword(sub.getTitel() + " " + sub.getVersion()))
-                        .subtitleMatchType(SubtitleMatchType.EVERYTHING)
-                        .releaseGroup(ReleaseParser.extractReleasegroup(sub.getTitel() + " " + sub.getVersion(),
-                                FilenameUtils.isExtension(sub.getTitel() + " " + sub.getVersion(), "srt")))
-                        .uploader(sub.getUploader())
-                        .hearingImpaired(false))
-                .collect(Collectors.toList()))
+        return serieName
+                .map(name -> jaapi.searchSubtitles(name, release.getSeason(), release.getEpisodeNumbers().get(0), release.getTitle())
+                        .stream()
+                        .filter(sub -> language == sub.getLanguage())
+                        .map(sub -> Subtitle.downloadSource(sub.getUrl())
+                                .subtitleSource(getSubtitleSource())
+                                .fileName(StringUtils.removeIllegalFilenameChars(sub.getTitel() + " " + sub.getVersion()))
+                                .language(sub.getLanguage())
+                                .quality(ReleaseParser.getQualityKeyword(sub.getTitel() + " " + sub.getVersion()))
+                                .subtitleMatchType(SubtitleMatchType.EVERYTHING)
+                                .releaseGroup(ReleaseParser.extractReleasegroup(sub.getTitel() + " " + sub.getVersion(),
+                                        FilenameUtils.isExtension(sub.getTitel() + " " + sub.getVersion(), "srt")))
+                                .uploader(sub.getUploader())
+                                .hearingImpaired(false))
+                        .collect(Collectors.toList()))
                 .orElseGet(ArrayList::new);
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String languageId) {
+    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
         // TODO Auto-generated method stub
         return null;
     }

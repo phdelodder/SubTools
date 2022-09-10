@@ -58,6 +58,7 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider
 import org.lodder.subtools.multisubdownloader.util.Export;
 import org.lodder.subtools.multisubdownloader.util.Import;
 import org.lodder.subtools.sublibrary.ConfigProperties;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.OsCheck;
@@ -325,6 +326,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
         searchAction.setSubtitleSelection(new SubtitleSelectionGUI(settings, this));
 
         pnlSearchTextInput.setSearchAction(searchAction);
+        pnlSearchTextInput.setSelectedlanguage(settings.getSubtitleLanguage() == null ? Language.DUTCH : settings.getSubtitleLanguage());
         resultPanel.setDownloadAction(arg0 -> downloadText());
     }
 
@@ -347,6 +349,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
         ResultPanel resultPanel = new ResultPanel();
         pnlSearchFileInput = new SearchFileInputPanel();
         pnlSearchFileInput.setRecursiveSelected(settings.isOptionRecursive());
+        pnlSearchFileInput.setSelectedlanguage(settings.getSubtitleLanguage() == null ? Language.DUTCH : settings.getSubtitleLanguage());
         pnlSearchFile = new SearchPanel();
 
         pnlSearchFile.setResultPanel(resultPanel);
@@ -598,6 +601,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
     private void close() {
         settingsControl.getSettings().setOptionRecursive(pnlSearchFileInput.isRecursiveSelected());
+        settingsControl.getSettings().setSubtitleLanguage(pnlSearchFileInput.getSelectedLanguage());
         storeScreenSettings();
         settingsControl.store();
     }

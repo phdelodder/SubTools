@@ -11,6 +11,7 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesHasher;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.OpenSubtitlesApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.exception.OpenSubtitlesException;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
@@ -52,7 +53,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String languageId) {
+    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
         List<org.opensubtitles.model.Subtitle> subtitles = new ArrayList<>();
         if (!"".equals(movieRelease.getFilename())) {
             File file = new File(movieRelease.getPath(), movieRelease.getFilename());
@@ -60,7 +61,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
                 try {
                     osApi.searchSubtitles()
                             .movieHash(OpenSubtitlesHasher.computeHash(file))
-                            .language(languageId)
+                            .language(language)
                             .searchSubtitles()
                             .getData().forEach(subtitles::add);
                 } catch (ApiException e) {
@@ -74,7 +75,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
             try {
                 osApi.searchSubtitles()
                         .imdbId(movieRelease.getImdbId())
-                        .language(languageId)
+                        .language(language)
                         .searchSubtitles()
                         .getData().forEach(subtitles::add);
             } catch (ApiException e) {
@@ -85,7 +86,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
             try {
                 osApi.searchSubtitles()
                         .query(movieRelease.getTitle())
-                        .language(languageId)
+                        .language(language)
                         .searchSubtitles()
                         .getData().forEach(subtitles::add);
             } catch (ApiException e) {
@@ -99,7 +100,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(TvRelease tvRelease, String languageId) {
+    public List<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
         List<org.opensubtitles.model.Subtitle> subtitles = new ArrayList<>();
         if (tvRelease.getOriginalShowName().length() > 0) {
             tvRelease.getEpisodeNumbers().forEach(episode -> {
@@ -108,7 +109,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
                             .query(tvRelease.getOriginalShowName())
                             .season(tvRelease.getSeason())
                             .episode(episode)
-                            .language(languageId)
+                            .language(language)
                             .searchSubtitles()
                             .getData().forEach(subtitles::add);
                 } catch (ApiException e) {
@@ -123,7 +124,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
                             .query(tvRelease.getShowName())
                             .season(tvRelease.getSeason())
                             .episode(episode)
-                            .language(languageId)
+                            .language(language)
                             .searchSubtitles()
                             .getData().forEach(subtitles::add);
                 } catch (ApiException e) {
@@ -156,7 +157,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
         return Subtitle.downloadSource(urlSupplier)
                 .subtitleSource(getSubtitleSource())
                 .fileName(file.getFileName())
-                .languageCode(attributes.getLanguage())
+                .language(Language.fromIdOptional(attributes.getLanguage()).orElse(null))
                 .quality(ReleaseParser.getQualityKeyword(file.getFileName()))
                 .subtitleMatchType(SubtitleMatchType.EVERYTHING)
                 .releaseGroup(ReleaseParser.extractReleasegroup(file.getFileName(), FilenameUtils.isExtension(file.getFileName(), "srt")))

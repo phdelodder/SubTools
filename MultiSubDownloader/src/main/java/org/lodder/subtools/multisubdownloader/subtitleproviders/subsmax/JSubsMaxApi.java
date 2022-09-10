@@ -10,6 +10,7 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax.model.SubMaxSubtitleDescriptor;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.data.Html;
 import org.slf4j.Logger;
@@ -24,20 +25,13 @@ public class JSubsMaxApi extends Html {
         super(manager, DEFAULTUSERAGENT);
     }
 
-    public List<SubMaxSubtitleDescriptor> searchSubtitles(String name, int season, int episode, String languageid) {
+    public List<SubMaxSubtitleDescriptor> searchSubtitles(String name, int season, int episode, Language language) {
 
         List<SubMaxSubtitleDescriptor> lSubtitles = new ArrayList<>();
         SubMaxSubtitleDescriptor submaxitem = null;
         String tagContent = null;
-        String language = "";
 
-        if ("nl".equals(languageid)) {
-            language = "dutch";
-        } else if ("en".equals(languageid)) {
-            language = "english";
-        }
-
-        String url = "http://subsmax.com/api/50/" + name.replace(" ", "%20") + "-s" + season + "e" + episode + "-" + language;
+        String url = "http://subsmax.com/api/50/" + name.replace(" ", "%20") + "-s" + season + "e" + episode + "-" + language.name().toLowerCase();
 
         byte[] byteArray;
         try {

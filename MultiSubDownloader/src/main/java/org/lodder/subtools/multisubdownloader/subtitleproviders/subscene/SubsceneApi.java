@@ -14,6 +14,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.exception.SubsceneException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.model.SubsceneSubtitleDescriptor;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.ManagerSetupException;
@@ -57,7 +58,7 @@ public class SubsceneApi extends Html {
                 return Jsoup.parse(getHtml(urlForSerie.get()))
                         .select("td.a1").stream().map(Element::parent)
                         .map(row -> new SubsceneSubtitleDescriptor()
-                                .setLanguage(row.select(".a1 span.l").text().trim())
+                                .setLanguage(Language.fromValueOptional(row.select(".a1 span.l").text().trim()).orElse(null))
                                 .setUrlSupplier(() -> getDownloadUrl(DOMAIN + row.select(".a1 > a").attr("href").trim()))
                                 .setName(row.select(".a1 span:not(.l)").text().trim())
                                 .setHearingImpaired(!row.select(".a41").isEmpty())

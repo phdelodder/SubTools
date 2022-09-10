@@ -21,6 +21,7 @@ import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.exception.Addic7edException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.model.Addic7edSubtitleDescriptor;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.ManagerSetupException;
@@ -176,13 +177,14 @@ public class JAddic7edApi extends Html {
                         }
                     }
                     if (lang != null && download != null && titel != null) {
-                        Addic7edSubtitleDescriptor sub = new Addic7edSubtitleDescriptor();
-                        sub.setUploader(uploader);
-                        sub.setTitel(titel.trim());
-                        sub.setVersion(version.trim());
-                        sub.setUrl(download);
-                        sub.setLanguage(lang.trim());
-                        sub.setHearingImpaired(hearingImpaired);
+                        Addic7edSubtitleDescriptor sub =
+                                new Addic7edSubtitleDescriptor()
+                                        .setUploader(uploader)
+                                        .setTitel(titel.trim())
+                                        .setVersion(version.trim())
+                                        .setUrl(download)
+                                        .setLanguage(Language.fromValueOptional(lang.trim()).orElse(null))
+                                        .setHearingImpaired(hearingImpaired);
                         if (!isDuplicate(lSubtitles, sub)) {
                             lSubtitles.add(sub);
                         }
@@ -197,9 +199,9 @@ public class JAddic7edApi extends Html {
 
     public boolean isDuplicate(List<Addic7edSubtitleDescriptor> lSubtitles, Addic7edSubtitleDescriptor sub) {
         return lSubtitles.stream()
-                .anyMatch(s -> s.getLanguage().equals(sub.getLanguage())
-                        && s.getUrl().equals(sub.getUrl())
-                        && s.getVersion().equals(sub.getVersion()));
+                .anyMatch(s -> s.getLanguage() == sub.getLanguage()
+                        && StringUtils.equals(s.getUrl(), sub.getUrl())
+                        && StringUtils.equals(s.getVersion(), sub.getVersion()));
     }
 
     private String getContent(boolean disk, String url) {

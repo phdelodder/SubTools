@@ -46,10 +46,9 @@ public class JTheTVDBAdapter {
 
     public TheTVDBEpisode getEpisode(TvRelease episode) {
         try {
-            return this.jtvapi.getEpisode(episode.getTvdbId(), episode.getSeason(), episode
-                    .getEpisodeNumbers().get(0), "en");
+            return this.jtvapi.getEpisode(episode.getTvdbId(), episode.getSeason(), episode.getEpisodeNumbers().get(0), Language.ENGLISH);
         } catch (TheTVDBException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage() + " " + episode.getShowName(), e);
         }
         return null;
     }
@@ -80,7 +79,7 @@ public class JTheTVDBAdapter {
         return null;
     }
 
-    public List<TheTVDBEpisode> getAllEpisodes(int tvdbid, String language) {
+    public List<TheTVDBEpisode> getAllEpisodes(int tvdbid, Language language) {
         try {
             return this.jtvapi.getAllEpisodes(tvdbid, language);
         } catch (TheTVDBException e) {

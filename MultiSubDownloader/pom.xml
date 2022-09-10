@@ -5,11 +5,6 @@
 
 	<repositories>
 		<repository>
-			<id>jlangdetect-googlecode</id>
-			<name>JLangDetect Maven repository</name>
-			<url>https://jlangdetect.googlecode.com/svn/repo</url>
-		</repository>
-		<repository>
 			<id>d-maven</id>
 			<url>http://d-maven.googlecode.com/svn/trunk/repo</url>
 		</repository>

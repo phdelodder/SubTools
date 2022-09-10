@@ -10,6 +10,7 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.ap
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param.SearchSubtitlesEnum;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param.TrustedSourcesEnum;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param.TypeEnum;
+import org.lodder.subtools.sublibrary.Language;
 import org.opensubtitles.api.SubtitlesApi;
 import org.opensubtitles.invoker.ApiClient;
 import org.opensubtitles.invoker.ApiException;
@@ -39,7 +40,7 @@ public class SearchSubtitles extends OpenSubtitlesExecuter {
 
     private Integer imdbId;
 
-    private String language;
+    private Language language;
 
     private MachineTranslatedEnum machineTranslated;
 
@@ -74,7 +75,8 @@ public class SearchSubtitles extends OpenSubtitlesExecuter {
     private Integer year;
 
     public Subtitles200Response searchSubtitles() throws ApiException {
-        return execute(() -> new SubtitlesApi(apiClient).subtitles(id, imdbId, tmdbId, getValue(type), query, language, movieHash,
+        return execute(() -> new SubtitlesApi(apiClient).subtitles(id, imdbId, tmdbId, getValue(type), query,
+                language != null ? language.getLangCode() : null, movieHash,
                 userId, getValue(hearingImpaired), getValue(foreignPartsOnly), getValue(trustedSources), getValue(machineTranslated),
                 getValue(aiTranslated), orderBy == null ? null : orderBy.getParamName(), getValue(orderDirection), parentFeatureId, parentImdbId,
                 parentTmdbId, season, episode, year, getValue(movieHashMatch), page));

@@ -12,6 +12,7 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesHasher;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.JPodnapisiApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.model.PodnapisiSubtitleDescriptor;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
@@ -43,40 +44,40 @@ public class JPodnapisiAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String languageId) {
+    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
         List<PodnapisiSubtitleDescriptor> lSubtitles = new ArrayList<>();
         if (!"".equals(movieRelease.getFilename())) {
             File file = new File(movieRelease.getPath(), movieRelease.getFilename());
             if (file.exists()) {
                 try {
-                    lSubtitles = jpapi.searchSubtitles(new String[] { OpenSubtitlesHasher.computeHash(file) }, languageId);
+                    lSubtitles = jpapi.searchSubtitles(new String[] { OpenSubtitlesHasher.computeHash(file) }, language);
                 } catch (IOException | XmlRpcException e) {
                     LOGGER.error("API PODNAPISI searchSubtitles using file hash", e);
                 }
             }
         }
         if (lSubtitles.size() == 0) {
-            lSubtitles.addAll(jpapi.searchSubtitles(movieRelease.getTitle(), movieRelease.getYear(), 0, 0, languageId));
+            lSubtitles.addAll(jpapi.searchSubtitles(movieRelease.getTitle(), movieRelease.getYear(), 0, 0, language));
         }
-        return buildListSubtitles(languageId, lSubtitles);
+        return buildListSubtitles(language, lSubtitles);
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(TvRelease tvRelease, String languageId) {
+    public List<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
 
         String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getShowName();
         List<PodnapisiSubtitleDescriptor> lSubtitles;
         if (showName.length() > 0) {
             lSubtitles = tvRelease.getEpisodeNumbers().stream()
-                    .flatMap(episode -> jpapi.searchSubtitles(showName, 0, tvRelease.getSeason(), episode, languageId).stream())
+                    .flatMap(episode -> jpapi.searchSubtitles(showName, 0, tvRelease.getSeason(), episode, language).stream())
                     .collect(Collectors.toList());
         } else {
             lSubtitles = new ArrayList<>();
         }
-        return buildListSubtitles(languageId, lSubtitles);
+        return buildListSubtitles(language, lSubtitles);
     }
 
-    private List<Subtitle> buildListSubtitles(String sublanguageid, List<PodnapisiSubtitleDescriptor> lSubtitles) {
+    private List<Subtitle> buildListSubtitles(Language language, List<PodnapisiSubtitleDescriptor> lSubtitles) {
         List<Subtitle> listFoundSubtitles = new ArrayList<>();
         for (PodnapisiSubtitleDescriptor ossd : lSubtitles) {
             if (!"".equals(ossd.getReleaseString())) {
@@ -85,7 +86,7 @@ public class JPodnapisiAdapter implements SubtitleProvider {
                     listFoundSubtitles.add(Subtitle.downloadSource(downloadlink)
                             .subtitleSource(getSubtitleSource())
                             .fileName(ossd.getReleaseString())
-                            .languageCode(sublanguageid)
+                            .language(language)
                             .quality(ReleaseParser.getQualityKeyword(ossd.getReleaseString()))
                             .subtitleMatchType(SubtitleMatchType.EVERYTHING)
                             .releaseGroup(ReleaseParser.extractReleasegroup(ossd.getReleaseString(),

@@ -9,6 +9,7 @@ import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileAction
 import org.lodder.subtools.multisubdownloader.lib.library.PathLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.DetectLanguage;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.util.Files;
@@ -81,16 +82,14 @@ public class RenameAction {
         FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager);
         String filename = filenameLibraryBuilder.build(release);
         if ("srt".equals(release.getExtension())) {
-            String languageCode = "";
-            try {
-                if (librarySettings.isLibraryIncludeLanguageCode()) {
-                    languageCode = DetectLanguage.execute(f);
+            Language language = null;
+            if (librarySettings.isLibraryIncludeLanguageCode()) {
+                language = DetectLanguage.execute(f);
+                if (language == null) {
+                    LOGGER.error("Unable to detect language, leaving language code blank");
                 }
-            } catch (Exception e) {
-                LOGGER.error("Unable to detect language, leaving language code blank", e);
             }
-
-            filename = filenameLibraryBuilder.buildSubtitle(release, filename, languageCode, 0);
+            filename = filenameLibraryBuilder.buildSubtitle(release, filename, language, 0);
         }
         return filename;
     }

@@ -21,6 +21,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.settings.MappingSettingsControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,6 +88,7 @@ public class SettingsControl {
             preferences.putBoolean("AutoUpdateMapping", settings.isAutoUpdateMapping());
             preferences.put("ProcessEpisodeSource", settings.getProcessEpisodeSource().toString());
             preferences.put("UpdateCheckPeriod", settings.getUpdateCheckPeriod().toString());
+            preferences.put("SubtitleLanguage", settings.getSubtitleLanguage().name());
 
             if (MemoryFolderChooser.getInstance().getMemory() != null) {
                 preferences.put("LastOutputDir", MemoryFolderChooser.getInstance().getMemory().getAbsolutePath());
@@ -242,6 +244,7 @@ public class SettingsControl {
         settings.setProcessEpisodeSource(
                 SettingsProcessEpisodeSource.valueOf(preferences.get("ProcessEpisodeSource", SettingsProcessEpisodeSource.TVDB.toString())));
         settings.setUpdateCheckPeriod(UpdateCheckPeriod.valueOf(preferences.get("UpdateCheckPeriod", UpdateCheckPeriod.WEEKLY.toString())));
+        settings.setSubtitleLanguage(Language.fromValueOptional(preferences.get("SubtitleLanguage", Language.DUTCH.name())).orElse(Language.DUTCH));
         // GeneralDefaultIncomingFolders
         loadGeneralDefaultIncomingFolders();
         // Serie

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -65,14 +66,14 @@ public class PrivateRepo {
         return privateRepo;
     }
 
-    public List<Subtitle> searchSubtitles(TvRelease tvRelease, String languageCode)
+    public List<Subtitle> searchSubtitles(TvRelease tvRelease, Language language)
             throws UnsupportedEncodingException {
         List<Subtitle> results = new ArrayList<>();
         for (IndexSubtitle indexSubtitle : index) {
-            if ((indexSubtitle.getVideoType() == tvRelease.getVideoType()) && (indexSubtitle.getTvdbid() == tvRelease.getTvdbId())) {
+            if ((indexSubtitle.getVideoType() == tvRelease.getVideoType()) && (indexSubtitle.getTvdbId() == tvRelease.getTvdbId())) {
                 if (indexSubtitle.getSeason() == tvRelease.getSeason()
                         && indexSubtitle.getEpisode() == tvRelease.getEpisodeNumbers().get(0)) {
-                    if (indexSubtitle.getLanguage().equalsIgnoreCase(languageCode)) {
+                    if (indexSubtitle.getLanguage() == language) {
                         File location =
                                 new File(indexSubtitle.getName() + "/" + indexSubtitle.getSeason() + "/"
                                         + indexSubtitle.getEpisode() + "/" + indexSubtitle.getLanguage() + "/"
@@ -81,7 +82,7 @@ public class PrivateRepo {
                         Subtitle tempSub = Subtitle.downloadSource(location)
                                 .subtitleSource(Subtitle.SubtitleSource.LOCAL)
                                 .fileName(indexSubtitle.getFilename())
-                                .languageCode(indexSubtitle.getLanguage())
+                                .language(indexSubtitle.getLanguage())
                                 .quality(ReleaseParser.getQualityKeyword(indexSubtitle.getFilename()))
                                 .subtitleMatchType(SubtitleMatchType.EVERYTHING)
                                 .releaseGroup(ReleaseParser.extractReleasegroup(indexSubtitle.getFilename(),
@@ -96,12 +97,12 @@ public class PrivateRepo {
         return results;
     }
 
-    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String languageCode) {
+    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
         List<Subtitle> results = new ArrayList<>();
         for (IndexSubtitle indexSubtitle : index) {
-            if ((indexSubtitle.getVideoType() == movieRelease.getVideoType()) && (indexSubtitle.getImdbid() == movieRelease.getImdbId())) {
+            if ((indexSubtitle.getVideoType() == movieRelease.getVideoType()) && (indexSubtitle.getImdbId() == movieRelease.getImdbId())) {
                 if (indexSubtitle.getYear() == movieRelease.getYear()) {
-                    if (indexSubtitle.getLanguage().equalsIgnoreCase(languageCode)) {
+                    if (indexSubtitle.getLanguage() == language) {
                         String location =
                                 "/movies/" + indexSubtitle.getName() + " " + indexSubtitle.getYear() + "/"
                                         + indexSubtitle.getLanguage() + "/"
@@ -109,7 +110,7 @@ public class PrivateRepo {
                         results.add(Subtitle.downloadSource(location)
                                 .subtitleSource(Subtitle.SubtitleSource.LOCAL)
                                 .fileName(indexSubtitle.getFilename())
-                                .languageCode(indexSubtitle.getLanguage())
+                                .language(indexSubtitle.getLanguage())
                                 .quality("")
                                 .subtitleMatchType(SubtitleMatchType.EVERYTHING)
                                 .releaseGroup(ReleaseParser.extractReleasegroup(indexSubtitle.getFilename(),

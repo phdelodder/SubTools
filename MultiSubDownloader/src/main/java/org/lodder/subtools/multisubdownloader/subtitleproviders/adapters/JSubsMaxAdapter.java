@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subsmax.JSubsMaxApi;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
@@ -37,14 +38,14 @@ public class JSubsMaxAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(TvRelease tvRelease, String languageId) {
+    public List<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
         String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getShowName();
 
-        return jsmapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0), languageId).stream()
+        return jsmapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0), language).stream()
                 .map(sub -> Subtitle.downloadSource(sub.getLink())
                         .subtitleSource(getSubtitleSource())
                         .fileName(sub.getFilename())
-                        .languageCode(languageId)
+                        .language(language)
                         .quality(ReleaseParser.getQualityKeyword(sub.getFilename()))
                         .subtitleMatchType(SubtitleMatchType.EVERYTHING)
                         .releaseGroup(ReleaseParser.extractReleasegroup(sub.getFilename(), FilenameUtils.isExtension(sub.getFilename(), "srt")))
@@ -54,7 +55,7 @@ public class JSubsMaxAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String languageId) {
+    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
         // TODO Auto-generated method stub
         return null;
     }

@@ -21,6 +21,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.FilenameUtils;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.privateRepo.model.IndexSubtitle;
 import org.slf4j.Logger;
@@ -95,7 +96,7 @@ public class PrivateRepoIndex {
                                 break;
                             case "language":
                                 if (currIndexSubtitle != null) {
-                                    currIndexSubtitle.setLanguage(tagContent);
+                                    Language.fromValueOptional(tagContent).ifPresent(currIndexSubtitle::setLanguage);
                                 }
                                 break;
                             case "filename":
@@ -105,7 +106,7 @@ public class PrivateRepoIndex {
                                 break;
                             case "tvdbid":
                                 if (currIndexSubtitle != null) {
-                                    currIndexSubtitle.setTvdbid(Integer.parseInt(tagContent));
+                                    currIndexSubtitle.setTvdbId(Integer.parseInt(tagContent));
                                 }
                                 break;
                             case "uploader":
@@ -125,7 +126,7 @@ public class PrivateRepoIndex {
                                 break;
                             case "imdbid":
                                 if (currIndexSubtitle != null) {
-                                    currIndexSubtitle.setImdbid(Integer.parseInt(tagContent));
+                                    currIndexSubtitle.setImdbId(Integer.parseInt(tagContent));
                                 }
                                 break;
                             case "year":
@@ -185,13 +186,13 @@ public class PrivateRepoIndex {
                 episode.appendChild(newDoc.createTextNode(Integer.toString(item.getEpisode())));
                 privateRepoItem.appendChild(episode);
                 Element language = newDoc.createElement("language");
-                language.appendChild(newDoc.createTextNode(item.getLanguage()));
+                language.appendChild(newDoc.createTextNode(item.getLanguage() != null ? item.getLanguage().name() : ""));
                 privateRepoItem.appendChild(language);
                 Element filename = newDoc.createElement("filename");
                 filename.appendChild(newDoc.createTextNode(item.getFilename()));
                 privateRepoItem.appendChild(filename);
                 Element tvdbid = newDoc.createElement("tvdbid");
-                tvdbid.appendChild(newDoc.createTextNode(Integer.toString(item.getTvdbid())));
+                tvdbid.appendChild(newDoc.createTextNode(Integer.toString(item.getTvdbId())));
                 privateRepoItem.appendChild(tvdbid);
                 Element uploader = newDoc.createElement("uploader");
                 uploader.appendChild(newDoc.createTextNode(item.getUploader()));
@@ -203,7 +204,7 @@ public class PrivateRepoIndex {
                 videotype.appendChild(newDoc.createTextNode(item.getVideoType().toString()));
                 privateRepoItem.appendChild(videotype);
                 Element imdbid = newDoc.createElement("imdbid");
-                imdbid.appendChild(newDoc.createTextNode(Integer.toString(item.getImdbid())));
+                imdbid.appendChild(newDoc.createTextNode(Integer.toString(item.getImdbId())));
                 privateRepoItem.appendChild(imdbid);
                 Element year = newDoc.createElement("year");
                 year.appendChild(newDoc.createTextNode(Integer.toString(item.getYear())));

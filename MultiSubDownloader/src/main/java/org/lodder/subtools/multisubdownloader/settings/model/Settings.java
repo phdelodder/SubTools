@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.settings.model.MappingSettings;
@@ -43,6 +44,7 @@ public class Settings {
     private SettingsProcessEpisodeSource processEpisodeSource;
     private MappingSettings mappingSettings;
     private Map<String, Integer> sortWeights;
+    private Language subtitleLanguage;
     @Getter
     @Setter
     private boolean optionsMinAutomaticSelection;

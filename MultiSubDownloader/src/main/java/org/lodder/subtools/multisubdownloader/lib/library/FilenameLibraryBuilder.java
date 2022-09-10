@@ -1,6 +1,7 @@
 package org.lodder.subtools.multisubdownloader.lib.library;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -49,35 +50,39 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
     }
 
     public String buildSubtitle(Release release, Subtitle sub, String filename, int version) {
-        return buildSubtitle(release, filename, sub.getLanguageCode(), version);
+        return buildSubtitle(release, filename, sub.getLanguage(), version);
     }
 
-    public String buildSubtitle(Release release, String filename, String languageCode, int version) {
+    public String buildSubtitle(Release release, String filename, Language language, int version) {
         final String extension = "." + release.getExtension();
         if (version > 0) {
             filename = filename.substring(0, filename.indexOf(extension)) + "-v" + version + "." + release.getExtension();
         }
         if (librarySettings.isLibraryIncludeLanguageCode()) {
-            switch (languageCode) {
-                case "nl":
-                    if ("".equals(librarySettings.getDefaultNlText())) {
+            if (language == null) {
+                filename = changeExtension(filename, ".nld.srt");
+            } else {
+                switch (language) {
+                    case DUTCH:
+                        if ("".equals(librarySettings.getDefaultNlText())) {
+                            filename = changeExtension(filename, ".nld.srt");
+                        } else {
+                            final String ext = "." + librarySettings.getDefaultNlText() + ".srt";
+                            filename = changeExtension(filename, ext);
+                        }
+                        break;
+                    case ENGLISH:
+                        if ("".equals(librarySettings.getDefaultEnText())) {
+                            filename = changeExtension(filename, ".eng.srt");
+                        } else {
+                            final String ext = "." + librarySettings.getDefaultEnText() + ".srt";
+                            filename = changeExtension(filename, ext);
+                        }
+                        break;
+                    default:
                         filename = changeExtension(filename, ".nld.srt");
-                    } else {
-                        final String ext = "." + librarySettings.getDefaultNlText() + ".srt";
-                        filename = changeExtension(filename, ext);
-                    }
-                    break;
-                case "en":
-                    if ("".equals(librarySettings.getDefaultEnText())) {
-                        filename = changeExtension(filename, ".eng.srt");
-                    } else {
-                        final String ext = "." + librarySettings.getDefaultEnText() + ".srt";
-                        filename = changeExtension(filename, ext);
-                    }
-                    break;
-                default:
-                    filename = changeExtension(filename, ".nld.srt");
-                    break;
+                        break;
+                }
             }
         } else {
             filename = changeExtension(filename, ".srt");

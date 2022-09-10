@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.ManagerSetupException;
@@ -27,7 +28,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import lombok.experimental.ExtensionMethod;
-
 
 @ExtensionMethod({ XmlExtension.class })
 public class TheTVDBApi {
@@ -52,7 +52,7 @@ public class TheTVDBApi {
         setApiKey(apikey);
     }
 
-    public int searchSerie(String seriename, String language) throws TheTVDBException {
+    public int searchSerie(String seriename, Language language) throws TheTVDBException {
         String url = getXmlMirror() + "/api/GetSeries.php?seriesname=";
 
         try {
@@ -94,7 +94,7 @@ public class TheTVDBApi {
         return 0;
     }
 
-    public TheTVDBSerie getSerie(int tvdbid, String language) throws TheTVDBException {
+    public TheTVDBSerie getSerie(int tvdbid, Language language) throws TheTVDBException {
         try {
             if (tvdbid != 0) {
                 String url = createApiUrl("series", new String[] { Integer.toString(tvdbid) });
@@ -140,8 +140,8 @@ public class TheTVDBApi {
         return null;
     }
 
-    public List<TheTVDBEpisode> getAllEpisodes(int tvdbid, String language) throws TheTVDBException {
-        String url = createApiUrl("series", new String[] { Integer.toString(tvdbid), ALL_URL });
+    public List<TheTVDBEpisode> getAllEpisodes(int tvdbId, Language language) throws TheTVDBException {
+        String url = createApiUrl("series", new String[] { Integer.toString(tvdbId), ALL_URL });
 
         try {
             return xmlHTTPAPI.getXMLDisk(url).getElementsByTagName("Episode").stream()
@@ -154,7 +154,7 @@ public class TheTVDBApi {
         }
     }
 
-    public TheTVDBEpisode getEpisode(int tvdbid, int season, int episode, String language) throws TheTVDBException {
+    public TheTVDBEpisode getEpisode(int tvdbid, int season, int episode, Language language) throws TheTVDBException {
         StringBuilder urlString = new StringBuilder();
         try {
             urlString.append(getXmlMirror());
@@ -168,7 +168,7 @@ public class TheTVDBApi {
             urlString.append(episode);
             urlString.append("/");
             if (language != null) {
-                urlString.append(language).append(XML_EXTENSION);
+                urlString.append(language.getLangCode()).append(XML_EXTENSION);
             }
             Document doc = xmlHTTPAPI.getXMLDisk(urlString.toString());
 
@@ -200,7 +200,7 @@ public class TheTVDBApi {
         episode.setFirstAired(XMLHelper.getStringTagValue("FirstAired", eElement));
         episode.setGuestStars(parseList(XMLHelper.getStringTagValue("GuestStars", eElement), "|,"));
         episode.setImdbId(XMLHelper.getStringTagValue("IMDB_ID", eElement));
-        episode.setLanguage(XMLHelper.getStringTagValue("Language", eElement));
+        episode.setLanguage(Language.fromIdOptional(XMLHelper.getStringTagValue("Language", eElement)).orElse(null));
         episode.setOverview(XMLHelper.getStringTagValue("Overview", eElement));
         episode.setProductionCode(XMLHelper.getStringTagValue("ProductionCode", eElement));
         episode.setRating(XMLHelper.getStringTagValue("Rating", eElement));
@@ -253,7 +253,7 @@ public class TheTVDBApi {
         TheTVDBSerie.setFirstAired(XMLHelper.getStringTagValue("FirstAired", eElement));
         TheTVDBSerie.setGenres(parseList(XMLHelper.getStringTagValue("Genre", eElement), "|,"));
         TheTVDBSerie.setImdbId(XMLHelper.getStringTagValue("IMDB_ID", eElement));
-        TheTVDBSerie.setLanguage(XMLHelper.getStringTagValue("Language", eElement));
+        TheTVDBSerie.setLanguage(Language.fromIdOptional(XMLHelper.getStringTagValue("Language", eElement)).orElse(null));
         TheTVDBSerie.setNetwork(XMLHelper.getStringTagValue("Network", eElement));
         TheTVDBSerie.setOverview(XMLHelper.getStringTagValue("Overview", eElement));
         TheTVDBSerie.setRating(XMLHelper.getStringTagValue("Rating", eElement));

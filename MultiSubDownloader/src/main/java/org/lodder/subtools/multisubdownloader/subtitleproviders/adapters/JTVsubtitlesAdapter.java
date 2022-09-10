@@ -9,6 +9,7 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.JTVSubtitlesApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.exception.TvSubtiltesException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.model.TVsubtitlesSubtitleDescriptor;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
@@ -40,7 +41,7 @@ public class JTVsubtitlesAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(TvRelease tvRelease, String languageId) {
+    public List<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
         List<TVsubtitlesSubtitleDescriptor> lSubtitles = new ArrayList<>();
         try {
             String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getShowName();
@@ -49,10 +50,10 @@ public class JTVsubtitlesAdapter implements SubtitleProvider {
                 if (showName.contains("(") && showName.contains(")")) {
                     String alterName = showName.substring(0, showName.indexOf("(") - 1).trim();
                     lSubtitles = jtvapi.searchSubtitles(alterName, tvRelease.getSeason(), tvRelease
-                            .getEpisodeNumbers().get(0), tvRelease.getTitle(), languageId);
+                            .getEpisodeNumbers().get(0), tvRelease.getTitle(), language);
                 }
                 lSubtitles.addAll(jtvapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease
-                        .getEpisodeNumbers().get(0), tvRelease.getTitle(), languageId));
+                        .getEpisodeNumbers().get(0), tvRelease.getTitle(), language));
             }
         } catch (TvSubtiltesException e) {
             LOGGER.error("API JTVsubtitles searchSubtitles using title", e);
@@ -62,7 +63,7 @@ public class JTVsubtitlesAdapter implements SubtitleProvider {
                 .map(sub -> Subtitle.downloadSource(sub.Url)
                         .subtitleSource(getSubtitleSource())
                         .fileName(sub.Filename)
-                        .languageCode(languageId)
+                        .language(language)
                         .quality(ReleaseParser.getQualityKeyword(sub.Filename + " " + sub.Rip))
                         .subtitleMatchType(SubtitleMatchType.EVERYTHING)
                         .releaseGroup(ReleaseParser.extractReleasegroup(sub.Filename, FilenameUtils.isExtension(sub.Filename, "srt")))
@@ -72,7 +73,7 @@ public class JTVsubtitlesAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String languageId) {
+    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
         // TODO Auto-generated method stub
         return null;
     }

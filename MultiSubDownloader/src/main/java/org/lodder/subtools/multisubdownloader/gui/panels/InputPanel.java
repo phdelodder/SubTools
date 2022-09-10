@@ -1,5 +1,7 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
+import java.util.Arrays;
+
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -7,23 +9,28 @@ import javax.swing.JPanel;
 
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.actions.SearchAction;
+import org.lodder.subtools.multisubdownloader.gui.LanguageWrapper;
+import org.lodder.subtools.sublibrary.Language;
 
 public abstract class InputPanel extends JPanel {
 
     private static final long serialVersionUID = 7753220002440733463L;
     private JButton btnSearch;
-    private JComboBox<String> cbxLanguage;
+    private JComboBox<LanguageWrapper> cbxLanguage;
     private SearchAction searchAction;
-    private final String[] languageSelection = { Messages.getString("InputPanel.Dutch"),
-            Messages.getString("InputPanel.English") };
+    private final LanguageWrapper[] languageSelection = Arrays.stream(Language.values()).map(LanguageWrapper::new).toArray(LanguageWrapper[]::new);
 
     public InputPanel() {
         createComponents();
         setupListeners();
     }
 
-    public String getSelectedLanguage() {
-        return ((String) cbxLanguage.getSelectedItem()).trim();
+    public Language getSelectedLanguage() {
+        return ((LanguageWrapper) cbxLanguage.getSelectedItem()).getLanguage();
+    }
+
+    public void setSelectedlanguage(Language language) {
+        cbxLanguage.setSelectedItem(new LanguageWrapper(language));
     }
 
     public void setSearchAction(SearchAction searchAction) {
@@ -42,7 +49,7 @@ public abstract class InputPanel extends JPanel {
         return this.btnSearch;
     }
 
-    protected JComboBox<String> getLanguageCbx() {
+    protected JComboBox<LanguageWrapper> getLanguageCbx() {
         return this.cbxLanguage;
     }
 
@@ -65,5 +72,4 @@ public abstract class InputPanel extends JPanel {
 
         btnSearch = new JButton(Messages.getString("InputPanel.SearchForSubtitles"));
     }
-
 }
