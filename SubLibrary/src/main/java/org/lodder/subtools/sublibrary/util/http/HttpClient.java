@@ -115,14 +115,7 @@ public class HttpClient {
         LOGGER.debug("doDownloadFile: URL [{}], file [{}]", url, file);
         boolean success = true;
 
-        InputStream in = null;
-        try {
-            if (url.getFile().endsWith(".gz")) {
-                in = new GZIPInputStream(url.openStream());
-            } else {
-                in = getInputStream(url);
-            }
-
+        try (InputStream in = url.getFile().endsWith(".gz") ? new GZIPInputStream(url.openStream()) : getInputStream(url)) {
             byte[] data = IOUtils.toByteArray(in);
             in.close();
 
@@ -145,15 +138,6 @@ public class HttpClient {
         } catch (Exception e) {
             success = false;
             LOGGER.error("Download problem", e);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    success = false;
-                    LOGGER.error("Download problem", e);
-                }
-            }
         }
         return success;
     }
