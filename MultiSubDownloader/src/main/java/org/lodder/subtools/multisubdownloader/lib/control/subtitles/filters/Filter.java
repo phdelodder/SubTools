@@ -68,6 +68,9 @@ public abstract class Filter {
         } else if (videoFileName.contains("x264") && subFileName.contains("x264")
                 && videoFileName.contains("bluray") && subFileName.contains("bluray")) {
             foundKeywordMatch = true;
+        } else if (videoFileName.contains("x265") && subFileName.contains("x265")
+                && videoFileName.contains("bluray") && subFileName.contains("bluray")) {
+            foundKeywordMatch = true;
         } else if (videoFileName.contains("xvid") && subFileName.contains("xvid")
                 && videoFileName.contains("dvdrip") && subFileName.contains("dvdrip")) {
             foundKeywordMatch = true;
@@ -92,6 +95,10 @@ public abstract class Filter {
                 && videoFileName.contains("brrip") && subFileName.contains("brrip")
                 && videoFileName.contains("x264") && subFileName.contains("x264")) {
             foundKeywordMatch = true;
+        } else if (videoFileName.contains("720p") && subFileName.contains("720p")
+                && videoFileName.contains("brrip") && subFileName.contains("brrip")
+                && videoFileName.contains("x265") && subFileName.contains("x265")) {
+            foundKeywordMatch = true;
         } else if (videoFileName.contains("dvdscreener") && subFileName.contains("dvdscreener")
                 && videoFileName.contains("xvid") && subFileName.contains("xvid")) {
             foundKeywordMatch = true;
@@ -103,6 +110,9 @@ public abstract class Filter {
             foundKeywordMatch = true;
         } else if (videoFileName.contains("hdtv") && subFileName.contains("hdtv")
                 && videoFileName.contains("x264") && subFileName.contains("x264")) {
+            foundKeywordMatch = true;
+        } else if (videoFileName.contains("hdtv") && subFileName.contains("hdtv")
+                && videoFileName.contains("x265") && subFileName.contains("x265")) {
             foundKeywordMatch = true;
         } else if (videoFileName.contains("dvdrip") && subFileName.contains("dvdrip")) {
             foundKeywordMatch = true;

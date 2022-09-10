@@ -117,6 +117,7 @@ public class Settings {
         sortWeights.put("xvid", 1);
         sortWeights.put("divx", 1);
         sortWeights.put("x264", 1);
+        sortWeights.put("x265", 1);
         // keywords that might get matched too easily
         // sortWeights.remove("dl");
 

@@ -18,8 +18,8 @@ public class VideoPatterns {
     private String qualityRegex = null;
 
     protected static final String[] QUALITYKEYWORDS = { "hdtv", "dvdrip", "bluray",
-            "1080p", "ts", "dvdscreener", "r5", "bdrip", "brrip", "720p", "xvid", "cam", "480p", "x264",
-            "1080i", "pdtv", "divx", "webrip", "h264", "rerip", "webdl" };
+            "1080p", "ts", "dvdscreener", "r5", "bdrip", "brrip", "720p", "xvid", "cam", "480p", "x264", "x265",
+            "1080i", "pdtv", "divx", "webrip", "h264", "h265", "rerip", "webdl" };
 
     protected static final String[] QUALITYREGEXKEYWORDS = { "web[ .-]dl", "dd5[ .]1" };
 
