@@ -24,6 +24,7 @@ public class PodnapisiSubtitleDescriptor {
     private String releaseString;
     private String flagsString;
     private String subtitleRating;
+    private String url;
     private boolean isInexact;
 
 }

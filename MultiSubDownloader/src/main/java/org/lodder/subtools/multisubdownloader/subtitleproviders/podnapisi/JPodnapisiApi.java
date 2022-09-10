@@ -39,7 +39,7 @@ public class JPodnapisiApi extends XmlRPC {
     private final Manager manager;
     public static final int maxAge = 90;
     private static final Logger LOGGER = LoggerFactory.getLogger(JPodnapisiApi.class);
-    private static final String DOMAIN = "https://www.podnapisi.net/";
+    private static final String DOMAIN = "https://www.podnapisi.net";
 
     public JPodnapisiApi(String useragent, Manager manager) {
         super(useragent, "http://ssp.podnapisi.net:8000/RPC2/");
@@ -105,7 +105,7 @@ public class JPodnapisiApi extends XmlRPC {
     }
 
     public List<PodnapisiSubtitleDescriptor> searchSubtitles(String filename, int year, int season, int episode, Language language) {
-        StringBuilder url = new StringBuilder(DOMAIN + "sl/ppodnapisi/search?sK=")
+        StringBuilder url = new StringBuilder(DOMAIN + "/sl/ppodnapisi/search?sK=")
                 .append(URLEncoder.encode(filename, StandardCharsets.UTF_8));
         if (PODNAPISI_LANGS.containsKey(language)) {
             url.append("&sJ=").append(PODNAPISI_LANGS.get(language));
@@ -144,7 +144,7 @@ public class JPodnapisiApi extends XmlRPC {
         Map<?, ?> response = invoke("download", new Object[] { getToken(), subtitleId });
         try {
             List<Map<String, String>> data = (List<Map<String, String>>) response.get("names");
-            return DOMAIN + "static/podnapisi/" + data.get(0).get("filename");
+            return DOMAIN + "/static/podnapisi/" + data.get(0).get("filename");
         } catch (Exception e) {
             LOGGER.error("API PODNAPISI download", e);
         }
@@ -152,7 +152,7 @@ public class JPodnapisiApi extends XmlRPC {
     }
 
     public String downloadUrl(String subtitleId) throws ManagerSetupException, ManagerException {
-        String url = "http://simple.podnapisi.net/en/ondertitels-p" + subtitleId;
+        String url = DOMAIN + "/en/ondertitels-p" + subtitleId;
         String xml = manager.getContent(url, getUserAgent(), false);
         int downloadStartIndex = xml.indexOf("/download");
         int startIndex = 0;
@@ -165,7 +165,7 @@ public class JPodnapisiApi extends XmlRPC {
                 }
             }
             url = xml.substring(startIndex + 2, downloadStartIndex + 9);
-            return DOMAIN + url;
+            return DOMAIN + "/" + url;
         } else {
             LOGGER.error("Download URL for subtitleID {} can't be found, set to debug for more information!", subtitleId);
             LOGGER.debug("The URL {}", url);
@@ -208,6 +208,7 @@ public class JPodnapisiApi extends XmlRPC {
         psd.setSubtitleRating(XMLHelper.getStringTagValue("rating", eElement));
         psd.setUploaderName(XMLHelper.getStringTagValue("uploaderName", eElement));
         psd.setUploaderUid(XMLHelper.getStringTagValue("uploaderId", eElement));
+        psd.setUrl(XMLHelper.getStringTagValue("url", eElement) + "/download?");
         return psd;
     }
 
@@ -222,6 +223,7 @@ public class JPodnapisiApi extends XmlRPC {
         psd.setSubtitleRating(subtitle.get("SubtitleRating"));
         psd.setUploaderName(subtitle.get("UploaderName"));
         psd.setUploaderUid(subtitle.get("UploaderUid"));
+        psd.setUrl(subtitle.get("url"));
         return psd;
     }
 

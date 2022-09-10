@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -83,28 +81,16 @@ public class JPodnapisiAdapter implements SubtitleProvider {
     private Set<Subtitle> buildListSubtitles(Language language, List<PodnapisiSubtitleDescriptor> lSubtitles) {
         return lSubtitles.stream()
                 .filter(ossd -> !"".equals(ossd.getReleaseString()))
-                .map(ossd -> getDownloadLink(ossd.getSubtitleId())
-                        .map(downloadlink -> Subtitle.downloadSource(downloadlink)
-                                .subtitleSource(getSubtitleSource())
-                                .fileName(ossd.getReleaseString())
-                                .language(language)
-                                .quality(ReleaseParser.getQualityKeyword(ossd.getReleaseString()))
-                                .subtitleMatchType(SubtitleMatchType.EVERYTHING)
-                                .releaseGroup(ReleaseParser.extractReleasegroup(ossd.getReleaseString(),
-                                        FilenameUtils.isExtension(ossd.getReleaseString(), "srt")))
-                                .uploader(ossd.getUploaderName())
-                                .hearingImpaired("nhu".equals(ossd.getFlagsString())))
-                        .orElse(null))
-                .filter(Objects::nonNull)
+                .map(ossd -> Subtitle.downloadSource(ossd.getUrl())
+                        .subtitleSource(getSubtitleSource())
+                        .fileName(ossd.getReleaseString())
+                        .language(language)
+                        .quality(ReleaseParser.getQualityKeyword(ossd.getReleaseString()))
+                        .subtitleMatchType(SubtitleMatchType.EVERYTHING)
+                        .releaseGroup(ReleaseParser.extractReleasegroup(ossd.getReleaseString(),
+                                FilenameUtils.isExtension(ossd.getReleaseString(), "srt")))
+                        .uploader(ossd.getUploaderName())
+                        .hearingImpaired(ossd.getFlagsString().contains("n")))
                 .collect(Collectors.toSet());
-    }
-
-    private Optional<String> getDownloadLink(String subtitleId) {
-        try {
-            return Optional.of(jpapi.downloadUrl(subtitleId));
-        } catch (Exception e) {
-            LOGGER.error("API PODNAPISI getdownloadlink", e);
-        }
-        return Optional.empty();
     }
 }
