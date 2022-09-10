@@ -1,6 +1,8 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +23,7 @@ import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 
 public class JTVSubtitlesApi extends Html {
 
-    private static final String DOMAIN = "http://www.tvsubtitles.net/";
+    private static final String DOMAIN = "https://www.tvsubtitles.net";
 
     public JTVSubtitlesApi(Manager manager) {
         super(manager);
@@ -47,11 +49,14 @@ public class JTVSubtitlesApi extends Html {
                         if (url.contains("subtitle-")) {
                             String subtitlePage = this.getHtml(DOMAIN + url);
                             Document subtitlePageDoc = Jsoup.parse(subtitlePage);
-                            String filename = null, rip = null, download = null, author = null;
+                            String filename = null, rip = null, title = null, author = null;
                             Elements subtitlePageTableDoc = subtitlePageDoc.getElementsByClass("subtitle1");
                             if (subtitlePageTableDoc.size() == 1) {
                                 for (Element item : subtitlePageTableDoc.get(0).getElementsByTag("tr")) {
                                     Elements row = item.getElementsByTag("td");
+                                    if (row.size() == 3 && row.get(1).text().contains("episode title:")) {
+                                        title = row.get(2).text();
+                                    }
                                     if (row.size() == 3 && row.get(1).text().contains("filename:")) {
                                         filename = row.get(2).text();
                                     }
@@ -61,25 +66,19 @@ public class JTVSubtitlesApi extends Html {
                                     if (row.size() == 3 && row.get(1).text().contains("author:")) {
                                         author = row.get(2).text();
                                     }
-                                    if (item.toString().contains("download-")) {
-                                        for (Element link : row.get(0).getElementsByTag("a")) {
-                                            if (link.attr("href").contains("download-")) {
-                                                download = DOMAIN + link.attr("href");
-                                                break;
-                                            }
-                                        }
-                                    }
 
-                                    if (filename != null && rip != null && download != null) {
+                                    if (filename != null && rip != null) {
                                         TVsubtitlesSubtitleDescriptor sub = new TVsubtitlesSubtitleDescriptor();
                                         sub.Filename = filename;
-                                        sub.Url = download;
+                                        sub.Url = DOMAIN + "/files/" + URLEncoder.encode(
+                                                filename.replace(title + ".", "").replace(".srt", ".zip").replace(" - ", "_"),
+                                                StandardCharsets.UTF_8);
                                         sub.Rip = rip;
                                         sub.Author = author;
                                         lSubtitles.add(sub);
                                         rip = null;
                                         filename = null;
-                                        download = null;
+                                        title = null;
                                         author = null;
                                     }
                                 }
@@ -112,7 +111,7 @@ public class JTVSubtitlesApi extends Html {
                 if (foundEp) {
                     Elements links = ep.getElementsByTag("a");
                     if (links.size() == 1) {
-                        episodeUrl = links.get(0).attr("href");
+                        episodeUrl = "/" + links.get(0).attr("href");
                         break;
                     }
                 }
@@ -137,9 +136,9 @@ public class JTVSubtitlesApi extends Html {
     private String getShowUrl(String showName) throws TvSubtiltesException {
         try {
             Map<String, String> data = new HashMap<>();
-            data.put("q", showName);
+            data.put("qs", showName);
 
-            String searchShow = this.postHtml("http://www.tvsubtitles.net/search.php", data);
+            String searchShow = this.postHtml(DOMAIN + "/search.php", data);
 
             Document searchShowDoc = Jsoup.parse(searchShow);
             if (searchShowDoc == null) {
