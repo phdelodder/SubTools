@@ -9,6 +9,7 @@ import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.slf4j.LoggerFactory;
 
 public interface SubtitleProvider {
 
@@ -33,10 +34,14 @@ public interface SubtitleProvider {
      * @return The found subtitles
      */
     default List<Subtitle> search(Release release, Language language) {
-        if (release instanceof MovieRelease movieRelease) {
-            return this.searchSubtitles(movieRelease, language);
-        } else if (release instanceof TvRelease tvRelease) {
-            return this.searchSubtitles(tvRelease, language);
+        try {
+            if (release instanceof MovieRelease movieRelease) {
+                return this.searchSubtitles(movieRelease, language);
+            } else if (release instanceof TvRelease tvRelease) {
+                return this.searchSubtitles(tvRelease, language);
+            }
+        } catch (Exception e) {
+            LoggerFactory.getLogger(SubtitleProvider.class).error("Error in %s API: %s".formatted(getName(), e.getMessage()), e);
         }
         return new ArrayList<>();
     }
