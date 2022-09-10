@@ -2,7 +2,9 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.lodder.subtools.multisubdownloader.lib.control.MovieReleaseControl;
@@ -49,8 +51,8 @@ public class Local implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
-        List<Subtitle> listFoundSubtitles = new ArrayList<>();
+    public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
+        Set<Subtitle> listFoundSubtitles = new HashSet<>();
         ReleaseParser vfp = new ReleaseParser();
 
         String filter = "";
@@ -99,8 +101,8 @@ public class Local implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
-        List<Subtitle> listFoundSubtitles = new ArrayList<>();
+    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
+        Set<Subtitle> listFoundSubtitles = new HashSet<>();
         ReleaseParser releaseParser = new ReleaseParser();
 
         String filter = movieRelease.getTitle();

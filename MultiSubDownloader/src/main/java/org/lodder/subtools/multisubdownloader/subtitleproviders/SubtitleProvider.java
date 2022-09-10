@@ -1,7 +1,6 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
@@ -13,9 +12,9 @@ import org.slf4j.LoggerFactory;
 
 public interface SubtitleProvider {
 
-    List<Subtitle> searchSubtitles(TvRelease tvRelease, Language language);
+    Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language);
 
-    List<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language);
+    Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language);
 
     SubtitleSource getSubtitleSource();
 
@@ -33,7 +32,7 @@ public interface SubtitleProvider {
      * @param language The language of the desired subtitles
      * @return The found subtitles
      */
-    default List<Subtitle> search(Release release, Language language) {
+    default Set<Subtitle> search(Release release, Language language) {
         try {
             if (release instanceof MovieRelease movieRelease) {
                 return this.searchSubtitles(movieRelease, language);
@@ -43,6 +42,6 @@ public interface SubtitleProvider {
         } catch (Exception e) {
             LoggerFactory.getLogger(SubtitleProvider.class).error("Error in %s API: %s".formatted(getName(), e.getMessage()), e);
         }
-        return new ArrayList<>();
+        return Set.of();
     }
 }

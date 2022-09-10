@@ -1,8 +1,7 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
@@ -44,7 +43,7 @@ public class JAddic7edAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(TvRelease release, Language language) {
+    public Set<Subtitle> searchSubtitles(TvRelease release, Language language) {
         Optional<String> serieName = Optional.empty();
         try {
             if (release.getShowName().length() > 0) {
@@ -70,14 +69,14 @@ public class JAddic7edAdapter implements SubtitleProvider {
                                         FilenameUtils.isExtension(sub.getTitel() + " " + sub.getVersion(), "srt")))
                                 .uploader(sub.getUploader())
                                 .hearingImpaired(false))
-                        .collect(Collectors.toList()))
-                .orElseGet(ArrayList::new);
+                        .collect(Collectors.toSet()))
+                .orElseGet(Set::of);
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
+    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
         // TODO Auto-generated method stub
-        return null;
+        return Set.of();
     }
 
 }

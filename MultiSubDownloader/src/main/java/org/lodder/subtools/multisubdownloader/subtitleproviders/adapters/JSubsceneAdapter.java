@@ -2,6 +2,8 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.SubsceneApi;
@@ -37,7 +39,7 @@ public class JSubsceneAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(TvRelease release, Language language) {
+    public Set<Subtitle> searchSubtitles(TvRelease release, Language language) {
 
         List<SubsceneSubtitleDescriptor> subtilteDescriptors = new ArrayList<>();
         try {
@@ -62,7 +64,7 @@ public class JSubsceneAdapter implements SubtitleProvider {
                         .releaseGroup(ReleaseParser.extractReleasegroup(sub.getName(), false))
                         .uploader(sub.getUploader())
                         .hearingImpaired(sub.isHearingImpaired()))
-                .toList();
+                .collect(Collectors.toSet());
     }
 
     private String getSeasonEpisodeString(int season, int episode) {
@@ -71,9 +73,9 @@ public class JSubsceneAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
+    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
         // TODO implement this
-        return new ArrayList<>();
+        return Set.of();
     }
 
 }

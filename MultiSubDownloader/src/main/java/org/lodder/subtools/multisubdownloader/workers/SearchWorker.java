@@ -1,7 +1,6 @@
 package org.lodder.subtools.multisubdownloader.workers;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.sublibrary.Language;
@@ -17,7 +16,7 @@ public class SearchWorker extends Thread {
     private boolean busy = false;
     private boolean isInterrupted = false;
     private Release release;
-    private List<Subtitle> subtitles;
+    private Set<Subtitle> subtitles;
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchWorker.class);
 
     public SearchWorker(SubtitleProvider provider, SearchManager scheduler) {
@@ -39,13 +38,10 @@ public class SearchWorker extends Thread {
             this.release = release;
             LOGGER.debug("[Search] {} searching {} ", this.provider.getName(), release.toString());
 
-            List<Subtitle> subtitles = this.provider.search(release, language);
-            if (subtitles == null) {
-                subtitles = new ArrayList<>();
-            }
+            Set<Subtitle> subtitles = this.provider.search(release, language);
 
             /* clone to prevent other threads from ever messing with it */
-            this.subtitles = new ArrayList<>(subtitles);
+            this.subtitles = Set.copyOf(subtitles);
 
             this.busy = false;
             LOGGER.debug("[Search] {} found {} subtitles for {} ", this.provider.getName(), subtitles.size(), release.toString());
@@ -76,7 +72,7 @@ public class SearchWorker extends Thread {
         return release;
     }
 
-    public List<Subtitle> getSubtitles() {
+    public Set<Subtitle> getSubtitles() {
         return subtitles;
     }
 

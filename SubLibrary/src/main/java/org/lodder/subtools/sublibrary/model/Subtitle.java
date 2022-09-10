@@ -2,6 +2,7 @@ package org.lodder.subtools.sublibrary.model;
 
 import java.io.File;
 
+import org.apache.commons.lang3.builder.EqualsExclude;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.ManagerException;
 
@@ -9,6 +10,7 @@ import com.pivovarit.function.ThrowingSupplier;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -16,8 +18,9 @@ import lombok.Setter;
 @Setter
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@EqualsAndHashCode
 public class Subtitle {
-
+    @EqualsExclude
     private final ThrowingSupplier<String, ManagerException> urlSupplier;
     private final String url;
     private final File file;

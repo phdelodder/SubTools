@@ -1,6 +1,6 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
@@ -38,7 +38,7 @@ public class JSubsMaxAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
+    public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
         String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getShowName();
 
         return jsmapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0), language).stream()
@@ -51,13 +51,13 @@ public class JSubsMaxAdapter implements SubtitleProvider {
                         .releaseGroup(ReleaseParser.extractReleasegroup(sub.getFilename(), FilenameUtils.isExtension(sub.getFilename(), "srt")))
                         .uploader("")
                         .hearingImpaired(false))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
+    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
         // TODO Auto-generated method stub
-        return null;
+        return Set.of();
     }
 
 }

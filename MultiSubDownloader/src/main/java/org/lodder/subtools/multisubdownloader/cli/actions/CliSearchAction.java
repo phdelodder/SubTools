@@ -80,11 +80,12 @@ public class CliSearchAction extends SearchAction {
 
     @Override
     public void onFound(Release release, List<Subtitle> subtitles) {
+        List<Subtitle> subtitleList = subtitles;
         if (filtering != null) {
-            subtitles = filtering.getFiltered(subtitles, release);
+            subtitleList = filtering.getFiltered(subtitleList, release);
         }
 
-        release.getMatchingSubs().addAll(subtitles);
+        release.getMatchingSubs().addAll(subtitleList);
         if (searchManager.getProgress() < 100) {
             return;
         }

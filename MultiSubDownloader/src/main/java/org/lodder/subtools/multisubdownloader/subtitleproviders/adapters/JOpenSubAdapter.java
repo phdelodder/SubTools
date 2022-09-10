@@ -2,8 +2,8 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
@@ -53,8 +53,8 @@ public class JOpenSubAdapter implements SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
-        List<org.opensubtitles.model.Subtitle> subtitles = new ArrayList<>();
+    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
+        Set<org.opensubtitles.model.Subtitle> subtitles = new HashSet<>();
         if (!"".equals(movieRelease.getFilename())) {
             File file = new File(movieRelease.getPath(), movieRelease.getFilename());
             if (file.exists()) {
@@ -96,12 +96,12 @@ public class JOpenSubAdapter implements SubtitleProvider {
         return subtitles.stream().map(org.opensubtitles.model.Subtitle::getAttributes)
                 .filter(attributes -> movieRelease.getYear() == attributes.getFeatureDetails().getYear().intValue())
                 .flatMap(attributes -> attributes.getFiles().stream().map(file -> createSubtitle(file, attributes)))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
-        List<org.opensubtitles.model.Subtitle> subtitles = new ArrayList<>();
+    public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
+        Set<org.opensubtitles.model.Subtitle> subtitles = new HashSet<>();
         if (tvRelease.getOriginalShowName().length() > 0) {
             tvRelease.getEpisodeNumbers().forEach(episode -> {
                 try {
@@ -143,7 +143,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
                             return subFileName.contains(name) || originalName.length() > 0 && subFileName.contains(originalName);
                         })
                         .map(file -> createSubtitle(file, attributes)))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     private Subtitle createSubtitle(Latest200ResponseDataInnerAttributesFilesInner file, SubtitleAttributes attributes) {
