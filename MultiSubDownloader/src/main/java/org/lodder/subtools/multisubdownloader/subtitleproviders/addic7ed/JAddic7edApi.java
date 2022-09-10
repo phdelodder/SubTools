@@ -1,6 +1,7 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -35,10 +36,9 @@ public class JAddic7edApi extends Html {
     private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edApi.class);
     private final Pattern pattern = Pattern.compile("Version (.+), Duration: ([0-9]+).([0-9])+ ");
     private final static long RATEDURATION = 5; // seconds
-    private static final String DOMAIN = "http://www.addic7ed.com";
+    private static final String DOMAIN = "https://www.addic7ed.com";
     private final boolean speedy;
     private LocalDateTime lastRequest = LocalDateTime.now();
-
 
     public JAddic7edApi(boolean speedy, Manager manager) {
         super(manager, "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
@@ -61,17 +61,17 @@ public class JAddic7edApi extends Html {
     }
 
     public Optional<String> getAddictedSerieName(String name) throws ManagerSetupException {
-        String formattedName = name.replace(":", "").replace("-", "").trim().toLowerCase();
+        String formattedName = name.replace(":", "").replace("-", "").replace("_", " ").replace(" ", "").trim().toLowerCase();
         return getOptionalValueDisk(formattedName, //
                 () -> resultStringForName(name)
-                        .map(content -> Jsoup.parse(content).select("#season td > a").stream()
+                        .map(content -> Jsoup.parse(content).select("#season td:not(.c) > a").stream()
                                 .map(serieFound -> {
                                     String link = serieFound.attr("href");
                                     String seriename = link.replace("/serie/", "");
                                     return seriename.substring(0, seriename.indexOf("/"));
                                 })
-                                .filter(seriename -> seriename.replace(":", "").replace("-", "").replace("_", " ").trim().toLowerCase()
-                                        .equalsIgnoreCase(formattedName))
+                                .filter(seriename -> URLDecoder.decode(seriename, StandardCharsets.UTF_8).replace(":", "").replace("-", "")
+                                        .replace("_", " ").replace(" ", "").trim().toLowerCase().equals(formattedName))
                                 .findAny().orElse(null)));
     }
 
@@ -86,7 +86,7 @@ public class JAddic7edApi extends Html {
     }
 
     private Optional<String> resultStringForName(String name) {
-        String url = "https://www.addic7ed.com/search.php?search=" + URLEncoder.encode(name, StandardCharsets.UTF_8) + "&Submit=Search";
+        String url = DOMAIN + "/search.php?search=" + URLEncoder.encode(name, StandardCharsets.UTF_8) + "&Submit=Search";
 
         String content = this.getContent(false, url);
 
@@ -105,7 +105,7 @@ public class JAddic7edApi extends Html {
         // String url = "https://www.addic7ed.com/serie/" + showname.toLowerCase().replace(" ", "_") + "/" + season
         // + "/" + episode + "/" + title.toLowerCase().replace(" ", "_").replace("#", "");
 
-        StringBuilder url = new StringBuilder("https://www.addic7ed.com/serie/").append(showname.toLowerCase().replace(" ", "_")).append("/")
+        StringBuilder url = new StringBuilder(DOMAIN + "/serie/").append(showname.toLowerCase().replace(" ", "_")).append("/")
                 .append(season).append("/").append(episode).append("/");
         List<LanguageId> languageIds = LanguageId.forLanguage(language);
         url.append(languageIds.size() == 1 ? languageIds.get(0).getId() : LanguageId.ALL.getId());
