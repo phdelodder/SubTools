@@ -35,7 +35,7 @@ public class JAddic7edApi extends Html {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edApi.class);
     private final Pattern pattern = Pattern.compile("Version (.+), Duration: ([0-9]+).([0-9])+ ");
-    private final static long RATEDURATION = 5; // seconds
+    private final static long RATEDURATION = 1; // seconds
     private static final String DOMAIN = "https://www.addic7ed.com";
     private final boolean speedy;
     private LocalDateTime lastRequest = LocalDateTime.now();
@@ -203,9 +203,9 @@ public class JAddic7edApi extends Html {
                 return this.getHtmlDisk(url);
             } else {
                 if (!speedy && !this.isUrlCached(url)) {
-                    if (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
-                        LOGGER.info("RateLimiet is bereikt voor ADDIC7ed, gelieve {} sec te wachten", RATEDURATION);
-                    }
+                    // if (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
+                    // LOGGER.info("RateLimiet is bereikt voor ADDIC7ed, gelieve {} sec te wachten", RATEDURATION);
+                    // }
                     while (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
                         try {
                             // Pause for 1 seconds
