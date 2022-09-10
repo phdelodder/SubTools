@@ -50,11 +50,9 @@ public class JTVsubtitlesAdapter implements SubtitleProvider {
             if (showName.length() > 0) {
                 if (showName.contains("(") && showName.contains(")")) {
                     String alterName = showName.substring(0, showName.indexOf("(") - 1).trim();
-                    lSubtitles = jtvapi.searchSubtitles(alterName, tvRelease.getSeason(), tvRelease
-                            .getEpisodeNumbers().get(0), tvRelease.getTitle(), language);
+                    lSubtitles = jtvapi.searchSubtitles(alterName, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0), language);
                 }
-                lSubtitles.addAll(jtvapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease
-                        .getEpisodeNumbers().get(0), tvRelease.getTitle(), language));
+                lSubtitles.addAll(jtvapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0), language));
             }
         } catch (TvSubtiltesException e) {
             LOGGER.error("API JTVsubtitles searchSubtitles using title", e);

@@ -35,8 +35,10 @@ public class JAddic7edApi extends Html {
     private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edApi.class);
     private final Pattern pattern = Pattern.compile("Version (.+), Duration: ([0-9]+).([0-9])+ ");
     private final static long RATEDURATION = 5; // seconds
+    private static final String DOMAIN = "http://www.addic7ed.com";
     private final boolean speedy;
     private LocalDateTime lastRequest = LocalDateTime.now();
+
 
     public JAddic7edApi(boolean speedy, Manager manager) {
         super(manager, "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
@@ -52,7 +54,7 @@ public class JAddic7edApi extends Html {
     public void login(String username, String password) throws Addic7edException {
         Map<String, String> data = Map.of("username", username, "password", password, "remember", "false");
         try {
-            this.postHtml("http://www.addic7ed.com/dologin.php", data);
+            this.postHtml(DOMAIN + "/dologin.php", data);
         } catch (ManagerException e) {
             throw new Addic7edException(e);
         }
@@ -161,10 +163,10 @@ public class JAddic7edApi extends Html {
                     Elements downloadElements = td.getElementsByClass("buttonDownload");
                     if (lang != null && downloadElements.size() > 0) {
                         if (downloadElements.size() == 1) {
-                            download = "http://www.addic7ed.com" + downloadElements.get(0).attr("href");
+                            download = DOMAIN + downloadElements.get(0).attr("href");
                         }
                         if (downloadElements.size() == 2) {
-                            download = "http://www.addic7ed.com" + downloadElements.get(1).attr("href");
+                            download = DOMAIN + downloadElements.get(1).attr("href");
                         }
                     }
                     if (lang != null && download != null && titel != null) {

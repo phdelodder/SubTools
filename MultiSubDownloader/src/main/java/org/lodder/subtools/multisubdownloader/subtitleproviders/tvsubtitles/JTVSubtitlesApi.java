@@ -21,12 +21,13 @@ import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 
 public class JTVSubtitlesApi extends Html {
 
+    private static final String DOMAIN = "http://www.tvsubtitles.net/";
+
     public JTVSubtitlesApi(Manager manager) {
         super(manager);
     }
 
-    public List<TVsubtitlesSubtitleDescriptor> searchSubtitles(String name, int season, int episode, String title, Language language)
-            throws TvSubtiltesException {
+    public List<TVsubtitlesSubtitleDescriptor> searchSubtitles(String name, int season, int episode, Language language) throws TvSubtiltesException {
         List<TVsubtitlesSubtitleDescriptor> lSubtitles = new ArrayList<>();
         try {
             String showUrl = this.getShowUrl(name);
@@ -36,8 +37,7 @@ public class JTVSubtitlesApi extends Html {
                 String episodeUrl = getEpisodeUrl(showUrl, season, episode);
 
                 if (episodeUrl != null) {
-                    episodeUrl = "http://www.tvsubtitles.net/" + episodeUrl.substring(0, episodeUrl.indexOf(".")) + "-" + language.getLangCode()
-                            + ".html";
+                    episodeUrl = DOMAIN + episodeUrl.substring(0, episodeUrl.indexOf(".")) + "-" + language.getLangCode() + ".html";
                     String searchEpisode = this.getHtml(episodeUrl);
                     Document searchEpisodeDoc = Jsoup.parse(searchEpisode);
                     Elements searchEpisodes = searchEpisodeDoc.getElementsByClass("left_articles").get(0).getElementsByTag("a");
@@ -45,7 +45,7 @@ public class JTVSubtitlesApi extends Html {
                     for (Element ep : searchEpisodes) {
                         String url = ep.attr("href");
                         if (url.contains("subtitle-")) {
-                            String subtitlePage = this.getHtml("http://www.tvsubtitles.net/" + url);
+                            String subtitlePage = this.getHtml(DOMAIN + url);
                             Document subtitlePageDoc = Jsoup.parse(subtitlePage);
                             String filename = null, rip = null, download = null, author = null;
                             Elements subtitlePageTableDoc = subtitlePageDoc.getElementsByClass("subtitle1");
@@ -64,7 +64,7 @@ public class JTVSubtitlesApi extends Html {
                                     if (item.toString().contains("download-")) {
                                         for (Element link : row.get(0).getElementsByTag("a")) {
                                             if (link.attr("href").contains("download-")) {
-                                                download = "http://www.tvsubtitles.net/" + link.attr("href");
+                                                download = DOMAIN + link.attr("href");
                                                 break;
                                             }
                                         }
@@ -97,7 +97,7 @@ public class JTVSubtitlesApi extends Html {
 
     private String getEpisodeUrl(String showUrl, int season, int episode) throws TvSubtiltesException {
         try {
-            String seasonUrl = "http://www.tvsubtitles.net/" + showUrl.substring(0, showUrl.indexOf(".")) + "-" + season + ".html";
+            String seasonUrl = DOMAIN + showUrl.substring(0, showUrl.indexOf(".")) + "-" + season + ".html";
             String searchSeason = this.getHtmlDisk(seasonUrl);
             Document searchSeasonDoc = Jsoup.parse(searchSeason);
             if (searchSeasonDoc == null) {

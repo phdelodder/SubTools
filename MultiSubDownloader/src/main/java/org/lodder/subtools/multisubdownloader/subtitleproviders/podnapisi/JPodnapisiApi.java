@@ -39,6 +39,7 @@ public class JPodnapisiApi extends XmlRPC {
     private final Manager manager;
     public static final int maxAge = 90;
     private static final Logger LOGGER = LoggerFactory.getLogger(JPodnapisiApi.class);
+    private static final String DOMAIN = "http://www.podnapisi.net/";
 
     public JPodnapisiApi(String useragent, Manager manager) {
         super(useragent, "http://ssp.podnapisi.net:8000/RPC2/");
@@ -104,7 +105,7 @@ public class JPodnapisiApi extends XmlRPC {
     }
 
     public List<PodnapisiSubtitleDescriptor> searchSubtitles(String filename, int year, int season, int episode, Language language) {
-        StringBuilder url = new StringBuilder("http://www.podnapisi.net/sl/ppodnapisi/search?sK=")
+        StringBuilder url = new StringBuilder(DOMAIN + "sl/ppodnapisi/search?sK=")
                 .append(URLEncoder.encode(filename, StandardCharsets.UTF_8))
                 .append("&sJ=");
         if (PODNAPISI_LANGS.containsKey(language)) {
@@ -144,7 +145,7 @@ public class JPodnapisiApi extends XmlRPC {
         Map<?, ?> response = invoke("download", new Object[] { getToken(), subtitleId });
         try {
             List<Map<String, String>> data = (List<Map<String, String>>) response.get("names");
-            return "http://www.podnapisi.net/static/podnapisi/" + data.get(0).get("filename");
+            return DOMAIN + "static/podnapisi/" + data.get(0).get("filename");
         } catch (Exception e) {
             LOGGER.error("API PODNAPISI download", e);
         }
@@ -165,7 +166,7 @@ public class JPodnapisiApi extends XmlRPC {
                 }
             }
             url = xml.substring(startIndex + 2, downloadStartIndex + 9);
-            return "http://www.podnapisi.net/" + url;
+            return DOMAIN + url;
         } else {
             LOGGER.error("Download URL for subtitleID {} can't be found, set to debug for more information!", subtitleId);
             LOGGER.debug("The URL {}", url);
