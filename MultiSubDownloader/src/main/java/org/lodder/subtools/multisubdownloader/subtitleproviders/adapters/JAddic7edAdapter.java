@@ -57,7 +57,7 @@ public class JAddic7edAdapter implements SubtitleProvider {
             LOGGER.error("API JAddic7ed searchSubtitles using title ", e);
         }
         return serieName
-                .map(name -> jaapi.searchSubtitles(name, release.getSeason(), release.getEpisodeNumbers().get(0), release.getTitle())
+                    .map(name -> jaapi.searchSubtitles(name, release.getSeason(), release.getEpisodeNumbers().get(0), release.getTitle(), language)
                         .stream()
                         .filter(sub -> language == sub.getLanguage())
                         .map(sub -> Subtitle.downloadSource(sub.getUrl())

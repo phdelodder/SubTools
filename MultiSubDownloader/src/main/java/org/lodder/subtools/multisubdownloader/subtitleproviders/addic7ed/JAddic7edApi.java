@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -50,10 +50,7 @@ public class JAddic7edApi extends Html {
     }
 
     public void login(String username, String password) throws Addic7edException {
-        Map<String, String> data = new HashMap<>();
-        data.put("username", username);
-        data.put("password", password);
-        data.put("remember", "false");
+        Map<String, String> data = Map.of("username", username, "password", password, "remember", "false");
         try {
             this.postHtml("http://www.addic7ed.com/dologin.php", data);
         } catch (ManagerException e) {
@@ -64,29 +61,22 @@ public class JAddic7edApi extends Html {
     public Optional<String> getAddictedSerieName(String name) throws ManagerSetupException {
         String formattedName = name.replace(":", "").replace("-", "").trim().toLowerCase();
         return getOptionalValueDisk(formattedName, //
-                () -> resultStringForName(name).map(content -> {
-                    Document doc = Jsoup.parse(content);
-                    Elements aTagWithSerie = doc.select("#season td > a");
-
-                    Optional<String> serieName = aTagWithSerie.stream()
-                            .map(serieFound -> {
-                                String link = serieFound.attr("href");
-                                String seriename = link.replace("/serie/", "");
-                                return seriename.substring(0, seriename.indexOf("/"));
-                            })
-                            .filter(seriename -> seriename.replace(":", "").replace("-", "").replace("_", " ").trim().toLowerCase()
-                                    .equalsIgnoreCase(formattedName))
-                            .findAny();
-                    return serieName.orElse(null);
-                }));
+                () -> resultStringForName(name)
+                        .map(content -> Jsoup.parse(content).select("#season td > a").stream()
+                                .map(serieFound -> {
+                                    String link = serieFound.attr("href");
+                                    String seriename = link.replace("/serie/", "");
+                                    return seriename.substring(0, seriename.indexOf("/"));
+                                })
+                                .filter(seriename -> seriename.replace(":", "").replace("-", "").replace("_", " ").trim().toLowerCase()
+                                        .equalsIgnoreCase(formattedName))
+                                .findAny().orElse(null)));
     }
 
     public Optional<String> getAddictedMovieName(String name) throws RuntimeException, ManagerSetupException {
         return getOptionalValueDisk(name, //
                 () -> resultStringForName(name).map(content -> {
-                    Document doc = Jsoup.parse(content);
-                    Elements aTagWithSerie = doc.select("a[debug]");
-
+                    Elements aTagWithSerie = Jsoup.parse(content).select("a[debug]");
                     String link = aTagWithSerie.get(0).attr("href");
                     String moviename = link.replace("movie/", "");
                     return moviename.substring(0, moviename.indexOf("/"));
@@ -108,16 +98,17 @@ public class JAddic7edApi extends Html {
         return Optional.of(content);
     }
 
-    public List<Addic7edSubtitleDescriptor> searchSubtitles(String showname, int season, int episode, String title) {
+    public List<Addic7edSubtitleDescriptor> searchSubtitles(String showname, int season, int episode, String title, Language language) {
         // http://www.addic7ed.com/serie/Smallville/9/11/Absolute_Justice
         // String url = "https://www.addic7ed.com/serie/" + showname.toLowerCase().replace(" ", "_") + "/" + season
         // + "/" + episode + "/" + title.toLowerCase().replace(" ", "_").replace("#", "");
 
-        // title isn't necessary to be added. In fact, if an invalid title is used (ie. invalid chars, like '/'),
-        // a 302 error can be returned. It's better to add a valid dummy title.
-        String url = "https://www.addic7ed.com/serie/" + showname.toLowerCase().replace(" ", "_") + "/" + season
-                + "/" + episode + "/a";
-        String content = this.getContent(false, url);
+        StringBuilder url = new StringBuilder("https://www.addic7ed.com/serie/").append(showname.toLowerCase().replace(" ", "_")).append("/")
+                .append(season).append("/").append(episode).append("/");
+        List<LanguageId> languageIds = LanguageId.forLanguage(language);
+        url.append(languageIds.size() == 1 ? languageIds.get(0).getId() : LanguageId.ALL.getId());
+
+        String content = this.getContent(false, url.toString());
         List<Addic7edSubtitleDescriptor> lSubtitles = new ArrayList<>();
         Document doc = Jsoup.parse(content);
 
