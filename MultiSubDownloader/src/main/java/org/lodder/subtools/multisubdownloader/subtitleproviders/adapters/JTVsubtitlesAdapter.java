@@ -1,7 +1,6 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,7 +42,7 @@ public class JTVsubtitlesAdapter implements SubtitleProvider {
 
     @Override
     public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
-        List<TVsubtitlesSubtitleDescriptor> lSubtitles = new ArrayList<>();
+        Set<TVsubtitlesSubtitleDescriptor> lSubtitles = new HashSet<>();
         try {
             String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getShowName();
 
@@ -59,14 +58,14 @@ public class JTVsubtitlesAdapter implements SubtitleProvider {
         }
 
         return lSubtitles.stream()
-                .map(sub -> Subtitle.downloadSource(sub.Url)
+                .map(sub -> Subtitle.downloadSource(sub.getUrl())
                         .subtitleSource(getSubtitleSource())
-                        .fileName(sub.Filename)
+                        .fileName(sub.getFilename())
                         .language(language)
-                        .quality(ReleaseParser.getQualityKeyword(sub.Filename + " " + sub.Rip))
+                        .quality(ReleaseParser.getQualityKeyword(sub.getFilename() + " " + sub.getRip()))
                         .subtitleMatchType(SubtitleMatchType.EVERYTHING)
-                        .releaseGroup(ReleaseParser.extractReleasegroup(sub.Filename, FilenameUtils.isExtension(sub.Filename, "srt")))
-                        .uploader(sub.Author)
+                        .releaseGroup(ReleaseParser.extractReleasegroup(sub.getFilename(), FilenameUtils.isExtension(sub.getFilename(), "srt")))
+                        .uploader(sub.getAuthor())
                         .hearingImpaired(false))
                 .collect(Collectors.toSet());
     }

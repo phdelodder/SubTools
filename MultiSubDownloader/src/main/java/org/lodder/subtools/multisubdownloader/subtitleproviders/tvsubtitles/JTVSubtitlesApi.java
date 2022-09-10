@@ -3,10 +3,10 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -29,8 +29,8 @@ public class JTVSubtitlesApi extends Html {
         super(manager);
     }
 
-    public List<TVsubtitlesSubtitleDescriptor> searchSubtitles(String name, int season, int episode, Language language) throws TvSubtiltesException {
-        List<TVsubtitlesSubtitleDescriptor> lSubtitles = new ArrayList<>();
+    public Set<TVsubtitlesSubtitleDescriptor> searchSubtitles(String name, int season, int episode, Language language) throws TvSubtiltesException {
+        Set<TVsubtitlesSubtitleDescriptor> lSubtitles = new HashSet<>();
         try {
             String showUrl = this.getShowUrl(name);
 
@@ -69,12 +69,12 @@ public class JTVSubtitlesApi extends Html {
 
                                     if (filename != null && rip != null) {
                                         TVsubtitlesSubtitleDescriptor sub = new TVsubtitlesSubtitleDescriptor();
-                                        sub.Filename = filename;
-                                        sub.Url = DOMAIN + "/files/" + URLEncoder.encode(
+                                        sub.setFilename(filename);
+                                        sub.setUrl(DOMAIN + "/files/" + URLEncoder.encode(
                                                 filename.replace(title + ".", "").replace(".srt", ".zip").replace(" - ", "_"),
-                                                StandardCharsets.UTF_8);
-                                        sub.Rip = rip;
-                                        sub.Author = author;
+                                                StandardCharsets.UTF_8));
+                                        sub.setRip(rip);
+                                        sub.setAuthor(author);
                                         lSubtitles.add(sub);
                                         rip = null;
                                         filename = null;
