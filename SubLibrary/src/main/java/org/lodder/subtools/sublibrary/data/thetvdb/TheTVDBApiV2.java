@@ -33,7 +33,7 @@ public class TheTVDBApiV2 {
 
     public int searchSerie(String seriename, Language language) throws TheTVDBException {
         try {
-            String encodedSerieName = URLEncoder.encode(seriename, StandardCharsets.UTF_8);
+            String encodedSerieName = URLEncoder.encode(seriename.replace(" ", "-"), StandardCharsets.UTF_8);
             Response<SeriesResultsResponse> response =
                     theTvdb.search().series(encodedSerieName, null, null, null, language == null ? null : language.getLangCode()).execute();
             if (response.isSuccessful()) {
