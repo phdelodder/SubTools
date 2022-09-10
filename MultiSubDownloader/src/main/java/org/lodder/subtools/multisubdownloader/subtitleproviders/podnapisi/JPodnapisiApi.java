@@ -39,7 +39,7 @@ public class JPodnapisiApi extends XmlRPC {
     private final Manager manager;
     public static final int maxAge = 90;
     private static final Logger LOGGER = LoggerFactory.getLogger(JPodnapisiApi.class);
-    private static final String DOMAIN = "http://www.podnapisi.net/";
+    private static final String DOMAIN = "https://www.podnapisi.net/";
 
     public JPodnapisiApi(String useragent, Manager manager) {
         super(useragent, "http://ssp.podnapisi.net:8000/RPC2/");
@@ -106,10 +106,9 @@ public class JPodnapisiApi extends XmlRPC {
 
     public List<PodnapisiSubtitleDescriptor> searchSubtitles(String filename, int year, int season, int episode, Language language) {
         StringBuilder url = new StringBuilder(DOMAIN + "sl/ppodnapisi/search?sK=")
-                .append(URLEncoder.encode(filename, StandardCharsets.UTF_8))
-                .append("&sJ=");
+                .append(URLEncoder.encode(filename, StandardCharsets.UTF_8));
         if (PODNAPISI_LANGS.containsKey(language)) {
-            url.append(PODNAPISI_LANGS.get(language));
+            url.append("&sJ=").append(PODNAPISI_LANGS.get(language));
         }
         if (year > 0) {
             url.append("&sY=").append(year);
