@@ -4,6 +4,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
@@ -121,17 +122,20 @@ public class GUI extends JFrame implements PropertyChangeListener {
         initPopupMenu();
     }
 
-    private void checkUpdate(final boolean showNoUpdate) {
+    private void checkUpdate(final boolean forceUpdateCheck) {
         Manager manager = (Manager) this.app.make("Manager");
-        UpdateAvailableDropbox u = new UpdateAvailableDropbox(manager);
-        if (u.checkProgram(settingsControl.getSettings().getUpdateCheckPeriod())) {
+        UpdateAvailableGithub u = new UpdateAvailableGithub(manager, settingsControl);
+        Optional<String> updateUrl = (forceUpdateCheck && u.isNewVersionAvailable())
+                || (!forceUpdateCheck && u.shouldCheckForNewUpdate(settingsControl.getSettings().getUpdateCheckPeriod())
+                        && u.isNewVersionAvailable()) ? u.getLatestDownloadUrl() : Optional.empty();
+        if (updateUrl.isPresent()) {
             final JEditorPane editorPane = new JEditorPane();
             editorPane.setPreferredSize(new Dimension(800, 50));
             editorPane.setEditable(false);
             editorPane.setContentType("text/html");
 
             editorPane.setText("<html>" + Messages.getString("UpdateAppAvailable") + "!: </br><A HREF="
-                    + u.getUpdateUrl() + ">" + u.getUpdateUrl() + "</a></html>");
+                    + updateUrl.get() + ">" + updateUrl.get() + "</a></html>");
 
             editorPane.addHyperlinkListener(hyperlinkEvent -> {
                 if (hyperlinkEvent.getEventType() == HyperlinkEvent.EventType.ACTIVATED && Desktop.isDesktopSupported()) {
@@ -143,12 +147,11 @@ public class GUI extends JFrame implements PropertyChangeListener {
                 }
             });
             JOptionPane.showMessageDialog(this, editorPane, ConfigProperties.getInstance().getProperty("name"), JOptionPane.INFORMATION_MESSAGE);
-        } else if (showNoUpdate) {
-            JOptionPane.showMessageDialog(this, Messages.getString("MainWindow.NoUpdateAvailable")
-                    + ConfigProperties.getInstance().getProperty("version")
-                    + ConfigProperties.getInstance().getProperty(Messages.getString("MainWindow.Version")),
+        } else if (forceUpdateCheck) {
+            JOptionPane.showMessageDialog(this, Messages.getString("MainWindow.NoUpdateAvailable"),
                     ConfigProperties.getInstance().getProperty("name"), JOptionPane.INFORMATION_MESSAGE);
         }
+
     }
 
     /**
@@ -472,7 +475,9 @@ public class GUI extends JFrame implements PropertyChangeListener {
     }
 
     private void showAbout() {
-        JOptionPane.showConfirmDialog(this, Messages.getString("MainWindow.AboutTitle"),
+        JOptionPane.showConfirmDialog(this,
+                Messages.getString("MainWindow.CurrentVersion") + ": "
+                        + ConfigProperties.getInstance().getProperty(Messages.getString("MainWindow.Version")),
                 ConfigProperties.getInstance().getProperty("name"), JOptionPane.CLOSED_OPTION);
     }
 

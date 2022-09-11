@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
 import java.util.prefs.Preferences;
@@ -20,16 +21,22 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
+import org.lodder.subtools.multisubdownloader.settings.model.State;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.settings.MappingSettingsControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.Getter;
+
 public class SettingsControl {
 
     private final Preferences preferences;
-    private Settings settings;
+    @Getter
+    private final Settings settings;
+    @Getter
+    private final State state;
     private final MappingSettingsControl mappingSettingsCtrl;
     private static final String BACKING_STORE_AVAIL = "BackingStoreAvail";
     private static final Logger LOGGER = LoggerFactory.getLogger(SettingsControl.class);
@@ -40,6 +47,7 @@ public class SettingsControl {
         }
         preferences = Preferences.userRoot().node("MultiSubDownloader");
         settings = new Settings();
+        state = new State();
         mappingSettingsCtrl = new MappingSettingsControl(preferences);
         load();
     }
@@ -101,6 +109,9 @@ public class SettingsControl {
             storeLocalSourcesFolders();
 
             storeDefaultSelectionSettings();
+
+            // State
+            preferences.put("LatestUpdateCheck", state.getLatestUpdateCheck().toString());
 
         } catch (BackingStoreException e) {
             LOGGER.error(e.getMessage(), e);
@@ -261,6 +272,9 @@ public class SettingsControl {
         loadSerieSourcesSettings();
         loadLocalSourcesFolders();
         loadDefaultSelectionSettings();
+
+        // state
+        state.setLatestUpdateCheck(LocalDate.parse(preferences.get("LatestUpdateCheck", LocalDate.MIN.toString())));
     }
 
     private void loadLocalSourcesFolders() {
@@ -415,14 +429,10 @@ public class SettingsControl {
         }
     }
 
-    public Settings getSettings() {
-        return settings;
-    }
-
-    public void setSettings(Settings settings) {
-        this.settings = settings;
-        store();
-    }
+    // public void setSettings(Settings settings) {
+    // this.settings = settings;
+    // store();
+    // }
 
     public void updateProxySettings() {
         if (settings.isGeneralProxyEnabled()) {

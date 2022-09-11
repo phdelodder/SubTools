@@ -80,7 +80,7 @@ public class App {
 
         if (line.hasOption("nogui")) {
             bootstrapper.initialize();
-            CLI cmd = new CLI(prefctrl.getSettings(), app);
+            CLI cmd = new CLI(prefctrl, app);
 
             /* Defined here so there is output on console */
             importPreferences(line);
