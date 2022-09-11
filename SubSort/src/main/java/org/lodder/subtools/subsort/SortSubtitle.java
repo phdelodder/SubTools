@@ -33,7 +33,6 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
 import org.lodder.subtools.sublibrary.privateRepo.model.IndexSubtitle;
-import org.lodder.subtools.sublibrary.settings.MappingSettingsControl;
 import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.lodder.subtools.sublibrary.util.http.CookieManager;
@@ -51,7 +50,6 @@ public class SortSubtitle {
 
     private static final String BACKING_STORE_AVAIL = "BackingStoreAvail";
     private final Preferences preferences;
-    private final MappingSettingsControl mappingSettingsCtrl;
     private static Manager manager = new Manager();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSubtitle.class);
@@ -69,12 +67,6 @@ public class SortSubtitle {
             LOGGER.error("Unable to store preferences, used debug for reason");
         }
         preferences = Preferences.userRoot().node("MultiSubDownloader");
-        mappingSettingsCtrl = new MappingSettingsControl(preferences);
-        try {
-            mappingSettingsCtrl.updateMappingFromOnline();
-        } catch (Throwable e) {
-            LOGGER.error("updateMappingOnline call", e);
-        }
     }
 
     private static boolean backingStoreAvailable() {
@@ -131,14 +123,14 @@ public class SortSubtitle {
                     TvRelease tvRelease = (TvRelease) release;
 
                     int tvdbid = 0;
-                    for (MappingTvdbScene mapping : mappingSettingsCtrl.getMappingSettings()
-                            .getMappingList()) {
-                        if (mapping.getSceneName().replaceAll("[^A-Za-z]", "")
-                                .equalsIgnoreCase(tvRelease.getShowName().replaceAll("[^A-Za-z]", ""))) {
-                            tvdbid = mapping.getTvdbId();
-                            break;
-                        }
-                    }
+                    // for (MappingTvdbScene mapping : mappingSettingsCtrl.getMappingSettings()
+                    // .getMappingList()) {
+                    // if (mapping.getSceneName().replaceAll("[^A-Za-z]", "")
+                    // .equalsIgnoreCase(tvRelease.getShowName().replaceAll("[^A-Za-z]", ""))) {
+                    // tvdbid = mapping.getTvdbId();
+                    // break;
+                    // }
+                    // }
 
                     TheTVDBSerie thetvdbserie = tvdbid == 0 ? jtvdb.getSerie(tvRelease) : jtvdb.getSerie(tvdbid);
 
@@ -250,13 +242,13 @@ public class SortSubtitle {
                     TvRelease tvRelease = (TvRelease) release;
 
                     int tvdbid = 0;
-                    for (MappingTvdbScene mapping : mappingSettingsCtrl.getMappingSettings()
-                            .getMappingList()) {
-                        if (mapping.getSceneName().replaceAll("[^A-Za-z]", "")
-                                .equalsIgnoreCase(tvRelease.getShowName().replaceAll("[^A-Za-z]", ""))) {
-                            tvdbid = mapping.getTvdbId();
-                        }
-                    }
+                    // for (MappingTvdbScene mapping : mappingSettingsCtrl.getMappingSettings()
+                    // .getMappingList()) {
+                    // if (mapping.getSceneName().replaceAll("[^A-Za-z]", "")
+                    // .equalsIgnoreCase(tvRelease.getShowName().replaceAll("[^A-Za-z]", ""))) {
+                    // tvdbid = mapping.getTvdbId();
+                    // }
+                    // }
 
                     TheTVDBSerie thetvdbserie = null;
                     if (tvdbid == 0) {

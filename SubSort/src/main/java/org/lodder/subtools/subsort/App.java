@@ -41,15 +41,8 @@ public class App {
         CommandLineParser parser = new GnuParser();
         HelpFormatter formatter = new HelpFormatter();
 
-        CommandLine line = null;
-
         try {
-            line = parser.parse(getCLIOptions(), args);
-        } catch (ParseException e) {
-            LOGGER.error("Unable to parse cli options", e);
-        }
-
-        if (line != null) {
+            CommandLine line = parser.parse(getCLIOptions(), args);
             if (line.hasOption("help")) {
                 formatter.printHelp("SubSort", getCLIOptions());
             } else {
@@ -64,6 +57,8 @@ public class App {
                             new File(line.getOptionValue("outputfolder")), line.hasOption("cleanup"));
                 }
             }
+        } catch (ParseException e) {
+            LOGGER.error("Unable to parse cli options", e);
         }
     }
 
