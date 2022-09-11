@@ -2,24 +2,26 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.SubsceneApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.exception.SubsceneException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.model.SubsceneSubtitleDescriptor;
-import org.lodder.subtools.sublibrary.JSubAdapter;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
-import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JSubsceneAdapter implements JSubAdapter, SubtitleProvider {
+public class JSubsceneAdapter implements SubtitleProvider {
 
     private static SubsceneApi api;
 
@@ -32,55 +34,37 @@ public class JSubsceneAdapter implements JSubAdapter, SubtitleProvider {
     }
 
     @Override
-    public String getName() {
-        return "Subscene";
+    public SubtitleSource getSubtitleSource() {
+        return SubtitleSource.SUBSCENE;
     }
 
     @Override
-    public List<Subtitle> search(Release release, String languageCode) {
-        if (release instanceof MovieRelease movieRelease) {
-            return this.searchSubtitles(movieRelease, languageCode);
-        } else if (release instanceof TvRelease tvRelease) {
-            return this.searchSubtitles(tvRelease, languageCode);
-        }
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<Subtitle> searchSubtitles(TvRelease release, String... sublanguageids) {
+    public Set<Subtitle> searchSubtitles(TvRelease release, Language language) {
 
         List<SubsceneSubtitleDescriptor> subtilteDescriptors = new ArrayList<>();
         try {
-            if (release.getShow().length() > 0) {
-                subtilteDescriptors = api.getSubtilteDescriptors(release.getShow(), release.getSeason());
+            if (release.getShowName().length() > 0) {
+                subtilteDescriptors = api.getSubtilteDescriptors(release.getShowName(), release.getSeason(), language);
             }
             if (subtilteDescriptors.isEmpty() && release.getOriginalShowName().length() > 0) {
-                subtilteDescriptors = api.getSubtilteDescriptors(release.getOriginalShowName(), release.getSeason());
+                subtilteDescriptors = api.getSubtilteDescriptors(release.getOriginalShowName(), release.getSeason(), language);
             }
         } catch (SubsceneException e) {
             LOGGER.error("API JSubscene searchSubtitles using title ", e);
         }
         return subtilteDescriptors.stream()
-                .peek(sub -> {
-                    var l = switch (sub.getLanguage()) {
-                        case "Dutch" -> sub.setLanguage("nl");
-                        case "English" -> sub.setLanguage("en");
-                        default -> null;
-                    };
-                })
-                .filter(sub -> sublanguageids[0].equals(sub.getLanguage()))
+                .filter(sub -> language == sub.getLanguage())
                 .filter(sub -> sub.getName().contains(getSeasonEpisodeString(release.getSeason(), release.getEpisodeNumbers().get(0))))
-                .map(sub -> new Subtitle(
-                        Subtitle.SubtitleSource.SUBSCENE,
-                        StringUtils.removeIllegalFilenameChars(sub.getName()),
-                        sub.getUrlSupplier(),
-                        sub.getLanguage(),
-                        ReleaseParser.getQualityKeyword(sub.getName()),
-                        SubtitleMatchType.EVERYTHING,
-                        ReleaseParser.extractReleasegroup(sub.getName(), false),
-                        sub.getUploader(),
-                        sub.isHearingImpaired()))
-                .toList();
+                .map(sub -> Subtitle.downloadSource(sub.getUrlSupplier())
+                        .subtitleSource(getSubtitleSource())
+                        .fileName(StringUtils.removeIllegalFilenameChars(sub.getName()))
+                        .language(sub.getLanguage())
+                        .quality(ReleaseParser.getQualityKeyword(sub.getName()))
+                        .subtitleMatchType(SubtitleMatchType.EVERYTHING)
+                        .releaseGroup(ReleaseParser.extractReleasegroup(sub.getName(), false))
+                        .uploader(sub.getUploader())
+                        .hearingImpaired(sub.isHearingImpaired()))
+                .collect(Collectors.toSet());
     }
 
     private String getSeasonEpisodeString(int season, int episode) {
@@ -89,9 +73,9 @@ public class JSubsceneAdapter implements JSubAdapter, SubtitleProvider {
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... sublanguageids) {
+    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
         // TODO implement this
-        return new ArrayList<>();
+        return Set.of();
     }
 
 }

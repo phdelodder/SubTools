@@ -13,6 +13,7 @@ import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.util.FilenameExtensionFilter;
 import org.lodder.subtools.sublibrary.util.NamedMatcher;
@@ -36,18 +37,18 @@ public class FileListAction {
         this.settings = settings;
     }
 
-    public List<File> getFileListing(File dir, boolean recursieve, String languagecode, boolean forceSubtitleOverwrite) {
-        LOGGER.trace("getFileListing: dir [{}] Recursive [{}] languageCode [{}] forceSubtitleOverwrite [{}]", dir, recursieve, languagecode,
+    public List<File> getFileListing(File dir, boolean recursieve, Language language, boolean forceSubtitleOverwrite) {
+        LOGGER.trace("getFileListing: dir [{}] Recursive [{}] languageCode [{}] forceSubtitleOverwrite [{}]", dir, recursieve, language,
                 forceSubtitleOverwrite);
         /* Reset progress counters */
         this.progressFileIndex = 0;
         this.progressFilesTotal = 0;
 
         /* Start listing process */
-        return this._getFileListing(dir, recursieve, languagecode, forceSubtitleOverwrite);
+        return this._getFileListing(dir, recursieve, language, forceSubtitleOverwrite);
     }
 
-    private List<File> _getFileListing(File dir, boolean recursieve, String languagecode, boolean forceSubtitleOverwrite) {
+    private List<File> _getFileListing(File dir, boolean recursieve, Language language, boolean forceSubtitleOverwrite) {
         final List<File> filelist = new ArrayList<>();
         final File[] contents = dir.listFiles();
 
@@ -71,11 +72,11 @@ public class FileListAction {
                 this.indexingProgressListener.progress(progress);
             }
 
-            if (file.isFile() && isValidVideoFile(file) && (!fileHasSubtitles(file, languagecode) || forceSubtitleOverwrite)
+            if (file.isFile() && isValidVideoFile(file) && (!fileHasSubtitles(file, language) || forceSubtitleOverwrite)
                     && isNotExcluded(file)) {
                 filelist.add(file);
             } else if (file.isDirectory() && recursieve && !isExcludedDir(file)) {
-                filelist.addAll(getFileListing(file, recursieve, languagecode, forceSubtitleOverwrite));
+                filelist.addAll(getFileListing(file, recursieve, language, forceSubtitleOverwrite));
             }
         }
         return filelist;
@@ -136,7 +137,7 @@ public class FileListAction {
         return Arrays.stream(VideoPatterns.EXTENSIONS).anyMatch(ext::equals);
     }
 
-    public boolean fileHasSubtitles(File file, String languageCode) {
+    public boolean fileHasSubtitles(File file, Language language) {
         String subname = Arrays.stream(VideoPatterns.EXTENSIONS)
                 .filter(allowedExtension -> file.getName().contains("." + allowedExtension))
                 .map(allowedExtension -> file.getName().replace("." + allowedExtension, subtitleExtension))
@@ -148,15 +149,21 @@ public class FileListAction {
         } else {
             List<String> filters = null;
 
-            if ("nl".equals(languageCode)) {
-                filters = getFilters(dutchFilters);
-                if (!StringUtils.isBlank(settings.getEpisodeLibrarySettings().getDefaultNlText())) {
-                    filters.add("." + settings.getEpisodeLibrarySettings().getDefaultNlText().concat(subtitleExtension));
+            switch (language) {
+                case DUTCH -> {
+                    filters = getFilters(dutchFilters);
+                    if (!StringUtils.isBlank(settings.getEpisodeLibrarySettings().getDefaultNlText())) {
+                        filters.add("." + settings.getEpisodeLibrarySettings().getDefaultNlText().concat(subtitleExtension));
+                    }
                 }
-            } else if ("en".equals(languageCode)) {
-                filters = getFilters(englishFilters);
-                if (!StringUtils.isBlank(settings.getEpisodeLibrarySettings().getDefaultEnText())) {
-                    filters.add("." + settings.getEpisodeLibrarySettings().getDefaultEnText().concat(subtitleExtension));
+                case ENGLISH -> {
+                    filters = getFilters(englishFilters);
+                    if (!StringUtils.isBlank(settings.getEpisodeLibrarySettings().getDefaultEnText())) {
+                        filters.add("." + settings.getEpisodeLibrarySettings().getDefaultEnText().concat(subtitleExtension));
+                    }
+                }
+                default -> {
+                    // TODO implement others
                 }
             }
 

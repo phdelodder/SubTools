@@ -33,12 +33,15 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.lodder.subtools.sublibrary.data.tvrage.TVRageApi;
 import org.lodder.subtools.sublibrary.data.tvrage.TVRageParser;
 
+import lombok.Getter;
+
 /**
  * Full information about the show
  *
  * @author Stuart.Boston
  *
  */
+@Getter
 public class TVRageShowInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -52,7 +55,7 @@ public class TVRageShowInfo implements Serializable {
     private List<TVRageCountryDetail> network = new ArrayList<>();
     private String originCountry = TVRageApi.UNKNOWN;
     private int runtime = 0;
-    private int showID = 0;
+    private int showId = 0;
     private String showLink = TVRageApi.UNKNOWN;
     private String showName = TVRageApi.UNKNOWN;
     private LocalDate startDate = null;
@@ -63,7 +66,7 @@ public class TVRageShowInfo implements Serializable {
     private int totalSeasons = 0;
 
     public boolean isValid() {
-        return showID > 0;
+        return showId > 0;
     }
 
     /**
@@ -87,7 +90,6 @@ public class TVRageShowInfo implements Serializable {
         if (!isValidString(country) || !isValidString(aka)) {
             return;
         }
-
         this.akas.add(new TVRageCountryDetail(country, aka));
     }
 
@@ -125,82 +127,6 @@ public class TVRageShowInfo implements Serializable {
         }
 
         this.network.add(new TVRageCountryDetail(country, networkName));
-    }
-
-    public String getAirDay() {
-        return airDay;
-    }
-
-    public String getAirTime() {
-        return airTime;
-    }
-
-    public List<TVRageCountryDetail> getAkas() {
-        return akas;
-    }
-
-    public String getClassification() {
-        return classification;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public String getEnded() {
-        return ended;
-    }
-
-    public List<String> getGenres() {
-        return genres;
-    }
-
-    public List<TVRageCountryDetail> getNetwork() {
-        return network;
-    }
-
-    public String getOriginCountry() {
-        return originCountry;
-    }
-
-    public int getRuntime() {
-        return runtime;
-    }
-
-    public int getShowID() {
-        return showID;
-    }
-
-    public String getShowLink() {
-        return showLink;
-    }
-
-    public String getShowName() {
-        return showName;
-    }
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public int getStarted() {
-        return started;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public String getSummary() {
-        return summary;
-    }
-
-    public String getTimezone() {
-        return timezone;
-    }
-
-    public int getTotalSeasons() {
-        return totalSeasons;
     }
 
     public void setAirDay(String airDay) {
@@ -247,12 +173,12 @@ public class TVRageShowInfo implements Serializable {
         this.runtime = NumberUtils.toInt(runtime, 0);
     }
 
-    public void setShowID(int showID) {
-        this.showID = showID;
+    public void setShowId(int showID) {
+        this.showId = showID;
     }
 
-    public void setShowID(String showID) {
-        this.showID = NumberUtils.toInt(showID, 0);
+    public void setShowId(String showID) {
+        this.showId = NumberUtils.toInt(showID, 0);
     }
 
     public void setShowLink(String showLink) {

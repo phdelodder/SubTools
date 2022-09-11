@@ -12,18 +12,18 @@ import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.ManagerSetupException;
 import org.lodder.subtools.sublibrary.data.XmlHTTP;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
+import org.lodder.subtools.sublibrary.xml.XmlExtension;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+
+import lombok.experimental.ExtensionMethod;
 
 /**
- *
  * @author lodder
  *         Code found on Web: http://code.google.com/p/moviejukebox/
- *
  */
-
+@ExtensionMethod({ XmlExtension.class })
 public class TheTVDBMirrors {
 
     public static final String TYPE_XML = "XML";
@@ -36,9 +36,9 @@ public class TheTVDBMirrors {
 
     private static final Random RNDM = new Random();
 
-    private List<String> xmlList = new ArrayList<>();
-    private List<String> bannerList = new ArrayList<>();
-    private List<String> zipList = new ArrayList<>();
+    private final List<String> xmlList = new ArrayList<>();
+    private final List<String> bannerList = new ArrayList<>();
+    private final List<String> zipList = new ArrayList<>();
 
     private final XmlHTTP xmlHTTPAPI;
 
@@ -49,33 +49,27 @@ public class TheTVDBMirrors {
             String urlString = "http://www.thetvdb.com/api/" + apikey + "/mirrors.xml";
             Document doc = xmlHTTPAPI.getXML(urlString);
 
-            int typeMask = 0;
-            String url = null;
-
-            NodeList nlMirror = doc.getElementsByTagName("Mirror");
-            for (int nodeLoop = 0; nodeLoop < nlMirror.getLength(); nodeLoop++) {
-                Node nMirror = nlMirror.item(nodeLoop);
-
-                if (nMirror.getNodeType() == Node.ELEMENT_NODE) {
-                    Element eMirror = (Element) nMirror;
-                    url = XMLHelper.getStringTagValue("mirrorpath", eMirror);
-                    typeMask = XMLHelper.getIntTagValue("typemask", eMirror);
-                    addMirror(typeMask, url);
-                }
-            }
+            doc.getElementsByTagName("Mirror").stream()
+                    .filter(nMirror -> nMirror.getNodeType() == Node.ELEMENT_NODE)
+                    .map(Element.class::cast)
+                    .forEach(eMirror -> {
+                        String url = XMLHelper.getStringTagValue("mirrorpath", eMirror);
+                        int typeMask = XMLHelper.getIntTagValue("typemask", eMirror);
+                        addMirror(typeMask, url);
+                    });
         }
     }
 
     public String getMirror(String type) {
-        String url = null;
         if (TYPE_XML.equals(type) && !xmlList.isEmpty()) {
-            url = xmlList.get(RNDM.nextInt(xmlList.size()));
+            return xmlList.get(RNDM.nextInt(xmlList.size()));
         } else if (TYPE_BANNER.equals(type) && !bannerList.isEmpty()) {
-            url = bannerList.get(RNDM.nextInt(bannerList.size()));
+            return bannerList.get(RNDM.nextInt(bannerList.size()));
         } else if (TYPE_ZIP.equals(type) && !zipList.isEmpty()) {
-            url = zipList.get(RNDM.nextInt(zipList.size()));
+            return zipList.get(RNDM.nextInt(zipList.size()));
+        } else {
+            return null;
         }
-        return url;
     }
 
     private void addMirror(int typeMask, String url) {

@@ -21,7 +21,6 @@ public class Info {
                 case LOCAL -> settings.isSerieSourceLocal();
                 case OPENSUBTITLES -> settings.isSerieSourceOpensubtitles();
                 case PODNAPISI -> settings.isSerieSourcePodnapisi();
-                case SUBSMAX -> settings.isSerieSourceSubsMax();
                 case TVSUBTITLES -> settings.isSerieSourceTvSubtitles();
                 default -> false;
             };

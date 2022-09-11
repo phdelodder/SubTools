@@ -3,7 +3,7 @@
  */
 package org.lodder.subtools.sublibrary.settings;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 import org.lodder.subtools.sublibrary.settings.model.MappingSettings;
@@ -55,7 +55,7 @@ public class MappingSettingsControl {
          * int mappingVersion = XMLMappingTvdbScene.getMappingsVersionNumber();
          * if (mappingVersion > mappingSettings.getMappingVersion()) {
          */
-        ArrayList<MappingTvdbScene> onlineList = XMLMappingTvdbScene.getOnlineMappingCollection();
+        List<MappingTvdbScene> onlineList = XMLMappingTvdbScene.getOnlineMappingCollection();
         if (mappingSettings.getMappingList().size() == 0) {
             mappingSettings.setMappingList(onlineList);
         } else {

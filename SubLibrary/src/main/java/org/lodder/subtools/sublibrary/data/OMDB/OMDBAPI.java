@@ -30,12 +30,7 @@ public class OMDBAPI extends XmlHTTP {
     }
 
     private OMDBDetails parseOMDBDetails(Element item) {
-        OMDBDetails details = new OMDBDetails();
-
-        details.setTitle(item.getAttribute("title"));
-        details.setYear(Integer.parseInt(item.getAttribute("year")));
-
-        return details;
+        return new OMDBDetails(item.getAttribute("title"), Integer.parseInt(item.getAttribute("year")));
     }
 
 }

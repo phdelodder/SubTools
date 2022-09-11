@@ -1,8 +1,7 @@
 package org.lodder.subtools.multisubdownloader.lib.control.subtitles;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -156,8 +155,8 @@ public class FilteringTest {
     private Subtitle createSubtitle(String filename, String releasegroup, boolean excludehearing, String quality) {
         Subtitle subtitle = mock(Subtitle.class);
 
-        when(subtitle.getFilename()).thenReturn(filename);
-        when(subtitle.getReleasegroup()).thenReturn(releasegroup);
+        when(subtitle.getFileName()).thenReturn(filename);
+        when(subtitle.getReleaseGroup()).thenReturn(releasegroup);
         when(subtitle.getQuality()).thenReturn(quality);
         when(subtitle.isHearingImpaired()).thenReturn(excludehearing);
 

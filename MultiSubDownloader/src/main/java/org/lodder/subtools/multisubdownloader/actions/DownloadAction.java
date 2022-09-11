@@ -9,6 +9,7 @@ import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileAction
 import org.lodder.subtools.multisubdownloader.lib.library.PathLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
@@ -42,7 +43,7 @@ public class DownloadAction {
     }
 
     public void download(Release release, Subtitle subtitle) throws IOException, ManagerException {
-        LOGGER.info("Downloading subtitle: [{}] for release: [{}]", subtitle.getFilename(), release.getFilename());
+        LOGGER.info("Downloading subtitle: [{}] for release: [{}]", subtitle.getFileName(), release.getFilename());
         download(release, subtitle, 0);
     }
 
@@ -63,11 +64,11 @@ public class DownloadAction {
         final File subFile = new File(path, subFileName);
 
         boolean success;
-        if (subtitle.getSourceLcation() == Subtitle.SourceLocation.FILE) {
+        if (subtitle.getSourceLocation() == Subtitle.SourceLocation.FILE) {
             Files.copy(subtitle.getFile(), subFile);
             success = true;
         } else {
-            String url = subtitle.getSourceLcation() == Subtitle.SourceLocation.URL ? subtitle.getUrl() : subtitle.getUrlSupplier().get();
+            String url = subtitle.getSourceLocation() == Subtitle.SourceLocation.URL ? subtitle.getUrl() : subtitle.getUrlSupplier().get();
             success = manager.store(url, subFile);
             LOGGER.debug("doDownload file was [{}] ", success);
         }
@@ -81,7 +82,7 @@ public class DownloadAction {
                 dropBoxName = PrivateRepoIndex.getFullFilename(FilenameLibraryBuilder.changeExtension(release.getFilename(), ".srt"),
                         subtitle.getUploader(), subtitle.getSubtitleSource().toString());
             }
-            DropBoxClient.getDropBoxClient().put(subFile, dropBoxName, subtitle.getLanguagecode());
+            DropBoxClient.getDropBoxClient().put(subFile, dropBoxName, subtitle.getLanguage());
         }
 
         if (success) {
@@ -105,10 +106,7 @@ public class DownloadAction {
                 }
             }
             if (librarySettings.isLibraryBackupSubtitle()) {
-                String langFolder = switch (subtitle.getLanguagecode()) {
-                    case "nl" -> "Nederlands";
-                    default -> "Engels";
-                };
+                String langFolder = subtitle.getLanguage() == null ? Language.ENGLISH.getName() : subtitle.getLanguage().getName();
                 File backupPath = new File(librarySettings.getLibraryBackupSubtitlePath() + File.separator + langFolder + File.separator);
 
                 if (!backupPath.exists() && !backupPath.mkdirs()) {
@@ -116,7 +114,7 @@ public class DownloadAction {
                 }
 
                 if (librarySettings.isLibraryBackupUseWebsiteFileName()) {
-                    Files.copy(subFile, new File(backupPath, subtitle.getFilename()));
+                    Files.copy(subFile, new File(backupPath, subtitle.getFileName()));
                 } else {
                     Files.copy(subFile, new File(backupPath, subFileName));
                 }

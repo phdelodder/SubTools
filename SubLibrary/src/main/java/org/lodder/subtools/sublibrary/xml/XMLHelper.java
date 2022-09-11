@@ -46,11 +46,8 @@ public class XMLHelper {
     public static String getStringTagRawValue(String sTag, Element eElement) {
         LOGGER.trace("getStringTagRawValue: sTag [{}]", sTag);
         if (eElement.getElementsByTagName(sTag).getLength() > 0) {
-            NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
-            Node nValue = nlList.item(0);
-
-            if (nValue == null) {
-            } else {
+            Node nValue = eElement.getElementsByTagName(sTag).item(0).getChildNodes().item(0);
+            if (nValue != null) {
                 return nValue.getNodeValue();
             }
         }
@@ -65,22 +62,13 @@ public class XMLHelper {
 
     public static int getIntTagValue(String sTag, Element eElement) {
         LOGGER.trace("getIntTagValue: sTag [{}]", sTag);
-        NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
-        Node nValue = nlList.item(0);
-
-        if (nValue == null) {
-            return 0;
-        } else {
-            return Integer.parseInt(nValue.getNodeValue());
-        }
-
+        Node nValue = eElement.getElementsByTagName(sTag).item(0).getChildNodes().item(0);
+        return nValue == null ? 0 : Integer.parseInt(nValue.getNodeValue());
     }
 
     public static boolean getBooleanTagValue(String sTag, Element eElement) {
         LOGGER.trace("getBooleanTagValue: sTag [{}]", sTag);
-        NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
-        Node nValue = nlList.item(0);
-
+        Node nValue = eElement.getElementsByTagName(sTag).item(0).getChildNodes().item(0);
         return nValue != null && Boolean.parseBoolean(nValue.getNodeValue());
     }
 
@@ -93,9 +81,7 @@ public class XMLHelper {
 
     public static String cleanBadChars(String string) {
         LOGGER.trace("cleanBadChars: string [{}]", string);
-        /*
-         * Remove bad chars for the find function of bierdopje api.
-         */
+        /* Remove bad chars for the find function of bierdopje api. */
         string = string.toLowerCase().replace(" and ", " & ");
         string = string.replace("&", "");
         string = string.replace("#", "");

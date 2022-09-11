@@ -20,10 +20,10 @@ public class EpisodeFileControl extends VideoFileControl {
     public TvRelease process(List<MappingTvdbScene> dict) throws ReleaseControlException {
         TvRelease tvRelease = (TvRelease) release;
         // return episodeFile;
-        if ("".equals(tvRelease.getShow())) {
+        if ("".equals(tvRelease.getShowName())) {
             throw new ReleaseControlException("Unable to extract episode details, check file", release);
         } else {
-            LOGGER.debug("process: showname [{}], season [{}], episode [{}]", tvRelease.getShow(),
+            LOGGER.debug("process: showname [{}], season [{}], episode [{}]", tvRelease.getShowName(),
                     tvRelease.getSeason(), tvRelease.getEpisodeNumbers());
 
             return tvRelease;

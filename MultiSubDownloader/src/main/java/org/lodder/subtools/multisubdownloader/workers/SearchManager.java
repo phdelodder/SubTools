@@ -1,7 +1,12 @@
 package org.lodder.subtools.multisubdownloader.workers;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 
 import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
@@ -10,8 +15,12 @@ import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.Sort
 import org.lodder.subtools.multisubdownloader.listeners.SearchProgressListener;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
+
+import lombok.Getter;
+import lombok.Setter;
 
 public class SearchManager implements Cancelable {
 
@@ -19,10 +28,13 @@ public class SearchManager implements Cancelable {
     protected Map<SubtitleProvider, SearchWorker> workers = new HashMap<>();
     protected Map<Release, ScoreCalculator> scoreCalculators = new HashMap<>();
     protected Settings settings;
+    @Getter
     protected int progress = 0;
     protected int totalJobs;
     protected SearchHandler onFound;
-    protected String language;
+    @Getter
+    @Setter
+    protected Language language;
     private SearchProgressListener progressListener;
 
     public SearchManager(Settings settings) {
@@ -31,10 +43,6 @@ public class SearchManager implements Cancelable {
 
     public void onFound(SearchHandler onFound) {
         this.onFound = onFound;
-    }
-
-    public void setLanguage(String language) {
-        this.language = language;
     }
 
     public void addProvider(SubtitleProvider provider) {
@@ -125,14 +133,6 @@ public class SearchManager implements Cancelable {
 
     public boolean hasNextRelease(SubtitleProvider provider) {
         return !queue.get(provider).isEmpty();
-    }
-
-    public String getLanguage() {
-        return this.language;
-    }
-
-    public int getProgress() {
-        return this.progress;
     }
 
     private int jobsLeft() {

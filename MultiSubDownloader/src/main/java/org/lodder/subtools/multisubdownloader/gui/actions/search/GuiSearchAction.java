@@ -9,6 +9,7 @@ import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchPanel;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 
@@ -36,9 +37,8 @@ public abstract class GuiSearchAction extends SearchAction {
     }
 
     @Override
-    protected String getLanguageCode() {
-        String language = this.searchPanel.getInputPanel().getSelectedLanguage();
-        return this.getLanguageCode(language);
+    protected Language getLanguage() {
+        return this.searchPanel.getInputPanel().getSelectedLanguage();
     }
 
     @Override

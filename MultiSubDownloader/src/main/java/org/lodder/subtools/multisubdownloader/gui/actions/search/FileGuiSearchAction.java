@@ -13,6 +13,7 @@ import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchFileInputPanel;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 
@@ -52,7 +53,7 @@ public class FileGuiSearchAction extends GuiSearchAction {
     protected List<Release> createReleases() throws ActionException {
         SearchFileInputPanel inputPanel = getInputPanel();
         String filePath = inputPanel.getIncomingPath();
-        String languageCode = getLanguageCode(inputPanel.getSelectedLanguage());
+        Language language = inputPanel.getSelectedLanguage();
         boolean recursive = inputPanel.isRecursiveSelected();
         boolean overwriteExistingSubtitles = inputPanel.isForceOverwrite();
 
@@ -60,7 +61,7 @@ public class FileGuiSearchAction extends GuiSearchAction {
         model.clearTable();
 
         /* get a list of videofiles */
-        List<File> files = getFiles(filePath, languageCode, recursive, overwriteExistingSubtitles);
+        List<File> files = getFiles(filePath, language, recursive, overwriteExistingSubtitles);
 
         /* create a list of releases from videofiles */
         return createReleases(files);
@@ -95,7 +96,7 @@ public class FileGuiSearchAction extends GuiSearchAction {
         return releases;
     }
 
-    private List<File> getFiles(String filePath, String languageCode, boolean recursive, boolean overwriteExistingSubtitles) {
+    private List<File> getFiles(String filePath, Language language, boolean recursive, boolean overwriteExistingSubtitles) {
         /* Get a list of selected directories */
         List<File> dirs = new ArrayList<>();
         if (!filePath.isEmpty()) {
@@ -110,7 +111,7 @@ public class FileGuiSearchAction extends GuiSearchAction {
 
         /* Start the getFileListing Action */
         return dirs.stream()
-                .flatMap(dir -> this.filelistAction.getFileListing(dir, recursive, languageCode, overwriteExistingSubtitles).stream())
+                .flatMap(dir -> this.filelistAction.getFileListing(dir, recursive, language, overwriteExistingSubtitles).stream())
                 .collect(Collectors.toList());
     }
 

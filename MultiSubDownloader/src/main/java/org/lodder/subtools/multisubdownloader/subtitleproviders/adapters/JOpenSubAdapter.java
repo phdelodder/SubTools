@@ -2,8 +2,8 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
@@ -11,13 +11,13 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesHasher;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.OpenSubtitlesApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.exception.OpenSubtitlesException;
-import org.lodder.subtools.sublibrary.JSubAdapter;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
-import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.opensubtitles.invoker.ApiException;
@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import com.pivovarit.function.ThrowingSupplier;
 
-public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
+public class JOpenSubAdapter implements SubtitleProvider {
 
     private static OpenSubtitlesApi osApi;
     private static final Logger LOGGER = LoggerFactory.getLogger(JOpenSubAdapter.class);
@@ -48,30 +48,20 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
     }
 
     @Override
-    public String getName() {
-        return "OpenSubtitles";
+    public SubtitleSource getSubtitleSource() {
+        return SubtitleSource.OPENSUBTITLES;
     }
 
     @Override
-    public List<Subtitle> search(Release release, String languageCode) {
-        if (release instanceof MovieRelease movieRelease) {
-            return this.searchSubtitles(movieRelease, languageCode);
-        } else if (release instanceof TvRelease tvRelease) {
-            return this.searchSubtitles(tvRelease, languageCode);
-        }
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<Subtitle> searchSubtitles(MovieRelease movieRelease, String... languageIds) {
-        List<org.opensubtitles.model.Subtitle> subtitles = new ArrayList<>();
+    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
+        Set<org.opensubtitles.model.Subtitle> subtitles = new HashSet<>();
         if (!"".equals(movieRelease.getFilename())) {
             File file = new File(movieRelease.getPath(), movieRelease.getFilename());
             if (file.exists()) {
                 try {
                     osApi.searchSubtitles()
-                            .moviehash(OpenSubtitlesHasher.computeHash(file))
-                            .languages(languageIds)
+                            .movieHash(OpenSubtitlesHasher.computeHash(file))
+                            .language(language)
                             .searchSubtitles()
                             .getData().forEach(subtitles::add);
                 } catch (ApiException e) {
@@ -81,11 +71,11 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
                 }
             }
         }
-        if (movieRelease.getImdbid() != 0) {
+        if (movieRelease.getImdbId() != 0) {
             try {
                 osApi.searchSubtitles()
-                        .imdbId(movieRelease.getImdbid())
-                        .languages(languageIds)
+                        .imdbId(movieRelease.getImdbId())
+                        .language(language)
                         .searchSubtitles()
                         .getData().forEach(subtitles::add);
             } catch (ApiException e) {
@@ -96,7 +86,7 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
             try {
                 osApi.searchSubtitles()
                         .query(movieRelease.getTitle())
-                        .languages(languageIds)
+                        .language(language)
                         .searchSubtitles()
                         .getData().forEach(subtitles::add);
             } catch (ApiException e) {
@@ -106,12 +96,12 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
         return subtitles.stream().map(org.opensubtitles.model.Subtitle::getAttributes)
                 .filter(attributes -> movieRelease.getYear() == attributes.getFeatureDetails().getYear().intValue())
                 .flatMap(attributes -> attributes.getFiles().stream().map(file -> createSubtitle(file, attributes)))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     @Override
-    public List<Subtitle> searchSubtitles(TvRelease tvRelease, String... languageIds) {
-        List<org.opensubtitles.model.Subtitle> subtitles = new ArrayList<>();
+    public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
+        Set<org.opensubtitles.model.Subtitle> subtitles = new HashSet<>();
         if (tvRelease.getOriginalShowName().length() > 0) {
             tvRelease.getEpisodeNumbers().forEach(episode -> {
                 try {
@@ -119,7 +109,7 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
                             .query(tvRelease.getOriginalShowName())
                             .season(tvRelease.getSeason())
                             .episode(episode)
-                            .languages(languageIds)
+                            .language(language)
                             .searchSubtitles()
                             .getData().forEach(subtitles::add);
                 } catch (ApiException e) {
@@ -127,14 +117,14 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
                 }
             });
         }
-        if (tvRelease.getOriginalShowName().length() == 0 || !tvRelease.getOriginalShowName().equalsIgnoreCase(tvRelease.getShow())) {
+        if (tvRelease.getOriginalShowName().length() == 0 || !tvRelease.getOriginalShowName().equalsIgnoreCase(tvRelease.getShowName())) {
             tvRelease.getEpisodeNumbers().forEach(episode -> {
                 try {
                     osApi.searchSubtitles()
-                            .query(tvRelease.getShow())
+                            .query(tvRelease.getShowName())
                             .season(tvRelease.getSeason())
                             .episode(episode)
-                            .languages(languageIds)
+                            .language(language)
                             .searchSubtitles()
                             .getData().forEach(subtitles::add);
                 } catch (ApiException e) {
@@ -143,7 +133,7 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
             });
         }
 
-        String name = tvRelease.getShow().replaceAll("[^A-Za-z]", "").toLowerCase();
+        String name = tvRelease.getShowName().replaceAll("[^A-Za-z]", "").toLowerCase();
         String originalName = tvRelease.getOriginalShowName().replaceAll("[^A-Za-z]", "").toLowerCase();
 
         return subtitles.stream().map(org.opensubtitles.model.Subtitle::getAttributes)
@@ -153,7 +143,7 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
                             return subFileName.contains(name) || originalName.length() > 0 && subFileName.contains(originalName);
                         })
                         .map(file -> createSubtitle(file, attributes)))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     private Subtitle createSubtitle(Latest200ResponseDataInnerAttributesFilesInner file, SubtitleAttributes attributes) {
@@ -164,9 +154,14 @@ public class JOpenSubAdapter implements JSubAdapter, SubtitleProvider {
                 throw new ManagerException(e);
             }
         };
-        return new Subtitle(Subtitle.SubtitleSource.OPENSUBTITLES, file.getFileName(), urlSupplier, attributes.getLanguage(),
-                ReleaseParser.getQualityKeyword(file.getFileName()), SubtitleMatchType.EVERYTHING,
-                ReleaseParser.extractReleasegroup(file.getFileName(), FilenameUtils.isExtension(file.getFileName(), "srt")),
-                attributes.getUploader().getName(), attributes.isHearingImpaired());
+        return Subtitle.downloadSource(urlSupplier)
+                .subtitleSource(getSubtitleSource())
+                .fileName(file.getFileName())
+                .language(Language.fromIdOptional(attributes.getLanguage()).orElse(null))
+                .quality(ReleaseParser.getQualityKeyword(file.getFileName()))
+                .subtitleMatchType(SubtitleMatchType.EVERYTHING)
+                .releaseGroup(ReleaseParser.extractReleasegroup(file.getFileName(), FilenameUtils.isExtension(file.getFileName(), "srt")))
+                .uploader(attributes.getUploader().getName())
+                .hearingImpaired(attributes.isHearingImpaired());
     }
 }

@@ -1,18 +1,15 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum TypeEnum implements ParamIntf {
     MOVIE("movie"), EPISODE("episode"), ALL("all");
 
     private final String value;
-
-    TypeEnum(String value) {
-        this.value = value;
-    }
-
-    @Override
-    public String getValue() {
-        return value;
-    }
 
     @Override
     public String toString() {

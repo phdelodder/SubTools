@@ -18,8 +18,8 @@ public class ExactNameFilter extends Filter {
     public List<Subtitle> doFilter(Release release, List<Subtitle> subtitles) {
         Pattern p = Pattern.compile(getReleasename(release).replace(" ", "[. ]"), Pattern.CASE_INSENSITIVE);
         return subtitles.stream()
-                .filter(subtitle -> p.matcher(subtitle.getFilename().toLowerCase().replace(".srt", "")).matches())
-                .peek(subtitle -> LOGGER.debug("getSubtitlesFiltered: found EXACT match [{}] ", subtitle.getFilename()))
+                .filter(subtitle -> p.matcher(subtitle.getFileName().toLowerCase().replace(".srt", "")).matches())
+                .peek(subtitle -> LOGGER.debug("getSubtitlesFiltered: found EXACT match [{}] ", subtitle.getFileName()))
                 .peek(subtitle -> subtitle.setSubtitleMatchType(SubtitleMatchType.EXACT))
                 .collect(Collectors.toList());
     }

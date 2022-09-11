@@ -49,9 +49,6 @@ public class DOMHelper {
         }
 
         NodeList tagNodeList = tagElement.getChildNodes();
-        if (tagNodeList == null || tagNodeList.getLength() == 0) {
-            return "";
-        }
-        return tagNodeList.item(0).getNodeValue();
+        return tagNodeList.getLength() == 0 ? "" : tagNodeList.item(0).getNodeValue();
     }
 }

@@ -1,6 +1,10 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.LongBuffer;
@@ -39,26 +43,27 @@ public class OpenSubtitlesHasher {
         // buffer that will contain the head and the tail chunk, chunks will overlap if length is smaller than two chunks
         byte[] chunkBytes = new byte[(int) Math.min(2 * HASH_CHUNK_SIZE, length)];
 
-        DataInputStream in = new DataInputStream(stream);
+        try (DataInputStream in = new DataInputStream(stream)) {
 
-        // first chunk
-        in.readFully(chunkBytes, 0, chunkSizeForFile);
+            // first chunk
+            in.readFully(chunkBytes, 0, chunkSizeForFile);
 
-        long position = chunkSizeForFile;
-        long tailChunkPosition = length - chunkSizeForFile;
+            long position = chunkSizeForFile;
+            long tailChunkPosition = length - chunkSizeForFile;
 
-        // seek to position of the tail chunk, or not at all if length is smaller than two chunks
-        while (position < tailChunkPosition && (position += in.skip(tailChunkPosition - position)) >= 0) {
-            
+            // seek to position of the tail chunk, or not at all if length is smaller than two chunks
+            while (position < tailChunkPosition && (position += in.skip(tailChunkPosition - position)) >= 0) {
+
+            }
+
+            // second chunk, or the rest of the data if length is smaller than two chunks
+            in.readFully(chunkBytes, chunkSizeForFile, chunkBytes.length - chunkSizeForFile);
+
+            long head = computeHashForChunk(ByteBuffer.wrap(chunkBytes, 0, chunkSizeForFile));
+            long tail = computeHashForChunk(ByteBuffer.wrap(chunkBytes, chunkBytes.length - chunkSizeForFile, chunkSizeForFile));
+
+            return String.format("%016x", length + head + tail);
         }
-
-        // second chunk, or the rest of the data if length is smaller than two chunks
-        in.readFully(chunkBytes, chunkSizeForFile, chunkBytes.length - chunkSizeForFile);
-
-        long head = computeHashForChunk(ByteBuffer.wrap(chunkBytes, 0, chunkSizeForFile));
-        long tail = computeHashForChunk(ByteBuffer.wrap(chunkBytes, chunkBytes.length - chunkSizeForFile, chunkSizeForFile));
-
-        return String.format("%016x", length + head + tail);
     }
 
     private static long computeHashForChunk(ByteBuffer buffer) {

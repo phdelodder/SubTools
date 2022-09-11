@@ -33,7 +33,7 @@ public class TvReleaseControl extends ReleaseControl {
     public void processTvdb(List<MappingTvdbScene> dict) throws ReleaseControlException {
         setTvdbID(dict);
         TvRelease tvRelease = (TvRelease) release;
-        if (tvRelease.getTvdbid() > 0) {
+        if (tvRelease.getTvdbId() > 0) {
             TheTVDBEpisode thetvdbepisode = jtvdba.getEpisode(tvRelease);
             if (thetvdbepisode != null) {
                 tvRelease.updateTvdbEpisodeInfo(thetvdbepisode);
@@ -49,7 +49,7 @@ public class TvReleaseControl extends ReleaseControl {
     public void processTVRage() throws ReleaseControlException {
         setTvrageID();
         TvRelease tvRelease = (TvRelease) release;
-        TVRageEpisode tvrEpisode = tvra.getEpisodeInfo(tvRelease.getTvrageid(), tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0));
+        TVRageEpisode tvrEpisode = tvra.getEpisodeInfo(tvRelease.getTvrageId(), tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0));
         if (tvrEpisode != null) {
             tvRelease.updateTVRageEpisodeInfo(tvrEpisode);
         } else {
@@ -62,10 +62,10 @@ public class TvReleaseControl extends ReleaseControl {
     public void process(List<MappingTvdbScene> dict) throws ReleaseControlException {
         TvRelease tvRelease = (TvRelease) release;
         // return episodeFile;
-        if ("".equals(tvRelease.getShow())) {
+        if ("".equals(tvRelease.getShowName())) {
             throw new ReleaseControlException("Unable to extract episode details, check file", release);
         } else {
-            LOGGER.debug("process: showname [{}], season [{}], episode [{}]", tvRelease.getShow(),
+            LOGGER.debug("process: showname [{}], season [{}], episode [{}]", tvRelease.getShowName(),
                     tvRelease.getSeason(), tvRelease.getEpisodeNumbers());
 
             if (tvRelease.isSpecial()) {
@@ -89,14 +89,14 @@ public class TvReleaseControl extends ReleaseControl {
         TheTVDBEpisode thetvdbepisode = null;
         setTvrageID();
         TvRelease tvRelease = (TvRelease) release;
-        if (tvRelease.getTvrageid() > 0) {
-            tvrEpisode = tvra.getEpisodeInfo(tvRelease.getTvrageid(), tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0));
+        if (tvRelease.getTvrageId() > 0) {
+            tvrEpisode = tvra.getEpisodeInfo(tvRelease.getTvrageId(), tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0));
             if (tvrEpisode != null && settings.getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVRAGE) {
                 tvRelease.updateTVRageEpisodeInfo(tvrEpisode);
             }
         }
         setTvdbID(dict);
-        if (tvRelease.getTvdbid() > 0) {
+        if (tvRelease.getTvdbId() > 0) {
             thetvdbepisode = jtvdba.getEpisode(tvRelease);
             if (thetvdbepisode != null && settings.getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVDB) {
                 tvRelease.updateTvdbEpisodeInfo(thetvdbepisode);
@@ -108,7 +108,7 @@ public class TvReleaseControl extends ReleaseControl {
         TvRelease tvRelease = (TvRelease) release;
         int tvdbid = dict.stream()
                 .filter(mapping -> mapping.getSceneName().replaceAll("[^A-Za-z]", "")
-                        .equalsIgnoreCase(tvRelease.getShow().replaceAll("[^A-Za-z]", "")))
+                        .equalsIgnoreCase(tvRelease.getShowName().replaceAll("[^A-Za-z]", "")))
                 .map(MappingTvdbScene::getTvdbId)
                 .findAny().orElse(0);
 
@@ -118,13 +118,13 @@ public class TvReleaseControl extends ReleaseControl {
             throw new ReleaseControlException("Tvdb API, returned no result", release);
         }
         tvRelease.setOriginalShowName(thetvdbserie.getSerieName());
-        tvRelease.setTvdbid(Integer.parseInt(thetvdbserie.getId()));
+        tvRelease.setTvdbId(Integer.parseInt(thetvdbserie.getId()));
     }
 
     private void setTvrageID() {
         TVRageShowInfo tvrShowInfo = tvra.searchShow((TvRelease) release);
         if (tvrShowInfo != null) {
-            ((TvRelease) release).setTvrageid(tvrShowInfo.getShowID());
+            ((TvRelease) release).setTvrageId(tvrShowInfo.getShowId());
         }
     }
 }

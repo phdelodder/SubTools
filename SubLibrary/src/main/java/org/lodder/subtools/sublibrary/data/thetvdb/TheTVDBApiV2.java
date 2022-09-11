@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.slf4j.Logger;
@@ -30,10 +31,11 @@ public class TheTVDBApiV2 {
         theTvdb = new TheTvdb(apikey);
     }
 
-    public int searchSerie(String seriename, String language) throws TheTVDBException {
+    public int searchSerie(String seriename, Language language) throws TheTVDBException {
         try {
-            String encodedSerieName = URLEncoder.encode(seriename, StandardCharsets.UTF_8);
-            Response<SeriesResultsResponse> response = theTvdb.search().series(encodedSerieName, null, null, null, language).execute();
+            String encodedSerieName = URLEncoder.encode(seriename.replace(" ", "-"), StandardCharsets.UTF_8);
+            Response<SeriesResultsResponse> response =
+                    theTvdb.search().series(encodedSerieName, null, null, null, language == null ? null : language.getLangCode()).execute();
             if (response.isSuccessful()) {
                 List<Series> series = response.body().data;
                 if (series.size() > 0) {
@@ -46,10 +48,10 @@ public class TheTVDBApiV2 {
         }
     }
 
-    public TheTVDBSerie getSerie(int tvdbid, String language) throws TheTVDBException {
+    public TheTVDBSerie getSerie(int tvdbId, Language language) throws TheTVDBException {
         try {
-            if (tvdbid != 0) {
-                Response<SeriesResponse> response = theTvdb.series().series(tvdbid, language).execute();
+            if (tvdbId != 0) {
+                Response<SeriesResponse> response = theTvdb.series().series(tvdbId, language == null ? null : language.getLangCode()).execute();
                 if (response.isSuccessful()) {
                     return seriesToTVDBSerie(response.body().data, language);
                 }
@@ -62,10 +64,11 @@ public class TheTVDBApiV2 {
         }
     }
 
-    public List<TheTVDBEpisode> getAllEpisodes(int tvdbid, String language) throws TheTVDBException {
+    public List<TheTVDBEpisode> getAllEpisodes(int tvdbid, Language language) throws TheTVDBException {
         try {
             if (tvdbid != 0) {
-                Response<EpisodesResponse> response = theTvdb.series().episodes(tvdbid, 1, language).execute();
+                Response<EpisodesResponse> response =
+                        theTvdb.series().episodes(tvdbid, 1, language == null ? null : language.getLangCode()).execute();
                 if (response.isSuccessful()) {
                     List<TheTVDBEpisode> tvdpEpisodes = new ArrayList<>();
                     for (Episode episode : response.body().data) {
@@ -82,10 +85,11 @@ public class TheTVDBApiV2 {
         }
     }
 
-    public TheTVDBEpisode getEpisode(int tvdbid, int season, int episode, String language) throws TheTVDBException {
+    public TheTVDBEpisode getEpisode(int tvdbid, int season, int episode, Language language) throws TheTVDBException {
         try {
             Response<EpisodesResponse> response =
-                    theTvdb.series().episodesQuery(tvdbid, null, season, episode, null, null, null, null, null, language).execute();
+                    theTvdb.series().episodesQuery(tvdbid, null, season, episode, null, null, null, null, null,
+                            language == null ? null : language.getLangCode()).execute();
             if (response.isSuccessful()) {
                 List<Episode> series = response.body().data;
                 if (series.size() > 0) {
@@ -99,7 +103,7 @@ public class TheTVDBApiV2 {
         }
     }
 
-    private TheTVDBSerie seriesToTVDBSerie(Series serie, String lang) {
+    private TheTVDBSerie seriesToTVDBSerie(Series serie, Language lang) {
         TheTVDBSerie TheTVDBSerie = new TheTVDBSerie();
 
         TheTVDBSerie.setId(toString(serie.id));
@@ -121,7 +125,7 @@ public class TheTVDBApiV2 {
         return TheTVDBSerie;
     }
 
-    private TheTVDBEpisode episodeToTVDBEpisode(Episode episode, String lang) {
+    private TheTVDBEpisode episodeToTVDBEpisode(Episode episode, Language lang) {
         TheTVDBEpisode tvdbEpisode = new TheTVDBEpisode();
 
         tvdbEpisode.setId(toString(episode.id));

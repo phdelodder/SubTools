@@ -3,6 +3,7 @@ package org.lodder.subtools.sublibrary.data;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
@@ -11,8 +12,10 @@ import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 
 import com.pivovarit.function.ThrowingSupplier;
 
-public class Html {
+import lombok.Getter;
 
+public class Html {
+    @Getter
     private final Manager manager;
     private String userAgent;
 
@@ -28,6 +31,10 @@ public class Html {
 
     public void setUserAgent(String userAgent) {
         this.userAgent = userAgent;
+    }
+
+    public void storeCookies(String domain, Map<String, String> cookieMap) {
+        manager.storeCookies(domain, cookieMap);
     }
 
     public String getHtml(String url) throws IOException, HttpClientException, ManagerSetupException, ManagerException {
@@ -62,5 +69,14 @@ public class Html {
     public <X extends Exception> Optional<String> getOptionalValueDisk(String key, ThrowingSupplier<Optional<String>, X> valueSupplier)
             throws X, ManagerSetupException {
         return manager.getOptionalValue(key, valueSupplier, true);
+    }
+
+    public void sleepSeconds(long seconds) {
+        try {
+            TimeUnit.SECONDS.sleep(seconds);
+        } catch (InterruptedException e1) {
+            // restore interrupted status
+            Thread.currentThread().interrupt();
+        }
     }
 }

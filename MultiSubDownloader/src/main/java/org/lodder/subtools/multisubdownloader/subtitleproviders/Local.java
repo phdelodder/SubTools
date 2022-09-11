@@ -2,18 +2,24 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.lodder.subtools.multisubdownloader.lib.control.MovieReleaseControl;
 import org.lodder.subtools.multisubdownloader.lib.control.TvReleaseControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.DetectLanguage;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
+import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
+import org.lodder.subtools.sublibrary.exception.ReleaseParseException;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoType;
@@ -34,18 +40,8 @@ public class Local implements SubtitleProvider {
     }
 
     @Override
-    public String getName() {
-        return "Local";
-    }
-
-    @Override
-    public List<Subtitle> search(Release release, String languageCode) {
-        if (release instanceof MovieRelease movieRelease) {
-            return this.search(movieRelease, languageCode);
-        } else if (release instanceof TvRelease tvRelease) {
-            return this.search(tvRelease, languageCode);
-        }
-        return new ArrayList<>();
+    public SubtitleSource getSubtitleSource() {
+        return SubtitleSource.LOCAL;
     }
 
     private List<File> getPossibleSubtitles(String filter) {
@@ -54,15 +50,16 @@ public class Local implements SubtitleProvider {
                 .collect(Collectors.toList());
     }
 
-    public List<Subtitle> search(TvRelease tvRelease, String languagecode) {
-        List<Subtitle> listFoundSubtitles = new ArrayList<>();
+    @Override
+    public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
+        Set<Subtitle> listFoundSubtitles = new HashSet<>();
         ReleaseParser vfp = new ReleaseParser();
 
         String filter = "";
         if (tvRelease.getOriginalShowName().length() > 0) {
             filter = tvRelease.getOriginalShowName().replaceAll("[^A-Za-z]", "").trim();
         } else {
-            filter = tvRelease.getShow().replaceAll("[^A-Za-z]", "").trim();
+            filter = tvRelease.getShowName().replaceAll("[^A-Za-z]", "").trim();
         }
 
         for (File fileSub : getPossibleSubtitles(filter)) {
@@ -74,20 +71,24 @@ public class Local implements SubtitleProvider {
 
                     TvReleaseControl epCtrl = new TvReleaseControl((TvRelease) release, settings, manager);
                     epCtrl.process(settings.getMappingSettings().getMappingList());
-                    if (((TvRelease) release).getTvdbid() == tvRelease.getTvdbid()) {
-                        String detectedLang = DetectLanguage.execute(fileSub);
-                        if (detectedLang.equals(languagecode)) {
+                    if (((TvRelease) release).getTvdbId() == tvRelease.getTvdbId()) {
+                        Language detectedLang = DetectLanguage.execute(fileSub);
+                        if (detectedLang == language) {
                             LOGGER.debug("Local Sub found, adding [{}]", fileSub.toString());
-                            listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.LOCAL,
-                                    fileSub.getName(), fileSub, languagecode,
-                                    ReleaseParser.getQualityKeyword(fileSub.getName()),
-                                    SubtitleMatchType.EVERYTHING,
-                                    ReleaseParser.extractReleasegroup(fileSub.getName(), true),
-                                    fileSub.getAbsolutePath(), false));
+                            listFoundSubtitles.add(
+                                    Subtitle.downloadSource(fileSub)
+                                            .subtitleSource(getSubtitleSource())
+                                            .fileName(fileSub.getName())
+                                            .language(language)
+                                            .quality(ReleaseParser.getQualityKeyword(fileSub.getName()))
+                                            .subtitleMatchType(SubtitleMatchType.EVERYTHING)
+                                            .releaseGroup(ReleaseParser.extractReleasegroup(fileSub.getName(), true))
+                                            .uploader(fileSub.getAbsolutePath())
+                                            .hearingImpaired(false));
                         }
                     }
                 }
-            } catch (Exception e) {
+            } catch (ReleaseParseException | ReleaseControlException e) {
                 if (LOGGER.isDebugEnabled() || LOGGER.isTraceEnabled()) {
                     LOGGER.error(e.getMessage(), e);
                 } else {
@@ -99,8 +100,9 @@ public class Local implements SubtitleProvider {
         return listFoundSubtitles;
     }
 
-    public List<Subtitle> search(MovieRelease movieRelease, String languagecode) {
-        List<Subtitle> listFoundSubtitles = new ArrayList<>();
+    @Override
+    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
+        Set<Subtitle> listFoundSubtitles = new HashSet<>();
         ReleaseParser releaseParser = new ReleaseParser();
 
         String filter = movieRelease.getTitle();
@@ -111,19 +113,24 @@ public class Local implements SubtitleProvider {
                 if (release.getVideoType() == VideoType.MOVIE) {
                     MovieReleaseControl movieCtrl = new MovieReleaseControl((MovieRelease) release, settings, manager);
                     movieCtrl.process(settings.getMappingSettings().getMappingList());
-                    if (((MovieRelease) release).getImdbid() == movieRelease.getImdbid()) {
-                        String detectedLang = DetectLanguage.execute(fileSub);
-                        if (detectedLang.equals(languagecode)) {
+                    if (((MovieRelease) release).getImdbId() == movieRelease.getImdbId()) {
+                        Language detectedLang = DetectLanguage.execute(fileSub);
+                        if (detectedLang == language) {
                             LOGGER.debug("Local Sub found, adding {}", fileSub.toString());
-                            listFoundSubtitles.add(new Subtitle(Subtitle.SubtitleSource.LOCAL, fileSub.getName(),
-                                    fileSub, "", ReleaseParser.getQualityKeyword(fileSub.getName()),
-                                    SubtitleMatchType.EVERYTHING,
-                                    ReleaseParser.extractReleasegroup(fileSub.getName(), true),
-                                    fileSub.getAbsolutePath(), false));
+                            listFoundSubtitles.add(
+                                    Subtitle.downloadSource(fileSub)
+                                            .subtitleSource(getSubtitleSource())
+                                            .fileName(fileSub.getName())
+                                            .language(language) // TODO previously: language(""). This was not correct?
+                                            .quality(ReleaseParser.getQualityKeyword(fileSub.getName()))
+                                            .subtitleMatchType(SubtitleMatchType.EVERYTHING)
+                                            .releaseGroup(ReleaseParser.extractReleasegroup(fileSub.getName(), true))
+                                            .uploader(fileSub.getAbsolutePath())
+                                            .hearingImpaired(false));
                         }
                     }
                 }
-            } catch (Exception e) {
+            } catch (ReleaseParseException | ReleaseControlException e) {
                 if (LOGGER.isDebugEnabled() || LOGGER.isTraceEnabled()) {
                     LOGGER.error(e.getMessage(), e);
                 } else {

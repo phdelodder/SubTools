@@ -21,13 +21,13 @@ public class KeywordFilter extends Filter {
 
         for (Subtitle subtitle : Subtitles) {
             if (subtitle.getQuality().isEmpty()) {
-                subtitle.setQuality(ReleaseParser.getQualityKeyword(subtitle.getFilename()));
+                subtitle.setQuality(ReleaseParser.getQualityKeyword(subtitle.getFileName()));
             }
 
             boolean checkKeywordMatch = checkKeywordSubtitleMatch(subtitle, keywordsFile);
 
             if (checkKeywordMatch) {
-                LOGGER.debug("getSubtitlesFiltered: found KEYWORD match [{}] ", subtitle.getFilename());
+                LOGGER.debug("getSubtitlesFiltered: found KEYWORD match [{}] ", subtitle.getFileName());
 
                 subtitle.setSubtitleMatchType(SubtitleMatchType.KEYWORD);
 

@@ -6,9 +6,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.ManagerSetupException;
@@ -16,6 +18,7 @@ import org.lodder.subtools.sublibrary.data.XmlHTTP;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
+import org.lodder.subtools.sublibrary.xml.XmlExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -24,6 +27,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import lombok.experimental.ExtensionMethod;
+
+@ExtensionMethod({ XmlExtension.class })
 public class TheTVDBApi {
 
     private final XmlHTTP xmlHTTPAPI;
@@ -46,7 +52,7 @@ public class TheTVDBApi {
         setApiKey(apikey);
     }
 
-    public int searchSerie(String seriename, String language) throws TheTVDBException {
+    public int searchSerie(String seriename, Language language) throws TheTVDBException {
         String url = getXmlMirror() + "/api/GetSeries.php?seriesname=";
 
         try {
@@ -88,7 +94,7 @@ public class TheTVDBApi {
         return 0;
     }
 
-    public TheTVDBSerie getSerie(int tvdbid, String language) throws TheTVDBException {
+    public TheTVDBSerie getSerie(int tvdbid, Language language) throws TheTVDBException {
         try {
             if (tvdbid != 0) {
                 String url = createApiUrl("series", new String[] { Integer.toString(tvdbid) });
@@ -134,30 +140,21 @@ public class TheTVDBApi {
         return null;
     }
 
-    public List<TheTVDBEpisode> getAllEpisodes(int tvdbid, String language) throws TheTVDBException {
-        List<TheTVDBEpisode> epList = new ArrayList<>();
-        String url = createApiUrl("series", new String[] { Integer.toString(tvdbid), ALL_URL });
-        Document doc;
+    public List<TheTVDBEpisode> getAllEpisodes(int tvdbId, Language language) throws TheTVDBException {
+        String url = createApiUrl("series", new String[] { Integer.toString(tvdbId), ALL_URL });
 
         try {
-            doc = xmlHTTPAPI.getXMLDisk(url);
-            NodeList nList = doc.getElementsByTagName("Episode");
-
-            for (int i = 0; i < nList.getLength(); i++) {
-                if (nList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                    Element eElement = (Element) nList.item(i);
-                    TheTVDBEpisode ep = parseEpisodeNode(eElement);
-                    epList.add(ep);
-                }
-            }
+            return xmlHTTPAPI.getXMLDisk(url).getElementsByTagName("Episode").stream()
+                    .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
+                    .map(Element.class::cast)
+                    .map(this::parseEpisodeNode)
+                    .collect(Collectors.toList());
         } catch (ManagerSetupException | ManagerException | ParserConfigurationException | SAXException | IOException e) {
             throw new TheTVDBException(e);
         }
-
-        return epList;
     }
 
-    public TheTVDBEpisode getEpisode(int tvdbid, int season, int episode, String language) throws TheTVDBException {
+    public TheTVDBEpisode getEpisode(int tvdbid, int season, int episode, Language language) throws TheTVDBException {
         StringBuilder urlString = new StringBuilder();
         try {
             urlString.append(getXmlMirror());
@@ -171,7 +168,7 @@ public class TheTVDBApi {
             urlString.append(episode);
             urlString.append("/");
             if (language != null) {
-                urlString.append(language).append(XML_EXTENSION);
+                urlString.append(language.getLangCode()).append(XML_EXTENSION);
             }
             Document doc = xmlHTTPAPI.getXMLDisk(urlString.toString());
 
@@ -203,7 +200,7 @@ public class TheTVDBApi {
         episode.setFirstAired(XMLHelper.getStringTagValue("FirstAired", eElement));
         episode.setGuestStars(parseList(XMLHelper.getStringTagValue("GuestStars", eElement), "|,"));
         episode.setImdbId(XMLHelper.getStringTagValue("IMDB_ID", eElement));
-        episode.setLanguage(XMLHelper.getStringTagValue("Language", eElement));
+        episode.setLanguage(Language.fromIdOptional(XMLHelper.getStringTagValue("Language", eElement)).orElse(null));
         episode.setOverview(XMLHelper.getStringTagValue("Overview", eElement));
         episode.setProductionCode(XMLHelper.getStringTagValue("ProductionCode", eElement));
         episode.setRating(XMLHelper.getStringTagValue("Rating", eElement));
@@ -256,7 +253,7 @@ public class TheTVDBApi {
         TheTVDBSerie.setFirstAired(XMLHelper.getStringTagValue("FirstAired", eElement));
         TheTVDBSerie.setGenres(parseList(XMLHelper.getStringTagValue("Genre", eElement), "|,"));
         TheTVDBSerie.setImdbId(XMLHelper.getStringTagValue("IMDB_ID", eElement));
-        TheTVDBSerie.setLanguage(XMLHelper.getStringTagValue("Language", eElement));
+        TheTVDBSerie.setLanguage(Language.fromIdOptional(XMLHelper.getStringTagValue("Language", eElement)).orElse(null));
         TheTVDBSerie.setNetwork(XMLHelper.getStringTagValue("Network", eElement));
         TheTVDBSerie.setOverview(XMLHelper.getStringTagValue("Overview", eElement));
         TheTVDBSerie.setRating(XMLHelper.getStringTagValue("Rating", eElement));

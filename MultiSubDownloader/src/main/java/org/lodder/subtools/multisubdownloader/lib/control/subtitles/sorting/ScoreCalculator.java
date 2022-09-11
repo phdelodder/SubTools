@@ -15,9 +15,9 @@ public class ScoreCalculator {
             return 0;
         }
 
-        String subtitleInfo = subtitle.getFilename();
+        String subtitleInfo = subtitle.getFileName();
         subtitleInfo += " " + subtitle.getQuality();
-        subtitleInfo += " " + subtitle.getReleasegroup();
+        subtitleInfo += " " + subtitle.getReleaseGroup();
 
         subtitleInfo = subtitleInfo.trim().toLowerCase();
 

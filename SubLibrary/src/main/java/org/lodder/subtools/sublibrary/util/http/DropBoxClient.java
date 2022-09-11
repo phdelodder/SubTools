@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import org.lodder.subtools.sublibrary.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,7 @@ public class DropBoxClient {
         return success;
     }
 
-    public void put(File inputFile, String filename, String languageCode) {
+    public void put(File inputFile, String filename, Language language) {
         // FileInputStream inputStream = null;
         // try {
         // inputStream = new FileInputStream(inputFile);

@@ -137,7 +137,7 @@ public class VideoTableModel extends DefaultTableModel {
             columnName = this.getColumnName(i);
             if (SearchColumnName.RELEASE.getColumnName().equals(columnName)) {
                 if (release instanceof TvRelease) {
-                    row[i] = ((TvRelease) release).getShow();
+                    row[i] = ((TvRelease) release).getShowName();
                 } else if (release instanceof MovieRelease) {
                     row[i] = ((MovieRelease) release).getTitle();
                 }
@@ -181,7 +181,7 @@ public class VideoTableModel extends DefaultTableModel {
         for (int i = 0; i < cCount; i++) {
             columnName = this.getColumnName(i);
             if (SearchColumnName.FILENAME.getColumnName().equals(columnName)) {
-                row[i] = subtitle.getFilename();
+                row[i] = subtitle.getFileName();
             } else if (SearchColumnName.SELECT.getColumnName().equals(columnName)) {
                 row[i] = false;
             } else if (SearchColumnName.OBJECT.getColumnName().equals(columnName)) {

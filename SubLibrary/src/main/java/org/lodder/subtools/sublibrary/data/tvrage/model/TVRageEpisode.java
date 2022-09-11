@@ -31,6 +31,9 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.lodder.subtools.sublibrary.data.tvrage.TVRageApi;
 import org.lodder.subtools.sublibrary.data.tvrage.TVRageParser;
 
+import lombok.Getter;
+
+@Getter
 public class TVRageEpisode implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -56,34 +59,22 @@ public class TVRageEpisode implements Serializable {
         return episodeNumber.isValid() && isValidString(title);
     }
 
-    /**
+    /*
      * Added as a convenience method
-     *
-     * @return
      */
     public int getEpisode() {
         return episodeNumber.getEpisode();
     }
 
-    /**
+    /*
      * Added as a convenience method
-     *
-     * @return
      */
     public int getSeason() {
         return episodeNumber.getSeason();
     }
 
-    public String getProductionId() {
-        return productionId;
-    }
-
     public void setProductionId(String productionId) {
         this.productionId = isValidString(productionId) ? productionId.trim() : UNKNOWN;
-    }
-
-    public LocalDate getAirDate() {
-        return airDate;
     }
 
     public void setAirDate(LocalDate airDate) {
@@ -102,32 +93,16 @@ public class TVRageEpisode implements Serializable {
         }
     }
 
-    public String getLink() {
-        return link;
-    }
-
     public void setLink(String link) {
         this.link = isValidString(link) ? link.trim() : UNKNOWN;
-    }
-
-    public String getTitle() {
-        return title;
     }
 
     public void setTitle(String title) {
         this.title = isValidString(title) ? title.trim() : UNKNOWN;
     }
 
-    public String getSummary() {
-        return summary;
-    }
-
     public void setSummary(String summary) {
         this.summary = isValidString(summary) ? summary.trim() : UNKNOWN;
-    }
-
-    public float getRating() {
-        return rating;
     }
 
     public void setRating(float rating) {
@@ -141,10 +116,6 @@ public class TVRageEpisode implements Serializable {
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-    }
-
-    public String getScreenCap() {
-        return screenCap;
     }
 
     public void setScreenCap(String screenCap) {

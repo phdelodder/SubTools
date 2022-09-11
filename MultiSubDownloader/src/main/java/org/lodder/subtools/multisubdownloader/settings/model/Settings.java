@@ -6,7 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
+import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.settings.model.MappingSettings;
 
 import lombok.Getter;
@@ -37,15 +39,26 @@ public class Settings {
     private String loginOpenSubtitlesUsername;
     private String loginOpenSubtitlesPassword;
     private boolean serieSourceAddic7ed, serieSourceTvSubtitles, serieSourcePodnapisi,
-            serieSourceOpensubtitles, serieSourceLocal, serieSourceSubsMax, serieSourceSubscene;
+            serieSourceOpensubtitles, serieSourceLocal, serieSourceSubscene;
     private boolean autoUpdateMapping;
     private SettingsProcessEpisodeSource processEpisodeSource;
     private MappingSettings mappingSettings;
     private Map<String, Integer> sortWeights;
+    private Language subtitleLanguage;
+    @Getter
+    @Setter
     private boolean optionsMinAutomaticSelection;
+    @Getter
+    @Setter
     private int optionsMinAutomaticSelectionValue;
+    @Getter
+    @Setter
     private UpdateCheckPeriod updateCheckPeriod;
+    @Getter
+    @Setter
     private boolean optionsDefaultSelection;
+    @Getter
+    @Setter
     private List<String> optionsDefaultSelectionQualityList;
 
     public Settings() {
@@ -80,7 +93,6 @@ public class Settings {
         setOptionsDefaultSelectionQualityList(new ArrayList<String>());
     }
 
-
     public List<File> getDefaultFolders() {
         return getDefaultIncomingFolders();
     }
@@ -105,63 +117,22 @@ public class Settings {
         sortWeights.put("xvid", 1);
         sortWeights.put("divx", 1);
         sortWeights.put("x264", 1);
+        sortWeights.put("x265", 1);
         // keywords that might get matched too easily
         // sortWeights.remove("dl");
 
         return sortWeights;
     }
 
-    public boolean isSerieSource(String subtitleProviderName) {
+    public boolean isSerieSource(SubtitleSource sbtitleSource) {
         // TODO: dynamically inject SubtitleProvider to settings
-        return switch (subtitleProviderName) {
-            case "Addic7ed" -> this.isSerieSourceAddic7ed();
-            case "OpenSubtitles" -> this.isSerieSourceOpensubtitles();
-            case "Podnapisi" -> this.isSerieSourcePodnapisi();
-            case "SubsMax" -> this.isSerieSourceSubsMax();
-            case "TvSubtitles" -> this.isSerieSourceTvSubtitles();
-            case "Local" -> this.isSerieSourceLocal();
-            case "Subscene" -> this.isSerieSourceSubscene();
-            default -> false;
+        return switch (sbtitleSource) {
+            case ADDIC7ED -> this.isSerieSourceAddic7ed();
+            case OPENSUBTITLES -> this.isSerieSourceOpensubtitles();
+            case PODNAPISI -> this.isSerieSourcePodnapisi();
+            case TVSUBTITLES -> this.isSerieSourceTvSubtitles();
+            case LOCAL -> this.isSerieSourceLocal();
+            case SUBSCENE -> this.isSerieSourceSubscene();
         };
-    }
-
-    public boolean isOptionsMinAutomaticSelection() {
-        return optionsMinAutomaticSelection;
-    }
-
-    public void setOptionsMinAutomaticSelection(boolean optionsMinAutomaticSelection) {
-        this.optionsMinAutomaticSelection = optionsMinAutomaticSelection;
-    }
-
-    public int getOptionsMinAutomaticSelectionValue() {
-        return optionsMinAutomaticSelectionValue;
-    }
-
-    public void setOptionsMinAutomaticSelectionValue(int optionsMinAutomaticSelectionValue) {
-        this.optionsMinAutomaticSelectionValue = optionsMinAutomaticSelectionValue;
-    }
-
-    public UpdateCheckPeriod getUpdateCheckPeriod() {
-        return updateCheckPeriod;
-    }
-
-    public void setUpdateCheckPeriod(UpdateCheckPeriod updateCheckPeriod) {
-        this.updateCheckPeriod = updateCheckPeriod;
-    }
-
-    public boolean isOptionsDefaultSelection() {
-        return optionsDefaultSelection;
-    }
-
-    public void setOptionsDefaultSelection(boolean optionsDefaultSelection) {
-        this.optionsDefaultSelection = optionsDefaultSelection;
-    }
-
-    public List<String> getOptionsDefaultSelectionQualityList() {
-        return optionsDefaultSelectionQualityList;
-    }
-
-    public void setOptionsDefaultSelectionQualityList(List<String> optionsDefaultSelectionQualityList) {
-        this.optionsDefaultSelectionQualityList = optionsDefaultSelectionQualityList;
     }
 }

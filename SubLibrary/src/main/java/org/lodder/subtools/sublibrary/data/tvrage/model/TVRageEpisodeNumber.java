@@ -27,6 +27,9 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.math.NumberUtils;
 
+import lombok.Getter;
+
+@Getter
 public class TVRageEpisodeNumber implements Comparable<TVRageEpisodeNumber>, Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -83,18 +86,6 @@ public class TVRageEpisodeNumber implements Comparable<TVRageEpisodeNumber>, Ser
         return calculateAbsolute(season, episode) - calculateAbsolute(otherSeason, otherEpisode);
     }
 
-    public int getAbsolute() {
-        return absolute;
-    }
-
-    public int getEpisode() {
-        return episode;
-    }
-
-    public int getSeason() {
-        return season;
-    }
-
     public String getSxE() {
         return String.format("%dx%d", season, episode);
     }
@@ -103,24 +94,12 @@ public class TVRageEpisodeNumber implements Comparable<TVRageEpisodeNumber>, Ser
         return String.format("S%2dE%2d", season, episode);
     }
 
-    public void setAbsolute(int absolute) {
-        this.absolute = absolute;
-    }
-
     public void setAbsolute(String absolute) {
         this.absolute = NumberUtils.toInt(absolute, 0);
     }
 
-    public void setEpisode(int episode) {
-        this.episode = episode;
-    }
-
     public void setEpisode(String episode) {
         this.episode = NumberUtils.toInt(episode, 0);
-    }
-
-    public void setSeason(int season) {
-        this.season = season;
     }
 
     public void setSeason(String season) {

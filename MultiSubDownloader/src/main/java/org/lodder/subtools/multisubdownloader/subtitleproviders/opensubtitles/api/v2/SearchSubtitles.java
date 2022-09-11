@@ -1,9 +1,5 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param.AiTranslatedEnum;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param.ForeignPartsOnlyEnum;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param.HearingImpairedEnum;
@@ -14,11 +10,21 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.ap
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param.SearchSubtitlesEnum;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param.TrustedSourcesEnum;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param.TypeEnum;
+import org.lodder.subtools.sublibrary.Language;
 import org.opensubtitles.api.SubtitlesApi;
 import org.opensubtitles.invoker.ApiClient;
 import org.opensubtitles.invoker.ApiException;
 import org.opensubtitles.model.Subtitles200Response;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
+@Accessors(fluent = true, chain = true)
+@Getter
+@Setter
+@RequiredArgsConstructor
 public class SearchSubtitles extends OpenSubtitlesExecuter {
     private final ApiClient apiClient;
 
@@ -34,13 +40,13 @@ public class SearchSubtitles extends OpenSubtitlesExecuter {
 
     private Integer imdbId;
 
-    private String languages;
+    private Language language;
 
     private MachineTranslatedEnum machineTranslated;
 
-    private String moviehash;
+    private String movieHash;
 
-    private MoviehashMatchEnum moviehashMatch;
+    private MoviehashMatchEnum movieHashMatch;
 
     private SearchSubtitlesEnum orderBy;
 
@@ -68,139 +74,12 @@ public class SearchSubtitles extends OpenSubtitlesExecuter {
 
     private Integer year;
 
-    public SearchSubtitles(ApiClient apiClient) {
-        this.apiClient = apiClient;
-    }
-
-    public SearchSubtitles aiTranslated(AiTranslatedEnum aiTranslated) {
-        this.aiTranslated = aiTranslated;
-        return this;
-    }
-
-    public SearchSubtitles episode(int episode) {
-        this.episode = episode;
-        return this;
-    }
-
-    public SearchSubtitles foreignPartsOnly(ForeignPartsOnlyEnum foreignPartsOnly) {
-        this.foreignPartsOnly = foreignPartsOnly;
-        return this;
-    }
-
-    public SearchSubtitles hearingImpaired(HearingImpairedEnum hearingImpaired) {
-        this.hearingImpaired = hearingImpaired;
-        return this;
-    }
-
-    public SearchSubtitles id(int id) {
-        this.id = id;
-        return this;
-    }
-
-    public SearchSubtitles imdbId(int imdbId) {
-        this.imdbId = imdbId;
-        return this;
-    }
-
-    public SearchSubtitles addLanguage(String language) {
-        this.languages = StringUtils.isBlank(language) ? language : languages + "," + language;
-        return this;
-    }
-
-    public SearchSubtitles languages(String languages) {
-        this.languages = languages;
-        return this;
-    }
-
-    public SearchSubtitles languages(String[] languages) {
-        return languages(Arrays.stream(languages).collect(Collectors.joining(",")));
-    }
-
-    public SearchSubtitles machineTranslated(MachineTranslatedEnum machineTranslated) {
-        this.machineTranslated = machineTranslated;
-        return this;
-    }
-
-    public SearchSubtitles moviehash(String moviehash) {
-        this.moviehash = moviehash;
-        return this;
-    }
-
-    public SearchSubtitles moviehashMatch(MoviehashMatchEnum moviehashMatch) {
-        this.moviehashMatch = moviehashMatch;
-        return this;
-    }
-
-    public SearchSubtitles orderBy(SearchSubtitlesEnum orderBy) {
-        this.orderBy = orderBy;
-        return this;
-    }
-
-    public SearchSubtitles orderDirection(OrderDirectionEnum orderDirection) {
-        this.orderDirection = orderDirection;
-        return this;
-    }
-
-    public SearchSubtitles page(int page) {
-        this.page = page;
-        return this;
-    }
-
-    public SearchSubtitles parentFeatureId(int parentFeatureId) {
-        this.parentFeatureId = parentFeatureId;
-        return this;
-    }
-
-    public SearchSubtitles parentImdbId(int parentImdbId) {
-        this.parentImdbId = parentImdbId;
-        return this;
-    }
-
-    public SearchSubtitles parentTmdbId(int parentTmdbId) {
-        this.parentTmdbId = parentTmdbId;
-        return this;
-    }
-
-    public SearchSubtitles query(String query) {
-        this.query = query;
-        return this;
-    }
-
-    public SearchSubtitles season(int season) {
-        this.season = season;
-        return this;
-    }
-
-    public SearchSubtitles tmdbId(int tmdbId) {
-        this.tmdbId = tmdbId;
-        return this;
-    }
-
-    public SearchSubtitles trustedSources(TrustedSourcesEnum trustedSources) {
-        this.trustedSources = trustedSources;
-        return this;
-    }
-
-    public SearchSubtitles type(TypeEnum type) {
-        this.type = type;
-        return this;
-    }
-
-    public SearchSubtitles userId(int userId) {
-        this.userId = userId;
-        return this;
-    }
-
-    public SearchSubtitles year(int year) {
-        this.year = year;
-        return this;
-    }
-
     public Subtitles200Response searchSubtitles() throws ApiException {
-        return execute(() -> new SubtitlesApi(apiClient).subtitles(id, imdbId, tmdbId, getValue(type), query, languages, moviehash,
+        return execute(() -> new SubtitlesApi(apiClient).subtitles(id, imdbId, tmdbId, getValue(type), query,
+                language != null ? language.getLangCode() : null, movieHash,
                 userId, getValue(hearingImpaired), getValue(foreignPartsOnly), getValue(trustedSources), getValue(machineTranslated),
                 getValue(aiTranslated), orderBy == null ? null : orderBy.getParamName(), getValue(orderDirection), parentFeatureId, parentImdbId,
-                parentTmdbId, season, episode, year, getValue(moviehashMatch), page));
+                parentTmdbId, season, episode, year, getValue(movieHashMatch), page));
     }
 
     private String getValue(ParamIntf param) {
