@@ -19,6 +19,7 @@ import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.SubtitleSelectionCLI;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
+import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.sublibrary.Language;
@@ -33,6 +34,7 @@ public class CLI {
     private static final Logger LOGGER = LoggerFactory.getLogger(CLI.class);
 
     private final Container app;
+    private final SettingsControl settingControl;
     private final Settings settings;
     private boolean recursive = false;
     private Language language;
@@ -45,9 +47,11 @@ public class CLI {
     private final SubtitleSelectionAction subtitleSelectionAction;
     private boolean dryRun = false;
 
-    public CLI(Settings settings, Container app) {
+
+    public CLI(SettingsControl settingControl, Container app) {
         this.app = app;
-        this.settings = settings;
+        this.settingControl = settingControl;
+        this.settings = settingControl.getSettings();
         checkUpdate((Manager) this.app.make("Manager"));
         downloadAction = new DownloadAction(settings, (Manager) this.app.make("Manager"));
         subtitleSelectionAction = new SubtitleSelectionAction(settings);
@@ -55,9 +59,9 @@ public class CLI {
     }
 
     private void checkUpdate(Manager manager) {
-        UpdateAvailableDropbox u = new UpdateAvailableDropbox(manager);
-        if (u.checkProgram(settings.getUpdateCheckPeriod())) {
-            System.out.println(Messages.getString("UpdateAppAvailable") + ": " + u.getUpdateUrl());
+        UpdateAvailableGithub u = new UpdateAvailableGithub(manager, settingControl);
+        if (u.shouldCheckForNewUpdate(settings.getUpdateCheckPeriod())) {
+            System.out.println(Messages.getString("UpdateAppAvailable") + ": " + u.getLatestDownloadUrl());
         }
     }
 
