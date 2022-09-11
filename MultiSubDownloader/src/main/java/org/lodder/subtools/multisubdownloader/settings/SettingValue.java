@@ -139,10 +139,7 @@ public enum SettingValue {
     DICTIONARY(v -> v.getSceneName() + "\\\\" + v.getTvdbId(),
             v -> {
                 String[] items = v.split("\\\\");
-                int tvdbId = 0;
-                if ((items.length == 3) && (items[2].length() != 0)) {
-                    tvdbId = Integer.parseInt(items[2]);
-                }
+                int tvdbId = items.length == 3 && items[2].length() != 0 ? Integer.parseInt(items[2]) : 0;
                 return new MappingTvdbScene(items[0], tvdbId);
             },
             sCtr -> sCtr.getSettings().getMappingSettings(), MappingSettings::getMappingList);
