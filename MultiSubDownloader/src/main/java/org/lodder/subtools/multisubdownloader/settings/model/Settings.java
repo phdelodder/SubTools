@@ -19,79 +19,44 @@ import lombok.Setter;
 public class Settings {
 
     private File lastOutputDir;
-    private boolean optionsAlwaysConfirm, optionSubtitleExactMatch, optionSubtitleKeywordMatch,
-            optionSubtitleExcludeHearingImpaired;
+    private boolean optionsAlwaysConfirm;
+    private boolean optionSubtitleExactMatch = true;
+    private boolean optionSubtitleKeywordMatch = true;
+    private boolean optionSubtitleExcludeHearingImpaired;
     private boolean optionsShowOnlyFound, optionsStopOnSearchError;
-    private List<SettingsExcludeItem> excludeList;
-    private LibrarySettings movieLibrarySettings;
-    private LibrarySettings episodeLibrarySettings;
-    private String generalProxyHost;
-    private int generalProxyPort;
+    private List<SettingsExcludeItem> excludeList = new ArrayList<>();
+    private LibrarySettings movieLibrarySettings = new LibrarySettings();
+    private LibrarySettings episodeLibrarySettings = new LibrarySettings();
+    private String generalProxyHost = "";
+    private int generalProxyPort = 80;
     private boolean generalProxyEnabled;
-    private List<File> defaultIncomingFolders;
-    private List<File> localSourcesFolders;
+    private List<File> defaultIncomingFolders = new ArrayList<>();
+    private List<File> localSourcesFolders = new ArrayList<>();
     private boolean optionRecursive;
-    private ScreenSettings screenSettings;
+    private ScreenSettings screenSettings = new ScreenSettings();
     private boolean loginAddic7edEnabled;
     private String loginAddic7edUsername;
     private String loginAddic7edPassword;
     private boolean loginOpenSubtitlesEnabled;
     private String loginOpenSubtitlesUsername;
     private String loginOpenSubtitlesPassword;
-    private boolean serieSourceAddic7ed, serieSourceTvSubtitles, serieSourcePodnapisi,
-            serieSourceOpensubtitles, serieSourceLocal, serieSourceSubscene;
+    private boolean serieSourceAddic7ed = true;
+    private boolean serieSourceTvSubtitles = true;
+    private boolean serieSourcePodnapisi = true;
+    private boolean serieSourceOpensubtitles = true;
+    private boolean serieSourceLocal = true;
+    private boolean serieSourceSubscene = true;
     private boolean autoUpdateMapping;
-    private SettingsProcessEpisodeSource processEpisodeSource;
-    private MappingSettings mappingSettings;
+    private SettingsProcessEpisodeSource processEpisodeSource = SettingsProcessEpisodeSource.TVDB;
+    private MappingSettings mappingSettings = new MappingSettings();
     private Map<String, Integer> sortWeights;
     private Language subtitleLanguage;
-    @Getter
-    @Setter
     private boolean optionsMinAutomaticSelection;
-    @Getter
-    @Setter
     private int optionsMinAutomaticSelectionValue;
-    @Getter
-    @Setter
     private UpdateCheckPeriod updateCheckPeriod;
-    @Getter
-    @Setter
     private boolean optionsDefaultSelection;
-    @Getter
-    @Setter
-    private List<String> optionsDefaultSelectionQualityList;
-
-    public Settings() {
-        super();
-        setDefaultIncomingFolders(new ArrayList<File>());
-        lastOutputDir = null;
-        optionsAlwaysConfirm = false;
-        optionsShowOnlyFound = false;
-        optionsStopOnSearchError = false;
-        setExcludeList(new ArrayList<SettingsExcludeItem>());
-        movieLibrarySettings = new LibrarySettings();
-        episodeLibrarySettings = new LibrarySettings();
-        generalProxyHost = "";
-        generalProxyPort = 80;
-        generalProxyEnabled = false;
-        optionRecursive = false;
-        screenSettings = new ScreenSettings();
-        localSourcesFolders = new ArrayList<>();
-        serieSourceAddic7ed = true;
-        serieSourceTvSubtitles = true;
-        serieSourcePodnapisi = true;
-        serieSourceOpensubtitles = true;
-        serieSourceLocal = true;
-        autoUpdateMapping = false;
-        setOptionSubtitleExactMatch(true);
-        setOptionSubtitleKeywordMatch(true);
-        setProcessEpisodeSource(SettingsProcessEpisodeSource.TVDB);
-        setMappingSettings(new MappingSettings());
-        optionsMinAutomaticSelection = false;
-        optionsMinAutomaticSelectionValue = 0;
-        setOptionsDefaultSelection(false);
-        setOptionsDefaultSelectionQualityList(new ArrayList<String>());
-    }
+    private List<String> optionsDefaultSelectionQualityList = new ArrayList<>();
+    private int settingsVersion;
 
     public List<File> getDefaultFolders() {
         return getDefaultIncomingFolders();
