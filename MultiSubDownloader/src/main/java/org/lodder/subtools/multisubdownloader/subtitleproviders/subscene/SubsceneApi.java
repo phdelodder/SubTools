@@ -98,7 +98,7 @@ public class SubsceneApi extends Html {
                             .filter(element -> {
                                 Matcher matcher = elementNamePattern.matcher(element.text());
                                 return matcher.matches() && StringUtils.equalsIgnoreCase(matcher.group(1), serieName)
-                                        && StringUtils.equalsIgnoreCase(matcher.group(2), NUMBER_FORMAT.format(season, "%spellout-ordinal"));
+                                        && StringUtils.equalsIgnoreCase(matcher.group(2), getOrdinalName(season));
                             })
                             .map(element -> DOMAIN + element.attr("href")).findFirst();
                 } catch (ManagerException e) {
