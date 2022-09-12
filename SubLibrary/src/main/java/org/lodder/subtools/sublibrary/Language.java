@@ -75,6 +75,10 @@ public enum Language {
     private final String msgCode;
     private final String langCode;
 
+    public static Language fromValue(String value) {
+        return Arrays.stream(Language.values()).filter(lang -> lang.name().equalsIgnoreCase(value)).findAny().orElseThrow();
+    }
+
     public static Optional<Language> fromValueOptional(String value) {
         return Arrays.stream(Language.values()).filter(lang -> lang.name().equalsIgnoreCase(value)).findAny();
     }
