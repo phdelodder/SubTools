@@ -1,56 +1,52 @@
 package org.lodder.subtools.sublibrary;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Map.Entry;
-import java.util.Objects;
+import java.io.Reader;
 import java.util.Optional;
 
-import org.apache.commons.io.FileUtils;
+import org.lodder.subtools.sublibrary.util.LazyInit;
+import org.lodder.subtools.sublibrary.util.LazyInitThrow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.pemistahl.lingua.api.LanguageDetector;
-import com.github.pemistahl.lingua.api.LanguageDetectorBuilder;
+import com.optimaize.langdetect.LanguageDetector;
+import com.optimaize.langdetect.LanguageDetectorBuilder;
+import com.optimaize.langdetect.ngram.NgramExtractors;
+import com.optimaize.langdetect.profiles.LanguageProfileReader;
+import com.optimaize.langdetect.text.CommonTextObjectFactories;
+import com.optimaize.langdetect.text.TextObjectFactory;
 
 public class DetectLanguage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DetectLanguage.class);
-    private static final LanguageDetector DETECTOR = LanguageDetectorBuilder
-            // .fromLanguages(Language.DUTCH, Language.ENGLISH)
-            .fromAllLanguages()
-            .withMinimumRelativeDistance(0.9)
-            .build();
+    private static final LazyInitThrow<LanguageDetector, IOException> DETECTOR =
+            new LazyInitThrow<>(() -> LanguageDetectorBuilder.create(NgramExtractors.standard())
+                    .shortTextAlgorithm(0)
+                    .withProfiles(new LanguageProfileReader().readAllBuiltIn())
+                    .build());
+    private static final LazyInit<TextObjectFactory> TEXT_OBJECT_FACTORY =
+            new LazyInit<>(CommonTextObjectFactories::forDetectingOnLargeText);
+    private static final double MIN_PROBABILITY = 0.9;
 
     public static Language execute(File file) {
         return execute(file, null);
     }
 
     public static Language execute(File file, Language defaultLang) {
-        return DETECTOR.computeLanguageConfidenceValues(readText(file)).entrySet().stream().map(Entry::getKey).findFirst()
-                .map(com.github.pemistahl.lingua.api.Language::name).map(Language::fromValueOptional).map(optional -> optional.orElse(defaultLang))
-                .orElse(defaultLang);
+        return executeOptional(file).orElse(defaultLang);
     }
 
     public static Optional<Language> executeOptional(File file) {
-        return DETECTOR.computeLanguageConfidenceValues(readText(file)).entrySet().stream().map(Entry::getKey).findFirst()
-                .map(com.github.pemistahl.lingua.api.Language::name).map(Language::fromValueOptional).map(optional -> optional.orElse(null))
-                .filter(Objects::nonNull);
-    }
-
-    private static String readText(File file) {
-        String text = "";
-        try {
-            text = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
-        } catch (FileNotFoundException e) {
-            LOGGER.error("File not found to detect language", e);
+        try (Reader reader = new FileReader(file)) {
+            return DETECTOR.get().getProbabilities(TEXT_OBJECT_FACTORY.get().create().append(reader)).stream()
+                    .filter(lang -> lang.getProbability() >= MIN_PROBABILITY).findFirst()
+                    .map(lang -> lang.getLocale().getLanguage()).flatMap(Language::fromValueOptional);
         } catch (IOException e) {
-            LOGGER.error("", e);
+            LOGGER.error("Could not detect language of file " + file);
+            return Optional.empty();
         }
-
-        return text;
     }
 
 }
