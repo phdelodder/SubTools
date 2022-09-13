@@ -4,7 +4,6 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
@@ -62,7 +61,7 @@ public enum SettingValue {
     AUTO_UPDATE_MAPPING(false, SettingsControl::getSettings, Settings::isAutoUpdateMapping, Settings::setAutoUpdateMapping),
     PROCESS_EPISODE_SOURCE(SettingsProcessEpisodeSource.TVDB, SettingsProcessEpisodeSource::toString, SettingsProcessEpisodeSource::valueOf, SettingsControl::getSettings, Settings::getProcessEpisodeSource, Settings::setProcessEpisodeSource),
     UPDATE_CHECK_PERIOD(UpdateCheckPeriod.WEEKLY, UpdateCheckPeriod::toString, UpdateCheckPeriod::valueOf, SettingsControl::getSettings, Settings::getUpdateCheckPeriod, Settings::setUpdateCheckPeriod),
-    SUBTITLE_LANGUAGE(Language.DUTCH, Language::name, Language::fromValueOptional, SettingsControl::getSettings, Settings::getSubtitleLanguage, Settings::setSubtitleLanguage),
+    SUBTITLE_LANGUAGE(Language.DUTCH, Language::name, Language::fromValue, SettingsControl::getSettings, Settings::getSubtitleLanguage, Settings::setSubtitleLanguage),
 
     // SCREEN SETTINGS
     SCREEN_HIDE_EPISODE(true, sCtr -> sCtr.getSettings().getScreenSettings(), ScreenSettings::isHideEpisode, ScreenSettings::setHideEpisode),
@@ -188,20 +187,6 @@ public enum SettingValue {
                 toObjectMapper.apply(preferences.get(key, toStringMapper.apply(defaultValue))));
     }
 
-    <T, V> SettingValue(V defaultValue, Function<V, String> toStringMapper, ToOptionalFunction<String, V> toObjectMapper,
-            Function<SettingsControl, T> rootElementFuntion, Function<T, V> valueGetter,
-            BiConsumer<T, V> valueSetter) {
-        String key = getKey();
-        this.storeValueFunction = (settingsControl, preferences) -> {
-            V v = valueGetter.apply(rootElementFuntion.apply(settingsControl));
-            if (v != null) {
-                preferences.put(key, toStringMapper.apply(v));
-            }
-        };
-        this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFuntion.apply(settingsControl),
-                toObjectMapper.apply(preferences.get(key, toStringMapper.apply(defaultValue))).orElse(defaultValue));
-    }
-
     <T> SettingValue(Function<SettingsControl, T> rootElementFuntion, Function<T, Collection<String>> collectionGetter) {
         this(Function.identity(), Function.identity(), rootElementFuntion, collectionGetter);
     }
@@ -226,10 +211,6 @@ public enum SettingValue {
             });
 
         };
-    }
-
-    private interface ToOptionalFunction<T, R> {
-        Optional<R> apply(T t);
     }
 
     private String getKey() {
