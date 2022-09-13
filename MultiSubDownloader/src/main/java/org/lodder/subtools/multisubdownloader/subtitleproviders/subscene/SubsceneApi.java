@@ -10,7 +10,10 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.exception.SubsceneException;
@@ -87,15 +90,17 @@ public class SubsceneApi extends Html {
                     if (searchResultElement == null) {
                         return null;
                     }
+                    Pattern elementNamePattern = Pattern.compile("(.*) - (.*?) Season.*?");
                     return searchResultElement.select("h2").stream()
-                            .filter(element -> "TV-Series".equals(element.text())).findFirst()
+                            .filter(element -> "TV-Series".equals(element.text())).findFirst().stream()
                             .map(Element::nextElementSibling)
-                            .map(element -> element.selectFirst(".title a"))
+                            .flatMap(element -> element.select(".title a").stream())
                             .filter(element -> {
-                                String[] split = element.text().trim().split(" - ");
-                                return split.length > 1 && (getOrdinalName(season) + " Season").equalsIgnoreCase(split[split.length - 1].trim());
+                                Matcher matcher = elementNamePattern.matcher(element.text());
+                                return matcher.matches() && StringUtils.equalsIgnoreCase(matcher.group(1), serieName)
+                                        && StringUtils.equalsIgnoreCase(matcher.group(2), NUMBER_FORMAT.format(season, "%spellout-ordinal"));
                             })
-                            .map(element -> DOMAIN + element.attr("href"));
+                            .map(element -> DOMAIN + element.attr("href")).findFirst();
                 } catch (ManagerException e) {
                     if (e.getCause() != null && e.getCause() instanceof HttpClientException httpClientException) {
                         throw new SubsceneException(e.getCause());
