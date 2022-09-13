@@ -15,6 +15,7 @@ import java.util.prefs.InvalidPreferencesFormatException;
 import java.util.prefs.Preferences;
 import java.util.stream.IntStream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
@@ -28,9 +29,9 @@ public class SettingsControl {
 
     private final Preferences preferences;
     @Getter
-    private final Settings settings;
+    private Settings settings;
     @Getter
-    private final State state;
+    private State state;
     private static final String BACKING_STORE_AVAIL = "BackingStoreAvail";
     private static final Logger LOGGER = LoggerFactory.getLogger(SettingsControl.class);
 
@@ -66,7 +67,6 @@ public class SettingsControl {
         } catch (BackingStoreException e) {
             LOGGER.error(e.getMessage(), e);
         }
-
     }
 
     public void load() {
@@ -74,7 +74,6 @@ public class SettingsControl {
         Arrays.stream(SettingValue.values()).forEach(sv -> sv.load(this, preferences));
         updateProxySettings();
     }
-
 
     public void exportPreferences(File file) {
         store();
@@ -120,6 +119,8 @@ public class SettingsControl {
         int version = settings.getSettingsVersion();
         if (version == 0) {
             migrateSettingsV0ToV1();
+            settings = new Settings();
+            state = new State();
         }
     }
 
@@ -167,6 +168,16 @@ public class SettingsControl {
         settings.getEpisodeLibrarySettings()
                 .setLibraryFilenameStructure(migrateLibraryStructureV0(settings.getEpisodeLibrarySettings().getLibraryFilenameStructure()));
         MOVIE_LIBRARY_FILENAME.store(this, preferences);
+
+        try {
+            Arrays.stream(preferences.keys()).forEach(key -> {
+                String value = preferences.get(key, "");
+                preferences.remove(key);
+                preferences.put(StringUtils.capitalize(key), value);
+            });
+        } catch (BackingStoreException e) {
+            LOGGER.error("Error during migration of settings, ignoring...");
+        }
 
         settings.setSettingsVersion(1);
         SETTINGS_VERSION.store(this, preferences);
