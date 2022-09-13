@@ -8,7 +8,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -29,14 +28,12 @@ import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ibm.icu.text.RuleBasedNumberFormat;
 import com.pivovarit.function.ThrowingSupplier;
 
 public class SubsceneApi extends Html {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubsceneApi.class);
     private static final String IDENTIFIER = SubtitleSource.SUBSCENE.name();
-    private static final RuleBasedNumberFormat NUMBER_FORMAT = new RuleBasedNumberFormat(Locale.UK, RuleBasedNumberFormat.SPELLOUT);
     private static final long RATEDURATION_SHORT = 1; // seconds
     private static final long RATEDURATION_LONG = 5; // seconds
     private static final String DOMAIN = "https://subscene.com";
@@ -161,6 +158,112 @@ public class SubsceneApi extends Html {
 
     private void addCookie(String cookieName, String cookieValue) {
         getManager().storeCookies("subscene.com", Map.of(cookieName, cookieValue));
+    }
+
+    private String getOrdinalName(int ordinal) {
+        return switch (ordinal) {
+            case 1 -> "First";
+            case 2 -> "Second";
+            case 3 -> "Third";
+            case 4 -> "Fourth";
+            case 5 -> "Fifth";
+            case 6 -> "Sixth";
+            case 7 -> "Seventh";
+            case 8 -> "Eighth";
+            case 9 -> "Ninth";
+            case 10 -> "Tenth";
+            case 11 -> "Eleventh";
+            case 12 -> "Twelfth";
+            case 13 -> "Thirteenth";
+            case 14 -> "Fourteenth";
+            case 15 -> "Fifteenth";
+            case 16 -> "Sixteenth";
+            case 17 -> "Seventeenth";
+            case 18 -> "Eighteenth";
+            case 19 -> "Nineteenth";
+            case 20 -> "Twentieth";
+            case 21 -> "Twenty-First";
+            case 22 -> "Twenty-Second";
+            case 23 -> "Twenty-Third";
+            case 24 -> "Twenty-Fourth";
+            case 25 -> "Twenty-Fifth";
+            case 26 -> "Twenty-Sixth";
+            case 27 -> "Twenty-Seventh";
+            case 28 -> "Twenty-Eighth";
+            case 29 -> "Twenty-Ninth";
+            case 30 -> "Thirtieth";
+            case 31 -> "Thirty-First";
+            case 32 -> "Thirty-Second";
+            case 33 -> "Thirty-Third";
+            case 34 -> "Thirty-Fourth";
+            case 35 -> "Thirty-Fifth";
+            case 36 -> "Thirty-Sixth";
+            case 37 -> "Thirty-Seventh";
+            case 38 -> "Thirty-Eighth";
+            case 39 -> "Thirty-Ninth";
+            case 40 -> "Fortieth";
+            case 41 -> "Forty-First";
+            case 42 -> "Forty-Second";
+            case 43 -> "Forty-Third";
+            case 44 -> "Forty-Fourth";
+            case 45 -> "Forty-Fifth";
+            case 46 -> "Forty-Sixth";
+            case 47 -> "Forty-Seventh";
+            case 48 -> "Forty-Eighth";
+            case 49 -> "Forty-Ninth";
+            case 50 -> "Fiftieth";
+            case 51 -> "Fifty-First";
+            case 52 -> "Fifty-Second";
+            case 53 -> "Fifty-Third";
+            case 54 -> "Fifty-Fourth";
+            case 55 -> "Fifty-Fifth";
+            case 56 -> "Fifty-Sixth";
+            case 57 -> "Fifty-Seventh";
+            case 58 -> "Fifty-Eighth";
+            case 59 -> "Fifty-Ninth";
+            case 60 -> "Sixtieth";
+            case 61 -> "Sixty-First";
+            case 62 -> "Sixty-Second";
+            case 63 -> "Sixty-Third";
+            case 64 -> "Sixty-Fourth";
+            case 65 -> "Sixty-Fifth";
+            case 66 -> "Sixty-Sixth";
+            case 67 -> "Sixty-Seventh";
+            case 68 -> "Sixty-Eighth";
+            case 69 -> "Sixty-Ninth";
+            case 70 -> "Seventieth";
+            case 71 -> "Seventy-First";
+            case 72 -> "Seventy-Second";
+            case 73 -> "Seventy-Third";
+            case 74 -> "Seventy-Fourth";
+            case 75 -> "Seventy-Fifth";
+            case 76 -> "Seventy-Sixth";
+            case 77 -> "Seventy-Seventh";
+            case 78 -> "Seventy-Eighth";
+            case 79 -> "Seventy-Ninth";
+            case 80 -> "Eightieth";
+            case 81 -> "Eighty-First";
+            case 82 -> "Eighty-Second";
+            case 83 -> "Eighty-Third";
+            case 84 -> "Eighty-Fourth";
+            case 85 -> "Eighty-Fifth";
+            case 86 -> "Eighty-Sixth";
+            case 87 -> "Eighty-Seventh";
+            case 88 -> "Eighty-Eighth";
+            case 89 -> "Eighty-Ninth";
+            case 90 -> "Ninetieth";
+            case 91 -> "Ninety-First";
+            case 92 -> "Ninety-Second";
+            case 93 -> "Ninety-Third";
+            case 94 -> "Ninety-Fourth";
+            case 95 -> "Ninety-Fifth";
+            case 96 -> "Ninety-Sixth";
+            case 97 -> "Ninety-Seventh";
+            case 98 -> "Ninety-Eighth";
+            case 99 -> "Ninety-Ninth";
+            case 100 -> "Hundredth";
+            default -> "not defined";
+        };
     }
 
     private static final Map<Language, Integer> SUBSCENE_LANGS = Collections
