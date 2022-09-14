@@ -1,5 +1,11 @@
 package org.lodder.subtools.multisubdownloader.lib.library;
 
+import java.util.Arrays;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum LibraryActionType {
     NOTHING("-- Maak uw keuze --"),
     RENAME("Hernoemen"),
@@ -8,23 +14,15 @@ public enum LibraryActionType {
 
     private final String description;
 
-    LibraryActionType(String description) {
-        this.description = description;
-    }
-
     @Override
     public String toString() {
         return this.description;
     }
 
+    @Deprecated(since = "Settings version 2")
     public static LibraryActionType fromString(String description) {
-        if (description != null) {
-            for (LibraryActionType action : LibraryActionType.values()) {
-                if (description.equalsIgnoreCase(action.toString())) {
-                    return action;
-                }
-            }
-        }
-        return LibraryActionType.NOTHING;
+        return Arrays.stream(LibraryActionType.values())
+                .filter(v -> description.equalsIgnoreCase(v.toString())).findAny()
+                .orElse(LibraryActionType.NOTHING);
     }
 }
