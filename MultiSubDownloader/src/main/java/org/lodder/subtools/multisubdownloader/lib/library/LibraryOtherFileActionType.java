@@ -1,28 +1,29 @@
 package org.lodder.subtools.multisubdownloader.lib.library;
 
+import java.util.Arrays;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum LibraryOtherFileActionType {
-    NOTHING("-- Maak uw keuze --"), REMOVE("Verwijderen"), RENAME("Hernoemen"), MOVE("Verplaatsen"), MOVEANDRENAME(
-            "Verplaats en Hernoemen");
+    NOTHING("-- Maak uw keuze --"),
+    REMOVE("Verwijderen"),
+    RENAME("Hernoemen"),
+    MOVE("Verplaatsen"),
+    MOVEANDRENAME("Verplaats en Hernoemen");
 
     private final String description;
-
-    LibraryOtherFileActionType(String description) {
-        this.description = description;
-    }
 
     @Override
     public String toString() {
         return this.description;
     }
 
+    @Deprecated(since = "Settings version 2")
     public static LibraryOtherFileActionType fromString(String description) {
-        if (description != null) {
-            for (LibraryOtherFileActionType action : LibraryOtherFileActionType.values()) {
-                if (description.equalsIgnoreCase(action.toString())) {
-                    return action;
-                }
-            }
-        }
-        return LibraryOtherFileActionType.NOTHING;
+        return Arrays.stream(LibraryOtherFileActionType.values())
+                .filter(v -> description.equalsIgnoreCase(v.toString())).findAny()
+                .orElse(LibraryOtherFileActionType.NOTHING);
     }
 }
