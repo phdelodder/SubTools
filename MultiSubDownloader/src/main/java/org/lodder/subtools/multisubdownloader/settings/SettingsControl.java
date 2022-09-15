@@ -16,6 +16,8 @@ import java.util.prefs.Preferences;
 import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
+import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
@@ -71,7 +73,7 @@ public class SettingsControl {
 
     public void load() {
         migrateSettings();
-        Arrays.stream(SettingValue.values()).forEach(sv -> sv.load(this, preferences));
+        SettingValue.loadAll(this, preferences);
         updateProxySettings();
     }
 
@@ -121,6 +123,10 @@ public class SettingsControl {
             migrateSettingsV0ToV1();
             settings = new Settings();
             state = new State();
+            SettingValue.loadAll(this, preferences);
+        }
+        if (version == 1) {
+            migrateSettingsV1ToV2();
         }
     }
 
@@ -180,6 +186,28 @@ public class SettingsControl {
         }
 
         settings.setSettingsVersion(1);
+        SETTINGS_VERSION.store(this, preferences);
+    }
+
+    @SuppressWarnings("deprecation")
+    public void migrateSettingsV1ToV2() {
+        settings.getEpisodeLibrarySettings()
+                .setLibraryOtherFileAction(LibraryOtherFileActionType.fromString(preferences.get(EPISODE_LIBRARY_OTHER_FILE_ACTION.getKey(), "")));
+        EPISODE_LIBRARY_OTHER_FILE_ACTION.store(this, preferences);
+
+        settings.getMovieLibrarySettings()
+                .setLibraryOtherFileAction(LibraryOtherFileActionType.fromString(preferences.get(MOVIE_LIBRARY_OTHER_FILE_ACTION.getKey(), "")));
+        MOVIE_LIBRARY_OTHER_FILE_ACTION.store(this, preferences);
+
+        settings.getEpisodeLibrarySettings()
+                .setLibraryAction(LibraryActionType.fromString(preferences.get(EPISODE_LIBRARY_ACTION.getKey(), "")));
+        EPISODE_LIBRARY_ACTION.store(this, preferences);
+
+        settings.getMovieLibrarySettings()
+                .setLibraryAction(LibraryActionType.fromString(preferences.get(MOVIE_LIBRARY_ACTION.getKey(), "")));
+        MOVIE_LIBRARY_ACTION.store(this, preferences);
+
+        settings.setSettingsVersion(2);
         SETTINGS_VERSION.store(this, preferences);
     }
 
