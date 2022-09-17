@@ -8,12 +8,10 @@ public class EventBag {
     protected Map<String, Object> attributes = new HashMap<>();
 
     public Object getAttribute(String name) {
-        Object attribute = null;
         if (this.attributes.containsKey(name)) {
-            attribute = this.attributes.get(name);
+            return this.attributes.get(name);
         }
-
-        return attribute;
+        return null;
     }
 
     public Collection<String> getAttributeNames() {

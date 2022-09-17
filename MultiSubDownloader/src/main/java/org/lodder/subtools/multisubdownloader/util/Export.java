@@ -39,12 +39,11 @@ public class Export {
 
     public void doExport(ExportListType listType, File file) {
         try {
-            if (listType == ExportListType.PREFERENCES) {
-                settingsControl.exportPreferences(file);
-            } else if (listType == ExportListType.EXCLUDE) {
-                XMLExclude.write(settingsControl.getSettings().getExcludeList(), file);
-            } else if (listType == ExportListType.TRANSLATE) {
-                XMLMappingTvdbScene.write(settingsControl.getSettings().getMappingSettings().getMappingList(), file);
+            switch (listType) {
+                case PREFERENCES -> settingsControl.exportPreferences(file);
+                case EXCLUDE -> XMLExclude.write(settingsControl.getSettings().getExcludeList(), file);
+                case TRANSLATE -> XMLMappingTvdbScene.write(settingsControl.getSettings().getMappingSettings().getMappingList(), file);
+                default -> throw new IllegalArgumentException("Unexpected value: " + listType);
             }
         } catch (final Throwable e) {
             LOGGER.error("doExport", e);
