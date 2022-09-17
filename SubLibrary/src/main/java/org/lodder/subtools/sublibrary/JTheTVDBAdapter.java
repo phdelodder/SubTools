@@ -2,6 +2,8 @@ package org.lodder.subtools.sublibrary;
 
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import org.lodder.subtools.sublibrary.data.thetvdb.TheTVDBApiV2;
 import org.lodder.subtools.sublibrary.data.thetvdb.TheTVDBException;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
@@ -35,7 +37,16 @@ public class JTheTVDBAdapter {
             tvdbid = this.jtvapi.searchSerie(episode.getShowName(), null);
             if (tvdbid == 0) {
                 LOGGER.error("Unknown serie name in tvdb: " + episode.getShowName());
-                return null;
+                String tvdbidString = JOptionPane.showInputDialog(null, "Enter tvdb id for serie " + episode.getShowName());
+                if (tvdbidString == null) {
+                    return null;
+                }
+                try {
+                    tvdbid = Integer.parseInt(tvdbidString);
+                } catch (NumberFormatException e) {
+                    LOGGER.error("Invalid tvdb id: " + tvdbidString);
+                    return null;
+                }
             }
             return this.jtvapi.getSerie(tvdbid, null);
         } catch (TheTVDBException e) {

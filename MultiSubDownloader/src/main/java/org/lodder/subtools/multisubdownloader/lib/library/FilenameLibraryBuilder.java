@@ -62,27 +62,25 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
             if (language == null) {
                 filename = changeExtension(filename, ".nld.srt");
             } else {
-                switch (language) {
-                    case DUTCH:
+                filename = switch (language) {
+                    case DUTCH -> {
                         if ("".equals(librarySettings.getDefaultNlText())) {
-                            filename = changeExtension(filename, ".nld.srt");
+                            yield changeExtension(filename, ".nld.srt");
                         } else {
                             final String ext = "." + librarySettings.getDefaultNlText() + ".srt";
-                            filename = changeExtension(filename, ext);
+                            yield changeExtension(filename, ext);
                         }
-                        break;
-                    case ENGLISH:
+                    }
+                    case ENGLISH -> {
                         if ("".equals(librarySettings.getDefaultEnText())) {
-                            filename = changeExtension(filename, ".eng.srt");
+                            yield changeExtension(filename, ".eng.srt");
                         } else {
                             final String ext = "." + librarySettings.getDefaultEnText() + ".srt";
-                            filename = changeExtension(filename, ext);
+                            yield changeExtension(filename, ext);
                         }
-                        break;
-                    default:
-                        filename = changeExtension(filename, ".nld.srt");
-                        break;
-                }
+                    }
+                    default -> changeExtension(filename, ".nld.srt");
+                };
             }
         } else {
             filename = changeExtension(filename, ".srt");

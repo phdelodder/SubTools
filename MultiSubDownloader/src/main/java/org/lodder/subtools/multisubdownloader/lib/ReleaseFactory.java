@@ -18,10 +18,10 @@ import org.slf4j.LoggerFactory;
 
 public class ReleaseFactory {
 
-    private ReleaseParser releaseParser;
+    private final ReleaseParser releaseParser;
     private ReleaseControl releaseControl;
-    private Settings settings;
-    private Manager manager;
+    private final Settings settings;
+    private final Manager manager;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseFactory.class);
 
@@ -37,12 +37,11 @@ public class ReleaseFactory {
         try {
             r = releaseParser.parse(file);
 
-            switch (r.getVideoType()) {
-                case EPISODE -> releaseControl = new TvReleaseControl((TvRelease) r, settings, manager);
-                case MOVIE -> releaseControl = new MovieReleaseControl((MovieRelease) r, settings, manager);
-                default -> {
-                }
-            }
+            releaseControl = switch (r.getVideoType()) {
+                case EPISODE -> new TvReleaseControl((TvRelease) r, settings, manager);
+                case MOVIE -> new MovieReleaseControl((MovieRelease) r, settings, manager);
+                default -> releaseControl;
+            };
 
             releaseControl.process(settings.getMappingSettings().getMappingList());
             r = releaseControl.getVideoFile();
