@@ -14,7 +14,7 @@ public class CLIFileindexerProgress extends CLIProgress implements IndexingProgr
 
     @Override
     public void progress(int progress) {
-        this.progress = progress;
+        setProgress(progress);
         this.printProgress();
     }
 
@@ -26,7 +26,7 @@ public class CLIFileindexerProgress extends CLIProgress implements IndexingProgr
 
     @Override
     public void completed() {
-        if (!this.isEnabled) {
+        if (!this.isEnabled()) {
             return;
         }
         this.disable();
@@ -34,7 +34,7 @@ public class CLIFileindexerProgress extends CLIProgress implements IndexingProgr
 
     @Override
     public void onError(ActionException exception) {
-        if (!this.isEnabled) {
+        if (!this.isEnabled()) {
             return;
         }
         System.out.println("Error: " + exception.getMessage());
@@ -42,7 +42,7 @@ public class CLIFileindexerProgress extends CLIProgress implements IndexingProgr
 
     @Override
     public void onStatus(String message) {
-        if (!this.isEnabled) {
+        if (!this.isEnabled()) {
             return;
         }
         System.out.println(message);
@@ -50,17 +50,17 @@ public class CLIFileindexerProgress extends CLIProgress implements IndexingProgr
 
     @Override
     protected void printProgress() {
-        if (!isEnabled) {
+        if (!isEnabled()) {
             return;
         }
 
-        if (isVerbose) {
+        if (isVerbose()) {
             /* newlines to counter the return carriage from printProgBar() */
             System.out.println("");
             System.out.println(this.currentFile);
             System.out.println("");
         }
 
-        this.printProgBar(this.progress);
+        this.printProgBar(this.getProgress());
     }
 }

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Emitter {
-    private final Map<String, ArrayList<Handler>> eventListeners = new HashMap<>();
+    private final Map<String, List<Handler>> eventListeners = new HashMap<>();
 
     public void fire(Event event) {
         String eventName = event.getEventName();
@@ -22,7 +22,7 @@ public class Emitter {
 
     public void listen(String eventName, Handler handler) {
 
-        ArrayList<Handler> handlers;
+        List<Handler> handlers;
 
         if (this.eventListeners.containsKey(eventName)) {
             handlers = this.eventListeners.get(eventName);
@@ -39,7 +39,7 @@ public class Emitter {
             return;
         }
 
-        ArrayList<Handler> handlers = this.eventListeners.get(eventName);
+        List<Handler> handlers = this.eventListeners.get(eventName);
         handlers.remove(handler);
     }
 }

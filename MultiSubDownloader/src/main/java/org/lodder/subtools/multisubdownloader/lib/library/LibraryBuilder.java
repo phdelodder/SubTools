@@ -1,5 +1,7 @@
 package org.lodder.subtools.multisubdownloader.lib.library;
 
+import java.util.List;
+
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
 import org.lodder.subtools.sublibrary.Manager;
@@ -7,17 +9,13 @@ import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public abstract class LibraryBuilder {
 
     protected final LibrarySettings librarySettings;
     private final Manager manager;
-
-    public LibraryBuilder(LibrarySettings librarySettings, Manager manager) {
-        this.librarySettings = librarySettings;
-        this.manager = manager;
-    }
 
     public abstract String build(Release release);
 

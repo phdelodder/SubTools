@@ -1,10 +1,16 @@
 package org.lodder.subtools.multisubdownloader.cli.progress;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter(value = AccessLevel.PROTECTED)
+@Setter(value = AccessLevel.PROTECTED)
 abstract class CLIProgress {
 
-    protected int progress;
-    protected boolean isEnabled;
-    protected boolean isVerbose;
+    private int progress;
+    private boolean isEnabled;
+    private boolean isVerbose;
 
     protected CLIProgress() {
         isEnabled = true;
