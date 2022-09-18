@@ -49,7 +49,7 @@ public class LocalServiceProvider implements ServiceProvider {
 
         /* Listen for settings-change */
         emitter.listen("providers.settings.change", event -> {
-            /* Change occured, delete outdated provider from store */
+            /* Change occurred, delete outdated provider from store */
             subtitleProviderStore.deleteProvider(subtitleProvider);
 
             /* Re-create subtitleprovider */

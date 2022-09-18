@@ -26,13 +26,13 @@ public class CLISearchProgress extends CLIProgress implements SearchProgressList
 
     @Override
     public void progress(int progress) {
-        this.progress = progress;
+        setProgress(progress);
         this.printProgress();
     }
 
     @Override
     public void completed() {
-        if (!this.isEnabled) {
+        if (!this.isEnabled()) {
             return;
         }
         this.disable();
@@ -40,7 +40,7 @@ public class CLISearchProgress extends CLIProgress implements SearchProgressList
 
     @Override
     public void onError(ActionException exception) {
-        if (!isEnabled) {
+        if (!isEnabled()) {
             return;
         }
         System.out.println("Error: " + exception.getMessage());
@@ -48,7 +48,7 @@ public class CLISearchProgress extends CLIProgress implements SearchProgressList
 
     @Override
     public void onStatus(String message) {
-        if (!isEnabled) {
+        if (!isEnabled()) {
             return;
         }
         System.out.println(message);
@@ -56,17 +56,17 @@ public class CLISearchProgress extends CLIProgress implements SearchProgressList
 
     @Override
     protected void printProgress() {
-        if (!isEnabled) {
+        if (!isEnabled()) {
             return;
         }
 
         /* print table */
-        if (isVerbose) {
+        if (isVerbose()) {
             System.out.println("");
             table.printTable();
         }
 
         /* print progressbar */
-        this.printProgBar(this.progress);
+        this.printProgBar(this.getProgress());
     }
 }

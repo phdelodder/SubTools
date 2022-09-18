@@ -134,8 +134,8 @@
 				<version>2.4</version>
 				<configuration>
 					<!-- http://maven.apache.org/plugins/maven-compiler-plugin/ -->
-					<source>18</source>
-					<target>18</target>
+					<source>16</source>
+					<target>16</target>
 				</configuration>
 			</plugin>
 			<plugin>

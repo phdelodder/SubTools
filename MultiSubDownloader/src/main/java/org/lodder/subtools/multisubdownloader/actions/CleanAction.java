@@ -51,10 +51,8 @@ public class CleanAction {
             case MOVEANDRENAME -> doMoveAndRename(release, list, path, videoFileName);
             case REMOVE -> doRemove(release, list);
             case RENAME -> doRename(release, path, videoFileName, files);
-            case NOTHING -> {
-            }
-            default -> {
-            }
+            case NOTHING -> {}
+            default -> {}
         }
     }
 
@@ -79,7 +77,7 @@ public class CleanAction {
 
     private void doRemove(Release release, Set<String> list) throws IOException {
         for (String s : list) {
-            final File file = new File(release.getPath(), s);
+            File file = new File(release.getPath(), s);
             if (file.isDirectory()) {
                 FileUtils.deleteDirectory(file);
             } else {
