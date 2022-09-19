@@ -4,12 +4,14 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
 import java.util.stream.IntStream;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.CaseUtils;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
@@ -23,8 +25,10 @@ import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpis
 import org.lodder.subtools.multisubdownloader.settings.model.State;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.sublibrary.Language;
-import org.lodder.subtools.sublibrary.settings.model.MappingSettings;
-import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
+import org.lodder.subtools.sublibrary.settings.model.TvdbMapping;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 
 public enum SettingValue {
 
@@ -32,6 +36,7 @@ public enum SettingValue {
     SETTINGS_VERSION(0, SettingsControl::getSettings, Settings::getSettingsVersion, Settings::setSettingsVersion),
     LAST_OUTPUT_DIR(new File(""), File::getAbsolutePath, File::new, SettingsControl::getSettings, settings -> MemoryFolderChooser.getInstance().getMemory(), Settings::setLastOutputDir),
 
+//    GENERAL_DEFAULT_INCOMING_FOLDER(File::getAbsolutePath, File::new, SettingsControl::getSettings, (settings, v) -> settings.getDefaultIncomingFolders().add(v),  (settings, consumer) -> settings.getDefaultIncomingFolders().forEach(consumer::accept)),
     GENERAL_DEFAULT_INCOMING_FOLDER(File::getAbsolutePath, File::new, SettingsControl::getSettings, Settings::getDefaultIncomingFolders),
     LOCAL_SUBTITLES_SOURCES_FOLDERS(File::getAbsolutePath, File::new, SettingsControl::getSettings, Settings::getLocalSourcesFolders),
     EXCLUDE_ITEM(v -> v.getDescription() + getDelimiter() + v.getType().toString(),
@@ -135,14 +140,19 @@ public enum SettingValue {
     LATEST_UPDATE_CHECK(LocalDate.MIN, LocalDate::toString, LocalDate::parse, SettingsControl::getState, State::getLatestUpdateCheck, State::setLatestUpdateCheck),
 
     // MAPPINGS
-    MAPPING_VERSION(0, sCtr -> sCtr.getSettings().getMappingSettings(), MappingSettings::getMappingVersion, MappingSettings::setMappingVersion),
-    DICTIONARY(v -> v.getSceneName() + "\\\\" + v.getTvdbId(),
+    DICTIONARY(
+            (Pair<Integer, TvdbMapping> pair) -> pair.getRight().getName() + "\\\\" + pair.getLeft() + "\\\\"
+                    + StringUtils.join(pair.getRight().getAlternativeNames(), "\\\\"),
             v -> {
-                String[] items = v.split("\\\\");
-                int tvdbId = items.length == 3 && items[2].length() != 0 ? Integer.parseInt(items[2]) : 0;
-                return new MappingTvdbScene(items[0], tvdbId);
+                String[] items = v.split("\\\\\\\\");
+                int tvdbId = Integer.parseInt(items[1]);
+                TvdbMapping tvdbMapping = new TvdbMapping(items[0]);
+                Arrays.stream(items).skip(2).forEach(tvdbMapping::addAlternativename);
+                return Pair.of(tvdbId, tvdbMapping);
             },
-            sCtr -> sCtr.getSettings().getMappingSettings(), MappingSettings::getMappingList);
+            sCtr -> sCtr.getSettings().getMappingSettings(),
+            (tvdbMappings, pair) -> tvdbMappings.add(pair.getLeft(), pair.getRight()),
+            (tvdbMappings, consumer) -> tvdbMappings.forEach((tvdbId, tvdbMapping) -> consumer.accept(Pair.of(tvdbId, tvdbMapping))));
 
     private final BiConsumer<SettingsControl, Preferences> storeValueFunction;
     private final BiConsumer<SettingsControl, Preferences> loadValueFunction;
@@ -194,24 +204,44 @@ public enum SettingValue {
 
     <T, V> SettingValue(Function<V, String> toStringMapper, Function<String, V> toObjectMapper,
             Function<SettingsControl, T> rootElementFuntion, Function<T, Collection<V>> collectionGetter) {
+        this(toStringMapper, toObjectMapper, rootElementFuntion, (object, v) -> collectionGetter.apply(object).add(v),
+                (object, consumer) -> collectionGetter.apply(object).forEach(consumer::accept));
+    }
+
+    <T, V> SettingValue(Function<V, String> toStringMapper, Function<String, V> toObjectMapper,
+            Function<SettingsControl, T> rootElementFuntion, BiConsumer<T, V> valueAdder, BiConsumer<T, Consumer<V>> valueConsumer) {
         String key = getKey();
         this.storeValueFunction = (settingsControl, preferences) -> {
-            Collection<V> collection = collectionGetter.apply(rootElementFuntion.apply(settingsControl));
-            Iterator<V> iterator = collection.iterator();
-            int i = 0;
-            while (iterator.hasNext()) {
-                preferences.put(key + i++, toStringMapper.apply(iterator.next()));
-            }
-            preferences.putInt(key + "Size", i);
+            T object = rootElementFuntion.apply(settingsControl);
+            IntWrapper i = IntWrapper.of(-1);
+            valueConsumer.accept(object, value -> preferences.put(key + i.increment(), toStringMapper.apply(value)));
+            preferences.putInt(key + "Size", i.getValue() + 1);
         };
         this.loadValueFunction = (settingsControl, preferences) -> {
             int numberOfItems = preferences.getInt(key + "Size", 0);
-            Collection<V> targetCollection = collectionGetter.apply(rootElementFuntion.apply(settingsControl));
+            T object = rootElementFuntion.apply(settingsControl);
             IntStream.range(0, numberOfItems).forEach(i -> {
-                targetCollection.add(toObjectMapper.apply(preferences.get(key + i, "")));
+                valueAdder.accept(object, toObjectMapper.apply(preferences.get(key + i, "")));
             });
 
         };
+    }
+
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    private static class IntWrapper {
+        private int i;
+
+        public static IntWrapper of(int i) {
+            return new IntWrapper(i);
+        }
+
+        public int increment() {
+            return ++i;
+        }
+
+        public int getValue() {
+            return i;
+        }
     }
 
     public String getKey() {

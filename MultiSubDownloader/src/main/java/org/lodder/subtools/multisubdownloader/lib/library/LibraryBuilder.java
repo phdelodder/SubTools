@@ -8,10 +8,13 @@ import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.lodder.subtools.sublibrary.util.OptionalExtension;
 
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.ExtensionMethod;
 
 @RequiredArgsConstructor
+@ExtensionMethod({ OptionalExtension.class })
 public abstract class LibraryBuilder {
 
     protected final LibrarySettings librarySettings;
@@ -21,15 +24,10 @@ public abstract class LibraryBuilder {
 
     protected String getShowName(TvRelease tvRelease) {
         if (librarySettings.isLibraryUseTVDBNaming()) {
-            TheTVDBSerie tvdbs = JTheTVDBAdapter.getAdapter(manager).getSerie(tvRelease);
-            if (tvdbs == null) {
-                // use showname found for release as tvdb returns null
-                return tvRelease.getShowName();
-            } else {
-                return tvdbs.getSerieName();
-            }
+            return JTheTVDBAdapter.getAdapter(manager).getSerie(tvRelease)
+                    .mapOrElseGet(TheTVDBSerie::getSerieName, () -> tvRelease.getName());
         } else {
-            return tvRelease.getShowName();
+            return tvRelease.getName();
         }
     }
 

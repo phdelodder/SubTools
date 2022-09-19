@@ -43,7 +43,7 @@ public class ReleaseFactory {
                 default -> releaseControl;
             };
 
-            releaseControl.process(settings.getMappingSettings().getMappingList());
+            releaseControl.process(settings.getMappingSettings());
             r = releaseControl.getVideoFile();
 
         } catch (ReleaseParseException e) {

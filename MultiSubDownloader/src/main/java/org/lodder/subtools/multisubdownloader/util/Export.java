@@ -42,7 +42,7 @@ public class Export {
             switch (listType) {
                 case PREFERENCES -> settingsControl.exportPreferences(file);
                 case EXCLUDE -> XMLExclude.write(settingsControl.getSettings().getExcludeList(), file);
-                case TRANSLATE -> XMLMappingTvdbScene.write(settingsControl.getSettings().getMappingSettings().getMappingList(), file);
+                case TRANSLATE -> XMLMappingTvdbScene.write(settingsControl.getSettings().getMappingSettings(), file);
                 default -> throw new IllegalArgumentException("Unexpected value: " + listType);
             }
         } catch (final Throwable e) {

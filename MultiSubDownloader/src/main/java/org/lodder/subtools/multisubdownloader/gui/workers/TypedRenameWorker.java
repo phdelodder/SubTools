@@ -67,7 +67,7 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
                 Release release;
                 release = releaseFactory.createRelease(file);
                 if (release != null) {
-                    publish(release.getFilename());
+                    publish(release.getFileName());
                     if (release.getVideoType() == videoType) {
                         renameAction.rename(file, release);
                     }

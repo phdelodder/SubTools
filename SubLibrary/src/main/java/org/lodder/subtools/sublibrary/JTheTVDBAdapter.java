@@ -1,6 +1,8 @@
 package org.lodder.subtools.sublibrary;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 import javax.swing.JOptionPane;
 
@@ -9,9 +11,13 @@ import org.lodder.subtools.sublibrary.data.thetvdb.TheTVDBException;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.experimental.ExtensionMethod;
+
+@ExtensionMethod({ OptionalExtension.class })
 public class JTheTVDBAdapter {
 
     private TheTVDBApiV2 jtvapi;
@@ -31,63 +37,47 @@ public class JTheTVDBAdapter {
 
     }
 
-    public TheTVDBSerie searchSerie(TvRelease episode) {
-        int tvdbid;
+    public Optional<TheTVDBSerie> searchSerie(TvRelease episode) {
         try {
-            tvdbid = this.jtvapi.searchSerie(episode.getShowName(), null);
-            if (tvdbid == 0) {
-                LOGGER.error("Unknown serie name in tvdb: " + episode.getShowName());
-                String tvdbidString = JOptionPane.showInputDialog(null, "Enter tvdb id for serie " + episode.getShowName());
-                if (tvdbidString == null) {
-                    return null;
-                }
-                try {
-                    tvdbid = Integer.parseInt(tvdbidString);
-                } catch (NumberFormatException e) {
-                    LOGGER.error("Invalid tvdb id: " + tvdbidString);
-                    return null;
-                }
-            }
-            return this.jtvapi.getSerie(tvdbid, null);
+            return this.jtvapi.searchSerie(episode.getName(), null)
+                    .orElseMap(() -> askUserToEnterTvdbId(episode.getName()))
+                    .mapToOptionalObj(tvdbId -> jtvapi.getSerie(tvdbId, null));
         } catch (TheTVDBException e) {
             LOGGER.error(e.getMessage(), e);
+            return Optional.empty();
         }
-        return null;
     }
 
-    public TheTVDBEpisode getEpisode(TvRelease episode) {
+    public Optional<TheTVDBEpisode> getEpisode(TvRelease episode) {
         try {
             return this.jtvapi.getEpisode(episode.getTvdbId(), episode.getSeason(), episode.getEpisodeNumbers().get(0), Language.ENGLISH);
         } catch (TheTVDBException e) {
-            LOGGER.error(e.getMessage() + " " + episode.getShowName(), e);
+            LOGGER.error(e.getMessage() + " " + episode.getName(), e);
+            return Optional.empty();
         }
-        return null;
     }
 
-    public TheTVDBSerie getSerie(TvRelease episode) {
+    public Optional<TheTVDBSerie> getSerie(TvRelease episode) {
         try {
             if (episode.getTvdbId() > 0) {
                 return this.jtvapi.getSerie(episode.getTvdbId(), null);
             } else {
-                int tvdbid = sickbeardTVDBSceneExceptions(episode.getShowName());
-                if (tvdbid > 0) {
-                    return this.jtvapi.getSerie(tvdbid, null);
-                }
-                return searchSerie(episode);
+                return sickbeardTVDBSceneExceptions(episode.getName())
+                        .mapOrElseGet(tvdbId -> jtvapi.getSerie(tvdbId, null), () -> searchSerie(episode));
             }
         } catch (TheTVDBException e) {
             LOGGER.error(e.getMessage(), e);
+            return Optional.empty();
         }
-        return null;
     }
 
-    public TheTVDBSerie getSerie(int tvdbid) {
+    public Optional<TheTVDBSerie> getSerie(int tvdbid) {
         try {
             return this.jtvapi.getSerie(tvdbid, null);
         } catch (TheTVDBException e) {
             LOGGER.error("getSerie exception", e);
+            return Optional.empty();
         }
-        return null;
     }
 
     public List<TheTVDBEpisode> getAllEpisodes(int tvdbid, Language language) {
@@ -95,13 +85,13 @@ public class JTheTVDBAdapter {
             return this.jtvapi.getAllEpisodes(tvdbid, language);
         } catch (TheTVDBException e) {
             LOGGER.error("getAllEpisodes exception", e);
+            return List.of();
         }
-        return null;
     }
 
-    public int sickbeardTVDBSceneExceptions(String serieName) {
+    private OptionalInt sickbeardTVDBSceneExceptions(String serieName) {
         if (exceptions.isEmpty()) {
-            return 0;
+            return OptionalInt.empty();
         }
         for (String exception : exceptions.split("\n")) {
             int tvdbid = Integer.parseInt(exception.split(splitValue)[0].trim());
@@ -110,11 +100,11 @@ public class JTheTVDBAdapter {
                 String a = name.replaceAll("[^A-Za-z]", "");
                 String b = serieName.replaceAll("[^A-Za-z]", "");
                 if (!a.isEmpty() && a.equals(b)) {
-                    return tvdbid;
+                    return OptionalInt.of(tvdbid);
                 }
             }
         }
-        return 0;
+        return OptionalInt.empty();
     }
 
     public synchronized static JTheTVDBAdapter getAdapter(Manager manager) {
@@ -122,5 +112,19 @@ public class JTheTVDBAdapter {
             adapter = new JTheTVDBAdapter(manager);
         }
         return adapter;
+    }
+
+    private OptionalInt askUserToEnterTvdbId(String showName) {
+        LOGGER.error("Unknown serie name in tvdb: " + showName);
+        String tvdbidString = JOptionPane.showInputDialog(null, "Enter tvdb id for serie " + showName);
+        if (tvdbidString == null) {
+            return OptionalInt.empty();
+        }
+        try {
+            return OptionalInt.of(Integer.parseInt(tvdbidString));
+        } catch (NumberFormatException e) {
+            LOGGER.error("Invalid tvdb id: " + tvdbidString);
+            return askUserToEnterTvdbId(showName);
+        }
     }
 }

@@ -137,12 +137,12 @@ public class VideoTableModel extends DefaultTableModel {
             columnName = this.getColumnName(i);
             if (SearchColumnName.RELEASE.getColumnName().equals(columnName)) {
                 if (release instanceof TvRelease) {
-                    row[i] = ((TvRelease) release).getShowName();
+                    row[i] = ((TvRelease) release).getName();
                 } else if (release instanceof MovieRelease) {
-                    row[i] = ((MovieRelease) release).getTitle();
+                    row[i] = ((MovieRelease) release).getName();
                 }
             } else if (SearchColumnName.FILENAME.getColumnName().equals(columnName)) {
-                row[i] = release.getFilename();
+                row[i] = release.getFileName();
             } else if (SearchColumnName.FOUND.getColumnName().equals(columnName)) {
                 int selectionSize = release.getMatchingSubs().size();
                 if (subtitleSelection != null) {

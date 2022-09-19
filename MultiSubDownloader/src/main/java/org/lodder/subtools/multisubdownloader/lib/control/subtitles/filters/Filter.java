@@ -13,8 +13,8 @@ public abstract class Filter {
     protected String getReleasename(Release release) {
         String name = "";
 
-        if (!(release.getFilename() == null)) {
-            name = release.getFilename().toLowerCase();
+        if (!(release.getFileName() == null)) {
+            name = release.getFileName().toLowerCase();
             name = name.replace("." + release.getExtension(), "");
         }
 

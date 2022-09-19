@@ -44,7 +44,7 @@ public class JTVsubtitlesAdapter implements SubtitleProvider {
     public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
         Set<TVsubtitlesSubtitleDescriptor> lSubtitles = new HashSet<>();
         try {
-            String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getShowName();
+            String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getName();
 
             if (showName.length() > 0) {
                 if (showName.contains("(") && showName.contains(")")) {

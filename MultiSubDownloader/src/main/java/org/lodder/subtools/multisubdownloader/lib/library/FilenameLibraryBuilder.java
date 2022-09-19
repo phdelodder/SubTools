@@ -38,7 +38,7 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
 
             filename += "." + release.getExtension();
         } else {
-            filename = release.getFilename();
+            filename = release.getFileName();
         }
         if (librarySettings.isLibraryReplaceChars()) {
             filename = StringUtils.removeIllegalWindowsChars(filename);

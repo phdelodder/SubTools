@@ -1,12 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
-import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.prefs.Preferences;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -21,14 +15,19 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.lodder.subtools.multisubdownloader.Messages;
+import org.lodder.subtools.multisubdownloader.settings.SettingValue;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
-import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
+import net.miginfocom.swing.MigLayout;
 
 public class MappingEpisodeNameDialog extends MultiSubDialog {
 
@@ -58,14 +57,7 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
         while (model.getRowCount() > 0) {
             model.removeRow(0);
         }
-        for (MappingTvdbScene element : pref.getMappingSettings().getMappingList()) {
-            String tvdbId = "";
-            if (element.getTvdbId() > 0) {
-                tvdbId = Integer.toString(element.getTvdbId());
-            }
-            model.addRow(new String[] { element.getSceneName(),
-                    tvdbId });
-        }
+        pref.getMappingSettings().forEach((tvdbId, tvdbMapping) -> model.addRow(new String[] { tvdbMapping.getName(), String.valueOf(tvdbId) }));
 
         chkAutoUpdateMapping.setSelected(pref.isAutoUpdateMapping());
     }
@@ -195,20 +187,8 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
     }
 
     private void storeMappingTable() {
-        List<MappingTvdbScene> list = new ArrayList<>();
-        DefaultTableModel model = (DefaultTableModel) table.getModel();
-        MappingTvdbScene item;
-        for (int i = 0; i < model.getRowCount(); i++) {
-            int tvdbid = 0;
-            if (model.getValueAt(i, 1) != null && ((String) model.getValueAt(i, 1)).length() != 0) {
-                tvdbid = Integer.parseInt((String) model.getValueAt(i, 1));
-            }
-            String scene = (String) model.getValueAt(i, 0);
-            item = new MappingTvdbScene(scene, tvdbid);
-            list.add(item);
-        }
-        pref.getMappingSettings().setMappingList(list);
-
+        Preferences preferences = Preferences.userRoot().node("MultiSubDownloader");
+        SettingValue.DICTIONARY.store(prefCtrl, preferences);
         pref.setAutoUpdateMapping(chkAutoUpdateMapping.isSelected());
     }
 

@@ -1,16 +1,8 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -32,7 +24,12 @@ import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.VideoType;
-import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
+
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 public class RenameDialog extends MultiSubDialog implements PropertyChangeListener {
 
@@ -40,7 +37,6 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
     private VideoLibraryPanel pnlLibrary;
     private JTextField txtRenameLocation;
     private JCheckBox chkRecursive;
-    private List<MappingTvdbScene> listTranslate = new ArrayList<>();
     private ProgressDialog progressDialog;
 
     /**
@@ -48,7 +44,6 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
      */
     public RenameDialog(JFrame frame, final Settings settings, final VideoType videoType, final Manager manager) {
         super(frame, videoType + Messages.getString("RenameDialog.Rename"), false);
-        listTranslate = settings.getMappingSettings().getMappingList();
         setResizable(false);
         setBounds(100, 100, 650, 680);
         getContentPane().setLayout(new BorderLayout());
@@ -138,17 +133,13 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
             {
                 JButton renameButton = new JButton(Messages.getString("RenameDialog.Rename"));
                 renameButton.addActionListener(arg0 -> {
-                    ArrayList<MappingTvdbScene> list = new ArrayList<>();
-
                     if (videoType == VideoType.EPISODE) {
-                        list = (ArrayList<MappingTvdbScene>) listTranslate;
                         rename(new File(txtRenameLocation.getText()), new File(txtRenameLocation.getText()),
-                                settings, pnlLibrary.getLibrarySettings(), list, manager);
+                                settings, pnlLibrary.getLibrarySettings(), manager);
                     } else {
                         rename(new File(txtRenameLocation.getText()), new File(txtRenameLocation.getText()),
-                                new Settings(), pnlLibrary.getLibrarySettings(), list, manager);
+                                new Settings(), pnlLibrary.getLibrarySettings(), manager);
                     }
-
                     setVisible(false);
                 });
                 renameButton.setActionCommand("Rename");
@@ -170,11 +161,9 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
      * @param basedir
      * @param settings
      * @param librarySettings can be different from the store librarySettings
-     * @param list
      * @param manager
      */
-    protected void rename(File dir, File basedir, Settings settings, LibrarySettings librarySettings,
-            ArrayList<MappingTvdbScene> list, Manager manager) {
+    protected void rename(File dir, File basedir, Settings settings, LibrarySettings librarySettings, Manager manager) {
         TypedRenameWorker renameWorker =
                 new TypedRenameWorker(dir, librarySettings, VideoType.EPISODE,
                         this.chkRecursive.isSelected(), manager);

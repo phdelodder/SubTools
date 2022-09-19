@@ -5,6 +5,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
@@ -31,34 +33,31 @@ public class TheTVDBApiV2 {
         theTvdb = new TheTvdb(apikey);
     }
 
-    public int searchSerie(String seriename, Language language) throws TheTVDBException {
+    public OptionalInt searchSerie(String seriename, Language language) throws TheTVDBException {
         try {
             String encodedSerieName = URLEncoder.encode(seriename.replace(" ", "-"), StandardCharsets.UTF_8);
             Response<SeriesResultsResponse> response =
                     theTvdb.search().series(encodedSerieName, null, null, null, language == null ? null : language.getLangCode()).execute();
             if (response.isSuccessful()) {
-                List<Series> series = response.body().data;
-                if (series.size() > 0) {
-                    return series.get(0).id;
-                }
+                return response.body().data.stream().mapToInt(serie -> serie.id).findFirst();
             }
-            return 0;
+            return OptionalInt.empty();
         } catch (IOException e) {
             throw new TheTVDBException(e);
         }
     }
 
-    public TheTVDBSerie getSerie(int tvdbId, Language language) throws TheTVDBException {
+    public Optional<TheTVDBSerie> getSerie(int tvdbId, Language language) throws TheTVDBException {
         try {
             if (tvdbId != 0) {
                 Response<SeriesResponse> response = theTvdb.series().series(tvdbId, language == null ? null : language.getLangCode()).execute();
                 if (response.isSuccessful()) {
-                    return seriesToTVDBSerie(response.body().data, language);
+                    return Optional.of(seriesToTVDBSerie(response.body().data, language));
                 }
             } else {
                 LOGGER.warn("TVDB ID is 0! please fix");
             }
-            return null;
+            return Optional.empty();
         } catch (IOException e) {
             throw new TheTVDBException(e);
         }
@@ -85,17 +84,13 @@ public class TheTVDBApiV2 {
         }
     }
 
-    public TheTVDBEpisode getEpisode(int tvdbid, int season, int episode, Language language) throws TheTVDBException {
+    public Optional<TheTVDBEpisode> getEpisode(int tvdbid, int season, int episode, Language language) throws TheTVDBException {
         try {
             Response<EpisodesResponse> response =
                     theTvdb.series().episodesQuery(tvdbid, null, season, episode, null, null, null, null, null,
                             language == null ? null : language.getLangCode()).execute();
             if (response.isSuccessful()) {
-                List<Episode> series = response.body().data;
-                if (series.size() > 0) {
-                    return episodeToTVDBEpisode(series.get(0), language);
-                }
-                return null;
+                return response.body().data.stream().map(serie -> episodeToTVDBEpisode(serie, language)).findFirst();
             }
             throw new TheTVDBException(response.errorBody().string());
         } catch (IOException e) {

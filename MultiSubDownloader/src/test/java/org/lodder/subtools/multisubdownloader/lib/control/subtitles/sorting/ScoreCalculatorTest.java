@@ -75,7 +75,7 @@ public class ScoreCalculatorTest {
         // Arrested.Development.S01E01.DVDRip.XviD-MEDiEVAL
         Release release = mock(Release.class);
         when(release.getQuality()).thenReturn(quality);
-        when(release.getReleasegroup()).thenReturn(group);
+        when(release.getReleaseGroup()).thenReturn(group);
 
         HashMap<String, Integer> definedWeights = new HashMap<>();
         definedWeights.put("hdtv", 2);

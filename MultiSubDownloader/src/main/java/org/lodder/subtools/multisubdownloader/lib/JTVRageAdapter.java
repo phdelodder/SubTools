@@ -15,7 +15,7 @@ public class JTVRageAdapter {
     }
 
     public TVRageShowInfo searchShow(TvRelease newEp) {
-        return searchShow(newEp.getShowName());
+        return searchShow(newEp.getName());
     }
 
     public TVRageShowInfo searchShow(String showName) {

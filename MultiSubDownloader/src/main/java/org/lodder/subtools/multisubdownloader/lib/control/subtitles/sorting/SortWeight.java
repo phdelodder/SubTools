@@ -36,7 +36,7 @@ public class SortWeight {
 
         /* get a list of tags */
         List<String> tags = ReleaseParser.getQualityKeyWords(release.getQuality());
-        tags.add(release.getReleasegroup().toLowerCase());
+        tags.add(release.getReleaseGroup().toLowerCase());
 
         /* only store tags for which we have a weight defined */
         tags.retainAll(defaultWeights.keySet());

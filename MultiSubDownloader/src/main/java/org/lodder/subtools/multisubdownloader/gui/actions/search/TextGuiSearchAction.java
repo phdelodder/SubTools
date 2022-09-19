@@ -44,15 +44,17 @@ public class TextGuiSearchAction extends GuiSearchAction {
         // TODO: Redefine what a "release" is.
         Release release;
         if (VideoSearchType.EPISODE.equals(type)) {
-            int season = getInputPanel().getSeason();
-            int episode = getInputPanel().getEpisode();
-            String quality = getInputPanel().getQuality();
-
-            release = createTvRelease(name, season, episode, quality);
+            release = TvRelease.builder()
+                    .name(name)
+                    .season(getInputPanel().getSeason())
+                    .episode(getInputPanel().getEpisode())
+                    .quality(getInputPanel().getQuality())
+                    .build();
         } else if (VideoSearchType.MOVIE.equals(type)) {
-            String quality = getInputPanel().getQuality();
-
-            release = createMovieRelease(name, quality);
+            release = MovieRelease.builder()
+                    .name(name)
+                    .quality(getInputPanel().getQuality())
+                    .build();
         } else {
             release = releaseFactory.createRelease(new File(name));
         }
@@ -63,25 +65,6 @@ public class TextGuiSearchAction extends GuiSearchAction {
         }
 
         return releases;
-    }
-
-    private Release createMovieRelease(String name, String quality) {
-        MovieRelease release = new MovieRelease();
-        release.setTitle(name);
-        release.setQuality(quality);
-        return release;
-    }
-
-    private Release createTvRelease(String name, int season, int episode, String quality) {
-        List<Integer> episodes = new ArrayList<>();
-        episodes.add(episode);
-
-        TvRelease release = new TvRelease();
-        release.setShowName(name);
-        release.setSeason(season);
-        release.setEpisodeNumbers(episodes);
-        release.setQuality(quality);
-        return release;
     }
 
     @Override

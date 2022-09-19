@@ -75,8 +75,8 @@ public class ReleaseParserTest {
 
         assertSame(release.getVideoType(), VideoType.EPISODE);
         assertEquals(release.getExtension(), "mkv");
-        assertEquals(release.getFilename(), "Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv");
-        assertEquals(release.getReleasegroup(), "DIMENSION");
+        assertEquals(release.getFileName(), "Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv");
+        assertEquals(release.getReleaseGroup(), "DIMENSION");
         assertEquals(release.getQuality(), "720p HDTV X264");
 
         TvRelease tvrelease = (TvRelease) release;
@@ -90,8 +90,8 @@ public class ReleaseParserTest {
 
         assertSame(release.getVideoType(), VideoType.EPISODE);
         assertEquals(release.getExtension(), "mkv");
-        assertEquals(release.getFilename(), "S04E02 - White Collar - Most Wanted.mkv");
-        assertEquals(release.getReleasegroup(), "");
+        assertEquals(release.getFileName(), "S04E02 - White Collar - Most Wanted.mkv");
+        assertEquals(release.getReleaseGroup(), "");
         assertEquals(release.getQuality(), "");
 
         tvrelease = (TvRelease) release;
@@ -105,9 +105,9 @@ public class ReleaseParserTest {
 
         assertSame(release.getVideoType(), VideoType.EPISODE);
         assertEquals(release.getExtension(), "mkv");
-        assertEquals(release.getFilename(),
+        assertEquals(release.getFileName(),
                 "Spartacus.Gods.of.The.Arena.Pt.I.720p.HDTV.X264-DIMENSION.mkv");
-        assertEquals(release.getReleasegroup(), "DIMENSION");
+        assertEquals(release.getReleaseGroup(), "DIMENSION");
         assertEquals(release.getQuality(), "720p HDTV X264");
 
         tvrelease = (TvRelease) release;
@@ -121,8 +121,8 @@ public class ReleaseParserTest {
 
         assertSame(release.getVideoType(), VideoType.EPISODE);
         assertEquals(release.getExtension(), "mp4");
-        assertEquals(release.getFilename(), "hawaii.five-0.2010.410.hdtv-lol.mp4");
-        assertEquals(release.getReleasegroup(), "lol");
+        assertEquals(release.getFileName(), "hawaii.five-0.2010.410.hdtv-lol.mp4");
+        assertEquals(release.getReleaseGroup(), "lol");
         assertEquals(release.getQuality(), "hdtv");
 
         tvrelease = (TvRelease) release;
@@ -136,8 +136,8 @@ public class ReleaseParserTest {
 
         assertSame(release.getVideoType(), VideoType.EPISODE);
         assertEquals(release.getExtension(), "mkv");
-        assertEquals(release.getFilename(), "Greys.Anatomy.S10E01E02.720p.HDTV.X264-DIMENSION.mkv");
-        assertEquals(release.getReleasegroup(), "DIMENSION");
+        assertEquals(release.getFileName(), "Greys.Anatomy.S10E01E02.720p.HDTV.X264-DIMENSION.mkv");
+        assertEquals(release.getReleaseGroup(), "DIMENSION");
         assertEquals(release.getQuality(), "720p HDTV X264");
 
         tvrelease = (TvRelease) release;
@@ -172,44 +172,44 @@ public class ReleaseParserTest {
 
         assertSame(release.getVideoType(), VideoType.MOVIE);
         assertEquals(release.getExtension(), "mkv");
-        assertEquals(release.getFilename(),
+        assertEquals(release.getFileName(),
                 "Back.to.the.Future.Part.II.1989.720p.BluRay.X264-AMIABLE.mkv");
-        assertEquals(release.getReleasegroup(), "AMIABLE");
+        assertEquals(release.getReleaseGroup(), "AMIABLE");
         assertEquals(release.getQuality(), "720p BluRay X264");
 
         MovieRelease movieRelease = (MovieRelease) release;
 
         assertEquals(movieRelease.getYear(), 1989);
-        assertEquals(movieRelease.getTitle(), "Back to the Future Part II");
+        assertEquals(movieRelease.getName(), "Back to the Future Part II");
 
         file = new File("The.Equalizer.2014.720p.BluRay.x264-SPARKS.mkv");
         release = releaseparser.parse(file);
 
         assertSame(release.getVideoType(), VideoType.MOVIE);
         assertEquals(release.getExtension(), "mkv");
-        assertEquals(release.getFilename(), "The.Equalizer.2014.720p.BluRay.x264-SPARKS.mkv");
-        assertEquals(release.getReleasegroup(), "SPARKS");
+        assertEquals(release.getFileName(), "The.Equalizer.2014.720p.BluRay.x264-SPARKS.mkv");
+        assertEquals(release.getReleaseGroup(), "SPARKS");
         assertEquals(release.getQuality(), "720p BluRay x264");
 
         movieRelease = (MovieRelease) release;
 
         assertEquals(movieRelease.getYear(), 2014);
-        assertEquals(movieRelease.getTitle(), "The Equalizer");
+        assertEquals(movieRelease.getName(), "The Equalizer");
 
         file = new File("The.Trip.to.Italy.2014.LIMITED.720p.BluRay.x264-GECKOS.mkv");
         release = releaseparser.parse(file);
 
         assertSame(release.getVideoType(), VideoType.MOVIE);
         assertEquals(release.getExtension(), "mkv");
-        assertEquals(release.getFilename(),
+        assertEquals(release.getFileName(),
                 "The.Trip.to.Italy.2014.LIMITED.720p.BluRay.x264-GECKOS.mkv");
-        assertEquals(release.getReleasegroup(), "GECKOS");
+        assertEquals(release.getReleaseGroup(), "GECKOS");
         assertEquals(release.getQuality(), "720p BluRay x264");
 
         movieRelease = (MovieRelease) release;
 
         assertEquals(movieRelease.getYear(), 2014);
-        assertEquals(movieRelease.getTitle(), "The Trip to Italy");
+        assertEquals(movieRelease.getName(), "The Trip to Italy");
 
     }
 

@@ -1,14 +1,15 @@
 package org.lodder.subtools.multisubdownloader.util;
 
-import javax.swing.*;
+import java.io.File;
+
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import org.lodder.subtools.multisubdownloader.lib.xml.XMLExclude;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.sublibrary.xml.XMLMappingTvdbScene;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
 
 /**
  * Created by IntelliJ IDEA. User: lodder Date: 4/20/11 Time: 7:53 AM To change this template use
@@ -45,8 +46,8 @@ public class Import {
         try {
             if (listType == ImportListType.PREFERENCES) {
                 settingsControl.importPreferences(file);
-            } else if (listType == ImportListType.TRANSLATE && settingsControl.getSettings().getMappingSettings().getMappingList().size() == 0) {
-                settingsControl.getSettings().getMappingSettings().setMappingList(XMLMappingTvdbScene.read(file));
+            } else if (listType == ImportListType.TRANSLATE && settingsControl.getSettings().getMappingSettings().isEmpty()) {
+                settingsControl.getSettings().getMappingSettings().setMappings(XMLMappingTvdbScene.read(file));
             } else if (listType == ImportListType.EXCLUDE && settingsControl.getSettings().getExcludeList().size() == 0) {
                 settingsControl.getSettings().setExcludeList(XMLExclude.read(file));
             } else {
@@ -57,7 +58,7 @@ public class Import {
                     if (listType == ImportListType.EXCLUDE) {
                         settingsControl.getSettings().getExcludeList().addAll(XMLExclude.read(file));
                     } else if (listType == ImportListType.TRANSLATE) {
-                        settingsControl.getSettings().getMappingSettings().getMappingList().addAll(XMLMappingTvdbScene.read(file));
+                        XMLMappingTvdbScene.read(file).forEach(settingsControl.getSettings().getMappingSettings()::add);
                     }
                 }
             }

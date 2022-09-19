@@ -43,7 +43,7 @@ public class DownloadAction {
     }
 
     public void download(Release release, Subtitle subtitle) throws IOException, ManagerException {
-        LOGGER.info("Downloading subtitle: [{}] for release: [{}]", subtitle.getFileName(), release.getFilename());
+        LOGGER.info("Downloading subtitle: [{}] for release: [{}]", subtitle.getFileName(), release.getFileName());
         download(release, subtitle, 0);
     }
 
@@ -73,13 +73,13 @@ public class DownloadAction {
             LOGGER.debug("doDownload file was [{}] ", success);
         }
 
-        if (ReleaseParser.getQualityKeyword(release.getFilename()).split(" ").length > 1) {
+        if (ReleaseParser.getQualityKeyword(release.getFileName()).split(" ").length > 1) {
             String dropBoxName = "";
             if (subtitle.getSubtitleSource() == SubtitleSource.LOCAL) {
-                dropBoxName = PrivateRepoIndex.getFullFilename(FilenameLibraryBuilder.changeExtension(release.getFilename(), ".srt"), "?",
+                dropBoxName = PrivateRepoIndex.getFullFilename(FilenameLibraryBuilder.changeExtension(release.getFileName(), ".srt"), "?",
                         subtitle.getSubtitleSource().toString());
             } else {
-                dropBoxName = PrivateRepoIndex.getFullFilename(FilenameLibraryBuilder.changeExtension(release.getFilename(), ".srt"),
+                dropBoxName = PrivateRepoIndex.getFullFilename(FilenameLibraryBuilder.changeExtension(release.getFileName(), ".srt"),
                         subtitle.getUploader(), subtitle.getSubtitleSource().toString());
             }
             DropBoxClient.getDropBoxClient().put(subFile, dropBoxName, subtitle.getLanguage());
@@ -87,7 +87,7 @@ public class DownloadAction {
 
         if (success) {
             if (!LibraryActionType.NOTHING.equals(librarySettings.getLibraryAction())) {
-                final File oldLocationFile = new File(release.getPath(), release.getFilename());
+                final File oldLocationFile = new File(release.getPath(), release.getFileName());
                 if (oldLocationFile.exists()) {
                     final File newLocationFile = new File(path, videoFileName);
                     LOGGER.info("Moving/Renaming [{}] to folder [{}] this might take a while... ", videoFileName, path.getPath());

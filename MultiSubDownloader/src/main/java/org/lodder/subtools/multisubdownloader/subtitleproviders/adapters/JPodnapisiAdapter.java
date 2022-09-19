@@ -47,8 +47,8 @@ public class JPodnapisiAdapter implements SubtitleProvider {
     @Override
     public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
         List<PodnapisiSubtitleDescriptor> lSubtitles = new ArrayList<>();
-        if (!"".equals(movieRelease.getFilename())) {
-            File file = new File(movieRelease.getPath(), movieRelease.getFilename());
+        if (!"".equals(movieRelease.getFileName())) {
+            File file = new File(movieRelease.getPath(), movieRelease.getFileName());
             if (file.exists()) {
                 try {
                     lSubtitles = jpapi.searchSubtitles(new String[] { OpenSubtitlesHasher.computeHash(file) }, language);
@@ -58,7 +58,7 @@ public class JPodnapisiAdapter implements SubtitleProvider {
             }
         }
         if (lSubtitles.size() == 0) {
-            lSubtitles.addAll(jpapi.searchSubtitles(movieRelease.getTitle(), movieRelease.getYear(), 0, 0, language));
+            lSubtitles.addAll(jpapi.searchSubtitles(movieRelease.getName(), movieRelease.getYear(), 0, 0, language));
         }
         return buildListSubtitles(language, lSubtitles);
     }
@@ -66,7 +66,7 @@ public class JPodnapisiAdapter implements SubtitleProvider {
     @Override
     public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
 
-        String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getShowName();
+        String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getName();
         List<PodnapisiSubtitleDescriptor> lSubtitles;
         if (showName.length() > 0) {
             lSubtitles = tvRelease.getEpisodeNumbers().stream()

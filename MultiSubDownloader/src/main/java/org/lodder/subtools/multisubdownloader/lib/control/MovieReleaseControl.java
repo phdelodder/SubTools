@@ -1,7 +1,5 @@
 package org.lodder.subtools.multisubdownloader.lib.control;
 
-import java.util.List;
-
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.data.IMDB.IMDBAPI;
@@ -14,7 +12,7 @@ import org.lodder.subtools.sublibrary.data.OMDB.OMDBException;
 import org.lodder.subtools.sublibrary.data.OMDB.model.OMDBDetails;
 import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
-import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
+import org.lodder.subtools.sublibrary.settings.model.TvdbMappings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,14 +31,14 @@ public class MovieReleaseControl extends ReleaseControl {
     }
 
     @Override
-    public void process(List<MappingTvdbScene> dict) throws ReleaseControlException {
+    public void process(TvdbMappings tvdbMappings) throws ReleaseControlException {
         MovieRelease movieRelease = (MovieRelease) release;
-        if ("".equals(movieRelease.getTitle())) {
+        if ("".equals(movieRelease.getName())) {
             throw new ReleaseControlException("Unable to extract/find title, check file", release);
         } else {
             int imdbid;
             try {
-                imdbid = imdbSearchID.getImdbId(movieRelease.getTitle(), movieRelease.getYear());
+                imdbid = imdbSearchID.getImdbId(movieRelease.getName(), movieRelease.getYear());
             } catch (IMDBSearchIDException e) {
                 throw new ReleaseControlException("IMDBASearchID Failed", release);
             }
@@ -50,7 +48,7 @@ public class MovieReleaseControl extends ReleaseControl {
                     IMDBDetails imdbinfo = imdbapi.getIMDBMovieDetails(movieRelease.getImdbidAsString());
                     if (imdbinfo != null) {
                         movieRelease.setYear(imdbinfo.getYear());
-                        movieRelease.setTitle(imdbinfo.getTitle());
+                        movieRelease.setName(imdbinfo.getTitle());
                     } else {
                         LOGGER.error("Unable to get details from IMDB API, continue with filename info {}", release);
                     }
@@ -64,7 +62,7 @@ public class MovieReleaseControl extends ReleaseControl {
                     OMDBDetails omdbinfo = omdbapi.getOMDBMovieDetails(movieRelease.getImdbidAsString());
                     if (omdbinfo != null) {
                         movieRelease.setYear(omdbinfo.getYear());
-                        movieRelease.setTitle(omdbinfo.getTitle());
+                        movieRelease.setName(omdbinfo.getTitle());
                     } else {
                         LOGGER.error("Unable to get details from OMDB API, continue with filename info {}", release);
                     }

@@ -64,7 +64,7 @@ public class PathLibraryBuilder extends LibraryBuilder {
 
     protected String buildMovie(MovieRelease movieRelease) {
         String folder = librarySettings.getLibraryFolderStructure();
-        String title = movieRelease.getTitle();
+        String title = movieRelease.getName();
 
         if (librarySettings.isLibraryReplaceChars()) {
             title = StringUtils.removeIllegalWindowsChars(title);
