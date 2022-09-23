@@ -144,7 +144,7 @@ public class ReleaseParser {
         return TvRelease.builder()
                 .name(seriesname)
                 .season(seasonnumber)
-                .episode(episodenumbers)
+                .episodes(episodenumbers)
                 .file(file)
                 .description(removeExtension(description))
                 .releaseGroup(extractReleasegroup(file.getName(), true))

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -123,28 +124,26 @@ public class XMLHelper {
         return result.getWriter().toString();
     }
 
-    public static Document getDocument(String string) throws ParserConfigurationException, SAXException, IOException {
+    public static Optional<Document> getDocument(String string) throws ParserConfigurationException, SAXException, IOException {
         return getDocument(new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8)));
     }
 
-    public static Document getDocument(InputStream inputStream) throws ParserConfigurationException,
+    public static Optional<Document> getDocument(InputStream inputStream) throws ParserConfigurationException,
             IOException {
-        Document doc;
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         // Use the factory to create a builder
         DocumentBuilder builder;
         builder = factory.newDocumentBuilder();
         try {
-            doc = builder.parse(inputStream);
+            return Optional.of(builder.parse(inputStream));
         } catch (SAXException e) {
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("getDocument: Not a valid XML document, setting a blank document!");
             } else {
                 LOGGER.debug("Not a valid XML document, setting a blank document!");
             }
-            doc = builder.newDocument();
         }
 
-        return doc;
+        return Optional.empty();
     }
 }

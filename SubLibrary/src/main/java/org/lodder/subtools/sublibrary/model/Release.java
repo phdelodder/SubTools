@@ -7,6 +7,8 @@ import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 
 import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Getter
 public class Release extends Video {
@@ -41,42 +43,14 @@ public class Release extends Video {
     public interface ReleaseBuilderReleaseGroup {
     }
 
+    @Setter
+    @Accessors(chain = true, fluent = true)
     public static class ReleaseBuilder implements ReleaseBuilderOther, ReleaseBuilderFile, ReleaseBuilderVideoType {
         private VideoType videoType;
         private File file;
         private String quality;
         private String description;
         private String releaseGroup;
-
-        @Override
-        public ReleaseBuilder videoType(VideoType videoType) {
-            this.videoType = videoType;
-            return this;
-        }
-
-        @Override
-        public ReleaseBuilder file(File file) {
-            this.file = file;
-            return this;
-        }
-
-        @Override
-        public ReleaseBuilder quality(String quality) {
-            this.quality = quality;
-            return this;
-        }
-
-        @Override
-        public ReleaseBuilder description(String description) {
-            this.description = description;
-            return this;
-        }
-
-        @Override
-        public ReleaseBuilder releaseGroup(String releaseGroup) {
-            this.releaseGroup = releaseGroup;
-            return this;
-        }
 
         @Override
         public Release build() {

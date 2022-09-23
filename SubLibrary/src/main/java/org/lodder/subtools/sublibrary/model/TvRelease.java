@@ -9,6 +9,7 @@ import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Getter
 @Setter
@@ -36,7 +37,7 @@ public class TvRelease extends Release {
     public interface TvReleaseBuilderEpisode {
         TvReleaseBuilderOther episode(int episode);
 
-        TvReleaseBuilderOther episode(List<Integer> episodes);
+        TvReleaseBuilderOther episodes(List<Integer> episodes);
     }
 
     public interface TvReleaseBuilderOther {
@@ -59,6 +60,8 @@ public class TvRelease extends Release {
         return new TvReleaseBuilder();
     }
 
+    @Setter
+    @Accessors(chain = true, fluent = true)
     public static class TvReleaseBuilder
             implements TvReleaseBuilderOther, TvReleaseBuilderEpisode, TvReleaseBuilderSeason, TvReleaseBuilderShowName {
         private String name;
@@ -71,17 +74,6 @@ public class TvRelease extends Release {
         private String description;
         private String releaseGroup;
 
-        @Override
-        public TvReleaseBuilder name(String name) {
-            this.name = name;
-            return this;
-        }
-
-        @Override
-        public TvReleaseBuilder season(int season) {
-            this.season = season;
-            return this;
-        }
 
         @Override
         public TvReleaseBuilder episode(int episode) {
@@ -90,44 +82,8 @@ public class TvRelease extends Release {
         }
 
         @Override
-        public TvReleaseBuilder episode(List<Integer> episodes) {
+        public TvReleaseBuilder episodes(List<Integer> episodes) {
             this.episodes = Collections.unmodifiableList(episodes);
-            return this;
-        }
-
-        @Override
-        public TvReleaseBuilder quality(String quality) {
-            this.quality = quality;
-            return this;
-        }
-
-        @Override
-        public TvReleaseBuilder file(File file) {
-            this.file = file;
-            return this;
-        }
-
-        @Override
-        public TvReleaseBuilder description(String description) {
-            this.description = description;
-            return this;
-        }
-
-        @Override
-        public TvReleaseBuilder special(boolean special) {
-            this.special = special;
-            return this;
-        }
-
-        @Override
-        public TvReleaseBuilder releaseGroup(String releaseGroup) {
-            this.releaseGroup = releaseGroup;
-            return this;
-        }
-
-        @Override
-        public TvReleaseBuilder title(String title) {
-            this.title = title;
             return this;
         }
 

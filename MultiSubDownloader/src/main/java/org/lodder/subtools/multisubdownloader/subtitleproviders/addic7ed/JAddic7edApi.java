@@ -1,6 +1,5 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed;
 
-import java.io.IOException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -26,11 +25,15 @@ import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.ManagerSetupException;
+import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.Html;
-import org.lodder.subtools.sublibrary.util.http.HttpClientException;
+import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.experimental.ExtensionMethod;
+
+@ExtensionMethod({ OptionalExtension.class })
 public class JAddic7edApi extends Html {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edApi.class);
@@ -62,9 +65,11 @@ public class JAddic7edApi extends Html {
 
     public Optional<String> getAddictedSerieName(String name) throws ManagerSetupException {
         String formattedName = name.replace(":", "").replace("-", "").replace("_", " ").replace(" ", "").trim().toLowerCase();
-        return getOptionalValueDisk(formattedName, //
-                () -> resultStringForName(name)
-                        .map(content -> Jsoup.parse(content).select("#season td:not(.c) > a").stream()
+
+        return getValue(formattedName)
+                .cacheType(CacheType.DISK)
+                .optionalValueSupplier(() -> resultStringForName(name)
+                        .map(doc -> doc.select("#season td:not(.c) > a").stream()
                                 .map(serieFound -> {
                                     String link = serieFound.attr("href");
                                     String seriename = link.replace("/serie/", "");
@@ -72,32 +77,38 @@ public class JAddic7edApi extends Html {
                                 })
                                 .filter(seriename -> URLDecoder.decode(seriename, StandardCharsets.UTF_8).replace(":", "").replace("-", "")
                                         .replace("_", " ").replace(" ", "").trim().toLowerCase().equals(formattedName))
-                                .findAny().orElse(null)));
+                                .findAny().orElse(null)))
+                .getOptional();
     }
 
     public Optional<String> getAddictedMovieName(String name) throws RuntimeException, ManagerSetupException {
-        return getOptionalValueDisk(name, //
-                () -> resultStringForName(name).map(content -> {
-                    Elements aTagWithSerie = Jsoup.parse(content).select("a[debug]");
-                    String link = aTagWithSerie.get(0).attr("href");
-                    String moviename = link.replace("movie/", "");
-                    return moviename.substring(0, moviename.indexOf("/"));
-                }));
+        return getValue(name)
+                .cacheType(CacheType.DISK)
+                .optionalValueSupplier(
+                        () -> resultStringForName(name).map(doc -> {
+                            Elements aTagWithSerie = doc.select("a[debug]");
+                            String link = aTagWithSerie.get(0).attr("href");
+                            String moviename = link.replace("movie/", "");
+                            return moviename.substring(0, moviename.indexOf("/"));
+                        }))
+                .getOptional();
     }
 
-    private Optional<String> resultStringForName(String name) {
+    private Optional<Document> resultStringForName(String name) {
         String url = DOMAIN + "/search.php?search=" + URLEncoder.encode(name, StandardCharsets.UTF_8) + "&Submit=Search";
 
-        String content = this.getContent(false, url);
-
-        if (content.contains("<b>0 results found</b>")) {
+        Optional<String> content = getContent(url);
+        if (content.isEmpty()) {
+            return Optional.empty();
+        }
+        if (content.get().contains("<b>0 results found</b>")) {
             if (name.contains(":")) {
                 return resultStringForName(name.replace(":", ""));
             } else {
                 return Optional.empty();
             }
         }
-        return Optional.of(content);
+        return content.map(Jsoup::parse);
     }
 
     public List<Addic7edSubtitleDescriptor> searchSubtitles(String showname, int season, int episode, String title, Language language) {
@@ -110,21 +121,23 @@ public class JAddic7edApi extends Html {
         List<LanguageId> languageIds = LanguageId.forLanguage(language);
         url.append(languageIds.size() == 1 ? languageIds.get(0).getId() : LanguageId.ALL.getId());
 
-        String content = this.getContent(false, url.toString());
-        List<Addic7edSubtitleDescriptor> lSubtitles = new ArrayList<>();
-        Document doc = Jsoup.parse(content);
+        Optional<Document> doc = getContent(url.toString()).map(Jsoup::parse);
+        if (doc.isEmpty()) {
+            return List.of();
+        }
 
         String titel = null;
-        Elements elTitel = doc.getElementsByClass("titulo");
+        Elements elTitel = doc.get().getElementsByClass("titulo");
         if (elTitel.size() == 1) {
             titel = elTitel.get(0).html().substring(0, elTitel.get(0).html().indexOf("<") - 1).trim();
         }
 
         String uploader, version, lang, download = null;
         boolean hearingImpaired = false;
-        Elements blocks = doc.getElementsByClass("tabel95");
+        Elements blocks = doc.get().getElementsByClass("tabel95");
         blocks = blocks.select("table[width=100%]");
 
+        List<Addic7edSubtitleDescriptor> lSubtitles = new ArrayList<>();
         for (Element block : blocks) {
             uploader = "";
             version = null;
@@ -197,31 +210,27 @@ public class JAddic7edApi extends Html {
                         && StringUtils.equals(s.getVersion(), sub.getVersion()));
     }
 
-    private String getContent(boolean disk, String url) {
+    private Optional<String> getContent(String url) {
         try {
-            if (disk) {
-                return this.getHtmlDisk(url);
-            } else {
-                if (!speedy && !this.isUrlCached(url)) {
-                    // if (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
-                    // LOGGER.info("RateLimiet is bereikt voor ADDIC7ed, gelieve {} sec te wachten", RATEDURATION);
-                    // }
-                    while (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
-                        try {
-                            // Pause for 1 seconds
-                            TimeUnit.SECONDS.sleep(1);
-                        } catch (InterruptedException e) {
-                            // restore interrupted status
-                            Thread.currentThread().interrupt();
-                        }
+            if (!speedy && !this.isUrlCached(url)) {
+                // if (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
+                // LOGGER.info("RateLimiet is bereikt voor ADDIC7ed, gelieve {} sec te wachten", RATEDURATION);
+                // }
+                while (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
+                    try {
+                        // Pause for 1 seconds
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (InterruptedException e) {
+                        // restore interrupted status
+                        Thread.currentThread().interrupt();
                     }
-                    lastRequest = LocalDateTime.now();
                 }
-                return this.getHtml(url);
+                lastRequest = LocalDateTime.now();
             }
-        } catch (HttpClientException | IOException | ManagerSetupException | ManagerException e) {
+            return Optional.of(this.getHtml(url).cacheType(CacheType.MEMORY).get());
+        } catch (ManagerException e) {
             LOGGER.error(e.getMessage(), e);
         }
-        return "";
+        return Optional.empty();
     }
 }

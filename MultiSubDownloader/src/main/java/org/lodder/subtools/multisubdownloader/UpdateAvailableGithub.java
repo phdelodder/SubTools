@@ -5,12 +5,12 @@ import static java.time.temporal.ChronoUnit.*;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.sublibrary.ConfigProperties;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +54,10 @@ public class UpdateAvailableGithub {
 
     private Optional<GitHubRelease> getLatestGithubRelease() {
         try {
-            Element element = Jsoup.parse(manager.getContent("https://github.com/phdelodder/SubTools/releases", null, false))
+            Element element = manager.getPageContentBuilder().url("https://github.com/phdelodder/SubTools/releases")
+                    .userAgent(null)
+                    .cacheType(CacheType.NONE)
+                    .getAsJsoupDocument()
                     .selectFirst("#repo-content-turbo-frame .box a[href='/phdelodder/SubTools/releases/latest']");
             String version = element.parent().selectFirst("a").text().split("-")[1];
             String url = "https://github.com"

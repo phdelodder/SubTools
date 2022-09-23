@@ -10,10 +10,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.ManagerSetupException;
+import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.XmlHTTP;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
 import org.lodder.subtools.sublibrary.xml.XmlExtension;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -47,16 +47,18 @@ public class TheTVDBMirrors {
         synchronized (this) {
             xmlHTTPAPI = new XmlHTTP(manager);
             String urlString = "http://www.thetvdb.com/api/" + apikey + "/mirrors.xml";
-            Document doc = xmlHTTPAPI.getXML(urlString);
 
-            doc.getElementsByTagName("Mirror").stream()
-                    .filter(nMirror -> nMirror.getNodeType() == Node.ELEMENT_NODE)
-                    .map(Element.class::cast)
-                    .forEach(eMirror -> {
-                        String url = XMLHelper.getStringTagValue("mirrorpath", eMirror);
-                        int typeMask = XMLHelper.getIntTagValue("typemask", eMirror);
-                        addMirror(typeMask, url);
-                    });
+            xmlHTTPAPI.getXML(urlString).cacheType(CacheType.NONE).getAsDocument().ifPresent(doc -> {
+                doc.getElementsByTagName("Mirror").stream()
+                        .filter(nMirror -> nMirror.getNodeType() == Node.ELEMENT_NODE)
+                        .map(Element.class::cast)
+                        .forEach(eMirror -> {
+                            String url = XMLHelper.getStringTagValue("mirrorpath", eMirror);
+                            int typeMask = XMLHelper.getIntTagValue("typemask", eMirror);
+                            addMirror(typeMask, url);
+                        });
+            });
+
         }
     }
 

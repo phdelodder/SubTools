@@ -1,11 +1,12 @@
 package org.lodder.subtools.sublibrary.data.OMDB;
 
+import java.util.Optional;
+
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.XmlHTTP;
 import org.lodder.subtools.sublibrary.data.OMDB.model.OMDBDetails;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 public class OMDBAPI extends XmlHTTP {
 
@@ -13,20 +14,21 @@ public class OMDBAPI extends XmlHTTP {
         super(manager);
     }
 
-    public OMDBDetails getOMDBMovieDetails(String imdbid) throws OMDBException {
-        final String xml = "http://www.omdbapi.com/?i=" + imdbid + "&plot=short&r=xml";
-        Document doc;
-        try {
-            doc = getXMLDisk(xml);
-            NodeList nodeList = doc.getElementsByTagName("movie");
-            if (nodeList.getLength() > 0) {
-                return parseOMDBDetails((Element) nodeList.item(0));
-            }
-        } catch (Exception e) {
-            throw new OMDBException("Error OMDBAPI", xml, e);
-        }
-
-        return null;
+    public Optional<OMDBDetails> getOMDBMovieDetails(String imdbid) throws OMDBException {
+        return getManager().getValueBuilder()
+                .key("OMDBMovieDetails:" + imdbid)
+                .cacheType(CacheType.DISK)
+                .optionalValueSupplier(() -> {
+                    final String url = "http://www.omdbapi.com/?i=" + imdbid + "&plot=short&r=xml";
+                    try {
+                        return getXML(url).cacheType(CacheType.NONE).getAsDocument()
+                                .map(doc -> doc.getElementsByTagName("movie"))
+                                .filter(nodeList -> nodeList.getLength() > 0)
+                                .map(nodeList -> parseOMDBDetails((Element) nodeList.item(0)));
+                    } catch (Exception e) {
+                        throw new OMDBException("Error OMDBAPI", url, e);
+                    }
+                }).getOptional();
     }
 
     private OMDBDetails parseOMDBDetails(Element item) {

@@ -67,6 +67,11 @@ public class OptionalExtension {
 
     //
 
+    public static <T, S, X extends Exception> Optional<S> mapToOptionalObj(Optional<T> optional, ThrowingFunction<T, Optional<S>, X> mapper)
+            throws X {
+        return optional.isPresent() ? mapper.apply(optional.get()) : Optional.empty();
+    }
+
     public static <T, X extends Exception> Optional<T> mapToOptionalObj(OptionalInt optionalInt, ThrowingIntFunction<Optional<T>, X> mapper)
             throws X {
         return optionalInt.isPresent() ? mapper.apply(optionalInt.getAsInt()) : Optional.empty();

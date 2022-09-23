@@ -4,15 +4,19 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisodeList;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageShowInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TVRageApi {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TVRageApi.class);
     private static final String API_EPISODE_INFO = "episodeinfo.php";
     private static final String API_EPISODE_LIST = "episode_list.php";
     private static final String API_SEARCH = "search.php";
@@ -37,22 +41,32 @@ public class TVRageApi {
         }
 
         String tvrageURL = buildURL(API_SEARCH, showName).toString();
-        return tvrParser.getSearchShow(tvrageURL);
+        try {
+            return tvrParser.getSearchShow(tvrageURL);
+        } catch (Exception e) {
+            LOGGER.error("API TVRage: " + e.getMessage(), e);
+            return List.of();
+        }
     }
 
     /**
      * Get the episode information for all episodes for a show
      *
-     * @param showID
+     * @param showId
      * @return
      */
-    public TVRageEpisodeList getEpisodeList(String showID) {
-        if (!isValidString(showID)) {
-            return new TVRageEpisodeList();
+    public Optional<TVRageEpisodeList> getEpisodeList(String showId) {
+        if (!isValidString(showId)) {
+            return Optional.empty();
         }
 
-        String tvrageURL = buildURL(API_EPISODE_LIST, showID).toString();
-        return tvrParser.getEpisodeList(tvrageURL);
+        String tvrageURL = buildURL(API_EPISODE_LIST, showId).toString();
+        try {
+            return Optional.of(tvrParser.getEpisodeList(tvrageURL));
+        } catch (Exception e) {
+            LOGGER.error("API TVRage: " + e.getMessage(), e);
+            return Optional.empty();
+        }
     }
 
     /**
@@ -63,9 +77,9 @@ public class TVRageApi {
      * @param episodeId
      * @return
      */
-    public TVRageEpisode getEpisodeInfo(String showID, String seasonId, String episodeId) {
+    public Optional<TVRageEpisode> getEpisodeInfo(String showID, String seasonId, String episodeId) {
         if (!isValidString(showID) || !isValidString(seasonId) || !isValidString(episodeId)) {
-            return new TVRageEpisode();
+            return Optional.empty();
         }
 
         StringBuilder tvrageURL = buildURL(API_EPISODE_INFO, showID);
@@ -73,7 +87,12 @@ public class TVRageApi {
         tvrageURL.append("&ep=").append(seasonId);
         tvrageURL.append("x").append(episodeId);
 
-        return tvrParser.getEpisodeInfo(tvrageURL.toString());
+        try {
+            return tvrParser.getEpisodeInfo(tvrageURL.toString());
+        } catch (Exception e) {
+            LOGGER.error("API TVRage: " + e.getMessage(), e);
+            return Optional.empty();
+        }
     }
 
     private StringBuilder buildURL(String urlParameter, String urlData) {

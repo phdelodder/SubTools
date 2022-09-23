@@ -1,32 +1,86 @@
 package org.lodder.subtools.sublibrary.cache;
 
-import java.util.ArrayList;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 
-import org.apache.commons.collections4.MapIterator;
 import org.apache.commons.collections4.map.LRUMap;
 
-/**
- * @author Crunchify.com
- */
+import com.pivovarit.function.ThrowingSupplier;
 
-public class InMemoryCache<K, T> {
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
-    private long timeToLive;
-    @SuppressWarnings("rawtypes")
-    protected LRUMap cacheMap;
+@Getter(value = AccessLevel.PROTECTED)
+public class InMemoryCache<K, V> {
 
-    @SuppressWarnings("rawtypes")
-    public InMemoryCache(long crunchifyTimeToLive, final long crunchifyTimerInterval, int maxItems) {
-        this.timeToLive = crunchifyTimeToLive * 1000;
+    private final Map<K, CacheObject<V>> cacheMap;
+    private final Long timeToLive;
 
-        cacheMap = new LRUMap(maxItems);
+    protected InMemoryCache(Long timeToLive, Long timerInterval, Integer maxItems) {
+        if (timeToLive != null && timeToLive < 1) {
+            throw new IllegalStateException("maxItems should be a positive number");
+        }
+        if (timerInterval != null && timerInterval < 1) {
+            throw new IllegalStateException("timerInterval should be a positive number");
+        }
+        if (timeToLive != null && timeToLive < 1) {
+            throw new IllegalStateException("timeToLive should be a positive number");
+        }
+        if (timeToLive == null && timerInterval != null) {
+            throw new IllegalStateException("timeToLive should be specified when timerInterval is used");
+        }
+        if (timeToLive != null && timerInterval != null && timeToLive < timerInterval) {
+            throw new IllegalStateException("timerInterval should be greater than timeToLive");
+        }
+        if (timerInterval != null) {
+            createCleanUpThread(timerInterval);
+        }
+        this.timeToLive = timeToLive;
+        this.cacheMap = maxItems != null ? new LRUMap<>(maxItems) : new HashMap<>();
+    }
 
-        if (timeToLive > 0 && crunchifyTimerInterval > 0) {
-            createCleanUpThread(crunchifyTimerInterval);
+    public static InMemoryCacheBuilderKeyTypeIntf builder() {
+        return new InMemoryCacheBuilder<>();
+    }
+
+    public interface InMemoryCacheBuilderKeyTypeIntf {
+        <K extends Serializable> InMemoryCacheBuilderValueTypeIntf<K> keyType(Class<K> keyType);
+    }
+
+    public interface InMemoryCacheBuilderValueTypeIntf<K extends Serializable> {
+        <V extends Serializable> InMemoryCacheBuilder<K, V> valueType(Class<V> valueType);
+    }
+
+    @Setter
+    @Accessors(chain = true, fluent = true)
+    public static class InMemoryCacheBuilder<K extends Serializable, V extends Serializable>
+            implements InMemoryCacheBuilderKeyTypeIntf, InMemoryCacheBuilderValueTypeIntf<K> {
+        private Long timeToLive;
+        private Long timerInterval;
+        private Integer maxItems;
+
+        @Override
+        public <T extends Serializable> InMemoryCacheBuilder<T, V> keyType(Class<T> keyType) {
+            return (InMemoryCacheBuilder<T, V>) this;
+        }
+
+        @Override
+        public <T extends Serializable> InMemoryCacheBuilder<K, T> valueType(Class<T> valueType) {
+            return (InMemoryCacheBuilder<K, T>) this;
+        }
+
+        public InMemoryCache<K, V> build() {
+            return new InMemoryCache<>(timeToLive, timerInterval, maxItems);
         }
     }
 
-    private void createCleanUpThread(final long timerInterval) {
+    private void createCleanUpThread(long timerInterval) {
         Thread t = new Thread(() -> {
             while (true) {
                 try {
@@ -41,29 +95,49 @@ public class InMemoryCache<K, T> {
         t.start();
     }
 
-    @SuppressWarnings("unchecked")
-    public void put(K key, T value) {
+    public void put(K key, V value) {
+        put(key, new CacheObject<>(value));
+    }
+
+    protected void put(K key, CacheObject<V> value) {
         synchronized (cacheMap) {
-            cacheMap.put(key, new CacheObject<K, T>(value));
+            cacheMap.put(key, value);
         }
     }
 
-    public boolean exists(K key) {
+    public boolean contains(K key) {
         synchronized (cacheMap) {
             return cacheMap.containsKey(key);
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public T get(K key) {
+    public Optional<V> get(K key) {
         synchronized (cacheMap) {
-            CacheObject<K, T> c = (CacheObject<K, T>) cacheMap.get(key);
+            CacheObject<V> obj = cacheMap.get(key);
+            if (obj == null) {
+                return Optional.empty();
+            } else {
+                obj.updateLastAccessed();
+                return Optional.ofNullable(obj.getValue());
+            }
+        }
+    }
 
-            if (c == null) {
+    public <X extends Exception> V getOrPut(K key, ThrowingSupplier<V, X> supplier) throws X {
+        synchronized (cacheMap) {
+            CacheObject<V> obj;
+            if (cacheMap.containsKey(key)) {
+                obj = cacheMap.get(key);
+            } else {
+                V value = supplier.get();
+                obj = new CacheObject<>(value);
+                cacheMap.put(key, obj);
+            }
+            if (obj == null) {
                 return null;
             } else {
-                c.lastAccessed = System.currentTimeMillis();
-                return c.value;
+                obj.updateLastAccessed();
+                return obj.getValue();
             }
         }
     }
@@ -80,34 +154,16 @@ public class InMemoryCache<K, T> {
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void cleanup() {
-
         long now = System.currentTimeMillis();
-        ArrayList<K> deleteKey = null;
-
         synchronized (cacheMap) {
-            MapIterator itr = cacheMap.mapIterator();
-
-            deleteKey = new ArrayList<>(cacheMap.size() / 2 + 1);
-            K key = null;
-            CacheObject<K, T> c = null;
-
+            Iterator<Entry<K, CacheObject<V>>> itr = cacheMap.entrySet().iterator();
             while (itr.hasNext()) {
-                key = (K) itr.next();
-                c = (CacheObject<K, T>) itr.getValue();
-
-                if (c != null && now > timeToLive + c.created) {
-                    deleteKey.add(key);
+                Entry<K, CacheObject<V>> entry = itr.next();
+                if (now > timeToLive + entry.getValue().getCreated()) {
+                    itr.remove();
                 }
             }
-        }
-
-        for (K key : deleteKey) {
-            synchronized (cacheMap) {
-                cacheMap.remove(key);
-            }
-
             Thread.yield();
         }
     }

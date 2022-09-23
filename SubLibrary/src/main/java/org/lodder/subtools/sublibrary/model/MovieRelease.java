@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Getter
 @Setter
@@ -38,6 +39,8 @@ public class MovieRelease extends Release {
         return new MovieReleaseBuilder();
     }
 
+    @Setter
+    @Accessors(chain = true, fluent = true)
     public static class MovieReleaseBuilder implements MovieReleaseBuilderOther, MovieReleaseBuilderName {
         private String name;
         private Integer year;
@@ -50,36 +53,6 @@ public class MovieRelease extends Release {
         @Override
         public MovieReleaseBuilder year(int year) {
             this.year = year;
-            return this;
-        }
-
-        @Override
-        public MovieReleaseBuilder quality(String quality) {
-            this.quality = quality;
-            return this;
-        }
-
-        @Override
-        public MovieReleaseBuilder file(File file) {
-            this.file = file;
-            return this;
-        }
-
-        @Override
-        public MovieReleaseBuilder description(String description) {
-            this.description = description;
-            return this;
-        }
-
-        @Override
-        public MovieReleaseBuilder releaseGroup(String releaseGroup) {
-            this.releaseGroup = releaseGroup;
-            return this;
-        }
-
-        @Override
-        public MovieReleaseBuilder name(String name) {
-            this.name = name;
             return this;
         }
 

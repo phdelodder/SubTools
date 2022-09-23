@@ -6,24 +6,19 @@ import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.settings.model.TvdbMappings;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter(value = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public abstract class ReleaseControl {
+public abstract class ReleaseControl<T extends Release> {
 
-    protected Release release;
-    protected Settings settings;
-    protected Manager manager;
+    private final T release;
+    private final Settings settings;
+    private final Manager manager;
 
     public abstract void process(TvdbMappings tvdbMappings) throws ReleaseControlException;
-
-    // public void process() throws ReleaseControlException {
-    // this.process(new ArrayList<MappingTvdbScene>());
-    // }
-
-    public void setVideoFile(Release release) {
-        this.release = release;
-    }
 
     public Release getVideoFile() {
         return release;

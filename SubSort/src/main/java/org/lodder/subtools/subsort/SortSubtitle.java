@@ -24,6 +24,7 @@ import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
 import org.lodder.subtools.sublibrary.cache.InMemoryCache;
+import org.lodder.subtools.sublibrary.cache.SerializableDiskCache;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
 import org.lodder.subtools.sublibrary.exception.ControlFactoryException;
@@ -50,20 +51,31 @@ import lombok.experimental.ExtensionMethod;
 public class SortSubtitle {
 
     private static final String BACKING_STORE_AVAIL = "BackingStoreAvail";
-    private static Manager manager = new Manager();
+    private final Manager manager;
     private final SettingsControl settingsControl;
     private final TvdbMappings mappingSettings;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSubtitle.class);
 
     public SortSubtitle() {
-        DiskCache<String, String> diskCache = new DiskCache<>(TimeUnit.SECONDS.convert(5, TimeUnit.DAYS), 100, 500, "user", "pass");
-        manager.setDiskCache(diskCache);
-        InMemoryCache<String, String> inMemoryCache = new InMemoryCache<>(TimeUnit.SECONDS.convert(10, TimeUnit.MINUTES), 10, 500);
-        manager.setInMemoryCache(inMemoryCache);
+        DiskCache<String, String> diskCache =
+                SerializableDiskCache.cacheBuilder().keyType(String.class).valueType(String.class)
+                        .timeToLive(TimeUnit.SECONDS.convert(500, TimeUnit.DAYS))
+                        .timerInterval(TimeUnit.SECONDS.convert(1, TimeUnit.DAYS))
+                        .maxItems(1000)
+                        .build();
+
+        InMemoryCache<String, String> inMemoryCache =
+                InMemoryCache.builder().keyType(String.class).valueType(String.class)
+                        .timeToLive(TimeUnit.SECONDS.convert(10, TimeUnit.MINUTES))
+                        .timerInterval(100L)
+                        .maxItems(500)
+                        .build();
+
         HttpClient httpClient = new HttpClient();
         httpClient.setCookieManager(new CookieManager());
-        manager.setHttpClient(httpClient);
+
+        this.manager = new Manager(httpClient, inMemoryCache, diskCache);
 
         if (!backingStoreAvailable()) {
             LOGGER.error("Unable to store preferences, used debug for reason");

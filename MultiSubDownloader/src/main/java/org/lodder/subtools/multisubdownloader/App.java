@@ -23,6 +23,7 @@ import org.lodder.subtools.sublibrary.ConfigProperties;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
 import org.lodder.subtools.sublibrary.cache.InMemoryCache;
+import org.lodder.subtools.sublibrary.cache.SerializableDiskCache;
 import org.lodder.subtools.sublibrary.util.http.CookieManager;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
 import org.slf4j.Logger;
@@ -173,14 +174,23 @@ public class App {
         if (splash != null) {
             splash.setProgressMsg("Creating Manager");
         }
-        Manager manager = new Manager();
-        DiskCache<String, String> diskCache = new DiskCache<>(TimeUnit.SECONDS.convert(5, TimeUnit.DAYS), 100, 500, "user", "pass");
-        manager.setDiskCache(diskCache);
-        InMemoryCache<String, String> inMemoryCache = new InMemoryCache<>(TimeUnit.SECONDS.convert(10, TimeUnit.MINUTES), 10, 500);
-        manager.setInMemoryCache(inMemoryCache);
+        DiskCache<String, String> diskCache =
+                SerializableDiskCache.cacheBuilder().keyType(String.class).valueType(String.class)
+                        .timeToLive(TimeUnit.SECONDS.convert(500, TimeUnit.DAYS))
+                        .timerInterval(TimeUnit.SECONDS.convert(1, TimeUnit.DAYS))
+                        .maxItems(1000)
+                        .build();
+
+        InMemoryCache<String, String> inMemoryCache =
+                InMemoryCache.builder().keyType(String.class).valueType(String.class)
+                        .timeToLive(TimeUnit.SECONDS.convert(10, TimeUnit.MINUTES))
+                        .timerInterval(100L)
+                        .maxItems(500)
+                        .build();
+
         HttpClient httpClient = new HttpClient();
         httpClient.setCookieManager(new CookieManager());
-        manager.setHttpClient(httpClient);
-        return manager;
+
+        return new Manager(httpClient, inMemoryCache, diskCache);
     }
 }

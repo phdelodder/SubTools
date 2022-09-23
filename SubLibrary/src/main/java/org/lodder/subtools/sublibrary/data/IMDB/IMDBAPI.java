@@ -1,13 +1,13 @@
 package org.lodder.subtools.sublibrary.data.IMDB;
 
 import java.net.URL;
+import java.util.Optional;
 
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.XmlHTTP;
 import org.lodder.subtools.sublibrary.data.IMDB.model.IMDBDetails;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 public class IMDBAPI extends XmlHTTP {
 
@@ -15,20 +15,21 @@ public class IMDBAPI extends XmlHTTP {
         super(manager);
     }
 
-    public IMDBDetails getIMDBMovieDetails(String imdbid) throws IMDBException {
+    public Optional<IMDBDetails> getIMDBMovieDetails(String imdbid) throws IMDBException {
         final String xml = "http://www.imdbapi.com/?i=" + imdbid + "&r=xml";
-        Document doc;
-        try {
-            doc = getXMLDisk(xml);
-            NodeList nodeList = doc.getElementsByTagName("movie");
-            if (nodeList.getLength() > 0) {
-                return parseIMDBDetails((Element) nodeList.item(0));
-            }
-        } catch (Exception e) {
-            throw new IMDBException("Error IMDBAPI", xml, e);
-        }
-
-        return null;
+        return getManager().getValueBuilder()
+                .key("IMDBMovieDetails:" + imdbid)
+                .cacheType(CacheType.DISK)
+                .optionalValueSupplier(() -> {
+                    try {
+                        return getXML(xml).cacheType(CacheType.NONE).getAsDocument()
+                                .map(doc -> doc.getElementsByTagName("movie"))
+                                .filter(nodeList -> nodeList.getLength() > 0)
+                                .map(nodeList -> parseIMDBDetails((Element) nodeList.item(0)));
+                    } catch (Exception e) {
+                        throw new IMDBException("Error IMDBAPI", xml, e);
+                    }
+                }).getOptional();
     }
 
     private IMDBDetails parseIMDBDetails(Element e) {

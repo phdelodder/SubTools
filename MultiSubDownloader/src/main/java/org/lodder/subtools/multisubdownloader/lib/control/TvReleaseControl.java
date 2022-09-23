@@ -6,7 +6,6 @@ import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpis
 import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
-import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageShowInfo;
 import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.model.TvRelease;
@@ -18,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod({ OptionalExtension.class })
-public class TvReleaseControl extends ReleaseControl {
+public class TvReleaseControl extends ReleaseControl<TvRelease> {
 
     private final JTheTVDBAdapter jtvdba;
     private final JTVRageAdapter tvra;
@@ -33,43 +32,38 @@ public class TvReleaseControl extends ReleaseControl {
 
     public void processTvdb(TvdbMappings tvdbMappings) throws ReleaseControlException {
         setTvdbID(tvdbMappings);
-        TvRelease tvRelease = (TvRelease) release;
-        if (tvRelease.getTvdbId() > 0) {
-            jtvdba.getEpisode(tvRelease)
-                    .ifPresentOrThrow(tvRelease::updateTvdbEpisodeInfo, () -> new ReleaseControlException(
-                            "Season %s Episode %s not found, check file".formatted(tvRelease.getSeason(), tvRelease.getEpisodeNumbers().toString()),
-                            release));
+        if (getRelease().getTvdbId() > 0) {
+            jtvdba.getEpisode(getRelease())
+                    .ifPresentOrThrow(getRelease()::updateTvdbEpisodeInfo, () -> new ReleaseControlException(
+                            "Season %s Episode %s not found, check file".formatted(getRelease().getSeason(),
+                                    getRelease().getEpisodeNumbers().toString()),
+                            getRelease()));
         } else {
-            throw new ReleaseControlException("Show not found, check file", release);
+            throw new ReleaseControlException("Show not found, check file", getRelease());
         }
     }
 
     public void processTVRage() throws ReleaseControlException {
-        setTvrageID();
-        TvRelease tvRelease = (TvRelease) release;
-        TVRageEpisode tvrEpisode = tvra.getEpisodeInfo(tvRelease.getTvrageId(), tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0));
-        if (tvrEpisode != null) {
-            tvRelease.updateTVRageEpisodeInfo(tvrEpisode);
-        } else {
-            throw new ReleaseControlException("Season " + tvRelease.getSeason() + " Episode "
-                    + tvRelease.getEpisodeNumbers().toString() + "not found, check file", release);
-        }
+        setTvrageId();
+        tvra.getEpisodeInfo(getRelease().getTvrageId(), getRelease().getSeason(), getRelease().getEpisodeNumbers().get(0))
+                .ifPresentDo(getRelease()::updateTVRageEpisodeInfo)
+                .orElseThrow(() -> new ReleaseControlException("Season " + getRelease().getSeason() + " Episode "
+                        + getRelease().getEpisodeNumbers().toString() + "not found, check file", getRelease()));
     }
 
     @Override
     public void process(TvdbMappings tvdbMappings) throws ReleaseControlException {
-        TvRelease tvRelease = (TvRelease) release;
         // return episodeFile;
-        if ("".equals(tvRelease.getName())) {
-            throw new ReleaseControlException("Unable to extract episode details, check file", release);
+        if ("".equals(getRelease().getName())) {
+            throw new ReleaseControlException("Unable to extract episode details, check file", getRelease());
         } else {
-            LOGGER.debug("process: showname [{}], season [{}], episode [{}]", tvRelease.getName(),
-                    tvRelease.getSeason(), tvRelease.getEpisodeNumbers());
+            LOGGER.debug("process: showname [{}], season [{}], episode [{}]", getRelease().getName(),
+                    getRelease().getSeason(), getRelease().getEpisodeNumbers());
 
-            if (tvRelease.isSpecial()) {
+            if (getRelease().isSpecial()) {
                 processSpecial(tvdbMappings);
             } else {
-                if (SettingsProcessEpisodeSource.TVRAGE.equals(settings.getProcessEpisodeSource())) {
+                if (SettingsProcessEpisodeSource.TVRAGE.equals(getSettings().getProcessEpisodeSource())) {
                     processTVRage();
                 }
                 processTvdb(tvdbMappings);
@@ -78,31 +72,23 @@ public class TvReleaseControl extends ReleaseControl {
     }
 
     private void processSpecial(TvdbMappings tvdbMappings) throws ReleaseControlException {
-        setTvrageID();
-        TvRelease tvRelease = (TvRelease) release;
-        if (tvRelease.getTvrageId() > 0 && settings.getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVRAGE) {
-            TVRageEpisode tvrEpisode = tvra.getEpisodeInfo(tvRelease.getTvrageId(), tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0));
-            if (tvrEpisode != null) {
-                tvRelease.updateTVRageEpisodeInfo(tvrEpisode);
-            }
+        setTvrageId();
+        if (getRelease().getTvrageId() > 0 && getSettings().getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVRAGE) {
+            tvra.getEpisodeInfo(getRelease().getTvrageId(), getRelease().getSeason(), getRelease().getEpisodeNumbers().get(0))
+                    .ifPresent(getRelease()::updateTVRageEpisodeInfo);
         }
         setTvdbID(tvdbMappings);
-        if (tvRelease.getTvdbId() > 0 && settings.getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVDB) {
-            jtvdba.getEpisode(tvRelease).ifPresent(tvRelease::updateTvdbEpisodeInfo);
+        if (getRelease().getTvdbId() > 0 && getSettings().getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVDB) {
+            jtvdba.getEpisode(getRelease()).ifPresent(getRelease()::updateTvdbEpisodeInfo);
         }
     }
 
     private void setTvdbID(TvdbMappings tvdbMappings) throws ReleaseControlException {
-        TvRelease tvRelease = (TvRelease) release;
-        tvdbMappings.setInfo(tvRelease,
-                () -> JTheTVDBAdapter.getAdapter(manager).getSerie(tvRelease).map(TheTVDBSerie::getId).mapToInt(Integer::parseInt));
-
+        tvdbMappings.setInfo(getRelease(),
+                () -> JTheTVDBAdapter.getAdapter(getManager()).getSerie(getRelease()).map(TheTVDBSerie::getId).mapToInt(Integer::parseInt));
     }
 
-    private void setTvrageID() {
-        TVRageShowInfo tvrShowInfo = tvra.searchShow((TvRelease) release);
-        if (tvrShowInfo != null) {
-            ((TvRelease) release).setTvrageId(tvrShowInfo.getShowId());
-        }
+    private void setTvrageId() {
+        tvra.searchShow(getRelease()).map(TVRageShowInfo::getShowId).ifPresent(getRelease()::setTvrageId);
     }
 }

@@ -20,8 +20,8 @@ import lombok.experimental.ExtensionMethod;
 @ExtensionMethod({ OptionalExtension.class })
 public class JTheTVDBAdapter {
 
-    private TheTVDBApiV2 jtvapi;
     private static JTheTVDBAdapter adapter;
+    private TheTVDBApiV2 jtvapi;
     private String exceptions = "";
     private final static String splitValue = ": '";
     private static final Logger LOGGER = LoggerFactory.getLogger(JTheTVDBAdapter.class);
@@ -29,8 +29,8 @@ public class JTheTVDBAdapter {
     JTheTVDBAdapter(Manager manager) {
         this.jtvapi = null;
         try {
-            this.jtvapi = new TheTVDBApiV2("A1720D2DDFDCE82D");
-            exceptions = manager.downloadText2("https://raw.githubusercontent.com/midgetspy/sb_tvdb_scene_exceptions/gh-pages/exceptions.txt");
+            this.jtvapi = new TheTVDBApiV2(manager, "A1720D2DDFDCE82D");
+            exceptions = manager.downloadText("https://raw.githubusercontent.com/midgetspy/sb_tvdb_scene_exceptions/gh-pages/exceptions.txt");
         } catch (TheTVDBException | ManagerException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -39,7 +39,7 @@ public class JTheTVDBAdapter {
 
     public Optional<TheTVDBSerie> searchSerie(TvRelease episode) {
         try {
-            return this.jtvapi.searchSerie(episode.getName(), null)
+            return this.jtvapi.getSerieId(episode.getName(), null)
                     .orElseMap(() -> askUserToEnterTvdbId(episode.getName()))
                     .mapToOptionalObj(tvdbId -> jtvapi.getSerie(tvdbId, null));
         } catch (TheTVDBException e) {

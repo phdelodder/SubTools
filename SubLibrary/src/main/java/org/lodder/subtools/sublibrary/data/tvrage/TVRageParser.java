@@ -1,5 +1,6 @@
 package org.lodder.subtools.sublibrary.data.tvrage;
 
+import java.io.IOException;
 /*
  * Copyright (c) 2004-2013 Stuart Boston
  *
@@ -19,12 +20,19 @@ package org.lodder.subtools.sublibrary.data.tvrage;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.ManagerException;
+import org.lodder.subtools.sublibrary.ManagerSetupException;
+import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.XmlHTTP;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageCountryDetail;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
@@ -59,62 +67,57 @@ public class TVRageParser extends XmlHTTP {
         super(manager);
     }
 
-    public TVRageEpisode getEpisodeInfo(String searchUrl) {
-        TVRageEpisode episode = new TVRageEpisode();
-
-        Document doc = null;
-        try {
-            doc = getXML(searchUrl);
-        } catch (Exception e) {
-
-        }
-        if (doc == null) {
-            return episode;
-        }
-
-        // The EpisodeInfo contains show information as well, but we will skip this
-        NodeList nlEpisode = doc.getElementsByTagName(EPISODE);
-
-        if (nlEpisode == null || nlEpisode.getLength() == 0) {
-            return episode;
-        }
-
-        // There's only one episode in the EpisodeInfo node
-        Element eEpisode = (Element) nlEpisode.item(0);
-        return parseEpisodeInfo(eEpisode);
+    public Optional<TVRageEpisode> getEpisodeInfo(String searchUrl) throws TvrageException {
+        return getManager().getValueBuilder()
+                .key("TVRage-EpisodeInfo-" + searchUrl.toLowerCase())
+                .cacheType(CacheType.DISK)
+                .optionalValueSupplier(() -> {
+                    try {
+                        return getXML(searchUrl).cacheType(CacheType.MEMORY).getAsDocument()
+                                // The EpisodeInfo contains show information as well, but we will skip this
+                                .map(doc -> doc.getElementsByTagName(EPISODE))
+                                .filter(nlEpisode -> nlEpisode.getLength() > 0)
+                                .map(nlEpisode -> parseEpisodeInfo((Element) nlEpisode.item(0)));
+                    } catch (ParserConfigurationException | IOException | ManagerSetupException | ManagerException e) {
+                        throw new TvrageException(e);
+                    }
+                }).getOptional();
     }
 
-    public TVRageEpisodeList getEpisodeList(String searchUrl) {
-        TVRageEpisodeList epList = new TVRageEpisodeList();
+    public TVRageEpisodeList getEpisodeList(String searchUrl) throws TvrageException {
+        return getManager().getValueBuilder()
+                .key("TVRage-EpisodeInfo-" + searchUrl.toLowerCase())
+                .cacheType(CacheType.MEMORY)
+                .valueSupplier(() -> {
+                    TVRageEpisodeList epList = new TVRageEpisodeList();
+                    try {
+                        Optional<Document> doc = getXML(searchUrl).cacheType(CacheType.NONE).getAsDocument();
+                        if (doc.isEmpty()) {
+                            return epList;
+                        }
+                        NodeList nlEpisodeList = doc.get().getElementsByTagName("Show");
+                        if (nlEpisodeList.getLength() == 0) {
+                            return epList;
+                        }
 
-        Document doc = null;
-        try {
-            doc = getXML(searchUrl);
-        } catch (Exception e) {
+                        // Get the show name and total seasons
+                        nlEpisodeList.stream()
+                                .filter(nEpisodeList -> nEpisodeList.getNodeType() == Node.ELEMENT_NODE)
+                                .map(Element.class::cast)
+                                .forEach(eEpisodeList -> {
+                                    epList.setShowName(DOMHelper.getValueFromElement(eEpisodeList, "name"));
+                                    epList.setTotalSeasons(DOMHelper.getValueFromElement(eEpisodeList, "totalseasons"));
+                                });
 
-        }
-        if (doc == null) {
-            return epList;
-        }
+                        // Now process the individual seasons
+                        processSeasons(epList, doc.get().getElementsByTagName("Season"));
 
-        NodeList nlEpisodeList = doc.getElementsByTagName("Show");
-        if (nlEpisodeList == null || nlEpisodeList.getLength() == 0) {
-            return epList;
-        }
+                        return epList;
+                    } catch (ParserConfigurationException | IOException | ManagerSetupException | ManagerException e) {
+                        throw new TvrageException(e);
+                    }
+                }).get();
 
-        // Get the show name and total seasons
-        nlEpisodeList.stream()
-                .filter(nEpisodeList -> nEpisodeList.getNodeType() == Node.ELEMENT_NODE)
-                .map(Element.class::cast)
-                .forEach(eEpisodeList -> {
-                    epList.setShowName(DOMHelper.getValueFromElement(eEpisodeList, "name"));
-                    epList.setTotalSeasons(DOMHelper.getValueFromElement(eEpisodeList, "totalseasons"));
-                });
-
-        // Now process the individual seasons
-        processSeasons(epList, doc.getElementsByTagName("Season"));
-
-        return epList;
     }
 
     /**
@@ -144,48 +147,46 @@ public class TVRageParser extends XmlHTTP {
                 });
     }
 
-    public List<TVRageShowInfo> getSearchShow(String searchUrl) {
-
-        Document doc = null;
-        try {
-            doc = getXML(searchUrl);
-        } catch (Exception e) {
-            return List.of();
-        }
-
-        NodeList nlShowInfo = doc.getElementsByTagName("show");
-
-        if (nlShowInfo == null || nlShowInfo.getLength() == 0) {
-            return List.of();
-        }
-
-        return nlShowInfo.stream()
-                .filter(nShowInfo -> nShowInfo.getNodeType() == Node.ELEMENT_NODE)
-                .map(Element.class::cast)
-                .map(TVRageParser::parseNextShowInfo)
-                .collect(Collectors.toList());
+    public List<TVRageShowInfo> getSearchShow(String searchUrl) throws TvrageException {
+        return getManager().getValueBuilder()
+                .key("TVRage-SearchShow-" + searchUrl.toLowerCase())
+                .cacheType(CacheType.MEMORY)
+                .valueSupplier(() -> {
+                    try {
+                        return (ArrayList<TVRageShowInfo>) getXML(searchUrl).cacheType(CacheType.NONE).getAsDocument()
+                                .map(doc -> doc.getElementsByTagName("show"))
+                                .filter(nlShowInfo -> nlShowInfo.getLength() > 0)
+                                .map(nlShowInfo -> nlShowInfo.stream()
+                                        .filter(nShowInfo -> nShowInfo.getNodeType() == Node.ELEMENT_NODE)
+                                        .map(Element.class::cast)
+                                        .map(TVRageParser::parseNextShowInfo)
+                                        .collect(Collectors.toList()))
+                                .orElseGet(ArrayList::new);
+                    } catch (ParserConfigurationException | IOException | ManagerSetupException | ManagerException e) {
+                        throw new TvrageException(e);
+                    }
+                }).get();
     }
 
-    public List<TVRageShowInfo> getShowInfo(String searchUrl) {
-
-        Document doc = null;
-        try {
-            doc = getXML(searchUrl);
-        } catch (Exception e) {
-            return List.of();
-        }
-
-        NodeList nlShowInfo = doc.getElementsByTagName("Showinfo");
-
-        if (nlShowInfo == null || nlShowInfo.getLength() == 0) {
-            return List.of();
-        }
-
-        return nlShowInfo.stream()
-                .filter(nShowInfo -> nShowInfo.getNodeType() == Node.ELEMENT_NODE)
-                .map(Element.class::cast)
-                .map(TVRageParser::parseNextShowInfo)
-                .collect(Collectors.toList());
+    public List<TVRageShowInfo> getShowInfo(String searchUrl) throws TvrageException {
+        return getManager().getValueBuilder()
+                .key("TVRage-ShowInfo-" + searchUrl.toLowerCase())
+                .cacheType(CacheType.MEMORY)
+                .valueSupplier(() -> {
+                    try {
+                        return (ArrayList<TVRageShowInfo>) getXML(searchUrl).cacheType(CacheType.MEMORY).getAsDocument()
+                                .map(doc -> doc.getElementsByTagName("Showinfo"))
+                                .filter(nlShowInfo -> nlShowInfo.getLength() > 0)
+                                .map(nlShowInfo -> nlShowInfo.stream()
+                                        .filter(nShowInfo -> nShowInfo.getNodeType() == Node.ELEMENT_NODE)
+                                        .map(Element.class::cast)
+                                        .map(TVRageParser::parseNextShowInfo)
+                                        .collect(Collectors.toList()))
+                                .orElseGet(ArrayList::new);
+                    } catch (ParserConfigurationException | IOException | ManagerSetupException | ManagerException e) {
+                        throw new TvrageException(e);
+                    }
+                }).get();
     }
 
     private static TVRageEpisode parseEpisode(Element eEpisode, String season) {
