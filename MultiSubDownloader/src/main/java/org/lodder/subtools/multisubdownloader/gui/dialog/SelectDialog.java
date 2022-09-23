@@ -1,7 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
-import java.awt.FlowLayout;
-
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -15,14 +14,16 @@ import javax.swing.RowSorter;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SubtitleTableColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SubtitleTableModel;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
+
+import java.awt.FlowLayout;
+
+import net.miginfocom.swing.MigLayout;
 
 public class SelectDialog extends MultiSubDialog {
 
@@ -31,7 +32,7 @@ public class SelectDialog extends MultiSubDialog {
 
         private final int code;
 
-        private SelectionType(int c) {
+        SelectionType(int c) {
             code = c;
         }
 
@@ -42,17 +43,17 @@ public class SelectDialog extends MultiSubDialog {
 
     private static final long serialVersionUID = -4092909537478305235L;
     private SelectionType answer = SelectionType.CANCEL;
-    private List<Subtitle> subtitles;
-    private Release release;
+    private final List<Subtitle> subtitles;
+    private final Release release;
     private CustomTable customTable;
-    private JFrame frame;
+    private final JFrame frame;
 
     /**
      * Create the dialog.
      */
     public SelectDialog(JFrame frame, List<Subtitle> subtitles, Release release) {
         super(frame, Messages.getString("SelectDialog.SelectCorrectSubtitle"), true);
-        this.subtitles = subtitles;
+        this.subtitles = subtitles.stream().distinct().sorted(Comparator.comparing(Subtitle::getScore).reversed()).toList();
         this.release = release;
         this.frame = frame;
         initialize();
