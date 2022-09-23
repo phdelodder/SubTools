@@ -12,15 +12,12 @@ import lombok.Getter;
 
 @Getter(value = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public abstract class ReleaseControl<T extends Release> {
+public abstract class ReleaseControl {
 
-    private final T release;
     private final Settings settings;
     private final Manager manager;
 
     public abstract void process(TvdbMappings tvdbMappings) throws ReleaseControlException;
 
-    public Release getVideoFile() {
-        return release;
-    }
+    public abstract Release getVideoFile();
 }

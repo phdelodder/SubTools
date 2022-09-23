@@ -52,11 +52,13 @@ public class SerializableDiskCache<K extends Serializable, V extends Serializabl
         private String password;
         private String cacheName;
 
+        @SuppressWarnings("unchecked")
         @Override
         public <T extends Serializable> DiskCacheBuilder<T, V> keyType(Class<T> keyType) {
             return (DiskCacheBuilder<T, V>) this;
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public <T extends Serializable> DiskCacheBuilder<K, T> valueType(Class<T> valueType) {
             return (DiskCacheBuilder<K, T>) this;
@@ -72,11 +74,13 @@ public class SerializableDiskCache<K extends Serializable, V extends Serializabl
         super(timeToLive, timerInterval, maxItems, username, password, cacheName);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected K diskObjectToKey(Object key) {
         return (K) key;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected CacheObject<V> diskCacheObjectToValue(Object value) {
         return (CacheObject<V>) value;

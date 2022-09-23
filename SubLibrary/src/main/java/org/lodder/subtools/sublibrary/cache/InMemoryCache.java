@@ -65,11 +65,13 @@ public class InMemoryCache<K, V> {
         private Long timerInterval;
         private Integer maxItems;
 
+        @SuppressWarnings("unchecked")
         @Override
         public <T extends Serializable> InMemoryCacheBuilder<T, V> keyType(Class<T> keyType) {
             return (InMemoryCacheBuilder<T, V>) this;
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public <T extends Serializable> InMemoryCacheBuilder<K, T> valueType(Class<T> valueType) {
             return (InMemoryCacheBuilder<K, T>) this;

@@ -91,7 +91,8 @@ public class JPodnapisiApi extends XmlRPC {
 
         List<PodnapisiSubtitleDescriptor> subtitles = new ArrayList<>();
 
-        Map<String, List<Map<String, String>>> response = (Map) invoke("search", new Object[] { getToken(), filehash });
+        Map<String, List<Map<String, String>>> response =
+                (Map<String, List<Map<String, String>>>) invoke("search", new Object[] { getToken(), filehash });
         try {
             List<Map<String, String>> subtitleData =
                     response.get("subtitles") == null ? new ArrayList<>() : (List<Map<String, String>>) response.get("subtitles");

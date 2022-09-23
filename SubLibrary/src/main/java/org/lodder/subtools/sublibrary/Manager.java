@@ -188,6 +188,7 @@ public class Manager {
     @Setter
     @Accessors(chain = true, fluent = true)
     @RequiredArgsConstructor
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static class ValueBuilder<T extends Serializable, X extends Exception>
             implements ValueBuilderGetOptionalIntf<T, X>, ValueBuilderGetIntf<T, X>, ValueBuilderCacheTypeIntf,
             ValueBuilderValueSupplierIntf, ValueBuilderKeyIntf {
