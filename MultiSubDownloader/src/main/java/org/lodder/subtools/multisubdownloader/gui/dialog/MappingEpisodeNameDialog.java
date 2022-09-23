@@ -3,7 +3,6 @@ package org.lodder.subtools.multisubdownloader.gui.dialog;
 import java.util.prefs.Preferences;
 
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -38,7 +37,6 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
     private JTable table;
     private final SettingsControl prefCtrl;
     private final Settings pref;
-    private JCheckBox chkAutoUpdateMapping;
 
     /**
      * Create the dialog.
@@ -58,8 +56,6 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
             model.removeRow(0);
         }
         pref.getMappingSettings().forEach((tvdbId, tvdbMapping) -> model.addRow(new String[] { tvdbMapping.getName(), String.valueOf(tvdbId) }));
-
-        chkAutoUpdateMapping.setSelected(pref.isAutoUpdateMapping());
     }
 
     private void initialize() {
@@ -160,25 +156,6 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
                 });
                 buttonPane.setLayout(new MigLayout("", "[117px][grow,fill][62px,trailing]",
                         "[][25px,grow,fill]"));
-                {
-                    JButton btnUpdateMapping =
-                            new JButton(Messages.getString("MappingEpisodeNameDialog.UpdateWithOnlineMapping"));
-                    btnUpdateMapping.addActionListener(arg0 -> {
-                        try {
-                            storeMappingTable();
-                            prefCtrl.updateMappingFromOnline();
-                            loadMappingTable();
-                        } catch (Throwable e) {
-                            LOGGER.error("btnUpdateMapping", e);
-                        }
-                    });
-                    {
-                        chkAutoUpdateMapping =
-                                new JCheckBox(Messages.getString("MappingEpisodeNameDialog.UpdateMappingOnStart"));
-                        buttonPane.add(chkAutoUpdateMapping, "cell 0 0 2 1");
-                    }
-                    buttonPane.add(btnUpdateMapping, "cell 0 1,alignx left,aligny top");
-                }
                 okButton.setActionCommand(Messages.getString("MappingEpisodeNameDialog.OK"));
                 buttonPane.add(okButton, "cell 2 1,alignx right,aligny top");
                 getRootPane().setDefaultButton(okButton);
@@ -189,7 +166,6 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
     private void storeMappingTable() {
         Preferences preferences = Preferences.userRoot().node("MultiSubDownloader");
         SettingValue.DICTIONARY.store(prefCtrl, preferences);
-        pref.setAutoUpdateMapping(chkAutoUpdateMapping.isSelected());
     }
 
 }

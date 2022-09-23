@@ -106,13 +106,6 @@ public class SettingsControl {
         }
     }
 
-    public void updateMappingFromOnline() throws Throwable {
-        // TODO not working anymore
-        // LOGGER.info(Messages.getString("SettingsControl.UpdateMapping"));
-        // mappingSettingsCtrl.updateMappingFromOnline();
-        // settings.setMappingSettings(mappingSettingsCtrl.getMappingSettings());
-    }
-
     /**
      * Migrate settings layout for backward incompatibility changes.
      */

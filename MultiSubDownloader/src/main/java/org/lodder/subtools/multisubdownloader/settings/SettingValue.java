@@ -64,7 +64,6 @@ public enum SettingValue {
     OPTIONS_SHOW_ONLY_FOUND(false, SettingsControl::getSettings, Settings::isOptionsShowOnlyFound, Settings::setOptionsShowOnlyFound),
     OPTIONS_STOP_ON_SEARCH_ERROR(false, SettingsControl::getSettings, Settings::isOptionsStopOnSearchError, Settings::setOptionsStopOnSearchError),
     OPTION_RECURSIVE(false, SettingsControl::getSettings, Settings::isOptionRecursive, Settings::setOptionRecursive),
-    AUTO_UPDATE_MAPPING(false, SettingsControl::getSettings, Settings::isAutoUpdateMapping, Settings::setAutoUpdateMapping),
     PROCESS_EPISODE_SOURCE(SettingsProcessEpisodeSource.TVDB, SettingsProcessEpisodeSource::toString, SettingsProcessEpisodeSource::valueOf, SettingsControl::getSettings, Settings::getProcessEpisodeSource, Settings::setProcessEpisodeSource),
     UPDATE_CHECK_PERIOD(UpdateCheckPeriod.WEEKLY, UpdateCheckPeriod::toString, UpdateCheckPeriod::valueOf, SettingsControl::getSettings, Settings::getUpdateCheckPeriod, Settings::setUpdateCheckPeriod),
     SUBTITLE_LANGUAGE(Language.DUTCH, Language::name, Language::fromValue, SettingsControl::getSettings, Settings::getSubtitleLanguage, Settings::setSubtitleLanguage),

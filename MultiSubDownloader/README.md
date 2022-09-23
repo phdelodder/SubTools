@@ -38,4 +38,3 @@ java -jar multisubdownloader-0.1.27.one-jar.jar --nogui --help
 | -selection | Subtitle selection possible if multiple subtitles detected |
 | -speedy | speed somethings up |
 | -trace | more logging |
-| -updatefromonlinemapping | Update with the Mappings from online |

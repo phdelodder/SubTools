@@ -18,7 +18,6 @@ import org.lodder.subtools.multisubdownloader.framework.Bootstrapper;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.gui.Splash;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
-import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.ConfigProperties;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
@@ -85,7 +84,6 @@ public class App {
 
             /* Defined here so there is output on console */
             importPreferences(line);
-            updateMapping(line);
 
             try {
                 cmd.setUp(line);
@@ -98,7 +96,6 @@ public class App {
         } else {
             /* Defined here so there is output in the splash */
             importPreferences(line);
-            updateMapping(line);
 
             bootstrapper.initialize();
             EventQueue.invokeLater(() -> {
@@ -117,22 +114,6 @@ public class App {
     private static void setLogLevel(Level level) {
         ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root.setLevel(level);
-    }
-
-    private static void updateMapping(CommandLine line) {
-        if (splash != null) {
-            splash.setProgressMsg(Messages.getString("SettingsControl.UpdateMapping"));
-        }
-        Settings settings = prefctrl.getSettings();
-        if (!line.hasOption("updatefromonlinemapping") && !settings.isAutoUpdateMapping()) {
-            return;
-        }
-        try {
-            prefctrl.updateMappingFromOnline();
-            prefctrl.store();
-        } catch (Throwable e) {
-            LOGGER.error("executeArgs: updateFromOnlineMapping", e);
-        }
     }
 
     private static void importPreferences(CommandLine line) {
@@ -161,7 +142,6 @@ public class App {
         options.addOption("force", false, Messages.getString("App.OptionOptionForceMsg"));
         options.addOption("folder", true, Messages.getString("App.OptionOptionFolderMsg"));
         options.addOption("downloadall", false, Messages.getString("App.OptionOptionDownloadAllMsg"));
-        options.addOption("updatefromonlinemapping", false, Messages.getString("App.OptionOptionUpdateMappingMsg"));
         options.addOption("selection", false, Messages.getString("App.OptionOptionSelectionMsg"));
         options.addOption("speedy", false, Messages.getString("App.OptionOptionSpeedyMsg"));
         options.addOption("verboseprogress", false, Messages.getString("App.OptionVerboseProgressCLI"));

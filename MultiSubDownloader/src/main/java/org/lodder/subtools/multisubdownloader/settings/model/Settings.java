@@ -46,8 +46,6 @@ public class Settings {
     private boolean serieSourceOpensubtitles = true;
     private boolean serieSourceLocal = true;
     private boolean serieSourceSubscene = true;
-    @Deprecated
-    private boolean autoUpdateMapping;
     private SettingsProcessEpisodeSource processEpisodeSource = SettingsProcessEpisodeSource.TVDB;
     private TvdbMappings mappingSettings = new TvdbMappings();
     private Map<String, Integer> sortWeights;
