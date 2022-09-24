@@ -121,34 +121,6 @@
 		</resources>
 		<plugins>
 			<plugin>
-				<groupId>org.openapitools</groupId>
-				<artifactId>openapi-generator-maven-plugin</artifactId>
-				<version>6.0.1</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<configuration>
-							<generatorName>java</generatorName>
-							<inputSpec>${project.basedir}/src/main/resources/opensubtitles/open-api.json</inputSpec>
-							<output>${project.build.directory}/generated-source/openapi</output>
-							<modelPackage>org.opensubtitles.model</modelPackage>
-							<apiPackage>org.opensubtitles.api</apiPackage>
-							<invokerPackage>org.opensubtitles.invoker</invokerPackage>
-							<packageName>org.opensubtitles</packageName>
-							<configOptions>
-								<typeMappings>integer=int,int=int</typeMappings>
-								<useSwaggerAnnotations>false</useSwaggerAnnotations>
-								<serializableModel>true</serializableModel>
-								<booleanGetterPrefix>is</booleanGetterPrefix>
-								<disallowAdditionalPropertiesIfNotPresent>false</disallowAdditionalPropertiesIfNotPresent>
-							</configOptions>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
