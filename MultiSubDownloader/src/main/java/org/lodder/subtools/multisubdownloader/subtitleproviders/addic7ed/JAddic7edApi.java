@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
@@ -97,18 +97,8 @@ public class JAddic7edApi extends Html {
     private Optional<Document> resultStringForName(String name) {
         String url = DOMAIN + "/search.php?search=" + URLEncoder.encode(name, StandardCharsets.UTF_8) + "&Submit=Search";
 
-        Optional<String> content = getContent(url);
-        if (content.isEmpty()) {
-            return Optional.empty();
-        }
-        if (content.get().contains("<b>0 results found</b>")) {
-            if (name.contains(":")) {
-                return resultStringForName(name.replace(":", ""));
-            } else {
-                return Optional.empty();
-            }
-        }
-        return content.map(Jsoup::parse);
+        return getContent(url, html -> html.contains("<b>0 results found</b>"))
+                .orElseMap(() -> name.contains(":") ? resultStringForName(name.replace(":", "")) : Optional.empty());
     }
 
     public List<Addic7edSubtitleDescriptor> searchSubtitles(String showname, int season, int episode, String title, Language language) {
@@ -121,7 +111,7 @@ public class JAddic7edApi extends Html {
         List<LanguageId> languageIds = LanguageId.forLanguage(language);
         url.append(languageIds.size() == 1 ? languageIds.get(0).getId() : LanguageId.ALL.getId());
 
-        Optional<Document> doc = getContent(url.toString()).map(Jsoup::parse);
+        Optional<Document> doc = getContent(url.toString());
         if (doc.isEmpty()) {
             return List.of();
         }
@@ -210,7 +200,35 @@ public class JAddic7edApi extends Html {
                         && StringUtils.equals(s.getVersion(), sub.getVersion()));
     }
 
-    private Optional<String> getContent(String url) {
+    // private Optional<String> getContent(String url) {
+    // try {
+    // if (!speedy && !this.isUrlCached(url)) {
+    // // if (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
+    // // LOGGER.info("RateLimiet is bereikt voor ADDIC7ed, gelieve {} sec te wachten", RATEDURATION);
+    // // }
+    // while (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
+    // try {
+    // // Pause for 1 seconds
+    // TimeUnit.SECONDS.sleep(1);
+    // } catch (InterruptedException e) {
+    // // restore interrupted status
+    // Thread.currentThread().interrupt();
+    // }
+    // }
+    // lastRequest = LocalDateTime.now();
+    // }
+    // return Optional.of(this.getHtml(url).cacheType(CacheType.NONE).get());
+    // } catch (ManagerException e) {
+    // LOGGER.error(e.getMessage(), e);
+    // }
+    // return Optional.empty();
+    // }
+
+    private Optional<Document> getContent(String url) {
+        return getContent(url, null);
+    }
+
+    private Optional<Document> getContent(String url, Predicate<String> emptyResultPredicate) {
         try {
             if (!speedy && !this.isUrlCached(url)) {
                 // if (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
@@ -227,7 +245,7 @@ public class JAddic7edApi extends Html {
                 }
                 lastRequest = LocalDateTime.now();
             }
-            return Optional.of(this.getHtml(url).cacheType(CacheType.MEMORY).get());
+            return this.getHtml(url).cacheType(CacheType.NONE).getAsJsoupDocument(emptyResultPredicate);
         } catch (ManagerException e) {
             LOGGER.error(e.getMessage(), e);
         }

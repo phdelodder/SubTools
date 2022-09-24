@@ -124,8 +124,13 @@ public class XMLHelper {
         return result.getWriter().toString();
     }
 
-    public static Optional<Document> getDocument(String string) throws ParserConfigurationException, SAXException, IOException {
-        return getDocument(new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8)));
+    public static Optional<Document> getDocument(String string) throws ParserConfigurationException {
+        try {
+            return getDocument(new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8)));
+        } catch (IOException e) {
+            // should not happen
+            return Optional.empty();
+        }
     }
 
     public static Optional<Document> getDocument(InputStream inputStream) throws ParserConfigurationException,
@@ -143,7 +148,6 @@ public class XMLHelper {
                 LOGGER.debug("Not a valid XML document, setting a blank document!");
             }
         }
-
         return Optional.empty();
     }
 }

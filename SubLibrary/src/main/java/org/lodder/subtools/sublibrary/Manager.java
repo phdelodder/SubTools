@@ -9,10 +9,12 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
@@ -97,11 +99,15 @@ public class Manager {
     public interface PageContentBuilderGetIntf {
         String get() throws ManagerException;
 
-        InputStream getAsInputStream() throws ManagerSetupException, ManagerException;
+        InputStream getAsInputStream() throws ManagerException;
 
-        Optional<Document> getAsDocument() throws ParserConfigurationException, IOException, ManagerSetupException, ManagerException;
+        Optional<Document> getAsDocument() throws ParserConfigurationException, ManagerException;
+
+        Optional<Document> getAsDocument(Predicate<String> emptyResultPredicate) throws ParserConfigurationException, ManagerException;
 
         org.jsoup.nodes.Document getAsJsoupDocument() throws ManagerException;
+
+        Optional<org.jsoup.nodes.Document> getAsJsoupDocument(Predicate<String> emptyResultPredicate) throws ManagerException;
     }
 
     @Setter
@@ -125,18 +131,32 @@ public class Manager {
         }
 
         @Override
-        public InputStream getAsInputStream() throws ManagerSetupException, ManagerException {
+        public InputStream getAsInputStream() throws ManagerException {
             return IOUtils.toInputStream(get(), StandardCharsets.UTF_8);
         }
 
         @Override
-        public Optional<Document> getAsDocument() throws ParserConfigurationException, IOException, ManagerSetupException, ManagerException {
-            return XMLHelper.getDocument(getAsInputStream());
+        public Optional<Document> getAsDocument() throws ParserConfigurationException, ManagerException {
+            return XMLHelper.getDocument(get());
+        }
+
+        @Override
+        public Optional<Document> getAsDocument(Predicate<String> emptyResultPredicate) throws ParserConfigurationException, ManagerException {
+            String html = get();
+            return StringUtils.isBlank(html) || (emptyResultPredicate != null && emptyResultPredicate.test(html)) ? Optional.empty()
+                    : XMLHelper.getDocument(html);
         }
 
         @Override
         public org.jsoup.nodes.Document getAsJsoupDocument() throws ManagerException {
             return Jsoup.parse(get());
+        }
+
+        @Override
+        public Optional<org.jsoup.nodes.Document> getAsJsoupDocument(Predicate<String> emptyResultPredicate) throws ManagerException {
+            String html = get();
+            return StringUtils.isBlank(html) || (emptyResultPredicate != null && emptyResultPredicate.test(html)) ? Optional.empty()
+                    : Optional.of(Jsoup.parse(html));
         }
 
         private String getContentWithoutCache(String urlString, String userAgent) throws ManagerException {

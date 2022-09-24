@@ -1,6 +1,5 @@
 package org.lodder.subtools.sublibrary.data.tvrage;
 
-import java.io.IOException;
 /*
  * Copyright (c) 2004-2013 Stuart Boston
  *
@@ -31,7 +30,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
-import org.lodder.subtools.sublibrary.ManagerSetupException;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.XmlHTTP;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageCountryDetail;
@@ -78,7 +76,7 @@ public class TVRageParser extends XmlHTTP {
                                 .map(doc -> doc.getElementsByTagName(EPISODE))
                                 .filter(nlEpisode -> nlEpisode.getLength() > 0)
                                 .map(nlEpisode -> parseEpisodeInfo((Element) nlEpisode.item(0)));
-                    } catch (ParserConfigurationException | IOException | ManagerSetupException | ManagerException e) {
+                    } catch (ParserConfigurationException | ManagerException e) {
                         throw new TvrageException(e);
                     }
                 }).getOptional();
@@ -113,7 +111,7 @@ public class TVRageParser extends XmlHTTP {
                         processSeasons(epList, doc.get().getElementsByTagName("Season"));
 
                         return epList;
-                    } catch (ParserConfigurationException | IOException | ManagerSetupException | ManagerException e) {
+                    } catch (ParserConfigurationException | ManagerException e) {
                         throw new TvrageException(e);
                     }
                 }).get();
@@ -162,7 +160,7 @@ public class TVRageParser extends XmlHTTP {
                                         .map(TVRageParser::parseNextShowInfo)
                                         .collect(Collectors.toList()))
                                 .orElseGet(ArrayList::new);
-                    } catch (ParserConfigurationException | IOException | ManagerSetupException | ManagerException e) {
+                    } catch (ParserConfigurationException | ManagerException e) {
                         throw new TvrageException(e);
                     }
                 }).get();
@@ -183,7 +181,7 @@ public class TVRageParser extends XmlHTTP {
                                         .map(TVRageParser::parseNextShowInfo)
                                         .collect(Collectors.toList()))
                                 .orElseGet(ArrayList::new);
-                    } catch (ParserConfigurationException | IOException | ManagerSetupException | ManagerException e) {
+                    } catch (ParserConfigurationException | ManagerException e) {
                         throw new TvrageException(e);
                     }
                 }).get();

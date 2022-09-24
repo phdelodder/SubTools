@@ -1,13 +1,7 @@
 package org.lodder.subtools.sublibrary.data;
 
-import java.io.IOException;
-
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.Manager.PageContentBuilderCacheTypeIntf;
-import org.lodder.subtools.sublibrary.ManagerException;
-import org.lodder.subtools.sublibrary.ManagerSetupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +18,7 @@ public class XmlHTTP {
     @Getter(value = AccessLevel.PROTECTED)
     private final Manager manager;
 
-    public PageContentBuilderCacheTypeIntf getXML(String url)
-            throws ParserConfigurationException, IOException, ManagerSetupException, ManagerException {
+    public PageContentBuilderCacheTypeIntf getXML(String url) {
         return manager.getPageContentBuilder().url(url).userAgent(null);
     }
 
