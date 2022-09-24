@@ -119,7 +119,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
         restoreScreenSettings();
         pnlSearchFile.getResultPanel().disableButtons();
         pnlSearchText.getResultPanel().disableButtons();
-        checkUpdate(false);
+        new Thread(() -> checkUpdate(false)).start();
         initPopupMenu();
     }
 
