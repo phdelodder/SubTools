@@ -138,7 +138,7 @@
 							<invokerPackage>org.opensubtitles.invoker</invokerPackage>
 							<packageName>org.opensubtitles</packageName>
 							<configOptions>
-								<typeMappings>integer=ing,int=int</typeMappings>
+								<typeMappings>integer=int,int=int</typeMappings>
 								<useSwaggerAnnotations>false</useSwaggerAnnotations>
 								<serializableModel>true</serializableModel>
 								<booleanGetterPrefix>is</booleanGetterPrefix>

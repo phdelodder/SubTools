@@ -528,9 +528,6 @@
                                                                 "minLength": 1,
                                                                 "type": "string"
                                                             },
-                                                            "comments": {
-                                                                "type": "string"
-                                                            },
                                                             "legacy_subtitle_id": {
                                                                 "type": "number"
                                                             },
@@ -1334,9 +1331,6 @@
                             },
                             "release": {
                                 "minLength": 1,
-                                "type": "string"
-                            },
-                            "comments": {
                                 "type": "string"
                             },
                             "legacy_subtitle_id": {
