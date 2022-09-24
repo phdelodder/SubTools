@@ -228,16 +228,16 @@ public class Manager {
         private CacheType cacheType;
 
         @Override
-        public <S extends Serializable, E extends Exception> ValueBuilder<C, S, E> valueSupplier(ThrowingSupplier<S, E> valueSupplier) {
+        public <S extends Serializable, E extends Exception> ValueBuilder<?, S, E> valueSupplier(ThrowingSupplier<S, E> valueSupplier) {
             this.valueSupplier = (ThrowingSupplier<T, X>) valueSupplier;
-            return (ValueBuilder<C, S, E>) this;
+            return (ValueBuilder<?, S, E>) this;
         }
 
         @Override
-        public <S extends Serializable, E extends Exception> ValueBuilder<C, S, E>
+        public <S extends Serializable, E extends Exception> ValueBuilder<?, S, E>
                 optionalValueSupplier(ThrowingSupplier<Optional<S>, E> valueSupplier) {
             this.optionalValueSupplier = (ThrowingSupplier) valueSupplier;
-            return (ValueBuilder<C, S, E>) this;
+            return (ValueBuilder<?, S, E>) this;
         }
 
         @Override
