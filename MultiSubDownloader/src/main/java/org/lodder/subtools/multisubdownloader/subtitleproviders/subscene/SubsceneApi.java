@@ -136,8 +136,9 @@ public class SubsceneApi extends Html {
         while (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION_SHORT) {
             sleepSeconds(1);
         }
+        PageContentBuilderCacheTypeIntf html = super.getHtml(url);
         lastRequest = LocalDateTime.now();
-        return super.getHtml(url);
+        return html;
     }
 
     private void setLanguageWithCookie(Language language) {
