@@ -19,6 +19,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.exception.Addic7edException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.model.Addic7edSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.Language;
@@ -26,12 +27,13 @@ import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.Html;
+import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 
 import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod({ OptionalExtension.class })
-public class JAddic7edApi extends Html {
+public class JAddic7edApi extends Html implements SubtitleApi {
 
     private final Pattern pattern = Pattern.compile("Version (.+), Duration: ([0-9]+).([0-9])+ ");
     private final static long RATEDURATION = 1; // seconds
@@ -62,7 +64,7 @@ public class JAddic7edApi extends Html {
     public Optional<String> getAddictedSerieName(String name) throws Addic7edException {
         String formattedName = name.replace(":", "").replace("-", "").replace("_", " ").replace(" ", "").trim().toLowerCase();
 
-        return getValue("Addic7ed-SerieName-" + formattedName)
+        return getValue("%s-SerieName-".formatted(getSubtitleSource().name(), formattedName))
                 .cacheType(CacheType.DISK)
                 .optionalValueSupplier(() -> resultStringForName(name)
                         .map(doc -> doc.select("#season td:not(.c) > a").stream()
@@ -78,7 +80,7 @@ public class JAddic7edApi extends Html {
     }
 
     public Optional<String> getAddictedMovieName(String name) throws Addic7edException {
-        return getValue("Addic7ed-MovieName-" + name)
+        return getValue("%s-MovieName-".formatted(getSubtitleSource().name(), name))
                 .cacheType(CacheType.DISK)
                 .optionalValueSupplier(
                         () -> resultStringForName(name).map(doc -> {
@@ -222,5 +224,10 @@ public class JAddic7edApi extends Html {
         } catch (Exception e) {
             throw new Addic7edException(e);
         }
+    }
+
+    @Override
+    public SubtitleSource getSubtitleSource() {
+        return SubtitleSource.ADDIC7ED;
     }
 }

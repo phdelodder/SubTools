@@ -15,10 +15,10 @@ public class IMDBAPI extends XmlHTTP {
         super(manager);
     }
 
-    public Optional<IMDBDetails> getIMDBMovieDetails(String imdbid) throws IMDBException {
-        final String xml = "http://www.imdbapi.com/?i=" + imdbid + "&r=xml";
+    public Optional<IMDBDetails> getIMDBMovieDetails(String imdbId) throws IMDBException {
+        final String xml = "http://www.imdbapi.com/?i=" + imdbId + "&r=xml";
         return getManager().getValueBuilder()
-                .key("IMDBMovieDetails:" + imdbid)
+                .key("IMDB-MovieDetails:" + imdbId)
                 .cacheType(CacheType.DISK)
                 .optionalValueSupplier(() -> {
                     try {

@@ -38,8 +38,6 @@ import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisodeList;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisodeNumber;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageShowInfo;
 import org.lodder.subtools.sublibrary.xml.XmlExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -49,8 +47,6 @@ import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod({ XmlExtension.class })
 public class TVRageParser extends XmlHTTP {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TVRageParser.class);
 
     // Literals
     private static final String EPISODE = "episode";

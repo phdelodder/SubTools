@@ -14,12 +14,12 @@ public class OMDBAPI extends XmlHTTP {
         super(manager);
     }
 
-    public Optional<OMDBDetails> getOMDBMovieDetails(String imdbid) throws OMDBException {
+    public Optional<OMDBDetails> getOMDBMovieDetails(String imdbId) throws OMDBException {
         return getManager().getValueBuilder()
-                .key("OMDBMovieDetails:" + imdbid)
+                .key("OMDB-MovieDetails:" + imdbId)
                 .cacheType(CacheType.DISK)
                 .optionalValueSupplier(() -> {
-                    final String url = "http://www.omdbapi.com/?i=" + imdbid + "&plot=short&r=xml";
+                    final String url = "http://www.omdbapi.com/?i=" + imdbId + "&plot=short&r=xml";
                     try {
                         return getXML(url).cacheType(CacheType.NONE).getAsDocument()
                                 .map(doc -> doc.getElementsByTagName("movie"))

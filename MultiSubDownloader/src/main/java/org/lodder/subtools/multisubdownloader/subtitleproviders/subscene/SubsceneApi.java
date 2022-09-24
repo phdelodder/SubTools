@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.exception.SubsceneException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.model.SubsceneSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.Language;
@@ -22,17 +23,16 @@ import org.lodder.subtools.sublibrary.Manager.PageContentBuilderCacheTypeIntf;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.Html;
-import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
+import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pivovarit.function.ThrowingSupplier;
 
-public class SubsceneApi extends Html {
+public class SubsceneApi extends Html implements SubtitleApi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubsceneApi.class);
-    private static final String IDENTIFIER = SubtitleSource.SUBSCENE.name();
     private static final long RATEDURATION_SHORT = 1; // seconds
     private static final long RATEDURATION_LONG = 5; // seconds
     private static final String DOMAIN = "https://subscene.com";
@@ -81,7 +81,7 @@ public class SubsceneApi extends Html {
     }
 
     private Optional<String> getUrlForSerie(String serieName, int season) throws SubsceneException {
-        return retry(() -> getValue(IDENTIFIER + serieName + "_SEASON:" + season)
+        return retry(() -> getValue("%s-url-%s-%s".formatted(getSubtitleSource().name(), serieName, season))
                 .cacheType(CacheType.MEMORY)
                 .optionalValueSupplier(() -> {
                     try {
@@ -158,6 +158,11 @@ public class SubsceneApi extends Html {
 
     private void addCookie(String cookieName, String cookieValue) {
         getManager().storeCookies("subscene.com", Map.of(cookieName, cookieValue));
+    }
+
+    @Override
+    public SubtitleSource getSubtitleSource() {
+        return SubtitleSource.SUBSCENE;
     }
 
     private String getOrdinalName(int ordinal) {

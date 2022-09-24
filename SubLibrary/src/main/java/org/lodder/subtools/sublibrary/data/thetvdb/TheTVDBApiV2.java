@@ -3,7 +3,6 @@ package org.lodder.subtools.sublibrary.data.thetvdb;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -43,7 +42,7 @@ public class TheTVDBApiV2 {
     public OptionalInt getSerieId(String seriename, Language language) throws TheTVDBException {
         String encodedSerieName = URLEncoder.encode(seriename.toLowerCase().replace(" ", "-"), StandardCharsets.UTF_8);
         return manager.getValueBuilder()
-                .key("TVDB-SerieId-" + encodedSerieName)
+                .key("TVDB-SerieId-%s-%s".formatted(encodedSerieName, language))
                 .cacheType(CacheType.DISK)
                 .optionalValueSupplier(() -> {
                     try {
@@ -63,7 +62,7 @@ public class TheTVDBApiV2 {
 
     public Optional<TheTVDBSerie> getSerie(int tvdbId, Language language) throws TheTVDBException {
         return manager.getValueBuilder()
-                .key("TVDB-Serie-" + tvdbId + language)
+                .key("TVDB-Serie-%s-%s".formatted(tvdbId, language))
                 .cacheType(CacheType.DISK)
                 .optionalValueSupplier(() -> {
                     try {
@@ -85,26 +84,26 @@ public class TheTVDBApiV2 {
 
     public List<TheTVDBEpisode> getAllEpisodes(int tvdbid, Language language) throws TheTVDBException {
         return manager.getValueBuilder()
-                .key("TVDB-episodes-" + tvdbid + language)
+                .key("TVDB-episodes-%s-%s".formatted(tvdbid, language))
                 .cacheType(CacheType.MEMORY)
-                .valueSupplier(() -> {
+                .collectionSupplier(TheTVDBEpisode.class, () -> {
                     try {
                         if (tvdbid != 0) {
                             Response<EpisodesResponse> response =
                                     theTvdb.series().episodes(tvdbid, 1, language == null ? null : language.getLangCode()).execute();
                             if (response.isSuccessful()) {
-                                return (ArrayList<TheTVDBEpisode>) response.body().data.stream()
+                                return response.body().data.stream()
                                         .map(episode -> episodeToTVDBEpisode(episode, language))
                                         .collect(Collectors.toList());
                             }
                         } else {
                             LOGGER.warn("TVDB ID is 0! please fix");
                         }
-                        return new ArrayList<TheTVDBEpisode>();
+                        return List.of();
                     } catch (IOException e) {
                         throw new TheTVDBException(e);
                     }
-                }).get();
+                }).getCollection();
     }
 
     public Optional<TheTVDBEpisode> getEpisode(int tvdbid, int season, int episode, Language language) throws TheTVDBException {

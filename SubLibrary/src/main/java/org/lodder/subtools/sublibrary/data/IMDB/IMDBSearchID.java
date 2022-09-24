@@ -30,7 +30,9 @@ public class IMDBSearchID {
     }
 
     public OptionalInt getImdbIdOnYahoo(String title, int year) throws IMDBSearchIDException {
-        return manager.getValueBuilder().key(this.getClass().getName() + title + year).cacheType(CacheType.DISK)
+        return manager.getValueBuilder()
+                .key("IMDB-imdb-yahoo-%s-%s".formatted(title, year))
+                .cacheType(CacheType.DISK)
                 .optionalValueSupplier(() -> {
 
                     StringBuilder sb = new StringBuilder("http://search.yahoo.com/search;_ylt=A1f4cfvx9C1I1qQAACVjAQx.?p=");
@@ -63,7 +65,7 @@ public class IMDBSearchID {
 
     public OptionalInt getImdbIdOnGoogle(String title, int year) throws IMDBSearchIDException {
         return manager.getValueBuilder()
-                .key(this.getClass().getName() + title + year)
+                .key("IMDB-imdb-google-%s-%s".formatted(title, year))
                 .cacheType(CacheType.DISK)
                 .optionalValueSupplier(() -> {
 

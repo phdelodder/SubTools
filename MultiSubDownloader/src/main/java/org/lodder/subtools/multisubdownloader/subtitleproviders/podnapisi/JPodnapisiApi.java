@@ -18,12 +18,14 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.xmlrpc.XmlRpcException;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.exception.PodnapisiException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.model.PodnapisiSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.XmlRPC;
+import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
 import org.lodder.subtools.sublibrary.xml.XmlExtension;
 import org.slf4j.Logger;
@@ -35,7 +37,7 @@ import org.w3c.dom.Node;
 import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod({ XmlExtension.class })
-public class JPodnapisiApi extends XmlRPC {
+public class JPodnapisiApi extends XmlRPC implements SubtitleApi {
 
     private LocalDateTime nextCheck;
     private final Manager manager;
@@ -229,6 +231,11 @@ public class JPodnapisiApi extends XmlRPC {
         psd.setUploaderUid(subtitle.get("UploaderUid"));
         psd.setUrl(subtitle.get("url"));
         return psd;
+    }
+
+    @Override
+    public SubtitleSource getSubtitleSource() {
+        return SubtitleSource.PODNAPISI;
     }
 
     private Language languageIdToLanguage(String languageId) {

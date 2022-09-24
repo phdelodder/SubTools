@@ -12,18 +12,20 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.exception.TvSubtiltesException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.model.TVsubtitlesSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.Html;
+import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 
 import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod({ OptionalExtension.class })
-public class JTVSubtitlesApi extends Html {
+public class JTVSubtitlesApi extends Html implements SubtitleApi {
 
     private static final String DOMAIN = "https://www.tvsubtitles.net";
 
@@ -33,7 +35,7 @@ public class JTVSubtitlesApi extends Html {
 
     public Set<TVsubtitlesSubtitleDescriptor> searchSubtitles(String name, int season, int episode, Language language)
             throws TvSubtiltesException {
-        return getValue("TVSubtitles-subtitles-%s-%s-%s-%s".formatted(name.toLowerCase(), season, episode, language))
+        return getValue("%s-subtitles-%s-%s-%s-%s".formatted(getSubtitleSource().name(), name.toLowerCase(), season, episode, language))
                 .cacheType(CacheType.MEMORY)
                 .collectionSupplier(TVsubtitlesSubtitleDescriptor.class, () -> {
                     Set<TVsubtitlesSubtitleDescriptor> lSubtitles = new HashSet<>();
@@ -126,7 +128,7 @@ public class JTVSubtitlesApi extends Html {
     }
 
     private Optional<String> getShowUrl(String showName) throws TvSubtiltesException {
-        return getValue("TVSubtitles-ShowName-" + showName.toLowerCase())
+        return getValue("%s-ShowName-".formatted(getSubtitleSource().name(), showName.toLowerCase()))
                 .cacheType(CacheType.DISK)
                 .optionalValueSupplier(() -> {
                     try {
@@ -147,5 +149,10 @@ public class JTVSubtitlesApi extends Html {
                         throw new TvSubtiltesException(e);
                     }
                 }).getOptional();
+    }
+
+    @Override
+    public SubtitleSource getSubtitleSource() {
+        return SubtitleSource.TVSUBTITLES;
     }
 }

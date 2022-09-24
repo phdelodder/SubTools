@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
-import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
+import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.settings.model.TvdbMappings;
 
 import lombok.Getter;
