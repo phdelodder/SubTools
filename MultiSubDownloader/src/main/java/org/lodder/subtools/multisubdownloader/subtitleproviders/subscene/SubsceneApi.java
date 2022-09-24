@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.exception.SubsceneException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.model.SubsceneSubtitleDescriptor;
@@ -123,7 +124,7 @@ public class SubsceneApi extends Html implements SubtitleApi {
             if ((cause instanceof HttpClientException httpClientException
                     && httpClientException != null && httpClientException.getResponseCode() == 409)
                     || (cause instanceof ManagerException && cause.getMessage().contains("409 Conflict"))) {
-                LOGGER.info("RateLimiet is bereikt voor Subscene, gelieve {} sec te wachten", RATEDURATION_LONG);
+                LOGGER.info(Messages.getString("LoggingPanel.RateLimitReached", getSubtitleSource().getName(), RATEDURATION_LONG));
                 sleepSeconds(RATEDURATION_LONG);
                 return supplier.get();
             }
