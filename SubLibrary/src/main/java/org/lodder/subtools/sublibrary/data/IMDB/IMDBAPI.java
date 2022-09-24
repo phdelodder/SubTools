@@ -20,7 +20,7 @@ public class IMDBAPI extends XmlHTTP {
         return getManager().getValueBuilder()
                 .key("IMDB-MovieDetails:" + imdbId)
                 .cacheType(CacheType.DISK)
-                .optionalValueSupplier(() -> {
+                .optionalSupplier(() -> {
                     try {
                         return getXML(xml).cacheType(CacheType.NONE).getAsDocument()
                                 .map(doc -> doc.getElementsByTagName("movie"))

@@ -65,7 +65,7 @@ public class TVRageParser extends XmlHTTP {
         return getManager().getValueBuilder()
                 .key("TVRage-EpisodeInfo-" + searchUrl.toLowerCase())
                 .cacheType(CacheType.DISK)
-                .optionalValueSupplier(() -> {
+                .optionalSupplier(() -> {
                     try {
                         return getXML(searchUrl).cacheType(CacheType.MEMORY).getAsDocument()
                                 // The EpisodeInfo contains show information as well, but we will skip this

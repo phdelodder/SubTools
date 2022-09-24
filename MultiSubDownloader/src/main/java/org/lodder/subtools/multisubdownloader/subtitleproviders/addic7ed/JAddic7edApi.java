@@ -66,7 +66,7 @@ public class JAddic7edApi extends Html implements SubtitleApi {
 
         return getValue("%s-SerieName-".formatted(getSubtitleSource().name(), formattedName))
                 .cacheType(CacheType.DISK)
-                .optionalValueSupplier(() -> resultStringForName(name)
+                .optionalSupplier(() -> resultStringForName(name)
                         .map(doc -> doc.select("#season td:not(.c) > a").stream()
                                 .map(serieFound -> {
                                     String link = serieFound.attr("href");
@@ -82,7 +82,7 @@ public class JAddic7edApi extends Html implements SubtitleApi {
     public Optional<String> getAddictedMovieName(String name) throws Addic7edException {
         return getValue("%s-MovieName-".formatted(getSubtitleSource().name(), name))
                 .cacheType(CacheType.DISK)
-                .optionalValueSupplier(
+                .optionalSupplier(
                         () -> resultStringForName(name).map(doc -> {
                             Elements aTagWithSerie = doc.select("a[debug]");
                             String link = aTagWithSerie.get(0).attr("href");

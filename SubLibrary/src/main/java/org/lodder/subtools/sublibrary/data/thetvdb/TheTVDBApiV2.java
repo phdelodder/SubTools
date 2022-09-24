@@ -44,7 +44,7 @@ public class TheTVDBApiV2 {
         return manager.getValueBuilder()
                 .key("TVDB-SerieId-%s-%s".formatted(encodedSerieName, language))
                 .cacheType(CacheType.DISK)
-                .optionalValueSupplier(() -> {
+                .optionalSupplier(() -> {
                     try {
                         Response<SeriesResultsResponse> response =
                                 theTvdb.search().series(encodedSerieName, null, null, null, language == null ? null : language.getLangCode())
@@ -64,7 +64,7 @@ public class TheTVDBApiV2 {
         return manager.getValueBuilder()
                 .key("TVDB-Serie-%s-%s".formatted(tvdbId, language))
                 .cacheType(CacheType.DISK)
-                .optionalValueSupplier(() -> {
+                .optionalSupplier(() -> {
                     try {
                         if (tvdbId != 0) {
                             Response<SeriesResponse> response =
@@ -110,7 +110,7 @@ public class TheTVDBApiV2 {
         return manager.getValueBuilder()
                 .key("TVDB-episode-%s-%s-%s-%s".formatted(tvdbid, season, episode, language))
                 .cacheType(CacheType.DISK)
-                .optionalValueSupplier(() -> {
+                .optionalSupplier(() -> {
                     try {
                         Response<EpisodesResponse> response =
                                 theTvdb.series().episodesQuery(tvdbid, null, season, episode, null, null, null, null, null,

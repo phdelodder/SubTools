@@ -33,7 +33,7 @@ public class IMDBSearchID {
         return manager.getValueBuilder()
                 .key("IMDB-imdb-yahoo-%s-%s".formatted(title, year))
                 .cacheType(CacheType.DISK)
-                .optionalValueSupplier(() -> {
+                .optionalSupplier(() -> {
 
                     StringBuilder sb = new StringBuilder("http://search.yahoo.com/search;_ylt=A1f4cfvx9C1I1qQAACVjAQx.?p=");
                     sb.append(URLEncoder.encode(title, StandardCharsets.UTF_8));
@@ -67,7 +67,7 @@ public class IMDBSearchID {
         return manager.getValueBuilder()
                 .key("IMDB-imdb-google-%s-%s".formatted(title, year))
                 .cacheType(CacheType.DISK)
-                .optionalValueSupplier(() -> {
+                .optionalSupplier(() -> {
 
                     StringBuilder sb = new StringBuilder("http://www.google.com/search?q=");
                     sb.append(URLEncoder.encode(title, StandardCharsets.UTF_8));

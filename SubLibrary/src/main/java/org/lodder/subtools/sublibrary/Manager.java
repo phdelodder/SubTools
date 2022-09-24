@@ -197,7 +197,7 @@ public class Manager {
                 collectionSupplier(Class<T> collectionValueType, ThrowingSupplier<C, X> valueSupplier);
 
         <T extends Serializable, X extends Exception> ValueBuilderGetOptionalIntf<T, X>
-                optionalValueSupplier(ThrowingSupplier<Optional<T>, X> valueSupplier);
+                optionalSupplier(ThrowingSupplier<Optional<T>, X> valueSupplier);
     }
 
     public interface ValueBuilderGetIntf<T extends Serializable, X extends Exception> {
@@ -235,7 +235,7 @@ public class Manager {
 
         @Override
         public <S extends Serializable, E extends Exception> ValueBuilder<?, S, E>
-                optionalValueSupplier(ThrowingSupplier<Optional<S>, E> valueSupplier) {
+                optionalSupplier(ThrowingSupplier<Optional<S>, E> valueSupplier) {
             this.optionalValueSupplier = (ThrowingSupplier) valueSupplier;
             return (ValueBuilder<?, S, E>) this;
         }

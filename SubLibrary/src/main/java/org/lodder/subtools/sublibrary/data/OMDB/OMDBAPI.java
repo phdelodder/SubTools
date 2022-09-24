@@ -18,7 +18,7 @@ public class OMDBAPI extends XmlHTTP {
         return getManager().getValueBuilder()
                 .key("OMDB-MovieDetails:" + imdbId)
                 .cacheType(CacheType.DISK)
-                .optionalValueSupplier(() -> {
+                .optionalSupplier(() -> {
                     final String url = "http://www.omdbapi.com/?i=" + imdbId + "&plot=short&r=xml";
                     try {
                         return getXML(url).cacheType(CacheType.NONE).getAsDocument()

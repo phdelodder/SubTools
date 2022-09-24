@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader;
 
 import static java.time.temporal.ChronoUnit.*;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -53,25 +54,34 @@ public class UpdateAvailableGithub {
     }
 
     private Optional<GitHubRelease> getLatestGithubRelease() {
-        try {
-            Element element = manager.getPageContentBuilder().url("https://github.com/phdelodder/SubTools/releases")
-                    .userAgent(null)
-                    .cacheType(CacheType.NONE)
-                    .getAsJsoupDocument()
-                    .selectFirst("#repo-content-turbo-frame .box a[href='/phdelodder/SubTools/releases/latest']");
-            String version = element.parent().selectFirst("a").text().split("-")[1];
-            String url = "https://github.com"
-                    + element.parent().parent().parent().parent().selectFirst(".Box-footer .Box-row a[href$='.jar']").attr("href");
-            return Optional.of(new GitHubRelease(version, url));
-        } catch (Exception e) {
-            LOGGER.error("Could not find latest github release");
-            return Optional.empty();
-        }
+        return manager.getValueBuilder()
+                .key("GitHub-update").cacheType(CacheType.MEMORY)
+                .optionalSupplier(() -> {
+                    try {
+                        Element element = manager.getPageContentBuilder().url("https://github.com/phdelodder/SubTools/releases")
+                                .userAgent(null)
+                                .cacheType(CacheType.NONE)
+                                .getAsJsoupDocument()
+                                .selectFirst("#repo-content-turbo-frame .box a[href='/phdelodder/SubTools/releases/latest']");
+                        String version = element.parent().selectFirst("a").text().split("-")[1];
+                        String versionBlockUrl = "https://github.com/phdelodder/SubTools/releases/expanded_assets/subtools-" + version;
+                        String url = "https://github.com" + manager.getPageContentBuilder().url(versionBlockUrl)
+                                .userAgent(null)
+                                .cacheType(CacheType.NONE)
+                                .getAsJsoupDocument()
+                                .selectFirst(".Box-row a[href$='.jar']").attr("href");
+                        return Optional.of(new GitHubRelease(version, url));
+                    } catch (Exception e) {
+                        LOGGER.error("Could not find latest github release");
+                        return Optional.empty();
+                    }
+                }).getOptional();
     }
 
     @RequiredArgsConstructor
     @Getter
-    private class GitHubRelease {
+    private class GitHubRelease implements Serializable {
+        private static final long serialVersionUID = 1L;
         private final String version;
         private final String url;
     }

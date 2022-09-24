@@ -130,7 +130,7 @@ public class JTVSubtitlesApi extends Html implements SubtitleApi {
     private Optional<String> getShowUrl(String showName) throws TvSubtiltesException {
         return getValue("%s-ShowName-".formatted(getSubtitleSource().name(), showName.toLowerCase()))
                 .cacheType(CacheType.DISK)
-                .optionalValueSupplier(() -> {
+                .optionalSupplier(() -> {
                     try {
                         Map<String, String> data = new HashMap<>();
                         data.put("qs", showName);

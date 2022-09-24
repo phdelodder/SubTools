@@ -84,7 +84,7 @@ public class SubsceneApi extends Html implements SubtitleApi {
     private Optional<String> getUrlForSerie(String serieName, int season) throws SubsceneException {
         return retry(() -> getValue("%s-url-%s-%s".formatted(getSubtitleSource().name(), serieName, season))
                 .cacheType(CacheType.MEMORY)
-                .optionalValueSupplier(() -> {
+                .optionalSupplier(() -> {
                     try {
                         String url = DOMAIN + "/subtitles/searchbytitle?query=" + URLEncoder.encode(serieName, StandardCharsets.UTF_8);
                         Element searchResultElement =
