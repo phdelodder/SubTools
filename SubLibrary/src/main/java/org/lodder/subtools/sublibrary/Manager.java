@@ -294,7 +294,7 @@ public class Manager {
                 return cache.get(key);
             }
             Optional<T> value = optionalValueSupplier.get();
-            value.ifPresent(v -> cache.put(key, v));
+            value.ifPresentOrElse(v -> cache.put(key, v), () -> cache.put(key, null));
             return value;
         }
     }
