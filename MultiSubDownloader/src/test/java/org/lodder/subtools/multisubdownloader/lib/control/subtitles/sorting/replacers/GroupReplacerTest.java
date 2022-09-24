@@ -1,13 +1,13 @@
 package org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.replacers;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import java.util.HashMap;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.lodder.subtools.sublibrary.model.Release;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class GroupReplacerTest {
 

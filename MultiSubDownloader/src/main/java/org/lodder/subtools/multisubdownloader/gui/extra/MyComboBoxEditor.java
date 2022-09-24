@@ -1,6 +1,7 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
-import javax.swing.*;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
 
 public class MyComboBoxEditor extends DefaultCellEditor {
     /**

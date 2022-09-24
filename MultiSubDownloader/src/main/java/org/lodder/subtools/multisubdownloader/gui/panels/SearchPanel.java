@@ -1,6 +1,7 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
 import javax.swing.JPanel;
+
 import net.miginfocom.swing.MigLayout;
 
 public class SearchPanel extends JPanel {

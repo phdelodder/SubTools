@@ -15,13 +15,13 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.extra.ArrowButton;
 import org.lodder.subtools.multisubdownloader.gui.extra.MyComboBoxEditor;
 import org.lodder.subtools.multisubdownloader.gui.extra.MyComboBoxRenderer;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
+
+import net.miginfocom.swing.MigLayout;
 
 public class DefaultSelectionPanel extends JPanel {
 

@@ -1,7 +1,5 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
-import java.awt.Component;
-
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -9,6 +7,8 @@ import javax.swing.ListCellRenderer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.awt.Component;
 
 public class ImageListCellRenderer extends JLabel implements ListCellRenderer<Object> {
 

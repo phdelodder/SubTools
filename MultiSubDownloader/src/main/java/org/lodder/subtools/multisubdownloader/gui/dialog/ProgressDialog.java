@@ -1,8 +1,9 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
-import net.miginfocom.swing.MigLayout;
-
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JProgressBar;
 
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.Messenger;
@@ -10,6 +11,8 @@ import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
+import net.miginfocom.swing.MigLayout;
 
 public class ProgressDialog extends MultiSubDialog implements Messenger {
 

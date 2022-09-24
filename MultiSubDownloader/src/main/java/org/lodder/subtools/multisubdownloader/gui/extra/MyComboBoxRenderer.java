@@ -1,8 +1,10 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
+import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
-import java.awt.*;
+
+import java.awt.Component;
 
 public class MyComboBoxRenderer extends JComboBox<String> implements TableCellRenderer {
 

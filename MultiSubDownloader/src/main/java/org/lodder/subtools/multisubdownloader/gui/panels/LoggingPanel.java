@@ -8,11 +8,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.lodder.subtools.multisubdownloader.gui.extra.LogTextAppender;
 
 import ch.qos.logback.classic.Level;
+import net.miginfocom.swing.MigLayout;
 
 public class LoggingPanel extends JPanel {
 

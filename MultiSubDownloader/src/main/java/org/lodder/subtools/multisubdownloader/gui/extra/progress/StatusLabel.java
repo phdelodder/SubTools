@@ -1,6 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.extra.progress;
 
-import javax.swing.*;
+import javax.swing.JLabel;
 
 public class StatusLabel extends JLabel implements Messenger {
 

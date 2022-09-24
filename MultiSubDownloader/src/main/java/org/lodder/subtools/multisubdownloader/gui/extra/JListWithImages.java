@@ -1,10 +1,17 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
+import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 
-import javax.swing.*;
-
-import java.awt.*;
+import java.awt.FlowLayout;
+import java.awt.Image;
+import java.awt.Toolkit;
 
 public class JListWithImages extends JList<JPanel> {
 

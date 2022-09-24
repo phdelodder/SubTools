@@ -1,8 +1,9 @@
 package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
-import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.stream.IntStream;
+
+import java.awt.event.MouseEvent;
 
 public class CustomTable extends ZebraJTable {
 

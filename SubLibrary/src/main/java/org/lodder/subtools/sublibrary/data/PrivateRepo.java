@@ -11,6 +11,7 @@ import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
+import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
 import org.lodder.subtools.sublibrary.privateRepo.model.IndexSubtitle;
@@ -80,7 +81,7 @@ public class PrivateRepo {
                                         + PrivateRepoIndex.getFullFilename(indexSubtitle));
 
                         Subtitle tempSub = Subtitle.downloadSource(location)
-                                .subtitleSource(Subtitle.SubtitleSource.LOCAL)
+                                .subtitleSource(SubtitleSource.LOCAL)
                                 .fileName(indexSubtitle.getFilename())
                                 .language(indexSubtitle.getLanguage())
                                 .quality(ReleaseParser.getQualityKeyword(indexSubtitle.getFilename()))
@@ -108,7 +109,7 @@ public class PrivateRepo {
                                         + indexSubtitle.getLanguage() + "/"
                                         + PrivateRepoIndex.getFullFilename(indexSubtitle);
                         results.add(Subtitle.downloadSource(location)
-                                .subtitleSource(Subtitle.SubtitleSource.LOCAL)
+                                .subtitleSource(SubtitleSource.LOCAL)
                                 .fileName(indexSubtitle.getFilename())
                                 .language(indexSubtitle.getLanguage())
                                 .quality("")

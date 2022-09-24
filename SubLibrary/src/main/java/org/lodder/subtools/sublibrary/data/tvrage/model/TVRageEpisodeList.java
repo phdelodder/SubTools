@@ -19,8 +19,7 @@ package org.lodder.subtools.sublibrary.data.tvrage.model;
  *      along with TVRage API.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-import static org.lodder.subtools.sublibrary.data.tvrage.TVRageApi.isValidString;
+import static org.lodder.subtools.sublibrary.data.tvrage.TVRageApi.*;
 
 import java.io.Serializable;
 import java.util.Map;

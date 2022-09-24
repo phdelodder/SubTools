@@ -1,12 +1,12 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
 import javax.swing.JPopupMenu;
 import javax.swing.table.DefaultTableModel;
 
 import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class PopupListener extends MouseAdapter {
 

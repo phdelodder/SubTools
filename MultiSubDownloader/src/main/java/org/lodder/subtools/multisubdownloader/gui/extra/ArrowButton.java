@@ -1,7 +1,13 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.SwingConstants;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Insets;
 
 public class ArrowButton extends JButton {
 

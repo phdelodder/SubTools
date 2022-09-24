@@ -1,12 +1,12 @@
 package org.lodder.subtools.multisubdownloader.gui;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JWindow;
+
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 
 import net.miginfocom.swing.MigLayout;
 

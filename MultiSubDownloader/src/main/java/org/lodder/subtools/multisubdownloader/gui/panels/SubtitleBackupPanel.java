@@ -1,13 +1,13 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
-import java.awt.event.ActionListener;
-
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+
+import java.awt.event.ActionListener;
 
 import net.miginfocom.swing.MigLayout;
 
