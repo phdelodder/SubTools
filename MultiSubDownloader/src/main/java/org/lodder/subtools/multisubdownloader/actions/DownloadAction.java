@@ -13,6 +13,7 @@ import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
+import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
@@ -68,9 +69,16 @@ public class DownloadAction {
             Files.copy(subtitle.getFile(), subFile);
             success = true;
         } else {
-            String url = subtitle.getSourceLocation() == Subtitle.SourceLocation.URL ? subtitle.getUrl() : subtitle.getUrlSupplier().get();
-            success = manager.store(url, subFile);
-            LOGGER.debug("doDownload file was [{}] ", success);
+            String url;
+            try {
+                url = subtitle.getSourceLocation() == Subtitle.SourceLocation.URL ? subtitle.getUrl() : subtitle.getUrlSupplier().get();
+                success = manager.store(url, subFile);
+                LOGGER.debug("doDownload file was [{}] ", success);
+            } catch (SubtitlesProviderException e) {
+                LOGGER.error("Error while getting url for [%s] for subtitle provider [%s] (%s)".formatted(release.getReleaseDescription(),
+                        e.getSubtitleProvider(), e.getMessage()), e);
+                throw new RuntimeException(e);
+            }
         }
 
         if (ReleaseParser.getQualityKeyword(release.getFileName()).split(" ").length > 1) {

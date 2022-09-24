@@ -6,7 +6,7 @@ import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.util.StringUtils;
+import org.lodder.subtools.sublibrary.util.StringUtil;
 
 public class FilenameLibraryBuilder extends LibraryBuilder {
 
@@ -41,7 +41,7 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
             filename = release.getFileName();
         }
         if (librarySettings.isLibraryReplaceChars()) {
-            filename = StringUtils.removeIllegalWindowsChars(filename);
+            filename = StringUtil.removeIllegalWindowsChars(filename);
         }
         if (librarySettings.isLibraryFilenameReplaceSpace()) {
             filename = filename.replaceAll(" ", librarySettings.getLibraryFilenameReplacingSpaceSign());
@@ -86,7 +86,7 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
             filename = changeExtension(filename, ".srt");
         }
         if (librarySettings.isLibraryReplaceChars()) {
-            filename = StringUtils.removeIllegalWindowsChars(filename);
+            filename = StringUtil.removeIllegalWindowsChars(filename);
         }
         if (librarySettings.isLibraryFilenameReplaceSpace()) {
             filename = filename.replaceAll(" ", librarySettings.getLibraryFilenameReplacingSpaceSign());

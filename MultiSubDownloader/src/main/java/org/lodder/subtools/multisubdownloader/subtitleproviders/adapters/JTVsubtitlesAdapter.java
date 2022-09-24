@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.JTVSubtitlesApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.exception.TvSubtiltesException;
@@ -43,20 +44,25 @@ public class JTVsubtitlesAdapter implements SubtitleProvider {
     @Override
     public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
         Set<TVsubtitlesSubtitleDescriptor> lSubtitles = new HashSet<>();
-        try {
-            String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getName();
+        String showName = StringUtils.isNotBlank(tvRelease.getOriginalShowName()) ? tvRelease.getOriginalShowName() : tvRelease.getName();
 
-            if (showName.length() > 0) {
-                if (showName.contains("(") && showName.contains(")")) {
-                    String alterName = showName.substring(0, showName.indexOf("(") - 1).trim();
+        if (StringUtils.isNotBlank(showName)) {
+            if (showName.contains("(") && showName.contains(")")) {
+                String alterName = showName.substring(0, showName.indexOf("(") - 1).trim();
+                try {
                     lSubtitles = jtvapi.searchSubtitles(alterName, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0), language);
+                } catch (TvSubtiltesException e) {
+                    LOGGER.error("API TVSubtitles searchSubtitles using name for serie [%s] (%s)".formatted(
+                            TvRelease.formatName(alterName, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0)), e.getMessage()), e);
                 }
-                lSubtitles.addAll(jtvapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0), language));
             }
-        } catch (TvSubtiltesException e) {
-            LOGGER.error("API JTVsubtitles searchSubtitles using title", e);
+            try {
+                lSubtitles.addAll(jtvapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0), language));
+            } catch (TvSubtiltesException e) {
+                LOGGER.error("API TVSubtitles searchSubtitles using name for serie [%s] (%s)".formatted(
+                        TvRelease.formatName(showName, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0)), e.getMessage()), e);
+            }
         }
-
         return lSubtitles.stream()
                 .map(sub -> Subtitle.downloadSource(sub.getUrl())
                         .subtitleSource(getSubtitleSource())

@@ -10,17 +10,20 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.JAddic7
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.exception.Addic7edException;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.ManagerSetupException;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.util.StringUtils;
+import org.lodder.subtools.sublibrary.util.OptionalExtension;
+import org.lodder.subtools.sublibrary.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.experimental.ExtensionMethod;
+
+@ExtensionMethod({ OptionalExtension.class })
 public class JAddic7edAdapter implements SubtitleProvider {
 
     private static JAddic7edApi jaapi;
@@ -33,7 +36,7 @@ public class JAddic7edAdapter implements SubtitleProvider {
                 jaapi = isLoginEnabled ? new JAddic7edApi(username, password, speedy, manager) : new JAddic7edApi(speedy, manager);
             }
         } catch (Addic7edException e) {
-            LOGGER.error("API JAddic7ed INIT: ", e);
+            LOGGER.error("API Addic7ed INIT (%s)".formatted(e.getMessage()), e);
         }
     }
 
@@ -49,28 +52,39 @@ public class JAddic7edAdapter implements SubtitleProvider {
             if (release.getName().length() > 0) {
                 serieName = jaapi.getAddictedSerieName(release.getName());
             }
+        } catch (Addic7edException e) {
+            LOGGER.error("API Addic7ed searchSubtitles for serie [%s] (%s)".formatted(release.getNameWithSeasonEpisode(), e.getMessage()), e);
+        }
+        try {
             if (serieName.isEmpty() && release.getOriginalShowName().length() > 0) {
                 serieName = jaapi.getAddictedSerieName(release.getOriginalShowName());
             }
-        } catch (ManagerSetupException e) {
-            LOGGER.error("API JAddic7ed searchSubtitles using title ", e);
+        } catch (Addic7edException e) {
+            LOGGER.error("API Addic7ed searchSubtitles for serie [%s] (%s)".formatted(release.getNameWithSeasonEpisode(), e.getMessage()), e);
         }
-        return serieName
-                    .map(name -> jaapi.searchSubtitles(name, release.getSeason(), release.getEpisodeNumbers().get(0), release.getTitle(), language)
-                        .stream()
-                        .filter(sub -> language == sub.getLanguage())
-                        .map(sub -> Subtitle.downloadSource(sub.getUrl())
-                                .subtitleSource(getSubtitleSource())
-                                .fileName(StringUtils.removeIllegalFilenameChars(sub.getTitel() + " " + sub.getVersion()))
-                                .language(sub.getLanguage())
-                                .quality(ReleaseParser.getQualityKeyword(sub.getTitel() + " " + sub.getVersion()))
-                                .subtitleMatchType(SubtitleMatchType.EVERYTHING)
-                                .releaseGroup(ReleaseParser.extractReleasegroup(sub.getTitel() + " " + sub.getVersion(),
-                                        FilenameUtils.isExtension(sub.getTitel() + " " + sub.getVersion(), "srt")))
-                                .uploader(sub.getUploader())
-                                .hearingImpaired(false))
-                        .collect(Collectors.toSet()))
-                .orElseGet(Set::of);
+        try {
+            return serieName
+                    .mapOrElseGet(
+                            name -> jaapi
+                                    .searchSubtitles(name, release.getSeason(), release.getEpisodeNumbers().get(0), release.getTitle(), language)
+                                    .stream()
+                                    .filter(sub -> language == sub.getLanguage())
+                                    .map(sub -> Subtitle.downloadSource(sub.getUrl())
+                                            .subtitleSource(getSubtitleSource())
+                                            .fileName(StringUtil.removeIllegalFilenameChars(sub.getTitel() + " " + sub.getVersion()))
+                                            .language(sub.getLanguage())
+                                            .quality(ReleaseParser.getQualityKeyword(sub.getTitel() + " " + sub.getVersion()))
+                                            .subtitleMatchType(SubtitleMatchType.EVERYTHING)
+                                            .releaseGroup(ReleaseParser.extractReleasegroup(sub.getTitel() + " " + sub.getVersion(),
+                                                    FilenameUtils.isExtension(sub.getTitel() + " " + sub.getVersion(), "srt")))
+                                            .uploader(sub.getUploader())
+                                            .hearingImpaired(false))
+                                    .collect(Collectors.toSet()),
+                            Set::of);
+        } catch (Addic7edException e) {
+            LOGGER.error("API Addic7ed searchSubtitles for serie [%s] (%s)".formatted(release.getNameWithSeasonEpisode(), e.getMessage()), e);
+            return Set.of();
+        }
     }
 
     @Override

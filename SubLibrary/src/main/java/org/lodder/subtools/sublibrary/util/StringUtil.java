@@ -1,6 +1,6 @@
 package org.lodder.subtools.sublibrary.util;
 
-public class StringUtils {
+public class StringUtil {
 
     public static String[] join(String[]... arrays) {
         // calculate size of target array

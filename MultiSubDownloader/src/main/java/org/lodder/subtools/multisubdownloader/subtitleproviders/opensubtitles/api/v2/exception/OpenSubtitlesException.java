@@ -1,6 +1,9 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.exception;
 
-public class OpenSubtitlesException extends Exception {
+import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
+import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
+
+public class OpenSubtitlesException extends SubtitlesProviderException {
 
     private static final long serialVersionUID = -9050358290926245586L;
 
@@ -18,5 +21,10 @@ public class OpenSubtitlesException extends Exception {
 
     public OpenSubtitlesException(Throwable cause) {
         super(cause);
+    }
+
+    @Override
+    public String getSubtitleProvider() {
+        return SubtitleSource.OPENSUBTITLES.getName();
     }
 }

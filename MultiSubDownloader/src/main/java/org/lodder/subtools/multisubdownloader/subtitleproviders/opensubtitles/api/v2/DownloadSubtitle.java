@@ -1,8 +1,8 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2;
 
+import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.exception.OpenSubtitlesException;
 import org.opensubtitles.api.DownloadApi;
 import org.opensubtitles.invoker.ApiClient;
-import org.opensubtitles.invoker.ApiException;
 import org.opensubtitles.model.Download200Response;
 import org.opensubtitles.model.DownloadRequest;
 
@@ -18,7 +18,11 @@ public class DownloadSubtitle extends OpenSubtitlesExecuter {
 
     private int fileId;
 
-    public Download200Response download() throws ApiException {
-        return execute(() -> new DownloadApi(apiClient).download(new DownloadRequest().fileId(fileId)));
+    public Download200Response download() throws OpenSubtitlesException {
+        try {
+            return execute(() -> new DownloadApi(apiClient).download(new DownloadRequest().fileId(fileId)));
+        } catch (Exception e) {
+            throw new OpenSubtitlesException(e);
+        }
     }
 }

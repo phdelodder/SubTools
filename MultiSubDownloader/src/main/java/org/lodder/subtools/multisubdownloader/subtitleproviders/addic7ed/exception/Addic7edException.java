@@ -1,6 +1,9 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.exception;
 
-public class Addic7edException extends Exception {
+import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
+import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
+
+public class Addic7edException extends SubtitlesProviderException {
 
     private static final long serialVersionUID = -9050358290926245586L;
 
@@ -18,5 +21,10 @@ public class Addic7edException extends Exception {
 
     public Addic7edException(Throwable cause) {
         super(cause);
+    }
+
+    @Override
+    public String getSubtitleProvider() {
+        return SubtitleSource.ADDIC7ED.getName();
     }
 }

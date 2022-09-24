@@ -17,7 +17,7 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.util.StringUtils;
+import org.lodder.subtools.sublibrary.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,18 +46,24 @@ public class JSubsceneAdapter implements SubtitleProvider {
             if (release.getName().length() > 0) {
                 subtilteDescriptors = api.getSubtilteDescriptors(release.getName(), release.getSeason(), language);
             }
+        } catch (SubsceneException e) {
+            LOGGER.error("API Subscene searchSubtitles for serie [%s] and season [%s] (%s)"
+                    .formatted(release.getName(), release.getSeason(), e.getMessage()), e);
+        }
+        try {
             if (subtilteDescriptors.isEmpty() && release.getOriginalShowName().length() > 0) {
                 subtilteDescriptors = api.getSubtilteDescriptors(release.getOriginalShowName(), release.getSeason(), language);
             }
         } catch (SubsceneException e) {
-            LOGGER.error("API JSubscene searchSubtitles using title ", e);
+            LOGGER.error("API Subscene searchSubtitles for serie [%s] and season [%s] (%s)"
+                    .formatted(release.getOriginalShowName(), release.getSeason(), e.getMessage()), e);
         }
         return subtilteDescriptors.stream()
                 .filter(sub -> language == sub.getLanguage())
                 .filter(sub -> sub.getName().contains(getSeasonEpisodeString(release.getSeason(), release.getEpisodeNumbers().get(0))))
                 .map(sub -> Subtitle.downloadSource(sub.getUrlSupplier())
                         .subtitleSource(getSubtitleSource())
-                        .fileName(StringUtils.removeIllegalFilenameChars(sub.getName()))
+                        .fileName(StringUtil.removeIllegalFilenameChars(sub.getName()))
                         .language(sub.getLanguage())
                         .quality(ReleaseParser.getQualityKeyword(sub.getName()))
                         .subtitleMatchType(SubtitleMatchType.EVERYTHING)

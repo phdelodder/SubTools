@@ -64,10 +64,11 @@ import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.OsCheck;
 import org.lodder.subtools.sublibrary.OsCheck.OSType;
+import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.util.Files;
-import org.lodder.subtools.sublibrary.util.StringUtils;
+import org.lodder.subtools.sublibrary.util.StringUtil;
 import org.lodder.subtools.sublibrary.util.XmlFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -514,7 +515,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
                     filename = subtitle.getFileName() + ".srt";
                 }
                 if (OsCheck.getOperatingSystemType() == OSType.Windows) {
-                    filename = StringUtils.removeIllegalWindowsChars(filename);
+                    filename = StringUtil.removeIllegalWindowsChars(filename);
                 }
 
                 try {
@@ -526,9 +527,12 @@ public class GUI extends JFrame implements PropertyChangeListener {
                                 subtitle.getSourceLocation() == Subtitle.SourceLocation.URL ? subtitle.getUrl() : subtitle.getUrlSupplier().get();
                         manager.store(url, new File(path, filename));
                     }
-
                 } catch (IOException | ManagerException e) {
                     LOGGER.error("downloadText", e);
+                } catch (SubtitlesProviderException e) {
+                    LOGGER.error("Error while getting url for [%s] for subtitle provider [%s] (%s)".formatted(filename, e.getSubtitleProvider(),
+                            e.getMessage()), e);
+                    throw new RuntimeException(e);
                 }
             }
         }

@@ -86,4 +86,8 @@ public class Release extends Video {
     public String toString() {
         return this.getClass().getSimpleName() + ": " + this.getFileName() + " " + this.getQuality();
     }
+
+    public String getReleaseDescription() {
+        return file.getName();
+    }
 }

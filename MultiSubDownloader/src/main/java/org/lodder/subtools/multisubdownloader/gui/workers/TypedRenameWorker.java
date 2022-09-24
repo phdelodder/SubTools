@@ -15,7 +15,7 @@ import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.util.FilenameExtensionFilter;
-import org.lodder.subtools.sublibrary.util.StringUtils;
+import org.lodder.subtools.sublibrary.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
         setParameters(dir, librarySettings, videoType, isRecursive, manager);
         patterns =
                 new FilenameExtensionFilter(
-                        StringUtils.join(VideoPatterns.EXTENSIONS, new String[] { "srt" }));
+                        StringUtil.join(VideoPatterns.EXTENSIONS, new String[] { "srt" }));
     }
 
     public void setParameters(File dir, LibrarySettings librarySettings, VideoType videoType,

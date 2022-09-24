@@ -13,20 +13,16 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.ap
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.exception.OpenSubtitlesException;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.opensubtitles.invoker.ApiException;
 import org.opensubtitles.model.Latest200ResponseDataInnerAttributesFilesInner;
 import org.opensubtitles.model.SubtitleAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.pivovarit.function.ThrowingSupplier;
 
 public class JOpenSubAdapter implements SubtitleProvider {
 
@@ -43,7 +39,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
                 }
             }
         } catch (OpenSubtitlesException e) {
-            LOGGER.error("API OPENSUBTITLES INIT", e);
+            LOGGER.error("API OpenSubtitles INIT (%s)".formatted(e.getMessage()), e);
         }
     }
 
@@ -64,8 +60,9 @@ public class JOpenSubAdapter implements SubtitleProvider {
                             .language(language)
                             .searchSubtitles()
                             .getData().forEach(subtitles::add);
-                } catch (ApiException e) {
-                    LOGGER.error("API OPENSUBTITLES searchSubtitles using file hash", e);
+                } catch (OpenSubtitlesException e) {
+                    LOGGER.error("API OpenSubtitles searchSubtitles using file hash for movie [%s] (%s)".formatted(movieRelease.getName(),
+                            e.getMessage()), e);
                 } catch (IOException e) {
                     LOGGER.error("Error calculating file hash", e);
                 }
@@ -78,8 +75,9 @@ public class JOpenSubAdapter implements SubtitleProvider {
                         .language(language)
                         .searchSubtitles()
                         .getData().forEach(subtitles::add);
-            } catch (ApiException e) {
-                LOGGER.error("API OPENSUBTITLES searchSubtitles using imdbid", e);
+            } catch (OpenSubtitlesException e) {
+                LOGGER.error("API OpenSubtitles searchSubtitles using imdbid [%s] for movie [%s] (%s)".formatted(movieRelease.getImdbId(),
+                        movieRelease.getName(), e.getMessage()), e);
             }
         }
         if (subtitles.isEmpty()) {
@@ -89,8 +87,9 @@ public class JOpenSubAdapter implements SubtitleProvider {
                         .language(language)
                         .searchSubtitles()
                         .getData().forEach(subtitles::add);
-            } catch (ApiException e) {
-                LOGGER.error("API OPENSUBTITLES searchSubtitles using title", e);
+            } catch (OpenSubtitlesException e) {
+                LOGGER.error("API OpenSubtitles searchSubtitles using title for movie [%s] (%s)".formatted(movieRelease.getName(),
+                        movieRelease.getName(), e.getMessage()), e);
             }
         }
         return subtitles.stream().map(org.opensubtitles.model.Subtitle::getAttributes)
@@ -112,8 +111,9 @@ public class JOpenSubAdapter implements SubtitleProvider {
                             .language(language)
                             .searchSubtitles()
                             .getData().forEach(subtitles::add);
-                } catch (ApiException e) {
-                    LOGGER.error("API OPENSUBTITLES searchSubtitles using title", e);
+                } catch (OpenSubtitlesException e) {
+                    LOGGER.error("API OpenSubtitles searchSubtitles for serie [%s] (%s)"
+                            .formatted(TvRelease.formatName(tvRelease.getOriginalShowName(), tvRelease.getSeason(), episode), e.getMessage()), e);
                 }
             });
         }
@@ -127,8 +127,9 @@ public class JOpenSubAdapter implements SubtitleProvider {
                             .language(language)
                             .searchSubtitles()
                             .getData().forEach(subtitles::add);
-                } catch (ApiException e) {
-                    LOGGER.error("API OPENSUBTITLES searchSubtitles using title", e);
+                } catch (OpenSubtitlesException e) {
+                    LOGGER.error("API OpenSubtitles searchSubtitles for serie [%s] (%s)"
+                            .formatted(TvRelease.formatName(tvRelease.getName(), tvRelease.getSeason(), episode), e.getMessage()), e);
                 }
             });
         }
@@ -147,14 +148,7 @@ public class JOpenSubAdapter implements SubtitleProvider {
     }
 
     private Subtitle createSubtitle(Latest200ResponseDataInnerAttributesFilesInner file, SubtitleAttributes attributes) {
-        ThrowingSupplier<String, ManagerException> urlSupplier = () -> {
-            try {
-                return osApi.downloadSubtitle().fileId(file.getFileId().intValue()).download().getLink();
-            } catch (ApiException e) {
-                throw new ManagerException(e);
-            }
-        };
-        return Subtitle.downloadSource(urlSupplier)
+        return Subtitle.downloadSource(() -> osApi.downloadSubtitle().fileId(file.getFileId().intValue()).download().getLink())
                 .subtitleSource(getSubtitleSource())
                 .fileName(file.getFileName())
                 .language(Language.fromIdOptional(attributes.getLanguage()).orElse(null))

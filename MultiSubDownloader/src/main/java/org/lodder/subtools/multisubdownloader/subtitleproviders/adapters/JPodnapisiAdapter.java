@@ -8,10 +8,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.xmlrpc.XmlRpcException;
+import org.apache.commons.lang.StringUtils;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesHasher;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.JPodnapisiApi;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.exception.PodnapisiException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.model.PodnapisiSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
@@ -35,7 +36,7 @@ public class JPodnapisiAdapter implements SubtitleProvider {
                 jpapi = new JPodnapisiApi("JBierSubDownloader", manager);
             }
         } catch (Exception e) {
-            LOGGER.error("API PODNAPISI INIT", e.getCause());
+            LOGGER.error("API Podnapisi INIT", e.getCause());
         }
     }
 
@@ -52,28 +53,36 @@ public class JPodnapisiAdapter implements SubtitleProvider {
             if (file.exists()) {
                 try {
                     lSubtitles = jpapi.searchSubtitles(new String[] { OpenSubtitlesHasher.computeHash(file) }, language);
-                } catch (IOException | XmlRpcException e) {
-                    LOGGER.error("API PODNAPISI searchSubtitles using file hash", e);
+                } catch (PodnapisiException e) {
+                    LOGGER.error(
+                            "API Podnapisi searchSubtitles using file hash for movie [%s] (%s)".formatted(movieRelease.getName(), e.getMessage()),
+                            e);
+                } catch (IOException e) {
+                    LOGGER.error("Error calculating file hash", e);
                 }
             }
         }
         if (lSubtitles.size() == 0) {
-            lSubtitles.addAll(jpapi.searchSubtitles(movieRelease.getName(), movieRelease.getYear(), 0, 0, language));
+            try {
+                lSubtitles.addAll(jpapi.searchSubtitles(movieRelease.getName(), movieRelease.getYear(), 0, 0, language));
+            } catch (PodnapisiException e) {
+                LOGGER.error("API Podnapisi searchSubtitles using name for movie [%s] (%s)".formatted(movieRelease.getName(), e.getMessage()), e);
+            }
         }
         return buildListSubtitles(language, lSubtitles);
     }
 
     @Override
     public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
-
-        String showName = tvRelease.getOriginalShowName().length() > 0 ? tvRelease.getOriginalShowName() : tvRelease.getName();
-        List<PodnapisiSubtitleDescriptor> lSubtitles;
-        if (showName.length() > 0) {
-            lSubtitles = tvRelease.getEpisodeNumbers().stream()
-                    .flatMap(episode -> jpapi.searchSubtitles(showName, 0, tvRelease.getSeason(), episode, language).stream())
-                    .collect(Collectors.toList());
-        } else {
-            lSubtitles = new ArrayList<>();
+        String showName = StringUtils.isNotBlank(tvRelease.getOriginalShowName()) ? tvRelease.getOriginalShowName() : tvRelease.getName();
+        List<PodnapisiSubtitleDescriptor> lSubtitles = new ArrayList<>();
+        for (int episode : tvRelease.getEpisodeNumbers()) {
+            try {
+                jpapi.searchSubtitles(showName, 0, tvRelease.getSeason(), episode, language).forEach(lSubtitles::add);
+            } catch (PodnapisiException e) {
+                LOGGER.error("API Podnapisi searchSubtitles using name for serie [%s] (%s)"
+                        .formatted(TvRelease.formatName(tvRelease.getName(), tvRelease.getSeason(), episode), e.getMessage()), e);
+            }
         }
         return buildListSubtitles(language, lSubtitles);
     }

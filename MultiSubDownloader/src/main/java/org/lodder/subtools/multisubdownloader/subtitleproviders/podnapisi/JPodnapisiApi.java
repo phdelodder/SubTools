@@ -16,12 +16,12 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.xmlrpc.XmlRpcException;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.exception.PodnapisiException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.model.PodnapisiSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.ManagerException;
-import org.lodder.subtools.sublibrary.ManagerSetupException;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.XmlRPC;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
@@ -86,89 +86,96 @@ public class JPodnapisiApi extends XmlRPC {
     }
 
     @SuppressWarnings("unchecked")
-    public List<PodnapisiSubtitleDescriptor> searchSubtitles(String[] filehash, Language language) throws MalformedURLException, XmlRpcException {
-        checkLoginStatus();
-
-        List<PodnapisiSubtitleDescriptor> subtitles = new ArrayList<>();
-
-        Map<String, List<Map<String, String>>> response =
-                (Map<String, List<Map<String, String>>>) invoke("search", new Object[] { getToken(), filehash });
+    public List<PodnapisiSubtitleDescriptor> searchSubtitles(String[] filehash, Language language) throws PodnapisiException {
         try {
+            checkLoginStatus();
+            Map<String, List<Map<String, String>>> response =
+                    (Map<String, List<Map<String, String>>>) invoke("search", new Object[] { getToken(), filehash });
             List<Map<String, String>> subtitleData =
                     response.get("subtitles") == null ? new ArrayList<>() : (List<Map<String, String>>) response.get("subtitles");
 
-            subtitleData.stream()
+            return subtitleData.stream()
                     .filter(subtitle -> languageIdToLanguage(subtitle.get("LanguageCode")) == language)
                     .map(this::parsePodnapisiSubtitle)
-                    .forEach(subtitles::add);
+                    .toList();
         } catch (Exception e) {
-            LOGGER.error("API PODNAPISI searchSubtitles", e);
+            throw new PodnapisiException(e);
         }
-        return subtitles;
     }
 
-    public List<PodnapisiSubtitleDescriptor> searchSubtitles(String filename, int year, int season, int episode, Language language) {
-        StringBuilder url = new StringBuilder(DOMAIN + "/sl/ppodnapisi/search?sK=")
-                .append(URLEncoder.encode(filename, StandardCharsets.UTF_8));
-        if (PODNAPISI_LANGS.containsKey(language)) {
-            url.append("&sJ=").append(PODNAPISI_LANGS.get(language));
+    public List<PodnapisiSubtitleDescriptor> searchSubtitles(String filename, int year, int season, int episode, Language language)
+            throws PodnapisiException {
+        if (StringUtils.isBlank(filename)) {
+            return List.of();
         }
-        if (year > 0) {
-            url.append("&sY=").append(year);
-        }
-        if (season > 0) {
-            url.append("&sTS=").append(season).append("&sT=1"); // series
-        } else {
-            url.append("&sT=0"); // movies
-        }
-        if (episode > 0) {
-            url.append("&sTE=").append(episode);
-        }
-        url.append("&sXML=1");
+        try {
+            StringBuilder url = new StringBuilder(DOMAIN + "/sl/ppodnapisi/search?sK=")
+                    .append(URLEncoder.encode(filename, StandardCharsets.UTF_8));
+            if (PODNAPISI_LANGS.containsKey(language)) {
+                url.append("&sJ=").append(PODNAPISI_LANGS.get(language));
+            }
+            if (year > 0) {
+                url.append("&sY=").append(year);
+            }
+            if (season > 0) {
+                url.append("&sTS=").append(season).append("&sT=1"); // series
+            } else {
+                url.append("&sT=0"); // movies
+            }
+            if (episode > 0) {
+                url.append("&sTE=").append(episode);
+            }
+            url.append("&sXML=1");
 
-        return getXML(url.toString()).map(doc -> doc.getElementsByTagName("subtitle").stream()
-                .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
-                .filter(node -> "subtitle".equals(node.getNodeName()))
-                .map(Element.class::cast)
-                .map(this::parsePodnapisiSubtitle)
-                .collect(Collectors.toList()))
-                .orElseGet(List::of);
+            return getXML(url.toString()).map(doc -> doc.getElementsByTagName("subtitle").stream()
+                    .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
+                    .filter(node -> "subtitle".equals(node.getNodeName()))
+                    .map(Element.class::cast)
+                    .map(this::parsePodnapisiSubtitle)
+                    .collect(Collectors.toList()))
+                    .orElseGet(List::of);
+        } catch (Exception e) {
+            throw new PodnapisiException(e);
+        }
     }
 
     @SuppressWarnings("unchecked")
-    public String download(String subtitleId) throws MalformedURLException, XmlRpcException {
-        checkLoginStatus();
-
-        Map<?, ?> response = invoke("download", new Object[] { getToken(), subtitleId });
+    public String download(String subtitleId) throws PodnapisiException {
         try {
+            checkLoginStatus();
+
+            Map<?, ?> response = invoke("download", new Object[] { getToken(), subtitleId });
             List<Map<String, String>> data = (List<Map<String, String>>) response.get("names");
             return DOMAIN + "/static/podnapisi/" + data.get(0).get("filename");
         } catch (Exception e) {
-            LOGGER.error("API PODNAPISI download", e);
+            throw new PodnapisiException(e);
         }
-        return null;
     }
 
-    public Optional<String> downloadUrl(String subtitleId) throws ManagerSetupException, ManagerException {
-        String url = DOMAIN + "/en/ondertitels-p" + subtitleId;
-        String xml = manager.getPageContentBuilder().url(url).userAgent(getUserAgent()).cacheType(CacheType.NONE).get();
-        int downloadStartIndex = xml.indexOf("/download");
-        int startIndex = 0;
-        if (downloadStartIndex > 0) {
-            // get starting point of string
-            for (int i = downloadStartIndex; i > 0; i--) {
-                if (xml.charAt(i) == '=') {
-                    startIndex = i;
-                    break;
+    public Optional<String> downloadUrl(String subtitleId) throws PodnapisiException {
+        try {
+            String url = DOMAIN + "/en/ondertitels-p" + subtitleId;
+            String xml = manager.getPageContentBuilder().url(url).userAgent(getUserAgent()).cacheType(CacheType.NONE).get();
+            int downloadStartIndex = xml.indexOf("/download");
+            int startIndex = 0;
+            if (downloadStartIndex > 0) {
+                // get starting point of string
+                for (int i = downloadStartIndex; i > 0; i--) {
+                    if (xml.charAt(i) == '=') {
+                        startIndex = i;
+                        break;
+                    }
                 }
+                url = xml.substring(startIndex + 2, downloadStartIndex + 9);
+                return Optional.of(DOMAIN + "/" + url);
+            } else {
+                LOGGER.error("Download URL for subtitleID {} can't be found, set to debug for more information!", subtitleId);
+                LOGGER.debug("The URL {}", url);
+                LOGGER.debug("The Page {}", xml);
+                return Optional.empty();
             }
-            url = xml.substring(startIndex + 2, downloadStartIndex + 9);
-            return Optional.of(DOMAIN + "/" + url);
-        } else {
-            LOGGER.error("Download URL for subtitleID {} can't be found, set to debug for more information!", subtitleId);
-            LOGGER.debug("The URL {}", url);
-            LOGGER.debug("The Page {}", xml);
-            return Optional.empty();
+        } catch (Exception e) {
+            throw new PodnapisiException(e);
         }
     }
 
@@ -187,13 +194,12 @@ public class JPodnapisiApi extends XmlRPC {
         }
     }
 
-    protected Optional<Document> getXML(String url) {
+    protected Optional<Document> getXML(String url) throws PodnapisiException {
         try {
             return manager.getPageContentBuilder().url(url).userAgent(getUserAgent()).cacheType(CacheType.MEMORY).getAsDocument();
         } catch (Exception e) {
-            LOGGER.error("API PODNAPISI getXML", e);
+            throw new PodnapisiException(e);
         }
-        return Optional.empty();
     }
 
     private PodnapisiSubtitleDescriptor parsePodnapisiSubtitle(Element eElement) {

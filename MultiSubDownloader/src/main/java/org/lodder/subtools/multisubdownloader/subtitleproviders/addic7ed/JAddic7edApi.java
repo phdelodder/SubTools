@@ -24,19 +24,15 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.model.A
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
-import org.lodder.subtools.sublibrary.ManagerSetupException;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.Html;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod({ OptionalExtension.class })
 public class JAddic7edApi extends Html {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edApi.class);
     private final Pattern pattern = Pattern.compile("Version (.+), Duration: ([0-9]+).([0-9])+ ");
     private final static long RATEDURATION = 1; // seconds
     private static final String DOMAIN = "https://www.addic7ed.com";
@@ -63,10 +59,10 @@ public class JAddic7edApi extends Html {
         }
     }
 
-    public Optional<String> getAddictedSerieName(String name) throws ManagerSetupException {
+    public Optional<String> getAddictedSerieName(String name) throws Addic7edException {
         String formattedName = name.replace(":", "").replace("-", "").replace("_", " ").replace(" ", "").trim().toLowerCase();
 
-        return getValue(formattedName)
+        return getValue("Addic7ed-SerieName-" + formattedName)
                 .cacheType(CacheType.DISK)
                 .optionalValueSupplier(() -> resultStringForName(name)
                         .map(doc -> doc.select("#season td:not(.c) > a").stream()
@@ -81,8 +77,8 @@ public class JAddic7edApi extends Html {
                 .getOptional();
     }
 
-    public Optional<String> getAddictedMovieName(String name) throws RuntimeException, ManagerSetupException {
-        return getValue(name)
+    public Optional<String> getAddictedMovieName(String name) throws Addic7edException {
+        return getValue("Addic7ed-MovieName-" + name)
                 .cacheType(CacheType.DISK)
                 .optionalValueSupplier(
                         () -> resultStringForName(name).map(doc -> {
@@ -94,14 +90,15 @@ public class JAddic7edApi extends Html {
                 .getOptional();
     }
 
-    private Optional<Document> resultStringForName(String name) {
+    private Optional<Document> resultStringForName(String name) throws Addic7edException {
         String url = DOMAIN + "/search.php?search=" + URLEncoder.encode(name, StandardCharsets.UTF_8) + "&Submit=Search";
 
         return getContent(url, html -> html.contains("<b>0 results found</b>"))
                 .orElseMap(() -> name.contains(":") ? resultStringForName(name.replace(":", "")) : Optional.empty());
     }
 
-    public List<Addic7edSubtitleDescriptor> searchSubtitles(String showname, int season, int episode, String title, Language language) {
+    public List<Addic7edSubtitleDescriptor> searchSubtitles(String showname, int season, int episode, String title, Language language)
+            throws Addic7edException {
         // http://www.addic7ed.com/serie/Smallville/9/11/Absolute_Justice
         // String url = "https://www.addic7ed.com/serie/" + showname.toLowerCase().replace(" ", "_") + "/" + season
         // + "/" + episode + "/" + title.toLowerCase().replace(" ", "_").replace("#", "");
@@ -200,35 +197,11 @@ public class JAddic7edApi extends Html {
                         && StringUtils.equals(s.getVersion(), sub.getVersion()));
     }
 
-    // private Optional<String> getContent(String url) {
-    // try {
-    // if (!speedy && !this.isUrlCached(url)) {
-    // // if (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
-    // // LOGGER.info("RateLimiet is bereikt voor ADDIC7ed, gelieve {} sec te wachten", RATEDURATION);
-    // // }
-    // while (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
-    // try {
-    // // Pause for 1 seconds
-    // TimeUnit.SECONDS.sleep(1);
-    // } catch (InterruptedException e) {
-    // // restore interrupted status
-    // Thread.currentThread().interrupt();
-    // }
-    // }
-    // lastRequest = LocalDateTime.now();
-    // }
-    // return Optional.of(this.getHtml(url).cacheType(CacheType.NONE).get());
-    // } catch (ManagerException e) {
-    // LOGGER.error(e.getMessage(), e);
-    // }
-    // return Optional.empty();
-    // }
-
-    private Optional<Document> getContent(String url) {
+    private Optional<Document> getContent(String url) throws Addic7edException {
         return getContent(url, null);
     }
 
-    private Optional<Document> getContent(String url, Predicate<String> emptyResultPredicate) {
+    private Optional<Document> getContent(String url, Predicate<String> emptyResultPredicate) throws Addic7edException {
         try {
             if (!speedy && !this.isUrlCached(url)) {
                 // if (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
@@ -246,9 +219,8 @@ public class JAddic7edApi extends Html {
                 lastRequest = LocalDateTime.now();
             }
             return this.getHtml(url).cacheType(CacheType.NONE).getAsJsoupDocument(emptyResultPredicate);
-        } catch (ManagerException e) {
-            LOGGER.error(e.getMessage(), e);
+        } catch (Exception e) {
+            throw new Addic7edException(e);
         }
-        return Optional.empty();
     }
 }

@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.apache.commons.lang3.builder.EqualsExclude;
 import org.lodder.subtools.sublibrary.Language;
-import org.lodder.subtools.sublibrary.ManagerException;
+import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
 
 import com.pivovarit.function.ThrowingSupplier;
 
@@ -21,7 +21,7 @@ import lombok.Setter;
 @EqualsAndHashCode
 public class Subtitle {
     @EqualsExclude
-    private final ThrowingSupplier<String, ManagerException> urlSupplier;
+    private final ThrowingSupplier<String, ? extends SubtitlesProviderException> urlSupplier;
     private final String url;
     private final File file;
     private final SourceLocation sourceLocation;
@@ -54,7 +54,7 @@ public class Subtitle {
         URL, URL_SUPPLIER, FILE;
     }
 
-    private Subtitle(ThrowingSupplier<String, ManagerException> urlSupplier) {
+    private Subtitle(ThrowingSupplier<String, ? extends SubtitlesProviderException> urlSupplier) {
         this.urlSupplier = urlSupplier;
         this.url = null;
         this.file = null;
@@ -75,7 +75,7 @@ public class Subtitle {
         this.sourceLocation = SourceLocation.FILE;
     }
 
-    public static Subtitle downloadSource(ThrowingSupplier<String, ManagerException> urlSupplier) {
+    public static Subtitle downloadSource(ThrowingSupplier<String, ? extends SubtitlesProviderException> urlSupplier) {
         return new Subtitle(urlSupplier);
     }
 

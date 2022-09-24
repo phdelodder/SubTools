@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -165,8 +166,7 @@ public class Manager {
             } catch (MalformedURLException e) {
                 throw new ManagerException("incorrect url", e);
             } catch (HttpClientException e) {
-                throw new ManagerException("Error occured with httpclient response: " + e.getResponseCode()
-                        + " " + e.getResponseMessage());
+                throw new ManagerException("Error occured with httpclient response: %s %s".formatted(e.getResponseCode(), e.getResponseMessage()));
             } catch (IOException | HttpClientSetupException e) {
                 throw new ManagerException(e);
             }
@@ -193,12 +193,19 @@ public class Manager {
     public interface ValueBuilderValueSupplierIntf {
         <T extends Serializable, X extends Exception> ValueBuilderGetIntf<T, X> valueSupplier(ThrowingSupplier<T, X> valueSupplier);
 
+        <C extends Collection<T>, T extends Serializable, X extends Exception> ValueBuilderGetCollectionIntf<C, T, X>
+                collectionSupplier(Class<T> collectionValueType, ThrowingSupplier<C, X> valueSupplier);
+
         <T extends Serializable, X extends Exception> ValueBuilderGetOptionalIntf<T, X>
                 optionalValueSupplier(ThrowingSupplier<Optional<T>, X> valueSupplier);
     }
 
     public interface ValueBuilderGetIntf<T extends Serializable, X extends Exception> {
         T get() throws X;
+    }
+
+    public interface ValueBuilderGetCollectionIntf<C extends Collection<T>, T extends Serializable, X extends Exception> {
+        C getCollection() throws X;
     }
 
     public interface ValueBuilderGetOptionalIntf<T extends Serializable, X extends Exception> {
@@ -209,27 +216,35 @@ public class Manager {
     @Accessors(chain = true, fluent = true)
     @RequiredArgsConstructor
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static class ValueBuilder<T extends Serializable, X extends Exception>
+    public static class ValueBuilder<C extends Collection<T>, T extends Serializable, X extends Exception>
             implements ValueBuilderGetOptionalIntf<T, X>, ValueBuilderGetIntf<T, X>, ValueBuilderCacheTypeIntf,
-            ValueBuilderValueSupplierIntf, ValueBuilderKeyIntf {
+            ValueBuilderValueSupplierIntf, ValueBuilderKeyIntf, ValueBuilderGetCollectionIntf<C, T, X> {
         private final InMemoryCache inMemoryCache;
         private final DiskCache diskCache;
         private String key;
         private ThrowingSupplier<T, X> valueSupplier;
+        private ThrowingSupplier<C, X> collectionSupplier;
         private ThrowingSupplier<Optional<T>, X> optionalValueSupplier;
         private CacheType cacheType;
 
         @Override
-        public <S extends Serializable, E extends Exception> ValueBuilder<S, E> valueSupplier(ThrowingSupplier<S, E> valueSupplier) {
+        public <S extends Serializable, E extends Exception> ValueBuilder<C, S, E> valueSupplier(ThrowingSupplier<S, E> valueSupplier) {
             this.valueSupplier = (ThrowingSupplier<T, X>) valueSupplier;
-            return (ValueBuilder<S, E>) this;
+            return (ValueBuilder<C, S, E>) this;
         }
 
         @Override
-        public <S extends Serializable, E extends Exception> ValueBuilder<S, E>
+        public <S extends Serializable, E extends Exception> ValueBuilder<C, S, E>
                 optionalValueSupplier(ThrowingSupplier<Optional<S>, E> valueSupplier) {
             this.optionalValueSupplier = (ThrowingSupplier) valueSupplier;
-            return (ValueBuilder<S, E>) this;
+            return (ValueBuilder<C, S, E>) this;
+        }
+
+        @Override
+        public <L extends Collection<S>, S extends Serializable, E extends Exception> ValueBuilder<L, S, E>
+                collectionSupplier(Class<S> collectionValueType, ThrowingSupplier<L, E> collectionSupplier) {
+            this.collectionSupplier = (ThrowingSupplier<C, X>) collectionSupplier;
+            return (ValueBuilder<L, S, E>) this;
         }
 
         @Override
@@ -239,6 +254,22 @@ public class Manager {
                     case NONE -> valueSupplier.get();
                     case MEMORY -> (T) inMemoryCache.getOrPut(key, valueSupplier);
                     case DISK -> (T) diskCache.getOrPut(key, valueSupplier);
+                    default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
+                };
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                throw (X) e;
+            }
+        }
+
+        @Override
+        public C getCollection() throws X {
+            try {
+                return switch (cacheType) {
+                    case NONE -> collectionSupplier.get();
+                    case MEMORY -> (C) inMemoryCache.getOrPut(key, collectionSupplier);
+                    case DISK -> (C) diskCache.getOrPut(key, collectionSupplier);
                     default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
                 };
             } catch (RuntimeException e) {
@@ -266,6 +297,5 @@ public class Manager {
             value.ifPresent(v -> cache.put(key, v));
             return value;
         }
-
     }
 }

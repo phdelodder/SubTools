@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
 
@@ -25,6 +26,15 @@ public class TvRelease extends Release {
     // tvdb name
     private String originalShowName;
     private boolean special;
+
+    public String getNameWithSeasonEpisode() {
+        return formatName(name, season, episodeNumbers.isEmpty() ? -1 : episodeNumbers.get(0));
+    }
+
+    public static String formatName(String serieName, int season, int episode) {
+        return "%s S%sE%s".formatted(serieName, StringUtils.leftPad(String.valueOf(season), 2, "0"),
+                StringUtils.leftPad(String.valueOf(episode), 2, "0"));
+    }
 
     public interface TvReleaseBuilderShowName {
         TvReleaseBuilderSeason name(String name);
@@ -74,7 +84,6 @@ public class TvRelease extends Release {
         private String description;
         private String releaseGroup;
 
-
         @Override
         public TvReleaseBuilder episode(int episode) {
             this.episodes = List.of(episode);
@@ -120,5 +129,10 @@ public class TvRelease extends Release {
     public String toString() {
         return this.getClass().getSimpleName() + ": " + this.getName() + " s" + this.getSeason() + " e"
                 + this.getEpisodeNumbers().toString() + " " + this.getQuality() + " " + this.getReleaseGroup();
+    }
+
+    @Override
+    public String getReleaseDescription() {
+        return getNameWithSeasonEpisode();
     }
 }

@@ -66,53 +66,63 @@ public class SubsceneApi extends Html {
                                 .setUploader(row.select(".a5 > a").text().trim())
                                 .setComment(row.select(".a6 > div").text().trim()))
                         .toList();
-            } catch (ManagerException e) {
+            } catch (Exception e) {
                 throw new SubsceneException(e);
             }
         });
     }
 
-    private String getDownloadUrl(String seriePageUrl) throws ManagerException {
-        return DOMAIN + getHtml(seriePageUrl).cacheType(CacheType.NONE).getAsJsoupDocument().selectFirst("#downloadButton").attr("href");
+    private String getDownloadUrl(String seriePageUrl) throws SubsceneException {
+        try {
+            return DOMAIN + getHtml(seriePageUrl).cacheType(CacheType.NONE).getAsJsoupDocument().selectFirst("#downloadButton").attr("href");
+        } catch (ManagerException e) {
+            throw new SubsceneException(e);
+        }
     }
 
     private Optional<String> getUrlForSerie(String serieName, int season) throws SubsceneException {
-        return retry(() -> {
-            ThrowingSupplier<Optional<String>, SubsceneException> valueSupplier = () -> {
-                try {
-                    String url = DOMAIN + "/subtitles/searchbytitle?query=" + URLEncoder.encode(serieName, StandardCharsets.UTF_8);
-                    Element searchResultElement = getHtml(url).cacheType(CacheType.MEMORY).getAsJsoupDocument().selectFirst(".search-result");
-                    Pattern elementNamePattern = Pattern.compile("(.*) - (.*?) Season.*?");
-                    return searchResultElement.select("h2").stream()
-                            .filter(element -> "TV-Series".equals(element.text())).findFirst().stream()
-                            .map(Element::nextElementSibling)
-                            .flatMap(element -> element.select(".title a").stream())
-                            .filter(element -> {
-                                Matcher matcher = elementNamePattern.matcher(element.text());
-                                return matcher.matches() && StringUtils.equalsIgnoreCase(matcher.group(1), serieName)
-                                        && StringUtils.equalsIgnoreCase(matcher.group(2), getOrdinalName(season));
-                            })
-                            .map(element -> DOMAIN + element.attr("href")).findFirst();
-                } catch (ManagerException e) {
-                    if (e.getCause() != null && e.getCause() instanceof HttpClientException httpClientException) {
-                        throw new SubsceneException(e.getCause());
+        return retry(() -> getValue(IDENTIFIER + serieName + "_SEASON:" + season)
+                .cacheType(CacheType.MEMORY)
+                .optionalValueSupplier(() -> {
+                    try {
+                        String url = DOMAIN + "/subtitles/searchbytitle?query=" + URLEncoder.encode(serieName, StandardCharsets.UTF_8);
+                        Element searchResultElement =
+                                getHtml(url).cacheType(CacheType.MEMORY).getAsJsoupDocument().selectFirst(".search-result");
+                        Pattern elementNamePattern = Pattern.compile("(.*) - (.*?) Season.*?");
+                        return searchResultElement.select("h2").stream()
+                                .filter(element -> "TV-Series".equals(element.text())).findFirst().stream()
+                                .map(Element::nextElementSibling)
+                                .flatMap(element -> element.select(".title a").stream())
+                                .filter(element -> {
+                                    Matcher matcher = elementNamePattern.matcher(element.text());
+                                    return matcher.matches() && StringUtils.equalsIgnoreCase(matcher.group(1), serieName)
+                                            && StringUtils.equalsIgnoreCase(matcher.group(2), getOrdinalName(season));
+                                })
+                                .map(element -> DOMAIN + element.attr("href")).findFirst();
+                    } catch (Exception e) {
+                        if (e.getCause() != null && e.getCause() instanceof HttpClientException httpClientException) {
+                            throw new SubsceneException(e.getCause());
+                        }
+                        throw new SubsceneException(e);
                     }
-                    throw new SubsceneException(e);
-                }
-            };
-            return getValue(IDENTIFIER + serieName + "_SEASON:" + season)
-                    .cacheType(CacheType.MEMORY)
-                    .optionalValueSupplier(valueSupplier)
-                    .getOptional();
-        });
+                })
+                .getOptional());
     }
 
     private <T> T retry(ThrowingSupplier<T, SubsceneException> supplier) throws SubsceneException {
         try {
             return supplier.get();
         } catch (SubsceneException e) {
-            if (e.getCause() instanceof HttpClientException httpClientException
-                    && httpClientException != null && httpClientException.getResponseCode() == 409) {
+            Throwable cause = e.getCause();
+            while (cause instanceof SubsceneException) {
+                cause = cause.getCause();
+            }
+            if (cause == null) {
+                throw e;
+            }
+            if ((cause instanceof HttpClientException httpClientException
+                    && httpClientException != null && httpClientException.getResponseCode() == 409)
+                    || (cause instanceof ManagerException && cause.getMessage().contains("409 Conflict"))) {
                 LOGGER.info("RateLimiet is bereikt voor Subscene, gelieve {} sec te wachten", RATEDURATION_LONG);
                 sleepSeconds(RATEDURATION_LONG);
                 return supplier.get();
