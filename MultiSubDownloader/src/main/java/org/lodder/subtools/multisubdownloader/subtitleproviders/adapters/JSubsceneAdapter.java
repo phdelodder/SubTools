@@ -16,15 +16,30 @@ import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.StringUtil;
+import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JSubsceneAdapter extends AbstractAdapter<SubsceneSubtitleDescriptor, SubsceneException> {
 
-    private static SubsceneApi api;
+    private static final Logger LOGGER = LoggerFactory.getLogger(JSubsceneAdapter.class);
+    private static LazySupplier<SubsceneApi> api;
 
     public JSubsceneAdapter(Manager manager) {
         if (api == null) {
-            api = new SubsceneApi(manager);
+            api = new LazySupplier<>(() -> {
+                try {
+                    return new SubsceneApi(manager);
+                } catch (Exception e) {
+                    LOGGER.error("API Subscene INIT (%s)".formatted(e.getMessage()), e);
+                }
+                return null;
+            });
         }
+    }
+
+    private SubsceneApi getApi() {
+        return api.get();
     }
 
     @Override
@@ -59,7 +74,7 @@ public class JSubsceneAdapter extends AbstractAdapter<SubsceneSubtitleDescriptor
     @Override
     protected List<SubsceneSubtitleDescriptor> searchSerieSubtitles(String name, int season, int episode, Language language)
             throws SubsceneException {
-        return api.getSubtilteDescriptors(name, season, language);
+        return getApi().getSubtilteDescriptors(name, season, language);
     }
 
     @Override

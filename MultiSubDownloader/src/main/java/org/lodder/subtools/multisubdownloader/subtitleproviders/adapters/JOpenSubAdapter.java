@@ -16,6 +16,7 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
 import org.opensubtitles.model.Latest200ResponseDataInnerAttributesFilesInner;
 import org.opensubtitles.model.SubtitleAttributes;
 import org.slf4j.Logger;
@@ -23,21 +24,28 @@ import org.slf4j.LoggerFactory;
 
 public class JOpenSubAdapter extends AbstractAdapter<org.opensubtitles.model.Subtitle, OpenSubtitlesException> {
 
-    private static OpenSubtitlesApi osApi;
     private static final Logger LOGGER = LoggerFactory.getLogger(JOpenSubAdapter.class);
+    private static LazySupplier<OpenSubtitlesApi> osApi;
 
     public JOpenSubAdapter(boolean isLoginEnabled, String username, String password, Manager manager) {
-        try {
-            if (osApi == null) {
-                if (isLoginEnabled) {
-                    osApi = new OpenSubtitlesApi(username, password);
-                } else {
-                    osApi = new OpenSubtitlesApi();
+        if (osApi == null) {
+            osApi = new LazySupplier<>(() -> {
+                try {
+                    if (isLoginEnabled) {
+                        return new OpenSubtitlesApi(username, password);
+                    } else {
+                        return new OpenSubtitlesApi();
+                    }
+                } catch (OpenSubtitlesException e) {
+                    LOGGER.error("API OpenSubtitles INIT (%s)".formatted(e.getMessage()), e);
+                    return null;
                 }
-            }
-        } catch (OpenSubtitlesException e) {
-            LOGGER.error("API OpenSubtitles INIT (%s)".formatted(e.getMessage()), e);
+            });
         }
+    }
+
+    private OpenSubtitlesApi getApi() {
+        return osApi.get();
     }
 
     @Override
@@ -47,7 +55,7 @@ public class JOpenSubAdapter extends AbstractAdapter<org.opensubtitles.model.Sub
 
     @Override
     protected List<org.opensubtitles.model.Subtitle> searchMovieSubtitlesWithHash(String hash, Language language) throws OpenSubtitlesException {
-        return osApi.searchSubtitles()
+        return getApi().searchSubtitles()
                 .movieHash(hash)
                 .language(language)
                 .searchSubtitles()
@@ -56,7 +64,7 @@ public class JOpenSubAdapter extends AbstractAdapter<org.opensubtitles.model.Sub
 
     @Override
     protected List<org.opensubtitles.model.Subtitle> searchMovieSubtitlesWithId(int tvdbId, Language language) throws OpenSubtitlesException {
-        return osApi.searchSubtitles()
+        return getApi().searchSubtitles()
                 .imdbId(tvdbId)
                 .language(language)
                 .searchSubtitles()
@@ -66,7 +74,7 @@ public class JOpenSubAdapter extends AbstractAdapter<org.opensubtitles.model.Sub
     @Override
     protected List<org.opensubtitles.model.Subtitle> searchMovieSubtitlesWithName(String name, int year, Language language)
             throws OpenSubtitlesException {
-        return osApi.searchSubtitles()
+        return getApi().searchSubtitles()
                 .query(name)
                 .language(language)
                 .searchSubtitles()
@@ -81,11 +89,10 @@ public class JOpenSubAdapter extends AbstractAdapter<org.opensubtitles.model.Sub
                 .collect(Collectors.toSet());
     }
 
-
     @Override
     protected List<org.opensubtitles.model.Subtitle> searchSerieSubtitles(String name, int season, int episode, Language language)
             throws OpenSubtitlesException {
-        return osApi.searchSubtitles()
+        return getApi().searchSubtitles()
                 .query(name)
                 .season(season)
                 .episode(episode)
@@ -109,7 +116,7 @@ public class JOpenSubAdapter extends AbstractAdapter<org.opensubtitles.model.Sub
     }
 
     private Subtitle createSubtitle(Latest200ResponseDataInnerAttributesFilesInner file, SubtitleAttributes attributes) {
-        return Subtitle.downloadSource(() -> osApi.downloadSubtitle().fileId(file.getFileId().intValue()).download().getLink())
+        return Subtitle.downloadSource(() -> getApi().downloadSubtitle().fileId(file.getFileId().intValue()).download().getLink())
                 .subtitleSource(getSubtitleSource())
                 .fileName(file.getFileName())
                 .language(Language.fromIdOptional(attributes.getLanguage()).orElse(null))

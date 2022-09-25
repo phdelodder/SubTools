@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.data.tvdb.JTheTvdbAdapter;
+import org.lodder.subtools.sublibrary.data.tvdb.TheTvdbAdapter;
 import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
@@ -17,7 +17,7 @@ import lombok.experimental.ExtensionMethod;
 @ExtensionMethod({ OptionalExtension.class })
 public class TvReleaseControl extends ReleaseControl {
 
-    private final JTheTvdbAdapter jtvdba;
+    private final TheTvdbAdapter jtvdba;
     private final TvRelease tvRelease;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TvReleaseControl.class);
@@ -25,7 +25,7 @@ public class TvReleaseControl extends ReleaseControl {
     public TvReleaseControl(TvRelease tvRelease, Settings settings, Manager manager) {
         super(settings, manager);
         this.tvRelease = tvRelease;
-        this.jtvdba = JTheTvdbAdapter.getAdapter(manager);
+        this.jtvdba = TheTvdbAdapter.getInstance(manager);
     }
 
     @Override

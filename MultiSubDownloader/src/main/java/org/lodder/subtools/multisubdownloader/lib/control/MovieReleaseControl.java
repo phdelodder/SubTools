@@ -28,8 +28,8 @@ public class MovieReleaseControl extends ReleaseControl {
     public MovieReleaseControl(MovieRelease movieRelease, Settings settings, Manager manager) {
         super(settings, manager);
         this.movieRelease = movieRelease;
-        imdbAdapter = new ImdbAdapter(manager);
-        omdbAdapter = new OmdbAdapter(manager);
+        this.imdbAdapter = ImdbAdapter.getInstance(manager);
+        this.omdbAdapter = OmdbAdapter.getInstance(manager);
     }
 
     @Override

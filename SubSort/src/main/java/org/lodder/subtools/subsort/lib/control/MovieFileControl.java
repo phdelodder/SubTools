@@ -24,8 +24,8 @@ public class MovieFileControl extends VideoFileControl {
 
     public MovieFileControl(MovieRelease movieRelease, Manager manager) throws ReleaseControlException {
         super(movieRelease);
-        imdbAdapter = new ImdbAdapter(manager);
-        omdbAdapter = new OmdbAdapter(manager);
+        imdbAdapter = ImdbAdapter.getInstance(manager);
+        omdbAdapter = OmdbAdapter.getInstance(manager);
         process(movieRelease);
     }
 

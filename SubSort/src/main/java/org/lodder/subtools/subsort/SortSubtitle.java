@@ -24,7 +24,7 @@ import org.lodder.subtools.sublibrary.cache.DiskCache;
 import org.lodder.subtools.sublibrary.cache.InMemoryCache;
 import org.lodder.subtools.sublibrary.cache.SerializableDiskCache;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
-import org.lodder.subtools.sublibrary.data.tvdb.JTheTvdbAdapter;
+import org.lodder.subtools.sublibrary.data.tvdb.TheTvdbAdapter;
 import org.lodder.subtools.sublibrary.exception.ControlFactoryException;
 import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.exception.ReleaseParseException;
@@ -91,7 +91,7 @@ public class SortSubtitle {
     }
 
     private void setTvdbInfo(TvRelease tvRelease) {
-        JTheTvdbAdapter.getAdapter(manager).getSerie(tvRelease.getName()).ifPresent(tvdbSerie -> {
+        TheTvdbAdapter.getInstance(manager).getSerie(tvRelease.getName()).ifPresent(tvdbSerie -> {
             tvRelease.setTvdbId(Integer.parseInt(tvdbSerie.getId()));
             tvRelease.setOriginalName(tvdbSerie.getSerieName());
         });

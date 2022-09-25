@@ -16,22 +16,30 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDescriptor, TvSubtiltesException> {
 
-    private static JTVSubtitlesApi jtvapi;
+    private static LazySupplier<JTVSubtitlesApi> jtvapi;
     private static final Logger LOGGER = LoggerFactory.getLogger(JTVsubtitlesAdapter.class);
 
     public JTVsubtitlesAdapter(Manager manager) {
-        try {
-            if (jtvapi == null) {
-                jtvapi = new JTVSubtitlesApi(manager);
-            }
-        } catch (Exception e) {
-            LOGGER.error("API JTVsubtitles INIT", e);
+        if (jtvapi == null) {
+            jtvapi = new LazySupplier<>(() -> {
+                try {
+                    return new JTVSubtitlesApi(manager);
+                } catch (Exception e) {
+                    LOGGER.error("API TVsubtitles INIT (%s)".formatted(e.getMessage()), e);
+                }
+                return null;
+            });
         }
+    }
+
+    private JTVSubtitlesApi getApi() {
+        return jtvapi.get();
     }
 
     @Override
@@ -67,7 +75,7 @@ public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDesc
     @Override
     protected Set<TVsubtitlesSubtitleDescriptor> searchSerieSubtitles(String name, int season, int episode, Language language)
             throws TvSubtiltesException {
-        return jtvapi.searchSubtitles(name, season, episode, language);
+        return getApi().searchSubtitles(name, season, episode, language);
     }
 
     @Override

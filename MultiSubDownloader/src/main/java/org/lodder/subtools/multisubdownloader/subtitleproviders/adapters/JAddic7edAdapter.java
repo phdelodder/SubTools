@@ -27,22 +27,24 @@ import lombok.experimental.ExtensionMethod;
 @ExtensionMethod({ OptionalExtension.class })
 public class JAddic7edAdapter extends AbstractAdapter<Addic7edSubtitleDescriptor, Addic7edException> {
 
-    private static LazySupplier<JAddic7edApi> jaapi;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edAdapter.class);
+    private static LazySupplier<JAddic7edApi> jaapi;
 
     public JAddic7edAdapter(boolean isLoginEnabled, String username, String password, boolean speedy, Manager manager) {
         if (jaapi == null) {
-            jaapi = new LazySupplier<>(
-                    () -> {
-                        try {
-                            return isLoginEnabled ? new JAddic7edApi(username, password, speedy, manager) : new JAddic7edApi(speedy, manager);
-                        } catch (Addic7edException e) {
-                            LOGGER.error("API Addic7ed INIT (%s)".formatted(e.getMessage()), e);
-                        }
-                        return null;
-                    });
+            jaapi = new LazySupplier<>(() -> {
+                try {
+                    return isLoginEnabled ? new JAddic7edApi(username, password, speedy, manager) : new JAddic7edApi(speedy, manager);
+                } catch (Exception e) {
+                    LOGGER.error("API Addic7ed INIT (%s)".formatted(e.getMessage()), e);
+                }
+                return null;
+            });
         }
+    }
+
+    private JAddic7edApi getApi() {
+        return jaapi.get();
     }
 
     @Override
@@ -78,7 +80,7 @@ public class JAddic7edAdapter extends AbstractAdapter<Addic7edSubtitleDescriptor
     @Override
     protected List<Addic7edSubtitleDescriptor> searchSerieSubtitles(String name, int season, int episode, Language language)
             throws Addic7edException {
-        return jaapi.get().searchSubtitles(name, season, episode, language);
+        return getApi().searchSubtitles(name, season, episode, language);
     }
 
     @Override

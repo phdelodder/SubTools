@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.data.tvdb.JTheTvdbAdapter;
+import org.lodder.subtools.sublibrary.data.tvdb.TheTvdbAdapter;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbSerie;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
@@ -23,7 +23,7 @@ public abstract class LibraryBuilder {
 
     protected String getShowName(String name) {
         if (librarySettings.isLibraryUseTVDBNaming()) {
-            return JTheTvdbAdapter.getAdapter(manager).getSerie(name).map(TheTvdbSerie::getSerieName).orElse(name);
+            return TheTvdbAdapter.getInstance(manager).getSerie(name).map(TheTvdbSerie::getSerieName).orElse(name);
         } else {
             return name;
         }

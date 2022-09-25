@@ -16,22 +16,30 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JPodnapisiAdapter extends AbstractAdapter<PodnapisiSubtitleDescriptor, PodnapisiException> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JPodnapisiAdapter.class);
-    private static JPodnapisiApi jpapi;
+    private static LazySupplier<JPodnapisiApi> jpapi;
 
     public JPodnapisiAdapter(Manager manager) {
-        try {
-            if (jpapi == null) {
-                jpapi = new JPodnapisiApi("JBierSubDownloader", manager);
-            }
-        } catch (Exception e) {
-            LOGGER.error("API Podnapisi INIT", e.getCause());
+        if (jpapi == null) {
+            jpapi = new LazySupplier<>(() -> {
+                try {
+                    return new JPodnapisiApi("JBierSubDownloader", manager);
+                } catch (Exception e) {
+                    LOGGER.error("API Podnapisi INIT (%s)".formatted(e.getMessage()), e);
+                }
+                return null;
+            });
         }
+    }
+
+    private JPodnapisiApi getApi() {
+        return jpapi.get();
     }
 
     @Override
@@ -42,7 +50,7 @@ public class JPodnapisiAdapter extends AbstractAdapter<PodnapisiSubtitleDescript
 
     @Override
     protected List<PodnapisiSubtitleDescriptor> searchMovieSubtitlesWithHash(String hash, Language language) throws PodnapisiException {
-        return jpapi.searchSubtitles(new String[] { hash}, language);
+        return getApi().searchSubtitles(new String[] { hash }, language);
     }
 
     @Override
@@ -52,7 +60,7 @@ public class JPodnapisiAdapter extends AbstractAdapter<PodnapisiSubtitleDescript
 
     @Override
     protected List<PodnapisiSubtitleDescriptor> searchMovieSubtitlesWithName(String name, int year, Language language) throws PodnapisiException {
-        return jpapi.searchSubtitles(name, year, 0, 0, language);
+        return getApi().searchSubtitles(name, year, 0, 0, language);
     }
 
     @Override
@@ -64,7 +72,7 @@ public class JPodnapisiAdapter extends AbstractAdapter<PodnapisiSubtitleDescript
     @Override
     protected List<PodnapisiSubtitleDescriptor> searchSerieSubtitles(String name, int season, int episode, Language language)
             throws PodnapisiException {
-        return jpapi.searchSubtitles(name, 0, season, episode, language);
+        return getApi().searchSubtitles(name, 0, season, episode, language);
     }
 
     @Override
