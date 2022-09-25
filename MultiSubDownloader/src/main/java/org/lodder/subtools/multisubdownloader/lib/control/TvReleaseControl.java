@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.lib.control;
 
+import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.lib.JTVRageAdapter;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
@@ -32,7 +33,28 @@ public class TvReleaseControl extends ReleaseControl {
         this.tvra = new JTVRageAdapter(manager);
     }
 
+    @Override
+    public void process() throws ReleaseControlException {
+        // return episodeFile;
+        if (StringUtils.isBlank(tvRelease.getName())) {
+            throw new ReleaseControlException("Unable to extract episode details, check file", tvRelease);
+        } else {
+            LOGGER.debug("process: showname [{}], season [{}], episode [{}]", tvRelease.getName(),
+                    tvRelease.getSeason(), tvRelease.getEpisodeNumbers());
+
+            if (tvRelease.isSpecial()) {
+                processSpecial();
+            } else {
+                if (SettingsProcessEpisodeSource.TVRAGE.equals(getSettings().getProcessEpisodeSource())) {
+                    processTVRage();
+                }
+                processTvdb();
+            }
+        }
+    }
+
     public void processTvdb() throws ReleaseControlException {
+        setTvdbId();
         if (tvRelease.getTvdbId() > 0) {
             jtvdba.getEpisode(tvRelease.getTvdbId(), tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0))
                     .ifPresentOrThrow(tvRelease::updateTvdbEpisodeInfo,
@@ -49,26 +71,6 @@ public class TvReleaseControl extends ReleaseControl {
                 .ifPresentDo(tvRelease::updateTVRageEpisodeInfo)
                 .orElseThrow(() -> new ReleaseControlException("Season " + tvRelease.getSeason() + " Episode "
                         + tvRelease.getEpisodeNumbers().toString() + "not found, check file", tvRelease));
-    }
-
-    @Override
-    public void process() throws ReleaseControlException {
-        // return episodeFile;
-        if ("".equals(tvRelease.getName())) {
-            throw new ReleaseControlException("Unable to extract episode details, check file", tvRelease);
-        } else {
-            LOGGER.debug("process: showname [{}], season [{}], episode [{}]", tvRelease.getName(),
-                    tvRelease.getSeason(), tvRelease.getEpisodeNumbers());
-
-            if (tvRelease.isSpecial()) {
-                processSpecial();
-            } else {
-                if (SettingsProcessEpisodeSource.TVRAGE.equals(getSettings().getProcessEpisodeSource())) {
-                    processTVRage();
-                }
-                processTvdb();
-            }
-        }
     }
 
     private void processSpecial() {
