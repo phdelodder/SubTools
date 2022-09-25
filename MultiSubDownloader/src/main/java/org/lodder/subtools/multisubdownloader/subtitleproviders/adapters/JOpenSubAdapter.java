@@ -1,14 +1,11 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
-import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
-import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesHasher;
+import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.OpenSubtitlesApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.exception.OpenSubtitlesException;
 import org.lodder.subtools.sublibrary.Language;
@@ -24,7 +21,7 @@ import org.opensubtitles.model.SubtitleAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JOpenSubAdapter implements SubtitleProvider {
+public class JOpenSubAdapter extends AbstractAdapter<org.opensubtitles.model.Subtitle, OpenSubtitlesException> {
 
     private static OpenSubtitlesApi osApi;
     private static final Logger LOGGER = LoggerFactory.getLogger(JOpenSubAdapter.class);
@@ -49,99 +46,63 @@ public class JOpenSubAdapter implements SubtitleProvider {
     }
 
     @Override
-    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
-        Set<org.opensubtitles.model.Subtitle> subtitles = new HashSet<>();
-        if (!"".equals(movieRelease.getFileName())) {
-            File file = new File(movieRelease.getPath(), movieRelease.getFileName());
-            if (file.exists()) {
-                try {
-                    osApi.searchSubtitles()
-                            .movieHash(OpenSubtitlesHasher.computeHash(file))
-                            .language(language)
-                            .searchSubtitles()
-                            .getData().forEach(subtitles::add);
-                } catch (OpenSubtitlesException e) {
-                    LOGGER.error("API OpenSubtitles searchSubtitles using file hash for movie [%s] (%s)".formatted(movieRelease.getName(),
-                            e.getMessage()), e);
-                } catch (IOException e) {
-                    LOGGER.error("Error calculating file hash", e);
-                }
-            }
-        }
-        if (movieRelease.getImdbId() != 0) {
-            try {
-                osApi.searchSubtitles()
-                        .imdbId(movieRelease.getImdbId())
-                        .language(language)
-                        .searchSubtitles()
-                        .getData().forEach(subtitles::add);
-            } catch (OpenSubtitlesException e) {
-                LOGGER.error("API OpenSubtitles searchSubtitles using imdbid [%s] for movie [%s] (%s)".formatted(movieRelease.getImdbId(),
-                        movieRelease.getName(), e.getMessage()), e);
-            }
-        }
-        if (subtitles.isEmpty()) {
-            try {
-                osApi.searchSubtitles()
-                        .query(movieRelease.getName())
-                        .language(language)
-                        .searchSubtitles()
-                        .getData().forEach(subtitles::add);
-            } catch (OpenSubtitlesException e) {
-                LOGGER.error("API OpenSubtitles searchSubtitles using title for movie [%s] (%s)".formatted(movieRelease.getName(),
-                        movieRelease.getName(), e.getMessage()), e);
-            }
-        }
+    protected List<org.opensubtitles.model.Subtitle> searchMovieSubtitlesWithHash(String hash, Language language) throws OpenSubtitlesException {
+        return osApi.searchSubtitles()
+                .movieHash(hash)
+                .language(language)
+                .searchSubtitles()
+                .getData();
+    }
+
+    @Override
+    protected List<org.opensubtitles.model.Subtitle> searchMovieSubtitlesWithId(int tvdbId, Language language) throws OpenSubtitlesException {
+        return osApi.searchSubtitles()
+                .imdbId(tvdbId)
+                .language(language)
+                .searchSubtitles()
+                .getData();
+    }
+
+    @Override
+    protected List<org.opensubtitles.model.Subtitle> searchMovieSubtitlesWithName(String name, int year, Language language)
+            throws OpenSubtitlesException {
+        return osApi.searchSubtitles()
+                .query(name)
+                .language(language)
+                .searchSubtitles()
+                .getData();
+    }
+
+    @Override
+    protected Set<Subtitle> convertToSubtitles(MovieRelease movieRelease, Set<org.opensubtitles.model.Subtitle> subtitles, Language language) {
         return subtitles.stream().map(org.opensubtitles.model.Subtitle::getAttributes)
                 .filter(attributes -> movieRelease.getYear() == attributes.getFeatureDetails().getYear().intValue())
                 .flatMap(attributes -> attributes.getFiles().stream().map(file -> createSubtitle(file, attributes)))
                 .collect(Collectors.toSet());
     }
 
-    @Override
-    public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
-        Set<org.opensubtitles.model.Subtitle> subtitles = new HashSet<>();
-        if (tvRelease.getOriginalShowName().length() > 0) {
-            tvRelease.getEpisodeNumbers().forEach(episode -> {
-                try {
-                    osApi.searchSubtitles()
-                            .query(tvRelease.getOriginalShowName())
-                            .season(tvRelease.getSeason())
-                            .episode(episode)
-                            .language(language)
-                            .searchSubtitles()
-                            .getData().forEach(subtitles::add);
-                } catch (OpenSubtitlesException e) {
-                    LOGGER.error("API OpenSubtitles searchSubtitles for serie [%s] (%s)"
-                            .formatted(TvRelease.formatName(tvRelease.getOriginalShowName(), tvRelease.getSeason(), episode), e.getMessage()), e);
-                }
-            });
-        }
-        if (tvRelease.getOriginalShowName().length() == 0 || !tvRelease.getOriginalShowName().equalsIgnoreCase(tvRelease.getName())) {
-            tvRelease.getEpisodeNumbers().forEach(episode -> {
-                try {
-                    osApi.searchSubtitles()
-                            .query(tvRelease.getName())
-                            .season(tvRelease.getSeason())
-                            .episode(episode)
-                            .language(language)
-                            .searchSubtitles()
-                            .getData().forEach(subtitles::add);
-                } catch (OpenSubtitlesException e) {
-                    LOGGER.error("API OpenSubtitles searchSubtitles for serie [%s] (%s)"
-                            .formatted(TvRelease.formatName(tvRelease.getName(), tvRelease.getSeason(), episode), e.getMessage()), e);
-                }
-            });
-        }
 
+    @Override
+    protected List<org.opensubtitles.model.Subtitle> searchSerieSubtitles(String name, int season, int episode, Language language)
+            throws OpenSubtitlesException {
+        return osApi.searchSubtitles()
+                .query(name)
+                .season(season)
+                .episode(episode)
+                .language(language)
+                .searchSubtitles()
+                .getData();
+    }
+
+    @Override
+    protected Set<Subtitle> convertToSubtitles(TvRelease tvRelease, Set<org.opensubtitles.model.Subtitle> subtitles, Language language) {
         String name = tvRelease.getName().replaceAll("[^A-Za-z]", "").toLowerCase();
         String originalName = tvRelease.getOriginalShowName().replaceAll("[^A-Za-z]", "").toLowerCase();
-
         return subtitles.stream().map(org.opensubtitles.model.Subtitle::getAttributes)
                 .flatMap(attributes -> attributes.getFiles().stream()
                         .filter(file -> {
                             String subFileName = file.getFileName().replaceAll("[^A-Za-z]", "").toLowerCase();
-                            return subFileName.contains(name) || originalName.length() > 0 && subFileName.contains(originalName);
+                            return subFileName.contains(name) || StringUtils.isNotBlank(originalName) && subFileName.contains(originalName);
                         })
                         .map(file -> createSubtitle(file, attributes)))
                 .collect(Collectors.toSet());

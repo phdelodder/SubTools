@@ -29,12 +29,15 @@ import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.Html;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod({ OptionalExtension.class })
 public class JAddic7edApi extends Html implements SubtitleApi {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edApi.class);
     private final Pattern pattern = Pattern.compile("Version (.+), Duration: ([0-9]+).([0-9])+ ");
     private final static long RATEDURATION = 1; // seconds
     private static final String DOMAIN = "https://www.addic7ed.com";
@@ -61,7 +64,7 @@ public class JAddic7edApi extends Html implements SubtitleApi {
         }
     }
 
-    public Optional<String> getAddictedSerieName(String name) throws Addic7edException {
+    private Optional<String> getAddictedSerieName(String name) throws Addic7edException {
         String formattedName = name.replace(":", "").replace("-", "").replace("_", " ").replace(" ", "").trim().toLowerCase();
 
         return getValue("%s-SerieName-".formatted(getSubtitleSource().name(), formattedName))
@@ -79,7 +82,7 @@ public class JAddic7edApi extends Html implements SubtitleApi {
                 .getOptional();
     }
 
-    public Optional<String> getAddictedMovieName(String name) throws Addic7edException {
+    private Optional<String> getAddictedMovieName(String name) throws Addic7edException {
         return getValue("%s-MovieName-".formatted(getSubtitleSource().name(), name))
                 .cacheType(CacheType.DISK)
                 .optionalSupplier(
@@ -99,13 +102,23 @@ public class JAddic7edApi extends Html implements SubtitleApi {
                 .orElseMap(() -> name.contains(":") ? resultStringForName(name.replace(":", "")) : Optional.empty());
     }
 
-    public List<Addic7edSubtitleDescriptor> searchSubtitles(String showname, int season, int episode, String title, Language language)
+    public List<Addic7edSubtitleDescriptor> searchSubtitles(String showName, int season, int episode, Language language)
             throws Addic7edException {
         // http://www.addic7ed.com/serie/Smallville/9/11/Absolute_Justice
         // String url = "https://www.addic7ed.com/serie/" + showname.toLowerCase().replace(" ", "_") + "/" + season
         // + "/" + episode + "/" + title.toLowerCase().replace(" ", "_").replace("#", "");
+        String serieName = showName;
+        try {
+            if (StringUtils.isNotBlank(showName)) {
+                showName = getAddictedSerieName(showName).orElse(showName);
+            } else {
+                return List.of();
+            }
+        } catch (Addic7edException e) {
+            LOGGER.error("API Addic7ed getAddictedSerieName for serie [%s] (%s)".formatted(serieName, e.getMessage()), e);
+        }
 
-        StringBuilder url = new StringBuilder(DOMAIN + "/serie/").append(showname.toLowerCase().replace(" ", "_")).append("/")
+        StringBuilder url = new StringBuilder(DOMAIN + "/serie/").append(serieName.toLowerCase().replace(" ", "_")).append("/")
                 .append(season).append("/").append(episode).append("/");
         List<LanguageId> languageIds = LanguageId.forLanguage(language);
         url.append(languageIds.size() == 1 ? languageIds.get(0).getId() : LanguageId.ALL.getId());

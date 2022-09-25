@@ -1,12 +1,10 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.JTVSubtitlesApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.exception.TvSubtiltesException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.model.TVsubtitlesSubtitleDescriptor;
@@ -21,7 +19,7 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JTVsubtitlesAdapter implements SubtitleProvider {
+public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDescriptor, TvSubtiltesException> {
 
     private static JTVSubtitlesApi jtvapi;
     private static final Logger LOGGER = LoggerFactory.getLogger(JTVsubtitlesAdapter.class);
@@ -42,28 +40,39 @@ public class JTVsubtitlesAdapter implements SubtitleProvider {
     }
 
     @Override
-    public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
-        Set<TVsubtitlesSubtitleDescriptor> lSubtitles = new HashSet<>();
-        String showName = StringUtils.isNotBlank(tvRelease.getOriginalShowName()) ? tvRelease.getOriginalShowName() : tvRelease.getName();
+    protected List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithHash(String hash, Language language) throws TvSubtiltesException {
+        // TODO implement this
+        return List.of();
+    }
 
-        if (StringUtils.isNotBlank(showName)) {
-            if (showName.contains("(") && showName.contains(")")) {
-                String alterName = showName.substring(0, showName.indexOf("(") - 1).trim();
-                try {
-                    lSubtitles = jtvapi.searchSubtitles(alterName, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0), language);
-                } catch (TvSubtiltesException e) {
-                    LOGGER.error("API TVSubtitles searchSubtitles using name for serie [%s] (%s)".formatted(
-                            TvRelease.formatName(alterName, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0)), e.getMessage()), e);
-                }
-            }
-            try {
-                lSubtitles.addAll(jtvapi.searchSubtitles(showName, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0), language));
-            } catch (TvSubtiltesException e) {
-                LOGGER.error("API TVSubtitles searchSubtitles using name for serie [%s] (%s)".formatted(
-                        TvRelease.formatName(showName, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0)), e.getMessage()), e);
-            }
-        }
-        return lSubtitles.stream()
+    @Override
+    protected List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithId(int tvdbId, Language language) throws TvSubtiltesException {
+        // TODO implement this
+        return List.of();
+    }
+
+    @Override
+    protected List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithName(String name, int year, Language language)
+            throws TvSubtiltesException {
+        // TODO implement this
+        return List.of();
+    }
+
+    @Override
+    protected Set<Subtitle> convertToSubtitles(MovieRelease movieRelease, Set<TVsubtitlesSubtitleDescriptor> subtitles, Language language) {
+        // TODO implement this
+        return Set.of();
+    }
+
+    @Override
+    protected Set<TVsubtitlesSubtitleDescriptor> searchSerieSubtitles(String name, int season, int episode, Language language)
+            throws TvSubtiltesException {
+        return jtvapi.searchSubtitles(name, season, episode, language);
+    }
+
+    @Override
+    protected Set<Subtitle> convertToSubtitles(TvRelease tvRelease, Set<TVsubtitlesSubtitleDescriptor> subtitles, Language language) {
+        return subtitles.stream()
                 .map(sub -> Subtitle.downloadSource(sub.getUrl())
                         .subtitleSource(getSubtitleSource())
                         .fileName(sub.getFilename())
@@ -75,11 +84,4 @@ public class JTVsubtitlesAdapter implements SubtitleProvider {
                         .hearingImpaired(false))
                 .collect(Collectors.toSet());
     }
-
-    @Override
-    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
-        // TODO Auto-generated method stub
-        return Set.of();
-    }
-
 }
