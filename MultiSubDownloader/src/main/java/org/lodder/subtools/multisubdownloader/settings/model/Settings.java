@@ -8,8 +8,7 @@ import java.util.Map;
 
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
-import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
-import org.lodder.subtools.sublibrary.settings.model.MappingSettings;
+import org.lodder.subtools.sublibrary.model.SubtitleSource;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -46,9 +45,7 @@ public class Settings {
     private boolean serieSourceOpensubtitles = true;
     private boolean serieSourceLocal = true;
     private boolean serieSourceSubscene = true;
-    private boolean autoUpdateMapping;
     private SettingsProcessEpisodeSource processEpisodeSource = SettingsProcessEpisodeSource.TVDB;
-    private MappingSettings mappingSettings = new MappingSettings();
     private Map<String, Integer> sortWeights;
     private Language subtitleLanguage;
     private boolean optionsMinAutomaticSelection;

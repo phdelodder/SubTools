@@ -1,13 +1,13 @@
 package org.lodder.subtools.multisubdownloader.gui;
 
-import java.awt.event.ActionListener;
-
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
 import org.lodder.subtools.multisubdownloader.Messages;
+
+import java.awt.event.ActionListener;
 
 public class Menu extends JMenuBar {
 

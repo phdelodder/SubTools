@@ -11,10 +11,12 @@ public class InMemoryCacheTest {
 
     @Test
     public void testAddRemoveObjects() {
-        // Test with timeToLiveInSeconds = 200 seconds
-        // timerIntervalInSeconds = 500 seconds
-        // maxItems = 6
-        InMemoryCache<String, String> cache = new InMemoryCache<>(200, 500, 6);
+        InMemoryCache<String, String> cache =
+                InMemoryCache.builder().keyType(String.class).valueType(String.class)
+                        .timeToLive(200L)
+                        .timerInterval(100L)
+                        .maxItems(6)
+                        .build();
 
         cache.put("eBay", "eBay");
         cache.put("Paypal", "Paypal");
@@ -36,10 +38,12 @@ public class InMemoryCacheTest {
     @Test
     public void testExpiredCacheObjects() throws InterruptedException {
 
-        // Test with timeToLiveInSeconds = 1 second
-        // timerIntervalInSeconds = 1 second
-        // maxItems = 10
-        InMemoryCache<String, String> cache = new InMemoryCache<>(1, 1, 10);
+        InMemoryCache<String, String> cache =
+                InMemoryCache.builder().keyType(String.class).valueType(String.class)
+                        .timeToLive(1L)
+                        .timerInterval(1L)
+                        .maxItems(10)
+                        .build();
 
         cache.put("eBay", "eBay");
         cache.put("Paypal", "Paypal");
@@ -54,11 +58,12 @@ public class InMemoryCacheTest {
     public void testObjectsCleanupTime() throws InterruptedException {
         int size = 500000;
 
-        // Test with timeToLiveInSeconds = 100 seconds
-        // timerIntervalInSeconds = 100 seconds
-        // maxItems = 500000
-
-        InMemoryCache<String, String> cache = new InMemoryCache<>(100, 100, 500000);
+        InMemoryCache<String, String> cache =
+                InMemoryCache.builder().keyType(String.class).valueType(String.class)
+                        .timeToLive(100L)
+                        .timerInterval(100L)
+                        .maxItems(500000)
+                        .build();
 
         for (int i = 0; i < size; i++) {
             String value = Integer.toString(i);

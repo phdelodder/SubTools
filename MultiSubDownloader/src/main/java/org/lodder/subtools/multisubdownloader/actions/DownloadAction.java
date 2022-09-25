@@ -13,9 +13,10 @@ import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
+import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
-import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
+import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.lodder.subtools.sublibrary.util.http.DropBoxClient;
@@ -43,7 +44,7 @@ public class DownloadAction {
     }
 
     public void download(Release release, Subtitle subtitle) throws IOException, ManagerException {
-        LOGGER.info("Downloading subtitle: [{}] for release: [{}]", subtitle.getFileName(), release.getFilename());
+        LOGGER.info("Downloading subtitle: [{}] for release: [{}]", subtitle.getFileName(), release.getFileName());
         download(release, subtitle, 0);
     }
 
@@ -68,18 +69,25 @@ public class DownloadAction {
             Files.copy(subtitle.getFile(), subFile);
             success = true;
         } else {
-            String url = subtitle.getSourceLocation() == Subtitle.SourceLocation.URL ? subtitle.getUrl() : subtitle.getUrlSupplier().get();
-            success = manager.store(url, subFile);
-            LOGGER.debug("doDownload file was [{}] ", success);
+            String url;
+            try {
+                url = subtitle.getSourceLocation() == Subtitle.SourceLocation.URL ? subtitle.getUrl() : subtitle.getUrlSupplier().get();
+                success = manager.store(url, subFile);
+                LOGGER.debug("doDownload file was [{}] ", success);
+            } catch (SubtitlesProviderException e) {
+                LOGGER.error("Error while getting url for [%s] for subtitle provider [%s] (%s)".formatted(release.getReleaseDescription(),
+                        e.getSubtitleProvider(), e.getMessage()), e);
+                throw new RuntimeException(e);
+            }
         }
 
-        if (ReleaseParser.getQualityKeyword(release.getFilename()).split(" ").length > 1) {
+        if (ReleaseParser.getQualityKeyword(release.getFileName()).split(" ").length > 1) {
             String dropBoxName = "";
             if (subtitle.getSubtitleSource() == SubtitleSource.LOCAL) {
-                dropBoxName = PrivateRepoIndex.getFullFilename(FilenameLibraryBuilder.changeExtension(release.getFilename(), ".srt"), "?",
+                dropBoxName = PrivateRepoIndex.getFullFilename(FilenameLibraryBuilder.changeExtension(release.getFileName(), ".srt"), "?",
                         subtitle.getSubtitleSource().toString());
             } else {
-                dropBoxName = PrivateRepoIndex.getFullFilename(FilenameLibraryBuilder.changeExtension(release.getFilename(), ".srt"),
+                dropBoxName = PrivateRepoIndex.getFullFilename(FilenameLibraryBuilder.changeExtension(release.getFileName(), ".srt"),
                         subtitle.getUploader(), subtitle.getSubtitleSource().toString());
             }
             DropBoxClient.getDropBoxClient().put(subFile, dropBoxName, subtitle.getLanguage());
@@ -87,7 +95,7 @@ public class DownloadAction {
 
         if (success) {
             if (!LibraryActionType.NOTHING.equals(librarySettings.getLibraryAction())) {
-                final File oldLocationFile = new File(release.getPath(), release.getFilename());
+                final File oldLocationFile = new File(release.getPath(), release.getFileName());
                 if (oldLocationFile.exists()) {
                     final File newLocationFile = new File(path, videoFileName);
                     LOGGER.info("Moving/Renaming [{}] to folder [{}] this might take a while... ", videoFileName, path.getPath());

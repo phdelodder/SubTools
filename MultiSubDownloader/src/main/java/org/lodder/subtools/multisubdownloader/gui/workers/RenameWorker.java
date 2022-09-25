@@ -63,7 +63,7 @@ public class RenameWorker extends SwingWorker<Void, String> implements Cancelabl
                     renameAction = new RenameAction(settings.getMovieLibrarySettings(), manager);
                 }
                 if (renameAction != null) {
-                    renameAction.rename(new File(release.getPath(), release.getFilename()), release);
+                    renameAction.rename(new File(release.getPath(), release.getFileName()), release);
                 }
                 model.removeRow(i);
                 i--;

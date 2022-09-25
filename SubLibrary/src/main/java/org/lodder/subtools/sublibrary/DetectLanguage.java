@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Optional;
 
-import org.lodder.subtools.sublibrary.util.LazyInit;
-import org.lodder.subtools.sublibrary.util.LazyInitThrow;
+import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
+import org.lodder.subtools.sublibrary.util.lazy.LazyThrowingSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,13 +21,13 @@ import com.optimaize.langdetect.text.TextObjectFactory;
 public class DetectLanguage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DetectLanguage.class);
-    private static final LazyInitThrow<LanguageDetector, IOException> DETECTOR =
-            new LazyInitThrow<>(() -> LanguageDetectorBuilder.create(NgramExtractors.standard())
+    private static final LazyThrowingSupplier<LanguageDetector, IOException> DETECTOR =
+            new LazyThrowingSupplier<>(() -> LanguageDetectorBuilder.create(NgramExtractors.standard())
                     .shortTextAlgorithm(0)
                     .withProfiles(new LanguageProfileReader().readAllBuiltIn())
                     .build());
-    private static final LazyInit<TextObjectFactory> TEXT_OBJECT_FACTORY =
-            new LazyInit<>(CommonTextObjectFactories::forDetectingOnLargeText);
+    private static final LazySupplier<TextObjectFactory> TEXT_OBJECT_FACTORY =
+            new LazySupplier<>(CommonTextObjectFactories::forDetectingOnLargeText);
     private static final double MIN_PROBABILITY = 0.9;
 
     public static Language execute(File file) {

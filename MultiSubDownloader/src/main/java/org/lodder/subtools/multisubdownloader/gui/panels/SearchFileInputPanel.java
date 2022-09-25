@@ -1,7 +1,12 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+
 import java.awt.event.ActionListener;
-import javax.swing.*;
+
 import net.miginfocom.swing.MigLayout;
 
 public class SearchFileInputPanel extends InputPanel {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.replacers.GroupReplacer;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.replacers.KeywordReplacer;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
@@ -36,7 +37,7 @@ public class SortWeight {
 
         /* get a list of tags */
         List<String> tags = ReleaseParser.getQualityKeyWords(release.getQuality());
-        tags.add(release.getReleasegroup().toLowerCase());
+        tags.add(release.getReleaseGroup().toLowerCase());
 
         /* only store tags for which we have a weight defined */
         tags.retainAll(defaultWeights.keySet());

@@ -125,7 +125,7 @@ public class CLI {
         int selection = subtitleSelectionAction.subtitleSelection(release, subtitleSelection, dryRun);
         if (selection >= 0) {
             if (downloadall) {
-                System.out.println("Downloading ALL found subtitles for release: " + release.getFilename());
+                System.out.println("Downloading ALL found subtitles for release: " + release.getFileName());
                 for (int j = 0; j < release.getMatchingSubs().size(); j++) {
                     System.out.println("Downloading subtitle: " + release.getMatchingSubs().get(0).getFileName());
                     downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
@@ -134,9 +134,9 @@ public class CLI {
                 downloadAction.download(release, release.getMatchingSubs().get(selection));
             }
         } else if (dryRun && release.getMatchingSubs().size() == 0) {
-            System.out.println("No substitles found for: " + release.getFilename());
+            System.out.println("No substitles found for: " + release.getFileName());
         } else if (selection == -1 && !dryRun) {
-            System.out.println("No substitles found for: " + release.getFilename());
+            System.out.println("No substitles found for: " + release.getFileName());
         }
     }
 

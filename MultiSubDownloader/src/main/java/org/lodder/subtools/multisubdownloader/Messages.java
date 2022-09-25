@@ -19,4 +19,12 @@ public class Messages {
             return '!' + key + '!';
         }
     }
+
+    public static String getString(String key, Object... replacements) {
+        try {
+            return RESOURCE_BUNDLE.getString(key).formatted(replacements);
+        } catch (MissingResourceException e) {
+            return '!' + key + '!';
+        }
+    }
 }

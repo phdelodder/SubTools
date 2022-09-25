@@ -1,6 +1,9 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.exception;
 
-public class SubsceneException extends Exception {
+import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
+import org.lodder.subtools.sublibrary.model.SubtitleSource;
+
+public class SubsceneException extends SubtitlesProviderException {
 
     private static final long serialVersionUID = -9050358290926245586L;
 
@@ -18,5 +21,10 @@ public class SubsceneException extends Exception {
 
     public SubsceneException(Throwable cause) {
         super(cause);
+    }
+
+    @Override
+    public String getSubtitleProvider() {
+        return SubtitleSource.SUBSCENE.getName();
     }
 }

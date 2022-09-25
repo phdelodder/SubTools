@@ -3,15 +3,17 @@ package org.lodder.subtools.multisubdownloader.lib.library;
 import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
-import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
+import org.lodder.subtools.sublibrary.data.tvdb.TheTvdbAdapter;
+import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbSerie;
 import org.lodder.subtools.sublibrary.model.Release;
-import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.lodder.subtools.sublibrary.util.OptionalExtension;
 
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.ExtensionMethod;
 
 @RequiredArgsConstructor
+@ExtensionMethod({ OptionalExtension.class })
 public abstract class LibraryBuilder {
 
     protected final LibrarySettings librarySettings;
@@ -19,17 +21,11 @@ public abstract class LibraryBuilder {
 
     public abstract String build(Release release);
 
-    protected String getShowName(TvRelease tvRelease) {
+    protected String getShowName(String name) {
         if (librarySettings.isLibraryUseTVDBNaming()) {
-            TheTVDBSerie tvdbs = JTheTVDBAdapter.getAdapter(manager).getSerie(tvRelease);
-            if (tvdbs == null) {
-                // use showname found for release as tvdb returns null
-                return tvRelease.getShowName();
-            } else {
-                return tvdbs.getSerieName();
-            }
+            return TheTvdbAdapter.getInstance(manager).getSerie(name).map(TheTvdbSerie::getSerieName).orElse(name);
         } else {
-            return tvRelease.getShowName();
+            return name;
         }
     }
 

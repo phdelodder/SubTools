@@ -7,7 +7,7 @@ import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.util.StringUtils;
+import org.lodder.subtools.sublibrary.util.StringUtil;
 
 public class PathLibraryBuilder extends LibraryBuilder {
 
@@ -33,9 +33,9 @@ public class PathLibraryBuilder extends LibraryBuilder {
 
     protected String buildEpisode(TvRelease tvRelease) {
         String folder = librarySettings.getLibraryFolderStructure();
-        String show = getShowName(tvRelease);
+        String show = getShowName(tvRelease.getName());
         if (librarySettings.isLibraryReplaceChars()) {
-            show = StringUtils.removeIllegalWindowsChars(show);
+            show = StringUtil.removeIllegalWindowsChars(show);
         }
 
         folder = folder.replaceAll("%SHOW NAME%", show);
@@ -64,10 +64,10 @@ public class PathLibraryBuilder extends LibraryBuilder {
 
     protected String buildMovie(MovieRelease movieRelease) {
         String folder = librarySettings.getLibraryFolderStructure();
-        String title = movieRelease.getTitle();
+        String title = movieRelease.getName();
 
         if (librarySettings.isLibraryReplaceChars()) {
-            title = StringUtils.removeIllegalWindowsChars(title);
+            title = StringUtil.removeIllegalWindowsChars(title);
         }
 
         folder = folder.replaceAll("%MOVIE TITLE%", title);

@@ -13,7 +13,7 @@ import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.util.FilenameContainsFilter;
 import org.lodder.subtools.sublibrary.util.FilenameExtensionFilter;
 import org.lodder.subtools.sublibrary.util.Files;
-import org.lodder.subtools.sublibrary.util.StringUtils;
+import org.lodder.subtools.sublibrary.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ public class CleanAction {
         }
 
         // remove duplicates using set
-        final Set<String> list = new LinkedHashSet<>(Arrays.asList(StringUtils.join(files, folders)));
+        final Set<String> list = new LinkedHashSet<>(Arrays.asList(StringUtil.join(files, folders)));
 
         switch (librarySettings.getLibraryOtherFileAction()) {
             case MOVE -> doMove(release, list, path);

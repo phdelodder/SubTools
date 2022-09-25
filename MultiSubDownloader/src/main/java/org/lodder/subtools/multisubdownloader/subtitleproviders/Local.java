@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.lodder.subtools.multisubdownloader.lib.control.MovieReleaseControl;
 import org.lodder.subtools.multisubdownloader.lib.control.TvReleaseControl;
@@ -19,8 +18,8 @@ import org.lodder.subtools.sublibrary.exception.ReleaseParseException;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
-import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
+import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.util.Utils;
@@ -47,7 +46,7 @@ public class Local implements SubtitleProvider {
     private List<File> getPossibleSubtitles(String filter) {
         return settings.getLocalSourcesFolders().stream()
                 .flatMap(local -> getAllSubtitlesFiles(local, filter).stream())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -56,10 +55,10 @@ public class Local implements SubtitleProvider {
         ReleaseParser vfp = new ReleaseParser();
 
         String filter = "";
-        if (tvRelease.getOriginalShowName().length() > 0) {
-            filter = tvRelease.getOriginalShowName().replaceAll("[^A-Za-z]", "").trim();
+        if (tvRelease.getOriginalName().length() > 0) {
+            filter = tvRelease.getOriginalName().replaceAll("[^A-Za-z]", "").trim();
         } else {
-            filter = tvRelease.getShowName().replaceAll("[^A-Za-z]", "").trim();
+            filter = tvRelease.getName().replaceAll("[^A-Za-z]", "").trim();
         }
 
         for (File fileSub : getPossibleSubtitles(filter)) {
@@ -70,7 +69,7 @@ public class Local implements SubtitleProvider {
                                 ((TvRelease) release).getEpisodeNumbers(), tvRelease.getEpisodeNumbers()))) {
 
                     TvReleaseControl epCtrl = new TvReleaseControl((TvRelease) release, settings, manager);
-                    epCtrl.process(settings.getMappingSettings().getMappingList());
+                    epCtrl.process();
                     if (((TvRelease) release).getTvdbId() == tvRelease.getTvdbId()) {
                         Language detectedLang = DetectLanguage.execute(fileSub);
                         if (detectedLang == language) {
@@ -105,14 +104,14 @@ public class Local implements SubtitleProvider {
         Set<Subtitle> listFoundSubtitles = new HashSet<>();
         ReleaseParser releaseParser = new ReleaseParser();
 
-        String filter = movieRelease.getTitle();
+        String filter = movieRelease.getName();
 
         for (File fileSub : getPossibleSubtitles(filter)) {
             try {
                 Release release = releaseParser.parse(fileSub);
                 if (release.getVideoType() == VideoType.MOVIE) {
                     MovieReleaseControl movieCtrl = new MovieReleaseControl((MovieRelease) release, settings, manager);
-                    movieCtrl.process(settings.getMappingSettings().getMappingList());
+                    movieCtrl.process();
                     if (((MovieRelease) release).getImdbId() == movieRelease.getImdbId()) {
                         Language detectedLang = DetectLanguage.execute(fileSub);
                         if (detectedLang == language) {

@@ -8,76 +8,105 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.apache.commons.lang3.StringUtils;
+import org.lodder.subtools.sublibrary.util.lazy.LazyBiFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DiskCache<K, T> extends InMemoryCache<K, T> {
-
-    private Connection conn;
+public abstract class DiskCache<K, V> extends InMemoryCache<K, V> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiskCache.class);
+    public static final Object LOCK = new Object();
 
-    public DiskCache(long crunchifyTimeToLive, long crunchifyTimerInterval, int maxItems, String username, String password) {
-        super(crunchifyTimeToLive, crunchifyTimerInterval, maxItems);
-        File path = new File(System.getProperty("user.home"), ".MultiSubDownloader");
-        if (!path.exists() && !path.mkdir()) {
-            throw new RuntimeException("Could not create folder " + path);
-        }
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private final LazyBiFunction<DiskCache, String, Connection> connection = new LazyBiFunction<>((cache, tableName) -> {
         try {
-            Class.forName("org.hsqldb.jdbcDriver");
-            conn = DriverManager.getConnection("jdbc:hsqldb:file:" + path.toString() + "/diskcache.hsqldb;hsqldb.write_delay=false;shutdown=true",
-                    username, password);
-            try (PreparedStatement prep = conn.prepareStatement("create table IF NOT EXISTS cacheobjects (key OTHER, cacheobject OTHER);")) {
-                prep.execute();
-                prep.close();
-                fillCacheMap();
+            synchronized (cache.getCacheMap()) {
+                File path = new File(System.getProperty("user.home"), ".MultiSubDownloader");
+                if (!path.exists() && !path.mkdir()) {
+                    throw new RuntimeException("Could not create folder " + path);
+                }
+                Class.forName("org.hsqldb.jdbcDriver");
+                Connection connection = DriverManager.getConnection(
+                        "jdbc:hsqldb:file:" + path.toString() + "/diskcache.hsqldb;hsqldb.write_delay=false;shutdown=true", "user", "pass");
+
+                try (Statement stmt = connection.createStatement()) {
+                    stmt.execute("create table IF NOT EXISTS %s (key OTHER, cacheobject OTHER);".formatted(tableName));
+                }
+
+                try (Statement stmt = connection.createStatement();
+                        ResultSet rs = stmt.executeQuery("SELECT key, cacheobject FROM %s;".formatted(tableName));) {
+                    synchronized (cache.getCacheMap()) {
+                        while (rs.next()) {
+                            cache.put(cache.diskObjectToKey(rs.getObject("key")), cache.diskCacheObjectToValue(rs.getObject("cacheobject")));
+                        }
+                    }
+                } catch (SQLException e) {
+                    LOGGER.error("Unable to insert object in disk cache!", e);
+                }
+
+                return connection;
             }
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Unable to load jdbcdriver for diskcache");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    });
+    private final String tableName;
+
+    private Connection getConnection() {
+        return connection.apply(this, tableName);
     }
 
-    @SuppressWarnings("unchecked")
-    private void fillCacheMap() {
-        try (Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT key, cacheobject FROM cacheobjects")) {
-            while (rs.next()) {
-                synchronized (cacheMap) {
-                    cacheMap.put(rs.getObject("key"), rs.getObject("cacheobject"));
-                }
-            }
-        } catch (SQLException e) {
-            LOGGER.error("Unable to insert object in disk cache!", e);
+    protected DiskCache(Long timeToLive, Long timerInterval, Integer maxItems, String username, String password, String tableName) {
+        super(timeToLive, timerInterval, maxItems);
+        this.tableName = StringUtils.isBlank(tableName) ? "cacheobjects" : tableName;
+        // initialize map in other thread
+        new Thread(() -> getConnection()).start();
+        if (timeToLive != null && timeToLive > 0) {
+            cleanup();
         }
     }
 
+    protected abstract K diskObjectToKey(Object key);
+
+    protected abstract CacheObject<V> diskCacheObjectToValue(Object value);
+
     @Override
-    public void remove(K key) {
+    public final void remove(K key) {
         super.remove(key);
-        try (PreparedStatement prep = conn.prepareCall("delete from cacheobjects where key = ?")) {
-            prep.clearParameters();
-            prep.setObject(1, key);
-            prep.execute();
-        } catch (SQLException e) {
-            LOGGER.error("Unable to delete object from disk cache!", e);
+        synchronized (LOCK) {
+            try (PreparedStatement prep = getConnection().prepareCall("delete from %s where key = ?".formatted(tableName))) {
+                prep.clearParameters();
+                prep.setObject(1, keyToDiskObject(key));
+                prep.executeUpdate();
+            } catch (SQLException e) {
+                LOGGER.error("Unable to delete object from disk cache!", e);
+            }
         }
     }
 
+    protected abstract Object keyToDiskObject(K key);
+
+    protected abstract Object cacheObjectToDiskObject(CacheObject<V> value);
+
     @Override
-    public void put(K key, T value) {
+    public final void put(K key, V value) {
         super.put(key, value);
-        try (PreparedStatement prep = conn.prepareCall("INSERT INTO cacheobjects (key,cacheobject) VALUES (?,?)")) {
-            prep.clearParameters();
-            prep.setObject(1, key);
-            synchronized (cacheMap) {
-                CacheObject<?, ?> cacheObject = (CacheObject<?, ?>) cacheMap.get(key);
-                prep.setObject(2, cacheObject);
+        synchronized (LOCK) {
+            try (PreparedStatement prep = getConnection().prepareCall("INSERT INTO %s (key,cacheobject) VALUES (?,?)".formatted(tableName))) {
+                prep.clearParameters();
+                prep.setObject(1, keyToDiskObject(key));
+                synchronized (getCacheMap()) {
+                    CacheObject<V> cacheObject = getCacheMap().get(key);
+                    prep.setObject(2, cacheObjectToDiskObject(cacheObject));
+                    prep.execute();
+                }
+                getConnection().commit();
+            } catch (SQLException e) {
+                LOGGER.error("Unable to insert object in disk cache!", e);
             }
-            prep.execute();
-        } catch (SQLException e) {
-            LOGGER.error("Unable to insert object in disk cache!", e);
         }
     }
 }

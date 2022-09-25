@@ -3,30 +3,44 @@ package org.lodder.subtools.sublibrary;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.jsoup.Jsoup;
+import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
 import org.lodder.subtools.sublibrary.cache.InMemoryCache;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
 import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 import org.lodder.subtools.sublibrary.util.http.HttpClientSetupException;
+import org.lodder.subtools.sublibrary.xml.XMLHelper;
+import org.w3c.dom.Document;
 
 import com.pivovarit.function.ThrowingSupplier;
 
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
+@Setter
+@RequiredArgsConstructor
 public class Manager {
 
-    private HttpClient httpClient;
-    private InMemoryCache<String, String> inMemoryCache;
-    private DiskCache<String, String> diskCache;
-
-    public Manager() {
-
-    }
+    private final HttpClient httpClient;
+    private final InMemoryCache inMemoryCache;
+    private final DiskCache diskCache;
 
     public String downloadText(String urlString) throws ManagerException {
         try {
@@ -35,69 +49,6 @@ public class Manager {
             throw new ManagerException("incorrect url", e);
         } catch (IOException e) {
             throw new ManagerException(e);
-        }
-    }
-
-    public String downloadText2(String urlString) throws ManagerException {
-        try {
-            return httpClient.downloadText(urlString);
-        } catch (MalformedURLException e) {
-            throw new ManagerException("incorrect url", e);
-        } catch (IOException e) {
-            throw new ManagerException(e);
-        }
-    }
-
-    public InputStream getContentStream(String urlString, String userAgent, boolean longTermCache) throws ManagerSetupException, ManagerException {
-        return IOUtils.toInputStream(getContent(urlString, userAgent, longTermCache), StandardCharsets.UTF_8);
-    }
-
-    public String getContent(String urlString, String userAgent, boolean longTermCache) throws ManagerSetupException, ManagerException {
-        validate();
-
-        try {
-            InMemoryCache<String, String> cache = longTermCache ? diskCache : inMemoryCache;
-            String content = cache.get(urlString);
-            if (content == null) {
-                content = httpClient.doGet(new URL(urlString), userAgent);
-                cache.put(urlString, content);
-            }
-            return content;
-        } catch (MalformedURLException e) {
-            throw new ManagerException("incorrect url", e);
-        } catch (HttpClientException e) {
-            throw new ManagerException("Error occured with httpclient response: " + e.getResponseCode()
-                    + " " + e.getResponseMessage());
-        } catch (IOException | HttpClientSetupException e) {
-            throw new ManagerException(e);
-        }
-    }
-
-    public <X extends Exception> String getValue(String key, ThrowingSupplier<String, X> valueSupplier, boolean longTermCache)
-            throws X, ManagerSetupException {
-        validate();
-
-        InMemoryCache<String, String> cache = longTermCache ? diskCache : inMemoryCache;
-        if (cache.exists(key)) {
-            return cache.get(key);
-        } else {
-            String value = valueSupplier.get();
-            cache.put(key, value);
-            return value;
-        }
-    }
-
-    public <X extends Exception> Optional<String> getOptionalValue(String key, ThrowingSupplier<Optional<String>, X> valueSupplier,
-            boolean longTermCache) throws X, ManagerSetupException {
-        validate();
-
-        InMemoryCache<String, String> cache = longTermCache ? diskCache : inMemoryCache;
-        if (cache.exists(key)) {
-            return Optional.of(cache.get(key));
-        } else {
-            Optional<String> value = valueSupplier.get();
-            value.ifPresent(v -> cache.put(key, v));
-            return value;
         }
     }
 
@@ -117,44 +68,402 @@ public class Manager {
         } catch (HttpClientSetupException | HttpClientException e) {
             throw new ManagerException(e);
         }
-
-    }
-
-    public void setHttpClient(HttpClient httpClient) {
-        this.httpClient = httpClient;
-    }
-
-    public void setInMemoryCache(InMemoryCache<String, String> inMemoryCache) {
-        this.inMemoryCache = inMemoryCache;
-    }
-
-    public void setDiskCache(DiskCache<String, String> diskCache) {
-        this.diskCache = diskCache;
-    }
-
-    private void validate() throws ManagerSetupException {
-        if (httpClient == null) {
-            throw new ManagerSetupException("HttpClient is not initialized");
-        }
-        if (inMemoryCache == null) {
-            throw new ManagerSetupException("InMemoryCache is not initialized");
-        }
-        if (diskCache == null) {
-            throw new ManagerSetupException("DiskCache is not initialized");
-        }
-    }
-
-    public void removeCacheObject(String url) throws ManagerSetupException {
-        validate();
-        inMemoryCache.remove(url);
-        diskCache.remove(url);
     }
 
     public boolean isCached(String url) {
-        return inMemoryCache.exists(url) || diskCache.exists(url);
+        return inMemoryCache.contains(url);
     }
 
     public void storeCookies(String domain, Map<String, String> cookieMap) {
         httpClient.storeCookies(domain, cookieMap);
+    }
+
+    // ================ \\
+    // GET PAGE CONTENT \\
+    // ================ \\
+
+    public PageContentBuilderUrlIntf getPageContentBuilder() {
+        return new PageContentBuilder(httpClient, inMemoryCache);
+    }
+
+    public interface PageContentBuilderUrlIntf {
+        PageContentBuilderUserAgentIntf url(String url);
+    }
+
+    public interface PageContentBuilderUserAgentIntf {
+        PageContentBuilderCacheTypeIntf userAgent(String userAgent);
+    }
+
+    public interface PageContentBuilderCacheTypeIntf {
+        PageContentBuilderGetIntf cacheType(CacheType cacheType);
+    }
+
+    public interface PageContentBuilderGetIntf {
+        String get() throws ManagerException;
+
+        InputStream getAsInputStream() throws ManagerException;
+
+        Optional<Document> getAsDocument() throws ParserConfigurationException, ManagerException;
+
+        Optional<Document> getAsDocument(Predicate<String> emptyResultPredicate) throws ParserConfigurationException, ManagerException;
+
+        org.jsoup.nodes.Document getAsJsoupDocument() throws ManagerException;
+
+        Optional<org.jsoup.nodes.Document> getAsJsoupDocument(Predicate<String> emptyResultPredicate) throws ManagerException;
+    }
+
+    @Setter
+    @Accessors(chain = true, fluent = true)
+    @RequiredArgsConstructor
+    public static class PageContentBuilder implements PageContentBuilderGetIntf, PageContentBuilderCacheTypeIntf,
+            PageContentBuilderUserAgentIntf, PageContentBuilderUrlIntf {
+        private final HttpClient httpClient;
+        private final InMemoryCache<String, String> inMemoryCache;
+        private String url;
+        private String userAgent;
+        private CacheType cacheType;
+
+        @Override
+        public String get() throws ManagerException {
+            return switch (cacheType) {
+                case NONE -> getContentWithoutCache(url, userAgent);
+                case MEMORY -> inMemoryCache.getOrPut(url, () -> getContentWithoutCache(url, userAgent));
+                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
+            };
+        }
+
+        @Override
+        public InputStream getAsInputStream() throws ManagerException {
+            return IOUtils.toInputStream(get(), StandardCharsets.UTF_8);
+        }
+
+        @Override
+        public Optional<Document> getAsDocument() throws ParserConfigurationException, ManagerException {
+            return XMLHelper.getDocument(get());
+        }
+
+        @Override
+        public Optional<Document> getAsDocument(Predicate<String> emptyResultPredicate) throws ParserConfigurationException, ManagerException {
+            String html = get();
+            return StringUtils.isBlank(html) || (emptyResultPredicate != null && emptyResultPredicate.test(html)) ? Optional.empty()
+                    : XMLHelper.getDocument(html);
+        }
+
+        @Override
+        public org.jsoup.nodes.Document getAsJsoupDocument() throws ManagerException {
+            return Jsoup.parse(get());
+        }
+
+        @Override
+        public Optional<org.jsoup.nodes.Document> getAsJsoupDocument(Predicate<String> emptyResultPredicate) throws ManagerException {
+            String html = get();
+            return StringUtils.isBlank(html) || (emptyResultPredicate != null && emptyResultPredicate.test(html)) ? Optional.empty()
+                    : Optional.of(Jsoup.parse(html));
+        }
+
+        private String getContentWithoutCache(String urlString, String userAgent) throws ManagerException {
+            try {
+                return httpClient.doGet(new URL(urlString), userAgent);
+            } catch (MalformedURLException e) {
+                throw new ManagerException("incorrect url", e);
+            } catch (HttpClientException e) {
+                throw new ManagerException("Error occured with httpclient response: %s %s".formatted(e.getResponseCode(), e.getResponseMessage()));
+            } catch (IOException | HttpClientSetupException e) {
+                throw new ManagerException(e);
+            }
+        }
+
+    }
+
+    // ========= \\
+    // GET VALUE \\
+    // ========= \\
+
+    public ValueBuilderKeyIntf getValueBuilder() {
+        return new ValueBuilder<>(inMemoryCache, diskCache);
+    }
+
+    public interface ValueBuilderKeyIntf {
+        ValueBuilderCacheTypeIntf key(String key);
+    }
+
+    public interface ValueBuilderCacheTypeIntf {
+        ValueBuilderValueSupplierIntf cacheType(CacheType cacheType);
+    }
+
+    public interface ValueBuilderValueSupplierIntf {
+        <T extends Serializable, X extends Exception> ValueBuilderGetIntf<T, X> valueSupplier(ThrowingSupplier<T, X> valueSupplier);
+
+        <C extends Collection<T>, T extends Serializable, X extends Exception> ValueBuilderGetCollectionIntf<C, T, X>
+                collectionSupplier(Class<T> collectionValueType, ThrowingSupplier<C, X> valueSupplier);
+
+        <T extends Serializable, X extends Exception> ValueBuilderGetOptionalIntf<T, X>
+                optionalSupplier(ThrowingSupplier<Optional<T>, X> valueSupplier);
+    }
+
+    public interface ValueBuilderGetIntf<T extends Serializable, X extends Exception> {
+        T get() throws X;
+    }
+
+    public interface ValueBuilderGetCollectionIntf<C extends Collection<T>, T extends Serializable, X extends Exception> {
+        C getCollection() throws X;
+    }
+
+    public interface ValueBuilderGetOptionalIntf<T extends Serializable, X extends Exception> {
+        Optional<T> getOptional() throws X;
+    }
+
+    @Setter
+    @Accessors(chain = true, fluent = true)
+    @RequiredArgsConstructor
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static class ValueBuilder<C extends Collection<T>, T extends Serializable, X extends Exception>
+            implements ValueBuilderGetOptionalIntf<T, X>, ValueBuilderGetIntf<T, X>, ValueBuilderCacheTypeIntf,
+            ValueBuilderValueSupplierIntf, ValueBuilderKeyIntf, ValueBuilderGetCollectionIntf<C, T, X> {
+        private final InMemoryCache inMemoryCache;
+        private final DiskCache diskCache;
+        private String key;
+        private ThrowingSupplier<T, X> valueSupplier;
+        private ThrowingSupplier<C, X> collectionSupplier;
+        private ThrowingSupplier<Optional<T>, X> optionalValueSupplier;
+        private CacheType cacheType;
+
+        @Override
+        public <S extends Serializable, E extends Exception> ValueBuilder<?, S, E> valueSupplier(ThrowingSupplier<S, E> valueSupplier) {
+            this.valueSupplier = (ThrowingSupplier<T, X>) valueSupplier;
+            return (ValueBuilder<?, S, E>) this;
+        }
+
+        @Override
+        public <S extends Serializable, E extends Exception> ValueBuilder<?, S, E>
+                optionalSupplier(ThrowingSupplier<Optional<S>, E> valueSupplier) {
+            this.optionalValueSupplier = (ThrowingSupplier) valueSupplier;
+            return (ValueBuilder<?, S, E>) this;
+        }
+
+        @Override
+        public <L extends Collection<S>, S extends Serializable, E extends Exception> ValueBuilder<L, S, E>
+                collectionSupplier(Class<S> collectionValueType, ThrowingSupplier<L, E> collectionSupplier) {
+            this.collectionSupplier = (ThrowingSupplier<C, X>) collectionSupplier;
+            return (ValueBuilder<L, S, E>) this;
+        }
+
+        @Override
+        public T get() throws X {
+            try {
+                return switch (cacheType) {
+                    case NONE -> valueSupplier.get();
+                    case MEMORY -> (T) inMemoryCache.getOrPut(key, valueSupplier);
+                    case DISK -> (T) diskCache.getOrPut(key, valueSupplier);
+                    default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
+                };
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                throw (X) e;
+            }
+        }
+
+        @Override
+        public C getCollection() throws X {
+            try {
+                return switch (cacheType) {
+                    case NONE -> collectionSupplier.get();
+                    case MEMORY -> (C) inMemoryCache.getOrPut(key, collectionSupplier);
+                    case DISK -> (C) diskCache.getOrPut(key, collectionSupplier);
+                    default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
+                };
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                throw (X) e;
+            }
+        }
+
+        @Override
+        public Optional<T> getOptional() throws X {
+            return switch (cacheType) {
+                case NONE -> optionalValueSupplier.get();
+                case MEMORY -> getOrPutOptional(inMemoryCache);
+                case DISK -> getOrPutOptional(diskCache);
+                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
+            };
+        }
+
+        private Optional<T> getOrPutOptional(InMemoryCache cache) throws X {
+            if (cache.contains(key)) {
+                return cache.get(key);
+            }
+            Optional<T> value = optionalValueSupplier.get();
+            value.ifPresentOrElse(v -> cache.put(key, v), () -> cache.put(key, null));
+            return value;
+        }
+    }
+
+    // ========== \\
+    // GET VALUES \\
+    // ========== \\
+
+    public ValuesBuilderKeyIntf getValuesBuilder() {
+        return new ValuesBuilder<>(inMemoryCache, diskCache);
+    }
+
+    public interface ValuesBuilderKeyIntf {
+        ValuesBuilderKeyMatchIntf key(String key);
+
+        ValuesBuilderCacheTypeIntf keyFilter(Predicate<String> keyFilter);
+    }
+
+    public interface ValuesBuilderKeyMatchIntf {
+        ValuesBuilderCacheTypeIntf matchType(CacheKeyMatchEnum matchType);
+    }
+
+    public interface ValuesBuilderCacheTypeIntf {
+        ValuesBuilderValueTypeIntf cacheType(CacheType cacheType);
+    }
+
+    public interface ValuesBuilderValueTypeIntf {
+        <T extends Serializable> ValuesBuilderGetIntf<T> valueType(Class<T> valueType);
+    }
+
+    public interface ValuesBuilderGetIntf<T extends Serializable> {
+        List<Pair<String, T>> get();
+    }
+
+    @Setter
+    @Accessors(chain = true, fluent = true)
+    @RequiredArgsConstructor
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static class ValuesBuilder<T extends Serializable>
+            implements ValuesBuilderKeyIntf, ValuesBuilderKeyMatchIntf, ValuesBuilderCacheTypeIntf, ValuesBuilderValueTypeIntf,
+            ValuesBuilderGetIntf<T> {
+        private final InMemoryCache inMemoryCache;
+        private final DiskCache diskCache;
+        private String key;
+        private CacheType cacheType;
+        private Predicate<String> keyFilter;
+        private CacheKeyMatchEnum matchType;
+        private Class<T> valueType;
+
+        @Override
+        public <S extends Serializable> ValuesBuilder<S> valueType(Class<S> valueType) {
+            this.valueType = (Class<T>) valueType;
+            return (ValuesBuilder<S>) this;
+        }
+
+        @Override
+        public List<Pair<String, T>> get() {
+            return switch (cacheType) {
+                case MEMORY -> get(inMemoryCache);
+                case DISK -> get(diskCache);
+                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
+            };
+        }
+
+        private List<Pair<String, T>> get(InMemoryCache cache) {
+            if (keyFilter != null) {
+                return cache.getEntries(keyFilter);
+            }
+            return switch (matchType) {
+                case STARTING_WITH -> cache.getEntries(k -> ((String) k).startsWith(key));
+                case ENDING_WITH -> cache.getEntries(k -> ((String) k).endsWith(key));
+                case CONTAINING -> cache.getEntries(k -> ((String) k).contains(key));
+                default -> throw new IllegalArgumentException("Unexpected value: " + matchType);
+            };
+        }
+    }
+
+    // =========== \\
+    // STORE VALUE \\
+    // =========== \\
+
+    public StoreValueBuilderKeyIntf getStoreValueBuilder() {
+        return new StoreValue(inMemoryCache, diskCache);
+    }
+
+    public interface StoreValueBuilderKeyIntf {
+        StoreValueCacheTypeIntf key(String key);
+    }
+
+    public interface StoreValueCacheTypeIntf {
+        StoreValueValueIntf cacheType(CacheType cacheType);
+    }
+
+    public interface StoreValueValueIntf {
+        <T extends Serializable> StoreValueGetIntf<T> value(T value);
+    }
+
+    public interface StoreValueGetIntf<T> {
+        void store();
+    }
+
+    @Setter
+    @Accessors(chain = true, fluent = true)
+    @RequiredArgsConstructor
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static class StoreValue<T extends Serializable>
+            implements StoreValueBuilderKeyIntf, StoreValueCacheTypeIntf, StoreValueGetIntf<T>, StoreValueValueIntf {
+        private final InMemoryCache inMemoryCache;
+        private final DiskCache diskCache;
+        private String key;
+        private CacheType cacheType;
+        private T value;
+
+        @Override
+        public <S extends Serializable> StoreValueGetIntf<S> value(S value) {
+            this.value = (T) value;
+            return (StoreValueGetIntf<S>) this;
+        }
+
+        @Override
+        public void store() {
+            switch (cacheType) {
+                case MEMORY -> inMemoryCache.put(key, value);
+                case DISK -> diskCache.put(key, value);
+                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
+            }
+        }
+
+    }
+
+    // =================== \\
+    // REMOVE CACHED VALUE \\
+    // =================== \\
+
+    public RemoveCacheValueBuilderKeyIntf getRemoveCacheValueBuilder() {
+        return new RemoveCacheValue(inMemoryCache, diskCache);
+    }
+
+    public interface RemoveCacheValueBuilderKeyIntf {
+        RemoveCacheValueCacheTypeIntf key(String key);
+    }
+
+    public interface RemoveCacheValueCacheTypeIntf {
+        RemoveCacheValueGetIntf cacheType(CacheType cacheType);
+    }
+
+    public interface RemoveCacheValueGetIntf {
+        void remove();
+    }
+
+    @Setter
+    @Accessors(chain = true, fluent = true)
+    @RequiredArgsConstructor
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static class RemoveCacheValue
+            implements RemoveCacheValueBuilderKeyIntf, RemoveCacheValueCacheTypeIntf, RemoveCacheValueGetIntf {
+        private final InMemoryCache inMemoryCache;
+        private final DiskCache diskCache;
+        private String key;
+        private CacheType cacheType;
+
+        @Override
+        public void remove() {
+            switch (cacheType) {
+                case MEMORY -> inMemoryCache.remove(key);
+                case DISK -> diskCache.remove(key);
+                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
+            }
+        }
     }
 }

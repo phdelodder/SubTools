@@ -1,7 +1,10 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+
+import java.awt.Frame;
+import java.awt.Rectangle;
 
 public class MultiSubDialog extends JDialog {
 

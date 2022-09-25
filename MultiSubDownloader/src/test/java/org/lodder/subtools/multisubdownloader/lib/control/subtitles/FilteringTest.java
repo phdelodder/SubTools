@@ -145,9 +145,9 @@ public class FilteringTest {
     private Release createRelease(String filename, String releasegroup, String extension) {
         Release release = mock(Release.class);
 
-        when(release.getFilename()).thenReturn(filename);
+        when(release.getFileName()).thenReturn(filename);
         when(release.getExtension()).thenReturn(extension);
-        when(release.getReleasegroup()).thenReturn(releasegroup);
+        when(release.getReleaseGroup()).thenReturn(releasegroup);
 
         return release;
     }

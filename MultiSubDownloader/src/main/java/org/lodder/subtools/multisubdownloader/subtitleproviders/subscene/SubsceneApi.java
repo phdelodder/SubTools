@@ -1,6 +1,5 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.subscene;
 
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -14,26 +13,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
+import org.lodder.subtools.multisubdownloader.Messages;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.exception.SubsceneException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.model.SubsceneSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.Manager.PageContentBuilderCacheTypeIntf;
 import org.lodder.subtools.sublibrary.ManagerException;
-import org.lodder.subtools.sublibrary.ManagerSetupException;
+import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.Html;
-import org.lodder.subtools.sublibrary.model.Subtitle.SubtitleSource;
+import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pivovarit.function.ThrowingSupplier;
 
-public class SubsceneApi extends Html {
+public class SubsceneApi extends Html implements SubtitleApi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubsceneApi.class);
-    private static final String IDENTIFIER = SubtitleSource.SUBSCENE.name();
     private static final long RATEDURATION_SHORT = 1; // seconds
     private static final long RATEDURATION_LONG = 5; // seconds
     private static final String DOMAIN = "https://subscene.com";
@@ -57,7 +57,7 @@ public class SubsceneApi extends Html {
                 if (urlForSerie.isEmpty()) {
                     return List.of();
                 }
-                return Jsoup.parse(getHtml(urlForSerie.get()))
+                return getHtml(urlForSerie.get()).cacheType(CacheType.MEMORY).getAsJsoupDocument()
                         .select("td.a1").stream().map(Element::parent)
                         .map(row -> new SubsceneSubtitleDescriptor()
                                 .setLanguage(Language.fromValueOptional(row.select(".a1 span.l").text().trim()).orElse(null))
@@ -67,64 +67,64 @@ public class SubsceneApi extends Html {
                                 .setUploader(row.select(".a5 > a").text().trim())
                                 .setComment(row.select(".a6 > div").text().trim()))
                         .toList();
-            } catch (IOException | HttpClientException | ManagerSetupException | ManagerException e) {
+            } catch (Exception e) {
                 throw new SubsceneException(e);
             }
         });
     }
 
-    private String getDownloadUrl(String seriePageUrl) throws ManagerException {
+    private String getDownloadUrl(String seriePageUrl) throws SubsceneException {
         try {
-            return DOMAIN + Jsoup.parse(getHtml(seriePageUrl)).selectFirst("#downloadButton").attr("href");
-        } catch (IOException | HttpClientException | ManagerSetupException e) {
-            throw new ManagerException(e);
+            return DOMAIN + getHtml(seriePageUrl).cacheType(CacheType.NONE).getAsJsoupDocument().selectFirst("#downloadButton").attr("href");
+        } catch (ManagerException e) {
+            throw new SubsceneException(e);
         }
     }
 
     private Optional<String> getUrlForSerie(String serieName, int season) throws SubsceneException {
-        return retry(() -> {
-            ThrowingSupplier<Optional<String>, SubsceneException> valueSupplier = () -> {
-                try {
-                    String url = DOMAIN + "/subtitles/searchbytitle?query=" + URLEncoder.encode(serieName, StandardCharsets.UTF_8);
-                    Element searchResultElement = Jsoup.parse(getHtml(url)).selectFirst(".search-result");
-                    if (searchResultElement == null) {
-                        return null;
+        return retry(() -> getValue("%s-url-%s-%s".formatted(getSubtitleSource().name(), serieName, season))
+                .cacheType(CacheType.MEMORY)
+                .optionalSupplier(() -> {
+                    try {
+                        String url = DOMAIN + "/subtitles/searchbytitle?query=" + URLEncoder.encode(serieName, StandardCharsets.UTF_8);
+                        Element searchResultElement =
+                                getHtml(url).cacheType(CacheType.MEMORY).getAsJsoupDocument().selectFirst(".search-result");
+                        Pattern elementNamePattern = Pattern.compile("(.*) - (.*?) Season.*?");
+                        return searchResultElement.select("h2").stream()
+                                .filter(element -> "TV-Series".equals(element.text())).findFirst().stream()
+                                .map(Element::nextElementSibling)
+                                .flatMap(element -> element.select(".title a").stream())
+                                .filter(element -> {
+                                    Matcher matcher = elementNamePattern.matcher(element.text());
+                                    return matcher.matches() && StringUtils.equalsIgnoreCase(matcher.group(1), serieName)
+                                            && StringUtils.equalsIgnoreCase(matcher.group(2), getOrdinalName(season));
+                                })
+                                .map(element -> DOMAIN + element.attr("href")).findFirst();
+                    } catch (Exception e) {
+                        if (e.getCause() != null && e.getCause() instanceof HttpClientException httpClientException) {
+                            throw new SubsceneException(e.getCause());
+                        }
+                        throw new SubsceneException(e);
                     }
-                    Pattern elementNamePattern = Pattern.compile("(.*) - (.*?) Season.*?");
-                    return searchResultElement.select("h2").stream()
-                            .filter(element -> "TV-Series".equals(element.text())).findFirst().stream()
-                            .map(Element::nextElementSibling)
-                            .flatMap(element -> element.select(".title a").stream())
-                            .filter(element -> {
-                                Matcher matcher = elementNamePattern.matcher(element.text());
-                                return matcher.matches() && StringUtils.equalsIgnoreCase(matcher.group(1), serieName)
-                                        && StringUtils.equalsIgnoreCase(matcher.group(2), getOrdinalName(season));
-                            })
-                            .map(element -> DOMAIN + element.attr("href")).findFirst();
-                } catch (ManagerException e) {
-                    if (e.getCause() != null && e.getCause() instanceof HttpClientException httpClientException) {
-                        throw new SubsceneException(e.getCause());
-                    }
-                    throw new SubsceneException(e);
-                } catch (ManagerSetupException | HttpClientException | IOException e) {
-                    throw new SubsceneException(e);
-                }
-            };
-            try {
-                return getOptionalValueDisk(IDENTIFIER + serieName + "_SEASON:" + season, valueSupplier);
-            } catch (ManagerSetupException e) {
-                throw new SubsceneException(e);
-            }
-        });
+                })
+                .getOptional());
     }
 
     private <T> T retry(ThrowingSupplier<T, SubsceneException> supplier) throws SubsceneException {
         try {
             return supplier.get();
         } catch (SubsceneException e) {
-            if (e.getCause() instanceof HttpClientException httpClientException
-                    && httpClientException != null && httpClientException.getResponseCode() == 409) {
-                LOGGER.info("RateLimiet is bereikt voor Subscene, gelieve {} sec te wachten", RATEDURATION_LONG);
+            Throwable cause = e.getCause();
+            while (cause instanceof SubsceneException) {
+                cause = cause.getCause();
+            }
+            if (cause == null) {
+                throw e;
+            }
+            if ((cause instanceof HttpClientException httpClientException
+                    && httpClientException != null && httpClientException.getResponseCode() == 409)
+                    || (cause instanceof ManagerException && cause.getMessage().contains("409 Conflict"))) {
+                LOGGER.info(Messages.getString("LoggingPanel.RateLimitReached", getSubtitleSource().getName(), RATEDURATION_LONG));
                 sleepSeconds(RATEDURATION_LONG);
                 return supplier.get();
             }
@@ -133,12 +133,13 @@ public class SubsceneApi extends Html {
     }
 
     @Override
-    public String getHtml(String url) throws IOException, HttpClientException, ManagerSetupException, ManagerException {
+    public PageContentBuilderCacheTypeIntf getHtml(String url) {
         while (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION_SHORT) {
             sleepSeconds(1);
         }
+        PageContentBuilderCacheTypeIntf html = super.getHtml(url);
         lastRequest = LocalDateTime.now();
-        return super.getHtml(url);
+        return html;
     }
 
     private void setLanguageWithCookie(Language language) {
@@ -158,6 +159,11 @@ public class SubsceneApi extends Html {
 
     private void addCookie(String cookieName, String cookieValue) {
         getManager().storeCookies("subscene.com", Map.of(cookieName, cookieValue));
+    }
+
+    @Override
+    public SubtitleSource getSubtitleSource() {
+        return SubtitleSource.SUBSCENE;
     }
 
     private String getOrdinalName(int ordinal) {

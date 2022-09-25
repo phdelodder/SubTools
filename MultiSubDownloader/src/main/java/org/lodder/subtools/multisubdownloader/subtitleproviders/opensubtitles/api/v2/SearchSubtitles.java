@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2;
 
+import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.exception.OpenSubtitlesException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param.AiTranslatedEnum;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param.ForeignPartsOnlyEnum;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param.HearingImpairedEnum;
@@ -13,7 +14,6 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.ap
 import org.lodder.subtools.sublibrary.Language;
 import org.opensubtitles.api.SubtitlesApi;
 import org.opensubtitles.invoker.ApiClient;
-import org.opensubtitles.invoker.ApiException;
 import org.opensubtitles.model.Subtitles200Response;
 
 import lombok.Getter;
@@ -74,12 +74,16 @@ public class SearchSubtitles extends OpenSubtitlesExecuter {
 
     private Integer year;
 
-    public Subtitles200Response searchSubtitles() throws ApiException {
-        return execute(() -> new SubtitlesApi(apiClient).subtitles(id, imdbId, tmdbId, getValue(type), query,
-                language != null ? language.getLangCode() : null, movieHash,
-                userId, getValue(hearingImpaired), getValue(foreignPartsOnly), getValue(trustedSources), getValue(machineTranslated),
-                getValue(aiTranslated), orderBy == null ? null : orderBy.getParamName(), getValue(orderDirection), parentFeatureId, parentImdbId,
-                parentTmdbId, season, episode, year, getValue(movieHashMatch), page));
+    public Subtitles200Response searchSubtitles() throws OpenSubtitlesException {
+        try {
+            return execute(() -> new SubtitlesApi(apiClient).subtitles(id, imdbId, tmdbId, getValue(type), query,
+                    language != null ? language.getLangCode() : null, movieHash,
+                    userId, getValue(hearingImpaired), getValue(foreignPartsOnly), getValue(trustedSources), getValue(machineTranslated),
+                    getValue(aiTranslated), orderBy == null ? null : orderBy.getParamName(), getValue(orderDirection), parentFeatureId, parentImdbId,
+                    parentTmdbId, season, episode, year, getValue(movieHashMatch), page));
+        } catch (Exception e) {
+            throw new OpenSubtitlesException(e);
+        }
     }
 
     private String getValue(ParamIntf param) {

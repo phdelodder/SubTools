@@ -1,8 +1,5 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
-import java.awt.Component;
-import java.awt.HeadlessException;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -16,8 +13,6 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.lodder.subtools.multisubdownloader.gui.dialog.StructureBuilderDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.extra.PartialDisableComboBox;
@@ -28,6 +23,11 @@ import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.awt.Component;
+import java.awt.HeadlessException;
+
+import net.miginfocom.swing.MigLayout;
 
 public abstract class VideoLibraryPanel extends JPanel {
 

@@ -42,17 +42,12 @@ public class ReleaseFactory {
                 case MOVIE -> new MovieReleaseControl((MovieRelease) r, settings, manager);
                 default -> releaseControl;
             };
-
-            releaseControl.process(settings.getMappingSettings().getMappingList());
+            releaseControl.process();
             r = releaseControl.getVideoFile();
 
-        } catch (ReleaseParseException e) {
+        } catch (ReleaseParseException | ReleaseControlException e) {
             LOGGER.error("createRelease", e);
-        } catch (ReleaseControlException e) {
-            LOGGER.error("createRelease", e);
-            return null;
         }
-
         return r;
     }
 }

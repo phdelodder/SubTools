@@ -1,9 +1,5 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,8 +16,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
@@ -34,19 +28,26 @@ import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoType;
 
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
+import net.miginfocom.swing.MigLayout;
+
 public class StructureBuilderDialog extends MultiSubDialog implements DocumentListener {
 
     private static final long serialVersionUID = -5174968778375028124L;
     private final JPanel contentPanel = new JPanel();
     private JTextField txtStructure;
-    private VideoType videoType;
-    private LibrarySettings librarySettings;
-    private StrucutureType structureType;
+    private final VideoType videoType;
+    private final LibrarySettings librarySettings;
+    private final StrucutureType structureType;
     private JLabel lblPreview;
-    private TvRelease ep;
-    private MovieRelease mo;
+    private TvRelease tvRelease;
+    private MovieRelease movieRelease;
     private String oldStructure;
-    private Manager manager;
+    private final Manager manager;
 
     public enum StrucutureType {
         FILE, FOLDER
@@ -61,19 +62,17 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
         this.manager = manager;
         initializeUi();
         generateVideoFiles();
-        mo = new MovieRelease();
     }
 
     private void generateVideoFiles() {
         ReleaseFactory releaseFactory = new ReleaseFactory(new Settings(), manager);
         if (videoType == VideoType.EPISODE) {
-            ep = (TvRelease) releaseFactory.createRelease(
+            tvRelease = (TvRelease) releaseFactory.createRelease(
                     // new File(File.separator + "Castle.2009.S04E10.720p.HDTV.X264-DIMENSION.mkv"),
                     new File(File.separator + "Terra.Nova.S01E01E02.720p.HDTV.x264-ORENJI.mkv"));
         } else if (videoType == VideoType.MOVIE) {
-            mo =
-                    (MovieRelease) releaseFactory.createRelease(new File(File.separator
-                            + "Final.Destination.5.720p.Bluray.x264-TWiZTED"));
+            movieRelease = (MovieRelease) releaseFactory.createRelease(new File(File.separator
+                    + "Final.Destination.5.720p.Bluray.x264-TWiZTED"));
         }
     }
 
@@ -180,8 +179,8 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
 
     private Release getGenerateRelease() {
         return switch (videoType) {
-            case EPISODE -> ep;
-            case MOVIE -> mo;
+            case EPISODE -> tvRelease;
+            case MOVIE -> movieRelease;
             default -> null;
         };
     }

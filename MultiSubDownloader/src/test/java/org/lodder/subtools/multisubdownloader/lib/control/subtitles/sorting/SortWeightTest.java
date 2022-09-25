@@ -1,14 +1,14 @@
 package org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.lodder.subtools.sublibrary.model.Release;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.junit.Assert.*;
 
 public class SortWeightTest {
 
@@ -24,7 +24,7 @@ public class SortWeightTest {
         // Arrested.Development.S01E01.DVDRip.XviD-MEDiEVAL
         Release release = mock(Release.class);
         when(release.getQuality()).thenReturn("DVDRip XviD");
-        when(release.getReleasegroup()).thenReturn("MEDiEVAL");
+        when(release.getReleaseGroup()).thenReturn("MEDiEVAL");
 
         HashMap<String, Integer> definedWeights = new HashMap<>();
         definedWeights.put("dvdrip", 2);

@@ -16,7 +16,7 @@ public class SubtitleSelectionCLI extends SubtitleSelection {
 
     @Override
     public int getUserInput(Release release) {
-        System.out.println("\nSelect best subtitle for : " + release.getFilename());
+        System.out.println("\nSelect best subtitle for : " + release.getFileName());
         generateSubtitleSelectionOutput(release);
 
         System.out.println("(-1) To skip download and/or move!");
@@ -39,7 +39,7 @@ public class SubtitleSelectionCLI extends SubtitleSelection {
     }
 
     private void generateSubtitleSelectionOutput(Release release) {
-        System.out.println("\nAvailable subtitles for : " + release.getFilename());
+        System.out.println("\nAvailable subtitles for : " + release.getFileName());
         String[] columnNames =
                 { SubtitleTableColumnName.SCORE.getColumnName(),
                         SubtitleTableColumnName.FILENAME.getColumnName(),

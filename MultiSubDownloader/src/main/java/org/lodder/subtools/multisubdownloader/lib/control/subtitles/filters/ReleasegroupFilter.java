@@ -27,8 +27,8 @@ public class ReleasegroupFilter extends Filter {
             }
 
             if (subtitle.getReleaseGroup().toLowerCase()
-                    .contains(release.getReleasegroup().toLowerCase())
-                    || release.getReleasegroup().toLowerCase()
+                    .contains(release.getReleaseGroup().toLowerCase())
+                    || release.getReleaseGroup().toLowerCase()
                             .contains(subtitle.getReleaseGroup().toLowerCase())) {
                 LOGGER.debug("getSubtitlesFiltered: found KEYWORD based TEAM match [{}] ",
                         subtitle.getFileName());

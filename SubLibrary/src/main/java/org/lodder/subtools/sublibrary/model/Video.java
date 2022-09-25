@@ -1,6 +1,6 @@
 package org.lodder.subtools.sublibrary.model;
 
-public class Video {
+public abstract class Video {
 
     private VideoType videoType;
 

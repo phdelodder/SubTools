@@ -17,7 +17,7 @@ public class SubtitleSelectionAction {
     private static final Logger LOGGER = LoggerFactory.getLogger(SubtitleSelectionAction.class);
 
     private SubtitleSelection subtitleSelection;
-    private Settings settings;
+    private final Settings settings;
 
     public SubtitleSelectionAction(Settings settings) {
         this.settings = settings;
@@ -42,7 +42,7 @@ public class SubtitleSelectionAction {
      * @param dryRun
      * @return integer which subtitle is selected for downloading
      */
-    public int subtitleSelection(final Release release, final boolean subtitleSelectionDialog, final boolean dryRun) {
+    public int subtitleSelection(Release release, final boolean subtitleSelectionDialog, final boolean dryRun) {
 
         // Sort subtitles by score
         Collections.sort(release.getMatchingSubs(), new SubtitleComparator());
@@ -53,7 +53,7 @@ public class SubtitleSelectionAction {
         } else {
             if (release.getMatchingSubs().size() > 0) {
                 LOGGER.debug("determineWhatSubtitleDownload for videoFile: [{}] # found subs: [{}]",
-                        release.getFilename(), release.getMatchingSubs().size());
+                        release.getFileName(), release.getMatchingSubs().size());
                 if (settings.isOptionsAlwaysConfirm()) {
                     return subtitleSelection.getUserInput(release);
                 } else if (release.getMatchingSubs().size() == 1
@@ -66,7 +66,7 @@ public class SubtitleSelectionAction {
                     // Automatic selection
                     List<Subtitle> shortlist =
                             subtitleSelection.getAutomaticSelection(release.getMatchingSubs());
-                    release.setMatchingSubs(shortlist);
+                    shortlist.forEach(release::addMatchingSubs);
                     // automatic selection results in 1 result
                     if (shortlist.size() == 1) {
                         return 0;
@@ -83,14 +83,14 @@ public class SubtitleSelectionAction {
                     } else {
                         LOGGER.info(
                                 "Multiple subs detected for: [{}] Unhandleable for CMD! switch to GUI or use '--selection' as switch in de CMD",
-                                release.getFilename());
+                                release.getFileName());
                     }
                 } else if (release.getMatchingSubs().size() == 1) {
                     LOGGER.debug("determineWhatSubtitleDownload: only one sub taking it!!!!");
                     return 0;
                 }
             }
-            LOGGER.debug("determineWhatSubtitleDownload: No subs found for  [{}]", release.getFilename());
+            LOGGER.debug("determineWhatSubtitleDownload: No subs found for  [{}]", release.getFileName());
         }
         return -1;
     }

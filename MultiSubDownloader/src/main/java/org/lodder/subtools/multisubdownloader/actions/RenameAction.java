@@ -48,7 +48,7 @@ public class RenameAction {
         LOGGER.trace("rename: newDir [{}]", newDir);
 
         if (status) {
-            final File file = new File(release.getPath(), release.getFilename());
+            final File file = new File(release.getPath(), release.getFileName());
 
             try {
 

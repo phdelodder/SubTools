@@ -3,11 +3,12 @@ package org.lodder.subtools.sublibrary.xml;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.lodder.subtools.sublibrary.settings.model.MappingTvdbScene;
+import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.settings.model.TvdbMapping;
+import org.lodder.subtools.sublibrary.settings.model.TvdbMappings;
 import org.lodder.subtools.sublibrary.util.http.DropBoxClient;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -18,51 +19,65 @@ import lombok.experimental.ExtensionMethod;
 @ExtensionMethod({ XmlExtension.class })
 public class XMLMappingTvdbScene {
 
-    public final static String mappings = "/MultiSubDownloader/Mappings.xml";
-    public final static String version = "/MultiSubDownloader/mappings.version.xml";
+    public final static String MAPPINGS = "/MultiSubDownloader/Mappings.xml";
+    public final static String VERSION = "/MultiSubDownloader/mappings.version.xml";
 
-    public static void write(List<MappingTvdbScene> list, File f) throws Throwable {
+    public final static String MAPPING_NAME = "mapping";
+    public final static String TVDBID_NAME = "tvdbid";
+    public final static String SCENE_NAME = "scene";
+    public final static String ALTNAMES_NAME = "altNames";
+    public final static String ALTNAME_NAME = "altName";
+
+    public static void write(Manager manager, File f) throws Throwable {
         Document newDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         Element rootElement = newDoc.createElement("MappingTvdbScene");
         newDoc.appendChild(rootElement);
 
-        for (MappingTvdbScene item : list) {
-            Element mapping = newDoc.createElement("mapping");
-            Element tvdbId = newDoc.createElement("tvdbid");
-            tvdbId.appendChild(newDoc.createTextNode(Integer.toString(item.getTvdbId())));
-            mapping.appendChild(tvdbId);
-            Element scene = newDoc.createElement("scene");
-            scene.appendChild(newDoc.createTextNode(item.getSceneName()));
-            mapping.appendChild(scene);
-            rootElement.appendChild(mapping);
-        }
+        TvdbMappings.getPersistedTvdbMappings(manager).forEach(tvdbMapping -> {
+            Element mappingElem = newDoc.createElement(MAPPING_NAME);
+            Element tvdbIdElem = newDoc.createElement(TVDBID_NAME);
+            tvdbIdElem.appendChild(newDoc.createTextNode(Integer.toString(tvdbMapping.getId())));
+            mappingElem.appendChild(tvdbIdElem);
 
+            Element sceneElem = newDoc.createElement(SCENE_NAME);
+            sceneElem.appendChild(newDoc.createTextNode(tvdbMapping.getName()));
+            mappingElem.appendChild(sceneElem);
+
+            Element altNamesElem = newDoc.createElement(ALTNAMES_NAME);
+            tvdbMapping.getAlternativeNames().forEach(altName -> {
+                Element altNameElem = newDoc.createElement(ALTNAME_NAME);
+                altNamesElem.appendChild(altNameElem);
+                altNameElem.appendChild(newDoc.createTextNode(altName));
+            });
+            mappingElem.appendChild(altNamesElem);
+
+            rootElement.appendChild(mappingElem);
+        });
         XMLHelper.writeToFile(f, newDoc);
     }
 
-    public static List<MappingTvdbScene> read(File f) throws Throwable {
-        Document newDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(f);
-        return read(newDoc);
+    public static List<TvdbMapping> read(File f) throws Throwable {
+        return read(DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(f));
     }
 
-    public static List<MappingTvdbScene> getOnlineMappingCollection() throws Throwable {
-        String content = DropBoxClient.getDropBoxClient().getFile(mappings);
-        return read(XMLHelper.getDocument(content));
-    }
-
-    public static List<MappingTvdbScene> read(Document newDoc) throws Throwable {
-        return newDoc.getElementsByTagName("mapping").stream()
+    public static List<TvdbMapping> read(Document newDoc) throws Throwable {
+        return newDoc.getElementsByTagName(MAPPING_NAME).stream()
                 .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
                 .map(Element.class::cast)
                 .map(eList -> {
-                    int tvdbId = XMLHelper.getIntTagValue("tvdbid", eList);
-                    String scene = XMLHelper.getStringTagValue("scene", eList);
-                    return new MappingTvdbScene(scene, tvdbId);
-                }).collect(Collectors.toList());
+                    int tvdbId = XMLHelper.getIntTagValue(TVDBID_NAME, eList);
+                    String scene = XMLHelper.getStringTagValue(SCENE_NAME, eList);
+                    Element altNamesElem = (Element) eList.getElementsByTagName(ALTNAMES_NAME).item(0);
+                    TvdbMapping tvdbMapping = new TvdbMapping(tvdbId, scene);
+                    altNamesElem.getElementsByTagName(ALTNAME_NAME).stream()
+                            .map(altNameNode -> XMLHelper.getStringTagValue(ALTNAME_NAME, (Element) altNameNode))
+                            .forEach(tvdbMapping::addAlternativename);
+                    return tvdbMapping;
+                }).toList();
     }
 
     public static int getMappingsVersionNumber() throws IOException {
-        String content = DropBoxClient.getDropBoxClient().getFile(version);
+        String content = DropBoxClient.getDropBoxClient().getFile(VERSION);
         return Integer.parseInt(content);
     }
 }

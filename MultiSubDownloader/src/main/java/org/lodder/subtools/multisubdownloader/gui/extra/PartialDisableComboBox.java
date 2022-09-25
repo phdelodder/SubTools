@@ -1,11 +1,12 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
-import java.awt.Component;
 import java.util.ArrayList;
 
 import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
+
+import java.awt.Component;
 
 /**
  *
@@ -16,7 +17,6 @@ public class PartialDisableComboBox extends JComboBox<Object> {
 
     private final ArrayList<Boolean> itemsState = new ArrayList<>();
 
-    @SuppressWarnings("unchecked")
     public PartialDisableComboBox(Object[] items) {
         super();
         for (Object o : items) {

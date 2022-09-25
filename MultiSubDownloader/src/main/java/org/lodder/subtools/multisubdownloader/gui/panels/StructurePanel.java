@@ -1,12 +1,12 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
-import java.awt.event.ActionListener;
-
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+
+import java.awt.event.ActionListener;
 
 public abstract class StructurePanel extends JPanel {
 

@@ -65,12 +65,12 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
                 setProgress(progress);
                 final Release release =
                         (Release) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.OBJECT));
-                publish(release.getFilename());
+                publish(release.getFileName());
                 int selection = subtitleSelectionAction.subtitleSelection(release, true);
                 if (selection >= 0) {
                     try {
                         if (selection == SelectDialog.SelectionType.ALL.getSelectionCode()) {
-                            LOGGER.info("Downloading ALL found subtitles for release {}", release.getFilename());
+                            LOGGER.info("Downloading ALL found subtitles for release {}", release.getFileName());
                             for (int j = 0; j < release.getMatchingSubs().size(); j++) {
                                 downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
                             }
