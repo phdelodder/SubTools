@@ -192,7 +192,7 @@ public class PrivateRepoIndex {
                 filename.appendChild(newDoc.createTextNode(item.getFilename()));
                 privateRepoItem.appendChild(filename);
                 Element tvdbid = newDoc.createElement("tvdbid");
-                tvdbid.appendChild(newDoc.createTextNode(Integer.toString(item.getTvdbId())));
+                tvdbid.appendChild(newDoc.createTextNode(Integer.toString(item.getTvdbId().orElse(0))));
                 privateRepoItem.appendChild(tvdbid);
                 Element uploader = newDoc.createElement("uploader");
                 uploader.appendChild(newDoc.createTextNode(item.getUploader()));
@@ -204,7 +204,7 @@ public class PrivateRepoIndex {
                 videotype.appendChild(newDoc.createTextNode(item.getVideoType().toString()));
                 privateRepoItem.appendChild(videotype);
                 Element imdbid = newDoc.createElement("imdbid");
-                imdbid.appendChild(newDoc.createTextNode(Integer.toString(item.getImdbId())));
+                imdbid.appendChild(newDoc.createTextNode(Integer.toString(item.getImdbId().orElse(0))));
                 privateRepoItem.appendChild(imdbid);
                 Element year = newDoc.createElement("year");
                 year.appendChild(newDoc.createTextNode(Integer.toString(item.getYear())));

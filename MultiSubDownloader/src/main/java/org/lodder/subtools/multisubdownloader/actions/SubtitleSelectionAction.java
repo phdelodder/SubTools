@@ -72,7 +72,7 @@ public class SubtitleSelectionAction {
                         return 0;
                     }
                     // nothing match the minimum automatic selection value
-                    if (shortlist.size() == 0) {
+                    if (shortlist.isEmpty()) {
                         return -1;
                     }
 

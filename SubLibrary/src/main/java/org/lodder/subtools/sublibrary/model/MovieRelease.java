@@ -1,6 +1,7 @@
 package org.lodder.subtools.sublibrary.model;
 
 import java.io.File;
+import java.util.OptionalInt;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -69,7 +70,15 @@ public class MovieRelease extends Release {
     }
 
     public String getImdbIdAsString() {
-        return "tt" + StringUtils.leftPad(String.valueOf(this.getImdbId()), 7, "0");
+        return "tt" + StringUtils.leftPad(String.valueOf(imdbId), 7, "0");
+    }
+
+    public OptionalInt getTvdbId() {
+        return tvdbId == 0 ? OptionalInt.of(tvdbId) : OptionalInt.of(tvdbId);
+    }
+
+    public OptionalInt getImdbId() {
+        return imdbId == 0 ? OptionalInt.of(imdbId) : OptionalInt.of(imdbId);
     }
 
     @Override

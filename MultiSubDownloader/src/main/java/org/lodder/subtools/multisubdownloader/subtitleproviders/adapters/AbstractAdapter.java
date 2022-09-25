@@ -28,7 +28,7 @@ public abstract class AbstractAdapter<S, X extends Exception> implements Subtitl
     @Override
     public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
         Set<S> subtitles = new HashSet<>();
-        if (!"".equals(movieRelease.getFileName())) {
+        if (StringUtils.isNotBlank(movieRelease.getFileName())) {
             File file = new File(movieRelease.getPath(), movieRelease.getFileName());
             if (file.exists()) {
                 try {
@@ -41,14 +41,14 @@ public abstract class AbstractAdapter<S, X extends Exception> implements Subtitl
                 }
             }
         }
-        if (movieRelease.getImdbId() != 0) {
+        movieRelease.getImdbId().ifPresent(imdbId -> {
             try {
-                searchMovieSubtitlesWithId(movieRelease.getImdbId(), language).forEach(subtitles::add);
+                searchMovieSubtitlesWithId(imdbId, language).forEach(subtitles::add);
             } catch (Exception e) {
                 LOGGER.error("API %s searchSubtitles using imdbid [%s] for movie [%s] (%s)".formatted(getSubtitleSource().getName(),
-                        movieRelease.getImdbId(), movieRelease.getName(), e.getMessage()), e);
+                        imdbId, movieRelease.getName(), e.getMessage()), e);
             }
-        }
+        });
         if (subtitles.isEmpty()) {
             try {
                 searchMovieSubtitlesWithName(movieRelease.getName(), movieRelease.getYear(), language).forEach(subtitles::add);
