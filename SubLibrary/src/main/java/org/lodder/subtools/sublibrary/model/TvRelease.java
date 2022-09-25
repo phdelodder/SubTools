@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbEpisode;
-import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -21,7 +20,6 @@ public class TvRelease extends Release {
     private String title;
     private final int season;
     private int tvdbId;
-    private int tvrageId;
     private final List<Integer> episodeNumbers;
     // tvdb name
     private String originalShowName;
@@ -115,14 +113,6 @@ public class TvRelease extends Release {
         this.episodeNumbers = episodeNumbers;
         this.originalShowName = "";
         this.special = special;
-    }
-
-    public void updateTVRageEpisodeInfo(TVRageEpisode tvrageEpisode) {
-        if (tvrageEpisode.getTitle().contains("$")) {
-            this.title = tvrageEpisode.getTitle().replace("$", ""); // update to reflect correct episode title and fix for $
-        } else {
-            this.title = tvrageEpisode.getTitle(); // update to reflect correct episode title
-        }
     }
 
     public void updateTvdbEpisodeInfo(TheTvdbEpisode tvdbEpisode) {
