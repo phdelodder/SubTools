@@ -1,17 +1,16 @@
 package org.lodder.subtools.multisubdownloader.lib.control;
 
+import java.util.Optional;
+
+import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.data.IMDB.IMDBAPI;
-import org.lodder.subtools.sublibrary.data.IMDB.IMDBException;
-import org.lodder.subtools.sublibrary.data.IMDB.IMDBSearchID;
-import org.lodder.subtools.sublibrary.data.IMDB.IMDBSearchIDException;
-import org.lodder.subtools.sublibrary.data.OMDB.OMDBAPI;
-import org.lodder.subtools.sublibrary.data.OMDB.OMDBException;
+import org.lodder.subtools.sublibrary.data.ReleaseDBIntf;
+import org.lodder.subtools.sublibrary.data.imdb.ImdbAdapter;
+import org.lodder.subtools.sublibrary.data.omdb.OmdbAdapter;
 import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
-import org.lodder.subtools.sublibrary.settings.model.TvdbMappings;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +19,8 @@ import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod({ OptionalExtension.class })
 public class MovieReleaseControl extends ReleaseControl {
-    private final IMDBSearchID imdbSearchID;
-    private final IMDBAPI imdbapi;
-    private final OMDBAPI omdbapi;
+    private final ImdbAdapter imdbAdapter;
+    private final OmdbAdapter omdbAdapter;
     private final MovieRelease movieRelease;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MovieReleaseControl.class);
@@ -30,40 +28,27 @@ public class MovieReleaseControl extends ReleaseControl {
     public MovieReleaseControl(MovieRelease movieRelease, Settings settings, Manager manager) {
         super(settings, manager);
         this.movieRelease = movieRelease;
-        imdbapi = new IMDBAPI(manager);
-        omdbapi = new OMDBAPI(manager);
-        imdbSearchID = new IMDBSearchID(manager);
+        imdbAdapter = new ImdbAdapter(manager);
+        omdbAdapter = new OmdbAdapter(manager);
     }
 
     @Override
-    public void process(TvdbMappings tvdbMappings) throws ReleaseControlException {
-        if ("".equals(movieRelease.getName())) {
+    public void process() throws ReleaseControlException {
+        if (StringUtils.isBlank(movieRelease.getName())) {
             throw new ReleaseControlException("Unable to extract/find title, check file", movieRelease);
         } else {
-            try {
-                int imdbId = imdbSearchID.getImdbId(movieRelease.getName(), movieRelease.getYear())
-                        .orElseThrow(() -> new ReleaseControlException("Movie not found on IMDB, check file", movieRelease));
-                movieRelease.setImdbId(imdbId);
-            } catch (IMDBSearchIDException e) {
-                throw new ReleaseControlException("IMDBASearchID Failed", movieRelease);
-            }
-            try {
-                imdbapi.getIMDBMovieDetails(movieRelease.getImdbidAsString()).ifPresentOrElse(imdbInfo -> {
-                    movieRelease.setYear(imdbInfo.getYear());
-                    movieRelease.setName(imdbInfo.getTitle());
-                }, () -> LOGGER.error("Unable to get details from IMDB API, continue with filename info {}", movieRelease));
-            } catch (IMDBException e) {
-                LOGGER.warn("IMDBAPI Failed {}, using OMDBAPI as fallback", movieRelease);
+            int imdbId = imdbAdapter.getImdbId(movieRelease.getName(), movieRelease.getYear())
+                    .orElseThrow(() -> new ReleaseControlException("Movie not found on IMDB, check file", movieRelease));
+            movieRelease.setImdbId(imdbId);
 
-                try {
-                    omdbapi.getOMDBMovieDetails(movieRelease.getImdbidAsString()).ifPresentOrElse(omdbInfo -> {
-                        movieRelease.setYear(omdbInfo.getYear());
-                        movieRelease.setName(omdbInfo.getTitle());
-                    }, () -> LOGGER.error("Unable to get details from OMDB API, continue with filename info {}", movieRelease));
-                } catch (OMDBException e1) {
-                    throw new ReleaseControlException("OMDBAPI Failed", movieRelease);
-                }
+            Optional<? extends ReleaseDBIntf> movieDetails = imdbAdapter.getMovieDetails(movieRelease.getImdbIdAsString());
+            if (movieDetails.isEmpty()) {
+                movieDetails = omdbAdapter.getMovieDetails(movieRelease.getImdbIdAsString());
             }
+            movieDetails.ifPresentDo(info -> {
+                movieRelease.setYear(info.getYear());
+                movieRelease.setName(info.getName());
+            }).ifEmptyDo(() -> LOGGER.error("Unable to get details from OMDB API, continue with filename info {}", movieRelease));
         }
     }
 
@@ -71,5 +56,4 @@ public class MovieReleaseControl extends ReleaseControl {
     public Release getVideoFile() {
         return movieRelease;
     }
-
 }

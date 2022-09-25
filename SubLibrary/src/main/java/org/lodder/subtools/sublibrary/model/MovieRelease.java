@@ -68,7 +68,7 @@ public class MovieRelease extends Release {
         this.year = year;
     }
 
-    public String getImdbidAsString() {
+    public String getImdbIdAsString() {
         return "tt" + StringUtils.leftPad(String.valueOf(this.getImdbId()), 7, "0");
     }
 

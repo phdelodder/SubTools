@@ -1,6 +1,9 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
-import java.util.prefs.Preferences;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
+import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -14,10 +17,12 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.Messages;
-import org.lodder.subtools.multisubdownloader.settings.SettingValue;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
-import org.lodder.subtools.multisubdownloader.settings.model.Settings;
+import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.settings.model.TvdbMapping;
+import org.lodder.subtools.sublibrary.settings.model.TvdbMappings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,36 +31,134 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import net.miginfocom.swing.MigLayout;
 
 public class MappingEpisodeNameDialog extends MultiSubDialog {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory.getLogger(MappingEpisodeNameDialog.class);
-
     private final JPanel contentPanel = new JPanel();
     private JTable table;
-    private final SettingsControl prefCtrl;
-    private final Settings pref;
+    private final Manager manager;
+    private final MappingTableModel mappingTableModel;
 
     /**
      * Create the dialog.
      */
-    public MappingEpisodeNameDialog(JFrame frame, final SettingsControl prefCtrl) {
+    public MappingEpisodeNameDialog(JFrame frame, final SettingsControl prefCtrl, Manager manager) {
         super(frame, Messages.getString("MappingEpisodeNameDialog.Title"), true);
-        this.prefCtrl = prefCtrl;
-        pref = prefCtrl.getSettings();
+        this.manager = manager;
+        this.mappingTableModel = new MappingTableModel(manager);
         initialize();
-        loadMappingTable();
         repaint();
     }
 
-    private void loadMappingTable() {
-        DefaultTableModel model = (DefaultTableModel) table.getModel();
-        while (model.getRowCount() > 0) {
-            model.removeRow(0);
+    @Getter
+    @Setter
+    @Accessors(chain = true)
+    private static class Cell {
+        private final String initialValue;
+        private String value;
+
+        public Cell() {
+            this.initialValue = null;
         }
-        pref.getMappingSettings().forEach((tvdbId, tvdbMapping) -> model.addRow(new String[] { tvdbMapping.getName(), String.valueOf(tvdbId) }));
+
+        public Cell(String value) {
+            this.initialValue = value;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+
+        public boolean isChanged() {
+            return initialValue == null || !initialValue.equals(value);
+        }
+    }
+
+    @Getter
+    @Setter
+    @RequiredArgsConstructor
+    private static class Row {
+
+        private final TvdbMapping tvdbMapping;
+        private final Cell nameCell;
+        private final Cell idCell;
+
+        public Row(String name, int id) {
+            this.tvdbMapping = null;
+            this.nameCell = new Cell(name);
+            this.idCell = new Cell(String.valueOf(id));
+        }
+
+        public Row(TvdbMapping tvdbMapping) {
+            this.tvdbMapping = tvdbMapping;
+            this.nameCell = new Cell(tvdbMapping.getName());
+            this.idCell = new Cell(String.valueOf(tvdbMapping.getId()));
+        }
+
+        public boolean isChanged() {
+            return nameCell.isChanged() || idCell.isChanged();
+        }
+    }
+
+    private static class MappingTableModel extends DefaultTableModel {
+        @Getter
+        private final List<String> removedSerieName = new ArrayList<>();
+
+        public MappingTableModel(Manager manager) {
+            super(new String[] { Messages.getString("MappingEpisodeNameDialog.SceneShowName"),
+                    Messages.getString("MappingEpisodeNameDialog.TvdbId") }, 0);
+            TvdbMappings.getPersistedTvdbMappings(manager).stream().forEach(tvdbMapping -> {
+                Vector<Object> vector = new Vector<>(2);
+                vector.add(new Cell(tvdbMapping.getName()));
+                vector.add(new Cell(String.valueOf(tvdbMapping.getId())));
+                addRow(vector);
+            });
+        }
+
+        public List<Vector<Cell>> getChangedRows() {
+            return super.getDataVector().stream().map(vector -> (Vector<Cell>) vector)
+                    .filter(vector -> vector.get(0).isChanged() || vector.get(1).isChanged()).collect(Collectors.toList());
+        }
+
+        @Override
+        public void setValueAt(Object value, int row, int column) {
+            Cell cell = ((Cell) getValueAt(row, column)).setValue((String) value);
+            super.setValueAt(cell, row, column);
+        }
+
+        @Override
+        public boolean isCellEditable(int row, int col) {
+            return true;
+        }
+
+        @Override
+        public void removeRow(int row) {
+            if (row < 0) {
+                return;
+            }
+            Vector<Cell> vector = super.getDataVector().get(row);
+            String initialName = vector.get(0).getInitialValue();
+            if (StringUtils.isNotBlank(initialName)) {
+                removedSerieName.add(initialName);
+            }
+            super.removeRow(row);
+        }
+
+        public void addRow(String scene, int tvdbId) {
+            Vector<Object> vector = new Vector<>(2);
+            vector.add(new Cell().setValue(scene));
+            vector.add(new Cell().setValue(String.valueOf(tvdbId)));
+            super.addRow(vector);
+        }
     }
 
     private void initialize() {
@@ -85,13 +188,18 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
                             JOptionPane.showInputDialog(Messages
                                     .getString("MappingEpisodeNameDialog.EnterSceneShowName"));
                     if (!"".equals(scene)) {
-                        String tvdbId =
-                                JOptionPane.showInputDialog(Messages
-                                        .getString("MappingEpisodeNameDialog.EnterTvdbId"));
-                        if (!"".equals(tvdbId)) {
-                            DefaultTableModel model = (DefaultTableModel) table.getModel();
-                            model.addRow(new Object[] { scene, tvdbId });
+                        boolean isInvalid = true;
+                        int tvdbId = 0;
+                        while (isInvalid) {
+                            try {
+                                tvdbId = Integer.parseInt(JOptionPane.showInputDialog(Messages.getString("MappingEpisodeNameDialog.EnterTvdbId")));
+                                isInvalid = false;
+                            } catch (NumberFormatException e) {
+                                // retry
+                            }
                         }
+                        MappingTableModel model = (MappingTableModel) table.getModel();
+                        model.addRow(scene, tvdbId);
                     }
                 });
                 pnlButtons.add(btnAdd);
@@ -101,7 +209,7 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
                         new JButton(Messages.getString("MappingEpisodeNameDialog.DeleteRow"));
                 btnDeleteSelectedRow.addActionListener(arg0 -> {
                     int row = table.getSelectedRow();
-                    DefaultTableModel model = (DefaultTableModel) table.getModel();
+                    MappingTableModel model = (MappingTableModel) table.getModel();
                     model.removeRow(row);
                 });
                 pnlButtons.add(btnDeleteSelectedRow);
@@ -116,31 +224,9 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
             contentPanel.add(scrollPane, gbc_scrollPane);
             {
                 table = new JTable();
-                table.setModel(new DefaultTableModel(new Object[][] {}, new String[] {
-                        Messages.getString("MappingEpisodeNameDialog.SceneShowName"),
-                        Messages.getString("MappingEpisodeNameDialog.TvdbId") }) {
-                    /**
-                     *
-                     */
-                    private static final long serialVersionUID = 1L;
-                    @SuppressWarnings("rawtypes")
-                    Class[] columnTypes = { String.class, String.class, String.class };
 
-                    @Override
-                    @SuppressWarnings({ "unchecked", "rawtypes" })
-                    public Class getColumnClass(int columnIndex) {
-                        return columnTypes[columnIndex];
-                    }
-
-                    boolean[] columnEditables = { true, true, true };
-
-                    @Override
-                    public boolean isCellEditable(int row, int column) {
-                        return columnEditables[column];
-                    }
-                });
-                RowSorter<TableModel> sorter;
-                sorter = new TableRowSorter<>(table.getModel());
+                table.setModel(mappingTableModel);
+                RowSorter<TableModel> sorter = new TableRowSorter<>(table.getModel());
                 table.setRowSorter(sorter);
                 scrollPane.setViewportView(table);
             }
@@ -164,8 +250,24 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
     }
 
     private void storeMappingTable() {
-        Preferences preferences = Preferences.userRoot().node("MultiSubDownloader");
-        SettingValue.DICTIONARY.store(prefCtrl, preferences);
+        List<Vector<Cell>> changedRows = mappingTableModel.getChangedRows();
+        changedRows.stream().map(vector -> vector.get(0).getInitialValue()).forEach(this::removeRowFromCache);
+        changedRows.forEach(vector -> putRowInCache(vector.get(0).getValue(), vector.get(1).getValue()));
+        mappingTableModel.getRemovedSerieName().forEach(this::removeRowFromCache);
     }
 
+    private void removeRowFromCache(String serieName) {
+        if (StringUtils.isNotBlank(serieName)) {
+            System.out.println("removeTvdbMapping " + serieName);
+            TvdbMappings.removeTvdbMapping(manager, serieName);
+        }
+    }
+
+    private void putRowInCache(String serieName, String id) {
+        try {
+            TvdbMappings.persistTvdbMapping(manager, serieName, Integer.parseInt(id));
+        } catch (NumberFormatException e) {
+            LOGGER.error("Invalid tvdb id: " + e.getMessage(), e);
+        }
+    }
 }

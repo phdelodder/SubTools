@@ -2,7 +2,6 @@ package org.lodder.subtools.sublibrary.data.tvrage;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,12 +10,9 @@ import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisodeList;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageShowInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TVRageApi {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TVRageApi.class);
     private static final String API_EPISODE_INFO = "episodeinfo.php";
     private static final String API_EPISODE_LIST = "episode_list.php";
     private static final String API_SEARCH = "search.php";
@@ -26,7 +22,7 @@ public class TVRageApi {
     private final TVRageParser tvrParser;
 
     public TVRageApi(Manager manager) {
-        tvrParser = new TVRageParser(manager);
+        this.tvrParser = new TVRageParser(manager);
     }
 
     /**
@@ -34,19 +30,13 @@ public class TVRageApi {
      *
      * @param showName
      * @return list of matching shows
+     * @throws TvrageException
      */
-    public List<TVRageShowInfo> searchShow(String showName) {
+    public List<TVRageShowInfo> searchShow(String showName) throws TvrageException {
         if (!isValidString(showName)) {
-            return new ArrayList<>();
-        }
-
-        String tvrageURL = buildURL(API_SEARCH, showName).toString();
-        try {
-            return tvrParser.getSearchShow(tvrageURL);
-        } catch (Exception e) {
-            LOGGER.error("API TVRage: " + e.getMessage(), e);
             return List.of();
         }
+        return tvrParser.getSearchShow(buildURL(API_SEARCH, showName).toString());
     }
 
     /**
@@ -54,45 +44,35 @@ public class TVRageApi {
      *
      * @param showId
      * @return
+     * @throws TvrageException
      */
-    public Optional<TVRageEpisodeList> getEpisodeList(String showId) {
+    public Optional<TVRageEpisodeList> getEpisodeList(String showId) throws TvrageException {
         if (!isValidString(showId)) {
             return Optional.empty();
         }
-
-        String tvrageURL = buildURL(API_EPISODE_LIST, showId).toString();
-        try {
-            return Optional.of(tvrParser.getEpisodeList(tvrageURL));
-        } catch (Exception e) {
-            LOGGER.error("API TVRage: " + e.getMessage(), e);
-            return Optional.empty();
-        }
+        return Optional.of(tvrParser.getEpisodeList(buildURL(API_EPISODE_LIST, showId).toString()));
     }
 
     /**
      * Get the information for a specific episode
      *
-     * @param showID
+     * @param showId
      * @param seasonId
      * @param episodeId
      * @return
+     * @throws TvrageException
      */
-    public Optional<TVRageEpisode> getEpisodeInfo(String showID, String seasonId, String episodeId) {
-        if (!isValidString(showID) || !isValidString(seasonId) || !isValidString(episodeId)) {
+    public Optional<TVRageEpisode> getEpisodeInfo(String showId, int seasonId, int episodeId) throws TvrageException {
+        if (!isValidString(showId)) {
             return Optional.empty();
         }
 
-        StringBuilder tvrageURL = buildURL(API_EPISODE_INFO, showID);
+        StringBuilder tvrageURL = buildURL(API_EPISODE_INFO, showId);
         // Append the Season & Episode to the URL
         tvrageURL.append("&ep=").append(seasonId);
         tvrageURL.append("x").append(episodeId);
 
-        try {
-            return tvrParser.getEpisodeInfo(tvrageURL.toString());
-        } catch (Exception e) {
-            LOGGER.error("API TVRage: " + e.getMessage(), e);
-            return Optional.empty();
-        }
+        return tvrParser.getEpisodeInfo(tvrageURL.toString());
     }
 
     private StringBuilder buildURL(String urlParameter, String urlData) {

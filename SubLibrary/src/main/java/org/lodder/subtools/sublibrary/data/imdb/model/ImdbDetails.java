@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.data.IMDB.model;
+package org.lodder.subtools.sublibrary.data.imdb.model;
 
 import java.io.Serializable;
 
@@ -12,18 +12,20 @@ import java.io.Serializable;
 
 import java.net.URL;
 
+import org.lodder.subtools.sublibrary.data.ReleaseDBIntf;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class IMDBDetails implements Serializable {
+public class ImdbDetails implements ReleaseDBIntf, Serializable {
     private static final long serialVersionUID = 2596873770215746380L;
     private String title, rated, released, genre, director, writer, actors, plot, runtime, rating, votes, id;
     private int year;
     private URL poster;
 
-    public IMDBDetails() {
+    public ImdbDetails() {
         title = "";
         rated = "";
         released = "";
@@ -38,6 +40,11 @@ public class IMDBDetails implements Serializable {
         id = "";
         year = 0;
         poster = null;
+    }
+
+    @Override
+    public String getName() {
+        return title;
     }
 
 }

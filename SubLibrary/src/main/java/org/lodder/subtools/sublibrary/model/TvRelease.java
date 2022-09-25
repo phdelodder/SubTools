@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
+import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbEpisode;
 import org.lodder.subtools.sublibrary.data.tvrage.model.TVRageEpisode;
 
 import lombok.Getter;
@@ -32,7 +32,11 @@ public class TvRelease extends Release {
     }
 
     public static String formatName(String serieName, int season, int episode) {
-        return "%s S%sE%s".formatted(serieName, StringUtils.leftPad(String.valueOf(season), 2, "0"),
+        return serieName + " " + formatSeasonEpisode(season, episode);
+    }
+
+    public static String formatSeasonEpisode(int season, int episode) {
+        return "S%sE%s".formatted(StringUtils.leftPad(String.valueOf(season), 2, "0"),
                 StringUtils.leftPad(String.valueOf(episode), 2, "0"));
     }
 
@@ -121,7 +125,7 @@ public class TvRelease extends Release {
         }
     }
 
-    public void updateTvdbEpisodeInfo(TheTVDBEpisode tvdbEpisode) {
+    public void updateTvdbEpisodeInfo(TheTvdbEpisode tvdbEpisode) {
         this.title = tvdbEpisode.getEpisodeName(); // update to reflect correct episode title
     }
 

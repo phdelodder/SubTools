@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -16,6 +17,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jsoup.Jsoup;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
@@ -66,7 +68,6 @@ public class Manager {
         } catch (HttpClientSetupException | HttpClientException e) {
             throw new ManagerException(e);
         }
-
     }
 
     public boolean isCached(String url) {
@@ -296,6 +297,173 @@ public class Manager {
             Optional<T> value = optionalValueSupplier.get();
             value.ifPresentOrElse(v -> cache.put(key, v), () -> cache.put(key, null));
             return value;
+        }
+    }
+
+    // ========== \\
+    // GET VALUES \\
+    // ========== \\
+
+    public ValuesBuilderKeyIntf getValuesBuilder() {
+        return new ValuesBuilder<>(inMemoryCache, diskCache);
+    }
+
+    public interface ValuesBuilderKeyIntf {
+        ValuesBuilderKeyMatchIntf key(String key);
+
+        ValuesBuilderCacheTypeIntf keyFilter(Predicate<String> keyFilter);
+    }
+
+    public interface ValuesBuilderKeyMatchIntf {
+        ValuesBuilderCacheTypeIntf matchType(CacheKeyMatchEnum matchType);
+    }
+
+    public interface ValuesBuilderCacheTypeIntf {
+        ValuesBuilderValueTypeIntf cacheType(CacheType cacheType);
+    }
+
+    public interface ValuesBuilderValueTypeIntf {
+        <T extends Serializable> ValuesBuilderGetIntf<T> valueType(Class<T> valueType);
+    }
+
+    public interface ValuesBuilderGetIntf<T extends Serializable> {
+        List<Pair<String, T>> get();
+    }
+
+    @Setter
+    @Accessors(chain = true, fluent = true)
+    @RequiredArgsConstructor
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static class ValuesBuilder<T extends Serializable>
+            implements ValuesBuilderKeyIntf, ValuesBuilderKeyMatchIntf, ValuesBuilderCacheTypeIntf, ValuesBuilderValueTypeIntf,
+            ValuesBuilderGetIntf<T> {
+        private final InMemoryCache inMemoryCache;
+        private final DiskCache diskCache;
+        private String key;
+        private CacheType cacheType;
+        private Predicate<String> keyFilter;
+        private CacheKeyMatchEnum matchType;
+        private Class<T> valueType;
+
+        @Override
+        public <S extends Serializable> ValuesBuilder<S> valueType(Class<S> valueType) {
+            this.valueType = (Class<T>) valueType;
+            return (ValuesBuilder<S>) this;
+        }
+
+        @Override
+        public List<Pair<String, T>> get() {
+            return switch (cacheType) {
+                case MEMORY -> get(inMemoryCache);
+                case DISK -> get(diskCache);
+                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
+            };
+        }
+
+        private List<Pair<String, T>> get(InMemoryCache cache) {
+            if (keyFilter != null) {
+                return cache.getEntries(keyFilter);
+            }
+            return switch (matchType) {
+                case STARTING_WITH -> cache.getEntries(k -> ((String) k).startsWith(key));
+                case ENDING_WITH -> cache.getEntries(k -> ((String) k).endsWith(key));
+                case CONTAINING -> cache.getEntries(k -> ((String) k).contains(key));
+                default -> throw new IllegalArgumentException("Unexpected value: " + matchType);
+            };
+        }
+    }
+
+    // =========== \\
+    // STORE VALUE \\
+    // =========== \\
+
+    public StoreValueBuilderKeyIntf getStoreValueBuilder() {
+        return new StoreValue(inMemoryCache, diskCache);
+    }
+
+    public interface StoreValueBuilderKeyIntf {
+        StoreValueCacheTypeIntf key(String key);
+    }
+
+    public interface StoreValueCacheTypeIntf {
+        StoreValueValueIntf cacheType(CacheType cacheType);
+    }
+
+    public interface StoreValueValueIntf {
+        <T extends Serializable> StoreValueGetIntf<T> value(T value);
+    }
+
+    public interface StoreValueGetIntf<T> {
+        void store();
+    }
+
+    @Setter
+    @Accessors(chain = true, fluent = true)
+    @RequiredArgsConstructor
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static class StoreValue<T extends Serializable>
+            implements StoreValueBuilderKeyIntf, StoreValueCacheTypeIntf, StoreValueGetIntf<T>, StoreValueValueIntf {
+        private final InMemoryCache inMemoryCache;
+        private final DiskCache diskCache;
+        private String key;
+        private CacheType cacheType;
+        private T value;
+
+        @Override
+        public <S extends Serializable> StoreValueGetIntf<S> value(S value) {
+            this.value = (T) value;
+            return (StoreValueGetIntf<S>) this;
+        }
+
+        @Override
+        public void store() {
+            switch (cacheType) {
+                case MEMORY -> inMemoryCache.put(key, value);
+                case DISK -> diskCache.put(key, value);
+                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
+            }
+        }
+
+    }
+
+    // =================== \\
+    // REMOVE CACHED VALUE \\
+    // =================== \\
+
+    public RemoveCacheValueBuilderKeyIntf getRemoveCacheValueBuilder() {
+        return new RemoveCacheValue(inMemoryCache, diskCache);
+    }
+
+    public interface RemoveCacheValueBuilderKeyIntf {
+        RemoveCacheValueCacheTypeIntf key(String key);
+    }
+
+    public interface RemoveCacheValueCacheTypeIntf {
+        RemoveCacheValueGetIntf cacheType(CacheType cacheType);
+    }
+
+    public interface RemoveCacheValueGetIntf {
+        void remove();
+    }
+
+    @Setter
+    @Accessors(chain = true, fluent = true)
+    @RequiredArgsConstructor
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static class RemoveCacheValue
+            implements RemoveCacheValueBuilderKeyIntf, RemoveCacheValueCacheTypeIntf, RemoveCacheValueGetIntf {
+        private final InMemoryCache inMemoryCache;
+        private final DiskCache diskCache;
+        private String key;
+        private CacheType cacheType;
+
+        @Override
+        public void remove() {
+            switch (cacheType) {
+                case MEMORY -> inMemoryCache.remove(key);
+                case DISK -> diskCache.remove(key);
+                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
+            }
         }
     }
 }

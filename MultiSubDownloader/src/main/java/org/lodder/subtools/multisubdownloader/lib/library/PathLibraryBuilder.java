@@ -33,7 +33,7 @@ public class PathLibraryBuilder extends LibraryBuilder {
 
     protected String buildEpisode(TvRelease tvRelease) {
         String folder = librarySettings.getLibraryFolderStructure();
-        String show = getShowName(tvRelease);
+        String show = getShowName(tvRelease.getName());
         if (librarySettings.isLibraryReplaceChars()) {
             show = StringUtil.removeIllegalWindowsChars(show);
         }

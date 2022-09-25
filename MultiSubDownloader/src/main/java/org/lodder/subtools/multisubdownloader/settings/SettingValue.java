@@ -136,22 +136,7 @@ public enum SettingValue {
     SERIE_SOURCE_SUBSCENE(true, SettingsControl::getSettings, Settings::isSerieSourceSubscene, Settings::setSerieSourceSubscene),
 
     // STATE
-    LATEST_UPDATE_CHECK(LocalDate.MIN, LocalDate::toString, LocalDate::parse, SettingsControl::getState, State::getLatestUpdateCheck, State::setLatestUpdateCheck),
-
-    // MAPPINGS
-    DICTIONARY(
-            (Pair<Integer, TvdbMapping> pair) -> pair.getRight().getName() + "\\\\" + pair.getLeft() + "\\\\"
-                    + StringUtils.join(pair.getRight().getAlternativeNames(), "\\\\"),
-            v -> {
-                String[] items = v.split("\\\\\\\\");
-                int tvdbId = Integer.parseInt(items[1]);
-                TvdbMapping tvdbMapping = new TvdbMapping(items[0]);
-                Arrays.stream(items).skip(2).forEach(tvdbMapping::addAlternativename);
-                return Pair.of(tvdbId, tvdbMapping);
-            },
-            sCtr -> sCtr.getSettings().getMappingSettings(),
-            (tvdbMappings, pair) -> tvdbMappings.add(pair.getLeft(), pair.getRight()),
-            (tvdbMappings, consumer) -> tvdbMappings.forEach((tvdbId, tvdbMapping) -> consumer.accept(Pair.of(tvdbId, tvdbMapping))));
+    LATEST_UPDATE_CHECK(LocalDate.MIN, LocalDate::toString, LocalDate::parse, SettingsControl::getState, State::getLatestUpdateCheck, State::setLatestUpdateCheck);
 
     private final BiConsumer<SettingsControl, Preferences> storeValueFunction;
     private final BiConsumer<SettingsControl, Preferences> loadValueFunction;

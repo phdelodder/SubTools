@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.data.thetvdb;
+package org.lodder.subtools.sublibrary.data.tvdb;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -11,12 +11,14 @@ import java.util.stream.Collectors;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.CacheType;
-import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBEpisode;
-import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
+import org.lodder.subtools.sublibrary.data.tvdb.exception.TheTvdbException;
+import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbEpisode;
+import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbSerie;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pivovarit.function.ThrowingSupplier;
 import com.uwetrottmann.thetvdb.TheTvdb;
 import com.uwetrottmann.thetvdb.entities.Episode;
 import com.uwetrottmann.thetvdb.entities.EpisodesResponse;
@@ -28,18 +30,23 @@ import lombok.experimental.ExtensionMethod;
 import retrofit2.Response;
 
 @ExtensionMethod({ OptionalExtension.class })
-public class TheTVDBApiV2 {
+class TheTvdbApiV2 {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TheTVDBApiV2.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TheTvdbApiV2.class);
     private final Manager manager;
     private final TheTvdb theTvdb;
 
-    public TheTVDBApiV2(Manager manager, String apikey) throws TheTVDBException {
+    public TheTvdbApiV2(Manager manager, String apikey) {
         this.manager = manager;
         this.theTvdb = new TheTvdb(apikey);
     }
 
-    public OptionalInt getSerieId(String seriename, Language language) throws TheTVDBException {
+    public OptionalInt getSerieId(String seriename, Language language) throws TheTvdbException {
+        return getSerieId(seriename, language, null);
+    }
+
+    public OptionalInt getSerieId(String seriename, Language language, ThrowingSupplier<Optional<Integer>, TheTvdbException> noResultCallback)
+            throws TheTvdbException {
         String encodedSerieName = URLEncoder.encode(seriename.toLowerCase().replace(" ", "-"), StandardCharsets.UTF_8);
         return manager.getValueBuilder()
                 .key("TVDB-SerieId-%s-%s".formatted(encodedSerieName, language))
@@ -52,15 +59,20 @@ public class TheTVDBApiV2 {
                         if (response.isSuccessful()) {
                             return response.body().data.stream().map(serie -> serie.id).findFirst();
                         }
+                        if (noResultCallback != null) {
+                            return noResultCallback.get();
+                        }
                         return Optional.empty();
                     } catch (IOException e) {
-                        throw new TheTVDBException(e);
+                        if (noResultCallback != null) {
+                            return noResultCallback.get();
+                        }
+                        throw new TheTvdbException(e);
                     }
                 }).getOptional().mapToInt(i -> i);
-
     }
 
-    public Optional<TheTVDBSerie> getSerie(int tvdbId, Language language) throws TheTVDBException {
+    public Optional<TheTvdbSerie> getSerie(int tvdbId, Language language) throws TheTvdbException {
         return manager.getValueBuilder()
                 .key("TVDB-Serie-%s-%s".formatted(tvdbId, language))
                 .cacheType(CacheType.DISK)
@@ -77,20 +89,20 @@ public class TheTVDBApiV2 {
                         }
                         return Optional.empty();
                     } catch (IOException e) {
-                        throw new TheTVDBException(e);
+                        throw new TheTvdbException(e);
                     }
                 }).getOptional();
     }
 
-    public List<TheTVDBEpisode> getAllEpisodes(int tvdbid, Language language) throws TheTVDBException {
+    public List<TheTvdbEpisode> getAllEpisodes(int tvdbId, Language language) throws TheTvdbException {
         return manager.getValueBuilder()
-                .key("TVDB-episodes-%s-%s".formatted(tvdbid, language))
+                .key("TVDB-episodes-%s-%s".formatted(tvdbId, language))
                 .cacheType(CacheType.MEMORY)
-                .collectionSupplier(TheTVDBEpisode.class, () -> {
+                .collectionSupplier(TheTvdbEpisode.class, () -> {
                     try {
-                        if (tvdbid != 0) {
+                        if (tvdbId != 0) {
                             Response<EpisodesResponse> response =
-                                    theTvdb.series().episodes(tvdbid, 1, language == null ? null : language.getLangCode()).execute();
+                                    theTvdb.series().episodes(tvdbId, 1, language == null ? null : language.getLangCode()).execute();
                             if (response.isSuccessful()) {
                                 return response.body().data.stream()
                                         .map(episode -> episodeToTVDBEpisode(episode, language))
@@ -101,32 +113,32 @@ public class TheTVDBApiV2 {
                         }
                         return List.of();
                     } catch (IOException e) {
-                        throw new TheTVDBException(e);
+                        throw new TheTvdbException(e);
                     }
                 }).getCollection();
     }
 
-    public Optional<TheTVDBEpisode> getEpisode(int tvdbid, int season, int episode, Language language) throws TheTVDBException {
+    public Optional<TheTvdbEpisode> getEpisode(int tvdbId, int season, int episode, Language language) throws TheTvdbException {
         return manager.getValueBuilder()
-                .key("TVDB-episode-%s-%s-%s-%s".formatted(tvdbid, season, episode, language))
+                .key("TVDB-episode-%s-%s-%s-%s".formatted(tvdbId, season, episode, language))
                 .cacheType(CacheType.DISK)
                 .optionalSupplier(() -> {
                     try {
                         Response<EpisodesResponse> response =
-                                theTvdb.series().episodesQuery(tvdbid, null, season, episode, null, null, null, null, null,
+                                theTvdb.series().episodesQuery(tvdbId, null, season, episode, null, null, null, null, null,
                                         language == null ? null : language.getLangCode()).execute();
                         if (response.isSuccessful()) {
                             return response.body().data.stream().map(serie -> episodeToTVDBEpisode(serie, language)).findFirst();
                         }
-                        throw new TheTVDBException(response.errorBody().string());
+                        throw new TheTvdbException(response.errorBody().string());
                     } catch (IOException e) {
-                        throw new TheTVDBException(e);
+                        throw new TheTvdbException(e);
                     }
                 }).getOptional();
     }
 
-    private TheTVDBSerie seriesToTVDBSerie(Series serie, Language lang) {
-        TheTVDBSerie TheTVDBSerie = new TheTVDBSerie();
+    private TheTvdbSerie seriesToTVDBSerie(Series serie, Language lang) {
+        TheTvdbSerie TheTVDBSerie = new TheTvdbSerie();
 
         TheTVDBSerie.setId(toString(serie.id));
         TheTVDBSerie.setAirsDayOfWeek(serie.airsDayOfWeek);
@@ -147,8 +159,8 @@ public class TheTVDBApiV2 {
         return TheTVDBSerie;
     }
 
-    private TheTVDBEpisode episodeToTVDBEpisode(Episode episode, Language lang) {
-        TheTVDBEpisode tvdbEpisode = new TheTVDBEpisode();
+    private TheTvdbEpisode episodeToTVDBEpisode(Episode episode, Language lang) {
+        TheTvdbEpisode tvdbEpisode = new TheTvdbEpisode();
 
         tvdbEpisode.setId(toString(episode.id));
         tvdbEpisode.setDvdEpisodeNumber(toString(episode.dvdEpisodeNumber));

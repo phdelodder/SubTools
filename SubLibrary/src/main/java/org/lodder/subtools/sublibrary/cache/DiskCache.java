@@ -76,9 +76,8 @@ public abstract class DiskCache<K, V> extends InMemoryCache<K, V> {
         synchronized (LOCK) {
             try (PreparedStatement prep = CONN.prepareCall("delete from %s where key = ?".formatted(tableName))) {
                 prep.clearParameters();
-                prep.setObject(1, tableName);
-                prep.setObject(2, keyToDiskObject(key));
-                prep.execute();
+                prep.setObject(1, keyToDiskObject(key));
+                prep.executeUpdate();
             } catch (SQLException e) {
                 LOGGER.error("Unable to delete object from disk cache!", e);
             }

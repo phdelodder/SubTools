@@ -9,6 +9,7 @@ import org.lodder.subtools.sublibrary.util.throwingfunction.ThrowingIntConsumer;
 import com.pivovarit.function.ThrowingConsumer;
 import com.pivovarit.function.ThrowingFunction;
 import com.pivovarit.function.ThrowingIntFunction;
+import com.pivovarit.function.ThrowingRunnable;
 import com.pivovarit.function.ThrowingSupplier;
 
 import lombok.experimental.UtilityClass;
@@ -33,12 +34,27 @@ public class OptionalExtension {
 
     //
 
+    public static <T, X extends Exception> Optional<T> ifEmptyDo(Optional<T> optional, ThrowingRunnable<X> runnable) throws X {
+        if (optional.isEmpty()) {
+            runnable.run();
+        }
+        return optional;
+    }
+
+    //
+
     public static <T, X extends Exception> Optional<T> orElseMap(Optional<T> optional, ThrowingSupplier<Optional<T>, X> supplier) throws X {
         return optional.isPresent() ? optional : supplier.get();
     }
 
     public static <X extends Exception> OptionalInt orElseMap(OptionalInt optionalInt, ThrowingSupplier<OptionalInt, X> intSupplier) throws X {
         return optionalInt.isPresent() ? optionalInt : intSupplier.get();
+    }
+
+    //
+
+    public static <T, X extends Exception> Optional<T> orElseMapOptional(Optional<T> optional, ThrowingSupplier<Optional<T>, X> supplier) throws X {
+        return optional.isEmpty() ? supplier.get() : optional;
     }
 
     //

@@ -3,11 +3,14 @@ package org.lodder.subtools.sublibrary.cache;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import org.apache.commons.collections4.map.LRUMap;
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.pivovarit.function.ThrowingSupplier;
 
@@ -168,5 +171,14 @@ public class InMemoryCache<K, V> {
             }
             Thread.yield();
         }
+    }
+
+    public List<Pair<K, V>> getEntries() {
+        return getEntries(null);
+    }
+
+    public List<Pair<K, V>> getEntries(Predicate<K> keyFilter) {
+        return cacheMap.entrySet().stream().filter(entry -> keyFilter == null || keyFilter.test(entry.getKey()))
+                .map(entry -> Pair.of(entry.getKey(), entry.getValue().getValue())).toList();
     }
 }

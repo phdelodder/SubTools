@@ -9,7 +9,6 @@ import java.util.Map;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
-import org.lodder.subtools.sublibrary.settings.model.TvdbMappings;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -47,7 +46,6 @@ public class Settings {
     private boolean serieSourceLocal = true;
     private boolean serieSourceSubscene = true;
     private SettingsProcessEpisodeSource processEpisodeSource = SettingsProcessEpisodeSource.TVDB;
-    private TvdbMappings mappingSettings = new TvdbMappings();
     private Map<String, Integer> sortWeights;
     private Language subtitleLanguage;
     private boolean optionsMinAutomaticSelection;

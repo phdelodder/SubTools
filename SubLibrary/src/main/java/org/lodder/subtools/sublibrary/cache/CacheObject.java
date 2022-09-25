@@ -7,7 +7,9 @@ import java.util.regex.Pattern;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
+@ToString
 @Setter
 @Getter
 class CacheObject<T> implements Serializable {

@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.data.IMDB;
+package org.lodder.subtools.sublibrary.data.imdb;
 
 import java.net.URL;
 import java.util.Optional;
@@ -6,16 +6,17 @@ import java.util.Optional;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.XmlHTTP;
-import org.lodder.subtools.sublibrary.data.IMDB.model.IMDBDetails;
+import org.lodder.subtools.sublibrary.data.imdb.exception.ImdbException;
+import org.lodder.subtools.sublibrary.data.imdb.model.ImdbDetails;
 import org.w3c.dom.Element;
 
-public class IMDBAPI extends XmlHTTP {
+public class ImdbApi extends XmlHTTP {
 
-    public IMDBAPI(Manager manager) {
+    public ImdbApi(Manager manager) {
         super(manager);
     }
 
-    public Optional<IMDBDetails> getIMDBMovieDetails(String imdbId) throws IMDBException {
+    public Optional<ImdbDetails> getMovieDetails(String imdbId) throws ImdbException {
         final String xml = "http://www.imdbapi.com/?i=" + imdbId + "&r=xml";
         return getManager().getValueBuilder()
                 .key("IMDB-MovieDetails:" + imdbId)
@@ -25,15 +26,15 @@ public class IMDBAPI extends XmlHTTP {
                         return getXML(xml).cacheType(CacheType.NONE).getAsDocument()
                                 .map(doc -> doc.getElementsByTagName("movie"))
                                 .filter(nodeList -> nodeList.getLength() > 0)
-                                .map(nodeList -> parseIMDBDetails((Element) nodeList.item(0)));
+                                .map(nodeList -> parseImdbDetails((Element) nodeList.item(0)));
                     } catch (Exception e) {
-                        throw new IMDBException("Error IMDBAPI", xml, e);
+                        throw new ImdbException("Error IMDBAPI", xml, e);
                     }
                 }).getOptional();
     }
 
-    private IMDBDetails parseIMDBDetails(Element e) {
-        IMDBDetails details = new IMDBDetails();
+    private ImdbDetails parseImdbDetails(Element e) {
+        ImdbDetails details = new ImdbDetails();
         details.setTitle(e.getAttribute("title"));
         details.setYear(Integer.parseInt(e.getAttribute("year")));
         details.setActors(e.getAttribute("actors"));

@@ -69,7 +69,7 @@ public class Local implements SubtitleProvider {
                                 ((TvRelease) release).getEpisodeNumbers(), tvRelease.getEpisodeNumbers()))) {
 
                     TvReleaseControl epCtrl = new TvReleaseControl((TvRelease) release, settings, manager);
-                    epCtrl.process(settings.getMappingSettings());
+                    epCtrl.process();
                     if (((TvRelease) release).getTvdbId() == tvRelease.getTvdbId()) {
                         Language detectedLang = DetectLanguage.execute(fileSub);
                         if (detectedLang == language) {
@@ -111,7 +111,7 @@ public class Local implements SubtitleProvider {
                 Release release = releaseParser.parse(fileSub);
                 if (release.getVideoType() == VideoType.MOVIE) {
                     MovieReleaseControl movieCtrl = new MovieReleaseControl((MovieRelease) release, settings, manager);
-                    movieCtrl.process(settings.getMappingSettings());
+                    movieCtrl.process();
                     if (((MovieRelease) release).getImdbId() == movieRelease.getImdbId()) {
                         Language detectedLang = DetectLanguage.execute(fileSub);
                         if (detectedLang == language) {

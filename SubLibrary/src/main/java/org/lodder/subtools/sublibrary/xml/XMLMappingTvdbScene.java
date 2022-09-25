@@ -2,9 +2,11 @@ package org.lodder.subtools.sublibrary.xml;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.settings.model.TvdbMapping;
 import org.lodder.subtools.sublibrary.settings.model.TvdbMappings;
 import org.lodder.subtools.sublibrary.util.http.DropBoxClient;
@@ -26,15 +28,15 @@ public class XMLMappingTvdbScene {
     public final static String ALTNAMES_NAME = "altNames";
     public final static String ALTNAME_NAME = "altName";
 
-    public static void write(TvdbMappings tvdbMappings, File f) throws Throwable {
+    public static void write(Manager manager, File f) throws Throwable {
         Document newDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         Element rootElement = newDoc.createElement("MappingTvdbScene");
         newDoc.appendChild(rootElement);
 
-        tvdbMappings.forEach((tvdbId, tvdbMapping) -> {
+        TvdbMappings.getPersistedTvdbMappings(manager).forEach(tvdbMapping -> {
             Element mappingElem = newDoc.createElement(MAPPING_NAME);
             Element tvdbIdElem = newDoc.createElement(TVDBID_NAME);
-            tvdbIdElem.appendChild(newDoc.createTextNode(Integer.toString(tvdbId)));
+            tvdbIdElem.appendChild(newDoc.createTextNode(Integer.toString(tvdbMapping.getId())));
             mappingElem.appendChild(tvdbIdElem);
 
             Element sceneElem = newDoc.createElement(SCENE_NAME);
@@ -54,26 +56,24 @@ public class XMLMappingTvdbScene {
         XMLHelper.writeToFile(f, newDoc);
     }
 
-    public static TvdbMappings read(File f) throws Throwable {
+    public static List<TvdbMapping> read(File f) throws Throwable {
         return read(DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(f));
     }
 
-    public static TvdbMappings read(Document newDoc) throws Throwable {
-        TvdbMappings tvdbMappings = new TvdbMappings();
-        newDoc.getElementsByTagName(MAPPING_NAME).stream()
+    public static List<TvdbMapping> read(Document newDoc) throws Throwable {
+        return newDoc.getElementsByTagName(MAPPING_NAME).stream()
                 .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
                 .map(Element.class::cast)
-                .forEach(eList -> {
+                .map(eList -> {
                     int tvdbId = XMLHelper.getIntTagValue(TVDBID_NAME, eList);
                     String scene = XMLHelper.getStringTagValue(SCENE_NAME, eList);
                     Element altNamesElem = (Element) eList.getElementsByTagName(ALTNAMES_NAME).item(0);
-                    TvdbMapping tvdbMapping = new TvdbMapping(scene);
+                    TvdbMapping tvdbMapping = new TvdbMapping(tvdbId, scene);
                     altNamesElem.getElementsByTagName(ALTNAME_NAME).stream()
                             .map(altNameNode -> XMLHelper.getStringTagValue(ALTNAME_NAME, (Element) altNameNode))
                             .forEach(tvdbMapping::addAlternativename);
-                    tvdbMappings.add(tvdbId, tvdbMapping);
-                });
-        return tvdbMappings;
+                    return tvdbMapping;
+                }).toList();
     }
 
     public static int getMappingsVersionNumber() throws IOException {

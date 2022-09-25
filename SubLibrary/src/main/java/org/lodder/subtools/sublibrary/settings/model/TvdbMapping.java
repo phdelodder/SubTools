@@ -1,5 +1,6 @@
 package org.lodder.subtools.sublibrary.settings.model;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -7,17 +8,21 @@ import org.apache.commons.lang3.StringUtils;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
+@ToString
 @Getter
 @RequiredArgsConstructor
-public class TvdbMapping {
+public class TvdbMapping implements Serializable {
 
+    private static final long serialVersionUID = -5860458667584710122L;
+    private final int id;
     private final String name;
     private final Set<String> alternativeNames = new HashSet<>();
 
-    public TvdbMapping addAlternativename(String name) {
-        if (StringUtils.isNotBlank(name)) {
-            alternativeNames.add(name);
+    public TvdbMapping addAlternativename(String altName) {
+        if (StringUtils.isNotBlank(altName) && !StringUtils.equals(name, altName)) {
+            alternativeNames.add(altName);
         }
         return this;
     }

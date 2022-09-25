@@ -89,6 +89,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
     private static final long serialVersionUID = 1L;
     private final Container app;
+    private final Manager manager;
     private StatusLabel lblStatus;
     private final SettingsControl settingsControl;
     private ProgressDialog progressDialog;
@@ -109,6 +110,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
      */
     public GUI(final SettingsControl settingsControl, Container app) {
         this.app = app;
+        this.manager = (Manager) this.app.make("Manager");
         setTitle(ConfigProperties.getInstance().getProperty("name"));
         /*
          * setIconImage(Toolkit.getDefaultToolkit().getImage(
@@ -124,7 +126,6 @@ public class GUI extends JFrame implements PropertyChangeListener {
     }
 
     private void checkUpdate(final boolean forceUpdateCheck) {
-        Manager manager = (Manager) this.app.make("Manager");
         UpdateAvailableGithub u = new UpdateAvailableGithub(manager, settingsControl);
         Optional<String> updateUrl = (forceUpdateCheck && u.isNewVersionAvailable())
                 || (!forceUpdateCheck && u.shouldCheckForNewUpdate(settingsControl.getSettings().getUpdateCheckPeriod())
@@ -271,36 +272,33 @@ public class GUI extends JFrame implements PropertyChangeListener {
         menuBar.setViewClearLogAction(arg0 -> ((LoggingPanel) pnlLogging).setLogText(""));
 
         menuBar.setEditRenameTVAction(arg0 -> {
-            final RenameDialog rDialog =
-                    new RenameDialog(getThis(), settingsControl.getSettings(), VideoType.EPISODE, (Manager) app.make("Manager"));
+            final RenameDialog rDialog = new RenameDialog(getThis(), settingsControl.getSettings(), VideoType.EPISODE, manager);
             rDialog.setVisible(true);
         });
 
         menuBar.setEditRenameMovieAction(arg0 -> {
-            final RenameDialog rDialog =
-                    new RenameDialog(getThis(), settingsControl.getSettings(), VideoType.MOVIE, (Manager) app.make("Manager"));
+            final RenameDialog rDialog = new RenameDialog(getThis(), settingsControl.getSettings(), VideoType.MOVIE, manager);
             rDialog.setVisible(true);
         });
 
         menuBar.setEditPreferencesAction(arg0 -> {
-            final PreferenceDialog pDialog =
-                    new PreferenceDialog(getThis(), settingsControl, (Emitter) app.make("EventEmitter"), (Manager) app.make("Manager"));
+            final PreferenceDialog pDialog = new PreferenceDialog(getThis(), settingsControl, (Emitter) app.make("EventEmitter"), manager);
             pDialog.setVisible(true);
         });
 
         menuBar.setTranslateShowNamesAction(arg0 -> showTranslateShowNames());
 
-        menuBar.setExportExclusionsAction(arg0 -> exportList(Export.ExportListType.EXCLUDE));
+        menuBar.setExportExclusionsAction(arg0 -> exportList(manager, Export.ExportListType.EXCLUDE));
 
-        menuBar.setImportExclusionsAction(arg0 -> importList(Import.ImportListType.EXCLUDE));
+        menuBar.setImportExclusionsAction(arg0 -> importList(manager, Import.ImportListType.EXCLUDE));
 
-        menuBar.setExportPreferencesAction(arg0 -> exportList(Export.ExportListType.PREFERENCES));
+        menuBar.setExportPreferencesAction(arg0 -> exportList(manager, Export.ExportListType.PREFERENCES));
 
-        menuBar.setImportPreferencesAction(arg0 -> importList(Import.ImportListType.PREFERENCES));
+        menuBar.setImportPreferencesAction(arg0 -> importList(manager, Import.ImportListType.PREFERENCES));
 
-        menuBar.setImportTranslationsAction(arg0 -> importList(Import.ImportListType.TRANSLATE));
+        menuBar.setImportTranslationsAction(arg0 -> importList(manager, Import.ImportListType.TRANSLATE));
 
-        menuBar.setExportTranslationsAction(arg0 -> exportList(Export.ExportListType.TRANSLATE));
+        menuBar.setExportTranslationsAction(arg0 -> exportList(manager, Export.ExportListType.TRANSLATE));
 
         menuBar.setCheckUpdateAction(arg0 -> checkUpdate(true));
 
@@ -471,7 +469,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     }
 
     protected void showTranslateShowNames() {
-        final MappingEpisodeNameDialog tDialog = new MappingEpisodeNameDialog(this, settingsControl);
+        final MappingEpisodeNameDialog tDialog = new MappingEpisodeNameDialog(this, settingsControl, (Manager) this.app.make("Manager"));
         tDialog.setVisible(true);
     }
 
@@ -547,7 +545,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
                 JOptionPane.ERROR_MESSAGE);
     }
 
-    private void importList(Import.ImportListType listType) {
+    private void importList(Manager manager, Import.ImportListType listType) {
         // Create a file chooser
         final JFileChooser fc = new JFileChooser();
         XmlFileFilter filter = new XmlFileFilter();
@@ -556,11 +554,11 @@ public class GUI extends JFrame implements PropertyChangeListener {
         final int returnVal = fc.showOpenDialog(getThis());
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             Import i = new Import(getThis(), settingsControl);
-            i.doImport(listType, fc.getSelectedFile());
+            i.doImport(manager, listType, fc.getSelectedFile());
         }
     }
 
-    private void exportList(Export.ExportListType listType) {
+    private void exportList(Manager manager, Export.ExportListType listType) {
         // Create a file chooser
         final JFileChooser fc = new JFileChooser();
         XmlFileFilter filter = new XmlFileFilter();
@@ -573,7 +571,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
             if (!"xml".equalsIgnoreCase(XmlFileFilter.getExtension(f))) {
                 f = new File(f + ".xml");
             }
-            e.doExport(listType, f);
+            e.doExport(manager, listType, f);
         }
 
     }

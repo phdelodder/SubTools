@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.data.thetvdb.model;
+package org.lodder.subtools.sublibrary.data.tvdb.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class TheTVDBSerie implements Serializable {
+public class TheTvdbSerie implements Serializable {
     private static final long serialVersionUID = -4036836377513152443L;
     private String id;
     private String serieId;

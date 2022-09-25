@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.data.IMDB;
+package org.lodder.subtools.sublibrary.data.imdb;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -8,6 +8,7 @@ import java.util.StringTokenizer;
 
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.CacheType;
+import org.lodder.subtools.sublibrary.data.imdb.exception.ImdbSearchIdException;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,21 +16,21 @@ import org.slf4j.LoggerFactory;
 import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod({ OptionalExtension.class })
-public class IMDBSearchID {
+class ImdbSearchIdApi {
 
     private final Manager manager;
     private static String DEFAULTUSERAGENT = "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)";
-    private static final Logger LOGGER = LoggerFactory.getLogger(IMDBSearchID.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImdbSearchIdApi.class);
 
-    public IMDBSearchID(Manager manager) {
+    public ImdbSearchIdApi(Manager manager) {
         this.manager = manager;
     }
 
-    public OptionalInt getImdbId(String title, int year) throws IMDBSearchIDException {
+    public OptionalInt getImdbId(String title, int year) throws ImdbSearchIdException {
         return this.getImdbIdOnGoogle(title, year).orElseMap(() -> this.getImdbIdOnYahoo(title, year));
     }
 
-    public OptionalInt getImdbIdOnYahoo(String title, int year) throws IMDBSearchIDException {
+    public OptionalInt getImdbIdOnYahoo(String title, int year) throws ImdbSearchIdException {
         return manager.getValueBuilder()
                 .key("IMDB-imdb-yahoo-%s-%s".formatted(title, year))
                 .cacheType(CacheType.DISK)
@@ -57,13 +58,13 @@ public class IMDBSearchID {
                         }
 
                     } catch (Exception e) {
-                        throw new IMDBSearchIDException("Error getImdbIdOnYahoo", url, e);
+                        throw new ImdbSearchIdException("Error getImdbIdOnYahoo", url, e);
                     }
                     return Optional.empty();
                 }).getOptional().mapToInt(i -> i);
     }
 
-    public OptionalInt getImdbIdOnGoogle(String title, int year) throws IMDBSearchIDException {
+    public OptionalInt getImdbIdOnGoogle(String title, int year) throws ImdbSearchIdException {
         return manager.getValueBuilder()
                 .key("IMDB-imdb-google-%s-%s".formatted(title, year))
                 .cacheType(CacheType.DISK)
@@ -95,7 +96,7 @@ public class IMDBSearchID {
                         }
 
                     } catch (Exception e) {
-                        throw new IMDBSearchIDException("Error getImdbIdOnGoogle", url, e);
+                        throw new ImdbSearchIdException("Error getImdbIdOnGoogle", url, e);
                     }
                     return Optional.empty();
                 }).getOptional().mapToInt(i -> i);

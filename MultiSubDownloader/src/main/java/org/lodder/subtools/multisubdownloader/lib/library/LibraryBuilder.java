@@ -3,11 +3,10 @@ package org.lodder.subtools.multisubdownloader.lib.library;
 import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
-import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
+import org.lodder.subtools.sublibrary.data.tvdb.JTheTvdbAdapter;
+import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbSerie;
 import org.lodder.subtools.sublibrary.model.Release;
-import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 
 import lombok.RequiredArgsConstructor;
@@ -22,12 +21,11 @@ public abstract class LibraryBuilder {
 
     public abstract String build(Release release);
 
-    protected String getShowName(TvRelease tvRelease) {
+    protected String getShowName(String name) {
         if (librarySettings.isLibraryUseTVDBNaming()) {
-            return JTheTVDBAdapter.getAdapter(manager).getSerie(tvRelease)
-                    .mapOrElseGet(TheTVDBSerie::getSerieName, () -> tvRelease.getName());
+            return JTheTvdbAdapter.getAdapter(manager).getSerie(name).map(TheTvdbSerie::getSerieName).orElse(name);
         } else {
-            return tvRelease.getName();
+            return name;
         }
     }
 

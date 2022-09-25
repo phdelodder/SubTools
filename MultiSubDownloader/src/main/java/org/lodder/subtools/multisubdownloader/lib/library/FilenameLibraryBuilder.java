@@ -21,7 +21,7 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
                 || LibraryActionType.MOVEANDRENAME.equals(librarySettings.getLibraryAction()))
                 && release instanceof TvRelease tvRelease
                 && !librarySettings.getLibraryFilenameStructure().isEmpty()) {
-            String show = getShowName(tvRelease);
+            String show = getShowName(tvRelease.getName());
 
             filename = librarySettings.getLibraryFilenameStructure();
             // order is important!

@@ -17,16 +17,14 @@ import java.util.prefs.Preferences;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.sublibrary.DetectLanguage;
-import org.lodder.subtools.sublibrary.JTheTVDBAdapter;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
 import org.lodder.subtools.sublibrary.cache.InMemoryCache;
 import org.lodder.subtools.sublibrary.cache.SerializableDiskCache;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
-import org.lodder.subtools.sublibrary.data.thetvdb.model.TheTVDBSerie;
+import org.lodder.subtools.sublibrary.data.tvdb.JTheTvdbAdapter;
 import org.lodder.subtools.sublibrary.exception.ControlFactoryException;
 import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.exception.ReleaseParseException;
@@ -36,7 +34,6 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
 import org.lodder.subtools.sublibrary.privateRepo.model.IndexSubtitle;
-import org.lodder.subtools.sublibrary.settings.model.TvdbMappings;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.lodder.subtools.sublibrary.util.http.CookieManager;
@@ -52,8 +49,6 @@ public class SortSubtitle {
 
     private static final String BACKING_STORE_AVAIL = "BackingStoreAvail";
     private final Manager manager;
-    private final SettingsControl settingsControl;
-    private final TvdbMappings mappingSettings;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSubtitle.class);
 
@@ -80,9 +75,6 @@ public class SortSubtitle {
         if (!backingStoreAvailable()) {
             LOGGER.error("Unable to store preferences, used debug for reason");
         }
-        // Preferences preferences = Preferences.userRoot().node("MultiSubDownloader");
-        settingsControl = new SettingsControl();
-        mappingSettings = settingsControl.getSettings().getMappingSettings();
     }
 
     private static boolean backingStoreAvailable() {
@@ -99,8 +91,10 @@ public class SortSubtitle {
     }
 
     private void setTvdbInfo(TvRelease tvRelease) {
-        mappingSettings.setInfo(tvRelease,
-                () -> JTheTVDBAdapter.getAdapter(manager).getSerie(tvRelease).map(TheTVDBSerie::getId).mapToInt(Integer::parseInt));
+        JTheTvdbAdapter.getAdapter(manager).getSerie(tvRelease.getName()).ifPresent(tvdbSerie -> {
+            tvRelease.setTvdbId(Integer.parseInt(tvdbSerie.getId()));
+            tvRelease.setOriginalShowName(tvdbSerie.getSerieName());
+        });
     }
 
     public void reBuildIndex(File outputDir) {

@@ -22,6 +22,9 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.multisubdownloader.settings.model.State;
+import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.settings.model.TvdbMapping;
+import org.lodder.subtools.sublibrary.settings.model.TvdbMappings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +32,7 @@ import lombok.Getter;
 
 public class SettingsControl {
 
+    private final Manager manager;
     private final Preferences preferences;
     @Getter
     private Settings settings;
@@ -37,13 +41,14 @@ public class SettingsControl {
     private static final String BACKING_STORE_AVAIL = "BackingStoreAvail";
     private static final Logger LOGGER = LoggerFactory.getLogger(SettingsControl.class);
 
-    public SettingsControl() {
+    public SettingsControl(Manager manager) {
         if (!backingStoreAvailable()) {
             LOGGER.error("Unable to store preferences, used debug for reason");
         }
-        preferences = Preferences.userRoot().node("MultiSubDownloader");
-        settings = new Settings();
-        state = new State();
+        this.manager = manager;
+        this.preferences = Preferences.userRoot().node("MultiSubDownloader");
+        this.settings = new Settings();
+        this.state = new State();
         load();
     }
 
@@ -120,6 +125,9 @@ public class SettingsControl {
         }
         if (version == 1) {
             migrateSettingsV1ToV2();
+        }
+        if (version == 2) {
+            migrateSettingsV2ToV3();
         }
     }
 
@@ -201,6 +209,23 @@ public class SettingsControl {
         MOVIE_LIBRARY_ACTION.store(this, preferences);
 
         settings.setSettingsVersion(2);
+        SETTINGS_VERSION.store(this, preferences);
+    }
+
+    public void migrateSettingsV2ToV3() {
+        int numberOfItems = preferences.getInt("DictionarySize", 0);
+        IntStream.range(0, numberOfItems).forEach(i -> {
+            String v = preferences.get("Dictionary" + i, "");
+            String[] items = v.split("\\\\\\\\");
+            int tvdbId = Integer.parseInt(items[1]);
+            TvdbMapping tvdbMapping = new TvdbMapping(tvdbId, items[0]);
+            Arrays.stream(items).skip(2).forEach(tvdbMapping::addAlternativename);
+            TvdbMappings.persistTvdbMapping(manager, tvdbMapping);
+            preferences.remove("Dictionary" + i);
+        });
+        preferences.remove("DictionarySize");
+
+        settings.setSettingsVersion(3);
         SETTINGS_VERSION.store(this, preferences);
     }
 

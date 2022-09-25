@@ -34,7 +34,7 @@ import ch.qos.logback.classic.Level;
 
 public class App {
 
-    private final static SettingsControl prefctrl = new SettingsControl();
+    private static SettingsControl prefctrl;
     private static Splash splash;
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
@@ -65,6 +65,7 @@ public class App {
 
         final Container app = new Container();
         final Manager manager = createManager();
+        prefctrl = new SettingsControl(manager);
         Bootstrapper bootstrapper = new Bootstrapper(app, prefctrl.getSettings(), preferences, manager);
 
         if (line.hasOption("help")) {

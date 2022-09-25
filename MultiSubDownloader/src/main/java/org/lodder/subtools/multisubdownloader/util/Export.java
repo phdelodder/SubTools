@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.lodder.subtools.multisubdownloader.lib.xml.XMLExclude;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.xml.XMLMappingTvdbScene;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,24 +26,24 @@ public class Export {
         this.settingsControl = settingsControl;
     }
 
-    public void exclude(File file) {
-        doExport(ExportListType.EXCLUDE, file);
+    public void exclude(Manager manager, File file) {
+        doExport(manager, ExportListType.EXCLUDE, file);
     }
 
-    public void translate(File file) {
-        doExport(ExportListType.TRANSLATE, file);
+    public void translate(Manager manager, File file) {
+        doExport(manager, ExportListType.TRANSLATE, file);
     }
 
-    public void preferences(File file) {
-        doExport(ExportListType.PREFERENCES, file);
+    public void preferences(Manager manager, File file) {
+        doExport(manager, ExportListType.PREFERENCES, file);
     }
 
-    public void doExport(ExportListType listType, File file) {
+    public void doExport(Manager manager, ExportListType listType, File file) {
         try {
             switch (listType) {
                 case PREFERENCES -> settingsControl.exportPreferences(file);
                 case EXCLUDE -> XMLExclude.write(settingsControl.getSettings().getExcludeList(), file);
-                case TRANSLATE -> XMLMappingTvdbScene.write(settingsControl.getSettings().getMappingSettings(), file);
+                case TRANSLATE -> XMLMappingTvdbScene.write(manager, file);
                 default -> throw new IllegalArgumentException("Unexpected value: " + listType);
             }
         } catch (final Throwable e) {

@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.data.thetvdb;
+package org.lodder.subtools.sublibrary.data.tvdb;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ import lombok.experimental.ExtensionMethod;
  *         Code found on Web: http://code.google.com/p/moviejukebox/
  */
 @ExtensionMethod({ XmlExtension.class })
-public class TheTVDBMirrors {
+public class TheTvdbMirrors {
 
     public static final String TYPE_XML = "XML";
     public static final String TYPE_BANNER = "BANNER";
@@ -40,7 +40,7 @@ public class TheTVDBMirrors {
 
     private final XmlHTTP xmlHTTPAPI;
 
-    public TheTVDBMirrors(String apikey, Manager manager) throws ManagerException, ParserConfigurationException {
+    public TheTvdbMirrors(String apikey, Manager manager) throws ManagerException, ParserConfigurationException {
         // Make this synchronized so that only one
         synchronized (this) {
             xmlHTTPAPI = new XmlHTTP(manager);
