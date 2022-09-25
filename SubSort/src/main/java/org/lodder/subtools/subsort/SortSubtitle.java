@@ -57,7 +57,7 @@ public class SortSubtitle {
                 SerializableDiskCache.cacheBuilder().keyType(String.class).valueType(String.class)
                         .timeToLive(TimeUnit.SECONDS.convert(500, TimeUnit.DAYS))
                         .timerInterval(TimeUnit.SECONDS.convert(1, TimeUnit.DAYS))
-                        .maxItems(1000)
+                        .maxItems(1500)
                         .build();
 
         InMemoryCache<String, String> inMemoryCache =
