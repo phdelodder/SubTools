@@ -22,7 +22,7 @@ public class TvRelease extends Release {
     private int tvdbId;
     private final List<Integer> episodeNumbers;
     // tvdb name
-    private String originalShowName;
+    private String originalName;
     private boolean special;
 
     public String getNameWithSeasonEpisode() {
@@ -111,7 +111,7 @@ public class TvRelease extends Release {
         this.title = title;
         this.season = season;
         this.episodeNumbers = episodeNumbers;
-        this.originalShowName = "";
+        this.originalName = "";
         this.special = special;
     }
 

@@ -55,8 +55,8 @@ public class Local implements SubtitleProvider {
         ReleaseParser vfp = new ReleaseParser();
 
         String filter = "";
-        if (tvRelease.getOriginalShowName().length() > 0) {
-            filter = tvRelease.getOriginalShowName().replaceAll("[^A-Za-z]", "").trim();
+        if (tvRelease.getOriginalName().length() > 0) {
+            filter = tvRelease.getOriginalName().replaceAll("[^A-Za-z]", "").trim();
         } else {
             filter = tvRelease.getName().replaceAll("[^A-Za-z]", "").trim();
         }

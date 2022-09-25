@@ -68,7 +68,7 @@ public class TvReleaseControl extends ReleaseControl {
     private void setTvdbInfo() {
         jtvdba.getSerie(tvRelease.getName()).ifPresent(tvdbSerie -> {
             tvRelease.setTvdbId(Integer.parseInt(tvdbSerie.getId()));
-            tvRelease.setOriginalShowName(tvdbSerie.getSerieName());
+            tvRelease.setOriginalName(tvdbSerie.getSerieName());
         });
     }
 

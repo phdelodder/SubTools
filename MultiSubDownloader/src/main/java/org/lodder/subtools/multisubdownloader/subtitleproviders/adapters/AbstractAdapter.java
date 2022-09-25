@@ -71,13 +71,13 @@ public abstract class AbstractAdapter<S, X extends Exception> implements Subtitl
     @Override
     public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
         Set<S> subtitles = new HashSet<>();
-        if (StringUtils.isNotBlank(tvRelease.getOriginalShowName())) {
+        if (StringUtils.isNotBlank(tvRelease.getOriginalName())) {
             tvRelease.getEpisodeNumbers()
-                    .forEach(episode -> searchSerieSubtitlesForName(tvRelease.getOriginalShowName(), tvRelease.getSeason(), episode, language)
+                    .forEach(episode -> searchSerieSubtitlesForName(tvRelease.getOriginalName(), tvRelease.getSeason(), episode, language)
                             .forEach(subtitles::add));
         }
         if (subtitles.isEmpty() && StringUtils.isNotBlank(tvRelease.getName())
-                && !StringUtils.equals(tvRelease.getOriginalShowName(), tvRelease.getName())) {
+                && !StringUtils.equals(tvRelease.getOriginalName(), tvRelease.getName())) {
             tvRelease.getEpisodeNumbers()
                     .forEach(episode -> searchSerieSubtitlesForName(tvRelease.getName(), tvRelease.getSeason(), episode, language)
                             .forEach(subtitles::add));

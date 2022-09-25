@@ -97,7 +97,7 @@ public class JOpenSubAdapter extends AbstractAdapter<org.opensubtitles.model.Sub
     @Override
     protected Set<Subtitle> convertToSubtitles(TvRelease tvRelease, Set<org.opensubtitles.model.Subtitle> subtitles, Language language) {
         String name = tvRelease.getName().replaceAll("[^A-Za-z]", "").toLowerCase();
-        String originalName = tvRelease.getOriginalShowName().replaceAll("[^A-Za-z]", "").toLowerCase();
+        String originalName = tvRelease.getOriginalName().replaceAll("[^A-Za-z]", "").toLowerCase();
         return subtitles.stream().map(org.opensubtitles.model.Subtitle::getAttributes)
                 .flatMap(attributes -> attributes.getFiles().stream()
                         .filter(file -> {

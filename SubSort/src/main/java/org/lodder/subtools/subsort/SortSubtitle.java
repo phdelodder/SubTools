@@ -93,7 +93,7 @@ public class SortSubtitle {
     private void setTvdbInfo(TvRelease tvRelease) {
         JTheTvdbAdapter.getAdapter(manager).getSerie(tvRelease.getName()).ifPresent(tvdbSerie -> {
             tvRelease.setTvdbId(Integer.parseInt(tvdbSerie.getId()));
-            tvRelease.setOriginalShowName(tvdbSerie.getSerieName());
+            tvRelease.setOriginalName(tvdbSerie.getSerieName());
         });
     }
 
@@ -131,7 +131,7 @@ public class SortSubtitle {
                     if (tvRelease.getTvdbId() != 0) {
                         LOGGER.info("Got serie info: {} ", tvRelease.getTvdbId());
                         String show = replaceWindowsChars(
-                                StringUtils.isNotBlank(tvRelease.getOriginalShowName()) ? tvRelease.getOriginalShowName() : tvRelease.getName());
+                                StringUtils.isNotBlank(tvRelease.getOriginalName()) ? tvRelease.getOriginalName() : tvRelease.getName());
                         String path = outputDir + File.separator + show + File.separator + tvRelease.getSeason();
                         Optional<Language> language =
                                 Optional.ofNullable(Language.fromValueOptional(file.getParent()).orElseGet(() -> DetectLanguage.execute(file)));
@@ -247,7 +247,7 @@ public class SortSubtitle {
 
                     if (tvRelease.getTvdbId() != 0) {
                         String show = replaceWindowsChars(
-                                StringUtils.isNotBlank(tvRelease.getOriginalShowName()) ? tvRelease.getOriginalShowName() : tvRelease.getName());
+                                StringUtils.isNotBlank(tvRelease.getOriginalName()) ? tvRelease.getOriginalName() : tvRelease.getName());
                         String path = outputDir + File.separator + show + File.separator + tvRelease.getSeason();
                         Optional<Language> language = DetectLanguage.executeOptional(file);
                         for (int i = 0; i < tvRelease.getEpisodeNumbers().size(); i++) {
