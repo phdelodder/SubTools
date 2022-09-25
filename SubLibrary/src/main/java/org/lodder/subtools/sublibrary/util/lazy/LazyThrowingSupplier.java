@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary.util;
+package org.lodder.subtools.sublibrary.util.lazy;
 
 import com.pivovarit.function.ThrowingConsumer;
 import com.pivovarit.function.ThrowingSupplier;
@@ -6,7 +6,7 @@ import com.pivovarit.function.ThrowingSupplier;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class LazyInitThrow<T, X extends Exception> {
+public class LazyThrowingSupplier<T, X extends Exception> {
 
 	private final ThrowingSupplier<T, X> supplier;
 
@@ -16,7 +16,7 @@ public class LazyInitThrow<T, X extends Exception> {
 
 	private boolean initialized = false;
 
-	public LazyInitThrow(T value) {
+	public LazyThrowingSupplier(T value) {
 		supplier = null;
 		object = value;
 		initialized = true;

@@ -18,6 +18,7 @@ import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.lodder.subtools.sublibrary.util.StringUtil;
+import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,17 +27,21 @@ import lombok.experimental.ExtensionMethod;
 @ExtensionMethod({ OptionalExtension.class })
 public class JAddic7edAdapter implements SubtitleProvider {
 
-    private static JAddic7edApi jaapi;
+    private static LazySupplier<JAddic7edApi> jaapi;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edAdapter.class);
 
     public JAddic7edAdapter(boolean isLoginEnabled, String username, String password, boolean speedy, Manager manager) {
-        try {
-            if (jaapi == null) {
-                jaapi = isLoginEnabled ? new JAddic7edApi(username, password, speedy, manager) : new JAddic7edApi(speedy, manager);
-            }
-        } catch (Addic7edException e) {
-            LOGGER.error("API Addic7ed INIT (%s)".formatted(e.getMessage()), e);
+        if (jaapi == null) {
+            jaapi = new LazySupplier<>(
+                    () -> {
+                        try {
+                            return isLoginEnabled ? new JAddic7edApi(username, password, speedy, manager) : new JAddic7edApi(speedy, manager);
+                        } catch (Addic7edException e) {
+                            LOGGER.error("API Addic7ed INIT (%s)".formatted(e.getMessage()), e);
+                        }
+                        return null;
+                    });
         }
     }
 
@@ -50,14 +55,14 @@ public class JAddic7edAdapter implements SubtitleProvider {
         Optional<String> serieName = Optional.empty();
         try {
             if (release.getName().length() > 0) {
-                serieName = jaapi.getAddictedSerieName(release.getName());
+                serieName = jaapi.get().getAddictedSerieName(release.getName());
             }
         } catch (Addic7edException e) {
             LOGGER.error("API Addic7ed searchSubtitles for serie [%s] (%s)".formatted(release.getNameWithSeasonEpisode(), e.getMessage()), e);
         }
         try {
             if (serieName.isEmpty() && release.getOriginalShowName().length() > 0) {
-                serieName = jaapi.getAddictedSerieName(release.getOriginalShowName());
+                serieName = jaapi.get().getAddictedSerieName(release.getOriginalShowName());
             }
         } catch (Addic7edException e) {
             LOGGER.error("API Addic7ed searchSubtitles for serie [%s] (%s)".formatted(release.getNameWithSeasonEpisode(), e.getMessage()), e);
@@ -65,7 +70,7 @@ public class JAddic7edAdapter implements SubtitleProvider {
         try {
             return serieName
                     .mapOrElseGet(
-                            name -> jaapi
+                            name -> jaapi.get()
                                     .searchSubtitles(name, release.getSeason(), release.getEpisodeNumbers().get(0), release.getTitle(), language)
                                     .stream()
                                     .filter(sub -> language == sub.getLanguage())
