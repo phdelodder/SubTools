@@ -136,10 +136,10 @@ public class VideoTableModel extends DefaultTableModel {
         for (int i = 0; i < cCount; i++) {
             columnName = this.getColumnName(i);
             if (SearchColumnName.RELEASE.getColumnName().equals(columnName)) {
-                if (release instanceof TvRelease) {
-                    row[i] = ((TvRelease) release).getName();
-                } else if (release instanceof MovieRelease) {
-                    row[i] = ((MovieRelease) release).getName();
+                if (release instanceof TvRelease tvRelease) {
+                    row[i] = tvRelease.getOriginalShowName();
+                } else if (release instanceof MovieRelease movieRelease) {
+                    row[i] = movieRelease.getName();
                 }
             } else if (SearchColumnName.FILENAME.getColumnName().equals(columnName)) {
                 row[i] = release.getFileName();
@@ -158,17 +158,17 @@ public class VideoTableModel extends DefaultTableModel {
             } else if (SearchColumnName.OBJECT.getColumnName().equals(columnName)) {
                 row[i] = release;
             } else if (SearchColumnName.SEASON.getColumnName().equals(columnName)) {
-                if (release instanceof TvRelease) {
-                    row[i] = ((TvRelease) release).getSeason();
+                if (release instanceof TvRelease tvRelease) {
+                    row[i] = tvRelease.getSeason();
                 }
             } else if (SearchColumnName.EPISODE.getColumnName().equals(columnName)) {
-                if (release instanceof TvRelease) {
-                    row[i] = ((TvRelease) release).getEpisodeNumbers().get(0);
+                if (release instanceof TvRelease tvRelease) {
+                    row[i] = tvRelease.getEpisodeNumbers().get(0);
                 }
             } else if (SearchColumnName.TYPE.getColumnName().equals(columnName)) {
                 row[i] = release.getVideoType();
-            } else if (SearchColumnName.TITLE.getColumnName().equals(columnName) && (release instanceof TvRelease)) {
-                row[i] = ((TvRelease) release).getTitle();
+            } else if (SearchColumnName.TITLE.getColumnName().equals(columnName) && release instanceof TvRelease tvRelease) {
+                row[i] = tvRelease.getTitle();
             }
         }
         return row;
