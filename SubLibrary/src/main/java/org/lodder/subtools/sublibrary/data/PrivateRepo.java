@@ -71,7 +71,7 @@ public class PrivateRepo {
             throws UnsupportedEncodingException {
         List<Subtitle> results = new ArrayList<>();
         for (IndexSubtitle indexSubtitle : index) {
-            if ((indexSubtitle.getVideoType() == tvRelease.getVideoType()) && (indexSubtitle.getTvdbId() == tvRelease.getTvdbId())) {
+            if ((indexSubtitle.getVideoType() == tvRelease.getVideoType()) && indexSubtitle.getTvdbId().equals(tvRelease.getTvdbId())) {
                 if (indexSubtitle.getSeason() == tvRelease.getSeason()
                         && indexSubtitle.getEpisode() == tvRelease.getEpisodeNumbers().get(0)) {
                     if (indexSubtitle.getLanguage() == language) {
@@ -101,7 +101,7 @@ public class PrivateRepo {
     public List<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
         List<Subtitle> results = new ArrayList<>();
         for (IndexSubtitle indexSubtitle : index) {
-            if ((indexSubtitle.getVideoType() == movieRelease.getVideoType()) && (indexSubtitle.getImdbId() == movieRelease.getImdbId())) {
+            if ((indexSubtitle.getVideoType() == movieRelease.getVideoType()) && indexSubtitle.getImdbId().equals(movieRelease.getImdbId())) {
                 if (indexSubtitle.getYear() == movieRelease.getYear()) {
                     if (indexSubtitle.getLanguage() == language) {
                         String location =

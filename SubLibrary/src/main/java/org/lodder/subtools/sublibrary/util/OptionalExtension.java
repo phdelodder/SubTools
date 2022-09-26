@@ -13,6 +13,7 @@ import com.pivovarit.function.ThrowingRunnable;
 import com.pivovarit.function.ThrowingSupplier;
 
 import lombok.experimental.UtilityClass;
+import name.falgout.jeffrey.throwing.ThrowingIntPredicate;
 import name.falgout.jeffrey.throwing.ThrowingToIntFunction;
 
 @UtilityClass
@@ -91,6 +92,13 @@ public class OptionalExtension {
     public static <T, X extends Exception> Optional<T> mapToOptionalObj(OptionalInt optionalInt, ThrowingIntFunction<Optional<T>, X> mapper)
             throws X {
         return optionalInt.isPresent() ? mapper.apply(optionalInt.getAsInt()) : Optional.empty();
+    }
+
+    //
+
+    public static <T, X extends Exception> OptionalInt filter(OptionalInt optionalInt, ThrowingIntPredicate<X> predicate)
+            throws X {
+        return optionalInt.isPresent() && predicate.test(optionalInt.getAsInt()) ? optionalInt : OptionalInt.empty();
     }
 
     //

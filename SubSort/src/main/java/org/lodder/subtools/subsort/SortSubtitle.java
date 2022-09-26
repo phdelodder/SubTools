@@ -24,6 +24,7 @@ import org.lodder.subtools.sublibrary.cache.DiskCache;
 import org.lodder.subtools.sublibrary.cache.InMemoryCache;
 import org.lodder.subtools.sublibrary.cache.SerializableDiskCache;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
+import org.lodder.subtools.sublibrary.data.imdb.ImdbAdapter;
 import org.lodder.subtools.sublibrary.data.tvdb.TheTvdbAdapter;
 import org.lodder.subtools.sublibrary.exception.ControlFactoryException;
 import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
@@ -91,10 +92,17 @@ public class SortSubtitle {
     }
 
     private void setTvdbInfo(TvRelease tvRelease) {
-        TheTvdbAdapter.getInstance(manager).getSerie(tvRelease.getName()).ifPresent(tvdbSerie -> {
-            tvRelease.setTvdbId(Integer.parseInt(tvdbSerie.getId()));
-            tvRelease.setOriginalName(tvdbSerie.getSerieName());
-        });
+        TheTvdbAdapter.getInstance(manager).getSerie(tvRelease.getName())
+                .ifPresent(tvdbSerie -> {
+                    tvRelease.setTvdbId(Integer.parseInt(tvdbSerie.getId()));
+                    tvRelease.setOriginalName(tvdbSerie.getSerieName());
+                });
+    }
+
+    private void setImdbInfo(MovieRelease movieRelease) {
+        ImdbAdapter.getInstance(manager)
+                .getImdbId(movieRelease.getName(), movieRelease.getYear())
+                .ifPresent(movieRelease::setImdbId);
     }
 
     public void reBuildIndex(File outputDir) {
@@ -128,8 +136,8 @@ public class SortSubtitle {
                     TvRelease tvRelease = (TvRelease) release;
                     setTvdbInfo(tvRelease);
 
-                    if (tvRelease.getTvdbId() != 0) {
-                        LOGGER.info("Got serie info: {} ", tvRelease.getTvdbId());
+                    tvRelease.getTvdbId().ifPresent(tvdbId -> {
+                        LOGGER.info("Got serie info: {} ", tvdbId);
                         String show = replaceWindowsChars(
                                 StringUtils.isNotBlank(tvRelease.getOriginalName()) ? tvRelease.getOriginalName() : tvRelease.getName());
                         String path = outputDir + File.separator + show + File.separator + tvRelease.getSeason();
@@ -146,36 +154,40 @@ public class SortSubtitle {
                                 index.add(new IndexSubtitle(show, tvRelease.getSeason(),
                                         tvRelease.getEpisodeNumbers().get(i),
                                         PrivateRepoIndex.extractOriginalFilename(release.getFileName()), language.orElse(null),
-                                        tvRelease.getTvdbId(),
+                                        tvdbId,
                                         PrivateRepoIndex.extractUploader(release.getFileName()),
                                         PrivateRepoIndex.extractOriginalSource(release.getFileName()),
                                         release.getVideoType()));
                             } else {
-                                System.out.println("doesn't exists: " + to.toString());
+                                LOGGER.debug("doesn't exists: " + to.toString());
                             }
                         }
-                    }
+                    });
                 } else if (release.getVideoType() == VideoType.MOVIE) {
                     MovieRelease movieRelease = (MovieRelease) release;
-                    // TODO set tvdb movie id
+                    setImdbInfo(movieRelease);
+                    // TODO set tvdb movie id?
 
-                    Optional<Language> language = DetectLanguage.executeOptional(file);
-                    String filename = removeLanguageCode(release.getFileName(), language.orElse(null));
-                    String title = replaceWindowsChars(movieRelease.getName());
+                    movieRelease.getImdbId().ifPresent(imdbId -> {
+                        Optional<Language> language = DetectLanguage.executeOptional(file);
+                        String filename = removeLanguageCode(release.getFileName(), language.orElse(null));
+                        String title = replaceWindowsChars(movieRelease.getName());
 
-                    final File pathFolder = new File(outputDir + File.separator + "movies" + File.separator + title + " " + movieRelease.getYear()
-                            + File.separator + language.map(lang -> lang.getName() + File.separator).orElse(""));
+                        final File pathFolder =
+                                new File(outputDir + File.separator + "movies" + File.separator + title + " " + movieRelease.getYear()
+                                        + File.separator + language.map(lang -> lang.getName() + File.separator).orElse(""));
 
-                    File to = new File(pathFolder, filename);
+                        File to = new File(pathFolder, filename);
 
-                    if (to.exists()) {
-                        index.add(new IndexSubtitle(title, PrivateRepoIndex.extractOriginalFilename(filename),
-                                language.orElse(null), PrivateRepoIndex.extractUploader(filename),
-                                PrivateRepoIndex.extractOriginalSource(filename), release.getVideoType(),
-                                movieRelease.getImdbId(), movieRelease.getYear()));
-                    } else {
-                        System.out.println("doesn't exists: " + to.toString());
-                    }
+                        if (to.exists()) {
+                            index.add(new IndexSubtitle(title, PrivateRepoIndex.extractOriginalFilename(filename),
+                                    language.orElse(null), PrivateRepoIndex.extractUploader(filename),
+                                    PrivateRepoIndex.extractOriginalSource(filename), release.getVideoType(),
+                                    imdbId, movieRelease.getYear()));
+                        } else {
+                            LOGGER.debug("doesn't exists: " + to.toString());
+                        }
+                    });
                 }
 
             } catch (ControlFactoryException | ReleaseParseException | ReleaseControlException e) {
@@ -227,25 +239,31 @@ public class SortSubtitle {
         File indexLoc = new File(outputDir, "index");
         List<IndexSubtitle> index = getIndex(outputDir);
         for (File file : files) {
+            Release release;
             try {
-                Release release = VideoFileFactory.get(file, manager);
-                final String quality = ReleaseParser.getQualityKeyword(release.getFileName());
-                LOGGER.info(release.getFileName() + " Q: " + quality);
-                int num = 1;
-                if (quality.split(" ").length == 1) {
-                    Console c = System.console();
-                    String selectedSubtitle = c.readLine("Sure? Press 1 for ok, press 2 for remove: ");
-                    try {
-                        num = Integer.parseInt(selectedSubtitle);
-                    } catch (Exception e) {
-                        num = -1;
-                    }
+                release = VideoFileFactory.get(file, manager);
+            } catch (ControlFactoryException | ReleaseParseException | ReleaseControlException e1) {
+                LOGGER.error(file.toString(), e1);
+                continue;
+            }
+            final String quality = ReleaseParser.getQualityKeyword(release.getFileName());
+            LOGGER.info(release.getFileName() + " Q: " + quality);
+            int num = 1;
+            if (quality.split(" ").length == 1) {
+                Console c = System.console();
+                String selectedSubtitle = c.readLine("Sure? Press 1 for ok, press 2 for remove: ");
+                try {
+                    num = Integer.parseInt(selectedSubtitle);
+                } catch (Exception e) {
+                    num = -1;
                 }
-                if (release.getVideoType() == VideoType.EPISODE && !quality.isEmpty() && num == 1) {
-                    TvRelease tvRelease = (TvRelease) release;
-                    setTvdbInfo(tvRelease);
+            }
+            if (release.getVideoType() == VideoType.EPISODE && !quality.isEmpty() && num == 1) {
+                TvRelease tvRelease = (TvRelease) release;
+                setTvdbInfo(tvRelease);
 
-                    if (tvRelease.getTvdbId() != 0) {
+                tvRelease.getTvdbId().ifPresent(tvdbId -> {
+                    try {
                         String show = replaceWindowsChars(
                                 StringUtils.isNotBlank(tvRelease.getOriginalName()) ? tvRelease.getOriginalName() : tvRelease.getName());
                         String path = outputDir + File.separator + show + File.separator + tvRelease.getSeason();
@@ -283,61 +301,67 @@ public class SortSubtitle {
                             index.add(new IndexSubtitle(show, tvRelease.getSeason(),
                                     tvRelease.getEpisodeNumbers().get(i),
                                     PrivateRepoIndex.extractOriginalFilename(filename), language.orElse(null),
-                                    tvRelease.getTvdbId(),
+                                    tvdbId,
                                     PrivateRepoIndex.extractUploader(filename),
                                     PrivateRepoIndex.extractOriginalSource(filename), release.getVideoType()));
                         }
+                    } catch (IOException e) {
+                        LOGGER.error(file.toString(), e);
                     }
-                } else if (release.getVideoType() == VideoType.MOVIE) {
-                    MovieRelease movieRelease = (MovieRelease) release;
-                    String title = replaceWindowsChars(movieRelease.getName());
-                    Optional<Language> language = DetectLanguage.executeOptional(file);
-                    final File pathFolder = new File(outputDir + File.separator + "movies" + File.separator
-                            + title + " " + movieRelease.getYear() + File.separator
-                            + language.map(lang -> lang.getName() + File.separator).orElse(""));
+                });
+            } else if (release.getVideoType() == VideoType.MOVIE) {
+                MovieRelease movieRelease = (MovieRelease) release;
+                setImdbInfo(movieRelease);
 
-                    if (!pathFolder.exists() && !pathFolder.mkdirs()) {
-                        throw new IOException("Download unable to create folder: " + pathFolder.getAbsolutePath());
-                    }
+                movieRelease.getImdbId().ifPresent(imdbId -> {
+                    try {
+                        String title = replaceWindowsChars(movieRelease.getName());
+                        Optional<Language> language = DetectLanguage.executeOptional(file);
+                        final File pathFolder = new File(outputDir + File.separator + "movies" + File.separator
+                                + title + " " + movieRelease.getYear() + File.separator
+                                + language.map(lang -> lang.getName() + File.separator).orElse(""));
 
-                    String filename = removeLanguageCode(release.getFileName(), language.orElse(null));
-                    File to = new File(pathFolder, filename);
-
-                    int j = 1;
-                    while (to.exists()) {
-                        if (textFilesEqual(to, file)) {
-                            LOGGER.info("Duplicate file detected with exact same content, file deleted! [{}]",
-                                    to.getName());
-                            boolean isDeleted = file.delete();
-                            if (isDeleted) {
-                                // do nothing
-                            }
-                        } else {
-                            LOGGER.info(
-                                    "Duplicate file detected but content is different, creating new version! [{}/{}] with [{}]",
-                                    release.getPath(), release.getFileName(), to);
-                            // elevate version number
-                            to = new File(pathFolder, filename + "V" + j);
-                            j++;
+                        if (!pathFolder.exists() && !pathFolder.mkdirs()) {
+                            throw new IOException("Download unable to create folder: " + pathFolder.getAbsolutePath());
                         }
+
+                        String filename = removeLanguageCode(release.getFileName(), language.orElse(null));
+                        File to = new File(pathFolder, filename);
+
+                        int j = 1;
+                        while (to.exists()) {
+                            if (textFilesEqual(to, file)) {
+                                LOGGER.info("Duplicate file detected with exact same content, file deleted! [{}]",
+                                        to.getName());
+                                boolean isDeleted = file.delete();
+                                if (isDeleted) {
+                                    // do nothing
+                                }
+                            } else {
+                                LOGGER.info(
+                                        "Duplicate file detected but content is different, creating new version! [{}/{}] with [{}]",
+                                        release.getPath(), release.getFileName(), to);
+                                // elevate version number
+                                to = new File(pathFolder, filename + "V" + j);
+                                j++;
+                            }
+                        }
+                        if (remove) {
+                            Files.move(file, to);
+                        } else {
+                            Files.copy(file, to);
+                        }
+
+                        IndexSubtitle indexSubtitle =
+                                new IndexSubtitle(title, PrivateRepoIndex.extractOriginalFilename(filename), language.orElse(null),
+                                        PrivateRepoIndex.extractUploader(filename),
+                                        PrivateRepoIndex.extractOriginalSource(filename), release.getVideoType(),
+                                        imdbId, movieRelease.getYear());
+                        index.add(indexSubtitle);
+                    } catch (IOException e) {
+                        LOGGER.error(file.toString(), e);
                     }
-                    if (remove) {
-                        Files.move(file, to);
-                    } else {
-                        Files.copy(file, to);
-                    }
-
-                    IndexSubtitle indexSubtitle =
-                            new IndexSubtitle(title, PrivateRepoIndex.extractOriginalFilename(filename), language.orElse(null),
-                                    PrivateRepoIndex.extractUploader(filename),
-                                    PrivateRepoIndex.extractOriginalSource(filename), release.getVideoType(),
-                                    movieRelease.getImdbId(), movieRelease.getYear());
-
-                    index.add(indexSubtitle);
-                }
-
-            } catch (IOException | ControlFactoryException | ReleaseParseException | ReleaseControlException e) {
-                LOGGER.error(file.toString(), e);
+                });
             }
         }
         if (cleanUp) {

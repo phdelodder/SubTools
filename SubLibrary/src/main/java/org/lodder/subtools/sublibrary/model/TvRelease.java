@@ -3,6 +3,7 @@ package org.lodder.subtools.sublibrary.model;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import java.util.OptionalInt;
 
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbEpisode;
@@ -117,6 +118,10 @@ public class TvRelease extends Release {
 
     public void updateTvdbEpisodeInfo(TheTvdbEpisode tvdbEpisode) {
         this.title = tvdbEpisode.getEpisodeName(); // update to reflect correct episode title
+    }
+
+    public OptionalInt getTvdbId() {
+        return tvdbId == 0 ? OptionalInt.empty() : OptionalInt.of(tvdbId);
     }
 
     @Override

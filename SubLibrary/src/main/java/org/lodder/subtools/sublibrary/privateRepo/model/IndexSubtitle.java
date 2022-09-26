@@ -1,6 +1,7 @@
 package org.lodder.subtools.sublibrary.privateRepo.model;
 
 import java.io.Serializable;
+import java.util.OptionalInt;
 
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.model.VideoType;
@@ -27,6 +28,14 @@ public class IndexSubtitle implements Serializable {
 
     public IndexSubtitle() {
 
+    }
+
+    public OptionalInt getTvdbId() {
+        return tvdbId == 0 ? OptionalInt.empty() : OptionalInt.of(tvdbId);
+    }
+
+    public OptionalInt getImdbId() {
+        return imdbId == 0 ? OptionalInt.empty() : OptionalInt.of(imdbId);
     }
 
     public IndexSubtitle(String name, int season, int episode, String filename, Language language,
