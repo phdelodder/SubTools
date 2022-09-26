@@ -1,0 +1,947 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Gestdown: Addicted Proxy",
+    "description": "Provide a full api to search and download subtitles from Addic7ed website.",
+    "version": "2.17.3"
+  },
+  "servers": [
+    {
+      "url": "https://api.gestdown.info",
+      "description": "Production"
+    }
+  ],
+  "paths": {
+    "/application/info": {
+      "get": {
+        "tags": [
+          "Application"
+        ],
+        "summary": "Information about the application",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationInfoDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats/top/{top}": {
+      "get": {
+        "tags": [
+          "Stats"
+        ],
+        "summary": "Return the top show by popularity",
+        "parameters": [
+          {
+            "name": "top",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "maximum": 50,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TopShowDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TopShowDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TopShowDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats/downloads/{top}": {
+      "get": {
+        "tags": [
+          "Stats"
+        ],
+        "summary": "Return the top show by downloads",
+        "parameters": [
+          {
+            "name": "top",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "maximum": 50,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TopShowDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TopShowDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TopShowDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/subtitles/download/{subtitleId}": {
+      "get": {
+        "tags": [
+          "Subtitles"
+        ],
+        "summary": "Download specific subtitle",
+        "operationId": "DownloadSubtitle",
+        "parameters": [
+          {
+            "name": "subtitleId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/subtitles/search": {
+      "post": {
+        "tags": [
+          "Subtitles"
+        ],
+        "summary": "Search for a specific episode",
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns the matching subtitles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubtitleSearchResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Couldn't find the show or its season/episode",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Refreshing the show, currently don't have data, try again later",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Doesn't follow the right format for the search: Show S00E00",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WrongFormatResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Reached the rate limiting of the endpoint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/subtitles/find/{language}/{show}/{season}/{episode}": {
+      "get": {
+        "tags": [
+          "Subtitles"
+        ],
+        "summary": "Find specific episode (same as search but easily cacheable)",
+        "parameters": [
+          {
+            "name": "language",
+            "in": "path",
+            "description": "Language to search for",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "show",
+            "in": "path",
+            "description": "Name of the show",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "season",
+            "in": "path",
+            "description": "Season number to look for",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "episode",
+            "in": "path",
+            "description": "Episode number to look for",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the matching subtitles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubtitleSearchResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Couldn't find the show or its season/episode",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Refreshing the show, currently don't have data, try again later",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Doesn't follow the right format for the search: Show S00E00",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WrongFormatResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Reached the rate limiting of the endpoint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shows/search": {
+      "post": {
+        "tags": [
+          "TvShows"
+        ],
+        "summary": "Search shows that contains the given query",
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShowSearchRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShowSearchRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShowSearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns the matching shows",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShowSearchResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Reached the rate limiting of the endpoint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shows/search/{search}": {
+      "get": {
+        "tags": [
+          "TvShows"
+        ],
+        "summary": "Search shows that contains the given query",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "path",
+            "description": "Name of the show to search for",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the matching shows",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShowSearchResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Reached the rate limiting of the endpoint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shows/{showId}/refresh": {
+      "post": {
+        "tags": [
+          "TvShows"
+        ],
+        "summary": "Refresh a specific show",
+        "parameters": [
+          {
+            "name": "showId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Couldn't find the show"
+          },
+          "204": {
+            "description": "If the job to sync the show has been scheduled"
+          }
+        }
+      }
+    },
+    "/shows/{showId}/{seasonNumber}/{language}": {
+      "get": {
+        "tags": [
+          "TvShows"
+        ],
+        "summary": "Get all subtitle of the given season for a specific language",
+        "parameters": [
+          {
+            "name": "showId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "seasonNumber",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "language",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Couldn't find the show"
+          },
+          "429": {
+            "description": "Reached the rate limiting of the endpoint",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TvShowSubtitleResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TvShowSubtitleResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TvShowSubtitleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown language"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApplicationInfoDto": {
+        "required": [
+          "applicationVersion"
+        ],
+        "type": "object",
+        "properties": {
+          "applicationVersion": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Version of the application",
+            "example": "2.9.5"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EpisodeDto": {
+        "required": [
+          "discovered",
+          "number",
+          "season",
+          "show",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "season": {
+            "type": "integer",
+            "description": "Season of the episode",
+            "format": "int32",
+            "readOnly": true,
+            "example": 1
+          },
+          "number": {
+            "type": "integer",
+            "description": "Number of the episode",
+            "format": "int32",
+            "readOnly": true,
+            "example": 1
+          },
+          "title": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Title of the episode",
+            "readOnly": true,
+            "example": "Demon Girl"
+          },
+          "show": {
+            "minLength": 1,
+            "type": "string",
+            "description": "For which show",
+            "readOnly": true,
+            "example": "Wellington Paranormal"
+          },
+          "discovered": {
+            "type": "string",
+            "description": "When was the Episode discovered",
+            "readOnly": true,
+            "example": "2022-04-02T05:16:45.3996669"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Episode information"
+      },
+      "EpisodeWithSubtitlesDto": {
+        "required": [
+          "discovered",
+          "number",
+          "season",
+          "show",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "season": {
+            "type": "integer",
+            "description": "Season of the episode",
+            "format": "int32",
+            "readOnly": true,
+            "example": 1
+          },
+          "number": {
+            "type": "integer",
+            "description": "Number of the episode",
+            "format": "int32",
+            "readOnly": true,
+            "example": 1
+          },
+          "title": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Title of the episode",
+            "readOnly": true,
+            "example": "Demon Girl"
+          },
+          "show": {
+            "minLength": 1,
+            "type": "string",
+            "description": "For which show",
+            "readOnly": true,
+            "example": "Wellington Paranormal"
+          },
+          "discovered": {
+            "type": "string",
+            "description": "When was the Episode discovered",
+            "readOnly": true,
+            "example": "2022-04-02T05:16:45.3996669"
+          },
+          "subtitles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubtitleDto"
+            },
+            "description": "Subtitles for this episode",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Returns when there is an error"
+      },
+      "SearchRequest": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "description": "Search for specific subtitle",
+            "nullable": true,
+            "example": "Wellington Paranormal S01E05"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language of the subtitle",
+            "nullable": true,
+            "example": "English"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Use for the website to provide easy search for the user"
+      },
+      "ShowDto": {
+        "required": [
+          "id",
+          "name",
+          "nbSeasons",
+          "seasons"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique ID of the show",
+            "format": "uuid",
+            "example": "E9C1FA23-55AF-4711-8E34-3B31E2A75533"
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Name of the show",
+            "example": "Wellington Paranormal"
+          },
+          "nbSeasons": {
+            "type": "integer",
+            "description": "How many season the show has",
+            "format": "int32",
+            "example": 5
+          },
+          "seasons": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "Seasons available",
+            "example": [
+              2,
+              3,
+              4,
+              5,
+              6
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represent the information relating to a show"
+      },
+      "ShowSearchRequest": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Name of the show you're looking for",
+            "nullable": true,
+            "example": "Wellington"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Search for a specific show"
+      },
+      "ShowSearchResponse": {
+        "type": "object",
+        "properties": {
+          "shows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShowDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SubtitleDto": {
+        "required": [
+          "completed",
+          "corrected",
+          "discovered",
+          "downloadCount",
+          "downloadUri",
+          "hd",
+          "hearingImpaired",
+          "language",
+          "subtitleId",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "subtitleId": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Unique Id of the subtitle",
+            "readOnly": true,
+            "example": "1086727A-EB71-4B24-A209-7CF22374574D"
+          },
+          "version": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Version of the subtitle",
+            "readOnly": true,
+            "example": "HDTV"
+          },
+          "completed": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "hearingImpaired": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "corrected": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "hd": {
+            "type": "boolean",
+            "readOnly": true
+          },
+          "downloadUri": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Url to download the subtitle",
+            "example": "/download/1086727A-EB71-4B24-A209-7CF22374574D"
+          },
+          "language": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Language of the subtitle (in English)",
+            "example": "English"
+          },
+          "discovered": {
+            "type": "string",
+            "description": "When was the subtitle discovered in UTC",
+            "readOnly": true,
+            "example": "2022-04-02T05:16:45.4001274"
+          },
+          "downloadCount": {
+            "type": "integer",
+            "description": "Number of times the subtitle was downloaded from the proxy",
+            "format": "int64",
+            "readOnly": true,
+            "example": 100
+          }
+        },
+        "additionalProperties": false
+      },
+      "SubtitleSearchResponse": {
+        "type": "object",
+        "properties": {
+          "matchingSubtitles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubtitleDto"
+            },
+            "description": "Matching subtitle for the filename and language",
+            "nullable": true
+          },
+          "episode": {
+            "$ref": "#/components/schemas/EpisodeDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TopShowDto": {
+        "type": "object",
+        "properties": {
+          "show": {
+            "$ref": "#/components/schemas/ShowDto"
+          },
+          "popularity": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TvShowSubtitleResponse": {
+        "type": "object",
+        "properties": {
+          "episodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EpisodeWithSubtitlesDto"
+            },
+            "description": "Episode with their subtitles",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WrongFormatResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "",
+            "nullable": true
+          },
+          "search": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Returned when the search wasn't formatted properly"
+      }
+    }
+  }
+}

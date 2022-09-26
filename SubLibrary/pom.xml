@@ -139,7 +139,7 @@
 							<!--<language>java</language>-->
 							<!--<skipValidateSpec>true</skipValidateSpec>-->
 							<configOptions>
-								<typeMappings>integer=ing,int=int</typeMappings>
+								<typeMappings>integer=int,int=int</typeMappings>
 								<useSwaggerAnnotations>false</useSwaggerAnnotations>
 								<serializableModel>true</serializableModel>
 								<booleanGetterPrefix>is</booleanGetterPrefix>

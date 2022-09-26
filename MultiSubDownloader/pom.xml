@@ -25,7 +25,7 @@
 		<dependency>
 			<groupId>com.mashape.unirest</groupId>
 			<artifactId>unirest-java</artifactId>
-		</dependency> 
+		</dependency>
 		<dependency>
 			<groupId>commons-cli</groupId>
 			<artifactId>commons-cli</artifactId>
@@ -80,6 +80,11 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-text</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.openapitools</groupId>
+			<artifactId>jackson-databind-nullable</artifactId>
+			<version>0.2.3</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -138,6 +143,53 @@
 						<goals>
 							<goal>single</goal>
 						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+				<version>6.0.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<generatorName>java</generatorName>
+							<inputSpec>${project.basedir}/src/main/resources/gestdown/gestdown-swagger.json</inputSpec>
+							<output>${project.build.directory}/generated-source/openapi</output>
+							<modelPackage>org.gestdown.model</modelPackage>
+							<apiPackage>org.gestdown.api</apiPackage>
+							<invokerPackage>org.gestdown.invoker</invokerPackage>
+							<packageName>org.gestdown</packageName>
+							<!--<language>java</language>-->
+							<skipValidateSpec>true</skipValidateSpec>
+							<configOptions>
+								<typeMappings>integer=int,int=int</typeMappings>
+								<useSwaggerAnnotations>false</useSwaggerAnnotations>
+								<serializableModel>true</serializableModel>
+								<booleanGetterPrefix>is</booleanGetterPrefix>
+								<disallowAdditionalPropertiesIfNotPresent>false</disallowAdditionalPropertiesIfNotPresent>
+								<!--<sourceFolder>src/gen/java</sourceFolder>-->
+								<!--<java8>true</java8>-->
+								<dateLibrary>java8-localdatetime</dateLibrary>
+							</configOptions>
+
+							<typeMappings>
+								<typeMapping>OffsetDateTime=Instant</typeMapping>
+								<typeMapping>LocalDateTime=Instant</typeMapping>
+							</typeMappings>
+							<importMappings>
+								<importMapping>java.time.OffsetDateTime=java.time.Instant</importMapping>
+								<importMapping>java.time.LocalDateTime=java.time.Instant</importMapping>
+							</importMappings>
+
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

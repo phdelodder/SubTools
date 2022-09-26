@@ -66,7 +66,7 @@ public class SubtitleSelectionAction {
                     // Automatic selection
                     List<Subtitle> shortlist =
                             subtitleSelection.getAutomaticSelection(release.getMatchingSubs());
-                    shortlist.forEach(release::addMatchingSubs);
+                    shortlist.forEach(release::addMatchingSub);
                     // automatic selection results in 1 result
                     if (shortlist.size() == 1) {
                         return 0;

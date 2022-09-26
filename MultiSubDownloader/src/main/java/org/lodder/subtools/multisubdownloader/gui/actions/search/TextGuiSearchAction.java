@@ -74,8 +74,7 @@ public class TextGuiSearchAction extends GuiSearchAction {
         if (filtering != null) {
             subtitles = filtering.getFiltered(subtitles, release);
         }
-
-        release.getMatchingSubs().addAll(subtitles);
+        subtitles.forEach(release::addMatchingSub);
 
         // use automatic selection to reduce the selection for the user
         if (subtitleSelection != null) {
