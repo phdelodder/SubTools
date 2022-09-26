@@ -67,7 +67,7 @@ public class JAddic7edApi extends Html implements SubtitleApi {
     private Optional<String> getAddictedSerieName(String name) throws Addic7edException {
         String formattedName = name.replace(":", "").replace("-", "").replace("_", " ").replace(" ", "").trim().toLowerCase();
 
-        return getValue("%s-SerieName-".formatted(getSubtitleSource().name(), formattedName))
+        return getValue("%s-SerieName-%s".formatted(getSubtitleSource().name(), formattedName))
                 .cacheType(CacheType.DISK)
                 .optionalSupplier(() -> resultStringForName(name)
                         .map(doc -> doc.select("#season td:not(.c) > a").stream()
