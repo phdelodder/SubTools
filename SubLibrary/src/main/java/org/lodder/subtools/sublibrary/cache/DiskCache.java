@@ -109,4 +109,8 @@ public abstract class DiskCache<K, V> extends InMemoryCache<K, V> {
             }
         }
     }
+
+    public void putWithoutPersist(K key, V value) {
+        super.put(key, value);
+    }
 }
