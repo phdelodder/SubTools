@@ -2,11 +2,11 @@ package org.lodder.subtools.multisubdownloader.gui.dialog;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -27,22 +27,8 @@ import net.miginfocom.swing.MigLayout;
 
 public class SelectDialog extends MultiSubDialog {
 
-    public enum SelectionType {
-        OK(1), ALL(999999), CANCEL(-1);
-
-        private final int code;
-
-        SelectionType(int c) {
-            code = c;
-        }
-
-        public int getSelectionCode() {
-            return code;
-        }
-    }
-
     private static final long serialVersionUID = -4092909537478305235L;
-    private SelectionType answer = SelectionType.CANCEL;
+    private List<Integer> selectedSubtitleIdxs;
     private final List<Subtitle> subtitles;
     private final Release release;
     private CustomTable customTable;
@@ -79,14 +65,8 @@ public class SelectDialog extends MultiSubDialog {
             {
                 JButton okButton = new JButton(Messages.getString("SelectDialog.OK"));
                 okButton.addActionListener(arg0 -> {
-                    if (testSelection()) {
-                        answer = SelectionType.OK;
-                        setVisible(false);
-                    } else {
-                        String message = Messages.getString("SelectDialog.MultipleSubtitlesSelected");
-                        JOptionPane.showConfirmDialog(frame, message, Messages.getString("SelectDialog.Name"), JOptionPane.CLOSED_OPTION,
-                                JOptionPane.ERROR_MESSAGE);
-                    }
+                    selectedSubtitleIdxs = getSelectedIdxs();
+                    setVisible(false);
                 });
                 okButton.setActionCommand("OK");
                 buttonPane.add(okButton);
@@ -95,7 +75,7 @@ public class SelectDialog extends MultiSubDialog {
             {
                 JButton allButton = new JButton(Messages.getString("SelectDialog.Everything"));
                 allButton.addActionListener(arg0 -> {
-                    answer = SelectionType.ALL;
+                    selectedSubtitleIdxs = IntStream.range(0, release.getMatchingSubs().size()).mapToObj(i -> i).toList();
                     setVisible(false);
                 });
                 allButton.setActionCommand("Alles");
@@ -107,7 +87,7 @@ public class SelectDialog extends MultiSubDialog {
             {
                 JButton cancelButton = new JButton(Messages.getString("SelectDialog.Cancel"));
                 cancelButton.addActionListener(arg0 -> {
-                    answer = SelectionType.CANCEL;
+                    selectedSubtitleIdxs = List.of();
                     setVisible(false);
                 });
                 cancelButton.setActionCommand("Cancel");
@@ -146,34 +126,13 @@ public class SelectDialog extends MultiSubDialog {
         return customTable;
     }
 
-    private boolean testSelection() {
-        int count = 0;
-        SubtitleTableModel subtitleTableModel = (SubtitleTableModel) customTable.getModel();
-        for (int i = 0; i < subtitleTableModel.getRowCount(); i++) {
-            if ((Boolean) subtitleTableModel.getValueAt(i,
-                    customTable.getColumnIdByName(SubtitleTableColumnName.SELECT))) {
-                count++;
-            }
-        }
-        return !(count > 1);
+    private List<Integer> getSelectedIdxs() {
+        return IntStream.range(0, customTable.getModel().getRowCount())
+                .filter(i -> (boolean) customTable.getModel().getValueAt(i, customTable.getColumnIdByName(SubtitleTableColumnName.SELECT)))
+                .mapToObj(i -> i).toList();
     }
 
-    public int getSelection() {
-        int selectedRow = -1;
-        if (answer == SelectionType.OK) {
-            SubtitleTableModel subtitleTableModel = (SubtitleTableModel) customTable.getModel();
-            for (int i = 0; i < subtitleTableModel.getRowCount(); i++) {
-                if ((Boolean) subtitleTableModel.getValueAt(i,
-                        customTable.getColumnIdByName(SubtitleTableColumnName.SELECT))) {
-                    selectedRow = i;
-                }
-            }
-        }
-        return selectedRow;
+    public List<Integer> getSelection() {
+        return selectedSubtitleIdxs;
     }
-
-    public SelectionType getAnswer() {
-        return answer;
-    }
-
 }

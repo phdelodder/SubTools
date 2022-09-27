@@ -40,7 +40,7 @@ public abstract class SubtitleSelection {
         return shortlist;
     }
 
-    public abstract int getUserInput(Release release);
+    public abstract List<Integer> getUserInput(Release release);
 
     public abstract void dryRunOutput(Release release);
 }

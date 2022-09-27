@@ -32,7 +32,7 @@ public class SubtitleSelectionAction {
      * @param subtitleSelectionDialog
      * @return integer which subtitle is selected for downloading
      */
-    public int subtitleSelection(final Release release, final boolean subtitleSelectionDialog) {
+    public List<Integer> subtitleSelection(final Release release, final boolean subtitleSelectionDialog) {
         return this.subtitleSelection(release, subtitleSelectionDialog, false);
     }
 
@@ -42,16 +42,16 @@ public class SubtitleSelectionAction {
      * @param dryRun
      * @return integer which subtitle is selected for downloading
      */
-    public int subtitleSelection(Release release, final boolean subtitleSelectionDialog, final boolean dryRun) {
+    public List<Integer> subtitleSelection(Release release, final boolean subtitleSelectionDialog, final boolean dryRun) {
 
         // Sort subtitles by score
         Collections.sort(release.getMatchingSubs(), new SubtitleComparator());
         if (dryRun) {
-            if (release.getMatchingSubs().size() > 0) {
+            if (!release.getMatchingSubs().isEmpty()) {
                 subtitleSelection.dryRunOutput(release);
             }
         } else {
-            if (release.getMatchingSubs().size() > 0) {
+            if (!release.getMatchingSubs().isEmpty()) {
                 LOGGER.debug("determineWhatSubtitleDownload for videoFile: [{}] # found subs: [{}]",
                         release.getFileName(), release.getMatchingSubs().size());
                 if (settings.isOptionsAlwaysConfirm()) {
@@ -59,21 +59,20 @@ public class SubtitleSelectionAction {
                 } else if (release.getMatchingSubs().size() == 1
                         && release.getMatchingSubs().get(0).getSubtitleMatchType() == SubtitleMatchType.EXACT) {
                     LOGGER.debug("determineWhatSubtitleDownload: Exact Match");
-                    return 0;
+                    return List.of(0);
                 } else if (release.getMatchingSubs().size() > 1) {
                     LOGGER.debug("determineWhatSubtitleDownload: Multiple subs detected");
 
                     // Automatic selection
-                    List<Subtitle> shortlist =
-                            subtitleSelection.getAutomaticSelection(release.getMatchingSubs());
+                    List<Subtitle> shortlist = subtitleSelection.getAutomaticSelection(release.getMatchingSubs());
                     shortlist.forEach(release::addMatchingSub);
                     // automatic selection results in 1 result
                     if (shortlist.size() == 1) {
-                        return 0;
+                        return List.of(0);
                     }
                     // nothing match the minimum automatic selection value
                     if (shortlist.isEmpty()) {
-                        return -1;
+                        return List.of();
                     }
 
                     // still more then 1 subtitle, let the user decide!
@@ -81,17 +80,16 @@ public class SubtitleSelectionAction {
                         LOGGER.debug("determineWhatSubtitleDownload: Select subtitle with dialog");
                         return subtitleSelection.getUserInput(release);
                     } else {
-                        LOGGER.info(
-                                "Multiple subs detected for: [{}] Unhandleable for CMD! switch to GUI or use '--selection' as switch in de CMD",
+                        LOGGER.info("Multiple subs detected for: [{}] Unhandleable for CMD! switch to GUI or use '--selection' as switch in de CMD",
                                 release.getFileName());
                     }
                 } else if (release.getMatchingSubs().size() == 1) {
                     LOGGER.debug("determineWhatSubtitleDownload: only one sub taking it!!!!");
-                    return 0;
+                    return List.of(0);
                 }
             }
             LOGGER.debug("determineWhatSubtitleDownload: No subs found for  [{}]", release.getFileName());
         }
-        return -1;
+        return List.of();
     }
 }

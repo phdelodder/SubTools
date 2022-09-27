@@ -1,6 +1,8 @@
 package org.lodder.subtools.multisubdownloader.lib;
 
 import java.io.Console;
+import java.util.Arrays;
+import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SubtitleTableColumnName;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
@@ -15,22 +17,23 @@ public class SubtitleSelectionCLI extends SubtitleSelection {
     }
 
     @Override
-    public int getUserInput(Release release) {
-        System.out.println("\nSelect best subtitle for : " + release.getFileName());
+    public List<Integer> getUserInput(Release release) {
+        System.out.println("\nSelect subtitle(s) for : " + release.getFileName());
         generateSubtitleSelectionOutput(release);
 
         System.out.println("(-1) To skip download and/or move!");
         Console c = System.console();
-        String selectedSubtitle = c.readLine("Enter number of selected subtitle: ");
+        String selectedSubtitles = c.readLine("Enter comma separated list of numbers of selected subtitle: ");
         System.out.println("");
-        int selected = -1;
-        try {
-            selected = Integer.parseInt(selectedSubtitle);
-            selected--;
-        } catch (NumberFormatException e) {
-            return -1;
+        if ("-1".equals(selectedSubtitles)) {
+            return List.of();
         }
-        return selected;
+        try {
+            return Arrays.stream(selectedSubtitles.split(",")).map(Integer::parseInt).toList();
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input, try again.");
+            return getUserInput(release);
+        }
     }
 
     @Override

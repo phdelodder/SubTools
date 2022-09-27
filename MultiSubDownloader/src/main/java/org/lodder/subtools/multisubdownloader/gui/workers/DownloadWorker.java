@@ -10,7 +10,6 @@ import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.actions.DownloadAction;
 import org.lodder.subtools.multisubdownloader.actions.SubtitleSelectionAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
-import org.lodder.subtools.multisubdownloader.gui.dialog.SelectDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
@@ -66,23 +65,16 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
                 final Release release =
                         (Release) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.OBJECT));
                 publish(release.getFileName());
-                int selection = subtitleSelectionAction.subtitleSelection(release, true);
-                if (selection >= 0) {
-                    try {
-                        if (selection == SelectDialog.SelectionType.ALL.getSelectionCode()) {
-                            LOGGER.info("Downloading ALL found subtitles for release {}", release.getFileName());
-                            for (int j = 0; j < release.getMatchingSubs().size(); j++) {
-                                downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
-                            }
-                        } else {
-                            downloadAction.download(release, release.getMatchingSubs().get(selection));
-                        }
-                        model.removeRow(i);
-                        i--;
-                    } catch (IOException | ManagerException e) {
-                        LOGGER.error(e.getMessage(), e);
-                        showErrorMessage(e.toString());
+                List<Integer> selection = subtitleSelectionAction.subtitleSelection(release, true);
+                try {
+                    for (int j : selection) {
+                        downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
                     }
+                    model.removeRow(i);
+                    i--;
+                } catch (IOException | ManagerException e) {
+                    LOGGER.error(e.getMessage(), e);
+                    showErrorMessage(e.toString());
                 }
             }
         }

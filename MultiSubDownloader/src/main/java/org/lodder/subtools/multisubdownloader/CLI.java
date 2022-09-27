@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.apache.commons.cli.CommandLine;
 import org.lodder.subtools.multisubdownloader.actions.DownloadAction;
@@ -46,7 +47,6 @@ public class CLI {
     private final DownloadAction downloadAction;
     private final SubtitleSelectionAction subtitleSelectionAction;
     private boolean dryRun = false;
-
 
     public CLI(SettingsControl settingControl, Container app) {
         this.app = app;
@@ -122,21 +122,22 @@ public class CLI {
     }
 
     private void download(Release release) throws IOException, ManagerException {
-        int selection = subtitleSelectionAction.subtitleSelection(release, subtitleSelection, dryRun);
-        if (selection >= 0) {
-            if (downloadall) {
+        List<Integer> selection;
+        if (downloadall) {
+            selection = IntStream.range(0, release.getMatchingSubs().size()).mapToObj(i -> i).toList();
+            if (!selection.isEmpty()) {
                 System.out.println("Downloading ALL found subtitles for release: " + release.getFileName());
-                for (int j = 0; j < release.getMatchingSubs().size(); j++) {
-                    System.out.println("Downloading subtitle: " + release.getMatchingSubs().get(0).getFileName());
-                    downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
-                }
-            } else {
-                downloadAction.download(release, release.getMatchingSubs().get(selection));
             }
-        } else if (dryRun && release.getMatchingSubs().size() == 0) {
+        } else {
+            selection = subtitleSelectionAction.subtitleSelection(release, subtitleSelection, dryRun);
+        }
+        if (selection.isEmpty()) {
             System.out.println("No substitles found for: " + release.getFileName());
-        } else if (selection == -1 && !dryRun) {
-            System.out.println("No substitles found for: " + release.getFileName());
+        } else {
+            for (int j : selection) {
+                System.out.println("Downloading subtitle: " + release.getMatchingSubs().get(0).getFileName());
+                downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
+            }
         }
     }
 
