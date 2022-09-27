@@ -84,8 +84,7 @@ public class CliSearchAction extends SearchAction {
         if (filtering != null) {
             subtitleList = filtering.getFiltered(subtitleList, release);
         }
-
-        release.getMatchingSubs().addAll(subtitleList);
+        subtitleList.forEach(release::addMatchingSub);
         if (searchManager.getProgress() < 100) {
             return;
         }

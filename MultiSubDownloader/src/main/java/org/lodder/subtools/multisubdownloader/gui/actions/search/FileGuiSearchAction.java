@@ -39,8 +39,7 @@ public class FileGuiSearchAction extends GuiSearchAction {
         if (filtering != null) {
             subtitles = filtering.getFiltered(subtitles, release);
         }
-
-        release.getMatchingSubs().addAll(subtitles);
+        subtitles.forEach(release::addMatchingSub);
 
         model.addRow(release);
         mainwindow.repaint();

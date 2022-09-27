@@ -295,7 +295,11 @@ public class Manager {
                 return cache.get(key);
             }
             Optional<T> value = optionalValueSupplier.get();
-            value.ifPresentOrElse(v -> cache.put(key, v), () -> cache.put(key, null));
+            value.ifPresentOrElse(v -> cache.put(key, v), () -> {
+                if (cache instanceof DiskCache diskCache) {
+                    diskCache.putWithoutPersist(key, null);
+                }
+            });
             return value;
         }
     }

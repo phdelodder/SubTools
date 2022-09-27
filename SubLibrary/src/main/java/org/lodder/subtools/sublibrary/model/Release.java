@@ -2,7 +2,9 @@ package org.lodder.subtools.sublibrary.model;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -11,7 +13,7 @@ import lombok.Getter;
 @Getter
 public abstract class Release extends Video {
 
-    private final List<Subtitle> matchingSubs = new ArrayList<>();
+    private final Set<Subtitle> matchingSubs = new HashSet<>();
     private final File file;
     private final String quality;
     private final String description;
@@ -56,6 +58,14 @@ public abstract class Release extends Video {
     // }
     // }
 
+    public void addMatchingSub(Subtitle sub) {
+        matchingSubs.add(sub);
+    }
+
+    public List<Subtitle> getMatchingSubs() {
+        return new ArrayList<>(matchingSubs);
+    }
+
     protected Release(VideoType videoFileType, File file, String description, String releaseGroup, String quality) {
         super(videoFileType);
         this.file = file;
@@ -74,10 +84,6 @@ public abstract class Release extends Video {
 
     public String getExtension() {
         return file != null ? FilenameUtils.getExtension(file.getName()) : null;
-    }
-
-    public void addMatchingSubs(Subtitle subtitle) {
-        matchingSubs.add(subtitle);
     }
 
     @Override
