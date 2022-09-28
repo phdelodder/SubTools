@@ -55,7 +55,7 @@ public class JAddic7edAdapterViaProxy implements SubtitleProvider {
                         .flatMap(episode -> {
                             try {
                                 return jaapi
-                                        .searchSubtitles(serieName, tvRelease.getSeason(), episode, language, getSubtitleMapper(tvRelease, language))
+                                        .searchSubtitles(serieName, tvRelease.getSeason(), episode, language)
                                         .stream();
                             } catch (Exception e) {
                                 LOGGER.error("API %s (via proxy) searchSubtitles for serie [%s] (%s)".formatted(getSubtitleSource().getName(),
@@ -65,19 +65,6 @@ public class JAddic7edAdapterViaProxy implements SubtitleProvider {
                         })
                         .collect(Collectors.toSet()))
                 .orElseGet(Set::of);
-    }
-
-    private BiFunction<EpisodeDto, SubtitleDto, Subtitle> getSubtitleMapper(TvRelease tvRelease, Language language) {
-        return (episodedto, sub) -> Subtitle.downloadSource(jaapi.getDownloadUrl(sub.getDownloadUri()))
-                .subtitleSource(getSubtitleSource())
-                .fileName(StringUtil.removeIllegalFilenameChars(episodedto.getTitle() + " " + sub.getVersion()))
-                .language(language)
-                .quality(ReleaseParser.getQualityKeyword(episodedto.getTitle() + " " + sub.getVersion()))
-                .subtitleMatchType(SubtitleMatchType.EVERYTHING)
-                .releaseGroup(ReleaseParser.extractReleasegroup(episodedto.getTitle() + " " + sub.getVersion(),
-                        FilenameUtils.isExtension(episodedto.getTitle() + " " + sub.getVersion(), "srt")))
-                .uploader("")
-                .hearingImpaired(false);
     }
 
     private Optional<String> getShowNameForSerie(TvRelease tvRelease) {
