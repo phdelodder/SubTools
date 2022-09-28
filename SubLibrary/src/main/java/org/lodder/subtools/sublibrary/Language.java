@@ -3,11 +3,12 @@ package org.lodder.subtools.sublibrary;
 import java.util.Arrays;
 import java.util.Optional;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Language {
 
     ALBANIAN("InputPanel.Language.Albanian", "sq"),

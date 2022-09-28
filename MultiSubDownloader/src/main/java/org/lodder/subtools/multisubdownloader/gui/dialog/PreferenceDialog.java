@@ -24,6 +24,7 @@ import javax.swing.border.EmptyBorder;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
 import org.lodder.subtools.multisubdownloader.framework.event.Event;
+import org.lodder.subtools.multisubdownloader.gui.ToStringListCellRenderer;
 import org.lodder.subtools.multisubdownloader.gui.extra.JListWithImages;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.panels.DefaultSelectionPanel;
@@ -36,6 +37,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -191,8 +193,9 @@ public class PreferenceDialog extends MultiSubDialog {
                 }
                 {
                     cbxUpdateCheckPeriod = new JComboBox<>();
-                    cbxUpdateCheckPeriod.setModel(new DefaultComboBoxModel<>(
-                            UpdateCheckPeriod.values()));
+                    cbxUpdateCheckPeriod.setModel(new DefaultComboBoxModel<>(UpdateCheckPeriod.values()));
+                    cbxUpdateCheckPeriod.setRenderer(new ToStringListCellRenderer<>(cbxUpdateCheckPeriod.getRenderer(),
+                            o -> Messages.getString(((UpdateCheckPeriod) o).getLangCode())));
                     pnlGeneral.add(cbxUpdateCheckPeriod, "cell 2 5,growx");
                 }
                 {
@@ -323,7 +326,7 @@ public class PreferenceDialog extends MultiSubDialog {
                 pnlSerieSources.add(pnlSerieSourcesSelectionSettings, "cell 0 0 3 1,grow");
                 pnlSerieSourcesSelectionSettings.setLayout(new MigLayout("",
                         "[50px:n][][100.00,grow][grow][grow]", "[][][][][][][]"));
-                pnlSerieSourcesSelectionSettings.add(new JLabel("Selecteer de gewenste providers"),
+                pnlSerieSourcesSelectionSettings.add(new JLabel(Messages.getString("PreferenceDialog.SelectPreferedSources")),
                         "cell 0 0 5 1,gapy 5");
                 pnlSerieSources.add(pnlSerieSourcesSelectionSettings, "cell 0 0 3 1,grow");
                 pnlSerieSourcesSelectionSettings.add(new JSeparator(), "cell 0 0 5 1,growx,gapy 5");
@@ -336,10 +339,10 @@ public class PreferenceDialog extends MultiSubDialog {
                 pnlSerieSourcesSelectionSettings.add(chkSerieSourcePodnapisi, "cell 0 3 2 1");
                 chkSerieSourceOpensubtitles = new JCheckBox("Opensubtitles");
                 pnlSerieSourcesSelectionSettings.add(chkSerieSourceOpensubtitles, "cell 0 4 2 1");
-                chkSerieSourceLocal = new JCheckBox("Lokaal");
-                pnlSerieSourcesSelectionSettings.add(chkSerieSourceLocal, "cell 0 5 2 1");
                 chkSerieSourceSubscene = new JCheckBox("Subscene");
-                pnlSerieSourcesSelectionSettings.add(chkSerieSourceSubscene, "cell 0 7");
+                pnlSerieSourcesSelectionSettings.add(chkSerieSourceSubscene, "cell 0 5 2 1");
+                chkSerieSourceLocal = new JCheckBox(Messages.getString("PreferenceDialog.Local"));
+                pnlSerieSourcesSelectionSettings.add(chkSerieSourceLocal, "cell 0 6 2 1");
                 //
                 JPanel pnlAddic7edLoginSettings = new JPanel();
                 pnlSerieSources.add(pnlAddic7edLoginSettings, "cell 0 1 3 1,grow");
@@ -541,27 +544,26 @@ public class PreferenceDialog extends MultiSubDialog {
             String message = Messages.getString("PreferenceDialog.ProxyPortNumericRequired");
             JOptionPane.showConfirmDialog(this, message, Messages.getString("PreferenceDialog.Name"),
                     JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
-            LOGGER.debug("testGeneralTab: De proxy poort moet een numerische waarde zijn!");
+            LOGGER.debug(Messages.getString("PreferenceDialog.ProxyPortNumericRequired"));
             return false;
         }
     }
 
     protected boolean testSerieSourcesTab() {
         if (chkUserAddic7edLogin.isSelected() && (txtAddic7edUsername.getText().isEmpty() || txtAddic7edPassword.getText().isEmpty())) {
-            String message =
-                    Messages.getString("PreferenceDialog.Addic7edLoginSelectEnterUsernamePassword");
+            String message = Messages.getString("PreferenceDialog.LoginSelectEnterUsernamePassword").formatted(SubtitleSource.ADDIC7ED.getName());
             JOptionPane.showConfirmDialog(this, message, Messages.getString("PreferenceDialog.Name"),
                     JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
-            LOGGER.debug("testSerieSourcesTab: Addic7ed login geselecteerd! Gelieve een username en pasword in te vullen.");
+            LOGGER.debug(message);
             return false;
         }
         if (chkUserOpenSubtitlesLogin.isSelected()
                 && (txtOpenSubtitlesUsername.getText().isEmpty() || txtOpenSubtitlesPassword.getText().isEmpty())) {
             String message =
-                    Messages.getString("PreferenceDialog.OpenSubtitlesLoginSelectEnterUsernamePassword");
+                    Messages.getString("PreferenceDialog.LoginSelectEnterUsernamePassword").formatted(SubtitleSource.OPENSUBTITLES.getName());
             JOptionPane.showConfirmDialog(this, message, Messages.getString("PreferenceDialog.Name"),
                     JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
-            LOGGER.debug("testSerieSourcesTab: OpenSubtitles login geselecteerd! Gelieve een username en pasword in te vullen.");
+            LOGGER.debug(message);
             return false;
         }
         return true;
