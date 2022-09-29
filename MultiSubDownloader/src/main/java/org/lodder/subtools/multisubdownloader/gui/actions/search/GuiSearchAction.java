@@ -1,10 +1,13 @@
 package org.lodder.subtools.multisubdownloader.gui.actions.search;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.actions.SearchAction;
 import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
+import org.lodder.subtools.multisubdownloader.gui.OptionsPane;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchPanel;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
@@ -47,8 +50,7 @@ public abstract class GuiSearchAction extends SearchAction {
             return;
         }
 
-        VideoTableModel model =
-                (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
+        VideoTableModel model = (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
 
         if (model.getRowCount() > 0) {
             searchPanel.getResultPanel().enableButtons();
@@ -85,5 +87,21 @@ public abstract class GuiSearchAction extends SearchAction {
         }
 
         super.validate();
+    }
+
+    @Override
+    public Optional<String> selectFromList(List<String> options, String message, String title) {
+        if (options.isEmpty()) {
+            return Optional.empty();
+        }
+        return OptionsPane.stringOptions(options).title(title).message(message).defaultOption().prompt();
+    }
+
+    @Override
+    public <T> Optional<T> selectFromList(List<T> options, String message, String title, Function<T, String> toStringMapper) {
+        if (options.isEmpty()) {
+            return Optional.empty();
+        }
+        return OptionsPane.options(options).toStringMapper(toStringMapper).title(title).message(message).defaultOption().prompt();
     }
 }

@@ -54,6 +54,7 @@ public class Settings {
     private boolean optionsDefaultSelection;
     private List<String> optionsDefaultSelectionQualityList = new ArrayList<>();
     private int settingsVersion;
+    private boolean confirmProviderMapping;
 
     public List<File> getDefaultFolders() {
         return getDefaultIncomingFolders();

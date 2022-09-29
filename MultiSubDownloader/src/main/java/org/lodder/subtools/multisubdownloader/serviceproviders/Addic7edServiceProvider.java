@@ -61,9 +61,10 @@ public class Addic7edServiceProvider implements ServiceProvider {
         if (loginEnabled && (username.isEmpty() || password.isEmpty())) {
             loginEnabled = false;
         }
+        boolean confirmProviderMapping = settings.isConfirmProviderMapping();
 
         // return new JAddic7edAdapter(loginEnabled, username, password, preferences.getBoolean("speedy", false), manager);
-        return new JAddic7edAdapterViaProxy(manager);
+        return new JAddic7edAdapterViaProxy(manager, confirmProviderMapping);
     }
 
     private void registerListener(final SubtitleProviderStore subtitleProviderStore) {

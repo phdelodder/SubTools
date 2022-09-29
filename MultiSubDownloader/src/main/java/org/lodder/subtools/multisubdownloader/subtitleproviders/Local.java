@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.lodder.subtools.multisubdownloader.lib.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.lib.control.MovieReleaseControl;
 import org.lodder.subtools.multisubdownloader.lib.control.TvReleaseControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
@@ -50,7 +51,7 @@ public class Local implements SubtitleProvider {
     }
 
     @Override
-    public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
+    public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language, UserInteractionHandler userInteraction) {
         Set<Subtitle> listFoundSubtitles = new HashSet<>();
         ReleaseParser vfp = new ReleaseParser();
 
@@ -100,7 +101,7 @@ public class Local implements SubtitleProvider {
     }
 
     @Override
-    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
+    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language, UserInteractionHandler userInteraction) {
         Set<Subtitle> listFoundSubtitles = new HashSet<>();
         ReleaseParser releaseParser = new ReleaseParser();
 

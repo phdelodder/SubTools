@@ -66,6 +66,7 @@ public class PreferenceDialog extends MultiSubDialog {
             chkSerieSourceOpensubtitles, chkSerieSourceLocal, chkSerieSourceSubscene;
     private JComboBox<SettingsProcessEpisodeSource> cbxEpisodeProcessSource;
     private JCheckBox chkMinScoreSelection;
+    private JCheckBox chkConfirmProviderMapping;
     private JSlider sldMinScoreSelection;
     private final Manager manager;
     private JComboBox<UpdateCheckPeriod> cbxUpdateCheckPeriod;
@@ -289,6 +290,10 @@ public class PreferenceDialog extends MultiSubDialog {
                     cbxEpisodeProcessSource.setEnabled(false);
                     pnlOptions.add(cbxEpisodeProcessSource, "cell 1 14,growx");
                 }
+                {
+                    chkConfirmProviderMapping = new JCheckBox(Messages.getString("PreferenceDialog.ConfirmProviderMapping"));
+                    pnlOptions.add(chkConfirmProviderMapping, "cell 1 15,growx");
+                }
             }
             {
 
@@ -485,6 +490,7 @@ public class PreferenceDialog extends MultiSubDialog {
         cbxUpdateCheckPeriod.setSelectedItem(settingsCtrl.getSettings().getUpdateCheckPeriod());
         chkDefaultSelection.setSelected(settingsCtrl.getSettings().isOptionsDefaultSelection());
         pnlDefaultSelection.setDefaultSelectionList(settingsCtrl.getSettings().getOptionsDefaultSelectionQualityList());
+        chkConfirmProviderMapping.setSelected(settingsCtrl.getSettings().isConfirmProviderMapping());
     }
 
     protected boolean testOptionsTab() {

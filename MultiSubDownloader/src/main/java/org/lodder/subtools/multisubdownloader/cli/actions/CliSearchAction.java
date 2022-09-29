@@ -3,7 +3,11 @@ package org.lodder.subtools.multisubdownloader.cli.actions;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
+import org.codehaus.plexus.components.interactivity.DefaultPrompter;
+import org.codehaus.plexus.components.interactivity.Prompter;
 import org.lodder.subtools.multisubdownloader.CLI;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.actions.ActionException;
@@ -12,6 +16,7 @@ import org.lodder.subtools.multisubdownloader.actions.SearchAction;
 import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
+import org.lodder.subtools.multisubdownloader.util.prompter.PrompterUtil;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -26,6 +31,7 @@ public class CliSearchAction extends SearchAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CliSearchAction.class);
 
+    private final Prompter prompter = new DefaultPrompter();
     private CLI cli;
     private FileListAction fileListAction;
     private List<File> folders;
@@ -118,5 +124,16 @@ public class CliSearchAction extends SearchAction {
             throw new SearchSetupException("Filtering must be set.");
         }
         super.validate();
+    }
+
+    @Override
+    public Optional<String> selectFromList(List<String> options, String message, String title) {
+        return Optional.ofNullable(PrompterUtil.getStringFromList(options).message(message).includeNull().prompt(prompter));
+    }
+
+    @Override
+    public <T> Optional<T> selectFromList(List<T> options, String message, String title, Function<T, String> toStringMapper) {
+        return Optional
+                .ofNullable(PrompterUtil.getElementFromList(options).toStringMapper(toStringMapper).message(message).includeNull().prompt(prompter));
     }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
+import org.lodder.subtools.multisubdownloader.lib.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener;
 import org.lodder.subtools.multisubdownloader.listeners.SearchProgressListener;
 import org.lodder.subtools.multisubdownloader.listeners.StatusListener;
@@ -17,7 +18,7 @@ import org.lodder.subtools.sublibrary.model.Release;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class SearchAction implements Runnable, Cancelable, SearchHandler {
+public abstract class SearchAction implements Runnable, Cancelable, SearchHandler, UserInteractionHandler {
 
     protected Settings settings;
     protected SubtitleProviderStore subtitleProviderStore;
@@ -87,10 +88,15 @@ public abstract class SearchAction implements Runnable, Cancelable, SearchHandle
         this.setStatusListener(this.searchProgressListener);
 
         /* Create a new SearchManager. */
-        this.searchManager = new SearchManager(this.settings);
-
-        /* Tell the manager which language we want */
-        this.searchManager.setLanguage(language);
+        this.searchManager =
+                SearchManager.createWithSettings(this.settings)
+                        /* Tell the manager which language we want */
+                        .language(language)
+                        /* Tell the manager where to push progressUpdates */
+                        .progressListener(this.searchProgressListener)
+                        .userInteractionHandler(this)
+                        /* Listen for when the manager tells us Subtitles are found */
+                        .onFound(this);
 
         /* Tell the manager which providers to use */
         this.subtitleProviderStore.getAllProviders().stream()
@@ -99,12 +105,6 @@ public abstract class SearchAction implements Runnable, Cancelable, SearchHandle
 
         /* Tell the manager which releases to search. */
         this.releases.forEach(searchManager::addRelease);
-
-        /* Listen for when the manager tells us Subtitles are found */
-        this.searchManager.onFound(this);
-
-        /* Tell the manager where to push progressUpdates */
-        this.searchManager.setProgressListener(this.searchProgressListener);
 
         setStatusMessage(Messages.getString("SearchAction.StatusSearching"));
 

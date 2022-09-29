@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.lodder.subtools.multisubdownloader.lib.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesHasher;
 import org.lodder.subtools.sublibrary.Language;
@@ -26,7 +27,7 @@ public abstract class AbstractAdapter<S, X extends Exception> implements Subtitl
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAdapter.class);
 
     @Override
-    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
+    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language, UserInteractionHandler userInteraction) {
         Set<S> subtitles = new HashSet<>();
         if (StringUtils.isNotBlank(movieRelease.getFileName())) {
             File file = new File(movieRelease.getPath(), movieRelease.getFileName());
@@ -69,7 +70,7 @@ public abstract class AbstractAdapter<S, X extends Exception> implements Subtitl
     protected abstract Collection<S> searchMovieSubtitlesWithName(String name, int year, Language language) throws X;
 
     @Override
-    public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
+    public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language, UserInteractionHandler userInteraction) {
         Set<S> subtitles = new HashSet<>();
         if (StringUtils.isNotBlank(tvRelease.getOriginalName())) {
             tvRelease.getEpisodeNumbers()

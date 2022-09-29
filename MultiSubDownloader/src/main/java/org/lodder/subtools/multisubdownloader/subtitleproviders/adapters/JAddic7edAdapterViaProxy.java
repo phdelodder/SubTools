@@ -4,28 +4,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.swing.JOptionPane;
-
-import org.apache.commons.io.FilenameUtils;
-import org.gestdown.model.EpisodeDto;
-import org.gestdown.model.SubtitleDto;
+import org.lodder.subtools.multisubdownloader.Messages;
+import org.lodder.subtools.multisubdownloader.lib.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.proxy.gestdown.JAddic7edProxyGestdownApi;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.CacheType;
-import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
-import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
-import org.lodder.subtools.sublibrary.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,10 +30,12 @@ public class JAddic7edAdapterViaProxy implements SubtitleProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edAdapterViaProxy.class);
     private final Manager manager;
     private final JAddic7edProxyGestdownApi jaapi;
+    private final boolean confirmProviderMapping;
 
-    public JAddic7edAdapterViaProxy(Manager manager) {
+    public JAddic7edAdapterViaProxy(Manager manager, boolean confirmProviderMapping) {
         this.manager = manager;
         this.jaapi = new JAddic7edProxyGestdownApi(manager);
+        this.confirmProviderMapping = confirmProviderMapping;
     }
 
     @Override
@@ -49,8 +44,8 @@ public class JAddic7edAdapterViaProxy implements SubtitleProvider {
     }
 
     @Override
-    public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
-        return getShowNameForSerie(tvRelease)
+    public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language, UserInteractionHandler userInteraction) {
+        return getShowNameForSerie(tvRelease, userInteraction)
                 .map(serieName -> tvRelease.getEpisodeNumbers().stream()
                         .flatMap(episode -> {
                             try {
@@ -67,21 +62,26 @@ public class JAddic7edAdapterViaProxy implements SubtitleProvider {
                 .orElseGet(Set::of);
     }
 
-    private Optional<String> getShowNameForSerie(TvRelease tvRelease) {
+    private Optional<String> getShowNameForSerie(TvRelease tvRelease, UserInteractionHandler userInteraction) {
         try {
             return manager.getValueBuilder().key("Gestdown-showname-" + tvRelease.getOriginalName())
                     .cacheType(CacheType.DISK)
                     .optionalSupplier(() -> {
                         List<String> serieNamesForName = jaapi.getSerieNameForName(tvRelease.getOriginalName());
-                        Optional<String> selectedSerieName = promptUserSelectFromList(serieNamesForName,
-                                "Select correct serie name for name " + tvRelease.getOriginalName(), getSubtitleSource().getName());
+                        if (!confirmProviderMapping && serieNamesForName.size() == 1) {
+                            return Optional.of(serieNamesForName.get(0));
+                        }
+                        Optional<String> selectedSerieName = userInteraction.selectFromList(serieNamesForName,
+                                Messages.getString("SelectDialog.SelectSerieNameForName").formatted(tvRelease.getOriginalName()),
+                                getSubtitleSource().getName());
                         if (!selectedSerieName.isEmpty()) {
                             return selectedSerieName;
                         } else {
-                            List<String> serieNamesForName2 = jaapi.getSerieNameForName(tvRelease.getName());
-                            if (!new HashSet<>(serieNamesForName).equals(new HashSet<>(serieNamesForName2))) {
-                                selectedSerieName = promptUserSelectFromList(serieNamesForName,
-                                        "Select correct serie name for name " + tvRelease.getOriginalName(), getSubtitleSource().getName());
+                            serieNamesForName = jaapi.getSerieNameForName(tvRelease.getName());
+                            if (!new HashSet<>(serieNamesForName).equals(new HashSet<>(serieNamesForName))) {
+                                selectedSerieName = userInteraction.selectFromList(serieNamesForName,
+                                        Messages.getString("SelectDialog.SelectSerieNameForName").formatted(tvRelease.getOriginalName()),
+                                        getSubtitleSource().getName());
                             }
                         }
                         return selectedSerieName;
@@ -94,16 +94,8 @@ public class JAddic7edAdapterViaProxy implements SubtitleProvider {
         }
     }
 
-    private Optional<String> promptUserSelectFromList(List<String> options, String message, String title) {
-        if (options.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable((String) JOptionPane.showInputDialog(null, message, title, JOptionPane.DEFAULT_OPTION, null,
-                options.stream().toArray(String[]::new), "0"));
-    }
-
     @Override
-    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
+    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language, UserInteractionHandler userInteraction) {
         // TODO implement this
         return Set.of();
     }
