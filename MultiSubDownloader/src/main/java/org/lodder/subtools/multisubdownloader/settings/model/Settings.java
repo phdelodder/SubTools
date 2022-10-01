@@ -55,7 +55,6 @@ public class Settings implements UserInteractionSettingsIntf {
     private boolean optionsDefaultSelection;
     private List<String> optionsDefaultSelectionQualityList = new ArrayList<>();
     private int settingsVersion;
-    private boolean confirmProviderMapping;
     private boolean optionsConfirmProviderMapping;
 
     public List<File> getDefaultFolders() {

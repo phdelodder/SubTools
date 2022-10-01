@@ -495,7 +495,7 @@ public class PreferenceDialog extends MultiSubDialog {
         cbxUpdateCheckPeriod.setSelectedItem(settingsCtrl.getSettings().getUpdateCheckPeriod());
         chkDefaultSelection.setSelected(settingsCtrl.getSettings().isOptionsDefaultSelection());
         pnlDefaultSelection.setDefaultSelectionList(settingsCtrl.getSettings().getOptionsDefaultSelectionQualityList());
-        chkConfirmProviderMapping.setSelected(settingsCtrl.getSettings().isConfirmProviderMapping());
+        chkConfirmProviderMapping.setSelected(settingsCtrl.getSettings().isOptionsConfirmProviderMapping());
     }
 
     protected boolean testOptionsTab() {

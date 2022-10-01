@@ -62,7 +62,7 @@ public class Addic7edServiceProvider implements ServiceProvider {
             loginEnabled = false;
         }
 
-        boolean confirmProviderMapping = settings.isConfirmProviderMapping();
+        boolean confirmProviderMapping = settings.isOptionsConfirmProviderMapping();
         // return new JAddic7edAdapter(loginEnabled, username, password, preferences.getBoolean("speedy", false), manager);
         return new JAddic7edAdapterViaProxy(manager, confirmProviderMapping);
     }
