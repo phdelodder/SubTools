@@ -3,6 +3,7 @@ package org.lodder.subtools.sublibrary.data.tvdb;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -61,7 +62,7 @@ class TheTvdbApi {
                                 theTvdb.search().series(encodedSerieName, null, null, null, language == null ? null : language.getLangCode())
                                         .execute();
                         if (response.isSuccessful()) {
-                            List<Integer> results = response.body().data.stream().map(serie -> serie.id).toList();
+                            List<Series> results = response.body().data.stream().toList();
                             Optional<Integer> selectedTvdbId = selectTvdbIdForSerieName(results, encodedSerieName);
                             if (selectedTvdbId.isPresent()) {
                                 return selectedTvdbId;
@@ -80,15 +81,17 @@ class TheTvdbApi {
                 }).getOptional().mapToInt(i -> i);
     }
 
-    private Optional<Integer> selectTvdbIdForSerieName(List<Integer> options, String serieName) {
+    private Optional<Integer> selectTvdbIdForSerieName(List<Series> options, String serieName) {
         if (options.isEmpty()) {
             return Optional.empty();
         } else if (!userInteractionHandler.getSettings().isOptionsConfirmProviderMapping() && options.size() == 1) {
-            return Optional.of(options.get(0));
+            return Optional.of(options.get(0).id);
         } else {
-            return userInteractionHandler.selectFromList(options,
-                    Messages.getString("Prompter.SelectTvdbMatchForSerie").formatted(serieName),
-                    "tvdb", String::valueOf);
+            return userInteractionHandler
+                    .selectFromList(options.stream().sorted(Comparator.comparing(s -> s.firstAired, Comparator.reverseOrder())).toList(),
+                            Messages.getString("Prompter.SelectTvdbMatchForSerie").formatted(serieName),
+                            "tvdb", s -> "%s (%s)".formatted(s.seriesName, s.firstAired))
+                    .map(s -> s.id);
         }
     }
 
