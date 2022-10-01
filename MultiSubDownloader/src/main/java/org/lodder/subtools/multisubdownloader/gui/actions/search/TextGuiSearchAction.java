@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.GUI;
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
@@ -18,8 +19,6 @@ import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoSearchType;
-
-import com.optimaize.langdetect.cybozu.util.Messages;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

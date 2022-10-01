@@ -8,8 +8,7 @@ import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.plexus.components.interactivity.Prompter;
 import org.codehaus.plexus.components.interactivity.PrompterException;
-
-import com.optimaize.langdetect.cybozu.util.Messages;
+import org.lodder.subtools.multisubdownloader.Messages;
 
 public class PrompterBuilderCommon {
 

@@ -10,7 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-import com.optimaize.langdetect.cybozu.util.Messages;
+import org.lodder.subtools.multisubdownloader.Messages;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

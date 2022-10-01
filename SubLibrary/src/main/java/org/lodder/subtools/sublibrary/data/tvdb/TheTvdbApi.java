@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
 
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.UserInteractionHandler;
@@ -19,7 +20,6 @@ import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.optimaize.langdetect.cybozu.util.Messages;
 import com.pivovarit.function.ThrowingSupplier;
 import com.uwetrottmann.thetvdb.TheTvdb;
 import com.uwetrottmann.thetvdb.entities.Episode;

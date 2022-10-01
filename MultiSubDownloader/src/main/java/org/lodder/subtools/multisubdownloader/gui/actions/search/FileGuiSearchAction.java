@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.lodder.subtools.multisubdownloader.GUI;
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.actions.FileListAction;
 import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
@@ -18,8 +19,6 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
-
-import com.optimaize.langdetect.cybozu.util.Messages;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

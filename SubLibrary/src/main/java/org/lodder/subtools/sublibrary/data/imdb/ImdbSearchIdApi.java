@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.cache.CacheType;
@@ -20,8 +21,6 @@ import org.lodder.subtools.sublibrary.data.imdb.exception.ImdbSearchIdException;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.optimaize.langdetect.cybozu.util.Messages;
 
 import lombok.experimental.ExtensionMethod;
 
