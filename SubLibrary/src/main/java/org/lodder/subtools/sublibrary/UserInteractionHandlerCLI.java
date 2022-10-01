@@ -3,6 +3,7 @@ package org.lodder.subtools.sublibrary;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.codehaus.plexus.components.interactivity.DefaultPrompter;
 import org.codehaus.plexus.components.interactivity.Prompter;
@@ -31,5 +32,10 @@ public class UserInteractionHandlerCLI implements UserInteractionHandler {
     @Override
     public boolean confirm(String message, String title) {
         return PrompterUtil.getBooleanValue().message(message + " (Y/N)").prompt(prompter).get();
+    }
+
+    @Override
+    public Optional<String> enter(String title, String message, String errorMessage, Predicate<String> validator) {
+        return PrompterUtil.getString().message(message).errorMessage(errorMessage).objectValidator(validator).prompt(prompter);
     }
 }

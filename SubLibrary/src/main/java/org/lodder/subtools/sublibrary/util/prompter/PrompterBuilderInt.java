@@ -36,6 +36,10 @@ public class PrompterBuilderInt {
         return new ValueBuilder().message(message, replacements);
     }
 
+    public static ValueBuilderOtherMapperIntf errorMessage(String errorMessage, Object... replacements) {
+        return new ValueBuilder().errorMessage(errorMessage, replacements);
+    }
+
     public interface ValueBuilderOtherMapperIntf {
 
         ValueBuilderOtherMapperIntf defaultValue(int defaultValue);
@@ -43,6 +47,8 @@ public class PrompterBuilderInt {
         ValueBuilderOtherMapperIntf defaultValueSupplier(IntSupplier defaultValueSupplier);
 
         ValueBuilderOtherMapperIntf message(String message, Object... replacements);
+
+        ValueBuilderOtherMapperIntf errorMessage(String errorMessage, Object... replacements);
 
         ValueBuilderOtherMapperIntf validator(IntPredicate validator);
 
@@ -68,6 +74,7 @@ public class PrompterBuilderInt {
         private Integer defaultValue;
         private IntSupplier defaultValueSupplier;
         private String message;
+        private String errorMessage;
         private IntPredicate validator;
 
         private ValueBuilder() {
@@ -87,10 +94,16 @@ public class PrompterBuilderInt {
         }
 
         @Override
+        public ValueBuilder errorMessage(String errorMessage, Object... replacements) {
+            this.errorMessage = String.format(errorMessage, replacements);
+            return this;
+        }
+
+        @Override
         public int prompt(Prompter prompter) {
             return PrompterBuilderCommon.prompt(prompter, TO_OBJECT_MAPPER::applyAsInt, VALIDATOR,
                     v -> validator == null || validator.test(v), defaultValue,
-                    defaultValueSupplier == null ? null : defaultValueSupplier::getAsInt, message).get();
+                    defaultValueSupplier == null ? null : defaultValueSupplier::getAsInt, message, errorMessage).get();
         }
     }
 }

@@ -18,7 +18,7 @@ public class PrompterBuilderCommon {
     }
 
     protected static <T> Optional<T> prompt(Prompter prompter, Function<String, T> toObjectMapper, Predicate<String> validator,
-            Predicate<T> objValidator, T defaultValue, Supplier<T> defaultValueSupplier, String message) {
+            Predicate<T> objValidator, T defaultValue, Supplier<T> defaultValueSupplier, String message, String errorMessage) {
         try {
             String value = prompter.prompt(message + System.lineSeparator());
             if (StringUtils.isEmpty(value)) {
@@ -27,20 +27,17 @@ public class PrompterBuilderCommon {
                 } else if (defaultValueSupplier != null) {
                     return Optional.ofNullable(defaultValueSupplier.get());
                 } else {
-                    return prompt(prompter, toObjectMapper, validator, objValidator, defaultValue, defaultValueSupplier,
-                            message);
+                    return prompt(prompter, toObjectMapper, validator, objValidator, defaultValue, defaultValueSupplier, message, errorMessage);
                 }
             } else {
                 if (validator != null && !validator.test(value)) {
-                    prompter.showMessage(Messages.getString("Prompter.ValueIsNotValid"));
-                    return prompt(prompter, toObjectMapper, validator, objValidator, defaultValue, defaultValueSupplier,
-                            message);
+                    prompter.showMessage(StringUtils.isNotBlank(errorMessage) ? errorMessage : Messages.getString("Prompter.ValueIsNotValid"));
+                    return prompt(prompter, toObjectMapper, validator, objValidator, defaultValue, defaultValueSupplier, message, errorMessage);
                 }
                 T object = toObjectMapper.apply(value);
                 if (objValidator != null && !objValidator.test(object)) {
-                    prompter.showMessage(Messages.getString("Prompter.ValueIsNotValid"));
-                    return prompt(prompter, toObjectMapper, validator, objValidator, defaultValue, defaultValueSupplier,
-                            message);
+                    prompter.showMessage(StringUtils.isNotBlank(errorMessage) ? errorMessage : Messages.getString("Prompter.ValueIsNotValid"));
+                    return prompt(prompter, toObjectMapper, validator, objValidator, defaultValue, defaultValueSupplier, message, errorMessage);
                 }
                 return Optional.ofNullable(object);
             }

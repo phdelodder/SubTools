@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.lodder.subtools.sublibrary.Manager;
@@ -139,14 +140,11 @@ class ImdbSearchIdApi {
             String href = toHrefMapper.apply(matchingElements.get(0));
             Matcher matcher = IMDB_URL_ID_PATTERN.matcher(href);
             if (matcher.find()) {
-                int imdbId = Integer.parseInt(matcher.group());
-                if (!userInteractionHandler.getSettings().isOptionsConfirmProviderMapping()) {
-                    return Optional.of(imdbId);
-                } else if (userInteractionHandler.confirm(Messages.getString("Prompter.SelectImdbMatchForSerie").formatted(title), "IMDB")) {
-                    return Optional.of(imdbId);
-                }
+                return Optional.of(Integer.parseInt(matcher.group()));
             } else {
                 LOGGER.debug("Found imdb match [%s], but doesn't match the required pattern".formatted(href));
+                return userInteractionHandler.enter("IMDB", Messages.getString("Prompter.EnterImdbMatchForSerie").formatted(title),
+                        Messages.getString("Prompter.ValueIsNotValid"), StringUtils::isNumeric).map(Integer::parseInt);
             }
         }
         return userInteractionHandler

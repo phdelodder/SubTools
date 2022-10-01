@@ -3,11 +3,13 @@ package org.lodder.subtools.sublibrary;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.lodder.subtools.sublibrary.data.UserInteractionSettingsIntf;
+import org.lodder.subtools.sublibrary.gui.InputPane;
 import org.lodder.subtools.sublibrary.gui.OptionsPane;
 
 import lombok.Getter;
@@ -41,5 +43,10 @@ public class UserInteractionHandlerGUI implements UserInteractionHandler {
     public boolean confirm(String message, String title) {
         int choice = Integer.parseInt(JOptionPane.showInputDialog(frame, message, title, JOptionPane.YES_NO_OPTION));
         return choice == JOptionPane.YES_OPTION;
+    }
+
+    @Override
+    public Optional<String> enter(String title, String message, String errorMessage, Predicate<String> validator) {
+        return InputPane.create().title(title).message(message).errorMessage(errorMessage).validator(validator).prompt();
     }
 }

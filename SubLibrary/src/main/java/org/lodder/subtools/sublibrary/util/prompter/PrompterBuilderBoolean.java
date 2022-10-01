@@ -42,6 +42,8 @@ public class PrompterBuilderBoolean {
 
         ValueBuilderOtherMapperIntf message(String message, Object... replacements);
 
+        ValueBuilderOtherMapperIntf errorMessage(String errorMessage, Object... replacements);
+
         boolean prompt(Prompter prompter);
     }
 
@@ -57,6 +59,7 @@ public class PrompterBuilderBoolean {
         private Boolean defaultValue;
         private BooleanSupplier defaultValueSupplier;
         private String message;
+        private String errorMessage;
 
         private ValueBuilder() {
             // hide constructor
@@ -75,9 +78,15 @@ public class PrompterBuilderBoolean {
         }
 
         @Override
+        public ValueBuilder errorMessage(String errorMessage, Object... replacements) {
+            this.errorMessage = String.format(errorMessage, replacements);
+            return this;
+        }
+
+        @Override
         public boolean prompt(Prompter prompter) {
             return PrompterBuilderCommon.prompt(prompter, TO_OBJECT_MAPPER::test, VALIDATOR, null, defaultValue,
-                    defaultValueSupplier == null ? null : defaultValueSupplier::getAsBoolean, message).get();
+                    defaultValueSupplier == null ? null : defaultValueSupplier::getAsBoolean, message, errorMessage).get();
         }
     }
 }

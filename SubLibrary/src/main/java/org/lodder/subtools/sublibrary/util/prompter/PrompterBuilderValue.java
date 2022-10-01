@@ -50,6 +50,8 @@ public class PrompterBuilderValue {
 
         ValueBuilderOtherMapperIntf<T> message(String message, Object... replacements);
 
+        ValueBuilderOtherMapperIntf<T> errorMessage(String errorMessage, Object... replacements);
+
         Optional<T> prompt(Prompter prompter);
     }
 
@@ -67,6 +69,7 @@ public class PrompterBuilderValue {
         private T defaultValue;
         private Supplier<T> defaultValueSupplier;
         private String message;
+        private String errorMessage;
 
         private ValueBuilder() {
             // hide constructor
@@ -85,9 +88,15 @@ public class PrompterBuilderValue {
         }
 
         @Override
+        public ValueBuilder<T> errorMessage(String errorMessage, Object... replacements) {
+            this.errorMessage = String.format(errorMessage, replacements);
+            return this;
+        }
+
+        @Override
         public Optional<T> prompt(Prompter prompter) {
             return PrompterBuilderCommon.prompt(prompter, toObjectMapper, validator, objectValidator, defaultValue,
-                    defaultValueSupplier, message);
+                    defaultValueSupplier, message, errorMessage);
         }
     }
 }
