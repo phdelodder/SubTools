@@ -64,7 +64,7 @@ public class App {
         preferences.putBoolean("speedy", line.hasOption("speedy"));
 
         final Container app = new Container();
-        final Manager manager = createManager();
+        final Manager manager = createManager(!line.hasOption("nogui"));
         prefctrl = new SettingsControl(manager);
         Bootstrapper bootstrapper = new Bootstrapper(app, prefctrl.getSettings(), preferences, manager);
 
@@ -151,7 +151,7 @@ public class App {
         return options;
     }
 
-    private static Manager createManager() {
+    private static Manager createManager(boolean useGui) {
         if (splash != null) {
             splash.setProgressMsg("Creating Manager");
         }
@@ -171,6 +171,8 @@ public class App {
 
         HttpClient httpClient = new HttpClient();
         httpClient.setCookieManager(new CookieManager());
+
+        // UserInteractionHandler userInteractionHanlder = useGui ? new UserInteractionHandlerGUI() : new UserInteractionHandlerCLI();
 
         return new Manager(httpClient, inMemoryCache, diskCache);
     }

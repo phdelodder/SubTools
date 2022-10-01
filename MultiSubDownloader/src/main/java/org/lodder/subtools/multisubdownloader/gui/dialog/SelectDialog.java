@@ -32,7 +32,6 @@ public class SelectDialog extends MultiSubDialog {
     private final List<Subtitle> subtitles;
     private final Release release;
     private CustomTable customTable;
-    private final JFrame frame;
 
     /**
      * Create the dialog.
@@ -41,7 +40,6 @@ public class SelectDialog extends MultiSubDialog {
         super(frame, Messages.getString("SelectDialog.SelectCorrectSubtitle"), true);
         this.subtitles = subtitles.stream().distinct().sorted(Comparator.comparing(Subtitle::getScore).reversed()).toList();
         this.release = release;
-        this.frame = frame;
         initialize();
         pack();
         setDialogLocation(frame);

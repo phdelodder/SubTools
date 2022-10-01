@@ -3,7 +3,7 @@ package org.lodder.subtools.multisubdownloader.cli.progress;
 import org.lodder.subtools.multisubdownloader.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener;
 
-public class CLIFileindexerProgress extends CLIProgress implements IndexingProgressListener {
+public class CLIFileindexerProgress extends CLIProgress<CLIFileindexerProgress> implements IndexingProgressListener {
 
     String currentFile;
 

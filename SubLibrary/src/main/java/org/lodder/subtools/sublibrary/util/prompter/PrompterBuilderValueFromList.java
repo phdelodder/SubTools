@@ -1,10 +1,11 @@
-package org.lodder.subtools.multisubdownloader.util.prompter;
+package org.lodder.subtools.sublibrary.util.prompter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -40,6 +41,8 @@ public class PrompterBuilderValueFromList {
 
     public interface ValueFromListToStringMapperBuilderIntf<T> {
         ValueFromListPromptBuilderIntf<T> toStringMapper(Function<T, String> toStringMapper);
+
+        ValueFromListPromptBuilderIntf<T> displayAsTable(TableDisplayer<T> tableDisplayer);
     }
 
     public interface ValueFromListPromptBuilderIntf<T> {
@@ -51,7 +54,7 @@ public class PrompterBuilderValueFromList {
 
         ValueFromListPromptBuilderIntf<T> includeNull(T emptyValue);
 
-        T prompt(Prompter prompter);
+        Optional<T> prompt(Prompter prompter);
     }
 
     // ------- \\
@@ -67,6 +70,7 @@ public class PrompterBuilderValueFromList {
         private String message;
         private boolean includeNull;
         private T emptyValue;
+        private TableDisplayer<T> tableDisplayer;
 
         ValueFromListBuilder(List<T> elements) {
             this.elements = elements;
@@ -98,30 +102,40 @@ public class PrompterBuilderValueFromList {
         }
 
         @Override
-        public T prompt(Prompter prompter) {
+        public ValueFromListBuilder<T> displayAsTable(TableDisplayer<T> tableDisplayer) {
+            this.tableDisplayer = tableDisplayer;
+            return this;
+        }
+
+        @Override
+        public Optional<T> prompt(Prompter prompter) {
             try {
-                String choicesMessage = IntStream.range(0, elements.size())
-                        .mapToObj(number -> "  - " + (number + 1) + ": " + toStringMapper.apply(elements.get(number)))
-                        .collect(Collectors.joining(System.lineSeparator())) + System.lineSeparator();
-                String value = prompter.prompt(StringUtils.isBlank(message) ? choicesMessage
-                        : message + System.lineSeparator() + choicesMessage);
+                String value;
+                if (tableDisplayer != null) {
+                    tableDisplayer.display(elements);
+                    value = prompter.prompt(message);
+                } else {
+                    String choicesMessage = IntStream.range(0, elements.size())
+                            .mapToObj(number -> "  - " + (number + 1) + ": " + toStringMapper.apply(elements.get(number)))
+                            .collect(Collectors.joining(System.lineSeparator())) + System.lineSeparator();
+                    value = prompter.prompt(StringUtils.isBlank(message) ? choicesMessage
+                            : message + System.lineSeparator() + choicesMessage);
+                }
                 if (StringUtils.isBlank(value) && includeNull) {
-                    return emptyValue;
+                    return Optional.ofNullable(emptyValue);
                 }
                 int number = Integer.parseInt(value);
                 if (number < 1 || number > elements.size()) {
-                    PrompterUtil.showMessage(prompter, "The entered value isn't in the range [1, %s], try again.",
-                            elements.size());
+                    PrompterUtil.showMessage(prompter, "The entered value isn't in the range [1, %s], try again.", elements.size());
                     return prompt(prompter);
                 }
-                return elements.get(number - 1);
+                return Optional.ofNullable(elements.get(number - 1));
             } catch (PrompterException e) {
                 throw new IllegalStateException(e);
             } catch (NumberFormatException e) {
                 return prompt(PrompterUtil.showMessage(prompter, "Enter a valid number, try again."));
             }
         }
-
     }
 
 }

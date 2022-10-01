@@ -1,42 +1,58 @@
 package org.lodder.subtools.multisubdownloader.gui.actions.search;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
 
 import org.lodder.subtools.multisubdownloader.GUI;
+import org.lodder.subtools.multisubdownloader.UserInteractionHandlerGUI;
 import org.lodder.subtools.multisubdownloader.actions.SearchAction;
-import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
-import org.lodder.subtools.multisubdownloader.gui.OptionsPane;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
+import org.lodder.subtools.multisubdownloader.gui.panels.InputPanel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchPanel;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
+import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener;
+import org.lodder.subtools.multisubdownloader.listeners.SearchProgressListener;
+import org.lodder.subtools.multisubdownloader.settings.model.Settings;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 
-public abstract class GuiSearchAction extends SearchAction {
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
 
-    protected GUI mainwindow;
-    protected SearchPanel searchPanel;
-    protected Filtering filtering;
-    protected ReleaseFactory releaseFactory;
+@Getter(value = AccessLevel.PROTECTED)
+public abstract class GuiSearchAction<P extends InputPanel> extends SearchAction {
 
-    public void setGUI(GUI mainwindow) {
+    private final @NonNull GUI mainwindow;
+    private final @NonNull SearchPanel<P> searchPanel;
+    private final Filtering filtering;
+    private final @NonNull ReleaseFactory releaseFactory;
+    private final IndexingProgressListener indexingProgressListener;
+    private final SearchProgressListener searchProgressListener;
+    private final UserInteractionHandlerGUI userInteractionHandler;
+
+    public GuiSearchAction(Settings settings, SubtitleProviderStore subtitleProviderStore,
+            GUI mainwindow, SearchPanel<P> searchPanel, ReleaseFactory releaseFactory) {
+        super(settings, subtitleProviderStore);
         this.mainwindow = mainwindow;
-    }
-
-    public void setReleaseFactory(ReleaseFactory releaseFactory) {
-        this.releaseFactory = releaseFactory;
-    }
-
-    public void setSearchPanel(SearchPanel searchPanel) {
         this.searchPanel = searchPanel;
+        this.filtering = new Filtering(settings);
+        this.releaseFactory = releaseFactory;
+        /* Create ProgressListeners */
+        /*
+         * The progressDialogs were re-used after the completed()-call and thus not shown. A
+         * reset()-method might get implemented. But for now the GuiSearchAction will get a reference to
+         * GUI and creates the listeners.
+         */
+        this.indexingProgressListener = mainwindow.createFileIndexerProgressDialog(this);
+        this.searchProgressListener = mainwindow.createSearchProgressDialog(this);
+        this.userInteractionHandler = new UserInteractionHandlerGUI(settings, mainwindow);
     }
 
-    public void setFiltering(Filtering filtering) {
-        this.filtering = filtering;
+    protected P getInputPanel() {
+        return this.getSearchPanel().getInputPanel();
     }
 
     @Override
@@ -56,52 +72,9 @@ public abstract class GuiSearchAction extends SearchAction {
             searchPanel.getResultPanel().enableButtons();
         }
 
-        if (this.searchManager.getProgress() == 100) {
-            this.searchProgressListener.completed();
+        if (this.getSearchManager().getProgress() == 100) {
+            this.getSearchProgressListener().completed();
             searchPanel.getInputPanel().enableSearchButton();
         }
-    }
-
-    @Override
-    protected void validate() throws SearchSetupException {
-        if (this.mainwindow == null) {
-            throw new SearchSetupException("GUI must be set.");
-        }
-
-        /* Create ProgressListeners */
-        /*
-         * The progressDialogs were re-used after the completed()-call and thus not shown. A
-         * reset()-method might get implemented. But for now the GuiSearchAction will get a reference to
-         * GUI and creates the listeners.
-         */
-        this.setSearchProgressListener(this.mainwindow.createSearchProgressDialog(this));
-        this.setIndexingProgressListener(this.mainwindow.createFileIndexerProgressDialog(this));
-
-        this.setStatusListener(this.indexingProgressListener);
-
-        if (this.searchPanel == null) {
-            throw new SearchSetupException("SearchPanel must be set.");
-        }
-        if (this.releaseFactory == null) {
-            throw new SearchSetupException("ReleaseFactory must be set.");
-        }
-
-        super.validate();
-    }
-
-    @Override
-    public Optional<String> selectFromList(List<String> options, String message, String title) {
-        if (options.isEmpty()) {
-            return Optional.empty();
-        }
-        return OptionsPane.stringOptions(options).title(title).message(message).defaultOption().prompt();
-    }
-
-    @Override
-    public <T> Optional<T> selectFromList(List<T> options, String message, String title, Function<T, String> toStringMapper) {
-        if (options.isEmpty()) {
-            return Optional.empty();
-        }
-        return OptionsPane.options(options).toStringMapper(toStringMapper).title(title).message(message).defaultOption().prompt();
     }
 }

@@ -5,7 +5,6 @@ import java.util.List;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
-import org.lodder.subtools.multisubdownloader.lib.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener;
 import org.lodder.subtools.multisubdownloader.listeners.SearchProgressListener;
 import org.lodder.subtools.multisubdownloader.listeners.StatusListener;
@@ -14,41 +13,27 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider
 import org.lodder.subtools.multisubdownloader.workers.SearchHandler;
 import org.lodder.subtools.multisubdownloader.workers.SearchManager;
 import org.lodder.subtools.sublibrary.Language;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class SearchAction implements Runnable, Cancelable, SearchHandler, UserInteractionHandler {
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
-    protected Settings settings;
-    protected SubtitleProviderStore subtitleProviderStore;
-    protected SearchManager searchManager;
-    protected List<Release> releases;
-    protected IndexingProgressListener indexingProgressListener;
-    protected SearchProgressListener searchProgressListener;
-    protected StatusListener statusListener;
+@RequiredArgsConstructor
+@Getter(value = AccessLevel.PROTECTED)
+public abstract class SearchAction implements Runnable, Cancelable, SearchHandler {
+
+    private final @NonNull Settings settings;
+    private final @NonNull SubtitleProviderStore subtitleProviderStore;
+    private StatusListener statusListener;
+    private SearchManager searchManager;
+    private List<Release> releases;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchAction.class);
-
-    public void setSettings(Settings settings) {
-        this.settings = settings;
-    }
-
-    public void setProviderStore(SubtitleProviderStore store) {
-        this.subtitleProviderStore = store;
-    }
-
-    public void setStatusListener(StatusListener listener) {
-        this.statusListener = listener;
-    }
-
-    public void setSearchProgressListener(SearchProgressListener listener) {
-        this.searchProgressListener = listener;
-    }
-
-    public void setIndexingProgressListener(IndexingProgressListener listener) {
-        this.indexingProgressListener = listener;
-    }
 
     @Override
     public void run() {
@@ -64,7 +49,7 @@ public abstract class SearchAction implements Runnable, Cancelable, SearchHandle
     }
 
     private void search() throws ActionException {
-        this.setStatusListener(this.indexingProgressListener);
+        this.statusListener = this.getIndexingProgressListener();
 
         validate();
 
@@ -83,9 +68,9 @@ public abstract class SearchAction implements Runnable, Cancelable, SearchHandle
             return;
         }
 
-        this.indexingProgressListener.completed();
+        this.getIndexingProgressListener().completed();
 
-        this.setStatusListener(this.searchProgressListener);
+        this.statusListener = this.getSearchProgressListener();
 
         /* Create a new SearchManager. */
         this.searchManager =
@@ -93,8 +78,9 @@ public abstract class SearchAction implements Runnable, Cancelable, SearchHandle
                         /* Tell the manager which language we want */
                         .language(language)
                         /* Tell the manager where to push progressUpdates */
-                        .progressListener(this.searchProgressListener)
-                        .userInteractionHandler(this)
+                        .progressListener(getSearchProgressListener())
+                        /* Tell the manager how to handle user interactions */
+                        .userInteractionHandler(getUserInteractionHandler())
                         /* Listen for when the manager tells us Subtitles are found */
                         .onFound(this);
 
@@ -112,6 +98,8 @@ public abstract class SearchAction implements Runnable, Cancelable, SearchHandle
         this.searchManager.start();
     }
 
+    protected abstract void validate() throws SearchSetupException;
+
     protected abstract List<Release> createReleases() throws ActionException;
 
     protected void setStatusMessage(String message) {
@@ -124,26 +112,17 @@ public abstract class SearchAction implements Runnable, Cancelable, SearchHandle
             this.searchManager.cancel(mayInterruptIfRunning);
         }
         Thread.currentThread().interrupt();
-        this.indexingProgressListener.completed();
-        this.searchProgressListener.completed();
+        this.getIndexingProgressListener().completed();
+        this.getSearchProgressListener().completed();
         return true;
     }
 
     protected abstract Language getLanguage();
 
-    protected void validate() throws SearchSetupException {
-        if (this.settings == null) {
-            throw new SearchSetupException("Settings must be set.");
-        }
-        if (this.subtitleProviderStore == null) {
-            throw new SearchSetupException("SubtitleProviderStore must be set.");
-        }
-        if (this.searchProgressListener == null) {
-            throw new SearchSetupException("SearchProgressListener must be set.");
-        }
-        if (this.indexingProgressListener == null) {
-            throw new SearchSetupException("IndexingProgressListener must be set.");
-        }
-    }
+    protected abstract UserInteractionHandler getUserInteractionHandler();
+
+    protected abstract IndexingProgressListener getIndexingProgressListener();
+
+    protected abstract SearchProgressListener getSearchProgressListener();
 
 }

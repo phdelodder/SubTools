@@ -23,6 +23,7 @@ import org.lodder.subtools.multisubdownloader.lib.library.PathLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
@@ -48,18 +49,20 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
     private MovieRelease movieRelease;
     private String oldStructure;
     private final Manager manager;
+    private final UserInteractionHandler userInteractionHandler;
 
     public enum StrucutureType {
         FILE, FOLDER
     }
 
     public StructureBuilderDialog(JFrame frame, String title, boolean modal, VideoType videoType,
-            StrucutureType structureType, LibrarySettings librarySettings, Manager manager) {
+            StrucutureType structureType, LibrarySettings librarySettings, Manager manager, UserInteractionHandler userInteractionHandler) {
         super(frame, title, modal);
         this.videoType = videoType;
         this.librarySettings = librarySettings;
         this.structureType = structureType;
         this.manager = manager;
+        this.userInteractionHandler = userInteractionHandler;
         initializeUi();
         generateVideoFiles();
     }
@@ -69,10 +72,11 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
         if (videoType == VideoType.EPISODE) {
             tvRelease = (TvRelease) releaseFactory.createRelease(
                     // new File(File.separator + "Castle.2009.S04E10.720p.HDTV.X264-DIMENSION.mkv"),
-                    new File(File.separator + "Terra.Nova.S01E01E02.720p.HDTV.x264-ORENJI.mkv"));
+                    new File(File.separator + "Terra.Nova.S01E01E02.720p.HDTV.x264-ORENJI.mkv"),
+                    userInteractionHandler);
         } else if (videoType == VideoType.MOVIE) {
-            movieRelease = (MovieRelease) releaseFactory.createRelease(new File(File.separator
-                    + "Final.Destination.5.720p.Bluray.x264-TWiZTED"));
+            movieRelease = (MovieRelease) releaseFactory.createRelease(new File(File.separator + "Final.Destination.5.720p.Bluray.x264-TWiZTED"),
+                    userInteractionHandler);
         }
     }
 
@@ -160,16 +164,15 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
         if (release == null) {
             return;
         }
-
         switch (structureType) {
             case FILE -> {
                 librarySettings.setLibraryFilenameStructure(txtStructure.getText());
-                FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager);
+                FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager, userInteractionHandler);
                 lblPreview.setText(filenameLibraryBuilder.build(release));
             }
             case FOLDER -> {
                 librarySettings.setLibraryFolderStructure(txtStructure.getText());
-                PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager);
+                PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager, userInteractionHandler);
                 lblPreview.setText(pathLibraryBuilder.build(release));
             }
             default -> {

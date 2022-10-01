@@ -112,6 +112,14 @@
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-interactivity-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.massisframework</groupId>
+			<artifactId>j-text-utils</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

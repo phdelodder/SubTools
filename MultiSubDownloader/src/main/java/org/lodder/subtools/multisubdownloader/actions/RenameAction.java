@@ -11,22 +11,22 @@ import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.DetectLanguage;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class RenameAction {
 
     private final LibrarySettings librarySettings;
     private final Manager manager;
+    private final UserInteractionHandler userInteractionHandler;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RenameAction.class);
-
-    public RenameAction(LibrarySettings librarySettings, Manager manager) {
-        this.librarySettings = librarySettings;
-        this.manager = manager;
-    }
 
     public void rename(File f, Release release) {
         String filename = switch (librarySettings.getLibraryAction()) {
@@ -37,7 +37,7 @@ public class RenameAction {
         };
         LOGGER.trace("rename: filename [{}]", filename);
 
-        PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager);
+        PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager, userInteractionHandler);
         final File newDir = new File(pathLibraryBuilder.build(release));
         boolean status = true;
         if (!newDir.exists()) {
@@ -79,7 +79,7 @@ public class RenameAction {
     }
 
     private String getNewFilename(File f, Release release) {
-        FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager);
+        FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager, userInteractionHandler);
         String filename = filenameLibraryBuilder.build(release);
         if ("srt".equals(release.getExtension())) {
             Language language = null;

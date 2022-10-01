@@ -1,18 +1,16 @@
-package org.lodder.subtools.multisubdownloader.util.prompter;
+package org.lodder.subtools.sublibrary.util.prompter;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Function;
 
 import org.codehaus.plexus.components.interactivity.Prompter;
 import org.codehaus.plexus.components.interactivity.PrompterException;
-
-import org.lodder.subtools.multisubdownloader.util.prompter.PrompterBuilderValue.ValueBuilderOther2MapperIntf;
-import org.lodder.subtools.multisubdownloader.util.prompter.PrompterBuilderValue.ValueBuilderOtherMapperIntf;
-import org.lodder.subtools.multisubdownloader.util.prompter.PrompterBuilderValueFromList.ValueFromListPromptBuilderIntf;
-import org.lodder.subtools.multisubdownloader.util.prompter.PrompterBuilderValueFromList.ValueFromListToStringMapperBuilderIntf;
-import org.lodder.subtools.multisubdownloader.util.prompter.PrompterBuilderValuesFromList.ValuesFromListPromptBuilderIntf;
-import org.lodder.subtools.multisubdownloader.util.prompter.PrompterBuilderValuesFromList.ValuesFromListToStringMapperBuilderIntf;
+import org.lodder.subtools.sublibrary.util.prompter.PrompterBuilderValue.ValueBuilderOther2MapperIntf;
+import org.lodder.subtools.sublibrary.util.prompter.PrompterBuilderValue.ValueBuilderOtherMapperIntf;
+import org.lodder.subtools.sublibrary.util.prompter.PrompterBuilderValueFromList.ValueFromListPromptBuilderIntf;
+import org.lodder.subtools.sublibrary.util.prompter.PrompterBuilderValueFromList.ValueFromListToStringMapperBuilderIntf;
+import org.lodder.subtools.sublibrary.util.prompter.PrompterBuilderValuesFromList.ValuesFromListPromptBuilderIntf;
+import org.lodder.subtools.sublibrary.util.prompter.PrompterBuilderValuesFromList.ValuesFromListToStringMapperBuilderIntf;
 
 public class PrompterUtil {
 
@@ -83,11 +81,11 @@ public class PrompterUtil {
     // ## Get Value From List ## \\
     // ######################### \\
 
-    public static ValueFromListPromptBuilderIntf<String> getStringFromList(List<String> elements) {
+    public static ValueFromListPromptBuilderIntf<String> getStringFromList(Collection<String> elements) {
         return PrompterBuilderValueFromList.getElementFromList(elements).toStringMapper(Function.identity());
     }
 
-    public static <T> ValueFromListToStringMapperBuilderIntf<T> getElementFromList(List<T> elements) {
+    public static <T> ValueFromListToStringMapperBuilderIntf<T> getElementFromList(Collection<T> elements) {
         return PrompterBuilderValueFromList.getElementFromList(elements);
     }
 

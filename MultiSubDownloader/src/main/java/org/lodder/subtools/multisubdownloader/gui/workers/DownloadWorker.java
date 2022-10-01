@@ -7,19 +7,20 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.lodder.subtools.multisubdownloader.GUI;
+import org.lodder.subtools.multisubdownloader.UserInteractionHandlerGUI;
 import org.lodder.subtools.multisubdownloader.actions.DownloadAction;
-import org.lodder.subtools.multisubdownloader.actions.SubtitleSelectionAction;
+import org.lodder.subtools.multisubdownloader.actions.UserInteractionHandlerAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.lib.Info;
-import org.lodder.subtools.multisubdownloader.lib.SubtitleSelectionGUI;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.model.Release;
+import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,16 +33,16 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
     private final CustomTable table;
     private final Settings settings;
     private final DownloadAction downloadAction;
-    private final SubtitleSelectionAction subtitleSelectionAction;
+    private final UserInteractionHandlerAction userInteractionHandlerAction;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DownloadWorker.class);
 
     public DownloadWorker(CustomTable table, Settings settings, Manager manager, GUI gui) {
         this.table = table;
         this.settings = settings;
-        downloadAction = new DownloadAction(settings, manager);
-        subtitleSelectionAction = new SubtitleSelectionAction(settings);
-        subtitleSelectionAction.setSubtitleSelection(new SubtitleSelectionGUI(settings, gui));
+        UserInteractionHandlerGUI userInteractionHandler = new UserInteractionHandlerGUI(settings, gui);
+        downloadAction = new DownloadAction(settings, manager, userInteractionHandler);
+        userInteractionHandlerAction = new UserInteractionHandlerAction(settings, userInteractionHandler);
     }
 
     @Override
@@ -65,9 +66,9 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
                 final Release release =
                         (Release) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.OBJECT));
                 publish(release.getFileName());
-                List<Integer> selection = subtitleSelectionAction.subtitleSelection(release, true);
+                List<Subtitle> selection = userInteractionHandlerAction.subtitleSelection(release, true);
                 try {
-                    for (int j : selection) {
+                    for (int j = 0; j < selection.size(); j++) {
                         downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
                     }
                     model.removeRow(i);

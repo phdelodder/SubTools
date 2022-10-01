@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.data.ReleaseDBIntf;
 import org.lodder.subtools.sublibrary.data.imdb.ImdbAdapter;
 import org.lodder.subtools.sublibrary.data.omdb.OmdbAdapter;
@@ -25,11 +26,11 @@ public class MovieReleaseControl extends ReleaseControl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MovieReleaseControl.class);
 
-    public MovieReleaseControl(MovieRelease movieRelease, Settings settings, Manager manager) {
+    public MovieReleaseControl(MovieRelease movieRelease, Settings settings, Manager manager, UserInteractionHandler userInteractionHandler) {
         super(settings, manager);
         this.movieRelease = movieRelease;
-        this.imdbAdapter = ImdbAdapter.getInstance(manager);
-        this.omdbAdapter = OmdbAdapter.getInstance(manager);
+        this.imdbAdapter = ImdbAdapter.getInstance(manager, userInteractionHandler);
+        this.omdbAdapter = OmdbAdapter.getInstance(manager, userInteractionHandler);
     }
 
     @Override

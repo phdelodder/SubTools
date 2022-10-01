@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter(value = AccessLevel.PROTECTED)
 @Setter(value = AccessLevel.PROTECTED)
-abstract class CLIProgress {
+abstract class CLIProgress<T extends CLIProgress<T>> {
 
     private int progress;
     private boolean isEnabled;
@@ -24,8 +24,9 @@ abstract class CLIProgress {
         System.out.println("");
     }
 
-    public void setVerbose(boolean isVerbose) {
+    public T verbose(boolean isVerbose) {
         this.isVerbose = isVerbose;
+        return (T) this;
     }
 
     protected abstract void printProgress();

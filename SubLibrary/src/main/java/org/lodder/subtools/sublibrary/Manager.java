@@ -41,6 +41,8 @@ public class Manager {
     private final HttpClient httpClient;
     private final InMemoryCache inMemoryCache;
     private final DiskCache diskCache;
+    // @Getter
+    // private final UserInteractionHandler userInputHandler;
 
     public String downloadText(String urlString) throws ManagerException {
         try {

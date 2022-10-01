@@ -38,6 +38,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +73,7 @@ public class PreferenceDialog extends MultiSubDialog {
     private JComboBox<UpdateCheckPeriod> cbxUpdateCheckPeriod;
     private JCheckBox chkDefaultSelection;
     private DefaultSelectionPanel pnlDefaultSelection;
+    private final UserInteractionHandler userInteractionHandler;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PreferenceDialog.class);
 
@@ -79,11 +81,12 @@ public class PreferenceDialog extends MultiSubDialog {
      * Create the dialog.
      */
     public PreferenceDialog(JFrame frame, final SettingsControl settingsCtrl, Emitter eventEmitter,
-            Manager manager) {
+            Manager manager, UserInteractionHandler userInteractionHandler) {
         super(frame, Messages.getString("PreferenceDialog.Title"), true);
         this.settingsCtrl = settingsCtrl;
         this.eventEmitter = eventEmitter;
         this.manager = manager;
+        this.userInteractionHandler = userInteractionHandler;
         initialize();
         setPreferenceSettings();
         repaint();
@@ -223,11 +226,13 @@ public class PreferenceDialog extends MultiSubDialog {
             }
 
             {
-                pnlEpisodeLibrary = new EpisodeLibraryPanel(settingsCtrl.getSettings().getEpisodeLibrarySettings(), manager, false);
+                pnlEpisodeLibrary =
+                        new EpisodeLibraryPanel(settingsCtrl.getSettings().getEpisodeLibrarySettings(), manager, false, userInteractionHandler);
                 tabbedPane.addTab(Messages.getString("PreferenceDialog.SerieLibrary"), null, pnlEpisodeLibrary, null);
             }
             {
-                pnlMovieLibrary = new MovieLibraryPanel(settingsCtrl.getSettings().getMovieLibrarySettings(), manager, false);
+                pnlMovieLibrary =
+                        new MovieLibraryPanel(settingsCtrl.getSettings().getMovieLibrarySettings(), manager, false, userInteractionHandler);
                 tabbedPane.addTab(Messages.getString("PreferenceDialog.MovieLibrary"), null, pnlMovieLibrary, null);
             }
             {
@@ -599,6 +604,7 @@ public class PreferenceDialog extends MultiSubDialog {
             settingsCtrl.getSettings().setProcessEpisodeSource((SettingsProcessEpisodeSource) cbxEpisodeProcessSource.getSelectedItem());
             settingsCtrl.getSettings().setOptionsDefaultSelection(this.chkDefaultSelection.isSelected());
             settingsCtrl.getSettings().setOptionsDefaultSelectionQualityList(this.pnlDefaultSelection.getDefaultSelectionList());
+            settingsCtrl.getSettings().setOptionsConfirmProviderMapping(this.chkConfirmProviderMapping.isSelected());
         } else {
             status = false;
         }

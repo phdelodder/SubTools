@@ -1,5 +1,6 @@
-package org.lodder.subtools.multisubdownloader.util.prompter;
+package org.lodder.subtools.sublibrary.util.prompter;
 
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -42,14 +43,14 @@ public class PrompterBuilderValue {
         ValueBuilderOtherMapperIntf<T> message(String message, Object... replacements);
 
         @Override
-        T prompt(Prompter prompter);
+        Optional<T> prompt(Prompter prompter);
     }
 
     public interface ValueBuilderOther2MapperIntf<T> {
 
         ValueBuilderOtherMapperIntf<T> message(String message, Object... replacements);
 
-        T prompt(Prompter prompter);
+        Optional<T> prompt(Prompter prompter);
     }
 
     // ------- \\
@@ -84,7 +85,7 @@ public class PrompterBuilderValue {
         }
 
         @Override
-        public T prompt(Prompter prompter) {
+        public Optional<T> prompt(Prompter prompter) {
             return PrompterBuilderCommon.prompt(prompter, toObjectMapper, validator, objectValidator, defaultValue,
                     defaultValueSupplier, message);
         }

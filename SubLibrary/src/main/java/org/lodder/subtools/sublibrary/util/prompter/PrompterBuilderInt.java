@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader.util.prompter;
+package org.lodder.subtools.sublibrary.util.prompter;
 
 import java.util.function.IntPredicate;
 import java.util.function.IntSupplier;
@@ -90,7 +90,7 @@ public class PrompterBuilderInt {
         public int prompt(Prompter prompter) {
             return PrompterBuilderCommon.prompt(prompter, TO_OBJECT_MAPPER::applyAsInt, VALIDATOR,
                     v -> validator == null || validator.test(v), defaultValue,
-                    defaultValueSupplier == null ? null : defaultValueSupplier::getAsInt, message);
+                    defaultValueSupplier == null ? null : defaultValueSupplier::getAsInt, message).get();
         }
     }
 }

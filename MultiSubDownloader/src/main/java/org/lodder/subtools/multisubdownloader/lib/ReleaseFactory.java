@@ -7,6 +7,7 @@ import org.lodder.subtools.multisubdownloader.lib.control.ReleaseControl;
 import org.lodder.subtools.multisubdownloader.lib.control.TvReleaseControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.exception.ReleaseParseException;
@@ -31,15 +32,15 @@ public class ReleaseFactory {
         this.manager = manager;
     }
 
-    public Release createRelease(final File file) {
+    public Release createRelease(final File file, UserInteractionHandler userInteractionHandler) {
         Release r = null;
 
         try {
             r = releaseParser.parse(file);
 
             releaseControl = switch (r.getVideoType()) {
-                case EPISODE -> new TvReleaseControl((TvRelease) r, settings, manager);
-                case MOVIE -> new MovieReleaseControl((MovieRelease) r, settings, manager);
+                case EPISODE -> new TvReleaseControl((TvRelease) r, settings, manager, userInteractionHandler);
+                case MOVIE -> new MovieReleaseControl((MovieRelease) r, settings, manager, userInteractionHandler);
                 default -> releaseControl;
             };
             releaseControl.process();

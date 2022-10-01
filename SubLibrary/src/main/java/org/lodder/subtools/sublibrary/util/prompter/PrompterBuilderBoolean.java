@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader.util.prompter;
+package org.lodder.subtools.sublibrary.util.prompter;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
@@ -77,7 +77,7 @@ public class PrompterBuilderBoolean {
         @Override
         public boolean prompt(Prompter prompter) {
             return PrompterBuilderCommon.prompt(prompter, TO_OBJECT_MAPPER::test, VALIDATOR, null, defaultValue,
-                    defaultValueSupplier == null ? null : defaultValueSupplier::getAsBoolean, message);
+                    defaultValueSupplier == null ? null : defaultValueSupplier::getAsBoolean, message).get();
         }
     }
 }

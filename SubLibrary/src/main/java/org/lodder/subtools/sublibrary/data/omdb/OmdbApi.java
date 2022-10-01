@@ -3,6 +3,7 @@ package org.lodder.subtools.sublibrary.data.omdb;
 import java.util.Optional;
 
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.XmlHTTP;
 import org.lodder.subtools.sublibrary.data.omdb.exception.OmdbException;
@@ -11,7 +12,7 @@ import org.w3c.dom.Element;
 
 class OmdbApi extends XmlHTTP {
 
-    public OmdbApi(Manager manager) {
+    public OmdbApi(Manager manager, UserInteractionHandler userInteractionHandler) {
         super(manager);
     }
 

@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
@@ -11,30 +12,30 @@ import org.lodder.subtools.sublibrary.util.StringUtil;
 
 public class PathLibraryBuilder extends LibraryBuilder {
 
-    public PathLibraryBuilder(LibrarySettings librarySettings, Manager manager) {
-        super(librarySettings, manager);
+    public PathLibraryBuilder(LibrarySettings librarySettings, Manager manager, UserInteractionHandler userInteractionHandler) {
+        super(librarySettings, manager, userInteractionHandler);
     }
 
     @Override
     public String build(Release release) {
-        if (LibraryActionType.MOVE.equals(librarySettings.getLibraryAction())
-                || LibraryActionType.MOVEANDRENAME.equals(librarySettings.getLibraryAction())) {
+        if (LibraryActionType.MOVE.equals(getLibrarySettings().getLibraryAction())
+                || LibraryActionType.MOVEANDRENAME.equals(getLibrarySettings().getLibraryAction())) {
             String folder = "";
             if (release instanceof TvRelease tvRelease) {
                 folder = buildEpisode(tvRelease);
             } else if (release instanceof MovieRelease movieRelease) {
                 folder = buildMovie(movieRelease);
             }
-            return new File(librarySettings.getLibraryFolder(), folder).toString();
+            return new File(getLibrarySettings().getLibraryFolder(), folder).toString();
         } else {
             return release.getPath().toString();
         }
     }
 
     protected String buildEpisode(TvRelease tvRelease) {
-        String folder = librarySettings.getLibraryFolderStructure();
+        String folder = getLibrarySettings().getLibraryFolderStructure();
         String show = getShowName(tvRelease.getName());
-        if (librarySettings.isLibraryReplaceChars()) {
+        if (getLibrarySettings().isLibraryReplaceChars()) {
             show = StringUtil.removeIllegalWindowsChars(show);
         }
 
@@ -55,18 +56,18 @@ public class PathLibraryBuilder extends LibraryBuilder {
         }
         folder = folder.replaceAll("%QUALITY%", tvRelease.getQuality());
 
-        if (librarySettings.isLibraryFolderReplaceSpace()) {
-            folder = folder.replaceAll(" ", librarySettings.getLibraryFolderReplacingSpaceSign());
+        if (getLibrarySettings().isLibraryFolderReplaceSpace()) {
+            folder = folder.replaceAll(" ", getLibrarySettings().getLibraryFolderReplacingSpaceSign());
         }
 
         return folder;
     }
 
     protected String buildMovie(MovieRelease movieRelease) {
-        String folder = librarySettings.getLibraryFolderStructure();
+        String folder = getLibrarySettings().getLibraryFolderStructure();
         String title = movieRelease.getName();
 
-        if (librarySettings.isLibraryReplaceChars()) {
+        if (getLibrarySettings().isLibraryReplaceChars()) {
             title = StringUtil.removeIllegalWindowsChars(title);
         }
 
@@ -75,8 +76,8 @@ public class PathLibraryBuilder extends LibraryBuilder {
         folder = folder.replaceAll("%SEPARATOR%", File.separator);
         folder = folder.replaceAll("%QUALITY%", movieRelease.getQuality());
 
-        if (librarySettings.isLibraryFolderReplaceSpace()) {
-            folder = folder.replaceAll(" ", librarySettings.getLibraryFolderReplacingSpaceSign());
+        if (getLibrarySettings().isLibraryFolderReplaceSpace()) {
+            folder = folder.replaceAll(" ", getLibrarySettings().getLibraryFolderReplacingSpaceSign());
         }
 
         return folder;

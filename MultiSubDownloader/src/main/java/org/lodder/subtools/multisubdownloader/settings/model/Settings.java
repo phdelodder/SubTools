@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
+import org.lodder.subtools.sublibrary.data.UserInteractionSettingsIntf;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 
 import lombok.Getter;
@@ -15,7 +16,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Settings {
+public class Settings implements UserInteractionSettingsIntf {
 
     private File lastOutputDir;
     private boolean optionsAlwaysConfirm;
@@ -55,6 +56,7 @@ public class Settings {
     private List<String> optionsDefaultSelectionQualityList = new ArrayList<>();
     private int settingsVersion;
     private boolean confirmProviderMapping;
+    private boolean optionsConfirmProviderMapping;
 
     public List<File> getDefaultFolders() {
         return getDefaultIncomingFolders();

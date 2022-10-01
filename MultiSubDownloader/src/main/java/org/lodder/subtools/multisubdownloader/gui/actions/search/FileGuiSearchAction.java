@@ -11,38 +11,93 @@ import org.lodder.subtools.multisubdownloader.actions.FileListAction;
 import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchFileInputPanel;
+import org.lodder.subtools.multisubdownloader.gui.panels.SearchPanel;
+import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 
-public class FileGuiSearchAction extends GuiSearchAction {
+import com.optimaize.langdetect.cybozu.util.Messages;
 
-    private FileListAction filelistAction;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
-    public FileGuiSearchAction(GUI mainWindow, Settings settings, SubtitleProviderStore subtitleProviderStore) {
-        super();
-        this.setGUI(mainWindow);
-        this.setSettings(settings);
-        this.setProviderStore(subtitleProviderStore);
+public class FileGuiSearchAction extends GuiSearchAction<SearchFileInputPanel> {
+
+    private final @NonNull FileListAction filelistAction;
+
+    public interface FileGuiSearchActionBuilderSubtitleProviderStore {
+        FileGuiSearchActionBuilderGUI subtitleProviderStore(SubtitleProviderStore subtitleProviderStore);
     }
 
-    public void setFileListAction(FileListAction filelistAction) {
-        this.filelistAction = filelistAction;
+    public interface FileGuiSearchActionBuilderGUI {
+        FileGuiSearchActionBuilderSearchPanel mainwindow(GUI mainwindow);
+    }
+
+    public interface FileGuiSearchActionBuilderSearchPanel {
+        FileGuiSearchActionBuilderReleaseFactory searchPanel(SearchPanel<SearchFileInputPanel> searchPanel);
+    }
+
+    public interface FileGuiSearchActionBuilderReleaseFactory {
+        FileGuiSearchActionBuilderBuild releaseFactory(ReleaseFactory releaseFactory);
+    }
+
+    public interface FileGuiSearchActionBuilderBuild {
+        FileGuiSearchAction build() throws SearchSetupException;
+    }
+
+    public static FileGuiSearchActionBuilderSubtitleProviderStore createWithSettings(Settings settings) {
+        return new FileGuiSearchActionBuilder(settings);
+    }
+
+    @RequiredArgsConstructor
+    @Setter
+    @Accessors(chain = true, fluent = true)
+    public static class FileGuiSearchActionBuilder
+            implements FileGuiSearchActionBuilderBuild, FileGuiSearchActionBuilderReleaseFactory,
+            FileGuiSearchActionBuilderSearchPanel, FileGuiSearchActionBuilderGUI,
+            FileGuiSearchActionBuilderSubtitleProviderStore {
+        private final Settings settings;
+        private SubtitleProviderStore subtitleProviderStore;
+        private GUI mainwindow;
+        private SearchPanel<SearchFileInputPanel> searchPanel;
+        private ReleaseFactory releaseFactory;
+
+        @Override
+        public FileGuiSearchAction build() throws SearchSetupException {
+            return new FileGuiSearchAction(settings, subtitleProviderStore, mainwindow, searchPanel, releaseFactory);
+        }
+    }
+
+    private FileGuiSearchAction(Settings settings, SubtitleProviderStore subtitleProviderStore, GUI mainwindow,
+            SearchPanel<SearchFileInputPanel> searchPanel, ReleaseFactory releaseFactory) throws SearchSetupException {
+        super(settings, subtitleProviderStore, mainwindow, searchPanel, releaseFactory);
+        this.filelistAction = new FileListAction(settings);
+    }
+
+    @Override
+    protected void validate() throws SearchSetupException {
+        String path = getInputPanel().getIncomingPath();
+        if ("".equals(path) && !this.getSettings().hasDefaultFolders()) {
+            throw new SearchSetupException(Messages.getString("App.NoFolderSelected"));
+        }
     }
 
     @Override
     public void onFound(Release release, List<Subtitle> subtitles) {
-        VideoTableModel model = (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
+        VideoTableModel model = (VideoTableModel) this.getSearchPanel().getResultPanel().getTable().getModel();
 
-        if (filtering != null) {
-            subtitles = filtering.getFiltered(subtitles, release);
+        if (getFiltering() != null) {
+            subtitles = getFiltering().getFiltered(subtitles, release);
         }
         subtitles.forEach(release::addMatchingSub);
 
         model.addRow(release);
-        mainwindow.repaint();
+        getMainwindow().repaint();
 
         /* Let GuiSearchAction also make some decisions */
         super.onFound(release, subtitles);
@@ -56,7 +111,7 @@ public class FileGuiSearchAction extends GuiSearchAction {
         boolean recursive = inputPanel.isRecursiveSelected();
         boolean overwriteExistingSubtitles = inputPanel.isForceOverwrite();
 
-        VideoTableModel model = (VideoTableModel) this.searchPanel.getResultPanel().getTable().getModel();
+        VideoTableModel model = (VideoTableModel) this.getSearchPanel().getResultPanel().getTable().getModel();
         model.clearTable();
 
         /* get a list of videofiles */
@@ -74,22 +129,22 @@ public class FileGuiSearchAction extends GuiSearchAction {
         int index = 0;
         int progress = 0;
 
-        this.indexingProgressListener.progress(progress);
+        this.getIndexingProgressListener().progress(progress);
 
         for (File file : files) {
             index++;
             progress = (int) Math.floor((float) index / total * 100);
 
             /* Tell progressListener which file we are processing */
-            this.indexingProgressListener.progress(file.getName());
+            this.getIndexingProgressListener().progress(file.getName());
 
-            Release r = releaseFactory.createRelease(file);
+            Release r = getReleaseFactory().createRelease(file, getUserInteractionHandler());
             if (r != null) {
                 releases.add(r);
             }
 
             /* Update progressListener */
-            this.indexingProgressListener.progress(progress);
+            this.getIndexingProgressListener().progress(progress);
         }
 
         return releases;
@@ -101,35 +156,16 @@ public class FileGuiSearchAction extends GuiSearchAction {
         if (!filePath.isEmpty()) {
             dirs.add(new File(filePath));
         } else {
-            dirs.addAll(this.settings.getDefaultFolders());
+            dirs.addAll(this.getSettings().getDefaultFolders());
         }
 
         /* Scan directories for videofiles */
         /* Tell Action where to send progressUpdates */
-        this.filelistAction.setIndexingProgressListener(this.indexingProgressListener);
+        this.filelistAction.setIndexingProgressListener(this.getIndexingProgressListener());
 
         /* Start the getFileListing Action */
         return dirs.stream()
                 .flatMap(dir -> this.filelistAction.getFileListing(dir, recursive, language, overwriteExistingSubtitles).stream())
                 .collect(Collectors.toList());
     }
-
-    @Override
-    protected void validate() throws SearchSetupException {
-        if (this.filelistAction == null) {
-            throw new SearchSetupException("Actions-object must be set.");
-        }
-
-        String path = getInputPanel().getIncomingPath();
-        if ("".equals(path) && !this.settings.hasDefaultFolders()) {
-            throw new SearchSetupException("Geen map geselecteerd");
-        }
-
-        super.validate();
-    }
-
-    private SearchFileInputPanel getInputPanel() {
-        return (SearchFileInputPanel) this.searchPanel.getInputPanel();
-    }
-
 }

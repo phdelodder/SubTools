@@ -1,5 +1,6 @@
-package org.lodder.subtools.multisubdownloader.util.prompter;
+package org.lodder.subtools.sublibrary.util.prompter;
 
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -16,15 +17,15 @@ public class PrompterBuilderCommon {
         // hide constructor
     }
 
-    protected static <T> T prompt(Prompter prompter, Function<String, T> toObjectMapper, Predicate<String> validator,
+    protected static <T> Optional<T> prompt(Prompter prompter, Function<String, T> toObjectMapper, Predicate<String> validator,
             Predicate<T> objValidator, T defaultValue, Supplier<T> defaultValueSupplier, String message) {
         try {
             String value = prompter.prompt(message + System.lineSeparator());
             if (StringUtils.isEmpty(value)) {
                 if (defaultValue != null) {
-                    return defaultValue;
+                    return Optional.ofNullable(defaultValue);
                 } else if (defaultValueSupplier != null) {
-                    return defaultValueSupplier.get();
+                    return Optional.ofNullable(defaultValueSupplier.get());
                 } else {
                     return prompt(prompter, toObjectMapper, validator, objValidator, defaultValue, defaultValueSupplier,
                             message);
@@ -41,7 +42,7 @@ public class PrompterBuilderCommon {
                     return prompt(prompter, toObjectMapper, validator, objValidator, defaultValue, defaultValueSupplier,
                             message);
                 }
-                return object;
+                return Optional.ofNullable(object);
             }
         } catch (PrompterException e) {
             throw new IllegalStateException(e);

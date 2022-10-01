@@ -1,11 +1,13 @@
-package org.lodder.subtools.multisubdownloader.gui;
+package org.lodder.subtools.sublibrary.gui;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
 
 import javax.swing.JOptionPane;
+
+import java.awt.Component;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -15,7 +17,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class OptionsPane {
 
-    public static <T> OptionsPaneBuilderToStringMapperIntf<T> options(List<T> options) {
+    public static <T> OptionsPaneBuilderToStringMapperIntf<T> options(Collection<T> options) {
         return OptionsPaneBuilder.options(options);
     }
 
@@ -23,7 +25,7 @@ public class OptionsPane {
         return OptionsPaneBuilder.options(options);
     }
 
-    public static OptionsPaneBuilderTitleIntf<String> stringOptions(List<String> options) {
+    public static OptionsPaneBuilderTitleIntf<String> stringOptions(Collection<String> options) {
         return OptionsPaneBuilder.options(options);
     }
 
@@ -66,6 +68,8 @@ public class OptionsPane {
     }
 
     public interface OptionsPaneBuilderPromptIntf<T> {
+        OptionsPaneBuilderPromptIntf<T> parent(Component parent);
+
         Optional<T> prompt();
     }
 
@@ -77,13 +81,14 @@ public class OptionsPane {
     private static class OptionsPaneBuilder<T> implements OptionsPaneBuilderPromptIntf<T>, OptionsPaneBuilderMessageTypeIntf<T>,
             OptionsPaneBuilderMessageIntf<T>, OptionsPaneBuilderTitleIntf<T>, OptionsPaneBuilderToStringMapperIntf<T> {
         private final T[] optionsArray;
-        private final List<T> optionsList;
+        private final Collection<T> optionsList;
         private String title;
         private String message;
         private int messageType;
         private Function<T, String> toStringMapper;
+        private Component parent;
 
-        public static <S> OptionsPaneBuilder<S> options(List<S> options) {
+        public static <S> OptionsPaneBuilder<S> options(Collection<S> options) {
             return new OptionsPaneBuilder<>(null, options);
         }
 
@@ -100,7 +105,7 @@ public class OptionsPane {
                 } else {
                     options = optionsArray;
                 }
-                return Optional.ofNullable((T) JOptionPane.showInputDialog(null, message, title, messageType, null, options, "0"));
+                return Optional.ofNullable((T) JOptionPane.showInputDialog(parent, message, title, messageType, null, options, "0"));
             } else {
                 ElementWrapper<T>[] options;
                 if (optionsList != null) {
@@ -108,7 +113,7 @@ public class OptionsPane {
                 } else {
                     options = Arrays.stream(optionsArray).map(option -> new ElementWrapper<>(option, toStringMapper)).toArray(ElementWrapper[]::new);
                 }
-                return Optional.ofNullable((ElementWrapper<T>) JOptionPane.showInputDialog(null, message, title, messageType, null, options, "0"))
+                return Optional.ofNullable((ElementWrapper<T>) JOptionPane.showInputDialog(parent, message, title, messageType, null, options, "0"))
                         .map(ElementWrapper::element);
             }
         }

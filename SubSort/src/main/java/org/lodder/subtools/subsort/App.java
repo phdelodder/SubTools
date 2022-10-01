@@ -8,6 +8,8 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.lodder.subtools.sublibrary.UserInteractionHandlerCLI;
+import org.lodder.subtools.sublibrary.data.UserInteractionSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +48,12 @@ public class App {
             if (line.hasOption("help")) {
                 formatter.printHelp("SubSort", getCLIOptions());
             } else {
-                SortSubtitle sortSubtitle = new SortSubtitle();
+
+                boolean optionsConfirmProviderMapping = line.hasOption("confirmProviderMapping");
+
+                UserInteractionSettings userInteractionSettings =
+                        new UserInteractionSettings(false, false, 0, false, null, optionsConfirmProviderMapping);
+                SortSubtitle sortSubtitle = new SortSubtitle(new UserInteractionHandlerCLI(userInteractionSettings));
                 if (line.hasOption("rebuildindex")) {
                     sortSubtitle.reBuildIndex(new File(line.getOptionValue("outputfolder")));
                 } else if (line.hasOption("removefromarchive")) {
@@ -71,6 +78,7 @@ public class App {
         options.addOption("inputfolder", true, "the folder to be sorted");
         options.addOption("outputfolder", true, "the folder containing the index");
         options.addOption("cleanup", false, "clean up none exising subtitles in index");
+        options.addOption("confirmProviderMapping", false, "Always confirm the provider mapping");
 
         return options;
     }

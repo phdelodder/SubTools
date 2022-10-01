@@ -10,15 +10,15 @@ import java.util.stream.IntStream;
 import org.apache.commons.cli.CommandLine;
 import org.lodder.subtools.multisubdownloader.actions.DownloadAction;
 import org.lodder.subtools.multisubdownloader.actions.FileListAction;
-import org.lodder.subtools.multisubdownloader.actions.SubtitleSelectionAction;
+import org.lodder.subtools.multisubdownloader.actions.UserInteractionHandlerAction;
 import org.lodder.subtools.multisubdownloader.cli.actions.CliSearchAction;
 import org.lodder.subtools.multisubdownloader.cli.progress.CLIFileindexerProgress;
 import org.lodder.subtools.multisubdownloader.cli.progress.CLISearchProgress;
 import org.lodder.subtools.multisubdownloader.exceptions.CliException;
+import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
-import org.lodder.subtools.multisubdownloader.lib.SubtitleSelectionCLI;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
@@ -27,6 +27,7 @@ import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.model.Release;
+import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,8 @@ public class CLI {
     private boolean subtitleSelection = false;
     private boolean verboseProgress = false;
     private final DownloadAction downloadAction;
-    private final SubtitleSelectionAction subtitleSelectionAction;
+    private final UserInteractionHandlerCLI userInteractionHandler;
+    private final UserInteractionHandlerAction userInteractionHandlerAction;
     private boolean dryRun = false;
 
     public CLI(SettingsControl settingControl, Container app) {
@@ -53,9 +55,9 @@ public class CLI {
         this.settingControl = settingControl;
         this.settings = settingControl.getSettings();
         checkUpdate((Manager) this.app.make("Manager"));
-        downloadAction = new DownloadAction(settings, (Manager) this.app.make("Manager"));
-        subtitleSelectionAction = new SubtitleSelectionAction(settings);
-        subtitleSelectionAction.setSubtitleSelection(new SubtitleSelectionCLI(settings));
+        userInteractionHandler = new UserInteractionHandlerCLI(settings);
+        userInteractionHandlerAction = new UserInteractionHandlerAction(settings, userInteractionHandler);
+        downloadAction = new DownloadAction(settings, (Manager) this.app.make("Manager"), userInteractionHandler);
     }
 
     private void checkUpdate(Manager manager) {
@@ -87,57 +89,56 @@ public class CLI {
         for (Release release : releases) {
             try {
                 this.download(release);
-            } catch (IOException | ManagerException e) {
-                LOGGER.error("executeArgs: search", e);
+            } catch (Exception e) {
+                LOGGER.error("Errow while downloading subtitle for %s (%s)".formatted(release.getReleaseDescription(), e.getMessage()), e);
             }
         }
     }
 
     public void search() {
-        CliSearchAction searchAction = new CliSearchAction();
-
-        searchAction.setCli(this);
-        searchAction.setSettings(this.settings);
-        searchAction.setProviderStore((SubtitleProviderStore) app.make("SubtitleProviderStore"));
-
-        searchAction.setFolders(this.folders);
-        searchAction.setRecursive(this.recursive);
-        searchAction.setOverwriteSubtitles(this.force);
-        searchAction.setLanguage(this.language);
-
-        searchAction.setFileListAction(new FileListAction(this.settings));
-        searchAction.setFiltering(new Filtering(this.settings));
-        searchAction.setReleaseFactory(new ReleaseFactory(this.settings, (Manager) app.make("Manager")));
-
-        CLIFileindexerProgress progressDialog = new CLIFileindexerProgress();
-        CLISearchProgress searchProgress = new CLISearchProgress();
-        progressDialog.setVerbose(this.verboseProgress);
-        searchProgress.setVerbose(this.verboseProgress);
-
-        searchAction.setIndexingProgressListener(progressDialog);
-        searchAction.setSearchProgressListener(searchProgress);
-
-        /* CLI has no benefit of running this in a separate Thread */
-        searchAction.run();
+        try {
+            CliSearchAction
+                    .createWithSettings(settings)
+                    .subtitleProviderStore((SubtitleProviderStore) app.make("SubtitleProviderStore"))
+                    .indexingProgressListener(new CLIFileindexerProgress().verbose(verboseProgress))
+                    .searchProgressListener(new CLISearchProgress().verbose(verboseProgress))
+                    .cli(this)
+                    .fileListAction(new FileListAction(this.settings))
+                    .language(language)
+                    .releaseFactory(new ReleaseFactory(this.settings, (Manager) app.make("Manager")))
+                    .filtering(new Filtering(this.settings))
+                    .folders(folders)
+                    .recursive(recursive)
+                    .overwriteSubtitles(force)
+                    .build()
+                    /* CLI has no benefit of running this in a separate Thread */
+                    .run();
+        } catch (SearchSetupException e) {
+            LOGGER.error("executeArgs: search (%s)".formatted(e.getMessage()), e);
+        }
     }
 
-    private void download(Release release) throws IOException, ManagerException {
-        List<Integer> selection;
+    private void download(Release release) {
+        List<Subtitle> selection;
         if (downloadall) {
-            selection = IntStream.range(0, release.getMatchingSubs().size()).mapToObj(i -> i).toList();
+            selection = release.getMatchingSubs();
             if (!selection.isEmpty()) {
                 System.out.println("Downloading ALL found subtitles for release: " + release.getFileName());
             }
         } else {
-            selection = subtitleSelectionAction.subtitleSelection(release, subtitleSelection, dryRun);
+            selection = userInteractionHandlerAction.subtitleSelection(release, subtitleSelection, dryRun);
         }
         if (selection.isEmpty()) {
             System.out.println("No substitles found for: " + release.getFileName());
         } else {
-            for (int j : selection) {
+            IntStream.range(0, selection.size()).forEach(j -> {
                 System.out.println("Downloading subtitle: " + release.getMatchingSubs().get(0).getFileName());
-                downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
-            }
+                try {
+                    downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
+                } catch (IOException | ManagerException e) {
+                    LOGGER.error("Errow while downloading subtitle for %s (%s)".formatted(release.getReleaseDescription(), e.getMessage()), e);
+                }
+            });
         }
     }
 
