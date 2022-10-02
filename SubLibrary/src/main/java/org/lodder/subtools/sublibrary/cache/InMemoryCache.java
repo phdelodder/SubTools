@@ -185,18 +185,18 @@ public class InMemoryCache<K, V> {
         }
     }
 
-    public List<Entry<K, CacheObject<V>>> deleteEntries(Predicate<K> keyFilter) {
+    public List<K> deleteEntries(Predicate<K> keyFilter) {
         synchronized (cacheMap) {
-            List<Entry<K, CacheObject<V>>> removedEntries = new ArrayList<>();
+            List<K> removedKeys = new ArrayList<>();
             Iterator<Entry<K, CacheObject<V>>> iterator = cacheMap.entrySet().iterator();
             while (iterator.hasNext()) {
                 Entry<K, CacheObject<V>> entry = iterator.next();
                 if (keyFilter == null || keyFilter.test(entry.getKey())) {
-                    removedEntries.add(entry);
+                    removedKeys.add(entry.getKey());
                     iterator.remove();
                 }
             }
-            return removedEntries;
+            return removedKeys;
         }
     }
 }
