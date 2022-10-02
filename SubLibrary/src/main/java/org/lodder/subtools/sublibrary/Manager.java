@@ -237,7 +237,7 @@ public class Manager {
         private String key;
         private ThrowingSupplier<T, X> valueSupplier;
         private ThrowingSupplier<C, X> collectionSupplier;
-        private ThrowingSupplier<Optional<T>, X> optionalValueSupplier;
+        private ThrowingSupplier<Optional<T>, X> optionalSupplier;
         private ThrowingSupplier<OptionalInt, X> optionalIntSupplier;
         private CacheType cacheType;
 
@@ -250,7 +250,7 @@ public class Manager {
         @Override
         public <S extends Serializable, E extends Exception> ValueBuilder<?, S, E>
                 optionalSupplier(ThrowingSupplier<Optional<S>, E> valueSupplier) {
-            this.optionalValueSupplier = (ThrowingSupplier) valueSupplier;
+            this.optionalSupplier = (ThrowingSupplier) valueSupplier;
             return (ValueBuilder<?, S, E>) this;
         }
 
@@ -302,7 +302,7 @@ public class Manager {
         @Override
         public Optional<T> getOptional() throws X {
             return switch (cacheType) {
-                case NONE -> optionalValueSupplier.get();
+                case NONE -> optionalSupplier.get();
                 case MEMORY -> getOrPutOptional(inMemoryCache);
                 case DISK -> getOrPutOptional(diskCache);
                 default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
@@ -313,17 +313,34 @@ public class Manager {
         public OptionalInt getOptionalInt() throws X {
             return switch (cacheType) {
                 case NONE -> optionalIntSupplier.get();
-                case MEMORY -> getOrPutOptional(inMemoryCache).mapToInt(i -> (Integer) i);
-                case DISK -> getOrPutOptional(diskCache).mapToInt(i -> (Integer) i);
+                case MEMORY -> getOrPutOptionalInt(inMemoryCache);
+                case DISK -> getOrPutOptionalInt(diskCache);
                 default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
+        }
+
+        private OptionalInt getOrPutOptionalInt(InMemoryCache cache) throws X {
+            if (cache.contains(key)) {
+                try {
+                    return cache.get(key).mapToInt(i -> (Integer) i);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            OptionalInt value = optionalIntSupplier.get();
+            value.ifPresentOrElse(v -> cache.put(key, v), () -> {
+                if (cache instanceof DiskCache diskCache) {
+                    diskCache.putWithoutPersist(key, null);
+                }
+            });
+            return value;
         }
 
         private Optional<T> getOrPutOptional(InMemoryCache cache) throws X {
             if (cache.contains(key)) {
                 return cache.get(key);
             }
-            Optional<T> value = optionalValueSupplier.get();
+            Optional<T> value = optionalSupplier.get();
             value.ifPresentOrElse(v -> cache.put(key, v), () -> {
                 if (cache instanceof DiskCache diskCache) {
                     diskCache.putWithoutPersist(key, null);
