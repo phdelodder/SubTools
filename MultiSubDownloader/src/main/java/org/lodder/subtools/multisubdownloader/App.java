@@ -1,6 +1,7 @@
 package org.lodder.subtools.multisubdownloader;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
@@ -13,11 +14,13 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.lodder.subtools.multisubdownloader.cli.CliOption;
 import org.lodder.subtools.multisubdownloader.exceptions.CliException;
 import org.lodder.subtools.multisubdownloader.framework.Bootstrapper;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.gui.Splash;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
+import org.lodder.subtools.multisubdownloader.util.CLIExtension;
 import org.lodder.subtools.sublibrary.ConfigProperties;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
@@ -31,7 +34,9 @@ import org.slf4j.LoggerFactory;
 import java.awt.EventQueue;
 
 import ch.qos.logback.classic.Level;
+import lombok.experimental.ExtensionMethod;
 
+@ExtensionMethod({ CLIExtension.class })
 public class App {
 
     private static SettingsControl prefctrl;
@@ -49,37 +54,35 @@ public class App {
             line = parser.parse(getCLIOptions(), args);
         } catch (ParseException e) {
             LOGGER.error("Unable to parse cli options", e);
-        }
-
-        if (line == null) {
             return;
         }
 
-        if (!line.hasOption("nogui")) {
+        if (!line.hasCliOption(CliOption.NO_GUI)) {
             splash = new Splash();
             splash.showSplash();
         }
 
         Preferences preferences = Preferences.userRoot();
-        preferences.putBoolean("speedy", line.hasOption("speedy"));
+        preferences.putBoolean("speedy", line.hasCliOption(CliOption.SPEEDY));
+        preferences.putBoolean("confirmProviderMapping", line.hasCliOption(CliOption.CONFIRM_PROVIDER_MAPPING));
 
         final Container app = new Container();
-        final Manager manager = createManager(!line.hasOption("nogui"));
+        final Manager manager = createManager(!line.hasCliOption(CliOption.NO_GUI));
         prefctrl = new SettingsControl(manager);
         Bootstrapper bootstrapper = new Bootstrapper(app, prefctrl.getSettings(), preferences, manager);
 
-        if (line.hasOption("help")) {
+        if (line.hasCliOption(CliOption.HELP)) {
             formatter.printHelp(ConfigProperties.getInstance().getProperty("name"), getCLIOptions());
             return;
         }
 
-        if (line.hasOption("trace")) {
+        if (line.hasCliOption(CliOption.TRACE)) {
             setLogLevel(Level.ALL);
-        } else if (line.hasOption("debug")) {
+        } else if (line.hasCliOption(CliOption.DEBUG)) {
             setLogLevel(Level.DEBUG);
         }
 
-        if (line.hasOption("nogui")) {
+        if (line.hasCliOption(CliOption.NO_GUI)) {
             bootstrapper.initialize();
             CLI cmd = new CLI(prefctrl, app);
 
@@ -118,10 +121,10 @@ public class App {
     }
 
     private static void importPreferences(CommandLine line) {
-        if (!line.hasOption("importpreferences")) {
+        if (!line.hasCliOption(CliOption.IMPORT_PREFERENCES)) {
             return;
         }
-        File file = new File(line.getOptionValue("importpreferences"));
+        File file = new File(line.getCliOptionValue(CliOption.IMPORT_PREFERENCES));
         try {
             if (file.isFile()) {
                 prefctrl.importPreferences(file);
@@ -133,21 +136,8 @@ public class App {
 
     public static Options getCLIOptions() {
         Options options = new Options();
-        options.addOption("help", false, Messages.getString("App.OptionHelpMsg"));
-        options.addOption("nogui", false, Messages.getString("App.OptionNoGuiMsg"));
-        options.addOption("R", "recursive", false, Messages.getString("App.OptionOptionRecursiveMsg"));
-        options.addOption("language", true, Messages.getString("App.OptionOptionLanguageMsg"));
-        options.addOption("debug", false, Messages.getString("App.OptionOptionDebugMsg"));
-        options.addOption("trace", false, Messages.getString("App.OptionOptionTraceMsg"));
-        options.addOption("importpreferences", true, Messages.getString("App.OptionOptionImportPreferencesMsg"));
-        options.addOption("force", false, Messages.getString("App.OptionOptionForceMsg"));
-        options.addOption("folder", true, Messages.getString("App.OptionOptionFolderMsg"));
-        options.addOption("downloadall", false, Messages.getString("App.OptionOptionDownloadAllMsg"));
-        options.addOption("selection", false, Messages.getString("App.OptionOptionSelectionMsg"));
-        options.addOption("speedy", false, Messages.getString("App.OptionOptionSpeedyMsg"));
-        options.addOption("verboseprogress", false, Messages.getString("App.OptionVerboseProgressCLI"));
-        options.addOption("dryrun", false, Messages.getString("App.OptionDryRun"));
-
+        Arrays.stream(CliOption.values()).forEach(
+                cliOption -> options.addOption(cliOption.getValue(), cliOption.getLongValue(), cliOption.isHasArg(), cliOption.getDescription()));
         return options;
     }
 

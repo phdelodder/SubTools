@@ -11,6 +11,7 @@ import org.apache.commons.cli.CommandLine;
 import org.lodder.subtools.multisubdownloader.actions.DownloadAction;
 import org.lodder.subtools.multisubdownloader.actions.FileListAction;
 import org.lodder.subtools.multisubdownloader.actions.UserInteractionHandlerAction;
+import org.lodder.subtools.multisubdownloader.cli.CliOption;
 import org.lodder.subtools.multisubdownloader.cli.actions.CliSearchAction;
 import org.lodder.subtools.multisubdownloader.cli.progress.CLIFileindexerProgress;
 import org.lodder.subtools.multisubdownloader.cli.progress.CLISearchProgress;
@@ -23,6 +24,7 @@ import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
+import org.lodder.subtools.multisubdownloader.util.CLIExtension;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
@@ -31,6 +33,9 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.experimental.ExtensionMethod;
+
+@ExtensionMethod({ CLIExtension.class })
 public class CLI {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CLI.class);
@@ -70,12 +75,12 @@ public class CLI {
     public void setUp(CommandLine line) throws CliException {
         this.folders = getFolders(line);
         this.language = getLanguage(line);
-        this.force = line.hasOption("force");
-        this.downloadall = line.hasOption("downloadall");
-        this.recursive = line.hasOption("recursive");
-        this.subtitleSelection = line.hasOption("selection");
-        this.verboseProgress = line.hasOption("verboseprogress");
-        this.dryRun = line.hasOption("dryrun");
+        this.force = line.hasCliOption(CliOption.FORCE);
+        this.downloadall = line.hasCliOption(CliOption.DOWNLOAD_ALL);
+        this.recursive = line.hasCliOption(CliOption.RECURSIVE);
+        this.subtitleSelection = line.hasCliOption(CliOption.SELECTION);
+        this.verboseProgress = line.hasCliOption(CliOption.VERBOSE_PROGRESS);
+        this.dryRun = line.hasCliOption(CliOption.DRY_RUN);
     }
 
     public void run() {
@@ -143,16 +148,16 @@ public class CLI {
     }
 
     private List<File> getFolders(CommandLine line) {
-        if (line.hasOption("folder")) {
-            return List.of(new File(line.getOptionValue("folder")));
+        if (line.hasCliOption(CliOption.FOLDER)) {
+            return List.of(new File(line.getCliOptionValue(CliOption.FOLDER)));
         } else {
             return new ArrayList<>(this.settings.getDefaultFolders());
         }
     }
 
     private Language getLanguage(CommandLine line) throws CliException {
-        if (line.hasOption("language")) {
-            String languageString = line.getOptionValue("language");
+        if (line.hasCliOption(CliOption.LANGUAGE)) {
+            String languageString = line.getCliOptionValue(CliOption.LANGUAGE);
             return Arrays.stream(Language.values()).filter(lang -> lang.name().equalsIgnoreCase(languageString)).findAny()
                     .orElseThrow(() -> new CliException(Messages.getString("App.NoValidLanguage")));
         } else {
