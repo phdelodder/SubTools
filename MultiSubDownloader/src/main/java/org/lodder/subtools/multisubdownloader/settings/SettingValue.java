@@ -31,7 +31,6 @@ public enum SettingValue {
 
     // SETTINGS
     SETTINGS_VERSION(0, SettingsControl::getSettings, Settings::getSettingsVersion, Settings::setSettingsVersion),
-    DATABASE_VERSION(0, SettingsControl::getSettings, Settings::getDatabaseVersion, Settings::setDatabaseVersion),
     LAST_OUTPUT_DIR(new File(""), File::getAbsolutePath, File::new, SettingsControl::getSettings, settings -> MemoryFolderChooser.getInstance().getMemory(), Settings::setLastOutputDir),
 
 //    GENERAL_DEFAULT_INCOMING_FOLDER(File::getAbsolutePath, File::new, SettingsControl::getSettings, (settings, v) -> settings.getDefaultIncomingFolders().add(v),  (settings, consumer) -> settings.getDefaultIncomingFolders().forEach(consumer::accept)),

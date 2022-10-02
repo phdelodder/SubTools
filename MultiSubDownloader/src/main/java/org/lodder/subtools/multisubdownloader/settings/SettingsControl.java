@@ -248,8 +248,7 @@ public class SettingsControl {
     }
 
     private void migrateDatabase() {
-        DATABASE_VERSION.load(this, preferences);
-        int version = settings.getDatabaseVersion();
+        int version = manager.getValueBuilder().key("DATABSE_VERSION").cacheType(CacheType.DISK).valueSupplier(() -> 0).get();
         if (version == 0) {
             migrateDatabaseV0ToV1();
         }
@@ -258,7 +257,6 @@ public class SettingsControl {
     private void migrateDatabaseV0ToV1() {
         manager.getRemoveCacheValueBuilder().key("TVDB-SerieMapping-").matchType(CacheKeyMatchEnum.STARTING_WITH).cacheType(CacheType.DISK).remove();
         manager.getRemoveCacheValueBuilder().key("TVDB-SerieId-").matchType(CacheKeyMatchEnum.STARTING_WITH).cacheType(CacheType.DISK).remove();
-        settings.setDatabaseVersion(1);
-        DATABASE_VERSION.store(this, preferences);
+        manager.getStoreValueBuilder().key("DATABSE_VERSION").cacheType(CacheType.DISK).value(1).store();
     }
 }
