@@ -392,7 +392,7 @@ public class Manager {
         private String key;
         private CacheType cacheType;
         private Predicate<String> keyFilter;
-        private CacheKeyMatchEnum matchType;
+        private CacheKeyMatchEnum matchType = CacheKeyMatchEnum.EXACT;
         private Class<T> valueType;
 
         @Override
@@ -418,6 +418,7 @@ public class Manager {
                 case STARTING_WITH -> cache.getEntries(k -> ((String) k).startsWith(key));
                 case ENDING_WITH -> cache.getEntries(k -> ((String) k).endsWith(key));
                 case CONTAINING -> cache.getEntries(k -> ((String) k).contains(key));
+                case EXACT -> cache.getEntries(k -> ((String) k).equals(key));
                 default -> throw new IllegalArgumentException("Unexpected value: " + matchType);
             };
         }
@@ -485,8 +486,15 @@ public class Manager {
     }
 
     public interface RemoveCacheValueBuilderKeyIntf {
-        RemoveCacheValueCacheTypeIntf key(String key);
+        RemoveCacheValueBuilderKeyMatchIntf key(String key);
+
+        RemoveCacheValueCacheTypeIntf keyFilter(Predicate<String> keyFilter);
     }
+
+    public interface RemoveCacheValueBuilderKeyMatchIntf extends RemoveCacheValueCacheTypeIntf {
+        RemoveCacheValueCacheTypeIntf matchType(CacheKeyMatchEnum matchType);
+    }
+
 
     public interface RemoveCacheValueCacheTypeIntf {
         RemoveCacheValueGetIntf cacheType(CacheType cacheType);
@@ -501,18 +509,33 @@ public class Manager {
     @RequiredArgsConstructor
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static class RemoveCacheValue
-            implements RemoveCacheValueBuilderKeyIntf, RemoveCacheValueCacheTypeIntf, RemoveCacheValueGetIntf {
+            implements RemoveCacheValueBuilderKeyIntf, RemoveCacheValueCacheTypeIntf, RemoveCacheValueGetIntf, RemoveCacheValueBuilderKeyMatchIntf {
         private final InMemoryCache inMemoryCache;
         private final DiskCache diskCache;
         private String key;
+        private Predicate<String> keyFilter;
+        private CacheKeyMatchEnum matchType = CacheKeyMatchEnum.EXACT;
         private CacheType cacheType;
 
         @Override
         public void remove() {
             switch (cacheType) {
-                case MEMORY -> inMemoryCache.remove(key);
-                case DISK -> diskCache.remove(key);
+                case MEMORY -> remove(inMemoryCache);
+                case DISK -> remove(diskCache);
                 default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
+            }
+        }
+
+        private void remove(InMemoryCache cache) {
+            if (keyFilter != null) {
+                cache.deleteEntries(keyFilter);
+            }
+            switch (matchType) {
+                case STARTING_WITH -> cache.deleteEntries(k -> ((String) k).startsWith(key));
+                case ENDING_WITH -> cache.deleteEntries(k -> ((String) k).endsWith(key));
+                case CONTAINING -> cache.deleteEntries(k -> ((String) k).contains(key));
+                case EXACT -> cache.deleteEntries(k -> ((String) k).equals(key));
+                default -> throw new IllegalArgumentException("Unexpected value: " + matchType);
             }
         }
     }

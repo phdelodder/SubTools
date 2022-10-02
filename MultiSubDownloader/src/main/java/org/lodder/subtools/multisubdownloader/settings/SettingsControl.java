@@ -22,7 +22,9 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.multisubdownloader.settings.model.State;
+import org.lodder.subtools.sublibrary.CacheKeyMatchEnum;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.settings.model.TvdbMapping;
 import org.lodder.subtools.sublibrary.settings.model.TvdbMappings;
 import org.slf4j.Logger;
@@ -78,6 +80,7 @@ public class SettingsControl {
 
     public void load() {
         migrateSettings();
+        migrateDatabase();
         SettingValue.loadAll(this, preferences);
         updateProxySettings();
     }
@@ -242,5 +245,20 @@ public class SettingsControl {
             case "Year\\Movie" -> "%YEAR%%SEPARATOR%%MOVIE TITLE%";
             default -> oldStructure;
         };
+    }
+
+    private void migrateDatabase() {
+        DATABASE_VERSION.load(this, preferences);
+        int version = settings.getDatabaseVersion();
+        if (version == 0) {
+            migrateDatabaseV0ToV1();
+        }
+    }
+
+    private void migrateDatabaseV0ToV1() {
+        manager.getRemoveCacheValueBuilder().key("TVDB-SerieMapping-").matchType(CacheKeyMatchEnum.STARTING_WITH).cacheType(CacheType.DISK).remove();
+        manager.getRemoveCacheValueBuilder().key("TVDB-SerieId-").matchType(CacheKeyMatchEnum.STARTING_WITH).cacheType(CacheType.DISK).remove();
+        settings.setDatabaseVersion(1);
+        DATABASE_VERSION.store(this, preferences);
     }
 }

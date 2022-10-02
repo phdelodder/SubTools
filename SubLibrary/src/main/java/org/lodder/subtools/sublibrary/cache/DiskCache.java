@@ -7,6 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.function.Predicate;
 
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.sublibrary.util.lazy.LazyBiFunction;
@@ -112,5 +115,14 @@ public abstract class DiskCache<K, V> extends InMemoryCache<K, V> {
 
     public void putWithoutPersist(K key, V value) {
         super.put(key, value);
+    }
+
+    @Override
+    public List<Entry<K, CacheObject<V>>> deleteEntries(Predicate<K> keyFilter) {
+        synchronized (LOCK) {
+            List<Entry<K, CacheObject<V>>> deleteEntries = super.deleteEntries(keyFilter);
+            deleteEntries.forEach(entry -> remove(entry.getKey()));
+            return deleteEntries;
+        }
     }
 }

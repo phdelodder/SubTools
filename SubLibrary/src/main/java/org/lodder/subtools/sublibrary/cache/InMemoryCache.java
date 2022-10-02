@@ -1,6 +1,7 @@
 package org.lodder.subtools.sublibrary.cache;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -181,6 +182,21 @@ public class InMemoryCache<K, V> {
         synchronized (cacheMap) {
             return cacheMap.entrySet().stream().filter(entry -> keyFilter == null || keyFilter.test(entry.getKey()))
                     .map(entry -> Pair.of(entry.getKey(), entry.getValue().getValue())).toList();
+        }
+    }
+
+    public List<Entry<K, CacheObject<V>>> deleteEntries(Predicate<K> keyFilter) {
+        synchronized (cacheMap) {
+            List<Entry<K, CacheObject<V>>> removedEntries = new ArrayList<>();
+            Iterator<Entry<K, CacheObject<V>>> iterator = cacheMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Entry<K, CacheObject<V>> entry = iterator.next();
+                if (keyFilter == null || keyFilter.test(entry.getKey())) {
+                    removedEntries.add(entry);
+                    iterator.remove();
+                }
+            }
+            return removedEntries;
         }
     }
 }
