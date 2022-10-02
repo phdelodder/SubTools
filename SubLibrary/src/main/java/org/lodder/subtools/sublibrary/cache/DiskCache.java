@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.lodder.subtools.sublibrary.util.lazy.LazyBiFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,11 +118,10 @@ public abstract class DiskCache<K, V> extends InMemoryCache<K, V> {
     }
 
     @Override
-    public List<K> deleteEntries(Predicate<K> keyFilter) {
+    public void deleteEntries(Predicate<K> keyFilter) {
         synchronized (LOCK) {
-            List<K> deleteEntries = super.deleteEntries(keyFilter);
-            deleteEntries.forEach(this::remove);
-            return deleteEntries;
+            List<Pair<K, V>> entries = super.getEntries(keyFilter);
+            entries.forEach(pair -> remove(pair.getKey()));
         }
     }
 }
