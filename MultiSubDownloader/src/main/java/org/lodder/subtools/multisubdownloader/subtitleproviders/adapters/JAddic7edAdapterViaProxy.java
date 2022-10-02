@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -71,15 +72,22 @@ public class JAddic7edAdapterViaProxy implements SubtitleProvider {
                         if (!confirmProviderMapping && serieNamesForName.size() == 1) {
                             return Optional.of(serieNamesForName.get(0));
                         }
-                        Optional<String> selectedSerieName = userInteraction.selectFromList(serieNamesForName,
-                                Messages.getString("SelectDialog.SelectSerieNameForName").formatted(tvRelease.getOriginalName()),
-                                getSubtitleSource().getName());
+                        String formattedName = tvRelease.getOriginalName().replaceAll("[^A-Za-z]", "");
+                        Optional<String> selectedSerieName =
+                                userInteraction.selectFromList(serieNamesForName.stream().sorted(Comparator
+                                        .comparing(n -> formattedName.equalsIgnoreCase(n.replaceAll("[^A-Za-z]", "")), Comparator.reverseOrder()))
+                                        .toList(),
+                                        Messages.getString("SelectDialog.SelectSerieNameForName").formatted(tvRelease.getOriginalName()),
+                                        getSubtitleSource().getName());
                         if (!selectedSerieName.isEmpty()) {
                             return selectedSerieName;
                         } else {
                             serieNamesForName = jaapi.getSerieNameForName(tvRelease.getName());
+                            String formattedName2 = tvRelease.getName().replaceAll("[^A-Za-z]", "");
                             if (!new HashSet<>(serieNamesForName).equals(new HashSet<>(serieNamesForName))) {
-                                selectedSerieName = userInteraction.selectFromList(serieNamesForName,
+                                selectedSerieName = userInteraction.selectFromList(serieNamesForName.stream().sorted(Comparator
+                                        .comparing(n -> formattedName2.equalsIgnoreCase(n.replaceAll("[^A-Za-z]", "")), Comparator.reverseOrder()))
+                                        .toList(),
                                         Messages.getString("SelectDialog.SelectSerieNameForName").formatted(tvRelease.getOriginalName()),
                                         getSubtitleSource().getName());
                             }

@@ -3,6 +3,7 @@ package org.lodder.subtools.sublibrary.data.imdb;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -148,8 +149,14 @@ class ImdbSearchIdApi {
             Matcher matcher = IMDB_URL_ID_PATTERN.matcher(href);
             return matcher.find() ? OptionalInt.of(Integer.parseInt(matcher.group())) : OptionalInt.empty();
         }
+        String formattedTitle = title.replaceAll("[^A-Za-z]", "");
         return userInteractionHandler
-                .selectFromList(searchResults.stream().toList(),
+                .selectFromList(
+                        searchResults.stream()
+                                .sorted(Comparator.comparing(
+                                        e -> formattedTitle.equalsIgnoreCase(toStringMapper.apply(e).replaceAll("[^A-Za-z]", "")),
+                                        Comparator.reverseOrder()))
+                                .toList(),
                         Messages.getString("SelectImdbMatchForSerie").formatted(title),
                         "IMDB",
                         toStringMapper)

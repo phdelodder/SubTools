@@ -87,8 +87,12 @@ class TheTvdbApi {
         } else if (!userInteractionHandler.getSettings().isOptionsConfirmProviderMapping() && options.size() == 1) {
             return OptionalInt.of(options.get(0).id);
         } else {
+            String formattedSerieName = serieName.replaceAll("[^A-Za-z]", "");
+            Comparator<Series> comp = Comparator.comparing(s -> formattedSerieName.equalsIgnoreCase(s.seriesName.replaceAll("[^A-Za-z]", "")),
+                    Comparator.reverseOrder());
+            comp = comp.thenComparing(s -> s.firstAired, Comparator.reverseOrder());
             return userInteractionHandler
-                    .selectFromList(options.stream().sorted(Comparator.comparing(s -> s.firstAired, Comparator.reverseOrder())).toList(),
+                    .selectFromList(options.stream().sorted(comp).toList(),
                             Messages.getString("Prompter.SelectTvdbMatchForSerie").formatted(serieName),
                             "tvdb", s -> "%s (%s)".formatted(s.seriesName, s.firstAired))
                     .mapToInt(s -> s.id);
