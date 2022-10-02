@@ -110,7 +110,7 @@ public class JOpenSubAdapter extends AbstractAdapter<org.opensubtitles.model.Sub
                 .flatMap(attributes -> attributes.getFiles().stream()
                         .filter(file -> {
                             String subFileName = file.getFileName().replaceAll("[^A-Za-z]", "").toLowerCase();
-                            return subFileName.contains(name) || StringUtils.isNotBlank(originalName) && subFileName.contains(originalName);
+                            return subFileName.contains(name) || (StringUtils.isNotBlank(originalName) && subFileName.contains(originalName));
                         })
                         .map(file -> createSubtitle(file, attributes)))
                 .collect(Collectors.toSet());
