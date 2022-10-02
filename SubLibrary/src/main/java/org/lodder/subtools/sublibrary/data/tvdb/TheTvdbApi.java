@@ -63,7 +63,7 @@ class TheTvdbApi {
                                         .execute();
                         if (response.isSuccessful()) {
                             List<Series> results = response.body().data.stream().toList();
-                            OptionalInt selectedTvdbId = selectTvdbIdForSerieName(results, encodedSerieName);
+                            OptionalInt selectedTvdbId = selectTvdbIdForSerieName(results, seriename);
                             if (selectedTvdbId.isPresent()) {
                                 return selectedTvdbId;
                             }
