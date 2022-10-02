@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.data.imdb.exception.ImdbException;
 import org.lodder.subtools.sublibrary.data.imdb.exception.ImdbSearchIdException;
 import org.lodder.subtools.sublibrary.data.imdb.model.ImdbDetails;
@@ -18,7 +19,7 @@ public class ImdbAdapter {
     private final LazySupplier<ImdbApi> imdbApi;
     private final LazySupplier<ImdbSearchIdApi> imdbSearchIdApi;
 
-    private ImdbAdapter(Manager manager) {
+    private ImdbAdapter(Manager manager, UserInteractionHandler userInteractionHandler) {
         this.imdbApi = new LazySupplier<>(() -> {
             try {
                 return new ImdbApi(manager);
@@ -29,7 +30,7 @@ public class ImdbAdapter {
         });
         this.imdbSearchIdApi = new LazySupplier<>(() -> {
             try {
-                return new ImdbSearchIdApi(manager);
+                return new ImdbSearchIdApi(manager, userInteractionHandler);
             } catch (Exception e) {
                 LOGGER.error("API IMDB INIT (%s)".formatted(e.getMessage()), e);
             }
@@ -55,9 +56,9 @@ public class ImdbAdapter {
         }
     }
 
-    public synchronized static ImdbAdapter getInstance(Manager manager) {
+    public synchronized static ImdbAdapter getInstance(Manager manager, UserInteractionHandler userInteractionHandler) {
         if (instance == null) {
-            instance = new ImdbAdapter(manager);
+            instance = new ImdbAdapter(manager, userInteractionHandler);
         }
         return instance;
     }

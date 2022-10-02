@@ -3,6 +3,7 @@ package org.lodder.subtools.sublibrary.data.omdb;
 import java.util.Optional;
 
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.data.omdb.exception.OmdbException;
 import org.lodder.subtools.sublibrary.data.omdb.model.OmdbDetails;
 import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
@@ -15,10 +16,10 @@ public class OmdbAdapter {
     private static OmdbAdapter instance;
     private final LazySupplier<OmdbApi> omdpApi;
 
-    private OmdbAdapter(Manager manager) {
+    private OmdbAdapter(Manager manager, UserInteractionHandler userInteractionHandler) {
         omdpApi = new LazySupplier<>(() -> {
             try {
-                return new OmdbApi(manager);
+                return new OmdbApi(manager, userInteractionHandler);
             } catch (Exception e) {
                 LOGGER.error("API OMDB INIT (%s)".formatted(e.getMessage()), e);
             }
@@ -35,9 +36,9 @@ public class OmdbAdapter {
         }
     }
 
-    public synchronized static OmdbAdapter getInstance(Manager manager) {
+    public synchronized static OmdbAdapter getInstance(Manager manager, UserInteractionHandler userInteractionHandler) {
         if (instance == null) {
-            instance = new OmdbAdapter(manager);
+            instance = new OmdbAdapter(manager, userInteractionHandler);
         }
         return instance;
     }

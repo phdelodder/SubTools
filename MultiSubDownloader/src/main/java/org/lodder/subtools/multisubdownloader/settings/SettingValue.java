@@ -10,8 +10,6 @@ import java.util.function.Function;
 import java.util.prefs.Preferences;
 import java.util.stream.IntStream;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.CaseUtils;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
@@ -25,7 +23,6 @@ import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpis
 import org.lodder.subtools.multisubdownloader.settings.model.State;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.sublibrary.Language;
-import org.lodder.subtools.sublibrary.settings.model.TvdbMapping;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -56,6 +53,7 @@ public enum SettingValue {
     DEFAULT_SELECTION_QUALITY_ENABLED(false, SettingsControl::getSettings, Settings::isOptionsDefaultSelection, Settings::setOptionsDefaultSelection),
 
     OPTIONS_ALWAYS_CONFIRM(false, SettingsControl::getSettings, Settings::isOptionsAlwaysConfirm, Settings::setOptionsAlwaysConfirm),
+    OPTIONS_CONFIRM_MAPPING(false, SettingsControl::getSettings, Settings::isOptionsConfirmProviderMapping, Settings::setOptionsConfirmProviderMapping),
     OPTIONS_MIN_AUTOMATIC_SELECTION(false, SettingsControl::getSettings, Settings::isOptionsMinAutomaticSelection, Settings::setOptionsMinAutomaticSelection),
     OPTIONS_MIN_AUTOMATIC_SELECTION_VALUE(0, SettingsControl::getSettings, Settings::getOptionsMinAutomaticSelectionValue, Settings::setOptionsMinAutomaticSelectionValue),
     OPTION_SUBTITLE_EXACT_MATCH(true, SettingsControl::getSettings, Settings::isOptionSubtitleExactMatch, Settings::setOptionSubtitleExactMatch),
@@ -129,6 +127,7 @@ public enum SettingValue {
     LOGIN_OPEN_SUBTITLES_USERNAME("", SettingsControl::getSettings, Settings::getLoginOpenSubtitlesUsername, Settings::setLoginOpenSubtitlesUsername),
     LOGIN_OPEN_SUBTITLES_PASSWORD("", SettingsControl::getSettings, Settings::getLoginOpenSubtitlesPassword, Settings::setLoginOpenSubtitlesPassword),
     SERIE_SOURCE_ADDIC7ED(true, SettingsControl::getSettings, Settings::isSerieSourceAddic7ed, Settings::setSerieSourceAddic7ed),
+    SERIE_SOURCE_ADDIC7ED_PROXY(true, SettingsControl::getSettings, Settings::isSerieSourceAddic7edProxy, Settings::setSerieSourceAddic7edProxy),
     SERIE_SOURCE_LOCAL(true, SettingsControl::getSettings, Settings::isSerieSourceLocal, Settings::setSerieSourceLocal),
     SERIE_SOURCE_OPENSUBTITLES(true, SettingsControl::getSettings, Settings::isSerieSourceOpensubtitles, Settings::setSerieSourceOpensubtitles),
     SERIE_SOURCE_PODNAPISI(true, SettingsControl::getSettings, Settings::isSerieSourcePodnapisi, Settings::setSerieSourcePodnapisi),

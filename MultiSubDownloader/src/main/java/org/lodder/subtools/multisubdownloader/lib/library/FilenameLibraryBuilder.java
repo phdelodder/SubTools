@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader.lib.library;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.TvRelease;
@@ -10,20 +11,20 @@ import org.lodder.subtools.sublibrary.util.StringUtil;
 
 public class FilenameLibraryBuilder extends LibraryBuilder {
 
-    public FilenameLibraryBuilder(LibrarySettings librarySettings, Manager manager) {
-        super(librarySettings, manager);
+    public FilenameLibraryBuilder(LibrarySettings librarySettings, Manager manager, UserInteractionHandler userInteractionHandler) {
+        super(librarySettings, manager, userInteractionHandler);
     }
 
     @Override
     public String build(Release release) {
         String filename = "";
-        if ((LibraryActionType.RENAME.equals(librarySettings.getLibraryAction())
-                || LibraryActionType.MOVEANDRENAME.equals(librarySettings.getLibraryAction()))
+        if ((LibraryActionType.RENAME.equals(getLibrarySettings().getLibraryAction())
+                || LibraryActionType.MOVEANDRENAME.equals(getLibrarySettings().getLibraryAction()))
                 && release instanceof TvRelease tvRelease
-                && !librarySettings.getLibraryFilenameStructure().isEmpty()) {
+                && !getLibrarySettings().getLibraryFilenameStructure().isEmpty()) {
             String show = getShowName(tvRelease.getName());
 
-            filename = librarySettings.getLibraryFilenameStructure();
+            filename = getLibrarySettings().getLibraryFilenameStructure();
             // order is important!
             filename = filename.replaceAll("%SHOW NAME%", show);
             filename = replaceFormatedEpisodeNumber(filename, "%EEX%", tvRelease.getEpisodeNumbers(), true);
@@ -40,11 +41,11 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
         } else {
             filename = release.getFileName();
         }
-        if (librarySettings.isLibraryReplaceChars()) {
+        if (getLibrarySettings().isLibraryReplaceChars()) {
             filename = StringUtil.removeIllegalWindowsChars(filename);
         }
-        if (librarySettings.isLibraryFilenameReplaceSpace()) {
-            filename = filename.replaceAll(" ", librarySettings.getLibraryFilenameReplacingSpaceSign());
+        if (getLibrarySettings().isLibraryFilenameReplaceSpace()) {
+            filename = filename.replaceAll(" ", getLibrarySettings().getLibraryFilenameReplacingSpaceSign());
         }
         return filename;
     }
@@ -58,24 +59,24 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
         if (version > 0) {
             filename = filename.substring(0, filename.indexOf(extension)) + "-v" + version + "." + release.getExtension();
         }
-        if (librarySettings.isLibraryIncludeLanguageCode()) {
+        if (getLibrarySettings().isLibraryIncludeLanguageCode()) {
             if (language == null) {
                 filename = changeExtension(filename, ".nld.srt");
             } else {
                 filename = switch (language) {
                     case DUTCH -> {
-                        if ("".equals(librarySettings.getDefaultNlText())) {
+                        if ("".equals(getLibrarySettings().getDefaultNlText())) {
                             yield changeExtension(filename, ".nld.srt");
                         } else {
-                            final String ext = "." + librarySettings.getDefaultNlText() + ".srt";
+                            final String ext = "." + getLibrarySettings().getDefaultNlText() + ".srt";
                             yield changeExtension(filename, ext);
                         }
                     }
                     case ENGLISH -> {
-                        if ("".equals(librarySettings.getDefaultEnText())) {
+                        if ("".equals(getLibrarySettings().getDefaultEnText())) {
                             yield changeExtension(filename, ".eng.srt");
                         } else {
-                            final String ext = "." + librarySettings.getDefaultEnText() + ".srt";
+                            final String ext = "." + getLibrarySettings().getDefaultEnText() + ".srt";
                             yield changeExtension(filename, ext);
                         }
                     }
@@ -85,11 +86,11 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
         } else {
             filename = changeExtension(filename, ".srt");
         }
-        if (librarySettings.isLibraryReplaceChars()) {
+        if (getLibrarySettings().isLibraryReplaceChars()) {
             filename = StringUtil.removeIllegalWindowsChars(filename);
         }
-        if (librarySettings.isLibraryFilenameReplaceSpace()) {
-            filename = filename.replaceAll(" ", librarySettings.getLibraryFilenameReplacingSpaceSign());
+        if (getLibrarySettings().isLibraryFilenameReplaceSpace()) {
+            filename = filename.replaceAll(" ", getLibrarySettings().getLibraryFilenameReplacingSpaceSign());
         }
         return filename;
     }

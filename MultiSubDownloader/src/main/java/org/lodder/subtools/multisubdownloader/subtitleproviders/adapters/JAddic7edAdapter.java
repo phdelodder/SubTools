@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
+import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.JAddic7edApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.exception.Addic7edException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.model.Addic7edSubtitleDescriptor;
@@ -30,11 +31,13 @@ public class JAddic7edAdapter extends AbstractAdapter<Addic7edSubtitleDescriptor
     private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edAdapter.class);
     private static LazySupplier<JAddic7edApi> jaapi;
 
-    public JAddic7edAdapter(boolean isLoginEnabled, String username, String password, boolean speedy, Manager manager) {
+    public JAddic7edAdapter(boolean isLoginEnabled, String username, String password, boolean speedy, Manager manager,
+            boolean confirmProviderMapping) {
         if (jaapi == null) {
             jaapi = new LazySupplier<>(() -> {
                 try {
-                    return isLoginEnabled ? new JAddic7edApi(username, password, speedy, manager) : new JAddic7edApi(speedy, manager);
+                    return isLoginEnabled ? new JAddic7edApi(username, password, speedy, manager, confirmProviderMapping)
+                            : new JAddic7edApi(speedy, manager, confirmProviderMapping);
                 } catch (Exception e) {
                     LOGGER.error("API Addic7ed INIT (%s)".formatted(e.getMessage()), e);
                 }
@@ -78,9 +81,11 @@ public class JAddic7edAdapter extends AbstractAdapter<Addic7edSubtitleDescriptor
     }
 
     @Override
-    protected List<Addic7edSubtitleDescriptor> searchSerieSubtitles(String name, int season, int episode, Language language)
-            throws Addic7edException {
-        return getApi().searchSubtitles(name, season, episode, language);
+    protected List<Addic7edSubtitleDescriptor> searchSerieSubtitles(String name, int season, int episode, Language language,
+            UserInteractionHandler userInteractionHandler) throws Addic7edException {
+        return getApi().getAddictedSerieId(name, userInteractionHandler)
+                .mapToObj(addic7edName -> getApi().searchSubtitles(addic7edName, season, episode, language))
+                .orElseGet(List::of);
     }
 
     @Override

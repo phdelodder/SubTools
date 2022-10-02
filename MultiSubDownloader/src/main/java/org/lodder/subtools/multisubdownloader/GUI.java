@@ -22,7 +22,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import org.lodder.subtools.multisubdownloader.actions.FileListAction;
+import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
 import org.lodder.subtools.multisubdownloader.gui.Menu;
@@ -51,8 +51,6 @@ import org.lodder.subtools.multisubdownloader.gui.panels.SearchTextInputPanel;
 import org.lodder.subtools.multisubdownloader.gui.workers.DownloadWorker;
 import org.lodder.subtools.multisubdownloader.gui.workers.RenameWorker;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
-import org.lodder.subtools.multisubdownloader.lib.SubtitleSelectionGUI;
-import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
@@ -90,12 +88,13 @@ public class GUI extends JFrame implements PropertyChangeListener {
     private static final long serialVersionUID = 1L;
     private final Container app;
     private final Manager manager;
+    private final UserInteractionHandlerGUI userInteractionHandler;
     private StatusLabel lblStatus;
     private final SettingsControl settingsControl;
     private ProgressDialog progressDialog;
     private MyPopupMenu popupMenu;
-    private SearchPanel pnlSearchFile;
-    private SearchPanel pnlSearchText;
+    private SearchPanel<SearchFileInputPanel> pnlSearchFile;
+    private SearchPanel<SearchTextInputPanel> pnlSearchText;
     private JPanel pnlLogging;
     private SearchTextInputPanel pnlSearchTextInput;
     private SearchFileInputPanel pnlSearchFileInput;
@@ -111,6 +110,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     public GUI(final SettingsControl settingsControl, Container app) {
         this.app = app;
         this.manager = (Manager) this.app.make("Manager");
+        this.userInteractionHandler = new UserInteractionHandlerGUI(settingsControl.getSettings(), this);
         setTitle(ConfigProperties.getInstance().getProperty("name"));
         /*
          * setIconImage(Toolkit.getDefaultToolkit().getImage(
@@ -272,17 +272,20 @@ public class GUI extends JFrame implements PropertyChangeListener {
         menuBar.setViewClearLogAction(arg0 -> ((LoggingPanel) pnlLogging).setLogText(""));
 
         menuBar.setEditRenameTVAction(arg0 -> {
-            final RenameDialog rDialog = new RenameDialog(getThis(), settingsControl.getSettings(), VideoType.EPISODE, manager);
+            final RenameDialog rDialog =
+                    new RenameDialog(getThis(), settingsControl.getSettings(), VideoType.EPISODE, manager, userInteractionHandler);
             rDialog.setVisible(true);
         });
 
         menuBar.setEditRenameMovieAction(arg0 -> {
-            final RenameDialog rDialog = new RenameDialog(getThis(), settingsControl.getSettings(), VideoType.MOVIE, manager);
+            final RenameDialog rDialog =
+                    new RenameDialog(getThis(), settingsControl.getSettings(), VideoType.MOVIE, manager, userInteractionHandler);
             rDialog.setVisible(true);
         });
 
         menuBar.setEditPreferencesAction(arg0 -> {
-            final PreferenceDialog pDialog = new PreferenceDialog(getThis(), settingsControl, (Emitter) app.make("EventEmitter"), manager);
+            final PreferenceDialog pDialog =
+                    new PreferenceDialog(getThis(), settingsControl, (Emitter) app.make("EventEmitter"), manager, userInteractionHandler);
             pDialog.setVisible(true);
         });
 
@@ -310,26 +313,26 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
         /* resolve the SubtitleProviderStore from the Container */
         SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
-
-        TextGuiSearchAction searchAction = new TextGuiSearchAction(this, settings, subtitleProviderStore);
         ResultPanel resultPanel = new ResultPanel();
         pnlSearchTextInput = new SearchTextInputPanel();
-
-        pnlSearchText = new SearchPanel();
-        pnlSearchText.setResultPanel(resultPanel);
-        pnlSearchText.setInputPanel(pnlSearchTextInput);
-
+        pnlSearchText = new SearchPanel<>(pnlSearchTextInput, resultPanel);
+        pnlSearchTextInput.setSelectedlanguage(settings.getSubtitleLanguage() == null ? Language.DUTCH : settings.getSubtitleLanguage());
         resultPanel.showSelectFoundSubtitlesButton();
         resultPanel.setTable(createSubtitleTable());
-
-        searchAction.setSearchPanel(pnlSearchText);
-        searchAction.setReleaseFactory(new ReleaseFactory(settings, (Manager) app.make("Manager")));
-        searchAction.setFiltering(new Filtering(settings));
-        searchAction.setSubtitleSelection(new SubtitleSelectionGUI(settings, this));
-
-        pnlSearchTextInput.setSearchAction(searchAction);
-        pnlSearchTextInput.setSelectedlanguage(settings.getSubtitleLanguage() == null ? Language.DUTCH : settings.getSubtitleLanguage());
         resultPanel.setDownloadAction(arg0 -> downloadText());
+
+        TextGuiSearchAction searchAction;
+        try {
+            searchAction = TextGuiSearchAction.createWithSettings(settings)
+                    .subtitleProviderStore(subtitleProviderStore)
+                    .mainwindow(this)
+                    .searchPanel(pnlSearchText)
+                    .releaseFactory(new ReleaseFactory(settings, (Manager) app.make("Manager")))
+                    .build();
+            pnlSearchTextInput.setSearchAction(searchAction);
+        } catch (SearchSetupException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private CustomTable createSubtitleTable() {
@@ -344,47 +347,47 @@ public class GUI extends JFrame implements PropertyChangeListener {
     private void createFileSearchPanel() {
         Settings settings = this.settingsControl.getSettings();
 
-        /* resolve the SubtitleProviderStore from the Container */
-        SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
-
-        FileGuiSearchAction searchAction = new FileGuiSearchAction(this, settings, subtitleProviderStore);
         ResultPanel resultPanel = new ResultPanel();
         pnlSearchFileInput = new SearchFileInputPanel();
         pnlSearchFileInput.setRecursiveSelected(settings.isOptionRecursive());
         pnlSearchFileInput.setSelectedlanguage(settings.getSubtitleLanguage() == null ? Language.DUTCH : settings.getSubtitleLanguage());
-        pnlSearchFile = new SearchPanel();
-
-        pnlSearchFile.setResultPanel(resultPanel);
-        pnlSearchFile.setInputPanel(pnlSearchFileInput);
+        pnlSearchFile = new SearchPanel<>(pnlSearchFileInput, resultPanel);
 
         resultPanel.setTable(createVideoTable());
 
-        searchAction.setFileListAction(new FileListAction(this.settingsControl.getSettings()));
-        searchAction.setReleaseFactory(new ReleaseFactory(this.settingsControl.getSettings(), (Manager) app.make("Manager")));
-        searchAction.setFiltering(new Filtering(this.settingsControl.getSettings()));
-        searchAction.setSearchPanel(pnlSearchFile);
+        try {
+            FileGuiSearchAction searchAction = FileGuiSearchAction
+                    .createWithSettings(settings)
+                    .subtitleProviderStore((SubtitleProviderStore) this.app.make("SubtitleProviderStore"))
+                    .mainwindow(this)
+                    .searchPanel(pnlSearchFile)
+                    .releaseFactory(new ReleaseFactory(settings, (Manager) app.make("Manager")))
+                    .build();
 
-        pnlSearchFileInput.setSelectFolderAction(arg0 -> selectIncomingFolder());
-        pnlSearchFileInput.setSearchAction(searchAction);
+            pnlSearchFileInput.setSelectFolderAction(arg0 -> selectIncomingFolder());
+            pnlSearchFileInput.setSearchAction(searchAction);
 
-        resultPanel.setDownloadAction(arg0 -> download());
-        resultPanel.setMoveAction(arg0 -> {
-            final int response =
-                    JOptionPane.showConfirmDialog(
-                            getThis(),
-                            Messages.getString("MainWindow.OnlyMoveToLibraryStructure"), Messages.getString("MainWindow.Confirm"), //$NON-NLS-2$
-                            JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-            if (response == JOptionPane.YES_OPTION) {
-                rename();
-            }
-        });
+            resultPanel.setDownloadAction(arg0 -> download());
+            resultPanel.setMoveAction(arg0 -> {
+                final int response =
+                        JOptionPane.showConfirmDialog(
+                                getThis(),
+                                Messages.getString("MainWindow.OnlyMoveToLibraryStructure"), Messages.getString("MainWindow.Confirm"), //$NON-NLS-2$
+                                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (response == JOptionPane.YES_OPTION) {
+                    rename();
+                }
+            });
+        } catch (SearchSetupException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private CustomTable createVideoTable() {
         CustomTable customTable = new CustomTable();
         customTable.setModel(VideoTableModel.getDefaultVideoTableModel());
         ((VideoTableModel) customTable.getModel()).setShowOnlyFound(settingsControl.getSettings().isOptionsShowOnlyFound());
-        ((VideoTableModel) customTable.getModel()).setSubtitleSelection(new SubtitleSelectionGUI(settingsControl.getSettings(), this));
+        ((VideoTableModel) customTable.getModel()).setUserInteractionHandler(userInteractionHandler);
         final RowSorter<TableModel> sorter = new TableRowSorter<>(customTable.getModel());
         customTable.setRowSorter(sorter);
         customTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
@@ -482,7 +485,8 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
     protected void rename() {
         CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
-        RenameWorker renameWorker = new RenameWorker(customTable, settingsControl.getSettings(), (Manager) this.app.make("Manager"));
+        RenameWorker renameWorker =
+                new RenameWorker(customTable, settingsControl.getSettings(), (Manager) this.app.make("Manager"), userInteractionHandler);
         renameWorker.addPropertyChangeListener(this);
         pnlSearchFile.getResultPanel().enableButtons();
         progressDialog = new ProgressDialog(this, renameWorker);

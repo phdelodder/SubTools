@@ -2,14 +2,15 @@ package org.lodder.subtools.multisubdownloader.gui.panels;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.model.VideoType;
 
 public class MovieLibraryPanel extends VideoLibraryPanel {
 
     private static final long serialVersionUID = -9175813173306481849L;
 
-    public MovieLibraryPanel(LibrarySettings libSettings, Manager manager, Boolean renameMode) {
-        super(libSettings, VideoType.MOVIE, manager, renameMode);
+    public MovieLibraryPanel(LibrarySettings libSettings, Manager manager, Boolean renameMode, UserInteractionHandler userInteractionHandler) {
+        super(libSettings, VideoType.MOVIE, manager, renameMode, userInteractionHandler);
         repaint();
     }
 

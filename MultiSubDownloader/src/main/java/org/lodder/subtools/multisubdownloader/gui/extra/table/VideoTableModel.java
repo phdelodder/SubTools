@@ -8,7 +8,7 @@ import java.util.stream.IntStream;
 
 import javax.swing.table.DefaultTableModel;
 
-import org.lodder.subtools.multisubdownloader.lib.SubtitleSelection;
+import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -22,7 +22,7 @@ public class VideoTableModel extends DefaultTableModel {
     final boolean[] columnEditables;
     private boolean showOnlyFound = false;
     private final Map<Release, Integer> rowMap = new HashMap<>();
-    private SubtitleSelection subtitleSelection;
+    private UserInteractionHandler userInteractionHandler;
 
     public VideoTableModel(Object[][] data, Object[] columnNames) {
         super(data, columnNames);
@@ -30,8 +30,8 @@ public class VideoTableModel extends DefaultTableModel {
         this.columnEditables = getColumnEditables(columnNames);
     }
 
-    public void setSubtitleSelection(SubtitleSelection subtitleSeletion) {
-        this.subtitleSelection = subtitleSeletion;
+    public void setUserInteractionHandler(UserInteractionHandler userInteractionHandler) {
+        this.userInteractionHandler = userInteractionHandler;
     }
 
     private Class<?>[] getColumnTypes(Object[] columnNames) {
@@ -145,8 +145,8 @@ public class VideoTableModel extends DefaultTableModel {
                 row[i] = release.getFileName();
             } else if (SearchColumnName.FOUND.getColumnName().equals(columnName)) {
                 int selectionSize = release.getMatchingSubs().size();
-                if (subtitleSelection != null) {
-                    selectionSize = subtitleSelection.getAutomaticSelection(release.getMatchingSubs()).size();
+                if (userInteractionHandler != null) {
+                    selectionSize = userInteractionHandler.getAutomaticSelection(release.getMatchingSubs()).size();
                 }
                 if (selectionSize == release.getMatchingSubs().size()) {
                     row[i] = release.getMatchingSubs().size();

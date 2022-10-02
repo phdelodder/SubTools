@@ -13,29 +13,28 @@ import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * Created by IntelliJ IDEA. User: lodder Date: 4/12/11 Time: 8:52 AM To change this template use
  * File | Settings | File Templates.
  */
+@RequiredArgsConstructor
 public class RenameWorker extends SwingWorker<Void, String> implements Cancelable {
 
     private final CustomTable table;
     private final Settings settings;
-    private RenameAction renameAction;
     private final Manager manager;
+    private final UserInteractionHandler userInteractionHandler;
+    private RenameAction renameAction;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RenameWorker.class);
-
-    public RenameWorker(CustomTable table, Settings settings, Manager manager) {
-        this.table = table;
-        this.settings = settings;
-        this.manager = manager;
-    }
 
     @Override
     protected Void doInBackground() {
@@ -57,10 +56,10 @@ public class RenameWorker extends SwingWorker<Void, String> implements Cancelabl
                         (Release) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.OBJECT));
                 if (release.getVideoType() == VideoType.EPISODE) {
                     LOGGER.debug("Treat as EPISODE");
-                    renameAction = new RenameAction(settings.getEpisodeLibrarySettings(), manager);
+                    renameAction = new RenameAction(settings.getEpisodeLibrarySettings(), manager, userInteractionHandler);
                 } else if (release.getVideoType() == VideoType.MOVIE) {
                     LOGGER.debug("Treat as MOVIE");
-                    renameAction = new RenameAction(settings.getMovieLibrarySettings(), manager);
+                    renameAction = new RenameAction(settings.getMovieLibrarySettings(), manager, userInteractionHandler);
                 }
                 if (renameAction != null) {
                     renameAction.rename(new File(release.getPath(), release.getFileName()), release);

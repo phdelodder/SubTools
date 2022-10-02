@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.lib.control.MovieReleaseControl;
 import org.lodder.subtools.multisubdownloader.lib.control.TvReleaseControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
@@ -50,7 +51,7 @@ public class Local implements SubtitleProvider {
     }
 
     @Override
-    public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
+    public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language, UserInteractionHandler userInteractionHandler) {
         Set<Subtitle> listFoundSubtitles = new HashSet<>();
         ReleaseParser vfp = new ReleaseParser();
 
@@ -68,7 +69,7 @@ public class Local implements SubtitleProvider {
                         && (((TvRelease) release).getSeason() == tvRelease.getSeason() && Utils.containsAll(
                                 ((TvRelease) release).getEpisodeNumbers(), tvRelease.getEpisodeNumbers()))) {
 
-                    TvReleaseControl epCtrl = new TvReleaseControl((TvRelease) release, settings, manager);
+                    TvReleaseControl epCtrl = new TvReleaseControl((TvRelease) release, settings, manager, userInteractionHandler);
                     epCtrl.process();
                     if (((TvRelease) release).getTvdbId().equals(tvRelease.getTvdbId())) {
                         Language detectedLang = DetectLanguage.execute(fileSub);
@@ -100,7 +101,7 @@ public class Local implements SubtitleProvider {
     }
 
     @Override
-    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
+    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language, UserInteractionHandler userInteractionHandler) {
         Set<Subtitle> listFoundSubtitles = new HashSet<>();
         ReleaseParser releaseParser = new ReleaseParser();
 
@@ -110,7 +111,7 @@ public class Local implements SubtitleProvider {
             try {
                 Release release = releaseParser.parse(fileSub);
                 if (release.getVideoType() == VideoType.MOVIE) {
-                    MovieReleaseControl movieCtrl = new MovieReleaseControl((MovieRelease) release, settings, manager);
+                    MovieReleaseControl movieCtrl = new MovieReleaseControl((MovieRelease) release, settings, manager, userInteractionHandler);
                     movieCtrl.process();
                     if (((MovieRelease) release).getImdbId().equals(movieRelease.getImdbId())) {
                         Language detectedLang = DetectLanguage.execute(fileSub);

@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
+import org.lodder.subtools.sublibrary.data.UserInteractionSettingsIntf;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 
 import lombok.Getter;
@@ -15,7 +16,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Settings {
+public class Settings implements UserInteractionSettingsIntf {
 
     private File lastOutputDir;
     private boolean optionsAlwaysConfirm;
@@ -40,6 +41,7 @@ public class Settings {
     private String loginOpenSubtitlesUsername;
     private String loginOpenSubtitlesPassword;
     private boolean serieSourceAddic7ed = true;
+    private boolean serieSourceAddic7edProxy = true;
     private boolean serieSourceTvSubtitles = true;
     private boolean serieSourcePodnapisi = true;
     private boolean serieSourceOpensubtitles = true;
@@ -54,6 +56,7 @@ public class Settings {
     private boolean optionsDefaultSelection;
     private List<String> optionsDefaultSelectionQualityList = new ArrayList<>();
     private int settingsVersion;
+    private boolean optionsConfirmProviderMapping;
 
     public List<File> getDefaultFolders() {
         return getDefaultIncomingFolders();

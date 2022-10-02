@@ -57,11 +57,8 @@ public class XmlRPC {
             return;
         }
 
-        try {
-            Scanner scanner = new Scanner(status);
-            int nextInt = scanner.nextInt();
-            scanner.close();
-            throw new XmlRpcException(nextInt + " : " + status);
+        try (Scanner scanner = new Scanner(status)) {
+            throw new XmlRpcException(scanner.nextInt() + " : " + status);
         } catch (NoSuchElementException e) {
         }
         throw new XmlRpcException("Illegal status code: " + status);

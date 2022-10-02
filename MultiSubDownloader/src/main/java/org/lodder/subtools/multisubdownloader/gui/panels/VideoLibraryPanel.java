@@ -20,6 +20,7 @@ import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,13 +44,16 @@ public abstract class VideoLibraryPanel extends JPanel {
     private SubtitleBackupPanel pnlBackup;
     private final Manager manager;
     private final Boolean renameMode;
+    private final UserInteractionHandler userInteractionHandler;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoLibraryPanel.class);
 
-    public VideoLibraryPanel(LibrarySettings libSettings, VideoType videoType, Manager manager, Boolean renameMode) {
+    public VideoLibraryPanel(LibrarySettings libSettings, VideoType videoType, Manager manager, Boolean renameMode,
+            UserInteractionHandler userInteractionHandler) {
         this.videoType = videoType;
         this.manager = manager;
         this.renameMode = renameMode;
+        this.userInteractionHandler = userInteractionHandler;
         initialize_ui();
         setLibrarySettings(libSettings);
         // repaint();
@@ -271,9 +275,8 @@ public abstract class VideoLibraryPanel extends JPanel {
         });
 
         pnlStructureFolder.setBuildStructureAction(arg0 -> {
-            final StructureBuilderDialog sDialog =
-                    new StructureBuilderDialog(null, "Structure Builder", true, videoType,
-                            StructureBuilderDialog.StrucutureType.FOLDER, getLibrarySettings(), manager);
+            final StructureBuilderDialog sDialog = new StructureBuilderDialog(null, "Structure Builder", true, videoType,
+                    StructureBuilderDialog.StrucutureType.FOLDER, getLibrarySettings(), manager, userInteractionHandler);
             String value = sDialog.showDialog(pnlStructureFolder.getStructure().getText());
             if (!"".equals(value)) {
                 pnlStructureFolder.getStructure().setText(value);
@@ -285,9 +288,8 @@ public abstract class VideoLibraryPanel extends JPanel {
         pnlStructureFile = new StructureFilePanel();
 
         pnlStructureFile.setBuildStructureAction(arg0 -> {
-            final StructureBuilderDialog sDialog =
-                    new StructureBuilderDialog(null, "Structure Builder", true, videoType,
-                            StructureBuilderDialog.StrucutureType.FILE, getLibrarySettings(), manager);
+            final StructureBuilderDialog sDialog = new StructureBuilderDialog(null, "Structure Builder", true, videoType,
+                    StructureBuilderDialog.StrucutureType.FILE, getLibrarySettings(), manager, userInteractionHandler);
             String value = sDialog.showDialog(pnlStructureFile.getFileStructure());
             if (!value.isEmpty()) {
                 pnlStructureFile.setFileStructure(value);

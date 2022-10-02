@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.sublibrary.DetectLanguage;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
 import org.lodder.subtools.sublibrary.cache.InMemoryCache;
 import org.lodder.subtools.sublibrary.cache.SerializableDiskCache;
@@ -50,10 +51,12 @@ public class SortSubtitle {
 
     private static final String BACKING_STORE_AVAIL = "BackingStoreAvail";
     private final Manager manager;
+    private final UserInteractionHandler userInteractionHandler;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSubtitle.class);
 
-    public SortSubtitle() {
+    public SortSubtitle(UserInteractionHandler userInteractionHandler) {
+        this.userInteractionHandler = userInteractionHandler;
         DiskCache<String, String> diskCache =
                 SerializableDiskCache.cacheBuilder().keyType(String.class).valueType(String.class)
                         .timeToLive(TimeUnit.SECONDS.convert(500, TimeUnit.DAYS))
@@ -92,7 +95,7 @@ public class SortSubtitle {
     }
 
     private void setTvdbInfo(TvRelease tvRelease) {
-        TheTvdbAdapter.getInstance(manager).getSerie(tvRelease.getName())
+        TheTvdbAdapter.getInstance(manager, userInteractionHandler).getSerie(tvRelease.getName())
                 .ifPresent(tvdbSerie -> {
                     tvRelease.setTvdbId(Integer.parseInt(tvdbSerie.getId()));
                     tvRelease.setOriginalName(tvdbSerie.getSerieName());
@@ -100,7 +103,7 @@ public class SortSubtitle {
     }
 
     private void setImdbInfo(MovieRelease movieRelease) {
-        ImdbAdapter.getInstance(manager)
+        ImdbAdapter.getInstance(manager, userInteractionHandler)
                 .getImdbId(movieRelease.getName(), movieRelease.getYear())
                 .ifPresent(movieRelease::setImdbId);
     }
@@ -131,7 +134,7 @@ public class SortSubtitle {
                     continue;
                 }
 
-                Release release = VideoFileFactory.get(file, manager);
+                Release release = VideoFileFactory.get(file, manager, userInteractionHandler);
                 if (release.getVideoType() == VideoType.EPISODE) {
                     TvRelease tvRelease = (TvRelease) release;
                     setTvdbInfo(tvRelease);
@@ -241,7 +244,7 @@ public class SortSubtitle {
         for (File file : files) {
             Release release;
             try {
-                release = VideoFileFactory.get(file, manager);
+                release = VideoFileFactory.get(file, manager, userInteractionHandler);
             } catch (ControlFactoryException | ReleaseParseException | ReleaseControlException e1) {
                 LOGGER.error(file.toString(), e1);
                 continue;

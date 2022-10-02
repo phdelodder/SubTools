@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.data.ReleaseDBIntf;
 import org.lodder.subtools.sublibrary.data.imdb.ImdbAdapter;
 import org.lodder.subtools.sublibrary.data.omdb.OmdbAdapter;
@@ -22,10 +23,11 @@ public class MovieFileControl extends VideoFileControl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MovieFileControl.class);
 
-    public MovieFileControl(MovieRelease movieRelease, Manager manager) throws ReleaseControlException {
+    public MovieFileControl(MovieRelease movieRelease, Manager manager, UserInteractionHandler userInteractionHandler)
+            throws ReleaseControlException {
         super(movieRelease);
-        imdbAdapter = ImdbAdapter.getInstance(manager);
-        omdbAdapter = OmdbAdapter.getInstance(manager);
+        imdbAdapter = ImdbAdapter.getInstance(manager, userInteractionHandler);
+        omdbAdapter = OmdbAdapter.getInstance(manager, userInteractionHandler);
         process(movieRelease);
     }
 

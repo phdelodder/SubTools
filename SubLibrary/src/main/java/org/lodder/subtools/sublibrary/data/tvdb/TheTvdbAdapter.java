@@ -6,6 +6,7 @@ import javax.swing.JOptionPane;
 
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.data.tvdb.exception.TheTvdbException;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbEpisode;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbSerie;
@@ -22,12 +23,12 @@ public class TheTvdbAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TheTvdbAdapter.class);
     private static TheTvdbAdapter instance;
-    private LazySupplier<TheTvdbApiV2> jtvapi;
+    private final LazySupplier<TheTvdbApi> jtvapi;
 
-    private TheTvdbAdapter(Manager manager) {
+    private TheTvdbAdapter(Manager manager, UserInteractionHandler userInteractionHandler) {
         jtvapi = new LazySupplier<>(() -> {
             try {
-                return new TheTvdbApiV2(manager, "A1720D2DDFDCE82D");
+                return new TheTvdbApi(manager, userInteractionHandler, "A1720D2DDFDCE82D");
             } catch (Exception e) {
                 LOGGER.error("API TVDB INIT (%s)".formatted(e.getMessage()), e);
             }
@@ -35,7 +36,7 @@ public class TheTvdbAdapter {
         });
     }
 
-    private TheTvdbApiV2 getApi() {
+    private TheTvdbApi getApi() {
         return jtvapi.get();
     }
 
@@ -60,9 +61,9 @@ public class TheTvdbAdapter {
 
     }
 
-    public synchronized static TheTvdbAdapter getInstance(Manager manager) {
+    public synchronized static TheTvdbAdapter getInstance(Manager manager, UserInteractionHandler userInteractionHandler) {
         if (instance == null) {
-            instance = new TheTvdbAdapter(manager);
+            instance = new TheTvdbAdapter(manager, userInteractionHandler);
         }
         return instance;
     }

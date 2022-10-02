@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesHasher;
 import org.lodder.subtools.sublibrary.Language;
@@ -26,7 +27,7 @@ public abstract class AbstractAdapter<S, X extends Exception> implements Subtitl
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAdapter.class);
 
     @Override
-    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
+    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language, UserInteractionHandler userInteraction) {
         Set<S> subtitles = new HashSet<>();
         if (StringUtils.isNotBlank(movieRelease.getFileName())) {
             File file = new File(movieRelease.getPath(), movieRelease.getFileName());
@@ -69,25 +70,26 @@ public abstract class AbstractAdapter<S, X extends Exception> implements Subtitl
     protected abstract Collection<S> searchMovieSubtitlesWithName(String name, int year, Language language) throws X;
 
     @Override
-    public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
+    public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language, UserInteractionHandler userInteractionHandler) {
         Set<S> subtitles = new HashSet<>();
         if (StringUtils.isNotBlank(tvRelease.getOriginalName())) {
             tvRelease.getEpisodeNumbers()
-                    .forEach(episode -> searchSerieSubtitlesForName(tvRelease.getOriginalName(), tvRelease.getSeason(), episode, language)
-                            .forEach(subtitles::add));
+                    .forEach(episode -> searchSerieSubtitlesForName(tvRelease.getOriginalName(), tvRelease.getSeason(), episode, language,
+                            userInteractionHandler).forEach(subtitles::add));
         }
         if (subtitles.isEmpty() && StringUtils.isNotBlank(tvRelease.getName())
                 && !StringUtils.equals(tvRelease.getOriginalName(), tvRelease.getName())) {
             tvRelease.getEpisodeNumbers()
-                    .forEach(episode -> searchSerieSubtitlesForName(tvRelease.getName(), tvRelease.getSeason(), episode, language)
-                            .forEach(subtitles::add));
+                    .forEach(episode -> searchSerieSubtitlesForName(tvRelease.getName(), tvRelease.getSeason(), episode, language,
+                            userInteractionHandler).forEach(subtitles::add));
         }
         return convertToSubtitles(tvRelease, subtitles, language);
     }
 
-    private Collection<S> searchSerieSubtitlesForName(String name, int season, int episode, Language language) {
+    private Collection<S> searchSerieSubtitlesForName(String name, int season, int episode, Language language,
+            UserInteractionHandler userInteractionHandler) {
         try {
-            return searchSerieSubtitles(name, season, episode, language);
+            return searchSerieSubtitles(name, season, episode, language, userInteractionHandler);
         } catch (Exception e) {
             LOGGER.error("API %s searchSubtitles for serie [%s] (%s)".formatted(getSubtitleSource().getName(),
                     TvRelease.formatName(name, season, episode), e.getMessage()), e);
@@ -96,7 +98,8 @@ public abstract class AbstractAdapter<S, X extends Exception> implements Subtitl
         }
     }
 
-    protected abstract Collection<S> searchSerieSubtitles(String name, int season, int episode, Language language) throws X;
+    protected abstract Collection<S> searchSerieSubtitles(String name, int season, int episode, Language language,
+            UserInteractionHandler userInteractionHandler) throws X;
 
     protected abstract Set<Subtitle> convertToSubtitles(TvRelease tvRelease, Set<S> subtitles, Language language);
 }

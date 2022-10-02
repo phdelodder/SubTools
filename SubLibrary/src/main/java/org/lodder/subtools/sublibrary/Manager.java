@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.function.Predicate;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -22,6 +23,7 @@ import org.jsoup.Jsoup;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
 import org.lodder.subtools.sublibrary.cache.InMemoryCache;
+import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
 import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 import org.lodder.subtools.sublibrary.util.http.HttpClientSetupException;
@@ -33,14 +35,18 @@ import com.pivovarit.function.ThrowingSupplier;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import lombok.experimental.ExtensionMethod;
 
 @Setter
 @RequiredArgsConstructor
+@ExtensionMethod({ OptionalExtension.class })
 public class Manager {
 
     private final HttpClient httpClient;
     private final InMemoryCache inMemoryCache;
     private final DiskCache diskCache;
+    // @Getter
+    // private final UserInteractionHandler userInputHandler;
 
     public String downloadText(String urlString) throws ManagerException {
         try {
@@ -199,6 +205,8 @@ public class Manager {
 
         <T extends Serializable, X extends Exception> ValueBuilderGetOptionalIntf<T, X>
                 optionalSupplier(ThrowingSupplier<Optional<T>, X> valueSupplier);
+
+        <X extends Exception> ValueBuilderGetOptionalIntIntf<X> optionalIntSupplier(ThrowingSupplier<OptionalInt, X> optionalIntSupplier);
     }
 
     public interface ValueBuilderGetIntf<T extends Serializable, X extends Exception> {
@@ -213,19 +221,24 @@ public class Manager {
         Optional<T> getOptional() throws X;
     }
 
+    public interface ValueBuilderGetOptionalIntIntf<X extends Exception> {
+        OptionalInt getOptionalInt() throws X;
+    }
+
     @Setter
     @Accessors(chain = true, fluent = true)
     @RequiredArgsConstructor
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static class ValueBuilder<C extends Collection<T>, T extends Serializable, X extends Exception>
             implements ValueBuilderGetOptionalIntf<T, X>, ValueBuilderGetIntf<T, X>, ValueBuilderCacheTypeIntf,
-            ValueBuilderValueSupplierIntf, ValueBuilderKeyIntf, ValueBuilderGetCollectionIntf<C, T, X> {
+            ValueBuilderValueSupplierIntf, ValueBuilderKeyIntf, ValueBuilderGetCollectionIntf<C, T, X>, ValueBuilderGetOptionalIntIntf<X> {
         private final InMemoryCache inMemoryCache;
         private final DiskCache diskCache;
         private String key;
         private ThrowingSupplier<T, X> valueSupplier;
         private ThrowingSupplier<C, X> collectionSupplier;
         private ThrowingSupplier<Optional<T>, X> optionalValueSupplier;
+        private ThrowingSupplier<OptionalInt, X> optionalIntSupplier;
         private CacheType cacheType;
 
         @Override
@@ -239,6 +252,12 @@ public class Manager {
                 optionalSupplier(ThrowingSupplier<Optional<S>, E> valueSupplier) {
             this.optionalValueSupplier = (ThrowingSupplier) valueSupplier;
             return (ValueBuilder<?, S, E>) this;
+        }
+
+        @Override
+        public <E extends Exception> ValueBuilder<?, Integer, E> optionalIntSupplier(ThrowingSupplier<OptionalInt, E> optionalIntSupplier) {
+            this.optionalIntSupplier = (ThrowingSupplier) optionalIntSupplier;
+            return (ValueBuilder<?, Integer, E>) this;
         }
 
         @Override
@@ -286,6 +305,16 @@ public class Manager {
                 case NONE -> optionalValueSupplier.get();
                 case MEMORY -> getOrPutOptional(inMemoryCache);
                 case DISK -> getOrPutOptional(diskCache);
+                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
+            };
+        }
+
+        @Override
+        public OptionalInt getOptionalInt() throws X {
+            return switch (cacheType) {
+                case NONE -> optionalIntSupplier.get();
+                case MEMORY -> getOrPutOptional(inMemoryCache).mapToInt(i -> (Integer) i);
+                case DISK -> getOrPutOptional(diskCache).mapToInt(i -> (Integer) i);
                 default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }

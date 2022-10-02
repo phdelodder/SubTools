@@ -8,7 +8,7 @@ import org.lodder.subtools.sublibrary.model.Release;
 
 import dnl.utils.text.table.TextTable;
 
-public class CLISearchProgress extends CLIProgress implements SearchProgressListener {
+public class CLISearchProgress extends CLIProgress<CLISearchProgress> implements SearchProgressListener {
 
     TextTable table;
     SearchProgressTableModel tableModel;

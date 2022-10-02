@@ -6,39 +6,149 @@ import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.CLI;
 import org.lodder.subtools.multisubdownloader.Messages;
+import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
+import org.lodder.subtools.multisubdownloader.UserInteractionHandlerCLI;
 import org.lodder.subtools.multisubdownloader.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.actions.FileListAction;
 import org.lodder.subtools.multisubdownloader.actions.SearchAction;
 import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
+import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener;
+import org.lodder.subtools.multisubdownloader.listeners.SearchProgressListener;
+import org.lodder.subtools.multisubdownloader.settings.model.Settings;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Setter
 public class CliSearchAction extends SearchAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CliSearchAction.class);
-
-    private CLI cli;
-    private FileListAction fileListAction;
-    private List<File> folders;
-    private boolean recursive;
+    private final @NonNull CLI cli;
+    private final @NonNull FileListAction fileListAction;
     @Getter
-    private Language language;
-    private boolean overwriteSubtitles;
-    private ReleaseFactory releaseFactory;
-    private Filtering filtering;
+    private final @NonNull Language language;
+    private final @NonNull ReleaseFactory releaseFactory;
+    private final @NonNull Filtering filtering;
+
+    private final boolean overwriteSubtitles;
+    private final @NonNull List<File> folders;
+    private final boolean recursive;
+    @Getter(value = AccessLevel.PROTECTED)
+    private final @NonNull IndexingProgressListener indexingProgressListener;
+    @Getter(value = AccessLevel.PROTECTED)
+    private final @NonNull SearchProgressListener searchProgressListener;
+
+    public interface CliSearchActionBuilderSubtitleProviderStore {
+        CliSearchActionBuilderIndexingProgressListener subtitleProviderStore(SubtitleProviderStore subtitleProviderStore);
+    }
+
+    public interface CliSearchActionBuilderIndexingProgressListener {
+        CliSearchActionBuilderSearchProgressListener indexingProgressListener(IndexingProgressListener indexingProgressListener);
+    }
+
+    public interface CliSearchActionBuilderSearchProgressListener {
+        CliSearchActionBuilderCLI searchProgressListener(SearchProgressListener searchProgressListener);
+    }
+
+    public interface CliSearchActionBuilderCLI {
+        CliSearchActionBuilderFileListAction cli(CLI cli);
+    }
+
+    public interface CliSearchActionBuilderFileListAction {
+        CliSearchActionBuilderLanguage fileListAction(FileListAction fileListAction);
+    }
+
+    public interface CliSearchActionBuilderLanguage {
+        CliSearchActionBuilderReleaseFactory language(Language language);
+    }
+
+    public interface CliSearchActionBuilderReleaseFactory {
+        CliSearchActionBuilderFiltering releaseFactory(ReleaseFactory releaseFactory);
+    }
+
+    public interface CliSearchActionBuilderFiltering {
+        CliSearchActionBuilderFolders filtering(Filtering filtering);
+    }
+
+    public interface CliSearchActionBuilderFolders {
+        CliSearchActionBuilderOther folders(List<File> folders);
+    }
+
+    public interface CliSearchActionBuilderOther {
+        CliSearchActionBuilderOther overwriteSubtitles(boolean overwriteSubtitles);
+
+        CliSearchActionBuilderOther recursive(boolean recursive);
+
+        CliSearchAction build() throws SearchSetupException;
+    }
+
+    public static CliSearchActionBuilderSubtitleProviderStore createWithSettings(Settings settings) {
+        return new CliSearchActionBuilder(settings);
+    }
+
+    @RequiredArgsConstructor
+    @Setter
+    @Accessors(fluent = true, chain = true)
+    public static class CliSearchActionBuilder
+            implements CliSearchActionBuilderSearchProgressListener, CliSearchActionBuilderIndexingProgressListener,
+            CliSearchActionBuilderSubtitleProviderStore, CliSearchActionBuilderCLI,
+            CliSearchActionBuilderFileListAction, CliSearchActionBuilderLanguage, CliSearchActionBuilderReleaseFactory,
+            CliSearchActionBuilderFiltering, CliSearchActionBuilderFolders, CliSearchActionBuilderOther {
+        private final Settings settings;
+        private SubtitleProviderStore subtitleProviderStore;
+        private IndexingProgressListener indexingProgressListener;
+        private SearchProgressListener searchProgressListener;
+        private CLI cli;
+        private FileListAction fileListAction;
+        private Language language;
+        private ReleaseFactory releaseFactory;
+        private Filtering filtering;
+        private List<File> folders;
+        private boolean overwriteSubtitles;
+        private boolean recursive;
+
+        @Override
+        public CliSearchAction build() throws SearchSetupException {
+            return new CliSearchAction(settings, subtitleProviderStore, indexingProgressListener, searchProgressListener, cli, fileListAction,
+                    language, releaseFactory, filtering, folders, overwriteSubtitles, recursive);
+        }
+    }
+
+    private CliSearchAction(Settings settings, SubtitleProviderStore subtitleProviderStore,
+            IndexingProgressListener indexingProgressListener, SearchProgressListener searchProgressListener,
+            CLI cli, FileListAction fileListAction, Language language, ReleaseFactory releaseFactory,
+            Filtering filtering, List<File> folders, boolean overwriteSubtitles, boolean recursive) throws SearchSetupException {
+        super(settings, subtitleProviderStore);
+        this.indexingProgressListener = indexingProgressListener;
+        this.searchProgressListener = searchProgressListener;
+        this.cli = cli;
+        this.fileListAction = fileListAction;
+        this.language = language;
+        this.releaseFactory = releaseFactory;
+        this.filtering = filtering;
+        this.folders = folders;
+        this.overwriteSubtitles = overwriteSubtitles;
+        this.recursive = recursive;
+        if (this.folders.size() <= 0) {
+            throw new SearchSetupException("Folders must be set.");
+        }
+    }
 
     @Override
     protected List<Release> createReleases() throws ActionException {
-        fileListAction.setIndexingProgressListener(this.indexingProgressListener);
+        fileListAction.setIndexingProgressListener(this.getIndexingProgressListener());
 
         List<File> files = this.folders.stream()
                 .flatMap(folder -> fileListAction.getFileListing(folder, recursive, language, overwriteSubtitles).stream())
@@ -54,7 +164,7 @@ public class CliSearchAction extends SearchAction {
         LOGGER.debug("# Files found to process [{}] ", total);
 
         System.out.println(Messages.getString("CliSearchAction.ParsingFoundFiles"));
-        this.indexingProgressListener.progress(progress);
+        this.getIndexingProgressListener().progress(progress);
 
         List<Release> releases = new ArrayList<>();
         for (File file : files) {
@@ -62,9 +172,9 @@ public class CliSearchAction extends SearchAction {
             progress = (int) Math.floor((float) index / total * 100);
 
             /* Tell progressListener which file we are processing */
-            this.indexingProgressListener.progress(file.getName());
+            this.getIndexingProgressListener().progress(file.getName());
 
-            Release release = this.releaseFactory.createRelease(file);
+            Release release = this.releaseFactory.createRelease(file, getUserInteractionHandler());
             if (release == null) {
                 continue;
             }
@@ -72,7 +182,7 @@ public class CliSearchAction extends SearchAction {
             releases.add(release);
 
             /* Update progressListener */
-            this.indexingProgressListener.progress(progress);
+            this.getIndexingProgressListener().progress(progress);
         }
 
         return releases;
@@ -85,38 +195,24 @@ public class CliSearchAction extends SearchAction {
             subtitleList = filtering.getFiltered(subtitleList, release);
         }
         subtitleList.forEach(release::addMatchingSub);
-        if (searchManager.getProgress() < 100) {
+        if (getSearchManager().getProgress() < 100) {
             return;
         }
 
-        LOGGER.debug("found files for doDownload [{}]", releases.size());
+        LOGGER.debug("found files for doDownload [{}]", getReleases().size());
 
         /* stop printing progress */
-        this.searchProgressListener.completed();
+        this.getSearchProgressListener().completed();
 
-        this.cli.download(releases);
+        this.cli.download(getReleases());
     }
 
     @Override
-    protected void validate() throws SearchSetupException {
-        if (this.cli == null) {
-            throw new SearchSetupException("Cmd must be set.");
-        }
-        if (this.language == null) {
-            throw new SearchSetupException("Language must be set.");
-        }
-        if (this.fileListAction == null) {
-            throw new SearchSetupException("Actions must be set.");
-        }
-        if (this.folders == null || this.folders.size() <= 0) {
-            throw new SearchSetupException("Folders must be set.");
-        }
-        if (this.releaseFactory == null) {
-            throw new SearchSetupException("releaseFactory must be set.");
-        }
-        if (this.filtering == null) {
-            throw new SearchSetupException("Filtering must be set.");
-        }
-        super.validate();
+    protected UserInteractionHandler getUserInteractionHandler() {
+        return new UserInteractionHandlerCLI(getSettings());
+    }
+
+    @Override
+    protected void validate() {
     }
 }

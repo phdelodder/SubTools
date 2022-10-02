@@ -38,7 +38,7 @@ public class SearchWorker extends Thread {
             this.release = release;
             LOGGER.debug("[Search] {} searching {} ", this.provider.getName(), release.toString());
 
-            Set<Subtitle> subtitles = this.provider.search(release, language);
+            Set<Subtitle> subtitles = this.provider.search(release, language, scheduler.getUserInteractionHandler());
 
             /* clone to prevent other threads from ever messing with it */
             this.subtitles = Set.copyOf(subtitles);

@@ -3,13 +3,16 @@ package org.lodder.subtools.sublibrary.data.tvdb;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
 
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.tvdb.exception.TheTvdbException;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbEpisode;
@@ -30,14 +33,16 @@ import lombok.experimental.ExtensionMethod;
 import retrofit2.Response;
 
 @ExtensionMethod({ OptionalExtension.class })
-class TheTvdbApiV2 {
+class TheTvdbApi {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TheTvdbApiV2.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TheTvdbApi.class);
     private final Manager manager;
+    private final UserInteractionHandler userInteractionHandler;
     private final TheTvdb theTvdb;
 
-    public TheTvdbApiV2(Manager manager, String apikey) {
+    public TheTvdbApi(Manager manager, UserInteractionHandler userInteractionHandler, String apikey) {
         this.manager = manager;
+        this.userInteractionHandler = userInteractionHandler;
         this.theTvdb = new TheTvdb(apikey);
     }
 
@@ -57,7 +62,11 @@ class TheTvdbApiV2 {
                                 theTvdb.search().series(encodedSerieName, null, null, null, language == null ? null : language.getLangCode())
                                         .execute();
                         if (response.isSuccessful()) {
-                            return response.body().data.stream().map(serie -> serie.id).findFirst();
+                            List<Series> results = response.body().data.stream().toList();
+                            Optional<Integer> selectedTvdbId = selectTvdbIdForSerieName(results, encodedSerieName);
+                            if (selectedTvdbId.isPresent()) {
+                                return selectedTvdbId;
+                            }
                         }
                         if (noResultCallback != null) {
                             return noResultCallback.get();
@@ -70,6 +79,20 @@ class TheTvdbApiV2 {
                         throw new TheTvdbException(e);
                     }
                 }).getOptional().mapToInt(i -> i);
+    }
+
+    private Optional<Integer> selectTvdbIdForSerieName(List<Series> options, String serieName) {
+        if (options.isEmpty()) {
+            return Optional.empty();
+        } else if (!userInteractionHandler.getSettings().isOptionsConfirmProviderMapping() && options.size() == 1) {
+            return Optional.of(options.get(0).id);
+        } else {
+            return userInteractionHandler
+                    .selectFromList(options.stream().sorted(Comparator.comparing(s -> s.firstAired, Comparator.reverseOrder())).toList(),
+                            Messages.getString("Prompter.SelectTvdbMatchForSerie").formatted(serieName),
+                            "tvdb", s -> "%s (%s)".formatted(s.seriesName, s.firstAired))
+                    .map(s -> s.id);
+        }
     }
 
     public Optional<TheTvdbSerie> getSerie(int tvdbId, Language language) throws TheTvdbException {
@@ -181,10 +204,7 @@ class TheTvdbApiV2 {
     }
 
     private String toString(Object value) {
-        if (value != null) {
-            return value.toString();
-        }
-        return null;
+        return value != null ? value.toString() : null;
     }
 
 }

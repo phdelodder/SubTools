@@ -5,30 +5,37 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.apache.commons.cli.CommandLine;
 import org.lodder.subtools.multisubdownloader.actions.DownloadAction;
 import org.lodder.subtools.multisubdownloader.actions.FileListAction;
-import org.lodder.subtools.multisubdownloader.actions.SubtitleSelectionAction;
+import org.lodder.subtools.multisubdownloader.actions.UserInteractionHandlerAction;
+import org.lodder.subtools.multisubdownloader.cli.CliOption;
 import org.lodder.subtools.multisubdownloader.cli.actions.CliSearchAction;
 import org.lodder.subtools.multisubdownloader.cli.progress.CLIFileindexerProgress;
 import org.lodder.subtools.multisubdownloader.cli.progress.CLISearchProgress;
 import org.lodder.subtools.multisubdownloader.exceptions.CliException;
+import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
-import org.lodder.subtools.multisubdownloader.lib.SubtitleSelectionCLI;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
+import org.lodder.subtools.multisubdownloader.util.CLIExtension;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.model.Release;
+import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.experimental.ExtensionMethod;
+
+@ExtensionMethod({ CLIExtension.class })
 public class CLI {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CLI.class);
@@ -44,18 +51,18 @@ public class CLI {
     private boolean subtitleSelection = false;
     private boolean verboseProgress = false;
     private final DownloadAction downloadAction;
-    private final SubtitleSelectionAction subtitleSelectionAction;
+    private final UserInteractionHandlerCLI userInteractionHandler;
+    private final UserInteractionHandlerAction userInteractionHandlerAction;
     private boolean dryRun = false;
-
 
     public CLI(SettingsControl settingControl, Container app) {
         this.app = app;
         this.settingControl = settingControl;
         this.settings = settingControl.getSettings();
         checkUpdate((Manager) this.app.make("Manager"));
-        downloadAction = new DownloadAction(settings, (Manager) this.app.make("Manager"));
-        subtitleSelectionAction = new SubtitleSelectionAction(settings);
-        subtitleSelectionAction.setSubtitleSelection(new SubtitleSelectionCLI(settings));
+        userInteractionHandler = new UserInteractionHandlerCLI(settings);
+        userInteractionHandlerAction = new UserInteractionHandlerAction(settings, userInteractionHandler);
+        downloadAction = new DownloadAction(settings, (Manager) this.app.make("Manager"), userInteractionHandler);
     }
 
     private void checkUpdate(Manager manager) {
@@ -68,12 +75,12 @@ public class CLI {
     public void setUp(CommandLine line) throws CliException {
         this.folders = getFolders(line);
         this.language = getLanguage(line);
-        this.force = line.hasOption("force");
-        this.downloadall = line.hasOption("downloadall");
-        this.recursive = line.hasOption("recursive");
-        this.subtitleSelection = line.hasOption("selection");
-        this.verboseProgress = line.hasOption("verboseprogress");
-        this.dryRun = line.hasOption("dryrun");
+        this.force = line.hasCliOption(CliOption.FORCE);
+        this.downloadall = line.hasCliOption(CliOption.DOWNLOAD_ALL);
+        this.recursive = line.hasCliOption(CliOption.RECURSIVE);
+        this.subtitleSelection = line.hasCliOption(CliOption.SELECTION);
+        this.verboseProgress = line.hasCliOption(CliOption.VERBOSE_PROGRESS);
+        this.dryRun = line.hasCliOption(CliOption.DRY_RUN);
     }
 
     public void run() {
@@ -87,70 +94,70 @@ public class CLI {
         for (Release release : releases) {
             try {
                 this.download(release);
-            } catch (IOException | ManagerException e) {
-                LOGGER.error("executeArgs: search", e);
+            } catch (Exception e) {
+                LOGGER.error("Errow while downloading subtitle for %s (%s)".formatted(release.getReleaseDescription(), e.getMessage()), e);
             }
         }
     }
 
     public void search() {
-        CliSearchAction searchAction = new CliSearchAction();
-
-        searchAction.setCli(this);
-        searchAction.setSettings(this.settings);
-        searchAction.setProviderStore((SubtitleProviderStore) app.make("SubtitleProviderStore"));
-
-        searchAction.setFolders(this.folders);
-        searchAction.setRecursive(this.recursive);
-        searchAction.setOverwriteSubtitles(this.force);
-        searchAction.setLanguage(this.language);
-
-        searchAction.setFileListAction(new FileListAction(this.settings));
-        searchAction.setFiltering(new Filtering(this.settings));
-        searchAction.setReleaseFactory(new ReleaseFactory(this.settings, (Manager) app.make("Manager")));
-
-        CLIFileindexerProgress progressDialog = new CLIFileindexerProgress();
-        CLISearchProgress searchProgress = new CLISearchProgress();
-        progressDialog.setVerbose(this.verboseProgress);
-        searchProgress.setVerbose(this.verboseProgress);
-
-        searchAction.setIndexingProgressListener(progressDialog);
-        searchAction.setSearchProgressListener(searchProgress);
-
-        /* CLI has no benefit of running this in a separate Thread */
-        searchAction.run();
+        try {
+            CliSearchAction
+                    .createWithSettings(settings)
+                    .subtitleProviderStore((SubtitleProviderStore) app.make("SubtitleProviderStore"))
+                    .indexingProgressListener(new CLIFileindexerProgress().verbose(verboseProgress))
+                    .searchProgressListener(new CLISearchProgress().verbose(verboseProgress))
+                    .cli(this)
+                    .fileListAction(new FileListAction(this.settings))
+                    .language(language)
+                    .releaseFactory(new ReleaseFactory(this.settings, (Manager) app.make("Manager")))
+                    .filtering(new Filtering(this.settings))
+                    .folders(folders)
+                    .recursive(recursive)
+                    .overwriteSubtitles(force)
+                    .build()
+                    /* CLI has no benefit of running this in a separate Thread */
+                    .run();
+        } catch (SearchSetupException e) {
+            LOGGER.error("executeArgs: search (%s)".formatted(e.getMessage()), e);
+        }
     }
 
-    private void download(Release release) throws IOException, ManagerException {
-        int selection = subtitleSelectionAction.subtitleSelection(release, subtitleSelection, dryRun);
-        if (selection >= 0) {
-            if (downloadall) {
+    private void download(Release release) {
+        List<Subtitle> selection;
+        if (downloadall) {
+            selection = release.getMatchingSubs();
+            if (!selection.isEmpty()) {
                 System.out.println("Downloading ALL found subtitles for release: " + release.getFileName());
-                for (int j = 0; j < release.getMatchingSubs().size(); j++) {
-                    System.out.println("Downloading subtitle: " + release.getMatchingSubs().get(0).getFileName());
-                    downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
-                }
-            } else {
-                downloadAction.download(release, release.getMatchingSubs().get(selection));
             }
-        } else if (dryRun && release.getMatchingSubs().size() == 0) {
+        } else {
+            selection = userInteractionHandlerAction.subtitleSelection(release, subtitleSelection, dryRun);
+        }
+        if (selection.isEmpty()) {
             System.out.println("No substitles found for: " + release.getFileName());
-        } else if (selection == -1 && !dryRun) {
-            System.out.println("No substitles found for: " + release.getFileName());
+        } else {
+            IntStream.range(0, selection.size()).forEach(j -> {
+                System.out.println("Downloading subtitle: " + release.getMatchingSubs().get(0).getFileName());
+                try {
+                    downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
+                } catch (IOException | ManagerException e) {
+                    LOGGER.error("Errow while downloading subtitle for %s (%s)".formatted(release.getReleaseDescription(), e.getMessage()), e);
+                }
+            });
         }
     }
 
     private List<File> getFolders(CommandLine line) {
-        if (line.hasOption("folder")) {
-            return List.of(new File(line.getOptionValue("folder")));
+        if (line.hasCliOption(CliOption.FOLDER)) {
+            return List.of(new File(line.getCliOptionValue(CliOption.FOLDER)));
         } else {
             return new ArrayList<>(this.settings.getDefaultFolders());
         }
     }
 
     private Language getLanguage(CommandLine line) throws CliException {
-        if (line.hasOption("language")) {
-            String languageString = line.getOptionValue("language");
+        if (line.hasCliOption(CliOption.LANGUAGE)) {
+            String languageString = line.getCliOptionValue(CliOption.LANGUAGE);
             return Arrays.stream(Language.values()).filter(lang -> lang.name().equalsIgnoreCase(languageString)).findAny()
                     .orElseThrow(() -> new CliException(Messages.getString("App.NoValidLanguage")));
         } else {

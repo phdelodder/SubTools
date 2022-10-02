@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.SubsceneApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.exception.SubsceneException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.model.SubsceneSubtitleDescriptor;
@@ -72,8 +73,8 @@ public class JSubsceneAdapter extends AbstractAdapter<SubsceneSubtitleDescriptor
     }
 
     @Override
-    protected List<SubsceneSubtitleDescriptor> searchSerieSubtitles(String name, int season, int episode, Language language)
-            throws SubsceneException {
+    protected List<SubsceneSubtitleDescriptor> searchSerieSubtitles(String name, int season, int episode, Language language,
+            UserInteractionHandler userInteractionHandler) throws SubsceneException {
         return getApi().getSubtilteDescriptors(name, season, language);
     }
 

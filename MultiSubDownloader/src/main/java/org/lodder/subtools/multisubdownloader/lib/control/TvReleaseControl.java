@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.data.tvdb.TheTvdbAdapter;
 import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -22,10 +23,10 @@ public class TvReleaseControl extends ReleaseControl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TvReleaseControl.class);
 
-    public TvReleaseControl(TvRelease tvRelease, Settings settings, Manager manager) {
+    public TvReleaseControl(TvRelease tvRelease, Settings settings, Manager manager, UserInteractionHandler userInteractionHandler) {
         super(settings, manager);
         this.tvRelease = tvRelease;
-        this.jtvdba = TheTvdbAdapter.getInstance(manager);
+        this.jtvdba = TheTvdbAdapter.getInstance(manager, userInteractionHandler);
     }
 
     @Override

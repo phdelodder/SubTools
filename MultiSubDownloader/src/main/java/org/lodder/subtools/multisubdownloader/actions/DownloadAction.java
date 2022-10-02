@@ -12,6 +12,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
+import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -23,17 +24,16 @@ import org.lodder.subtools.sublibrary.util.http.DropBoxClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class DownloadAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DownloadAction.class);
 
     private final Settings settings;
     private final Manager manager;
-
-    public DownloadAction(Settings settings, Manager manager) {
-        this.settings = settings;
-        this.manager = manager;
-    }
+    private final UserInteractionHandler userInteractionHandler;
 
     public void download(Release release, Subtitle subtitle, int version) throws IOException, ManagerException {
         switch (release.getVideoType()) {
@@ -50,7 +50,7 @@ public class DownloadAction {
 
     private void download(Release release, Subtitle subtitle, LibrarySettings librarySettings, int version) throws IOException, ManagerException {
         LOGGER.trace("cleanUpFiles: LibraryAction", librarySettings.getLibraryAction());
-        PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager);
+        PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager, userInteractionHandler);
         final File path = new File(pathLibraryBuilder.build(release));
         if (!path.exists()) {
             LOGGER.debug("Download creating folder [{}] ", path.getAbsolutePath());
@@ -59,7 +59,7 @@ public class DownloadAction {
             }
         }
 
-        FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager);
+        FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager, userInteractionHandler);
         final String videoFileName = filenameLibraryBuilder.build(release);
         final String subFileName = filenameLibraryBuilder.buildSubtitle(release, subtitle, videoFileName, version);
         final File subFile = new File(path, subFileName);

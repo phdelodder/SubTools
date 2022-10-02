@@ -2,6 +2,11 @@ package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
 import org.lodder.subtools.multisubdownloader.Messages;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum SubtitleTableColumnName implements CustomColumnName {
     SELECT(Messages.getString("SubtitleTableColumnName.Select"), Boolean.class, true),
     SCORE(Messages.getString("SubtitleTableColumnName.Score"), Integer.class, false),
@@ -16,24 +21,4 @@ public enum SubtitleTableColumnName implements CustomColumnName {
     private final Class<?> c;
     private final boolean editable;
 
-    SubtitleTableColumnName(String columnName, Class<?> c, boolean editable) {
-        this.columnName = columnName;
-        this.c = c;
-        this.editable = editable;
-    }
-
-    @Override
-    public String getColumnName() {
-        return columnName;
-    }
-
-    @Override
-    public boolean isEditable() {
-        return editable;
-    }
-
-    @Override
-    public Class<?> getC() {
-        return c;
-    }
 }
