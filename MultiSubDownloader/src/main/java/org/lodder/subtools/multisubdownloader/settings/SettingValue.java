@@ -143,8 +143,12 @@ public enum SettingValue {
     <T> SettingValue(boolean defaultValue, Function<SettingsControl, T> rootElementFuntion, Function<T, Boolean> valueGetter,
             BiConsumer<T, Boolean> valueSetter) {
         String key = getKey();
-        this.storeValueFunction =
-                (settingsControl, preferences) -> preferences.putBoolean(key, valueGetter.apply(rootElementFuntion.apply(settingsControl)));
+        this.storeValueFunction = (settingsControl, preferences) -> {
+            Boolean value = valueGetter.apply(rootElementFuntion.apply(settingsControl));
+            if (value != defaultValue) {
+                preferences.putBoolean(key, value);
+            }
+        };
         this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFuntion.apply(settingsControl),
                 preferences.getBoolean(key, defaultValue));
     }
@@ -156,8 +160,12 @@ public enum SettingValue {
     <T> SettingValue(int defaultValue, Function<SettingsControl, T> rootElementFuntion, Function<T, Integer> valueGetter,
             BiConsumer<T, Integer> valueSetter) {
         String key = getKey();
-        this.storeValueFunction =
-                (settingsControl, preferences) -> preferences.putInt(key, valueGetter.apply(rootElementFuntion.apply(settingsControl)));
+        this.storeValueFunction = (settingsControl, preferences) -> {
+            Integer value = valueGetter.apply(rootElementFuntion.apply(settingsControl));
+            if (value != defaultValue) {
+                preferences.putInt(key, value);
+            }
+        };
         this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFuntion.apply(settingsControl),
                 preferences.getInt(key, defaultValue));
     }
@@ -175,8 +183,12 @@ public enum SettingValue {
             Function<SettingsControl, T> rootElementFuntion, Function<T, V> valueGetter,
             BiConsumer<T, V> valueSetter) {
         String key = getKey();
-        this.storeValueFunction = (settingsControl, preferences) -> preferences.put(key,
-                toStringMapper.apply(valueGetter.apply(rootElementFuntion.apply(settingsControl))));
+        this.storeValueFunction = (settingsControl, preferences) -> {
+            V value = valueGetter.apply(rootElementFuntion.apply(settingsControl));
+            if (value != defaultValue) {
+                preferences.put(key, toStringMapper.apply(value));
+            }
+        };
         this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFuntion.apply(settingsControl),
                 toObjectMapper.apply(preferences.get(key, toStringMapper.apply(defaultValue))));
     }
@@ -198,7 +210,9 @@ public enum SettingValue {
             T object = rootElementFuntion.apply(settingsControl);
             IntWrapper i = IntWrapper.of(-1);
             valueConsumer.accept(object, value -> preferences.put(key + i.increment(), toStringMapper.apply(value)));
-            preferences.putInt(key + "Size", i.getValue() + 1);
+            if (i.getValue() > -1) {
+                preferences.putInt(key + "Size", i.getValue() + 1);
+            }
         };
         this.loadValueFunction = (settingsControl, preferences) -> {
             int numberOfItems = preferences.getInt(key + "Size", 0);
