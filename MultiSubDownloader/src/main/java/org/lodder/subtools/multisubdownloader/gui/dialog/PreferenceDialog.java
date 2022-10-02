@@ -64,7 +64,7 @@ public class PreferenceDialog extends MultiSubDialog {
     private JCheckBox chkProxyserverGebruiken, chkUserAddic7edLogin, chkUserOpenSubtitlesLogin, chkExcludeHearingImpaired;
     private JListWithImages defaultIncomingFoldersList, localSourcesFoldersList;
     private JCheckBox chkSerieSourceAddic7ed, chkSerieSourceTvSubtitles, chkSerieSourcePodnapisi,
-            chkSerieSourceOpensubtitles, chkSerieSourceLocal, chkSerieSourceSubscene;
+            chkSerieSourceOpensubtitles, chkSerieSourceLocal, chkSerieSourceSubscene, chkSerieSourceAddic7edProxy;
     private JComboBox<SettingsProcessEpisodeSource> cbxEpisodeProcessSource;
     private JCheckBox chkMinScoreSelection;
     private JCheckBox chkConfirmProviderMapping;
@@ -316,6 +316,10 @@ public class PreferenceDialog extends MultiSubDialog {
 
                 chkSerieSourceAddic7ed = new JCheckBox("Addic7ed");
                 pnlSerieSourcesSelectionSettings.add(chkSerieSourceAddic7ed, "cell 0 1 2 1");
+                chkSerieSourceAddic7edProxy = new JCheckBox(Messages.getString("PreferenceDialog.Proxy"));
+                pnlSerieSourcesSelectionSettings.add(chkSerieSourceAddic7edProxy, "cell 0 1 3 1");
+                chkSerieSourceAddic7ed.addActionListener(e -> chkSerieSourceAddic7edProxy.setEnabled(((JCheckBox) e.getSource()).isSelected()));
+
                 chkSerieSourceTvSubtitles = new JCheckBox("Tv Subtitles");
                 pnlSerieSourcesSelectionSettings.add(chkSerieSourceTvSubtitles, "cell 0 2 2 1");
                 chkSerieSourcePodnapisi = new JCheckBox("Podnapisi");
@@ -487,6 +491,8 @@ public class PreferenceDialog extends MultiSubDialog {
         txtOpenSubtitlesUsername.setText(settingsCtrl.getSettings().getLoginOpenSubtitlesUsername());
         txtOpenSubtitlesPassword.setText(settingsCtrl.getSettings().getLoginOpenSubtitlesPassword());
         chkSerieSourceAddic7ed.setSelected(settingsCtrl.getSettings().isSerieSourceAddic7ed());
+        chkSerieSourceAddic7edProxy.setSelected(settingsCtrl.getSettings().isSerieSourceAddic7edProxy());
+        chkSerieSourceAddic7edProxy.setEnabled(settingsCtrl.getSettings().isSerieSourceAddic7ed());
         chkSerieSourceTvSubtitles.setSelected(settingsCtrl.getSettings().isSerieSourceTvSubtitles());
         chkSerieSourcePodnapisi.setSelected(settingsCtrl.getSettings().isSerieSourcePodnapisi());
         chkSerieSourceOpensubtitles.setSelected(settingsCtrl.getSettings().isSerieSourceOpensubtitles());
@@ -621,6 +627,7 @@ public class PreferenceDialog extends MultiSubDialog {
             }
             settingsCtrl.getSettings().setLocalSourcesFolders(folList);
             settingsCtrl.getSettings().setSerieSourceAddic7ed(chkSerieSourceAddic7ed.isSelected());
+            settingsCtrl.getSettings().setSerieSourceAddic7edProxy(chkSerieSourceAddic7edProxy.isSelected());
             settingsCtrl.getSettings().setSerieSourceTvSubtitles(chkSerieSourceTvSubtitles.isSelected());
             settingsCtrl.getSettings().setSerieSourcePodnapisi(chkSerieSourcePodnapisi.isSelected());
             settingsCtrl.getSettings().setSerieSourceOpensubtitles(chkSerieSourceOpensubtitles.isSelected());

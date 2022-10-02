@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.OpenSubtitlesApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.exception.OpenSubtitlesException;
 import org.lodder.subtools.sublibrary.Language;
@@ -90,8 +91,8 @@ public class JOpenSubAdapter extends AbstractAdapter<org.opensubtitles.model.Sub
     }
 
     @Override
-    protected List<org.opensubtitles.model.Subtitle> searchSerieSubtitles(String name, int season, int episode, Language language)
-            throws OpenSubtitlesException {
+    protected List<org.opensubtitles.model.Subtitle> searchSerieSubtitles(String name, int season, int episode, Language language,
+            UserInteractionHandler userInteractionHandler) throws OpenSubtitlesException {
         return getApi().searchSubtitles()
                 .query(name)
                 .season(season)

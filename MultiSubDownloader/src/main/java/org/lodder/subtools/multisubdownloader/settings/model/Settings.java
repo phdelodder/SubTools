@@ -41,6 +41,7 @@ public class Settings implements UserInteractionSettingsIntf {
     private String loginOpenSubtitlesUsername;
     private String loginOpenSubtitlesPassword;
     private boolean serieSourceAddic7ed = true;
+    private boolean serieSourceAddic7edProxy = true;
     private boolean serieSourceTvSubtitles = true;
     private boolean serieSourcePodnapisi = true;
     private boolean serieSourceOpensubtitles = true;

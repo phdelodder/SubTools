@@ -8,6 +8,7 @@ import org.lodder.subtools.multisubdownloader.framework.service.providers.Servic
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.adapters.JAddic7edAdapter;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.adapters.JAddic7edAdapterViaProxy;
 import org.lodder.subtools.sublibrary.Manager;
 
@@ -63,8 +64,11 @@ public class Addic7edServiceProvider implements ServiceProvider {
         }
 
         boolean confirmProviderMapping = settings.isOptionsConfirmProviderMapping();
-        // return new JAddic7edAdapter(loginEnabled, username, password, preferences.getBoolean("speedy", false), manager);
-        return new JAddic7edAdapterViaProxy(manager, confirmProviderMapping);
+        if (settings.isSerieSourceAddic7edProxy()) {
+            return new JAddic7edAdapterViaProxy(manager, confirmProviderMapping);
+        } else {
+            return new JAddic7edAdapter(loginEnabled, username, password, preferences.getBoolean("speedy", false), manager, confirmProviderMapping);
+        }
     }
 
     private void registerListener(final SubtitleProviderStore subtitleProviderStore) {

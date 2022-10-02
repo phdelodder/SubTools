@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
+import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.JTVSubtitlesApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.exception.TvSubtiltesException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.model.TVsubtitlesSubtitleDescriptor;
@@ -73,8 +74,8 @@ public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDesc
     }
 
     @Override
-    protected Set<TVsubtitlesSubtitleDescriptor> searchSerieSubtitles(String name, int season, int episode, Language language)
-            throws TvSubtiltesException {
+    protected Set<TVsubtitlesSubtitleDescriptor> searchSerieSubtitles(String name, int season, int episode, Language language,
+            UserInteractionHandler userInteractionHandler) throws TvSubtiltesException {
         return getApi().searchSubtitles(name, season, episode, language);
     }
 

@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
+import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.JPodnapisiApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.exception.PodnapisiException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.model.PodnapisiSubtitleDescriptor;
@@ -70,8 +71,8 @@ public class JPodnapisiAdapter extends AbstractAdapter<PodnapisiSubtitleDescript
 
 
     @Override
-    protected List<PodnapisiSubtitleDescriptor> searchSerieSubtitles(String name, int season, int episode, Language language)
-            throws PodnapisiException {
+    protected List<PodnapisiSubtitleDescriptor> searchSerieSubtitles(String name, int season, int episode, Language language,
+            UserInteractionHandler userInteractionHandler) throws PodnapisiException {
         return getApi().searchSubtitles(name, 0, season, episode, language);
     }
 
