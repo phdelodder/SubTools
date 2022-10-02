@@ -219,7 +219,6 @@ public class SettingsControl {
             String[] items = v.split("\\\\\\\\");
             int tvdbId = Integer.parseInt(items[1]);
             TvdbMapping tvdbMapping = new TvdbMapping(tvdbId, items[0]);
-            Arrays.stream(items).skip(2).forEach(tvdbMapping::addAlternativename);
             TvdbMappings.persistTvdbMapping(manager, tvdbMapping);
             preferences.remove("Dictionary" + i);
         });

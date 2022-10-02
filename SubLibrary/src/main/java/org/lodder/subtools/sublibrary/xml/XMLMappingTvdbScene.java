@@ -25,8 +25,6 @@ public class XMLMappingTvdbScene {
     public final static String MAPPING_NAME = "mapping";
     public final static String TVDBID_NAME = "tvdbid";
     public final static String SCENE_NAME = "scene";
-    public final static String ALTNAMES_NAME = "altNames";
-    public final static String ALTNAME_NAME = "altName";
 
     public static void write(Manager manager, File f) throws Throwable {
         Document newDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
@@ -42,14 +40,6 @@ public class XMLMappingTvdbScene {
             Element sceneElem = newDoc.createElement(SCENE_NAME);
             sceneElem.appendChild(newDoc.createTextNode(tvdbMapping.getName()));
             mappingElem.appendChild(sceneElem);
-
-            Element altNamesElem = newDoc.createElement(ALTNAMES_NAME);
-            tvdbMapping.getAlternativeNames().forEach(altName -> {
-                Element altNameElem = newDoc.createElement(ALTNAME_NAME);
-                altNamesElem.appendChild(altNameElem);
-                altNameElem.appendChild(newDoc.createTextNode(altName));
-            });
-            mappingElem.appendChild(altNamesElem);
 
             rootElement.appendChild(mappingElem);
         });
@@ -67,12 +57,7 @@ public class XMLMappingTvdbScene {
                 .map(eList -> {
                     int tvdbId = XMLHelper.getIntTagValue(TVDBID_NAME, eList);
                     String scene = XMLHelper.getStringTagValue(SCENE_NAME, eList);
-                    Element altNamesElem = (Element) eList.getElementsByTagName(ALTNAMES_NAME).item(0);
-                    TvdbMapping tvdbMapping = new TvdbMapping(tvdbId, scene);
-                    altNamesElem.getElementsByTagName(ALTNAME_NAME).stream()
-                            .map(altNameNode -> XMLHelper.getStringTagValue(ALTNAME_NAME, (Element) altNameNode))
-                            .forEach(tvdbMapping::addAlternativename);
-                    return tvdbMapping;
+                    return new TvdbMapping(tvdbId, scene);
                 }).toList();
     }
 

@@ -17,6 +17,7 @@ import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.tvdb.exception.TheTvdbException;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbEpisode;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbSerie;
+import org.lodder.subtools.sublibrary.settings.model.TvdbMapping;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +57,7 @@ class TheTvdbApi {
         return manager.getValueBuilder()
                 .key("TVDB-SerieId-%s-%s".formatted(encodedSerieName, language))
                 .cacheType(CacheType.DISK)
-                .optionalIntSupplier(() -> {
+                .optionalSupplier(() -> {
                     try {
                         Response<SeriesResultsResponse> response =
                                 theTvdb.search().series(encodedSerieName, null, null, null, language == null ? null : language.getLangCode())
@@ -65,20 +66,22 @@ class TheTvdbApi {
                             List<Series> results = response.body().data.stream().toList();
                             OptionalInt selectedTvdbId = selectTvdbIdForSerieName(results, seriename);
                             if (selectedTvdbId.isPresent()) {
-                                return selectedTvdbId;
+                                return selectedTvdbId.mapToObj(id -> new TvdbMapping(id, seriename));
                             }
                         }
                         if (noResultCallback != null) {
-                            return noResultCallback.get();
+                            OptionalInt tvdbId = noResultCallback.get();
+                            return tvdbId.isPresent() ? Optional.of(new TvdbMapping(tvdbId.getAsInt(), seriename)) :Optional.empty();
                         }
-                        return OptionalInt.empty();
+                        return Optional.empty();
                     } catch (IOException e) {
                         if (noResultCallback != null) {
-                            return noResultCallback.get();
+                            OptionalInt tvdbId = noResultCallback.get();
+                            return tvdbId.isPresent() ? Optional.of(new TvdbMapping(tvdbId.getAsInt(), seriename)) :Optional.empty();
                         }
                         throw new TheTvdbException(e);
                     }
-                }).getOptionalInt();
+                }).getOptional().mapToInt(TvdbMapping::getId);
     }
 
     private OptionalInt selectTvdbIdForSerieName(List<Series> options, String serieName) {
