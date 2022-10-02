@@ -50,20 +50,20 @@ class TheTvdbApi {
         return getSerieId(seriename, language, null);
     }
 
-    public OptionalInt getSerieId(String seriename, Language language, ThrowingSupplier<Optional<Integer>, TheTvdbException> noResultCallback)
+    public OptionalInt getSerieId(String seriename, Language language, ThrowingSupplier<OptionalInt, TheTvdbException> noResultCallback)
             throws TheTvdbException {
         String encodedSerieName = URLEncoder.encode(seriename.toLowerCase().replace(" ", "-"), StandardCharsets.UTF_8);
         return manager.getValueBuilder()
                 .key("TVDB-SerieId-%s-%s".formatted(encodedSerieName, language))
                 .cacheType(CacheType.DISK)
-                .optionalSupplier(() -> {
+                .optionalIntSupplier(() -> {
                     try {
                         Response<SeriesResultsResponse> response =
                                 theTvdb.search().series(encodedSerieName, null, null, null, language == null ? null : language.getLangCode())
                                         .execute();
                         if (response.isSuccessful()) {
                             List<Series> results = response.body().data.stream().toList();
-                            Optional<Integer> selectedTvdbId = selectTvdbIdForSerieName(results, encodedSerieName);
+                            OptionalInt selectedTvdbId = selectTvdbIdForSerieName(results, encodedSerieName);
                             if (selectedTvdbId.isPresent()) {
                                 return selectedTvdbId;
                             }
@@ -71,27 +71,27 @@ class TheTvdbApi {
                         if (noResultCallback != null) {
                             return noResultCallback.get();
                         }
-                        return Optional.empty();
+                        return OptionalInt.empty();
                     } catch (IOException e) {
                         if (noResultCallback != null) {
                             return noResultCallback.get();
                         }
                         throw new TheTvdbException(e);
                     }
-                }).getOptional().mapToInt(i -> i);
+                }).getOptionalInt();
     }
 
-    private Optional<Integer> selectTvdbIdForSerieName(List<Series> options, String serieName) {
+    private OptionalInt selectTvdbIdForSerieName(List<Series> options, String serieName) {
         if (options.isEmpty()) {
-            return Optional.empty();
+            return OptionalInt.empty();
         } else if (!userInteractionHandler.getSettings().isOptionsConfirmProviderMapping() && options.size() == 1) {
-            return Optional.of(options.get(0).id);
+            return OptionalInt.of(options.get(0).id);
         } else {
             return userInteractionHandler
                     .selectFromList(options.stream().sorted(Comparator.comparing(s -> s.firstAired, Comparator.reverseOrder())).toList(),
                             Messages.getString("Prompter.SelectTvdbMatchForSerie").formatted(serieName),
                             "tvdb", s -> "%s (%s)".formatted(s.seriesName, s.firstAired))
-                    .map(s -> s.id);
+                    .mapToInt(s -> s.id);
         }
     }
 
