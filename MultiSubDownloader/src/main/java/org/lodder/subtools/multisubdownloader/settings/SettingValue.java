@@ -58,8 +58,8 @@ public enum SettingValue {
     OPTIONS_MIN_AUTOMATIC_SELECTION_VALUE(0, SettingsControl::getSettings, Settings::getOptionsMinAutomaticSelectionValue, Settings::setOptionsMinAutomaticSelectionValue),
     OPTION_SUBTITLE_EXACT_MATCH(true, SettingsControl::getSettings, Settings::isOptionSubtitleExactMatch, Settings::setOptionSubtitleExactMatch),
     OPTION_SUBTITLE_KEYWORD_MATCH(true, SettingsControl::getSettings, Settings::isOptionSubtitleKeywordMatch, Settings::setOptionSubtitleKeywordMatch),
-    OPTION_SUBTITLE_EXCLUDE_HEARING_IMPAIRED(false, SettingsControl::getSettings, Settings::isOptionSubtitleExcludeHearingImpaired, Settings::setOptionSubtitleExcludeHearingImpaired),
-    OPTIONS_SHOW_ONLY_FOUND(false, SettingsControl::getSettings, Settings::isOptionsShowOnlyFound, Settings::setOptionsShowOnlyFound),
+    OPTION_SUBTITLE_EXCLUDE_HEARING_IMPAIRED(true, SettingsControl::getSettings, Settings::isOptionSubtitleExcludeHearingImpaired, Settings::setOptionSubtitleExcludeHearingImpaired),
+    OPTIONS_SHOW_ONLY_FOUND(true, SettingsControl::getSettings, Settings::isOptionsShowOnlyFound, Settings::setOptionsShowOnlyFound),
     OPTIONS_STOP_ON_SEARCH_ERROR(false, SettingsControl::getSettings, Settings::isOptionsStopOnSearchError, Settings::setOptionsStopOnSearchError),
     OPTION_RECURSIVE(false, SettingsControl::getSettings, Settings::isOptionRecursive, Settings::setOptionRecursive),
     PROCESS_EPISODE_SOURCE(SettingsProcessEpisodeSource.TVDB, SettingsProcessEpisodeSource::toString, SettingsProcessEpisodeSource::valueOf, SettingsControl::getSettings, Settings::getProcessEpisodeSource, Settings::setProcessEpisodeSource),
@@ -128,7 +128,7 @@ public enum SettingValue {
     LOGIN_OPEN_SUBTITLES_PASSWORD("", SettingsControl::getSettings, Settings::getLoginOpenSubtitlesPassword, Settings::setLoginOpenSubtitlesPassword),
     SERIE_SOURCE_ADDIC7ED(true, SettingsControl::getSettings, Settings::isSerieSourceAddic7ed, Settings::setSerieSourceAddic7ed),
     SERIE_SOURCE_ADDIC7ED_PROXY(true, SettingsControl::getSettings, Settings::isSerieSourceAddic7edProxy, Settings::setSerieSourceAddic7edProxy),
-    SERIE_SOURCE_LOCAL(true, SettingsControl::getSettings, Settings::isSerieSourceLocal, Settings::setSerieSourceLocal),
+    SERIE_SOURCE_LOCAL(false, SettingsControl::getSettings, Settings::isSerieSourceLocal, Settings::setSerieSourceLocal),
     SERIE_SOURCE_OPENSUBTITLES(true, SettingsControl::getSettings, Settings::isSerieSourceOpensubtitles, Settings::setSerieSourceOpensubtitles),
     SERIE_SOURCE_PODNAPISI(true, SettingsControl::getSettings, Settings::isSerieSourcePodnapisi, Settings::setSerieSourcePodnapisi),
     SERIE_SOURCE_TV_SUBTITLES(true, SettingsControl::getSettings, Settings::isSerieSourceTvSubtitles, Settings::setSerieSourceTvSubtitles),
@@ -143,8 +143,12 @@ public enum SettingValue {
     <T> SettingValue(boolean defaultValue, Function<SettingsControl, T> rootElementFuntion, Function<T, Boolean> valueGetter,
             BiConsumer<T, Boolean> valueSetter) {
         String key = getKey();
-        this.storeValueFunction =
-                (settingsControl, preferences) -> preferences.putBoolean(key, valueGetter.apply(rootElementFuntion.apply(settingsControl)));
+        this.storeValueFunction = (settingsControl, preferences) -> {
+            Boolean value = valueGetter.apply(rootElementFuntion.apply(settingsControl));
+            if (value != defaultValue) {
+                preferences.putBoolean(key, value);
+            }
+        };
         this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFuntion.apply(settingsControl),
                 preferences.getBoolean(key, defaultValue));
     }
@@ -156,8 +160,12 @@ public enum SettingValue {
     <T> SettingValue(int defaultValue, Function<SettingsControl, T> rootElementFuntion, Function<T, Integer> valueGetter,
             BiConsumer<T, Integer> valueSetter) {
         String key = getKey();
-        this.storeValueFunction =
-                (settingsControl, preferences) -> preferences.putInt(key, valueGetter.apply(rootElementFuntion.apply(settingsControl)));
+        this.storeValueFunction = (settingsControl, preferences) -> {
+            Integer value = valueGetter.apply(rootElementFuntion.apply(settingsControl));
+            if (value != defaultValue) {
+                preferences.putInt(key, value);
+            }
+        };
         this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFuntion.apply(settingsControl),
                 preferences.getInt(key, defaultValue));
     }
@@ -175,8 +183,12 @@ public enum SettingValue {
             Function<SettingsControl, T> rootElementFuntion, Function<T, V> valueGetter,
             BiConsumer<T, V> valueSetter) {
         String key = getKey();
-        this.storeValueFunction = (settingsControl, preferences) -> preferences.put(key,
-                toStringMapper.apply(valueGetter.apply(rootElementFuntion.apply(settingsControl))));
+        this.storeValueFunction = (settingsControl, preferences) -> {
+            V value = valueGetter.apply(rootElementFuntion.apply(settingsControl));
+            if (value != defaultValue) {
+                preferences.put(key, toStringMapper.apply(value));
+            }
+        };
         this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFuntion.apply(settingsControl),
                 toObjectMapper.apply(preferences.get(key, toStringMapper.apply(defaultValue))));
     }
@@ -198,7 +210,9 @@ public enum SettingValue {
             T object = rootElementFuntion.apply(settingsControl);
             IntWrapper i = IntWrapper.of(-1);
             valueConsumer.accept(object, value -> preferences.put(key + i.increment(), toStringMapper.apply(value)));
-            preferences.putInt(key + "Size", i.getValue() + 1);
+            if (i.getValue() > -1) {
+                preferences.putInt(key + "Size", i.getValue() + 1);
+            }
         };
         this.loadValueFunction = (settingsControl, preferences) -> {
             int numberOfItems = preferences.getInt(key + "Size", 0);
