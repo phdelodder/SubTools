@@ -1,8 +1,6 @@
 package org.lodder.subtools.sublibrary.settings.model;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -18,17 +16,9 @@ public class TvdbMapping implements Serializable {
     private static final long serialVersionUID = -5860458667584710122L;
     private final int id;
     private final String name;
-    private final Set<String> alternativeNames = new HashSet<>();
-
-    public TvdbMapping addAlternativename(String altName) {
-        if (StringUtils.isNotBlank(altName) && !StringUtils.equals(name, altName)) {
-            alternativeNames.add(altName);
-        }
-        return this;
-    }
 
     public boolean matches(String name) {
-        return equals(format(this.name), format(name)) || alternativeNames.stream().anyMatch(n -> equals(n, name));
+        return equals(format(this.name), format(name));
     }
 
     private boolean equals(String name, String name2) {

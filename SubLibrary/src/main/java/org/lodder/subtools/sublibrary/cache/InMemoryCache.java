@@ -183,4 +183,16 @@ public class InMemoryCache<K, V> {
                     .map(entry -> Pair.of(entry.getKey(), entry.getValue().getValue())).toList();
         }
     }
+
+    public void deleteEntries(Predicate<K> keyFilter) {
+        synchronized (cacheMap) {
+            Iterator<Entry<K, CacheObject<V>>> iterator = cacheMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Entry<K, CacheObject<V>> entry = iterator.next();
+                if (keyFilter == null || keyFilter.test(entry.getKey())) {
+                    iterator.remove();
+                }
+            }
+        }
+    }
 }

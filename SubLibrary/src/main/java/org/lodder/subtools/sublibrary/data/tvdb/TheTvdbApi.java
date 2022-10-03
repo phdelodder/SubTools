@@ -17,6 +17,7 @@ import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.tvdb.exception.TheTvdbException;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbEpisode;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbSerie;
+import org.lodder.subtools.sublibrary.settings.model.TvdbMapping;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,7 @@ class TheTvdbApi {
         return getSerieId(seriename, language, null);
     }
 
-    public OptionalInt getSerieId(String seriename, Language language, ThrowingSupplier<Optional<Integer>, TheTvdbException> noResultCallback)
+    public OptionalInt getSerieId(String seriename, Language language, ThrowingSupplier<OptionalInt, TheTvdbException> noResultCallback)
             throws TheTvdbException {
         String encodedSerieName = URLEncoder.encode(seriename.toLowerCase().replace(" ", "-"), StandardCharsets.UTF_8);
         return manager.getValueBuilder()
@@ -63,35 +64,41 @@ class TheTvdbApi {
                                         .execute();
                         if (response.isSuccessful()) {
                             List<Series> results = response.body().data.stream().toList();
-                            Optional<Integer> selectedTvdbId = selectTvdbIdForSerieName(results, encodedSerieName);
+                            OptionalInt selectedTvdbId = selectTvdbIdForSerieName(results, seriename);
                             if (selectedTvdbId.isPresent()) {
-                                return selectedTvdbId;
+                                return selectedTvdbId.mapToObj(id -> new TvdbMapping(id, seriename));
                             }
                         }
                         if (noResultCallback != null) {
-                            return noResultCallback.get();
+                            OptionalInt tvdbId = noResultCallback.get();
+                            return tvdbId.isPresent() ? Optional.of(new TvdbMapping(tvdbId.getAsInt(), seriename)) :Optional.empty();
                         }
                         return Optional.empty();
                     } catch (IOException e) {
                         if (noResultCallback != null) {
-                            return noResultCallback.get();
+                            OptionalInt tvdbId = noResultCallback.get();
+                            return tvdbId.isPresent() ? Optional.of(new TvdbMapping(tvdbId.getAsInt(), seriename)) :Optional.empty();
                         }
                         throw new TheTvdbException(e);
                     }
-                }).getOptional().mapToInt(i -> i);
+                }).getOptional().mapToInt(TvdbMapping::getId);
     }
 
-    private Optional<Integer> selectTvdbIdForSerieName(List<Series> options, String serieName) {
+    private OptionalInt selectTvdbIdForSerieName(List<Series> options, String serieName) {
         if (options.isEmpty()) {
-            return Optional.empty();
+            return OptionalInt.empty();
         } else if (!userInteractionHandler.getSettings().isOptionsConfirmProviderMapping() && options.size() == 1) {
-            return Optional.of(options.get(0).id);
+            return OptionalInt.of(options.get(0).id);
         } else {
+            String formattedSerieName = serieName.replaceAll("[^A-Za-z]", "");
+            Comparator<Series> comp = Comparator.comparing(s -> formattedSerieName.equalsIgnoreCase(s.seriesName.replaceAll("[^A-Za-z]", "")),
+                    Comparator.reverseOrder());
+            comp = comp.thenComparing(s -> s.firstAired, Comparator.reverseOrder());
             return userInteractionHandler
-                    .selectFromList(options.stream().sorted(Comparator.comparing(s -> s.firstAired, Comparator.reverseOrder())).toList(),
+                    .selectFromList(options.stream().sorted(comp).toList(),
                             Messages.getString("Prompter.SelectTvdbMatchForSerie").formatted(serieName),
                             "tvdb", s -> "%s (%s)".formatted(s.seriesName, s.firstAired))
-                    .map(s -> s.id);
+                    .mapToInt(s -> s.id);
         }
     }
 

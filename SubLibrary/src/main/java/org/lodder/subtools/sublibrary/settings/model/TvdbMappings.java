@@ -21,7 +21,7 @@ public class TvdbMappings {
 
     private final Map<Integer, TvdbMapping> serieMappings = new HashMap<>();
 
-    private static final String CACHE_KEY_PREFIX = "TVDB-SerieMapping-";
+    private static final String CACHE_KEY_PREFIX = "TVDB-SerieId-";
 
     private TvdbMappings() {
         // hide constructor
@@ -32,7 +32,7 @@ public class TvdbMappings {
                 .keyFilter(k -> k.startsWith(CACHE_KEY_PREFIX))
                 .cacheType(CacheType.DISK)
                 .valueType(TvdbMapping.class)
-                .get().stream().map(Pair::getRight).toList();
+                .get().stream().map(Pair::getValue).toList();
     }
 
     public static void removeTvdbMapping(Manager manager, String name) {

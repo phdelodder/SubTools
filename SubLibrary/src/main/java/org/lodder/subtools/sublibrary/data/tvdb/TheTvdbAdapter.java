@@ -1,6 +1,7 @@
 package org.lodder.subtools.sublibrary.data.tvdb;
 
 import java.util.Optional;
+import java.util.OptionalInt;
 
 import javax.swing.JOptionPane;
 
@@ -68,14 +69,14 @@ public class TheTvdbAdapter {
         return instance;
     }
 
-    private Optional<Integer> askUserToEnterTvdbId(String showName) {
+    private OptionalInt askUserToEnterTvdbId(String showName) {
         LOGGER.error("Unknown serie name in tvdb: " + showName);
         String tvdbidString = JOptionPane.showInputDialog(null, "Enter tvdb id for serie " + showName);
         if (tvdbidString == null) {
-            return Optional.empty();
+            return OptionalInt.empty();
         }
         try {
-            return Optional.of(Integer.parseInt(tvdbidString));
+            return OptionalInt.of(Integer.parseInt(tvdbidString));
         } catch (NumberFormatException e) {
             LOGGER.error("Invalid tvdb id: " + tvdbidString);
             return askUserToEnterTvdbId(showName);
