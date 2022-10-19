@@ -92,12 +92,12 @@ public class TheTvdbAdapter {
                 tvdbSerie = Optional.empty();
             }
         }
-        valueBuilder.optionalValue(tvdbSerie).storeTempValue().store();
+        valueBuilder.optionalValue(tvdbSerie).storeTempNullValue().store();
         manager.valueBuilder()
                 .cacheType(CacheType.DISK)
                 .key("TVDB-serieId-%s-%s".formatted(encodedSerieName, null))
                 .optionalValue(tvdbSerie.mapToObj(tvdbS -> new SerieMapping(serieName, tvdbS.getId(), tvdbS.getSerieName())))
-                .storeTempValue()
+                .storeTempNullValue()
                 .store();
         return tvdbSerie;
     }
@@ -114,7 +114,7 @@ public class TheTvdbAdapter {
                                 TvRelease.formatSeasonEpisode(season, episode), e.getMessage()), e);
                         return Optional.empty();
                     }
-                }).storeTempValue().getOptional();
+                }).storeTempNullValue().getOptional();
 
     }
 

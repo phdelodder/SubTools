@@ -43,7 +43,7 @@ public class OmdbAdapter {
                     .cacheType(CacheType.DISK)
                     .key("OMDB-movieDetails-" + imdbId)
                     .optionalSupplier(() -> getApi().getMovieDetails(imdbId))
-                    .storeTempValue()
+                    .storeTempNullValue()
                     .getOptional();
         } catch (Exception e) {
             LOGGER.error("API OMDB getMovieDetails for id [%s] (%s)".formatted(imdbId, e.getMessage()), e);

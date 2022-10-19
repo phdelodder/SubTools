@@ -318,7 +318,7 @@ public class Manager {
     }
 
     public interface ValueBuilderGetValueStoreTempValueIntf<T extends Serializable, X extends Exception> extends ValueBuilderGetValueIntf<T, X> {
-        ValueBuilderGetValueStoreTempValueTtlIntf<T, X> storeTempValue();
+        ValueBuilderGetValueStoreTempValueTtlIntf<T, X> storeTempNullValue();
     }
 
     public interface ValueBuilderGetValueStoreTempValueTtlIntf<T extends Serializable, X extends Exception>
@@ -334,7 +334,7 @@ public class Manager {
 
     public interface ValueBuilderGetOptionalStoreTempValueIntf<T extends Serializable, X extends Exception>
             extends ValueBuilderGetOptionalIntf<T, X> {
-        ValueBuilderGetOptionalStoreTempValueTtlIntf<T, X> storeTempValue();
+        ValueBuilderGetOptionalStoreTempValueTtlIntf<T, X> storeTempNullValue();
     }
 
     public interface ValueBuilderGetOptionalStoreTempValueTtlIntf<T extends Serializable, X extends Exception>
@@ -351,7 +351,7 @@ public class Manager {
     }
 
     public interface ValueBuilderGetOptionalIntStoreTempValueIntf<X extends Exception> extends ValueBuilderGetOptionalIntIntf<X> {
-        ValueBuilderGetOptionalIntStoreTempValueTtlIntf<X> storeTempValue();
+        ValueBuilderGetOptionalIntStoreTempValueTtlIntf<X> storeTempNullValue();
     }
 
     public interface ValueBuilderGetOptionalIntStoreTempValueTtlIntf<X extends Exception> extends ValueBuilderGetOptionalIntIntf<X> {
@@ -420,7 +420,7 @@ public class Manager {
         @Setter(value = AccessLevel.NONE)
         private Long timeToLive;
         @Setter(value = AccessLevel.NONE)
-        private boolean storeTempValue;
+        private boolean storeTempNullValue;
         private Function<Long, Long> timeToLiveFunction;
 
         @Override
@@ -490,8 +490,8 @@ public class Manager {
         }
 
         @Override
-        public ValueBuilder<C, T, X> storeTempValue() {
-            this.storeTempValue = true;
+        public ValueBuilder<C, T, X> storeTempNullValue() {
+            this.storeTempNullValue = true;
             return this;
         }
 
@@ -587,16 +587,10 @@ public class Manager {
 
         private Optional<T> getOrPutOptional(InMemoryCache cache) throws X {
             boolean containsKey = cache.contains(key);
-            if (storeTempValue) {
-                if (containsKey && !isExpiredTemporary()) {
-                    return cache.get(key);
-                } else {
-                    long ttl = getTemporaryTimeToLive().mapToObj(v -> timeToLiveFunction != null ? timeToLiveFunction.apply(v) : v * 2)
-                            .orElseGet(() -> timeToLive != null ? timeToLive : TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS));
-                    timeToLive(ttl).store();
-                    return cache.get(key);
-                }
-            } else if (containsKey) {
+            if (!containsKey && storeTempNullValue) {
+                timeToLive(calculateTtl()).store();
+                return cache.get(key);
+            } else if (containsKey && !isExpiredTemporary()) {
                 return cache.get(key);
             } else {
                 Optional<T> value = executeSupplier(optionalSupplier);
@@ -627,31 +621,22 @@ public class Manager {
 
         private OptionalInt getOrPutOptionalInt(InMemoryCache cache) throws X {
             boolean containsKey = cache.contains(key);
-            if (storeTempValue) {
-                if (containsKey && !isExpiredTemporary()) {
-                    return cache.get(key).mapToOptionalInt();
-                } else {
-                    long ttl = getTemporaryTimeToLive().mapToObj(v -> timeToLiveFunction != null ? timeToLiveFunction.apply(v) : v * 2)
-                            .orElseGet(() -> timeToLive != null ? timeToLive : TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS));
-                    timeToLive(ttl).store();
-                    return cache.get(key).mapToOptionalInt();
-                }
-            } else if (containsKey) {
-                try {
-                    return cache.get(key).mapToOptionalInt();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+            if (!containsKey && storeTempNullValue) {
+                timeToLive(calculateTtl()).store();
+                return cache.get(key).mapToOptionalInt();
+            } else if (containsKey && !isExpiredTemporary()) {
+                return cache.get(key).mapToOptionalInt();
+            } else {
+                OptionalInt value = executeSupplier(optionalIntSupplier);
+                value.ifPresentOrElse(v -> cache.put(key, v), () -> {
+                    if (cache instanceof DiskCache diskCache) {
+                        diskCache.putWithoutPersist(key, null);
+                    } else if (cache instanceof InMemoryCache inMemoryCache) {
+                        inMemoryCache.put(key, null);
+                    }
+                });
+                return value;
             }
-            OptionalInt value = executeSupplier(optionalIntSupplier);
-            value.ifPresentOrElse(v -> cache.put(key, v), () -> {
-                if (cache instanceof DiskCache diskCache) {
-                    diskCache.putWithoutPersist(key, null);
-                } else if (cache instanceof InMemoryCache inMemoryCache) {
-                    inMemoryCache.put(key, null);
-                }
-            });
-            return value;
         }
 
         // ########### \\
@@ -749,7 +734,7 @@ public class Manager {
             } else {
                 value = this.value;
             }
-            if (storeAsTempValue || (storeTempValue && value == null)) {
+            if (storeAsTempValue || (storeTempNullValue && value == null)) {
                 long ttl = timeToLive != null ? timeToLive : TimeUnit.SECONDS.convert(1, TimeUnit.DAYS);
                 switch (cacheType) {
                     case MEMORY -> inMemoryCache.put(key, value, ttl);
@@ -804,6 +789,11 @@ public class Manager {
                 }
                 throw new RuntimeException("Exception while getting value (%s)".formatted(e.getMessage()), e);
             }
+        }
+
+        private long calculateTtl() {
+            return getTemporaryTimeToLive().mapToObj(v -> timeToLiveFunction != null ? timeToLiveFunction.apply(v) : v * 2)
+                    .orElseGet(() -> timeToLive != null ? timeToLive : TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS));
         }
     }
 }

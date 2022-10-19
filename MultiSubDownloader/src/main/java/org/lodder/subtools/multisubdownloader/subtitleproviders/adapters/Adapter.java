@@ -155,9 +155,9 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
             OptionalLong temporaryTimeToLive = serieNameValueBuilder.getTemporaryTimeToLive();
             SerieMapping serieMapping = new SerieMapping(serieName, null, null);
             if (temporaryTimeToLive.isPresent()) {
-                serieNameValueBuilder.value(serieMapping).storeTempValue().timeToLive(temporaryTimeToLive.getAsLong() * 2).storeAsTempValue();
+                serieNameValueBuilder.value(serieMapping).storeTempNullValue().timeToLive(temporaryTimeToLive.getAsLong() * 2).storeAsTempValue();
             } else {
-                serieNameValueBuilder.value(serieMapping).storeTempValue().timeToLive(TimeUnit.SECONDS.convert(1, TimeUnit.DAYS)).storeAsTempValue();
+                serieNameValueBuilder.value(serieMapping).storeTempNullValue().timeToLive(TimeUnit.SECONDS.convert(1, TimeUnit.DAYS)).storeAsTempValue();
             }
             return Optional.empty();
         } else if (!getUserInteractionSettings().isOptionsConfirmProviderMapping() && providerSerieIds.size() == 1) {
@@ -183,7 +183,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
         }
         if (uriForSerie.isEmpty()) {
             // if no provider serie id was selected, store a temporary null value with expiration time of 1 day
-            serieNameValueBuilder.value(new SerieMapping(serieName, null, null)).storeTempValue()
+            serieNameValueBuilder.value(new SerieMapping(serieName, null, null)).storeTempNullValue()
                     .timeToLive(TimeUnit.SECONDS.convert(1, TimeUnit.DAYS)).storeAsTempValue();
             previousResultsValueBuilder.collectionValue(providerSerieIds).store();
             return Optional.empty();

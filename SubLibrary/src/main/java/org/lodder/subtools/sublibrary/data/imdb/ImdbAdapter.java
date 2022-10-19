@@ -121,7 +121,7 @@ public class ImdbAdapter {
                                     "IMDB",
                                     ProviderSerieId::getName)
                             .mapToInt(providerSerieId -> Integer.parseInt(providerSerieId.getId()));
-                }).storeTempValue().getOptionalInt();
+                }).storeTempNullValue().getOptionalInt();
     }
 
     private OptionalInt promtUserToEnterImdbId(String title, int year) {
