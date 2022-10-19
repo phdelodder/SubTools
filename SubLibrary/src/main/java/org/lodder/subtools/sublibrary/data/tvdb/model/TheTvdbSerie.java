@@ -8,17 +8,19 @@ import org.lodder.subtools.sublibrary.Language;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
+@ToString
 @Getter
 @Setter
 public class TheTvdbSerie implements Serializable {
     private static final long serialVersionUID = -4036836377513152443L;
-    private String id;
-    private String serieId;
+    private int id;
+    // private String serieId;
     private Language language;
     private String serieName;
     private String banner;
-    private String overview;
+    // private String overview;
     private String firstAired;
     private String imdbId;
     private String zap2ItId;

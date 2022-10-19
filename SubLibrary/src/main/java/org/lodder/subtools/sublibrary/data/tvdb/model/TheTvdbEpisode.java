@@ -8,7 +8,9 @@ import org.lodder.subtools.sublibrary.Language;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
+@ToString
 @Getter
 @Setter
 public class TheTvdbEpisode implements Serializable {
@@ -28,7 +30,7 @@ public class TheTvdbEpisode implements Serializable {
     private List<String> guestStars = new ArrayList<>();
     private String imdbId;
     private Language language;
-    private String overview;
+    // private String overview;
     private String productionCode;
     private String rating;
     private int seasonNumber;

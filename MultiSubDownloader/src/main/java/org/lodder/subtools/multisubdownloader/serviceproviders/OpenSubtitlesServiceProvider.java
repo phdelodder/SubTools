@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.serviceproviders;
 
+import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
 import org.lodder.subtools.multisubdownloader.framework.service.providers.ServiceProvider;
@@ -21,23 +22,23 @@ public class OpenSubtitlesServiceProvider implements ServiceProvider {
     }
 
     @Override
-    public void register(Container app) {
+    public void register(Container app, UserInteractionHandler userInteractionHandler) {
         this.app = app;
 
         /* Resolve the SubtitleProviderStore from the IoC Container */
         SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) app.make("SubtitleProviderStore");
 
         /* Create the SubtitleProvider */
-        subtitleProvider = createProvider();
+        subtitleProvider = createProvider(userInteractionHandler);
 
         /* Add the SubtitleProvider to the store */
         subtitleProviderStore.addProvider(subtitleProvider);
 
         /* Listen for settings-change event */
-        this.registerListener(subtitleProviderStore);
+        this.registerListener(subtitleProviderStore, userInteractionHandler);
     }
 
-    private SubtitleProvider createProvider() {
+    private SubtitleProvider createProvider(UserInteractionHandler userInteractionHandler) {
         Settings settings = (Settings) this.app.make("Settings");
         Manager manager = (Manager) this.app.make("Manager");
 
@@ -59,10 +60,10 @@ public class OpenSubtitlesServiceProvider implements ServiceProvider {
             loginEnabled = false;
         }
 
-        return new JOpenSubAdapter(loginEnabled, username, password, manager);
+        return new JOpenSubAdapter(loginEnabled, username, password, manager, userInteractionHandler);
     }
 
-    private void registerListener(final SubtitleProviderStore subtitleProviderStore) {
+    private void registerListener(SubtitleProviderStore subtitleProviderStore, UserInteractionHandler userInteractionHandler) {
         /* Resolve the EventEmitter from the IoC Container */
         Emitter emitter = (Emitter) app.make("EventEmitter");
 
@@ -72,7 +73,7 @@ public class OpenSubtitlesServiceProvider implements ServiceProvider {
             subtitleProviderStore.deleteProvider(subtitleProvider);
 
             /* Re-create subtitleprovider */
-            subtitleProvider = createProvider();
+            subtitleProvider = createProvider(userInteractionHandler);
 
             /* Re-add provider to store */
             subtitleProviderStore.addProvider(subtitleProvider);

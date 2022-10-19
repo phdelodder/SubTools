@@ -14,7 +14,7 @@ import lombok.experimental.Accessors;
 public class MovieRelease extends Release {
 
     private String name;
-    private int year;
+    private Integer year;
     private int imdbId;
     private int tvdbId;
 
@@ -31,7 +31,7 @@ public class MovieRelease extends Release {
 
         MovieReleaseBuilderOther releaseGroup(String releaseGroup);
 
-        MovieReleaseBuilderOther year(int year);
+        MovieReleaseBuilderOther year(Integer year);
 
         MovieRelease build();
     }
@@ -50,12 +50,6 @@ public class MovieRelease extends Release {
         private File file;
         private String description;
         private String releaseGroup;
-
-        @Override
-        public MovieReleaseBuilder year(int year) {
-            this.year = year;
-            return this;
-        }
 
         @Override
         public MovieRelease build() {

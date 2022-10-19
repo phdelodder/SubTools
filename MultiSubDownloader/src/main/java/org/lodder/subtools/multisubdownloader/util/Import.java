@@ -8,8 +8,6 @@ import javax.swing.JOptionPane;
 import org.lodder.subtools.multisubdownloader.lib.xml.XMLExclude;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.settings.model.TvdbMappings;
-import org.lodder.subtools.sublibrary.xml.XMLMappingTvdbScene;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +22,7 @@ public class Import {
     private static final Logger LOGGER = LoggerFactory.getLogger(Import.class);
 
     public enum ImportListType {
-        EXCLUDE, TRANSLATE, PREFERENCES
+        EXCLUDE, PREFERENCES
     }
 
     public Import(JFrame frame, SettingsControl settingsControl) {
@@ -36,10 +34,6 @@ public class Import {
         doImport(manager, ImportListType.EXCLUDE, file);
     }
 
-    public void translate(Manager manager, File file) {
-        doImport(manager, ImportListType.TRANSLATE, file);
-    }
-
     public void preferences(Manager manager, File file) {
         doImport(manager, ImportListType.PREFERENCES, file);
     }
@@ -48,8 +42,6 @@ public class Import {
         try {
             if (listType == ImportListType.PREFERENCES) {
                 settingsControl.importPreferences(file);
-            } else if (listType == ImportListType.TRANSLATE && TvdbMappings.getPersistedTvdbMappings(manager).isEmpty()) {
-                XMLMappingTvdbScene.read(file).forEach(TvdbtvdbMapping -> TvdbMappings.persistTvdbMapping(manager, TvdbtvdbMapping));
             } else if (listType == ImportListType.EXCLUDE && settingsControl.getSettings().getExcludeList().size() == 0) {
                 settingsControl.getSettings().setExcludeList(XMLExclude.read(file));
             } else {
@@ -59,8 +51,6 @@ public class Import {
                 if (response == JOptionPane.YES_OPTION) {
                     if (listType == ImportListType.EXCLUDE) {
                         settingsControl.getSettings().getExcludeList().addAll(XMLExclude.read(file));
-                    } else if (listType == ImportListType.TRANSLATE) {
-                        XMLMappingTvdbScene.read(file).forEach(TvdbtvdbMapping -> TvdbMappings.persistTvdbMapping(manager, TvdbtvdbMapping));
                     }
                 }
             }

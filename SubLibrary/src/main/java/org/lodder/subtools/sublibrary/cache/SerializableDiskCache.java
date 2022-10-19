@@ -2,12 +2,19 @@ package org.lodder.subtools.sublibrary.cache;
 
 import java.io.Serializable;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 public class SerializableDiskCache<K extends Serializable, V extends Serializable> extends DiskCache<K, V> {
 
     public static final Object LOCK = new Object();
+
+    @Getter(value = AccessLevel.PROTECTED)
+    private final Class<K> dbKeyType;
+    @Getter(value = AccessLevel.PROTECTED)
+    private final Class<V> dbValueType;
 
     @SuppressWarnings("rawtypes")
     public static DiskCacheBuilderKeyTypeIntf cacheBuilder() {
@@ -45,6 +52,8 @@ public class SerializableDiskCache<K extends Serializable, V extends Serializabl
     public static class DiskCacheBuilder<K extends Serializable, V extends Serializable>
             implements DiskCacheBuilderOtherIntf<K, V>, DiskCacheBuilderPasswordIntf<K, V>, DiskCacheBuilderValueTypeIntf<K>,
             DiskCacheBuilderKeyTypeIntf {
+        private Class<K> keyType;
+        private Class<V> valueType;
         private Long timeToLive;
         private Long timerInterval;
         private Integer maxItems;
@@ -55,23 +64,28 @@ public class SerializableDiskCache<K extends Serializable, V extends Serializabl
         @SuppressWarnings("unchecked")
         @Override
         public <T extends Serializable> DiskCacheBuilder<T, V> keyType(Class<T> keyType) {
+            this.keyType = (Class<K>) keyType;
             return (DiskCacheBuilder<T, V>) this;
         }
 
         @SuppressWarnings("unchecked")
         @Override
         public <T extends Serializable> DiskCacheBuilder<K, T> valueType(Class<T> valueType) {
+            this.valueType = (Class<V>) valueType;
             return (DiskCacheBuilder<K, T>) this;
         }
 
         @Override
         public SerializableDiskCache<K, V> build() {
-            return new SerializableDiskCache<>(timeToLive, timerInterval, maxItems, username, password, cacheName);
+            return new SerializableDiskCache<>(keyType, valueType, timeToLive, timerInterval, maxItems, username, password, cacheName);
         }
     }
 
-    private SerializableDiskCache(Long timeToLive, Long timerInterval, Integer maxItems, String username, String password, String cacheName) {
+    private SerializableDiskCache(Class<K> keyType, Class<V> valueType, Long timeToLive, Long timerInterval, Integer maxItems, String username,
+            String password, String cacheName) {
         super(timeToLive, timerInterval, maxItems, username, password, cacheName);
+        this.dbKeyType = keyType;
+        this.dbValueType = valueType;
     }
 
     @SuppressWarnings("unchecked")

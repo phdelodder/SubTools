@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.data.tvdb.TheTvdbAdapter;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbSerie;
 import org.lodder.subtools.sublibrary.model.Release;
+import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 
 import lombok.Getter;

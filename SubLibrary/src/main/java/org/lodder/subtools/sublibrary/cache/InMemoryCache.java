@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.function.Predicate;
 
 import org.apache.commons.collections4.map.LRUMap;
@@ -101,7 +102,11 @@ public class InMemoryCache<K, V> {
     }
 
     public void put(K key, V value) {
-        put(key, new CacheObject<>(value));
+        put(key, new ExpiringCacheObject<>(value));
+    }
+
+    public void put(K key, V value, long timeToLive) {
+        put(key, new TemporaryCacheObject<>(timeToLive, value));
     }
 
     protected void put(K key, CacheObject<V> value) {
@@ -128,6 +133,40 @@ public class InMemoryCache<K, V> {
         }
     }
 
+    public boolean isTemporaryObject(K key) {
+        synchronized (cacheMap) {
+            CacheObject<V> obj = cacheMap.get(key);
+            if (obj == null) {
+                return false;
+            } else {
+                return obj instanceof TemporaryCacheObject<?>;
+            }
+        }
+    }
+
+    public boolean isTemporaryExpired(K key) {
+        synchronized (cacheMap) {
+            CacheObject<V> obj = cacheMap.get(key);
+            if (obj == null) {
+                return false;
+            } else {
+                return obj instanceof TemporaryCacheObject<?> tempCacheObject && tempCacheObject.isExpired();
+            }
+        }
+    }
+
+    public OptionalLong getTemporaryTimeToLive(K key) {
+        synchronized (cacheMap) {
+            CacheObject<V> obj = cacheMap.get(key);
+            if (obj == null) {
+                return OptionalLong.empty();
+            } else {
+                return obj instanceof TemporaryCacheObject<?> tempCacheObject ? OptionalLong.of(tempCacheObject.getTimeToLive())
+                        : OptionalLong.empty();
+            }
+        }
+    }
+
     public <X extends Exception> V getOrPut(K key, ThrowingSupplier<V, X> supplier) throws X {
         synchronized (cacheMap) {
             CacheObject<V> obj;
@@ -135,7 +174,7 @@ public class InMemoryCache<K, V> {
                 obj = cacheMap.get(key);
             } else {
                 V value = supplier.get();
-                obj = new CacheObject<>(value);
+                obj = new ExpiringCacheObject<>(value);
                 cacheMap.put(key, obj);
             }
             if (obj == null) {
@@ -160,15 +199,17 @@ public class InMemoryCache<K, V> {
     }
 
     public void cleanup() {
-        long now = System.currentTimeMillis();
         synchronized (cacheMap) {
             Iterator<Entry<K, CacheObject<V>>> itr = cacheMap.entrySet().iterator();
             while (itr.hasNext()) {
                 Entry<K, CacheObject<V>> entry = itr.next();
-                if (now > timeToLive + entry.getValue().getCreated()) {
+                if (entry.getValue().isExpired(timeToLive)) {
                     itr.remove();
                 }
             }
+
+            // TODO clean disk cache?
+            // TODO remove temporary from diskcahe, but not memorycache
             Thread.yield();
         }
     }
@@ -179,7 +220,7 @@ public class InMemoryCache<K, V> {
 
     public List<Pair<K, V>> getEntries(Predicate<K> keyFilter) {
         synchronized (cacheMap) {
-            return cacheMap.entrySet().stream().filter(entry -> keyFilter == null || keyFilter.test(entry.getKey()))
+            return cacheMap.entrySet().stream().peek(System.out::println).filter(entry -> keyFilter == null || keyFilter.test(entry.getKey()))
                     .map(entry -> Pair.of(entry.getKey(), entry.getValue().getValue())).toList();
         }
     }

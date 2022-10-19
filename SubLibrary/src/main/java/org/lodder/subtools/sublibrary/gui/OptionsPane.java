@@ -17,6 +17,8 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class OptionsPane {
 
+    public static Object LOCK = new Object();
+
     public static <T> OptionsPaneBuilderToStringMapperIntf<T> options(Collection<T> options) {
         return OptionsPaneBuilder.options(options);
     }
@@ -98,23 +100,27 @@ public class OptionsPane {
 
         @Override
         public Optional<T> prompt() {
-            if (toStringMapper == null) {
-                T[] options;
-                if (optionsList != null) {
-                    options = (T[]) optionsList.stream().toArray(Object[]::new);
+            synchronized (LOCK) {
+                if (toStringMapper == null) {
+                    T[] options;
+                    if (optionsList != null) {
+                        options = (T[]) optionsList.stream().toArray(Object[]::new);
+                    } else {
+                        options = optionsArray;
+                    }
+                    return Optional.ofNullable((T) JOptionPane.showInputDialog(parent, message, title, messageType, null, options, "0"));
                 } else {
-                    options = optionsArray;
+                    ElementWrapper<T>[] options;
+                    if (optionsList != null) {
+                        options = optionsList.stream().map(option -> new ElementWrapper<>(option, toStringMapper)).toArray(ElementWrapper[]::new);
+                    } else {
+                        options = Arrays.stream(optionsArray).map(option -> new ElementWrapper<>(option, toStringMapper))
+                                .toArray(ElementWrapper[]::new);
+                    }
+                    return Optional
+                            .ofNullable((ElementWrapper<T>) JOptionPane.showInputDialog(parent, message, title, messageType, null, options, "0"))
+                            .map(ElementWrapper::element);
                 }
-                return Optional.ofNullable((T) JOptionPane.showInputDialog(parent, message, title, messageType, null, options, "0"));
-            } else {
-                ElementWrapper<T>[] options;
-                if (optionsList != null) {
-                    options = optionsList.stream().map(option -> new ElementWrapper<>(option, toStringMapper)).toArray(ElementWrapper[]::new);
-                } else {
-                    options = Arrays.stream(optionsArray).map(option -> new ElementWrapper<>(option, toStringMapper)).toArray(ElementWrapper[]::new);
-                }
-                return Optional.ofNullable((ElementWrapper<T>) JOptionPane.showInputDialog(parent, message, title, messageType, null, options, "0"))
-                        .map(ElementWrapper::element);
             }
         }
     }

@@ -1,8 +1,13 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
@@ -12,21 +17,29 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.mode
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
+import org.lodder.subtools.sublibrary.data.ProviderSerieId;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDescriptor, TvSubtiltesException> {
+import lombok.Getter;
+import lombok.experimental.ExtensionMethod;
 
-    private static LazySupplier<JTVSubtitlesApi> jtvapi;
+@Getter
+@ExtensionMethod({ OptionalExtension.class })
+public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDescriptor, ProviderSerieId, TvSubtiltesException> {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(JTVsubtitlesAdapter.class);
+    private static LazySupplier<JTVSubtitlesApi> jtvapi;
 
-    public JTVsubtitlesAdapter(Manager manager) {
+    public JTVsubtitlesAdapter(Manager manager, UserInteractionHandler userInteractionHandler) {
+        super(manager, userInteractionHandler);
         if (jtvapi == null) {
             jtvapi = new LazySupplier<>(() -> {
                 try {
@@ -49,38 +62,146 @@ public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDesc
     }
 
     @Override
-    protected List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithHash(String hash, Language language) throws TvSubtiltesException {
+    public String getProviderName() {
+        return getSubtitleSource().name();
+    }
+
+    @Override
+    public List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithHash(String hash, Language language) throws TvSubtiltesException {
         // TODO implement this
         return List.of();
     }
 
     @Override
-    protected List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithId(int tvdbId, Language language) throws TvSubtiltesException {
+    public List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithId(int tvdbId, Language language) throws TvSubtiltesException {
         // TODO implement this
         return List.of();
     }
 
     @Override
-    protected List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithName(String name, int year, Language language)
+    public List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithName(String name, int year, Language language)
             throws TvSubtiltesException {
         // TODO implement this
         return List.of();
     }
 
     @Override
-    protected Set<Subtitle> convertToSubtitles(MovieRelease movieRelease, Set<TVsubtitlesSubtitleDescriptor> subtitles, Language language) {
+    public Set<Subtitle> convertToSubtitles(MovieRelease movieRelease, Set<TVsubtitlesSubtitleDescriptor> subtitles, Language language) {
         // TODO implement this
         return Set.of();
     }
 
-    @Override
-    protected Set<TVsubtitlesSubtitleDescriptor> searchSerieSubtitles(String name, int season, int episode, Language language,
-            UserInteractionHandler userInteractionHandler) throws TvSubtiltesException {
-        return getApi().searchSubtitles(name, season, episode, language);
-    }
+    // @ToString
+    // @Getter
+    // public static class SerieMapping extends SerieMappingCommon {
+    // private static final long serialVersionUID = 537382757186290560L;
+    // private final String uri;
+    // private final String tvSubtitlesName;
+    //
+    // public SerieMapping(String name, String uri, String tvSubtitlesName) {
+    // super(name);
+    // this.uri = uri;
+    // this.tvSubtitlesName = tvSubtitlesName;
+    // }
+    //
+    // @Override
+    // public String getMappingValue() {
+    // return tvSubtitlesName;
+    // }
+    // }
 
     @Override
-    protected Set<Subtitle> convertToSubtitles(TvRelease tvRelease, Set<TVsubtitlesSubtitleDescriptor> subtitles, Language language) {
+    public Set<TVsubtitlesSubtitleDescriptor> searchSerieSubtitles(TvRelease tvRelease, Language language) throws TvSubtiltesException {
+        return getProviderSerieId(tvRelease.getOriginalName(), tvRelease.getDisplayName(), tvRelease.getSeason(), tvRelease.getTvdbId())
+                .orElseMap(() -> getProviderSerieId(tvRelease.getName(), tvRelease.getDisplayName(), tvRelease.getSeason(), tvRelease.getTvdbId()))
+                .map(providerSerieId -> tvRelease.getEpisodeNumbers().stream()
+                        .flatMap(episode -> {
+                            try {
+                                return getApi().getSubtitles(providerSerieId, tvRelease.getSeason(), episode, language).stream();
+                            } catch (TvSubtiltesException e) {
+                                LOGGER.error("API %s searchSubtitles for serie [%s] (%s)".formatted(getSubtitleSource().getName(),
+                                        TvRelease.formatName(providerSerieId.getProviderName(), tvRelease.getSeason(), episode),
+                                        e.getMessage()), e);
+                                return Stream.empty();
+                            }
+                        })
+                        .collect(Collectors.toSet()))
+                .orElseGet(Set::of);
+    }
+
+    // private Optional<SerieMapping> getUriForSerieName(String serieName, String displayName, OptionalInt tvdbIdOptional,
+    // UserInteractionHandler userInteractionHandler) throws TvSubtiltesException {
+    // Function<Integer, ValueBuilderIsPresentIntf> valueBuilderSupplier =
+    // tvdbId -> manager.valueBuilder().cacheType(CacheType.DISK)
+    // .key("%s-serieName-tvdbId:%s".formatted(getSubtitleSource().name(), tvdbId));
+    // if (tvdbIdOptional.isPresent() && valueBuilderSupplier.apply(tvdbIdOptional.getAsInt()).isPresent()) {
+    // return valueBuilderSupplier.apply(tvdbIdOptional.getAsInt()).returnType(SerieMapping.class).getOptional();
+    // }
+    // if (StringUtils.isBlank(serieName)) {
+    // return Optional.empty();
+    // }
+    //
+    // ValueBuilderIsPresentIntf valueBuilder = manager.valueBuilder()
+    // .cacheType(CacheType.DISK)
+    // .key("%s-serieName-name:%s".formatted(getSubtitleSource().name(), serieName.toLowerCase()));
+    //
+    // if (valueBuilder.isPresent()) {
+    // return valueBuilder.returnType(SerieMapping.class).getOptional()
+    // .ifPresentDo(subsceneSerieName -> tvdbIdOptional
+    // .ifPresent(tvdbId -> valueBuilderSupplier.apply(tvdbId).value(subsceneSerieName).store()));
+    // } else {
+    // try {
+    // List<UriForSerie> urisForSerie = getApi().getUrisForSerieName(serieName);
+    //
+    // if (urisForSerie.isEmpty()) {
+    // return Optional.empty(); // TODO add temporary 0
+    // } else if (!confirmProviderMapping && urisForSerie.size() == 1) {
+    // return Optional.of(new SerieMapping(serieName, urisForSerie.get(0)));
+    // }
+    //
+    // urisForSerie = Stream
+    // .concat(urisForSerie.stream().sorted(USER_INTERACTION_SERIE_COMPARATOR.apply(serieName)),
+    // Arrays.stream(UserInteractionExtraValue.values()).map(UriForServiceExtended::new))
+    // .toList();
+    // Optional<UriForSerie> uriForSerie = userInteractionHandler.selectFromList(urisForSerie,
+    // Messages.getString("SelectDialog.SelectSerieNameForName").formatted(displayName), serieName, UriForSerie::getName);
+    //
+    // if (uriForSerie.isEmpty()) {
+    // return Optional.empty();
+    // } else if (uriForSerie.get() instanceof UriForServiceExtended uriForServiceExtended) {
+    // valueBuilder.value(null).timeToLiveSeconds(uriForServiceExtended.getTimeToLive()).store();
+    // return Optional.empty();
+    // } else {
+    // return uriForSerie.map(urlForSerie -> new SerieMapping(serieName, urlForSerie.getUri(), urlForSerie.getName()))
+    // .ifPresentDo(subsceneSerieName -> tvdbIdOptional
+    // .ifPresent(tvdbId -> valueBuilderSupplier.apply(tvdbId).value(subsceneSerieName).store()));
+    // }
+    // } catch (Exception e) {
+    // throw new TvSubtiltesException(e);
+    // }
+    // }
+    // }
+    //
+    // private class UriForServiceExtended extends UriForSerie {
+    //
+    // public UriForServiceExtended(UserInteractionExtraValue userInteractionExtraValue) {
+    // super(userInteractionExtraValue.getMessage(), userInteractionExtraValue.getId());
+    // }
+    //
+    // public long getTimeToLive() {
+    // return UserInteractionExtraValue.valueOf(getName()).getTimeToLive();
+    // }
+    // }
+    //
+    // private static final Function<String, Comparator<UriForSerie>> USER_INTERACTION_SERIE_COMPARATOR = serieName -> {
+    // Comparator<UriForSerie> comp = Comparator.comparing(
+    // n -> SerieMappingCommon.formatName(serieName).equalsIgnoreCase(SerieMappingCommon.formatName(n.getName())),
+    // Comparator.reverseOrder());
+    // return comp.thenComparing(UriForSerie::getName, Comparator.reverseOrder());
+    // };
+
+    @Override
+    public Set<Subtitle> convertToSubtitles(TvRelease tvRelease, Collection<TVsubtitlesSubtitleDescriptor> subtitles, Language language) {
         return subtitles.stream()
                 .map(sub -> Subtitle.downloadSource(sub.getUrl())
                         .subtitleSource(getSubtitleSource())
@@ -92,5 +213,31 @@ public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDesc
                         .uploader(sub.getAuthor())
                         .hearingImpaired(false))
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public List<ProviderSerieId> getSortedProviderSerieIds(String serieName, int season) throws TvSubtiltesException {
+        Pattern yearPatter = Pattern.compile("\\((\\d\\d\\d\\d)-(\\d\\d\\d\\d)\\)");
+        return getApi().getUrisForSerieName(serieName).stream()
+                .sorted(Comparator.comparing(
+                        (ProviderSerieId n) -> !serieName.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(n.getName().replaceAll("[^A-Za-z]", "")))
+                        .thenComparing(Comparator.comparing((ProviderSerieId providerSerieId) -> {
+                            Matcher matcher = yearPatter.matcher(providerSerieId.getName());
+                            if (matcher.find()) {
+                                return Integer.parseInt(matcher.group(2));
+                            }
+                            return 0;
+                        }, Comparator.reverseOrder())))
+                .toList();
+    }
+
+    @Override
+    public boolean useSeasonForSerieId() {
+        return false;
+    }
+
+    @Override
+    public String providerSerieIdToDisplayString(ProviderSerieId providerSerieId) {
+        return providerSerieId.getName();
     }
 }

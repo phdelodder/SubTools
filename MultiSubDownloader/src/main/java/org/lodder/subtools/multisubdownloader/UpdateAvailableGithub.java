@@ -56,8 +56,9 @@ public class UpdateAvailableGithub {
     }
 
     private Optional<GitHubRelease> getLatestGithubRelease() {
-        return manager.getValueBuilder()
-                .key("GitHub-update").cacheType(CacheType.MEMORY)
+        return manager.valueBuilder()
+                .cacheType(CacheType.MEMORY)
+                .key("GitHub-update")
                 .optionalSupplier(() -> {
                     try {
                         Element element = manager.getPageContentBuilder().url("https://github.com/phdelodder/SubTools/releases")

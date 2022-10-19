@@ -71,8 +71,10 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
                     for (int j = 0; j < selection.size(); j++) {
                         downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
                     }
-                    model.removeRow(i);
-                    i--;
+                    if (!selection.isEmpty()) {
+                        model.removeRow(i);
+                        i--;
+                    }
                 } catch (IOException | ManagerException e) {
                     LOGGER.error(e.getMessage(), e);
                     showErrorMessage(e.toString());

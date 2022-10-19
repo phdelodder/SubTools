@@ -179,7 +179,7 @@ public class ReleaseParserTest {
 
         MovieRelease movieRelease = (MovieRelease) release;
 
-        assertEquals(movieRelease.getYear(), 1989);
+        assertEquals((int) movieRelease.getYear(), 1989);
         assertEquals(movieRelease.getName(), "Back to the Future Part II");
 
         file = new File("The.Equalizer.2014.720p.BluRay.x264-SPARKS.mkv");
@@ -193,7 +193,7 @@ public class ReleaseParserTest {
 
         movieRelease = (MovieRelease) release;
 
-        assertEquals(movieRelease.getYear(), 2014);
+        assertEquals((int) movieRelease.getYear(), 2014);
         assertEquals(movieRelease.getName(), "The Equalizer");
 
         file = new File("The.Trip.to.Italy.2014.LIMITED.720p.BluRay.x264-GECKOS.mkv");
@@ -208,7 +208,7 @@ public class ReleaseParserTest {
 
         movieRelease = (MovieRelease) release;
 
-        assertEquals(movieRelease.getYear(), 2014);
+        assertEquals((int) movieRelease.getYear(), 2014);
         assertEquals(movieRelease.getName(), "The Trip to Italy");
 
     }

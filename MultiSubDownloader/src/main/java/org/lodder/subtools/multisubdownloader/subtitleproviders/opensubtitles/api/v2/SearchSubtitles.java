@@ -12,6 +12,8 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.ap
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param.TrustedSourcesEnum;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param.TypeEnum;
 import org.lodder.subtools.sublibrary.Language;
+import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.opensubtitles.api.SubtitlesApi;
 import org.opensubtitles.invoker.ApiClient;
 import org.opensubtitles.model.Subtitles200Response;
@@ -26,6 +28,7 @@ import lombok.experimental.Accessors;
 @Setter
 @RequiredArgsConstructor
 public class SearchSubtitles extends OpenSubtitlesExecuter {
+    private final Manager manager;
     private final ApiClient apiClient;
 
     private AiTranslatedEnum aiTranslated;
@@ -75,15 +78,25 @@ public class SearchSubtitles extends OpenSubtitlesExecuter {
     private Integer year;
 
     public Subtitles200Response searchSubtitles() throws OpenSubtitlesException {
-        try {
-            return execute(() -> new SubtitlesApi(apiClient).subtitles(id, imdbId, tmdbId, getValue(type), query,
-                    language != null ? language.getLangCode() : null, movieHash,
-                    userId, getValue(hearingImpaired), getValue(foreignPartsOnly), getValue(trustedSources), getValue(machineTranslated),
-                    getValue(aiTranslated), orderBy == null ? null : orderBy.getParamName(), getValue(orderDirection), parentFeatureId, parentImdbId,
-                    parentTmdbId, season, episode, year, getValue(movieHashMatch), page));
-        } catch (Exception e) {
-            throw new OpenSubtitlesException(e);
-        }
+        return manager.valueBuilder()
+                .cacheType(CacheType.MEMORY)
+                .key("OpenSubtitles-subtitles-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s"
+                        .formatted(id, imdbId, tmdbId, type, query, language, movieHash, userId, hearingImpaired,
+                                foreignPartsOnly, trustedSources, machineTranslated, aiTranslated, orderBy, orderDirection,
+                                parentFeatureId, parentImdbId, parentTmdbId, season, episode, year, movieHashMatch, page))
+                .valueSupplier(() -> {
+                    try {
+                        return execute(() -> new SubtitlesApi(apiClient).subtitles(id, imdbId, tmdbId, getValue(type), query,
+                                language != null ? language.getLangCode() : null, movieHash,
+                                userId, getValue(hearingImpaired), getValue(foreignPartsOnly), getValue(trustedSources), getValue(machineTranslated),
+                                getValue(aiTranslated), orderBy == null ? null : orderBy.getParamName(), getValue(orderDirection), parentFeatureId,
+                                parentImdbId,
+                                parentTmdbId, season, episode, year, getValue(movieHashMatch), page));
+                    } catch (Exception e) {
+                        throw new OpenSubtitlesException(e);
+                    }
+                })
+                .get();
     }
 
     private String getValue(ParamIntf param) {

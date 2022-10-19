@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.serviceproviders;
 
+import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
 import org.lodder.subtools.multisubdownloader.framework.service.providers.ServiceProvider;
@@ -13,6 +14,7 @@ public class LocalServiceProvider implements ServiceProvider {
 
     protected Container app;
     protected SubtitleProvider subtitleProvider;
+    private UserInteractionHandler userInteractionHandler;
 
     @Override
     public int getPriority() {
@@ -21,8 +23,9 @@ public class LocalServiceProvider implements ServiceProvider {
     }
 
     @Override
-    public void register(Container app) {
+    public void register(Container app, UserInteractionHandler userInteractionHandler) {
         this.app = app;
+        this.userInteractionHandler = userInteractionHandler;
 
         /* Resolve the SubtitleProviderStore from the IoC Container */
         final SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) app.make("SubtitleProviderStore");
@@ -40,7 +43,7 @@ public class LocalServiceProvider implements ServiceProvider {
     private SubtitleProvider createProvider() {
         Settings settings = (Settings) this.app.make("Settings");
         Manager manager = (Manager) app.make("Manager");
-        return new Local(settings, manager);
+        return new Local(settings, manager, userInteractionHandler);
     }
 
     private void registerListener(final SubtitleProviderStore subtitleProviderStore) {
