@@ -36,13 +36,13 @@ public enum SettingValue {
 //    GENERAL_DEFAULT_INCOMING_FOLDER(File::getAbsolutePath, File::new, SettingsControl::getSettings, (settings, v) -> settings.getDefaultIncomingFolders().add(v),  (settings, consumer) -> settings.getDefaultIncomingFolders().forEach(consumer::accept)),
     GENERAL_DEFAULT_INCOMING_FOLDER(File::getAbsolutePath, File::new, SettingsControl::getSettings, Settings::getDefaultIncomingFolders),
     LOCAL_SUBTITLES_SOURCES_FOLDERS(File::getAbsolutePath, File::new, SettingsControl::getSettings, Settings::getLocalSourcesFolders),
-    EXCLUDE_ITEM(v -> v.getDescription() + getDelimiter() + v.getType().toString(),
+    EXCLUDE_ITEM(v -> v.getType().toString() + "//" + v.getDescription(),
             v -> {
-                String[] split = v.split(getDelimiter());
-                String description = split[0];
+                String[] split = v.split("//", 2);
+                String description = split[1];
                 SettingsExcludeType type;
                 try {
-                    type = SettingsExcludeType.valueOf(split[1]);
+                    type = SettingsExcludeType.valueOf(split[0]);
                 } catch (IllegalArgumentException e) {
                     type = SettingsExcludeType.FOLDER;
                 }
@@ -251,10 +251,6 @@ public enum SettingValue {
 
     public void load(SettingsControl settingsControl, Preferences preferences) {
         loadValueFunction.accept(settingsControl, preferences);
-    }
-
-    protected static String getDelimiter() {
-        return "[==]";
     }
 
     public static void loadAll(SettingsControl settingsControl, Preferences preferences) {

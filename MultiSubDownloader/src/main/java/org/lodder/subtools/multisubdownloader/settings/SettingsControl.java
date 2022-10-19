@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
 import java.util.prefs.Preferences;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
@@ -129,6 +131,9 @@ public class SettingsControl {
         if (version == 2) {
             migrateSettingsV2ToV3();
         }
+        if (version == 3) {
+            migrateSettingsV3ToV4();
+        }
     }
 
     public void migrateSettingsV0ToV1() {
@@ -229,6 +234,20 @@ public class SettingsControl {
         // preferences.remove("DictionarySize");
 
         settings.setSettingsVersion(3);
+        SETTINGS_VERSION.store(this, preferences);
+    }
+
+    public void migrateSettingsV3ToV4() {
+        int numberOfItems = preferences.getInt("ExcludeItemSize", 0);
+        Pattern pattern = Pattern.compile("(.*?)\\[*==\\](.*?)");
+        IntStream.range(0, numberOfItems).forEach(i -> {
+            String v = preferences.get("ExcludeItem" + i, "");
+            Matcher matcher = pattern.matcher(v);
+            matcher.matches();
+            String newValue = matcher.group(2) + "//" + matcher.group(1);
+            preferences.put("ExcludeItem" + i, newValue);
+        });
+        settings.setSettingsVersion(4);
         SETTINGS_VERSION.store(this, preferences);
     }
 
