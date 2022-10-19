@@ -24,28 +24,20 @@ import org.lodder.subtools.sublibrary.util.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class HttpClient {
 
-    private CookieManager cookieManager;
+    private final CookieManager cookieManager;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClient.class);
 
     public HttpClient() {
-    }
-
-    public void setCookieManager(CookieManager cookieManager) {
-        this.cookieManager = cookieManager;
-    }
-
-    public void validate() throws HttpClientSetupException {
-        if (cookieManager == null) {
-            throw new HttpClientSetupException("CookieManager is not initialized");
-        }
+        this(new CookieManager());
     }
 
     public String doGet(URL url, String userAgent) throws IOException, HttpClientException, HttpClientSetupException {
-        validate();
-
         URLConnection conn = url.openConnection();
         cookieManager.setCookies(conn);
 
@@ -64,8 +56,6 @@ public class HttpClient {
     }
 
     public String doPost(URL url, String userAgent, Map<String, String> data) throws HttpClientSetupException, HttpClientException {
-        validate();
-
         HttpURLConnection conn = null;
 
         try {

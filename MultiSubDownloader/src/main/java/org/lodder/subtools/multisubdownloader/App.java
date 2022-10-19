@@ -28,7 +28,6 @@ import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
 import org.lodder.subtools.sublibrary.cache.InMemoryCache;
 import org.lodder.subtools.sublibrary.cache.SerializableDiskCache;
-import org.lodder.subtools.sublibrary.util.http.CookieManager;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,11 +160,6 @@ public class App {
                         .maxItems(500)
                         .build();
 
-        HttpClient httpClient = new HttpClient();
-        httpClient.setCookieManager(new CookieManager());
-
-        // UserInteractionHandler userInteractionHanlder = useGui ? new UserInteractionHandlerGUI() : new UserInteractionHandlerCLI();
-
-        return new Manager(httpClient, inMemoryCache, diskCache);
+        return new Manager(new HttpClient(), inMemoryCache, diskCache);
     }
 }

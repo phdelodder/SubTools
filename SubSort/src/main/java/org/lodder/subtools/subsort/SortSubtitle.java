@@ -38,7 +38,6 @@ import org.lodder.subtools.sublibrary.privateRepo.model.IndexSubtitle;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
-import org.lodder.subtools.sublibrary.util.http.CookieManager;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
 import org.lodder.subtools.subsort.lib.control.VideoFileFactory;
 import org.slf4j.Logger;
@@ -71,10 +70,7 @@ public class SortSubtitle {
                         .maxItems(500)
                         .build();
 
-        HttpClient httpClient = new HttpClient();
-        httpClient.setCookieManager(new CookieManager());
-
-        this.manager = new Manager(httpClient, inMemoryCache, diskCache);
+        this.manager = new Manager(new HttpClient(), inMemoryCache, diskCache);
 
         if (!backingStoreAvailable()) {
             LOGGER.error("Unable to store preferences, used debug for reason");

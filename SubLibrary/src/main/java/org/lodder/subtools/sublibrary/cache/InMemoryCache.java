@@ -220,7 +220,7 @@ public class InMemoryCache<K, V> {
 
     public List<Pair<K, V>> getEntries(Predicate<K> keyFilter) {
         synchronized (cacheMap) {
-            return cacheMap.entrySet().stream().peek(System.out::println).filter(entry -> keyFilter == null || keyFilter.test(entry.getKey()))
+            return cacheMap.entrySet().stream().filter(entry -> keyFilter == null || keyFilter.test(entry.getKey()))
                     .map(entry -> Pair.of(entry.getKey(), entry.getValue().getValue())).toList();
         }
     }
