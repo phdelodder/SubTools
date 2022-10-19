@@ -155,7 +155,7 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
 
     private void initialize() {
         setResizable(true);
-        setBounds(100, 100, 650, 300);
+        setBounds(150, 150, 650, 400);
         getContentPane().setLayout(new BorderLayout());
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(contentPanel, BorderLayout.CENTER);

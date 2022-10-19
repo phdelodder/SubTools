@@ -21,17 +21,4 @@ public class XmlHTTP {
     public PageContentBuilderCacheTypeIntf getXML(String url) {
         return manager.getPageContentBuilder().url(url).userAgent(null);
     }
-
-    // public Document getXMLDisk(String url) throws ManagerSetupException, ManagerException, ParserConfigurationException, SAXException, IOException
-    // {
-    // LOGGER.trace("getXMLDisk {}", url);
-    // String content = manager.getPageContentBuilder().url(url).userAgent(null).cacheType(CacheType.DISK).get();
-    // // Bierdopje issue! OElig
-    // content = content.replace("&OElig;", "Œ");
-    // // Bierdopje issue! &Pi;
-    // content = content.replace("&Pi;", "\u003A0").replace("&pi;", "\u003A0");
-    // // BIerdopje issue! &hellip;
-    // content = content.replace("&hellip;", "...");
-    // return XMLHelper.getDocument(content);
-    // }
 }

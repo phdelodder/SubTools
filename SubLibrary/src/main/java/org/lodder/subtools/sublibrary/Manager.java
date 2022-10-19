@@ -53,8 +53,6 @@ public class Manager {
     private final HttpClient httpClient;
     private final InMemoryCache inMemoryCache;
     private final DiskCache diskCache;
-    // @Getter
-    // private final UserInteractionHandler userInputHandler;
 
     public String downloadText(String urlString) throws ManagerException {
         try {
@@ -83,10 +81,6 @@ public class Manager {
             throw new ManagerException(e);
         }
     }
-
-    // public boolean isCached(String url) {
-    // return inMemoryCache.contains(url);
-    // }
 
     public void storeCookies(String domain, Map<String, String> cookieMap) {
         httpClient.storeCookies(domain, cookieMap);

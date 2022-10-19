@@ -76,17 +76,6 @@ public class SubsceneApi extends Html implements SubtitleApi {
                     .map(titleElement -> Pair.of(titleElement.text(), titleElement.nextElementSibling().select("a").stream()
                             .map(aElem -> new ProviderSerieId(aElem.text(), aElem.attr("href"))).toList()))
                     .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
-
-            // Elements h2Elements = searchResultElement.select("h2");
-            // Function<String, Optional<List<ProviderSerieId>>> providerIdFunction =
-            // type -> h2Elements.stream().filter(element -> type.equals(element.text())).findAny()
-            // .map(elem -> elem.nextElementSibling().select("a").stream()
-            // .map(aElem -> new ProviderSerieId(aElem.text(), aElem.attr("href")))
-            // .toList());
-            //
-            // return providerIdFunction.apply("TV-Series")
-            // .orElseMapOptional(() -> providerIdFunction.apply("Exact"))
-            // .orElseGet(() -> h2Elements.select("a").stream().map(aElem -> new ProviderSerieId(aElem.text(), aElem.attr("href"))).toList());
         } catch (Exception e) {
             throw new SubsceneException(e);
         }
@@ -113,29 +102,6 @@ public class SubsceneApi extends Html implements SubtitleApi {
         }
     }
 
-    // public List<SubsceneSubtitleDescriptor> getSubtitles(ProviderSerieId providerSerieId, int season, int episode, Language language,
-    // ThrowingFunction<List<UrlForSerie>, Optional<UrlForSerie>, ApiException> multipleResultHandler) throws SubsceneException {
-    // setLanguageWithCookie(language);
-    // try {
-    // return getShowUrl(providerSerieId, season, multipleResultHandler)
-    // .mapToObj(url -> getJsoupDocument(url, CacheType.MEMORY)
-    // .select("td.a1").stream().map(Element::parent)
-    // .map(row -> new SubsceneSubtitleDescriptor()
-    // .setLanguage(Language.fromValueOptional(row.select(".a1 span.l").text().trim()).orElse(null))
-    // .setUrlSupplier(() -> getDownloadUrl(DOMAIN + row.select(".a1 > a").attr("href").trim()))
-    // .setName(row.select(".a1 span:not(.l)").text().trim())
-    // .setHearingImpaired(!row.select(".a41").isEmpty())
-    // .setUploader(row.select(".a5 > a").text().trim())
-    // .setComment(row.select(".a6 > div").text().trim()))
-    // .filter(subDescriptor -> subDescriptor.getSeasonEpisode() != null
-    // && subDescriptor.getSeasonEpisode().getEpisodes().stream().anyMatch(ep -> ep == episode))
-    // .toList())
-    // .orElseGet(List::of);
-    // } catch (Exception e) {
-    // throw new SubsceneException(e);
-    // }
-    // }
-
     private String getDownloadUrl(String seriePageUrl) throws SubsceneException {
         try {
             return DOMAIN + getJsoupDocument(seriePageUrl, CacheType.NONE).selectFirst("#downloadButton").attr("href");
@@ -143,84 +109,6 @@ public class SubsceneApi extends Html implements SubtitleApi {
             throw new SubsceneException(e);
         }
     }
-
-    // private Optional<String> getShowUrl(ProviderSerieId providerSerieId, int season,
-    // ThrowingFunction<List<UrlForSerie>, Optional<UrlForSerie>, ApiException> multipleResultHandler) throws SubsceneException {
-    //
-    // return getManager().valueBuilder()
-    // .cacheType(CacheType.DISK)
-    // .key("%s-url-%s-%s".formatted(getSubtitleSource().name(),
-    // subsceneSerieName.getTvdbId().mapToObj(tvdbId -> "tvdbId:" + tvdbId).orElse("name:" + subsceneSerieName.subsceneName),
-    // season))
-    // .optionalSupplier(() -> {
-    // try {
-    // String url = DOMAIN + "/subtitles/searchbytitle?query="
-    // + URLEncoder.encode(subsceneSerieName.subsceneName, StandardCharsets.UTF_8);
-    // Element searchResultElement = getJsoupDocument(url, CacheType.MEMORY).selectFirst(".search-result");
-    // if (searchResultElement == null) {
-    // return Optional.empty();
-    // }
-    // Element closeResultElement = searchResultElement.selectFirst(".close");
-    // if (closeResultElement == null) {
-    // return Optional.empty();
-    // }
-    // // find all serie urls (which don't contain the year)
-    // List<String> urlsForSeries = searchResultElement.select("h2").stream()
-    // .filter(element -> "TV-Series".equals(element.text())).findFirst().stream()
-    // .map(Element::nextElementSibling)
-    // .flatMap(element -> element.select(".title a").stream().map(elem -> elem.attr("href")))
-    // .toList();
-    //
-    // Pattern elementNamePattern = Pattern.compile("(.*) - (.*?) Season(.*)");
-    // // find all urls (which contain the year), filtering out non-serie urls using the previous made list
-    // List<UrlForSerie> urlsForSerie = closeResultElement.nextElementSibling()
-    // .select(".title a").stream()
-    // .filter(element -> urlsForSeries.contains(element.attr("href")))
-    // .map(element -> {
-    // Matcher matcher = elementNamePattern.matcher(element.text());
-    // return matcher.matches() && StringUtils.equalsIgnoreCase(matcher.group(2), getOrdinalName(season))
-    // ? new UrlForSerie(matcher.group(1) + matcher.group(3),
-    // StringUtils.substringAfterLast(element.attr("href"), "/"))
-    // : null;
-    // })
-    // .filter(Objects::nonNull)
-    // .toList();
-    // return multipleResultHandler.apply(urlsForSerie)
-    // .map(urlForSerie -> new SerieMapping(subsceneSerieName.name, urlForSerie.url(), urlForSerie.name));
-    // } catch (Exception e) {
-    // throw new SubsceneException(e);
-    // }
-    // })
-    // .getOptional().map(serieMapping -> SERIE_URL_PREFIX + serieMapping.getUri());
-    // }
-    //
-    // public static record SubsceneSerieName(String name, String subsceneName, int tvdbId) implements Serializable {
-    // public OptionalInt getTvdbId() {
-    // return tvdbId > 0 ? OptionalInt.of(tvdbId) : OptionalInt.empty();
-    // }
-    // }
-    //
-    // public static record UrlForSerie(String name, String url) {}
-    //
-    // @ToString
-    // @Getter
-    // public static class SerieMapping extends SerieMapping {
-    // private static final long serialVersionUID = 537382757186290560L;
-    // private final String uri;
-    // private final String subsceneName;
-    //
-    // public SerieMapping(String name, String uri, String subsceneName) {
-    // super(name);
-    // this.uri = uri;
-    // this.subsceneName = subsceneName;
-    // }
-    //
-    // @Override
-    // public String getMappingValue() {
-    // return subsceneName;
-    // }
-    //
-    // }
 
     private Document getJsoupDocument(String url, CacheType cacheType) throws ManagerException {
         while (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION_SHORT) {

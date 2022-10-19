@@ -56,15 +56,6 @@ public class TvReleaseControl extends ReleaseControl {
                             () -> new ReleaseControlException("Season %s Episode %s not found, check file".formatted(tvRelease.getSeason(),
                                     tvRelease.getEpisodeNumbers().toString()), tvRelease));
         }, () -> new ReleaseControlException("Show not found, check file", tvRelease));
-
-        // setTvdbInfo();
-        // tvRelease.getTvdbId().ifPresentOrThrow(
-        // tvdbId -> jtvdba.getEpisode(tvdbId, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0))
-        // .ifPresentOrThrow(
-        // tvRelease::updateTvdbEpisodeInfo,
-        // () -> new ReleaseControlException("Season %s Episode %s not found, check file".formatted(tvRelease.getSeason(),
-        // tvRelease.getEpisodeNumbers().toString()), tvRelease)),
-        // () -> new ReleaseControlException("Show not found, check file", tvRelease));
     }
 
     private void processSpecial() throws ReleaseControlException {
@@ -76,21 +67,7 @@ public class TvReleaseControl extends ReleaseControl {
                         .ifPresent(tvRelease::updateTvdbEpisodeInfo);
             }
         }, () -> new ReleaseControlException("Show not found, check file", tvRelease));
-
-        // setTvdbInfo();
-        //
-        // tvRelease.getTvdbId()
-        // .filter(tvdbId -> getSettings().getProcessEpisodeSource() == SettingsProcessEpisodeSource.TVDB)
-        // .ifPresent(tvdbId -> jtvdba.getEpisode(tvdbId, tvRelease.getSeason(), tvRelease.getEpisodeNumbers().get(0))
-        // .ifPresent(tvRelease::updateTvdbEpisodeInfo));
     }
-
-    // private void setTvdbInfo() {
-    // jtvdba.getSerie(tvRelease.getName()).ifPresent(tvdbSerie -> {
-    // tvRelease.setTvdbId(Integer.parseInt(tvdbSerie.getId()));
-    // tvRelease.setOriginalName(tvdbSerie.getSerieName());
-    // });
-    // }
 
     @Override
     public Release getVideoFile() {

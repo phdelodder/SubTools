@@ -95,58 +95,6 @@ public class JAddic7edViaProxyAdapter extends AbstractAdapter<Subtitle, Provider
                 .orElseGet(Set::of);
     }
 
-    // @Override
-    // public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language, UserInteractionHandler userInteraction) {
-    // ThrowingFunction<String, Optional<Addic7edSerieName>, ApiException> getAddic7edSerieNameFunction = name -> {
-    // ThrowingFunction<List<String>, Optional<String>, ApiException> multipleResultHandler = shows -> {
-    // if (shows.isEmpty()) {
-    // return Optional.empty();
-    // } else if (!confirmProviderMapping && shows.size() == 1) {
-    // return Optional.of(shows.get(0));
-    // } else {
-    // String displaySerieName =
-    // StringUtils.isNotBlank(tvRelease.getOriginalName()) ? tvRelease.getOriginalName() : tvRelease.getName();
-    // String formattedName = SerieMapping.formatName(name);
-    // return userInteraction.selectFromList(shows.stream().sorted(Comparator
-    // .comparing(n -> formattedName.equalsIgnoreCase(SerieMapping.formatName(n)),
-    // Comparator.reverseOrder()))
-    // .toList(),
-    // Messages.getString("SelectDialog.SelectSerieNameForName").formatted(displaySerieName),
-    // getSubtitleSource().getName());
-    // }
-    // };
-    // return jaapi.getAddic7edSerieName(name, tvRelease.getTvdbId(), multipleResultHandler);
-    // };
-    //
-    // try {
-    // Optional<Addic7edSerieName> addic7edSerieNameOptional = getAddic7edSerieNameFunction.apply(tvRelease.getOriginalName());
-    // if (addic7edSerieNameOptional.isEmpty()) {
-    // addic7edSerieNameOptional = getAddic7edSerieNameFunction.apply(tvRelease.getName());
-    // }
-    //
-    // return addic7edSerieNameOptional
-    // .map(addic7edSerieName -> tvRelease.getEpisodeNumbers().stream()
-    // .flatMap(episode -> {
-    // try {
-    // return jaapi
-    // .searchSubtitles(addic7edSerieName, tvRelease.getSeason(), episode, language)
-    // .stream();
-    // } catch (Exception e) {
-    // LOGGER.error("API %s (via proxy) searchSubtitles for serie [%s] (%s)".formatted(getSubtitleSource().getName(),
-    // TvRelease.formatName(addic7edSerieName.serieName(), tvRelease.getSeason(), episode), e.getMessage()), e);
-    // return Stream.empty();
-    // }
-    // })
-    // .collect(Collectors.toSet()))
-    // .orElseGet(Set::of);
-    // } catch (ApiException e) {
-    // String displayName = StringUtils.isNotBlank(tvRelease.getOriginalName()) ? tvRelease.getOriginalName() : tvRelease.getName();
-    // LOGGER.error("API %s (via proxy) searchSubtitles for serie [%s] (%s)".formatted(getSubtitleSource().getName(),
-    // TvRelease.formatName(displayName, tvRelease.getSeason(), tvRelease.getFirstEpisodeNumber()), e.getMessage()), e);
-    // return Set.of();
-    // }
-    // }
-
     @Override
     public List<ProviderSerieId> getSortedProviderSerieIds(String serieName, int season) throws ApiException {
         return getApi().getProviderSerieName(serieName).stream()

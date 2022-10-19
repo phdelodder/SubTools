@@ -98,30 +98,6 @@ public class JPodnapisiApi extends XmlRPC implements SubtitleApi {
                 : Optional.empty();
     }
 
-    // public Optional<PodnapisisShowName> getPodnapisiShowName(String showName, OptionalInt tvdbIdOptional) throws PodnapisiException {
-    // Function<Integer, ValueBuilderIsPresentIntf> valueBuilderSupplier = tvdbId -> getManager().valueBuilder().cacheType(CacheType.DISK)
-    // .key("%s-serieName-tvdbId:%s".formatted(getSubtitleSource().name(), tvdbId));
-    //
-    // if (tvdbIdOptional.isPresent() && valueBuilderSupplier.apply(tvdbIdOptional.getAsInt()).isPresent()) {
-    // return valueBuilderSupplier.apply(tvdbIdOptional.getAsInt()).returnType(PodnapisisShowName.class).getOptional();
-    // }
-    // if (StringUtils.isBlank(showName)) {
-    // return Optional.empty();
-    // }
-    //
-    // return manager.valueBuilder()
-    // .cacheType(CacheType.DISK)
-    // .key("%s-serieName-name:%s".formatted(getSubtitleSource().name(), showName.toLowerCase()))
-    // .optionalSupplier(() -> {
-    // String url = DOMAIN + "/sl/ppodnapisi/search?sK=" + URLEncoder.encode(showName.trim().toLowerCase(), StandardCharsets.UTF_8);
-    // return getXML(url).selectFirst(".subtitle-entry") != null
-    // ? Optional.of(new PodnapisisShowName(showName))
-    // : Optional.empty();
-    // }).getOptional()
-    // .ifPresentDo(addic7edSerieName -> tvdbIdOptional
-    // .ifPresent(tvdbId -> valueBuilderSupplier.apply(tvdbId).value(addic7edSerieName).store()));
-    // }
-
     @SuppressWarnings("unchecked")
     public List<PodnapisiSubtitleDescriptor> getSubtitles(String[] filehash, Language language) throws PodnapisiException {
         try {
@@ -178,21 +154,6 @@ public class JPodnapisiApi extends XmlRPC implements SubtitleApi {
             throw new PodnapisiException(e);
         }
     }
-
-    // @ToString
-    // @Getter
-    // public static class PodnapisisShowName extends SerieMapping {
-    // private static final long serialVersionUID = 537382757186290560L;
-    //
-    // public PodnapisisShowName(String name) {
-    // super(name);
-    // }
-    //
-    // @Override
-    // public String getMappingValue() {
-    // return getName();
-    // }
-    // }
 
     @SuppressWarnings("unchecked")
     public String download(String subtitleId) throws PodnapisiException {

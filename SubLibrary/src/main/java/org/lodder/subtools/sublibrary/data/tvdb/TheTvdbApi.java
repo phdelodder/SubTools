@@ -49,66 +49,7 @@ public class TheTvdbApi {
         }
     }
 
-    // @Getter
-    // public static class TvdbSerieId extends ProviderSerieId implements Serializable {
-    //
-    // private static final long serialVersionUID = 1L;
-    // private final String firstAired;
-    //
-    // public TvdbSerieId(String name, int id, String firstAired) {
-    // super(name, String.valueOf(id));
-    // this.firstAired = firstAired;
-    // }
-    // }
-
-    // public OptionalInt getSerieId(String seriename, Language language) throws TheTvdbException {
-    // return getSerieId(seriename, language, null);
-    // }
-
-    // public OptionalInt getSerieId(String seriename, Language language, ThrowingSupplier<OptionalInt, TheTvdbException> noResultCallback)
-    // throws TheTvdbException {
-    // String encodedSerieName = URLEncoder.encode(seriename.toLowerCase().replace(" ", "-"), StandardCharsets.UTF_8);
-    // return manager.valueBuilder()
-    // .cacheType(CacheType.DISK)
-    // .key("TVDB-serieId-%s-%s".formatted(encodedSerieName, language))
-    // .optionalSupplier(() -> {
-    // try {
-    // Response<SeriesResultsResponse> response =
-    // theTvdb.search().series(encodedSerieName, null, null, null, language == null ? null : language.getLangCode())
-    // .execute();
-    // if (response.isSuccessful()) {
-    // List<Series> results = response.body().data.stream().toList();
-    // Optional<Series> selectedTvdbSerie = selectTvdbSerieForSerieName(results, seriename);
-    // if (selectedTvdbSerie.isPresent()) {
-    // return selectedTvdbSerie.map(tvdbSerie -> new SerieMapping(seriename, tvdbSerie.id, tvdbSerie.seriesName));
-    // }
-    // }
-    // if (noResultCallback != null) {
-    // OptionalInt tvdbId = noResultCallback.get();
-    // return tvdbId.isPresent()
-    // ? Optional.of(new SerieMapping(seriename, tvdbId.getAsInt(), String.valueOf(tvdbId.getAsInt())))
-    // : Optional.empty();
-    // }
-    // return Optional.empty();
-    // } catch (IOException e) {
-    // if (noResultCallback != null) {
-    // OptionalInt tvdbId = noResultCallback.get();
-    // return tvdbId.isPresent()
-    // ? Optional.of(new SerieMapping(seriename, tvdbId.getAsInt(), String.valueOf(tvdbId.getAsInt())))
-    // : Optional.empty();
-    // }
-    // throw new TheTvdbException(e);
-    // }
-    // })
-    // .storeTempValue()
-    // .getOptional().mapToInt(serieMapping -> Integer.parseInt(serieMapping.getProviderId()));
-    // }
-
     public Optional<TheTvdbSerie> getSerie(int tvdbId, Language language) throws TheTvdbException {
-        // return manager.valueBuilder()
-        // .cacheType(CacheType.DISK)
-        // .key("TVDB-Serie-%s-%s".formatted(serieMapping.getProviderId(), language))
-        // .optionalSupplier(() -> {
         try {
             Response<SeriesResponse> response =
                     theTvdb.series()
@@ -121,32 +62,7 @@ public class TheTvdbApi {
         } catch (IOException e) {
             throw new TheTvdbException(e);
         }
-        // }).storeTempValue().getOptional();
     }
-
-    // public List<TheTvdbEpisode> getAllEpisodes(SerieMapping serieMapping, Language language) throws TheTvdbException {
-    // return manager.valueBuilder()
-    // .cacheType(CacheType.MEMORY)
-    // .key("TVDB-episodes-%s-%s".formatted(serieMapping.getProviderId(), language))
-    // .collectionSupplier(TheTvdbEpisode.class, () -> {
-    // try {
-    // if (tvdbId != 0) {
-    // Response<EpisodesResponse> response =
-    // theTvdb.series().episodes(tvdbId, 1, language == null ? null : language.getLangCode()).execute();
-    // if (response.isSuccessful()) {
-    // return response.body().data.stream()
-    // .map(episode -> episodeToTVDBEpisode(episode, language))
-    // .collect(Collectors.toList());
-    // }
-    // } else {
-    // LOGGER.warn("TVDB ID is 0! please fix");
-    // }
-    // return List.of();
-    // } catch (IOException e) {
-    // throw new TheTvdbException(e);
-    // }
-    // }).getCollection();
-    // }
 
     public Optional<TheTvdbEpisode> getEpisode(int tvdbId, int season, int episode, Language language) throws TheTvdbException {
         try {

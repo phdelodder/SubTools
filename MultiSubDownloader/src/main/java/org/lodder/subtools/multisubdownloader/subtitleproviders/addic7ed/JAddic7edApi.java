@@ -84,40 +84,6 @@ public class JAddic7edApi extends Html implements SubtitleApi {
         }
     }
 
-    // public Optional<SerieMapping> getAddic7edSerieMapping(String serieName, OptionalInt tvdbIdOptional,
-    // ThrowingFunction<List<SerieNameAndId>, Optional<SerieNameAndId>, Addic7edException> multipleResultHandler) throws Addic7edException {
-    //
-    // Function<Integer, ValueBuilderIsPresentIntf> valueBuilderSupplier =
-    // tvdbId -> getManager().valueBuilder().cacheType(CacheType.DISK)
-    // .key("%s-serieName-tvdbId:%s".formatted(getSubtitleSource().name(), tvdbId));
-    //
-    // if (tvdbIdOptional.isPresent() && valueBuilderSupplier.apply(tvdbIdOptional.getAsInt()).isPresent()) {
-    // return valueBuilderSupplier.apply(tvdbIdOptional.getAsInt()).returnType(SerieMapping.class).getOptional();
-    // }
-    // if (StringUtils.isBlank(serieName)) {
-    // return Optional.empty();
-    // }
-    // return getManager().valueBuilder()
-    // .cacheType(CacheType.DISK)
-    // .key("%s-serieName-name:%s".formatted(getSubtitleSource().name(), serieName.toLowerCase()))
-    // .optionalSupplier(() -> {
-    // try {
-    // return multipleResultHandler.apply(getAllMappings().stream().filter(nameAndId -> nameAndId.matches(serieName))
-    // .sorted(getNameAndIdComparator(serieName)).toList());
-    // } catch (Exception e) {
-    // throw new Addic7edException(e);
-    // }
-    // })
-    // .getOptional().map(serieNameAndId -> new SerieMapping(serieName, serieNameAndId.getId(), serieNameAndId.getMappingValue()))
-    // .ifPresentDo(addic7edSerieName -> tvdbIdOptional
-    // .ifPresent(tvdbId -> valueBuilderSupplier.apply(tvdbId).value(addic7edSerieName).store()));
-    // }
-
-    // private static Comparator<SerieNameAndId> getNameAndIdComparator(String name) {
-    // Comparator<SerieNameAndId> comp = Comparator.comparing(nameAndId -> nameAndId.exactMatch(name), Comparator.reverseOrder());
-    // return comp.thenComparing(SerieNameAndId::getName);
-    // }
-
     private List<ProviderSerieId> getAllMappings() throws Addic7edException {
         return getManager().valueBuilder()
                 .cacheType(CacheType.MEMORY)
@@ -130,42 +96,6 @@ public class JAddic7edApi extends Html implements SubtitleApi {
                                 .orElseGet(List::of))
                 .getCollection();
     }
-
-    // @ToString
-    // @Getter
-    // public static class SerieNameAndId extends SerieMapping {
-    // private static final long serialVersionUID = -6920468896283475523L;
-    // private final int id;
-    //
-    // public SerieNameAndId(String name, int id) {
-    // super(name);
-    // this.id = id;
-    // }
-    //
-    // @Override
-    // public String getMappingValue() {
-    // return getName();
-    // }
-    // }
-
-    // @ToString
-    // @Getter
-    // public static class SerieMapping extends SerieMapping {
-    // private static final long serialVersionUID = 537382757186290560L;
-    // private final int id;
-    // private final String addic7edSerieId;
-    //
-    // public SerieMapping(String name, int id, String addic7edSerieId) {
-    // super(name);
-    // this.id = id;
-    // this.addic7edSerieId = addic7edSerieId;
-    // }
-    //
-    // @Override
-    // public String getMappingValue() {
-    // return addic7edSerieId;
-    // }
-    // }
 
     public List<Addic7edSubtitleDescriptor> getSubtitles(SerieMapping addic7edSerieMapping, int season, int episode, Language language)
             throws Addic7edException {

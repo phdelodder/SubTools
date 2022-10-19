@@ -116,66 +116,6 @@ public class JSubsceneAdapter extends AbstractAdapter<SubsceneSubtitleDescriptor
                         })
                         .collect(Collectors.toSet()))
                 .orElseGet(Set::of);
-
-        // Function<Map<String, List<ProviderSerieId>>, List<ProviderSerieId>> sortedProviderSerieIdFunction =
-        // providerSerieIds -> providerSerieIds.entrySet().stream()
-        // .sorted(Comparator.comparing((Entry<String, List<ProviderSerieId>> entry) -> "TV-Serie".equals(entry.getKey()))
-        // .thenComparing(Comparator.comparing(entry -> "Exact".equals(entry.getKey())))
-        // .thenComparing(Comparator.comparing(entry -> "Close".equals(entry.getKey()))))
-        // .map(Entry::getValue).flatMap(List::stream).toList();
-        //
-        // Map<String, List<ProviderSerieId>> serieIds = getApi().getSubSceneSerieNames(tvRelease.getOriginalName());
-        // if (serieIds.isEmpty() && !StringUtils.equalsIgnoreCase(tvRelease.getOriginalName(), tvRelease.getName())) {
-        // serieIds = getApi().getSubSceneSerieNames(tvRelease.getName());
-        // }
-        //
-        // List<ProviderSerieId> sertedSerieIds = serieIds.entrySet().stream()
-        // .sorted(Comparator.comparing((Entry<String, List<ProviderSerieId>> entry) -> "TV-Serie".equals(entry.getKey()))
-        // .thenComparing(Comparator.comparing(entry -> "Exact".equals(entry.getKey())))
-        // .thenComparing(Comparator.comparing(entry -> "Close".equals(entry.getKey()))))
-        // .map(Entry::getValue).flatMap(List::stream).toList();
-        //
-        // // Elements h2Elements = searchResultElement.select("h2");
-        // // Function<String, Optional<List<ProviderSerieId>>> providerIdFunction =
-        // // type -> h2Elements.stream().filter(element -> type.equals(element.text())).findAny()
-        // // .map(elem -> elem.nextElementSibling().select("a").stream()
-        // // .map(aElem -> new ProviderSerieId(aElem.text(), aElem.attr("href")))
-        // // .toList());
-        // //
-        // // return providerIdFunction.apply("TV-Series")
-        // // .orElseMapOptional(() -> providerIdFunction.apply("Exact"))
-        // // .orElseGet(() -> h2Elements.select("a").stream().map(aElem -> new ProviderSerieId(aElem.text(), aElem.attr("href"))).toList());
-        //
-        // ThrowingFunction<List<UrlForSerie>, Optional<UrlForSerie>, ApiException> multipleResultHandler = urlsForSerie -> {
-        // if (urlsForSerie.isEmpty()) {
-        // return Optional.empty();
-        // } else if (!confirmProviderMapping && urlsForSerie.size() == 1) {
-        // return Optional.of(urlsForSerie.get(0));
-        // } else {
-        // String displayName = StringUtils.isNotBlank(tvRelease.getOriginalName()) ? tvRelease.getOriginalName() : tvRelease.getName();
-        // return userInteractionHandler.selectFromList(
-        // urlsForSerie.stream()
-        // .sorted(USER_INTERACTION_SERIE_COMPARATOR.apply(tvRelease))
-        // .toList(),
-        // Messages.getString("SelectDialog.SelectSerieNameForName").formatted(displayName),
-        // getSubtitleSource().getName(), UrlForSerie::name);
-        // }
-        // };
-        // return getApi().getSubSceneSerieName(tvRelease.getOriginalName(), tvRelease.getTvdbId())
-        // .orElseMapOptional(() -> getApi().getSubSceneSerieName(tvRelease.getName(), tvRelease.getTvdbId()))
-        // .map(subsceneSerieName -> tvRelease.getEpisodeNumbers().stream()
-        // .flatMap(episode -> {
-        // try {
-        // return getApi().getSubtilteDescriptors(subsceneSerieName, tvRelease.getTvdbId(), tvRelease.getSeason(), episode,
-        // language, multipleResultHandler).stream();
-        // } catch (SubsceneException e) {
-        // LOGGER.error("API %s searchSubtitles for serie [%s] (%s)".formatted(getSubtitleSource().getName(),
-        // TvRelease.formatName(subsceneSerieName.subsceneName(), tvRelease.getSeason(), episode), e.getMessage()), e);
-        // return Stream.empty();
-        // }
-        //
-        // }).collect(Collectors.toSet()))
-        // .orElseGet(Set::of);
     }
 
     @Override
@@ -211,20 +151,6 @@ public class JSubsceneAdapter extends AbstractAdapter<SubsceneSubtitleDescriptor
                 .distinct()
                 .toList();
     }
-
-    // private static final Function<TvRelease, Comparator<UrlForSerie>> USER_INTERACTION_SERIE_COMPARATOR = tvRelease -> {
-    // if (StringUtils.isNotBlank(tvRelease.getOriginalName())) {
-    // Comparator<UrlForSerie> comp = Comparator.comparing(
-    // n -> SerieMapping.formatName(tvRelease.getOriginalName()).equalsIgnoreCase(SerieMapping.formatName(n.name())),
-    // Comparator.reverseOrder());
-    // return comp.thenComparing(Comparator.comparing(UrlForSerie::name, Comparator.reverseOrder()));
-    // } else {
-    // Comparator<UrlForSerie> comp = Comparator.comparing(
-    // n -> SerieMapping.formatName(tvRelease.getName()).equalsIgnoreCase(SerieMapping.formatName(n.name())),
-    // Comparator.reverseOrder());
-    // return comp.thenComparing(Comparator.comparing(UrlForSerie::name, Comparator.reverseOrder()));
-    // }
-    // };
 
     @Override
     public Set<Subtitle> convertToSubtitles(TvRelease tvRelease, Collection<SubsceneSubtitleDescriptor> subtitles, Language language) {
@@ -262,7 +188,6 @@ public class JSubsceneAdapter extends AbstractAdapter<SubsceneSubtitleDescriptor
                 return "%s (%s %s)".formatted(providerSerieId.getName(), Messages.getString("Menu.Season"), season.getAsInt());
             }
         }
-        // return "%s (%s)".formatted(providerSerieId.getName(), providerSerieId.getId().replace("/subtitle/", ""));
         return providerSerieId.getName();
     }
 
@@ -384,107 +309,5 @@ public class JSubsceneAdapter extends AbstractAdapter<SubsceneSubtitleDescriptor
             return "not defined";
         }
         return OrdinalNumber.values()[ordinal].getValue();
-        // return switch (ordinal) {
-        // case 1 -> "First";
-        // case 2 -> "Second";
-        // case 3 -> "Third";
-        // case 4 -> "Fourth";
-        // case 5 -> "Fifth";
-        // case 6 -> "Sixth";
-        // case 7 -> "Seventh";
-        // case 8 -> "Eighth";
-        // case 9 -> "Ninth";
-        // case 10 -> "Tenth";
-        // case 11 -> "Eleventh";
-        // case 12 -> "Twelfth";
-        // case 13 -> "Thirteenth";
-        // case 14 -> "Fourteenth";
-        // case 15 -> "Fifteenth";
-        // case 16 -> "Sixteenth";
-        // case 17 -> "Seventeenth";
-        // case 18 -> "Eighteenth";
-        // case 19 -> "Nineteenth";
-        // case 20 -> "Twentieth";
-        // case 21 -> "Twenty-First";
-        // case 22 -> "Twenty-Second";
-        // case 23 -> "Twenty-Third";
-        // case 24 -> "Twenty-Fourth";
-        // case 25 -> "Twenty-Fifth";
-        // case 26 -> "Twenty-Sixth";
-        // case 27 -> "Twenty-Seventh";
-        // case 28 -> "Twenty-Eighth";
-        // case 29 -> "Twenty-Ninth";
-        // case 30 -> "Thirtieth";
-        // case 31 -> "Thirty-First";
-        // case 32 -> "Thirty-Second";
-        // case 33 -> "Thirty-Third";
-        // case 34 -> "Thirty-Fourth";
-        // case 35 -> "Thirty-Fifth";
-        // case 36 -> "Thirty-Sixth";
-        // case 37 -> "Thirty-Seventh";
-        // case 38 -> "Thirty-Eighth";
-        // case 39 -> "Thirty-Ninth";
-        // case 40 -> "Fortieth";
-        // case 41 -> "Forty-First";
-        // case 42 -> "Forty-Second";
-        // case 43 -> "Forty-Third";
-        // case 44 -> "Forty-Fourth";
-        // case 45 -> "Forty-Fifth";
-        // case 46 -> "Forty-Sixth";
-        // case 47 -> "Forty-Seventh";
-        // case 48 -> "Forty-Eighth";
-        // case 49 -> "Forty-Ninth";
-        // case 50 -> "Fiftieth";
-        // case 51 -> "Fifty-First";
-        // case 52 -> "Fifty-Second";
-        // case 53 -> "Fifty-Third";
-        // case 54 -> "Fifty-Fourth";
-        // case 55 -> "Fifty-Fifth";
-        // case 56 -> "Fifty-Sixth";
-        // case 57 -> "Fifty-Seventh";
-        // case 58 -> "Fifty-Eighth";
-        // case 59 -> "Fifty-Ninth";
-        // case 60 -> "Sixtieth";
-        // case 61 -> "Sixty-First";
-        // case 62 -> "Sixty-Second";
-        // case 63 -> "Sixty-Third";
-        // case 64 -> "Sixty-Fourth";
-        // case 65 -> "Sixty-Fifth";
-        // case 66 -> "Sixty-Sixth";
-        // case 67 -> "Sixty-Seventh";
-        // case 68 -> "Sixty-Eighth";
-        // case 69 -> "Sixty-Ninth";
-        // case 70 -> "Seventieth";
-        // case 71 -> "Seventy-First";
-        // case 72 -> "Seventy-Second";
-        // case 73 -> "Seventy-Third";
-        // case 74 -> "Seventy-Fourth";
-        // case 75 -> "Seventy-Fifth";
-        // case 76 -> "Seventy-Sixth";
-        // case 77 -> "Seventy-Seventh";
-        // case 78 -> "Seventy-Eighth";
-        // case 79 -> "Seventy-Ninth";
-        // case 80 -> "Eightieth";
-        // case 81 -> "Eighty-First";
-        // case 82 -> "Eighty-Second";
-        // case 83 -> "Eighty-Third";
-        // case 84 -> "Eighty-Fourth";
-        // case 85 -> "Eighty-Fifth";
-        // case 86 -> "Eighty-Sixth";
-        // case 87 -> "Eighty-Seventh";
-        // case 88 -> "Eighty-Eighth";
-        // case 89 -> "Eighty-Ninth";
-        // case 90 -> "Ninetieth";
-        // case 91 -> "Ninety-First";
-        // case 92 -> "Ninety-Second";
-        // case 93 -> "Ninety-Third";
-        // case 94 -> "Ninety-Fourth";
-        // case 95 -> "Ninety-Fifth";
-        // case 96 -> "Ninety-Sixth";
-        // case 97 -> "Ninety-Seventh";
-        // case 98 -> "Ninety-Eighth";
-        // case 99 -> "Ninety-Ninth";
-        // case 100 -> "Hundredth";
-        // default -> "not defined";
     }
 }

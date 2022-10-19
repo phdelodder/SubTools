@@ -33,12 +33,6 @@ class ImdbSearchIdApi {
         this.manager = manager;
     }
 
-    // public OptionalInt getImdbId(String title, int year) throws ImdbSearchIdException {
-    // return getImdbIdOnImdb(title, year)
-    // .orElseMap(() -> getImdbIdOnGoogle(title, year))
-    // .orElseMap(() -> getImdbIdOnYahoo(title, year));
-    // }
-
     public List<ProviderSerieId> getImdbIdOnImdb(String title, Integer year) throws ImdbSearchIdException {
         StringBuilder sb = new StringBuilder("https://www.imdb.com/find?q=");
         sb.append(URLEncoder.encode(title, StandardCharsets.UTF_8));
@@ -116,33 +110,4 @@ class ImdbSearchIdApi {
             return matcher.find() ? new ProviderSerieId(toStringMapper.apply(element), matcher.group()) : null;
         }).filter(Objects::nonNull).toList();
     }
-
-    // private OptionalInt getImdbIdCommon(Elements searchResults, String title, int year, Function<Element, String> toStringMapper,
-    // Function<Element, String> toHrefMapper) {
-    // List<Element> matchingElements = searchResults
-    // .stream().filter(elem -> elem.text().replaceAll("[^A-Za-z]", "").equalsIgnoreCase(title.replaceAll("[^A-Za-z]", "")))
-    // .toList();
-    // if (!userInteractionHandler.getSettings().isOptionsConfirmProviderMapping() && matchingElements.size() == 1) {
-    // // found single exact match
-    // String href = toHrefMapper.apply(matchingElements.get(0));
-    // Matcher matcher = IMDB_URL_ID_PATTERN.matcher(href);
-    // return matcher.find() ? OptionalInt.of(Integer.parseInt(matcher.group())) : OptionalInt.empty();
-    // }
-    // String formattedTitle = title.replaceAll("[^A-Za-z]", "");
-    // return userInteractionHandler
-    // .selectFromList(
-    // searchResults.stream()
-    // .sorted(Comparator.comparing(
-    // e -> formattedTitle.equalsIgnoreCase(toStringMapper.apply(e).replaceAll("[^A-Za-z]", "")),
-    // Comparator.reverseOrder()))
-    // .toList(),
-    // Messages.getString("SelectImdbMatchForSerie").formatted(title),
-    // "IMDB",
-    // toStringMapper)
-    // .mapToOptionalObj(e -> {
-    // Matcher matcher = IMDB_URL_ID_PATTERN.matcher(toHrefMapper.apply(e));
-    // return matcher.matches() ? Optional.of(Integer.parseInt(matcher.group(1))) : Optional.empty();
-    // }).mapToInt(i -> i);
-    // }
-
 }

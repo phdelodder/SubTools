@@ -56,39 +56,6 @@ public class TheTvdbAdapter {
         return jtvapi.get();
     }
 
-    // public Optional<TheTvdbSerie> getSerie(String serieName) {
-    // String encodedSerieName = URLEncoder.encode(serieName.toLowerCase().replace(" ", "-"), StandardCharsets.UTF_8);
-    // return manager.valueBuilder()
-    // .cacheType(CacheType.DISK)
-    // .key("TVDB-serieId-%s-%s".formatted(encodedSerieName, null))
-    // .optionalSupplier(() -> {
-    // try {
-    // List<TheTvdbSerie> serieIds = getApi().getSeries(encodedSerieName, null);
-    // if (serieIds.isEmpty()) {
-    // return Optional.empty();
-    // } else if (!userInteractionHandler.getSettings().isOptionsConfirmProviderMapping() && serieIds.size() == 1) {
-    // return Optional.of(serieIds.get(0));
-    // } else {
-    // String formattedSerieName = serieName.replaceAll("[^A-Za-z]", "");
-    // Comparator<TheTvdbSerie> comparator = Comparator
-    // .comparing((TheTvdbSerie s) -> formattedSerieName.equalsIgnoreCase(s.getSerieName().replaceAll("[^A-Za-z]", "")),
-    // Comparator.reverseOrder())
-    // .thenComparing(TheTvdbSerie::getFirstAired, Comparator.reverseOrder());
-    // return userInteractionHandler
-    // .selectFromList(serieIds.stream().sorted(comparator).toList(),
-    // Messages.getString("Prompter.SelectTvdbMatchForSerie").formatted(serieName),
-    // "tvdb", s -> "%s (%s)".formatted(s.getSerieName(), s.getFirstAired()))
-    // .orElseMap(() -> askUserToEnterTvdbId(serieName).mapToOptionalObj(id -> getApi().getSerie(id, null)));
-    // }
-    // } catch (Exception e) {
-    // LOGGER.error("API TVDB getSerieId for serie [%s] (%s)".formatted(serieName, e.getMessage()), e);
-    // return Optional.empty();
-    // }
-    // })
-    // .storeTempValue()
-    // .getOptional();
-    // }
-
     public Optional<TheTvdbSerie> getSerie(String serieName) {
         String encodedSerieName = URLEncoder.encode(serieName.toLowerCase().replace(" ", "-"), StandardCharsets.UTF_8);
         ValueBuilderIsPresentIntf valueBuilder = manager.valueBuilder()
@@ -134,18 +101,6 @@ public class TheTvdbAdapter {
                 .store();
         return tvdbSerie;
     }
-
-    // @Getter
-    // public static class TvdbSerieId extends ProviderSerieId implements Serializable {
-    //
-    // private static final long serialVersionUID = 1L;
-    // private final String firstAired;
-    //
-    // public TvdbSerieId(String name, int id, String firstAired) {
-    // super(name, String.valueOf(id));
-    // this.firstAired = firstAired;
-    // }
-    // }
 
     public Optional<TheTvdbEpisode> getEpisode(int tvdbId, int season, int episode) {
         return manager.valueBuilder()

@@ -41,8 +41,6 @@ public class JAddic7edProxyGestdownApi extends Html implements SubtitleApi {
         subtitlesApi = new SubtitlesApi();
     }
 
-    // public static record Addic7edSerieName(String serieName) implements Serializable {}
-
     public List<ProviderSerieId> getProviderSerieName(String serieName) throws ApiException {
         try {
             return tvShowsApi.showsSearchPost(new ShowSearchRequest().query(serieName)).getShows().stream()
@@ -51,50 +49,6 @@ public class JAddic7edProxyGestdownApi extends Html implements SubtitleApi {
             throw new ApiException(e);
         }
     }
-
-    // public Optional<Addic7edSerieName> getAddic7edSerieName(String serieName, OptionalInt tvdbIdOptional,
-    // ThrowingFunction<List<String>, Optional<String>, ApiException> multipleResultHandler) throws ApiException {
-    // Function<Integer, ValueBuilderIsPresentIntf> valueBuilderSupplier = tvdbId -> getManager().valueBuilder().cacheType(CacheType.DISK)
-    // .key("%s-serieName-tvdbId:%s".formatted("GESTDOWN", tvdbId));
-    //
-    // if (tvdbIdOptional.isPresent() && valueBuilderSupplier.apply(tvdbIdOptional.getAsInt()).isPresent()) {
-    // return valueBuilderSupplier.apply(tvdbIdOptional.getAsInt()).returnType(Addic7edSerieName.class).getOptional();
-    // }
-    // if (StringUtils.isBlank(serieName)) {
-    // return Optional.empty();
-    // }
-    // return getManager().valueBuilder()
-    // .cacheType(CacheType.DISK)
-    // .key("%s-serieName-name:%s".formatted("GESTDOWN", serieName.toLowerCase()))
-    // .optionalSupplier(() -> {
-    // try {
-    // return multipleResultHandler.apply(tvShowsApi.showsSearchPost(new ShowSearchRequest().query(serieName)).getShows().stream()
-    // .map(ShowDto::getName).toList()).map(selectedValue -> new SerieMapping(serieName, selectedValue));
-    // } catch (Exception e) {
-    // throw new ApiException(e);
-    // }
-    // })
-    // .getOptional().map(SerieMapping::getMappedName).map(Addic7edSerieName::new)
-    // .ifPresentDo(addic7edSerieName -> tvdbIdOptional
-    // .ifPresent(tvdbId -> valueBuilderSupplier.apply(tvdbId).value(addic7edSerieName).store()));
-    // }
-
-    // @ToString
-    // public static class SerieMapping extends SerieMapping {
-    // private static final long serialVersionUID = 537382757186290560L;
-    // @Getter
-    // private final String mappedName;
-    //
-    // public SerieMapping(String name, String mappedName) {
-    // super(name);
-    // this.mappedName = mappedName;
-    // }
-    //
-    // @Override
-    // public String getMappingValue() {
-    // return mappedName;
-    // }
-    // }
 
     public Set<Subtitle> getSubtitles(SerieMapping providerSerieId, int season, int episode, Language language) throws ApiException {
         Set<Subtitle> results = new HashSet<>();

@@ -84,13 +84,6 @@ public class OptionalExtension {
 
     //
 
-    // public static <T, X extends Exception> Optional<T> orElseMapOptional(Optional<T> optional, ThrowingSupplier<Optional<T>, X> supplier) throws X
-    // {
-    // return optional.isEmpty() ? supplier.get() : optional;
-    // }
-
-    //
-
     public static <T, S, X extends Exception> T mapOrElseGet(Optional<S> optional, ThrowingFunction<S, T, X> ifPresentFunction,
             ThrowingSupplier<T, X> absentSupplier) throws X {
         return optional.isPresent() ? ifPresentFunction.apply(optional.get()) : absentSupplier.get();

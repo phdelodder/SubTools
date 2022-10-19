@@ -131,15 +131,6 @@ public class JTVSubtitlesApi extends Html implements SubtitleApi {
         }
     }
 
-
-
-    // @Getter
-    // @RequiredArgsConstructor
-    // public static class UriForSerie {
-    // private final String name;
-    // private final String uri;
-    // }
-
     @Override
     public SubtitleSource getSubtitleSource() {
         return SubtitleSource.TVSUBTITLES;

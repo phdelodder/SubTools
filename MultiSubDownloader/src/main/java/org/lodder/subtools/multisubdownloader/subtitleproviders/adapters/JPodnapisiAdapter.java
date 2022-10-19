@@ -103,24 +103,6 @@ public class JPodnapisiAdapter extends AbstractAdapter<PodnapisiSubtitleDescript
                 .orElseGet(Set::of);
     }
 
-    // @Override
-    // public Set<PodnapisiSubtitleDescriptor> searchSerieSubtitles(TvRelease tvRelease, Language language,
-    // UserInteractionHandler userInteractionHandler) throws PodnapisiException {
-    // return getApi().getPodnapisiShowName(tvRelease.getOriginalName(), tvRelease.getTvdbId())
-    // .orElseMapOptional(() -> getApi().getPodnapisiShowName(tvRelease.getOriginalName(), tvRelease.getTvdbId()))
-    // .map(podnapisiName -> tvRelease.getEpisodeNumbers().stream()
-    // .flatMap(episode -> {
-    // try {
-    // return getApi().searchSubtitles(podnapisiName, 0, tvRelease.getSeason(), episode, language).stream();
-    // } catch (PodnapisiException e) {
-    // LOGGER.error("API %s searchSubtitles for serie [%s] (%s)".formatted(getSubtitleSource().getName(),
-    // TvRelease.formatName(podnapisiName.getName(), tvRelease.getSeason(), episode), e.getMessage()), e);
-    // return Stream.empty();
-    // }
-    // }).collect(Collectors.toSet()))
-    // .orElseGet(Set::of);
-    // }
-
     @Override
     public Set<Subtitle> convertToSubtitles(TvRelease tvRelease, Collection<PodnapisiSubtitleDescriptor> subtitles, Language language) {
         return buildListSubtitles(language, subtitles);

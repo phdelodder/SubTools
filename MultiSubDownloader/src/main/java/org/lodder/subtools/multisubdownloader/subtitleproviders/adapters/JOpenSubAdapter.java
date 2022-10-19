@@ -147,40 +147,6 @@ public class JOpenSubAdapter
                 .collect(Collectors.toSet());
     }
 
-    // private Optional<SerieMapping> getOpenSubtiltesSerieName(TvRelease tvRelease, Language language,
-    // UserInteractionHandler userInteractionHandler) throws OpenSubtitlesException {
-    // ThrowingFunction<List<SerieMapping>, Optional<SerieMapping>, OpenSubtitlesException> multipleResultHandler = serieMappings -> {
-    // if (serieMappings.isEmpty()) {
-    // return Optional.empty();
-    // } else if (!confirmProviderMapping && serieMappings.size() == 1) {
-    // return Optional.of(serieMappings.get(0));
-    // } else {
-    // String displayName = StringUtils.isNotBlank(tvRelease.getOriginalName()) ? tvRelease.getOriginalName() : tvRelease.getName();
-    // return userInteractionHandler.selectFromList(
-    // serieMappings.stream()
-    // .sorted(USER_INTERACTION_SERIE_COMPARATOR.apply(tvRelease))
-    // .toList(),
-    // Messages.getString("SelectDialog.SelectSerieNameForName").formatted(displayName),
-    // getSubtitleSource().getName(), serieMapping -> "%s (%s)".formatted(serieMapping.getMappingValue(), serieMapping.getYear()));
-    // }
-    // };
-    // return getApi().searchTvShows(tvRelease.getOriginalName(), tvRelease.getTvdbId(), multipleResultHandler)
-    // .orElseMapOptional(() -> getApi().searchTvShows(tvRelease.getName(), tvRelease.getTvdbId(), multipleResultHandler));
-    // }
-
-    // private static final Function<TvRelease, Comparator<SerieMapping>> USER_INTERACTION_SERIE_COMPARATOR = tvRelease -> {
-    // Comparator<SerieMapping> comp = Comparator.comparing(
-    // n -> SerieMapping.formatName(tvRelease.getName()).equalsIgnoreCase(SerieMapping.formatName(n.getOpenSubtitlesName())),
-    // Comparator.reverseOrder());
-    // if (StringUtils.isNotBlank(tvRelease.getOriginalName())) {
-    // comp = Comparator.comparing(
-    // n -> SerieMapping.formatName(tvRelease.getOriginalName())
-    // .equalsIgnoreCase(SerieMapping.formatName(n.getOpenSubtitlesName())),
-    // Comparator.reverseOrder());
-    // }
-    // return comp;
-    // };
-
     private Subtitle createSubtitle(Latest200ResponseDataInnerAttributesFilesInner file, SubtitleAttributes attributes) {
         return Subtitle.downloadSource(() -> getApi().downloadSubtitle().fileId(file.getFileId().intValue()).download().getLink())
                 .subtitleSource(getSubtitleSource())
@@ -201,7 +167,6 @@ public class JOpenSubAdapter
                         .thenComparing(OpensubtitleSerieId::getYear, Comparator.reverseOrder()))
                 .toList();
     }
-
 
     @Override
     public boolean useSeasonForSerieId() {

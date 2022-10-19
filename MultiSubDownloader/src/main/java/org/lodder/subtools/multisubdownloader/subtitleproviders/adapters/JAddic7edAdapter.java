@@ -110,19 +110,6 @@ public class JAddic7edAdapter extends AbstractAdapter<Addic7edSubtitleDescriptor
                 .orElseGet(Set::of);
     }
 
-    // private static final Function<TvRelease, Comparator<SerieNameAndId>> USER_INTERACTION_SERIE_COMPARATOR = tvRelease -> {
-    // Comparator<SerieNameAndId> comp = Comparator.comparing(
-    // n -> SerieMapping.formatName(tvRelease.getName()).equalsIgnoreCase(SerieMapping.formatName(n.getMappingValue())),
-    // Comparator.reverseOrder());
-    // if (StringUtils.isNotBlank(tvRelease.getOriginalName())) {
-    // comp = Comparator.comparing(
-    // n -> SerieMapping.formatName(tvRelease.getOriginalName())
-    // .equalsIgnoreCase(SerieMapping.formatName(n.getMappingValue())),
-    // Comparator.reverseOrder());
-    // }
-    // return comp;
-    // };
-
     @Override
     public Set<Subtitle> convertToSubtitles(TvRelease tvRelease, Collection<Addic7edSubtitleDescriptor> subtitles, Language language) {
         return subtitles.stream()

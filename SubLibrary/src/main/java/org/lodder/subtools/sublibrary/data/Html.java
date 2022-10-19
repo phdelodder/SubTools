@@ -40,10 +40,6 @@ public class Html {
         return manager.post(url, userAgent, data);
     }
 
-    // public boolean isUrlCached(String url) {
-    // return manager.valueBuilder().cacheType(CacheType.MEMORY).key(url).isPresent();
-    // }
-
     public void sleepSeconds(long seconds) {
         try {
             TimeUnit.SECONDS.sleep(seconds);

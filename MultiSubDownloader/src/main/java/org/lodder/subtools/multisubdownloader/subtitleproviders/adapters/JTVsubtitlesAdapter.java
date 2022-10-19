@@ -91,25 +91,6 @@ public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDesc
         return Set.of();
     }
 
-    // @ToString
-    // @Getter
-    // public static class SerieMapping extends SerieMappingCommon {
-    // private static final long serialVersionUID = 537382757186290560L;
-    // private final String uri;
-    // private final String tvSubtitlesName;
-    //
-    // public SerieMapping(String name, String uri, String tvSubtitlesName) {
-    // super(name);
-    // this.uri = uri;
-    // this.tvSubtitlesName = tvSubtitlesName;
-    // }
-    //
-    // @Override
-    // public String getMappingValue() {
-    // return tvSubtitlesName;
-    // }
-    // }
-
     @Override
     public Set<TVsubtitlesSubtitleDescriptor> searchSerieSubtitles(TvRelease tvRelease, Language language) throws TvSubtiltesException {
         return getProviderSerieId(tvRelease.getOriginalName(), tvRelease.getDisplayName(), tvRelease.getSeason(), tvRelease.getTvdbId())
@@ -128,77 +109,6 @@ public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDesc
                         .collect(Collectors.toSet()))
                 .orElseGet(Set::of);
     }
-
-    // private Optional<SerieMapping> getUriForSerieName(String serieName, String displayName, OptionalInt tvdbIdOptional,
-    // UserInteractionHandler userInteractionHandler) throws TvSubtiltesException {
-    // Function<Integer, ValueBuilderIsPresentIntf> valueBuilderSupplier =
-    // tvdbId -> manager.valueBuilder().cacheType(CacheType.DISK)
-    // .key("%s-serieName-tvdbId:%s".formatted(getSubtitleSource().name(), tvdbId));
-    // if (tvdbIdOptional.isPresent() && valueBuilderSupplier.apply(tvdbIdOptional.getAsInt()).isPresent()) {
-    // return valueBuilderSupplier.apply(tvdbIdOptional.getAsInt()).returnType(SerieMapping.class).getOptional();
-    // }
-    // if (StringUtils.isBlank(serieName)) {
-    // return Optional.empty();
-    // }
-    //
-    // ValueBuilderIsPresentIntf valueBuilder = manager.valueBuilder()
-    // .cacheType(CacheType.DISK)
-    // .key("%s-serieName-name:%s".formatted(getSubtitleSource().name(), serieName.toLowerCase()));
-    //
-    // if (valueBuilder.isPresent()) {
-    // return valueBuilder.returnType(SerieMapping.class).getOptional()
-    // .ifPresentDo(subsceneSerieName -> tvdbIdOptional
-    // .ifPresent(tvdbId -> valueBuilderSupplier.apply(tvdbId).value(subsceneSerieName).store()));
-    // } else {
-    // try {
-    // List<UriForSerie> urisForSerie = getApi().getUrisForSerieName(serieName);
-    //
-    // if (urisForSerie.isEmpty()) {
-    // return Optional.empty(); // TODO add temporary 0
-    // } else if (!confirmProviderMapping && urisForSerie.size() == 1) {
-    // return Optional.of(new SerieMapping(serieName, urisForSerie.get(0)));
-    // }
-    //
-    // urisForSerie = Stream
-    // .concat(urisForSerie.stream().sorted(USER_INTERACTION_SERIE_COMPARATOR.apply(serieName)),
-    // Arrays.stream(UserInteractionExtraValue.values()).map(UriForServiceExtended::new))
-    // .toList();
-    // Optional<UriForSerie> uriForSerie = userInteractionHandler.selectFromList(urisForSerie,
-    // Messages.getString("SelectDialog.SelectSerieNameForName").formatted(displayName), serieName, UriForSerie::getName);
-    //
-    // if (uriForSerie.isEmpty()) {
-    // return Optional.empty();
-    // } else if (uriForSerie.get() instanceof UriForServiceExtended uriForServiceExtended) {
-    // valueBuilder.value(null).timeToLiveSeconds(uriForServiceExtended.getTimeToLive()).store();
-    // return Optional.empty();
-    // } else {
-    // return uriForSerie.map(urlForSerie -> new SerieMapping(serieName, urlForSerie.getUri(), urlForSerie.getName()))
-    // .ifPresentDo(subsceneSerieName -> tvdbIdOptional
-    // .ifPresent(tvdbId -> valueBuilderSupplier.apply(tvdbId).value(subsceneSerieName).store()));
-    // }
-    // } catch (Exception e) {
-    // throw new TvSubtiltesException(e);
-    // }
-    // }
-    // }
-    //
-    // private class UriForServiceExtended extends UriForSerie {
-    //
-    // public UriForServiceExtended(UserInteractionExtraValue userInteractionExtraValue) {
-    // super(userInteractionExtraValue.getMessage(), userInteractionExtraValue.getId());
-    // }
-    //
-    // public long getTimeToLive() {
-    // return UserInteractionExtraValue.valueOf(getName()).getTimeToLive();
-    // }
-    // }
-    //
-    // private static final Function<String, Comparator<UriForSerie>> USER_INTERACTION_SERIE_COMPARATOR = serieName -> {
-    // Comparator<UriForSerie> comp = Comparator.comparing(
-    // n -> SerieMappingCommon.formatName(serieName).equalsIgnoreCase(SerieMappingCommon.formatName(n.getName())),
-    // Comparator.reverseOrder());
-    // return comp.thenComparing(UriForSerie::getName, Comparator.reverseOrder());
-    // };
 
     @Override
     public Set<Subtitle> convertToSubtitles(TvRelease tvRelease, Collection<TVsubtitlesSubtitleDescriptor> subtitles, Language language) {

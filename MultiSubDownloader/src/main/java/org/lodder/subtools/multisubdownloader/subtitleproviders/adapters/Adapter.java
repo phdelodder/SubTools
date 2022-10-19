@@ -38,9 +38,6 @@ import org.slf4j.LoggerFactory;
  * @param <S> type of the ProviderSerieId
  * @param <X> type of the exception thrown by the api
  */
-// @Getter(value = AccessLevel.PROTECTED)
-// @RequiredArgsConstructor
-// @ExtensionMethod({ OptionalExtension.class })
 public interface Adapter<T, S extends ProviderSerieId, X extends Exception> extends SubtitleProvider {
     Logger LOGGER = LoggerFactory.getLogger(Adapter.class);
 
@@ -114,16 +111,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
 
     List<S> getSortedProviderSerieIds(String serieName, int season) throws X;
 
-    // protected abstract M createSerieMapping(String serieName, ProviderSerieId providerSerieId);
-
     String getProviderName();
-
-    // @SuppressWarnings("unchecked")
-    // private Class<M> getSerieMappingType() {
-    // return (Class<M>) TypeResolver.resolveRawArguments(AbstractAdapter.class, this.getClass())[1];
-    // }
-
-    // boolean isConfirmProviderMapping();
 
     default Optional<SerieMapping> getProviderSerieId(String serieName, String displayName, int season, OptionalInt tvdbIdOptional) throws X {
         Supplier<ValueBuilderIsPresentIntf> tvdbIdValueBuilder =
@@ -175,8 +163,6 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
         } else if (!getUserInteractionSettings().isOptionsConfirmProviderMapping() && providerSerieIds.size() == 1) {
             return Optional.of(new SerieMapping(serieName, providerSerieIds.get(0).getId(), providerSerieIds.get(0).getName()));
         }
-        // providerSerieIds = providerSerieIds.stream().sorted(USER_INTERACTION_SERIE_COMPARATOR.apply(serieName)).toList();
-
         ValueBuilderIsPresentIntf previousResultsValueBuilder = getManager().valueBuilder()
                 .cacheType(CacheType.MEMORY)
                 .key("%s-serieName-prev-results:%s-%s".formatted(getProviderName(), displayName.toLowerCase(), useSeasonForSerieId() ? season : 0));
@@ -195,8 +181,6 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
                     getProviderName(),
                     this::providerSerieIdToDisplayString);
         }
-        // Optional<S> uriForSerie = selectUriForSerie(providerSerieIds, displayName, season);
-
         if (uriForSerie.isEmpty()) {
             // if no provider serie id was selected, store a temporary null value with expiration time of 1 day
             serieNameValueBuilder.value(new SerieMapping(serieName, null, null)).storeTempValue()
@@ -216,36 +200,5 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
 
     boolean useSeasonForSerieId();
 
-    // Optional<S> selectUriForSerie(List<S> providerSerieIds, String displayName, int season);
-
     String providerSerieIdToDisplayString(S providerSerieId);
-
-    // @ToString
-    // @Getter
-    // public static class SerieMapping extends SerieMappingCommon {
-    // private static final long serialVersionUID = 537382757186290560L;
-    // private final String providerId;
-    // private final String providerName;
-    //
-    // public SerieMapping(String name, String providerId, String providerName) {
-    // super(name);
-    // this.providerId = providerId;
-    // this.providerName = providerName;
-    // }
-    //
-    // public SerieMapping(String name, ProviderSerieId providerSerieId) {
-    // this(name, providerSerieId.getId(), providerSerieId.getName());
-    // }
-    //
-    // @Override
-    // public String getMappingValue() {
-    // return tvSubtitlesName;
-    // }
-    // }
-
-    // private final Function<String, Comparator<ProviderSerieId>> USER_INTERACTION_SERIE_COMPARATOR =
-    // serieName -> Comparator
-    // .comparing((ProviderSerieId n) -> SerieMapping.formatName(serieName).equalsIgnoreCase(SerieMapping.formatName(n.getName())),
-    // Comparator.reverseOrder())
-    // .thenComparing(ProviderSerieId::getName, Comparator.reverseOrder());
 }
