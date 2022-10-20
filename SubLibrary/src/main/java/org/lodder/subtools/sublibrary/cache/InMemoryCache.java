@@ -168,22 +168,28 @@ public class InMemoryCache<K, V> {
     }
 
     public <X extends Exception> V getOrPut(K key, ThrowingSupplier<V, X> supplier) throws X {
+        boolean containsKey = false;
+        CacheObject<V> obj = null;
         synchronized (cacheMap) {
-            CacheObject<V> obj;
             if (cacheMap.containsKey(key)) {
+                containsKey = true;
                 obj = cacheMap.get(key);
-            } else {
-                V value = supplier.get();
-                obj = new ExpiringCacheObject<>(value);
-                cacheMap.put(key, obj);
-            }
-            if (obj == null) {
-                return null;
-            } else {
-                obj.updateLastAccessed();
-                return obj.getValue();
             }
         }
+        if (!containsKey) {
+            V value = supplier.get();
+            obj = new ExpiringCacheObject<>(value);
+            synchronized (cacheMap) {
+                cacheMap.put(key, obj);
+            }
+        }
+        if (obj == null) {
+            return null;
+        } else {
+            obj.updateLastAccessed();
+            return obj.getValue();
+        }
+
     }
 
     public void remove(K key) {
