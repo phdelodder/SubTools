@@ -35,7 +35,7 @@ public class DownloadAction {
     private final Manager manager;
     private final UserInteractionHandler userInteractionHandler;
 
-    public void download(Release release, Subtitle subtitle, int version) throws IOException, ManagerException {
+    public void download(Release release, Subtitle subtitle, Integer version) throws IOException, ManagerException {
         switch (release.getVideoType()) {
             case EPISODE -> download(release, subtitle, settings.getEpisodeLibrarySettings(), version);
             case MOVIE -> download(release, subtitle, settings.getMovieLibrarySettings(), version);
@@ -48,7 +48,8 @@ public class DownloadAction {
         download(release, subtitle, 0);
     }
 
-    private void download(Release release, Subtitle subtitle, LibrarySettings librarySettings, int version) throws IOException, ManagerException {
+    private void download(Release release, Subtitle subtitle, LibrarySettings librarySettings, Integer version)
+            throws IOException, ManagerException {
         LOGGER.trace("cleanUpFiles: LibraryAction", librarySettings.getLibraryAction());
         PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager, userInteractionHandler);
         final File path = new File(pathLibraryBuilder.build(release));

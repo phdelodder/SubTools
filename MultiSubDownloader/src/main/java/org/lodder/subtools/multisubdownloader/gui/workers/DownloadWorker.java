@@ -69,7 +69,7 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
                 List<Subtitle> selection = userInteractionHandlerAction.subtitleSelection(release, true);
                 try {
                     for (int j = 0; j < selection.size(); j++) {
-                        downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
+                        downloadAction.download(release, release.getMatchingSubs().get(j), selection.size() == 1 ? null : j + 1);
                     }
                     if (!selection.isEmpty()) {
                         model.removeRow(i);

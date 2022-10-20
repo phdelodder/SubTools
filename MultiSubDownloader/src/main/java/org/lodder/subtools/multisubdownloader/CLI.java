@@ -139,7 +139,7 @@ public class CLI {
             IntStream.range(0, selection.size()).forEach(j -> {
                 System.out.println("Downloading subtitle: " + release.getMatchingSubs().get(0).getFileName());
                 try {
-                    downloadAction.download(release, release.getMatchingSubs().get(j), j + 1);
+                    downloadAction.download(release, release.getMatchingSubs().get(j), selection.size() == 1 ? null : j + 1);
                 } catch (IOException | ManagerException e) {
                     LOGGER.error("Errow while downloading subtitle for %s (%s)".formatted(release.getReleaseDescription(), e.getMessage()), e);
                 }
