@@ -649,12 +649,12 @@ public class GUI extends JFrame implements PropertyChangeListener {
         return searchProgressDialog;
     }
 
-    public void hideSearchProgressDialog() {
-        if (searchProgressDialog == null) {
-            return;
-        }
-        searchProgressDialog.setVisible(false);
-    }
+    // public void hideSearchProgressDialog() {
+    // if (searchProgressDialog == null) {
+    // return;
+    // }
+    // searchProgressDialog.setVisible(false);
+    // }
 
     public IndexingProgressDialog createFileIndexerProgressDialog(Cancelable searchAction) {
         fileIndexerProgressDialog = new IndexingProgressDialog(this, searchAction);

@@ -39,6 +39,11 @@ public class CLISearchProgress extends CLIProgress<CLISearchProgress> implements
     }
 
     @Override
+    public void reset() {
+        this.setEnabled(true);
+    }
+
+    @Override
     public void onError(ActionException exception) {
         if (!isEnabled()) {
             return;

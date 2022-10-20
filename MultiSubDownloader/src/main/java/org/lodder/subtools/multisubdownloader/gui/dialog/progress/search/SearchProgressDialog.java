@@ -65,6 +65,11 @@ public class SearchProgressDialog extends MultiSubDialog implements SearchProgre
     }
 
     @Override
+    public void reset() {
+        this.completed = false;
+    }
+
+    @Override
     public void onError(ActionException exception) {
         this.setVisible(false);
         this.window.showErrorMessage(exception.getMessage());
