@@ -15,6 +15,7 @@ import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.data.ProviderSerieId;
+import org.lodder.subtools.sublibrary.exception.SubtitlesProviderInitException;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
@@ -22,7 +23,7 @@ import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.lodder.subtools.sublibrary.util.StringUtil;
-import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
+import org.lodder.subtools.sublibrary.util.lazy.LazyThrowingSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,19 +35,18 @@ import lombok.experimental.ExtensionMethod;
 public class JAddic7edAdapter extends AbstractAdapter<Addic7edSubtitleDescriptor, ProviderSerieId, Addic7edException> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edAdapter.class);
-    private static LazySupplier<JAddic7edApi> jaapi;
+    private static LazyThrowingSupplier<JAddic7edApi, SubtitlesProviderInitException> jaapi;
 
     public JAddic7edAdapter(boolean isLoginEnabled, String username, String password, boolean speedy, Manager manager,
             UserInteractionHandler userInteractionHandler) {
         super(manager, userInteractionHandler);
         if (jaapi == null) {
-            jaapi = new LazySupplier<>(() -> {
+            jaapi = new LazyThrowingSupplier<>(() -> {
                 try {
                     return isLoginEnabled ? new JAddic7edApi(username, password, speedy, manager) : new JAddic7edApi(speedy, manager);
                 } catch (Exception e) {
-                    LOGGER.error("API Addic7ed INIT (%s)".formatted(e.getMessage()), e);
+                    throw new SubtitlesProviderInitException(getProviderName(), e);
                 }
-                return null;
             });
         }
     }

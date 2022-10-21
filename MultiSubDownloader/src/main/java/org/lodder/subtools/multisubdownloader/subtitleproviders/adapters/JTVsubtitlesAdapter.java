@@ -18,13 +18,14 @@ import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.data.ProviderSerieId;
+import org.lodder.subtools.sublibrary.exception.SubtitlesProviderInitException;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
-import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
+import org.lodder.subtools.sublibrary.util.lazy.LazyThrowingSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,18 +37,17 @@ import lombok.experimental.ExtensionMethod;
 public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDescriptor, ProviderSerieId, TvSubtiltesException> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JTVsubtitlesAdapter.class);
-    private static LazySupplier<JTVSubtitlesApi> jtvapi;
+    private static LazyThrowingSupplier<JTVSubtitlesApi, SubtitlesProviderInitException> jtvapi;
 
     public JTVsubtitlesAdapter(Manager manager, UserInteractionHandler userInteractionHandler) {
         super(manager, userInteractionHandler);
         if (jtvapi == null) {
-            jtvapi = new LazySupplier<>(() -> {
+            jtvapi = new LazyThrowingSupplier<>(() -> {
                 try {
                     return new JTVSubtitlesApi(manager);
                 } catch (Exception e) {
-                    LOGGER.error("API TVsubtitles INIT (%s)".formatted(e.getMessage()), e);
+                    throw new SubtitlesProviderInitException(getProviderName(), e);
                 }
-                return null;
             });
         }
     }

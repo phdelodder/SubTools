@@ -16,13 +16,14 @@ import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.data.ProviderSerieId;
+import org.lodder.subtools.sublibrary.exception.SubtitlesProviderInitException;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
-import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
+import org.lodder.subtools.sublibrary.util.lazy.LazyThrowingSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,18 +35,17 @@ import lombok.experimental.ExtensionMethod;
 public class JPodnapisiAdapter extends AbstractAdapter<PodnapisiSubtitleDescriptor, ProviderSerieId, PodnapisiException> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JPodnapisiAdapter.class);
-    private static LazySupplier<JPodnapisiApi> jpapi;
+    private static LazyThrowingSupplier<JPodnapisiApi, SubtitlesProviderInitException> jpapi;
 
     public JPodnapisiAdapter(Manager manager, UserInteractionHandler userInteractionHandler) {
         super(manager, userInteractionHandler);
         if (jpapi == null) {
-            jpapi = new LazySupplier<>(() -> {
+            jpapi = new LazyThrowingSupplier<>(() -> {
                 try {
                     return new JPodnapisiApi("JBierSubDownloader", manager);
                 } catch (Exception e) {
-                    LOGGER.error("API Podnapisi INIT (%s)".formatted(e.getMessage()), e);
+                    throw new SubtitlesProviderInitException(getProviderName(), e);
                 }
-                return null;
             });
         }
     }

@@ -24,6 +24,7 @@ import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.data.ProviderSerieId;
+import org.lodder.subtools.sublibrary.exception.SubtitlesProviderInitException;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
@@ -31,7 +32,7 @@ import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.lodder.subtools.sublibrary.util.StringUtil;
-import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
+import org.lodder.subtools.sublibrary.util.lazy.LazyThrowingSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,18 +45,17 @@ import lombok.experimental.ExtensionMethod;
 public class JSubsceneAdapter extends AbstractAdapter<SubsceneSubtitleDescriptor, ProviderSerieId, SubsceneException> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JSubsceneAdapter.class);
-    private static LazySupplier<SubsceneApi> api;
+    private static LazyThrowingSupplier<SubsceneApi, SubtitlesProviderInitException> api;
 
     public JSubsceneAdapter(Manager manager, UserInteractionHandler userInteractionHandler) {
         super(manager, userInteractionHandler);
         if (api == null) {
-            api = new LazySupplier<>(() -> {
+            api = new LazyThrowingSupplier<>(() -> {
                 try {
                     return new SubsceneApi(manager);
                 } catch (Exception e) {
-                    LOGGER.error("API Subscene INIT (%s)".formatted(e.getMessage()), e);
+                    throw new SubtitlesProviderInitException(getProviderName(), e);
                 }
-                return null;
             });
         }
     }
