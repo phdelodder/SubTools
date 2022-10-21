@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.OptionalLong;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -29,6 +28,7 @@ import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
+import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,13 +152,13 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
             // if no provider serie id's could be found, store a temporary null value with expiration time of 1 day
             // (so the provider isn't contacted every time this method is being called)
             // If a temporary expired value was already found, persist the null value with a doubled expiration time
-            OptionalLong temporaryTimeToLive = serieNameValueBuilder.getTemporaryTimeToLive();
-            SerieMapping serieMapping = new SerieMapping(serieName, null, null);
-            if (temporaryTimeToLive.isPresent()) {
-                serieNameValueBuilder.value(serieMapping).storeTempNullValue().timeToLive(temporaryTimeToLive.getAsLong() * 2).storeAsTempValue();
-            } else {
-                serieNameValueBuilder.value(serieMapping).storeTempNullValue().timeToLive(TimeUnit.SECONDS.convert(1, TimeUnit.DAYS)).storeAsTempValue();
-            }
+            serieNameValueBuilder
+                    .value(new SerieMapping(serieName, null, null))
+                    .storeTempNullValue()
+                    .timeToLive(OptionalExtension
+                            .map(serieNameValueBuilder.getTemporaryTimeToLive(), v -> v * 2)
+                            .orElseGet(() -> TimeUnit.SECONDS.convert(1, TimeUnit.DAYS)))
+                    .storeAsTempValue();
             return Optional.empty();
         } else if (!getUserInteractionSettings().isOptionsConfirmProviderMapping() && providerSerieIds.size() == 1) {
             return Optional.of(new SerieMapping(serieName, providerSerieIds.get(0).getId(), providerSerieIds.get(0).getName()));
@@ -182,9 +182,15 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
                     this::providerSerieIdToDisplayString);
         }
         if (uriForSerie.isEmpty()) {
-            // if no provider serie id was selected, store a temporary null value with expiration time of 1 day
-            serieNameValueBuilder.value(new SerieMapping(serieName, null, null)).storeTempNullValue()
-                    .timeToLive(TimeUnit.SECONDS.convert(1, TimeUnit.DAYS)).storeAsTempValue();
+            // if no provider serie id was selected, store a temporary null value with expiration time of 1 day,
+            // or the doubled previously temporary value (if present)
+            serieNameValueBuilder
+                    .value(new SerieMapping(serieName, null, null))
+                    .storeTempNullValue()
+                    .timeToLive(OptionalExtension
+                            .map(serieNameValueBuilder.getTemporaryTimeToLive(), v -> v * 2)
+                            .orElseGet(() -> TimeUnit.SECONDS.convert(1, TimeUnit.DAYS)))
+                    .storeAsTempValue();
             previousResultsValueBuilder.collectionValue(providerSerieIds).store();
             return Optional.empty();
         }

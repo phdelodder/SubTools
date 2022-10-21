@@ -120,6 +120,12 @@ public class OptionalExtension {
 
     //
 
+    public static <T, X extends Exception> OptionalLong map(OptionalLong optionalLong, ThrowingLongFunction<Long, X> mapper) throws X {
+        return optionalLong.isPresent() ? OptionalLong.of(mapper.apply(optionalLong.getAsLong())) : optionalLong;
+    }
+
+    //
+
     public static <T, S, X extends Exception> Optional<S> mapToOptionalObj(Optional<T> optional, ThrowingFunction<T, Optional<S>, X> mapper)
             throws X {
         return optional.isPresent() ? mapper.apply(optional.get()) : Optional.empty();

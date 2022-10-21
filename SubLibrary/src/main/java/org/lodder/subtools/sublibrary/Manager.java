@@ -695,10 +695,14 @@ public class Manager {
         public OptionalLong getTemporaryTimeToLive() {
             return switch (cacheType) {
                 case NONE -> OptionalLong.of(0);
-                case MEMORY -> inMemoryCache.getTemporaryTimeToLive(key);
-                case DISK -> diskCache.getTemporaryTimeToLive(key);
+                case MEMORY -> getTemporaryTimeToLive(inMemoryCache);
+                case DISK -> getTemporaryTimeToLive(diskCache);
                 default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
+        }
+
+        private OptionalLong getTemporaryTimeToLive(InMemoryCache cache) {
+            return cache.getTemporaryTimeToLive(key).map(v -> TimeUnit.SECONDS.convert(v, TimeUnit.MILLISECONDS));
         }
 
         // ##### \\
