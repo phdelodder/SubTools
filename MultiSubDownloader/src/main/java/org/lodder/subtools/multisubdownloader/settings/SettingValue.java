@@ -33,7 +33,6 @@ public enum SettingValue {
     SETTINGS_VERSION(0, SettingsControl::getSettings, Settings::getSettingsVersion, Settings::setSettingsVersion),
     LAST_OUTPUT_DIR(new File(""), File::getAbsolutePath, File::new, SettingsControl::getSettings, settings -> MemoryFolderChooser.getInstance().getMemory(), Settings::setLastOutputDir),
 
-//    GENERAL_DEFAULT_INCOMING_FOLDER(File::getAbsolutePath, File::new, SettingsControl::getSettings, (settings, v) -> settings.getDefaultIncomingFolders().add(v),  (settings, consumer) -> settings.getDefaultIncomingFolders().forEach(consumer::accept)),
     GENERAL_DEFAULT_INCOMING_FOLDER(File::getAbsolutePath, File::new, SettingsControl::getSettings, Settings::getDefaultIncomingFolders),
     LOCAL_SUBTITLES_SOURCES_FOLDERS(File::getAbsolutePath, File::new, SettingsControl::getSettings, Settings::getLocalSourcesFolders),
     EXCLUDE_ITEM(v -> v.getType().toString() + "//" + v.getDescription(),
@@ -52,7 +51,7 @@ public enum SettingValue {
     DEFAULT_SELECTION_QUALITY(SettingsControl::getSettings, Settings::getOptionsDefaultSelectionQualityList),
     DEFAULT_SELECTION_QUALITY_ENABLED(false, SettingsControl::getSettings, Settings::isOptionsDefaultSelection, Settings::setOptionsDefaultSelection),
 
-    OPTIONS_ALWAYS_CONFIRM(false, SettingsControl::getSettings, Settings::isOptionsAlwaysConfirm, Settings::setOptionsAlwaysConfirm),
+    OPTIONS_ALWAYS_CONFIRM(true, SettingsControl::getSettings, Settings::isOptionsAlwaysConfirm, Settings::setOptionsAlwaysConfirm),
     OPTIONS_CONFIRM_MAPPING(false, SettingsControl::getSettings, Settings::isOptionsConfirmProviderMapping, Settings::setOptionsConfirmProviderMapping),
     OPTIONS_MIN_AUTOMATIC_SELECTION(false, SettingsControl::getSettings, Settings::isOptionsMinAutomaticSelection, Settings::setOptionsMinAutomaticSelection),
     OPTIONS_MIN_AUTOMATIC_SELECTION_VALUE(0, SettingsControl::getSettings, Settings::getOptionsMinAutomaticSelectionValue, Settings::setOptionsMinAutomaticSelectionValue),
