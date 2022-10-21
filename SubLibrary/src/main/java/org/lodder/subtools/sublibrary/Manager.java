@@ -433,9 +433,9 @@ public class Manager {
         }
 
         @Override
-        public <S extends Serializable> ValueBuilder<C, S, Nothing> returnType(Class<S> returnType) {
+        public <S extends Serializable> ValueBuilder<?, S, Nothing> returnType(Class<S> returnType) {
             this.returnType = (Class<T>) returnType;
-            return (ValueBuilder<C, S, Nothing>) this;
+            return (ValueBuilder<?, S, Nothing>) this;
         }
 
         @Override
@@ -472,15 +472,15 @@ public class Manager {
         }
 
         @Override
-        public <S extends Serializable> ValueBuilder<C, S, Nothing> value(S value) {
+        public <S extends Serializable> ValueBuilder<?, S, Nothing> value(S value) {
             this.value = (T) value;
-            return (ValueBuilder<C, S, Nothing>) this;
+            return (ValueBuilder<?, S, Nothing>) this;
         }
 
         @Override
-        public <S extends Serializable> ValueBuilder<C, S, Nothing> optionalValue(Optional<S> optionalValue) {
+        public <S extends Serializable> ValueBuilder<?, S, Nothing> optionalValue(Optional<S> optionalValue) {
             this.optionalValue = (Optional<T>) optionalValue;
-            return (ValueBuilder<C, S, Nothing>) this;
+            return (ValueBuilder<?, S, Nothing>) this;
         }
 
         @Override
@@ -529,8 +529,8 @@ public class Manager {
             } else {
                 if (cache instanceof DiskCache diskCache) {
                     diskCache.putWithoutPersist(key, null);
-                } else if (cache instanceof InMemoryCache inMemoryCache) {
-                    inMemoryCache.put(key, null);
+                } else {
+                    cache.put(key, null);
                 }
             }
             return value;
@@ -597,8 +597,8 @@ public class Manager {
                 value.ifPresentOrElse(v -> cache.put(key, v), () -> {
                     if (cache instanceof DiskCache diskCache) {
                         diskCache.putWithoutPersist(key, null);
-                    } else if (cache instanceof InMemoryCache inMemoryCache) {
-                        inMemoryCache.put(key, null);
+                    } else {
+                        cache.put(key, null);
                     }
                 });
                 return value;
@@ -631,8 +631,8 @@ public class Manager {
                 value.ifPresentOrElse(v -> cache.put(key, v), () -> {
                     if (cache instanceof DiskCache diskCache) {
                         diskCache.putWithoutPersist(key, null);
-                    } else if (cache instanceof InMemoryCache inMemoryCache) {
-                        inMemoryCache.put(key, null);
+                    } else {
+                        cache.put(key, null);
                     }
                 });
                 return value;
