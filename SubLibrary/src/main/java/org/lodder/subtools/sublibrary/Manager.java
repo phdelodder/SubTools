@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -54,16 +55,6 @@ public class Manager {
     private final InMemoryCache inMemoryCache;
     private final DiskCache diskCache;
 
-    public String downloadText(String urlString) throws ManagerException {
-        try {
-            return httpClient.downloadText(urlString);
-        } catch (MalformedURLException e) {
-            throw new ManagerException("incorrect url", e);
-        } catch (IOException e) {
-            throw new ManagerException(e);
-        }
-    }
-
     public boolean store(String downloadlink, File file) throws ManagerException {
         try {
             return httpClient.doDownloadFile(new URL(downloadlink), file);
@@ -72,18 +63,75 @@ public class Manager {
         }
     }
 
-    public String post(String urlString, String userAgent, Map<String, String> data) throws ManagerException {
-        try {
-            return httpClient.doPost(new URL(urlString), userAgent, data);
-        } catch (MalformedURLException e) {
-            throw new ManagerException("incorrect url", e);
-        } catch (HttpClientSetupException | HttpClientException e) {
-            throw new ManagerException(e);
-        }
-    }
-
     public void storeCookies(String domain, Map<String, String> cookieMap) {
         httpClient.storeCookies(domain, cookieMap);
+    }
+
+    // ==== \\
+    // POST \\
+    // ==== \\
+
+    public PostBuilderUrlIntf postBuilder() {
+        return new PostBuilder(httpClient);
+    }
+
+    public interface PostBuilderUrlIntf {
+        PostBuilderUserAgentIntf url(String url);
+    }
+
+    public interface PostBuilderUserAgentIntf extends PostBuilderDataMapIntf {
+        PostBuilderDataMapIntf userAgent(String userAgent);
+    }
+
+    public interface PostBuilderDataMapIntf extends PostBuilderDataIntf {
+        PostBuilderPostIntf data(Map<String, String> data);
+    }
+
+    public interface PostBuilderDataIntf extends PostBuilderPostIntf {
+        PostBuilderDataIntf addData(String key, String value);
+    }
+
+    public interface PostBuilderPostIntf {
+        String post() throws ManagerException;
+
+        org.jsoup.nodes.Document postAsJsoupDocument() throws ManagerException;
+    }
+
+    @Setter
+    @Accessors(chain = true, fluent = true)
+    @RequiredArgsConstructor
+    public static class PostBuilder
+            implements PostBuilderUrlIntf, PostBuilderUserAgentIntf, PostBuilderDataMapIntf, PostBuilderDataIntf, PostBuilderPostIntf {
+        private final HttpClient httpClient;
+        private String url;
+        private String userAgent;
+        private Map<String, String> data;
+
+        @Override
+        public PostBuilderDataIntf addData(String key, String value) {
+            if (data == null) {
+                data = new HashMap<>();
+            }
+            data.put(key, value);
+            return this;
+        }
+
+        @Override
+        public String post() throws ManagerException {
+            try {
+                return httpClient.doPost(new URL(url), userAgent, data == null ? new HashMap<>() : data);
+            } catch (MalformedURLException e) {
+                throw new ManagerException("incorrect url", e);
+            } catch (HttpClientSetupException | HttpClientException e) {
+                throw new ManagerException(e);
+            }
+        }
+
+        @Override
+        public org.jsoup.nodes.Document postAsJsoupDocument() throws ManagerException {
+            return Jsoup.parse(post());
+        }
+
     }
 
     // ================ \\

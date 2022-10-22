@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -58,9 +57,13 @@ public class JAddic7edApi extends Html implements SubtitleApi {
     }
 
     public void login(String username, String password) throws Addic7edException {
-        Map<String, String> data = Map.of("username", username, "password", password, "remember", "false");
         try {
-            this.postHtml(DOMAIN + "/dologin.php", data);
+            getManager().postBuilder()
+                    .url(DOMAIN + "/dologin.php")
+                    .addData("username", username)
+                    .addData("password", password)
+                    .addData("remember", "false")
+                    .post();
         } catch (ManagerException e) {
             throw new Addic7edException(e);
         }
