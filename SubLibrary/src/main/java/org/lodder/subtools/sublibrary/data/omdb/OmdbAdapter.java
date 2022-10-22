@@ -3,34 +3,49 @@ package org.lodder.subtools.sublibrary.data.omdb;
 import java.util.Optional;
 
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.UserInteractionHandler;
-import org.lodder.subtools.sublibrary.data.omdb.exception.OmdbException;
+import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.omdb.model.OmdbDetails;
+import org.lodder.subtools.sublibrary.exception.SubtitlesProviderInitException;
+import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+
+@Getter(value = AccessLevel.PROTECTED)
 public class OmdbAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OmdbAdapter.class);
     private static OmdbAdapter instance;
+    private final Manager manager;
     private final LazySupplier<OmdbApi> omdpApi;
 
     private OmdbAdapter(Manager manager, UserInteractionHandler userInteractionHandler) {
-        omdpApi = new LazySupplier<>(() -> {
+        this.manager = manager;
+        this.omdpApi = new LazySupplier<>(() -> {
             try {
-                return new OmdbApi(manager, userInteractionHandler);
+                return new OmdbApi(manager);
             } catch (Exception e) {
-                LOGGER.error("API OMDB INIT (%s)".formatted(e.getMessage()), e);
+                throw new SubtitlesProviderInitException("IMDB", e);
             }
-            return null;
         });
     }
 
-    public Optional<OmdbDetails> getMovieDetails(String imdbId) {
+    private OmdbApi getApi() {
+        return omdpApi.get();
+    }
+
+    public Optional<OmdbDetails> getMovieDetails(int imdbId) {
         try {
-            return omdpApi.get().getMovieDetails(imdbId);
-        } catch (OmdbException e) {
+            return getManager().valueBuilder()
+                    .cacheType(CacheType.DISK)
+                    .key("OMDB-movieDetails-" + imdbId)
+                    .optionalSupplier(() -> getApi().getMovieDetails(imdbId))
+                    .storeTempNullValue()
+                    .getOptional();
+        } catch (Exception e) {
             LOGGER.error("API OMDB getMovieDetails for id [%s] (%s)".formatted(imdbId, e.getMessage()), e);
             return Optional.empty();
         }

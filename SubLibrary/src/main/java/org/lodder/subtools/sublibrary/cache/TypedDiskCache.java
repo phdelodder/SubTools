@@ -119,4 +119,14 @@ public class TypedDiskCache<K, V> extends DiskCache<K, V> {
         return value.toString(toStringMapperValue);
     }
 
+    @Override
+    protected Class getDbKeyType() {
+        return String.class;
+    }
+
+    @Override
+    protected Class getDbValueType() {
+        return String.class;
+    }
+
 }

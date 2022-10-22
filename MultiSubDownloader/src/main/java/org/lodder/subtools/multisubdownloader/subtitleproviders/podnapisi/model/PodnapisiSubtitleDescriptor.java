@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.model
 
 import org.lodder.subtools.sublibrary.Language;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,17 +15,18 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@Builder
 public class PodnapisiSubtitleDescriptor {
 
-    private String subtitleId;
+    // private String subtitleId;
     private Language language;
     private String uploaderName;
-    private String uploaderUid;
-    private String matchRanking;
+    // private String uploaderUid;
+    // private String matchRanking;
     private String releaseString;
-    private String flagsString;
-    private String subtitleRating;
+    // private String subtitleRating;
     private String url;
+    private boolean hearingImpaired;
     private boolean isInexact;
 
 }

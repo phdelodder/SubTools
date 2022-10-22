@@ -1,6 +1,6 @@
-package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2;
+package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles;
 
-import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.exception.OpenSubtitlesException;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.exception.OpenSubtitlesException;
 import org.opensubtitles.api.DownloadApi;
 import org.opensubtitles.invoker.ApiClient;
 import org.opensubtitles.model.Download200Response;

@@ -13,9 +13,9 @@ import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
+import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

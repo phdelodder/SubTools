@@ -10,4 +10,6 @@ public interface SearchProgressListener extends StatusListener {
     void progress(int progress);
 
     void completed();
+
+    void reset();
 }

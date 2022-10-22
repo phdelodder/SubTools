@@ -116,16 +116,18 @@ public class VideoTableModel extends DefaultTableModel {
 
     public void addRow(Release release) {
         /* If we try to add an existing release, we just have to update that row */
-        if (rowMap.containsKey(release)) {
-            updateRow(release);
-            return;
-        }
+        synchronized (this) {
+            if (rowMap.containsKey(release)) {
+                updateRow(release);
+                return;
+            }
 
-        if (!showOnlyFound || release.getMatchingSubs().size() > 0) {
-            rowMap.put(release, this.getRowCount());
+            if (!showOnlyFound || release.getMatchingSubs().size() > 0) {
+                rowMap.put(release, this.getRowCount());
 
-            Object[] row = createRow(release);
-            this.addRow(row);
+                Object[] row = createRow(release);
+                this.addRow(row);
+            }
         }
     }
 
@@ -175,24 +177,26 @@ public class VideoTableModel extends DefaultTableModel {
     }
 
     public void addRow(Subtitle subtitle) {
-        int cCount = getColumnCount();
-        Object[] row = new Object[cCount];
-        String columnName;
-        for (int i = 0; i < cCount; i++) {
-            columnName = this.getColumnName(i);
-            if (SearchColumnName.FILENAME.getColumnName().equals(columnName)) {
-                row[i] = subtitle.getFileName();
-            } else if (SearchColumnName.SELECT.getColumnName().equals(columnName)) {
-                row[i] = false;
-            } else if (SearchColumnName.OBJECT.getColumnName().equals(columnName)) {
-                row[i] = subtitle;
-            } else if (SearchColumnName.SOURCE.getColumnName().equals(columnName)) {
-                row[i] = subtitle.getSubtitleSource();
-            } else if (SearchColumnName.SCORE.getColumnName().equals(columnName)) {
-                row[i] = subtitle.getScore();
+        synchronized (this) {
+            int cCount = getColumnCount();
+            Object[] row = new Object[cCount];
+            String columnName;
+            for (int i = 0; i < cCount; i++) {
+                columnName = this.getColumnName(i);
+                if (SearchColumnName.FILENAME.getColumnName().equals(columnName)) {
+                    row[i] = subtitle.getFileName();
+                } else if (SearchColumnName.SELECT.getColumnName().equals(columnName)) {
+                    row[i] = false;
+                } else if (SearchColumnName.OBJECT.getColumnName().equals(columnName)) {
+                    row[i] = subtitle;
+                } else if (SearchColumnName.SOURCE.getColumnName().equals(columnName)) {
+                    row[i] = subtitle.getSubtitleSource();
+                } else if (SearchColumnName.SCORE.getColumnName().equals(columnName)) {
+                    row[i] = subtitle.getScore();
+                }
             }
+            this.addRow(row);
         }
-        this.addRow(row);
     }
 
     @Override
@@ -210,30 +214,36 @@ public class VideoTableModel extends DefaultTableModel {
     }
 
     private void updateTable() {
-        List<Release> newRowList = new ArrayList<>(this.rowMap.keySet());
-        clearTable();
-        addRows(newRowList);
+        synchronized (this) {
+            List<Release> newRowList = new ArrayList<>(this.rowMap.keySet());
+            clearTable();
+            addRows(newRowList);
+        }
     }
 
     private void updateRow(Release release) {
-        int rowNr = this.rowMap.get(release);
-        Object[] row = this.createRow(release);
+        synchronized (this) {
+            int rowNr = this.rowMap.get(release);
+            Object[] row = this.createRow(release);
 
-        for (int columnNr = 0; columnNr < row.length; columnNr++) {
-            Object rowData = row[columnNr];
-            if (rowData == null) {
-                continue;
+            for (int columnNr = 0; columnNr < row.length; columnNr++) {
+                Object rowData = row[columnNr];
+                if (rowData == null) {
+                    continue;
+                }
+
+                this.setValueAt(rowData, rowNr, columnNr);
             }
-
-            this.setValueAt(rowData, rowNr, columnNr);
         }
     }
 
     public void clearTable() {
-        while (getRowCount() > 0) {
-            removeRow(0);
+        synchronized (this) {
+            while (getRowCount() > 0) {
+                removeRow(0);
+            }
+            rowMap.clear();
         }
-        rowMap.clear();
     }
 
     public void setShowOnlyFound(boolean showOnlyFound) {

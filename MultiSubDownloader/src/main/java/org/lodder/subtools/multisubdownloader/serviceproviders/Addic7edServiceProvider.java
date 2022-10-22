@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.serviceproviders;
 
 import java.util.prefs.Preferences;
 
+import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
 import org.lodder.subtools.multisubdownloader.framework.service.providers.ServiceProvider;
@@ -9,7 +10,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.adapters.JAddic7edAdapter;
-import org.lodder.subtools.multisubdownloader.subtitleproviders.adapters.JAddic7edAdapterViaProxy;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.adapters.JAddic7edViaProxyAdapter;
 import org.lodder.subtools.sublibrary.Manager;
 
 public class Addic7edServiceProvider implements ServiceProvider {
@@ -24,23 +25,23 @@ public class Addic7edServiceProvider implements ServiceProvider {
     }
 
     @Override
-    public void register(Container app) {
+    public void register(Container app, UserInteractionHandler userInteractionHandler) {
         this.app = app;
 
         /* Resolve the SubtitleProviderStore from the IoC Container */
         final SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) app.make("SubtitleProviderStore");
 
         /* Create the SubtitleProvider */
-        subtitleProvider = createProvider();
+        subtitleProvider = createProvider(userInteractionHandler);
 
         /* Add the SubtitleProvider to the store */
         subtitleProviderStore.addProvider(subtitleProvider);
 
         /* Listen for settings-change event */
-        this.registerListener(subtitleProviderStore);
+        this.registerListener(subtitleProviderStore, userInteractionHandler);
     }
 
-    private SubtitleProvider createProvider() {
+    private SubtitleProvider createProvider(UserInteractionHandler userInteractionHandler) {
         Settings settings = (Settings) this.app.make("Settings");
         Preferences preferences = (Preferences) this.app.make("Preferences");
         Manager manager = (Manager) this.app.make("Manager");
@@ -63,25 +64,25 @@ public class Addic7edServiceProvider implements ServiceProvider {
             loginEnabled = false;
         }
 
-        boolean confirmProviderMapping = settings.isOptionsConfirmProviderMapping();
         if (settings.isSerieSourceAddic7edProxy()) {
-            return new JAddic7edAdapterViaProxy(manager, confirmProviderMapping);
+            return new JAddic7edViaProxyAdapter(manager, userInteractionHandler);
         } else {
-            return new JAddic7edAdapter(loginEnabled, username, password, preferences.getBoolean("speedy", false), manager, confirmProviderMapping);
+            return new JAddic7edAdapter(loginEnabled, username, password, preferences.getBoolean("speedy", false), manager, userInteractionHandler);
         }
     }
 
-    private void registerListener(final SubtitleProviderStore subtitleProviderStore) {
+    // TODO is this still needed?
+    private void registerListener(SubtitleProviderStore subtitleProviderStore, UserInteractionHandler userInteractionHandler) {
         /* Resolve the EventEmitter from the IoC Container */
         Emitter emitter = (Emitter) app.make("EventEmitter");
 
         /* Listen for settings-change */
         emitter.listen("providers.settings.change", event -> {
-            /* Change occured, delete outdated provider from store */
+            /* Change occurred, delete outdated provider from store */
             subtitleProviderStore.deleteProvider(subtitleProvider);
 
             /* Re-create subtitleprovider */
-            subtitleProvider = createProvider();
+            subtitleProvider = createProvider(userInteractionHandler);
 
             /* Re-add provider to store */
             subtitleProviderStore.addProvider(subtitleProvider);

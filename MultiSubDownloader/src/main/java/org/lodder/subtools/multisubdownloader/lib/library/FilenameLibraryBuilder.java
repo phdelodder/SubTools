@@ -3,10 +3,10 @@ package org.lodder.subtools.multisubdownloader.lib.library;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.util.StringUtil;
 
 public class FilenameLibraryBuilder extends LibraryBuilder {
@@ -50,13 +50,13 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
         return filename;
     }
 
-    public String buildSubtitle(Release release, Subtitle sub, String filename, int version) {
+    public String buildSubtitle(Release release, Subtitle sub, String filename, Integer version) {
         return buildSubtitle(release, filename, sub.getLanguage(), version);
     }
 
-    public String buildSubtitle(Release release, String filename, Language language, int version) {
+    public String buildSubtitle(Release release, String filename, Language language, Integer version) {
         final String extension = "." + release.getExtension();
-        if (version > 0) {
+        if (version != null) {
             filename = filename.substring(0, filename.indexOf(extension)) + "-v" + version + "." + release.getExtension();
         }
         if (getLibrarySettings().isLibraryIncludeLanguageCode()) {

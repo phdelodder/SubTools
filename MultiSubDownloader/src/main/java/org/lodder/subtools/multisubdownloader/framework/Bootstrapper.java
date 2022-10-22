@@ -7,14 +7,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.prefs.Preferences;
 
+import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.framework.service.providers.ServiceProvider;
 import org.lodder.subtools.multisubdownloader.framework.service.providers.ServiceProviderComparator;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class Bootstrapper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Bootstrapper.class);
@@ -24,22 +29,15 @@ public class Bootstrapper {
     private final Preferences preferences;
     private final Manager manager;
 
-    public Bootstrapper(Container app, Settings settings, Preferences preferences, Manager manager) {
-        this.app = app;
-        this.settings = settings;
-        this.preferences = preferences;
-        this.manager = manager;
-    }
-
-    public void initialize() {
+    public void initialize(UserInteractionHandler userInteractionHandler) {
         /* Bind Settings to IoC Container */
-        this.app.bind("Settings", () -> settings);
+        this.app.bind("Settings", new LazySupplier<>(() -> settings));
 
         /* Bind Preferences to IoC Container */
-        this.app.bind("Preferences", () -> preferences);
+        this.app.bind("Preferences", new LazySupplier<>(() -> preferences));
 
         /* Bind Manager to IoC Container */
-        this.app.bind("Manager", () -> manager);
+        this.app.bind("Manager", new LazySupplier<>(() -> manager));
 
         // Collect ServiceProviders
         List<ServiceProvider> providers = this.getProviders();
@@ -48,7 +46,7 @@ public class Bootstrapper {
         Collections.sort(providers, new ServiceProviderComparator());
 
         // Register ServiceProviders
-        this.registerProviders(providers);
+        this.registerProviders(providers, userInteractionHandler);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -79,10 +77,10 @@ public class Bootstrapper {
         return providers;
     }
 
-    public void registerProviders(List<ServiceProvider> providers) {
+    public void registerProviders(List<ServiceProvider> providers, UserInteractionHandler userInteractionHandler) {
         // Register serviceproviders
         for (ServiceProvider provider : providers) {
-            provider.register(this.app);
+            provider.register(this.app, userInteractionHandler);
             LOGGER.debug("ServiceProvider: '{}' registered.", provider.getClass().getName());
         }
     }

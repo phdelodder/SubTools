@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param;
+package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.param;
 
 import lombok.AccessLevel;
 import lombok.Getter;

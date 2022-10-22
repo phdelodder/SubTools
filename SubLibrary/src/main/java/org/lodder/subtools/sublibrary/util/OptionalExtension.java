@@ -2,6 +2,7 @@ package org.lodder.subtools.sublibrary.util;
 
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.function.Supplier;
 
 import org.lodder.subtools.sublibrary.util.throwingfunction.ThrowingIntConsumer;
@@ -14,6 +15,8 @@ import com.pivovarit.function.ThrowingSupplier;
 
 import lombok.experimental.UtilityClass;
 import name.falgout.jeffrey.throwing.ThrowingIntPredicate;
+import name.falgout.jeffrey.throwing.ThrowingLongConsumer;
+import name.falgout.jeffrey.throwing.ThrowingLongFunction;
 import name.falgout.jeffrey.throwing.ThrowingToIntFunction;
 
 @UtilityClass
@@ -31,6 +34,33 @@ public class OptionalExtension {
             consumer.accept(optional.getAsInt());
         }
         return optional;
+    }
+
+    public static <X extends Exception> OptionalLong ifPresentDo(OptionalLong optional, ThrowingLongConsumer<X> consumer) throws X {
+        if (optional.isPresent()) {
+            consumer.accept(optional.getAsLong());
+        }
+        return optional;
+    }
+
+    ////
+
+    public static <T, X extends Exception> void orElseDo(Optional<T> optional, ThrowingRunnable<X> consumer) throws X {
+        if (optional.isEmpty()) {
+            consumer.run();
+        }
+    }
+
+    public static <X extends Exception> void orElseDo(OptionalInt optional, ThrowingRunnable<X> consumer) throws X {
+        if (optional.isEmpty()) {
+            consumer.run();
+        }
+    }
+
+    public static <X extends Exception> void orElseDo(OptionalLong optional, ThrowingRunnable<X> consumer) throws X {
+        if (optional.isEmpty()) {
+            consumer.run();
+        }
     }
 
     //
@@ -54,12 +84,6 @@ public class OptionalExtension {
 
     //
 
-    public static <T, X extends Exception> Optional<T> orElseMapOptional(Optional<T> optional, ThrowingSupplier<Optional<T>, X> supplier) throws X {
-        return optional.isEmpty() ? supplier.get() : optional;
-    }
-
-    //
-
     public static <T, S, X extends Exception> T mapOrElseGet(Optional<S> optional, ThrowingFunction<S, T, X> ifPresentFunction,
             ThrowingSupplier<T, X> absentSupplier) throws X {
         return optional.isPresent() ? ifPresentFunction.apply(optional.get()) : absentSupplier.get();
@@ -76,6 +100,10 @@ public class OptionalExtension {
         return optional.isPresent() ? OptionalInt.of(mapper.applyAsInt(optional.get())) : OptionalInt.empty();
     }
 
+    public static <T> OptionalInt mapToOptionalInt(Optional<Integer> optional) {
+        return optional.isPresent() ? OptionalInt.of(optional.get()) : OptionalInt.empty();
+    }
+
     //
 
     public static <S, T, X extends Exception> Optional<T> mapToObj(Optional<S> optional, ThrowingFunction<S, T, X> mapper) throws X {
@@ -84,6 +112,16 @@ public class OptionalExtension {
 
     public static <T, X extends Exception> Optional<T> mapToObj(OptionalInt optionalInt, ThrowingIntFunction<T, X> mapper) throws X {
         return optionalInt.isPresent() ? Optional.ofNullable(mapper.apply(optionalInt.getAsInt())) : Optional.empty();
+    }
+
+    public static <T, X extends Exception> Optional<T> mapToObj(OptionalLong optionalLong, ThrowingLongFunction<T, X> mapper) throws X {
+        return optionalLong.isPresent() ? Optional.ofNullable(mapper.apply(optionalLong.getAsLong())) : Optional.empty();
+    }
+
+    //
+
+    public static <T, X extends Exception> OptionalLong map(OptionalLong optionalLong, ThrowingLongFunction<Long, X> mapper) throws X {
+        return optionalLong.isPresent() ? OptionalLong.of(mapper.apply(optionalLong.getAsLong())) : optionalLong;
     }
 
     //

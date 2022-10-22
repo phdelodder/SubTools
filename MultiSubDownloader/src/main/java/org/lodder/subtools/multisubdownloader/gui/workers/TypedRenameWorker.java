@@ -11,10 +11,10 @@ import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
+import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.util.FilenameExtensionFilter;
 import org.lodder.subtools.sublibrary.util.StringUtil;
 import org.slf4j.Logger;

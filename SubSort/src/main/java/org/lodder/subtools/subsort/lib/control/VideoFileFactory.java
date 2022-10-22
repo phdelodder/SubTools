@@ -3,11 +3,11 @@ package org.lodder.subtools.subsort.lib.control;
 import java.io.File;
 
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.exception.ControlFactoryException;
 import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.exception.ReleaseParseException;
 import org.lodder.subtools.sublibrary.model.Release;
+import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 
 public class VideoFileFactory {
 

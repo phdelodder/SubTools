@@ -8,8 +8,8 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.lodder.subtools.sublibrary.UserInteractionHandlerCLI;
 import org.lodder.subtools.sublibrary.data.UserInteractionSettings;
+import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandlerCLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

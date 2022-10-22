@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.lib.control.MovieReleaseControl;
 import org.lodder.subtools.multisubdownloader.lib.control.TvReleaseControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
@@ -23,6 +22,7 @@ import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoType;
+import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +33,12 @@ public class Local implements SubtitleProvider {
 
     private final Settings settings;
     private final Manager manager;
+    private final UserInteractionHandler userInteractionHandler;
 
-    public Local(Settings settings, Manager manager) {
+    public Local(Settings settings, Manager manager, UserInteractionHandler userInteractionHandler) {
         this.settings = settings;
         this.manager = manager;
+        this.userInteractionHandler = userInteractionHandler;
     }
 
     @Override
@@ -51,7 +53,7 @@ public class Local implements SubtitleProvider {
     }
 
     @Override
-    public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language, UserInteractionHandler userInteractionHandler) {
+    public Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language) {
         Set<Subtitle> listFoundSubtitles = new HashSet<>();
         ReleaseParser vfp = new ReleaseParser();
 
@@ -101,7 +103,7 @@ public class Local implements SubtitleProvider {
     }
 
     @Override
-    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language, UserInteractionHandler userInteractionHandler) {
+    public Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
         Set<Subtitle> listFoundSubtitles = new HashSet<>();
         ReleaseParser releaseParser = new ReleaseParser();
 

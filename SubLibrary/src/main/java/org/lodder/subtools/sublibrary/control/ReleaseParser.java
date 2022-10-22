@@ -47,7 +47,7 @@ public class ReleaseParser {
         String seriesname = "";
         List<Integer> episodenumbers = new ArrayList<>();
         int seasonnumber = 0;
-        int year = 0;
+        Integer year = null;
         String description = "";
 
         if (namedgroups.contains("description")) {

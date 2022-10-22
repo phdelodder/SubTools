@@ -11,7 +11,7 @@ public class IndexingProgressDialog extends ProgressDialog implements IndexingPr
 
     private static final long serialVersionUID = 2974749335080501254L;
     private final GUI window;
-    private final boolean completed;
+    private boolean completed;
 
     public IndexingProgressDialog(GUI window, Cancelable sft) {
         super(window, sft);
@@ -35,6 +35,11 @@ public class IndexingProgressDialog extends ProgressDialog implements IndexingPr
     @Override
     public void completed() {
         this.setVisible(false);
+    }
+
+    @Override
+    public void reset() {
+        this.completed = false;
     }
 
     @Override

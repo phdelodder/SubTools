@@ -1,53 +1,29 @@
 package org.lodder.subtools.sublibrary.cache;
 
-import java.io.Serializable;
+import java.util.Optional;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+public interface CacheObject<T> {
 
-@ToString
-@Setter
-@Getter
-class CacheObject<T> implements Serializable {
+    long getCreated();
 
-    private static final long serialVersionUID = 3852086993086134232L;
-    private static final Pattern PATTERN = Pattern.compile("created:(.*?)|lastAccessed:(.*?)|value:(.*)");
-    private final long created;
-    private long lastAccessed = System.currentTimeMillis();
-    private T value;
+    T getValue();
 
-    private CacheObject(long created, long lastAccessed, T value) {
-        this.created = created;
-        this.lastAccessed = lastAccessed;
-        this.value = value;
-    }
+    void updateLastAccessed();
 
+    boolean isExpired(long ttl);
 
-    protected CacheObject(T value) {
-        this.created = System.currentTimeMillis();
-        this.value = value;
-    }
+    String toString(Function<T, String> valueToStringMapper);
 
-    public void updateLastAccessed() {
-        lastAccessed = System.currentTimeMillis();
-    }
-
-    public String toString(Function<T, String> valueToStringMapper) {
-        return "created:%s|lastAccessed:%s|value:%s".formatted(created, lastAccessed, valueToStringMapper.apply(value));
-    }
-
-    public static <T> CacheObject<T> fromString(String string, Function<String, T> valueToObjectMapper) {
-        Matcher matcher = PATTERN.matcher(string);
-        if (matcher.matches()) {
-            long created = Long.parseLong(matcher.group(1));
-            long lastAccessed = Long.parseLong(matcher.group(2));
-            String value = matcher.group(3);
-            return new CacheObject<>(created, lastAccessed, valueToObjectMapper.apply(value));
+    static <T> CacheObject<T> fromString(String string, Function<String, T> valueToObjectMapper) {
+        Optional<CacheObject<T>> cacheObject = ExpiringCacheObject.fromString(string, valueToObjectMapper);
+        if (cacheObject.isPresent()) {
+            return cacheObject.get();
         }
-        throw new IllegalStateException("Coudl not parse value: " + string);
+        Optional<TemporaryCacheObject<T>> temporaryCacheObject = TemporaryCacheObject.fromString(string, valueToObjectMapper);
+        if (temporaryCacheObject.isPresent()) {
+            return temporaryCacheObject.get();
+        }
+        throw new IllegalStateException("Could not parse value: " + string);
     }
 }

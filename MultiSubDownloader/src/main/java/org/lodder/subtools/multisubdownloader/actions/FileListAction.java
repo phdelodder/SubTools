@@ -3,7 +3,6 @@ package org.lodder.subtools.multisubdownloader.actions;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -11,7 +10,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
-import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
@@ -83,48 +81,30 @@ public class FileListAction {
     }
 
     private Boolean isExcludedDir(File file) {
-        boolean status = false;
-
-        Iterator<SettingsExcludeItem> itemIterator = settings.getExcludeList().iterator();
-        while (!status && itemIterator.hasNext()) {
-            SettingsExcludeItem item = itemIterator.next();
-            if (item.getType() != SettingsExcludeType.FOLDER) {
-                continue;
-            }
-
-            File excludeFile = new File(item.getDescription());
-            if (!excludeFile.equals(file)) {
-                continue;
-            }
-
+        boolean excludedDir = settings.getExcludeList().stream()
+                .anyMatch(item -> item.getType() == SettingsExcludeType.FOLDER && new File(item.getDescription()).equals(file));
+        if (excludedDir) {
             LOGGER.trace("isExcludedDir, skipping [{}]", file);
-            status = true;
         }
-
-        return status;
+        return excludedDir;
     }
 
     private boolean isNotExcluded(File file) {
-        for (SettingsExcludeItem element : settings.getExcludeList()) {
+        boolean notExcluded = settings.getExcludeList().stream().noneMatch(element -> {
             if (element.getType() == SettingsExcludeType.REGEX) {
                 NamedPattern np = NamedPattern.compile(element.getDescription().replace("*", ".*") + ".*$", Pattern.CASE_INSENSITIVE);
                 NamedMatcher namedMatcher = np.matcher(file.getName());
-                if (namedMatcher.find()) {
-                    LOGGER.trace("isNotExcluded, skipping [{}]", file);
-                    return false;
-                }
-            }
-        }
-        for (SettingsExcludeItem element : settings.getExcludeList()) {
-            if (element.getType() == SettingsExcludeType.FILE) {
+                return namedMatcher.find();
+            } else if (element.getType() == SettingsExcludeType.FILE) {
                 File excludeFile = new File(element.getDescription());
-                if (excludeFile.equals(file)) {
-                    LOGGER.trace("isNotExcluded, skipping [{}]", file);
-                    return false;
-                }
+                return excludeFile.equals(file);
             }
+            return false;
+        });
+        if (notExcluded) {
+            LOGGER.trace("isNotExcluded, skipping [{}]", file);
         }
-        return true;
+        return notExcluded;
     }
 
     public boolean isValidVideoFile(File file) {

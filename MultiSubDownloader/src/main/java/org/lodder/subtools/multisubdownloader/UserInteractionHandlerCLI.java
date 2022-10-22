@@ -14,7 +14,7 @@ import org.lodder.subtools.sublibrary.util.prompter.ColumnDisplayer;
 import org.lodder.subtools.sublibrary.util.prompter.PrompterUtil;
 import org.lodder.subtools.sublibrary.util.prompter.TableDisplayer;
 
-public class UserInteractionHandlerCLI extends org.lodder.subtools.sublibrary.UserInteractionHandlerCLI implements UserInteractionHandler {
+public class UserInteractionHandlerCLI extends org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandlerCLI implements UserInteractionHandler {
     private final Prompter prompter = new DefaultPrompter();
 
     public UserInteractionHandlerCLI(UserInteractionSettingsIntf settings) {

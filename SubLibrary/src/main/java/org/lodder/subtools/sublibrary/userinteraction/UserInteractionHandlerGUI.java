@@ -1,4 +1,4 @@
-package org.lodder.subtools.sublibrary;
+package org.lodder.subtools.sublibrary.userinteraction;
 
 import java.util.Collection;
 import java.util.Optional;

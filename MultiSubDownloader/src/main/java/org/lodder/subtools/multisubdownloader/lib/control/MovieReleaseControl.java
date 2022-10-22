@@ -5,13 +5,13 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.data.ReleaseDBIntf;
 import org.lodder.subtools.sublibrary.data.imdb.ImdbAdapter;
 import org.lodder.subtools.sublibrary.data.omdb.OmdbAdapter;
 import org.lodder.subtools.sublibrary.exception.ReleaseControlException;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
+import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,9 +42,10 @@ public class MovieReleaseControl extends ReleaseControl {
                     .orElseThrow(() -> new ReleaseControlException("Movie not found on IMDB, check file", movieRelease));
             movieRelease.setImdbId(imdbId);
 
-            Optional<? extends ReleaseDBIntf> movieDetails = imdbAdapter.getMovieDetails(movieRelease.getImdbIdAsString());
+            Optional<? extends ReleaseDBIntf> movieDetails =
+                    movieRelease.getImdbId().mapToObj(imdbAdapter::getMovieDetails).orElseGet(Optional::empty);
             if (movieDetails.isEmpty()) {
-                movieDetails = omdbAdapter.getMovieDetails(movieRelease.getImdbIdAsString());
+                movieDetails = movieRelease.getImdbId().mapToObj(omdbAdapter::getMovieDetails).orElseGet(Optional::empty);
             }
             movieDetails.ifPresentDo(info -> {
                 movieRelease.setYear(info.getYear());
