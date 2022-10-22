@@ -26,7 +26,7 @@ public class OmdbAdapter {
         this.manager = manager;
         this.omdpApi = new LazySupplier<>(() -> {
             try {
-                return new OmdbApi(manager, userInteractionHandler);
+                return new OmdbApi(manager);
             } catch (Exception e) {
                 throw new SubtitlesProviderInitException("IMDB", e);
             }

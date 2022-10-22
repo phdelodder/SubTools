@@ -14,7 +14,6 @@ import org.gestdown.model.SubtitleSearchResponse;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleApi;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.data.Html;
 import org.lodder.subtools.sublibrary.data.ProviderSerieId;
@@ -51,18 +50,18 @@ public class JAddic7edProxyGestdownApi extends Html implements SubtitleApi {
     }
 
     public Set<Subtitle> getSubtitles(SerieMapping providerSerieId, int season, int episode, Language language) throws ApiException {
-        Set<Subtitle> results = new HashSet<>();
-        SubtitleSearchResponse response = getManager().valueBuilder()
-                .cacheType(CacheType.MEMORY)
-                .key("%s-subtitles-%s-%s-%s-%s".formatted("GESTDOWN", getSubtitleSource().name(), providerSerieId.getProviderName().toLowerCase(),
-                        season, episode, language))
-                .valueSupplier(() -> subtitlesApi.subtitlesFindLanguageShowSeasonEpisodeGet(language.getName(), providerSerieId.getProviderId(),
-                        season, episode))
-                .get();
-        response.getMatchingSubtitles().stream()
-                .filter(SubtitleDto::isCompleted).map(sub -> mapToSubtitle(sub, response.getEpisode(), language))
-                .forEach(results::add);
-        return results;
+        return getManager().valueBuilder()
+                .memoryCache()
+                .key("%s-subtitles-%s-%s-%s-%s".formatted(getSubtitleSource().name(), providerSerieId.getProviderId(), season, episode, language))
+                .collectionSupplier(Subtitle.class, () -> {
+                    Set<Subtitle> results = new HashSet<>();
+                    SubtitleSearchResponse response = subtitlesApi.subtitlesFindLanguageShowSeasonEpisodeGet(language.getName(),
+                            providerSerieId.getProviderId(), season, episode);
+                    response.getMatchingSubtitles().stream()
+                            .filter(SubtitleDto::isCompleted).map(sub -> mapToSubtitle(sub, response.getEpisode(), language))
+                            .forEach(results::add);
+                    return results;
+                }).getCollection();
     }
 
     private Subtitle mapToSubtitle(SubtitleDto sub, EpisodeDto episodedto, Language language) {

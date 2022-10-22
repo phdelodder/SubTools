@@ -98,11 +98,11 @@ public class Manager {
         PageContentBuilderUserAgentIntf url(String url);
     }
 
-    public interface PageContentBuilderUserAgentIntf {
+    public interface PageContentBuilderUserAgentIntf extends PageContentBuilderCacheTypeIntf {
         PageContentBuilderCacheTypeIntf userAgent(String userAgent);
     }
 
-    public interface PageContentBuilderCacheTypeIntf {
+    public interface PageContentBuilderCacheTypeIntf extends PageContentBuilderRetryIntf {
         PageContentBuilderRetryIntf cacheType(CacheType cacheType);
     }
 
@@ -145,7 +145,7 @@ public class Manager {
         private final HttpClient httpClient;
         private final InMemoryCache<String, String> inMemoryCache;
         private String url;
-        private String userAgent;
+        private String userAgent = "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)";
         private CacheType cacheType;
         private int retries;
         private Predicate<Exception> retryPredicate;
@@ -162,6 +162,9 @@ public class Manager {
 
         @Override
         public String get() throws ManagerException {
+            if (cacheType == null) {
+                cacheType = CacheType.NONE;
+            }
             return switch (cacheType) {
                 case NONE -> getContentWithoutCache(url, userAgent);
                 case MEMORY -> inMemoryCache.getOrPut(url, () -> getContentWithoutCache(url, userAgent));

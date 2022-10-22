@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JOptionPane;
 
@@ -46,7 +47,7 @@ public class TheTvdbAdapter {
         this.userInteractionHandler = userInteractionHandler;
         this.jtvapi = new LazySupplier<>(() -> {
             try {
-                return new TheTvdbApi("A1720D2DDFDCE82D");
+                return new TheTvdbApi(manager, "A1720D2DDFDCE82D");
             } catch (Exception e) {
                 throw new SubtitlesProviderInitException("IMDB", e);
             }
@@ -61,8 +62,8 @@ public class TheTvdbAdapter {
         String encodedSerieName = URLEncoder.encode(serieName.toLowerCase().replace(" ", "-"), StandardCharsets.UTF_8);
         ValueBuilderIsPresentIntf<Serializable> valueBuilder = manager.valueBuilder()
                 .cacheType(CacheType.DISK)
-                .key("TVDB-tvdbSerie-%s-%s".formatted(encodedSerieName, null));
-        if (valueBuilder.isPresent()) {
+                .key("TVDB-tvdbSerie-%s".formatted(encodedSerieName));
+        if (valueBuilder.isPresent() && (!valueBuilder.isTemporaryObject() || !valueBuilder.isExpiredTemporary())) {
             return valueBuilder.returnType(TheTvdbSerie.class).getOptional();
         }
 
@@ -93,13 +94,21 @@ public class TheTvdbAdapter {
                 tvdbSerie = Optional.empty();
             }
         }
-        valueBuilder.optionalValue(tvdbSerie).storeTempNullValue().store();
-        manager.valueBuilder()
-                .cacheType(CacheType.DISK)
-                .key("TVDB-serieId-%s-%s".formatted(encodedSerieName, null))
-                .optionalValue(tvdbSerie.mapToObj(tvdbS -> new SerieMapping(serieName, tvdbS.getId(), tvdbS.getSerieName())))
-                .storeTempNullValue()
-                .store();
+        if (tvdbSerie.isEmpty()) {
+            valueBuilder.optionalValue(tvdbSerie)
+                    .storeTempNullValue()
+                    .timeToLive(OptionalExtension.map(valueBuilder.getTemporaryTimeToLive(), v -> v * 2)
+                            .orElseGet(() -> TimeUnit.SECONDS.convert(1, TimeUnit.DAYS)))
+                    .storeAsTempValue();
+        } else {
+            valueBuilder.optionalValue(tvdbSerie).store();
+            manager.valueBuilder()
+                    .cacheType(CacheType.DISK)
+                    .key("TVDB-serieId-%s".formatted(encodedSerieName))
+                    .optionalValue(tvdbSerie.mapToObj(tvdbS -> new SerieMapping(serieName, tvdbS.getId(), tvdbS.getSerieName())))
+                    .storeTempNullValue()
+                    .store();
+        }
         return tvdbSerie;
     }
 

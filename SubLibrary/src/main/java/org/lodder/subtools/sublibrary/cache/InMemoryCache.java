@@ -26,26 +26,26 @@ public class InMemoryCache<K, V> {
     private final Map<K, CacheObject<V>> cacheMap;
     private final Long timeToLive;
 
-    protected InMemoryCache(Long timeToLive, Long timerInterval, Integer maxItems) {
-        if (timeToLive != null && timeToLive < 1) {
+    protected InMemoryCache(Long timeToLiveSeconds, Long timerIntervalSeconds, Integer maxItems) {
+        if (timeToLiveSeconds != null && timeToLiveSeconds < 1) {
             throw new IllegalStateException("maxItems should be a positive number");
         }
-        if (timerInterval != null && timerInterval < 1) {
+        if (timerIntervalSeconds != null && timerIntervalSeconds < 1) {
             throw new IllegalStateException("timerInterval should be a positive number");
         }
-        if (timeToLive != null && timeToLive < 1) {
+        if (timeToLiveSeconds != null && timeToLiveSeconds < 1) {
             throw new IllegalStateException("timeToLive should be a positive number");
         }
-        if (timeToLive == null && timerInterval != null) {
+        if (timeToLiveSeconds == null && timerIntervalSeconds != null) {
             throw new IllegalStateException("timeToLive should be specified when timerInterval is used");
         }
-        if (timeToLive != null && timerInterval != null && timeToLive < timerInterval) {
+        if (timeToLiveSeconds != null && timerIntervalSeconds != null && timeToLiveSeconds < timerIntervalSeconds) {
             throw new IllegalStateException("timerInterval should be greater than timeToLive");
         }
-        if (timerInterval != null) {
-            createCleanUpThread(timerInterval);
+        if (timerIntervalSeconds != null) {
+            createCleanUpThread(timerIntervalSeconds * 1000);
         }
-        this.timeToLive = timeToLive;
+        this.timeToLive = timeToLiveSeconds * 1000;
         this.cacheMap = maxItems != null ? new LRUMap<>(maxItems) : new HashMap<>();
     }
 
@@ -90,7 +90,7 @@ public class InMemoryCache<K, V> {
         Thread t = new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(timerInterval * 1000);
+                    Thread.sleep(timerInterval);
                 } catch (InterruptedException ex) {
                 }
                 cleanup();

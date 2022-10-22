@@ -22,7 +22,6 @@ import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.Manager.PageContentBuilderCacheTypeIntf;
 import org.lodder.subtools.sublibrary.ManagerException;
-import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.Html;
 import org.lodder.subtools.sublibrary.data.ProviderSerieId;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
@@ -70,7 +69,7 @@ public class SubsceneApi extends Html implements SubtitleApi {
                 return Map.of();
             }
             String url = DOMAIN + "/subtitles/searchbytitle?query=" + URLEncoder.encode(serieName, StandardCharsets.UTF_8);
-            Element searchResultElement = getJsoupDocument(url, CacheType.MEMORY).selectFirst(".search-result");
+            Element searchResultElement = getJsoupDocument(url).selectFirst(".search-result");
 
             return searchResultElement.select("h2").stream()
                     .map(titleElement -> Pair.of(titleElement.text(), titleElement.nextElementSibling().select("a").stream()
@@ -83,39 +82,42 @@ public class SubsceneApi extends Html implements SubtitleApi {
 
     public List<SubsceneSubtitleDescriptor> getSubtitles(SerieMapping providerSerieId, int season, int episode, Language language)
             throws SubsceneException {
-        setLanguageWithCookie(language);
-        try {
-            return getJsoupDocument(DOMAIN + providerSerieId.getProviderId(), CacheType.MEMORY)
-                            .select("td.a1").stream().map(Element::parent)
-                            .map(row -> new SubsceneSubtitleDescriptor()
-                                    .setLanguage(Language.fromValueOptional(row.select(".a1 span.l").text().trim()).orElse(null))
-                                    .setUrlSupplier(() -> getDownloadUrl(DOMAIN + row.select(".a1 > a").attr("href").trim()))
-                                    .setName(row.select(".a1 span:not(.l)").text().trim())
-                                    .setHearingImpaired(!row.select(".a41").isEmpty())
-                                    .setUploader(row.select(".a5 > a").text().trim())
-                                    .setComment(row.select(".a6 > div").text().trim()))
-                            .filter(subDescriptor -> subDescriptor.getSeasonEpisode() != null
-                                    && subDescriptor.getSeasonEpisode().getEpisodes().stream().anyMatch(ep -> ep == episode))
-                    .toList();
-        } catch (Exception e) {
-            throw new SubsceneException(e);
-        }
+        return getManager().valueBuilder().memoryCache()
+                .key("%s-subtitles-%s-%s-%s-%s".formatted(getSubtitleSource().getName(), providerSerieId.getProviderId(), season, episode, language))
+                .collectionSupplier(SubsceneSubtitleDescriptor.class, () -> {
+                    setLanguageWithCookie(language);
+                    try {
+                        return getJsoupDocument(DOMAIN + providerSerieId.getProviderId())
+                                .select("td.a1").stream().map(Element::parent)
+                                .map(row -> new SubsceneSubtitleDescriptor()
+                                        .setLanguage(Language.fromValueOptional(row.select(".a1 span.l").text().trim()).orElse(null))
+                                        .setUrlSupplier(() -> getDownloadUrl(DOMAIN + row.select(".a1 > a").attr("href").trim()))
+                                        .setName(row.select(".a1 span:not(.l)").text().trim())
+                                        .setHearingImpaired(!row.select(".a41").isEmpty())
+                                        .setUploader(row.select(".a5 > a").text().trim())
+                                        .setComment(row.select(".a6 > div").text().trim()))
+                                .filter(subDescriptor -> subDescriptor.getSeasonEpisode() != null
+                                        && subDescriptor.getSeasonEpisode().getEpisodes().stream().anyMatch(ep -> ep == episode))
+                                .toList();
+                    } catch (Exception e) {
+                        throw new SubsceneException(e);
+                    }
+                }).getCollection();
     }
 
     private String getDownloadUrl(String seriePageUrl) throws SubsceneException {
         try {
-            return DOMAIN + getJsoupDocument(seriePageUrl, CacheType.NONE).selectFirst("#downloadButton").attr("href");
+            return DOMAIN + getJsoupDocument(seriePageUrl).selectFirst("#downloadButton").attr("href");
         } catch (ManagerException e) {
             throw new SubsceneException(e);
         }
     }
 
-    private Document getJsoupDocument(String url, CacheType cacheType) throws ManagerException {
+    private Document getJsoupDocument(String url) throws ManagerException {
         while (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION_SHORT) {
             sleepSeconds(1);
         }
-        Document document =
-                super.getHtml(url).cacheType(cacheType).retries(1).retryPredicate(RETRY_PREDICATE).retryWait(RATEDURATION_LONG).getAsJsoupDocument();
+        Document document = super.getHtml(url).retries(1).retryPredicate(RETRY_PREDICATE).retryWait(RATEDURATION_LONG).getAsJsoupDocument();
         lastRequest = LocalDateTime.now();
         return document;
     }
@@ -148,7 +150,6 @@ public class SubsceneApi extends Html implements SubtitleApi {
     public SubtitleSource getSubtitleSource() {
         return SubtitleSource.SUBSCENE;
     }
-
 
     private static final Map<Language, Integer> SUBSCENE_LANGS = Collections.unmodifiableMap(new EnumMap<>(Language.class) {
         private static final long serialVersionUID = 2950169212654074275L;

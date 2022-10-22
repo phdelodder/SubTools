@@ -53,82 +53,90 @@ public class JTVSubtitlesApi extends Html implements SubtitleApi {
     public Set<TVsubtitlesSubtitleDescriptor> getSubtitles(SerieMapping providerSerieId, int season, int episode, Language language)
             throws TvSubtiltesException {
         return getEpisodeUrl(SERIE_URL_PREFIX + providerSerieId.getProviderId(), season, episode)
-                .mapToObj(episodeUrl -> getManager().valueBuilder()
-                        .cacheType(CacheType.MEMORY)
-                        .key("%s-subtitles-%s-%s".formatted(getSubtitleSource().name(), episodeUrl, language))
-                        .collectionSupplier(TVsubtitlesSubtitleDescriptor.class, () -> getSubtitlesWithoutCache(episodeUrl, language))
-                        .getCollection())
+                .mapToObj(episodeUrl -> getSubtitles(episodeUrl, language))
                 .orElseGet(Set::of);
     }
 
-    private Set<TVsubtitlesSubtitleDescriptor> getSubtitlesWithoutCache(String episodeUrl, Language language) throws TvSubtiltesException {
-        Set<TVsubtitlesSubtitleDescriptor> lSubtitles = new HashSet<>();
-        try {
-            Document searchEpisodeDoc =
-                    this.getHtml(episodeUrl.replace(".html", "-" + language.getLangCode() + ".html")).cacheType(CacheType.NONE).getAsJsoupDocument();
-            Elements searchEpisodes = searchEpisodeDoc.select(".left_articles > a");
+    private Set<TVsubtitlesSubtitleDescriptor> getSubtitles(String episodeUrl, Language language) throws TvSubtiltesException {
+        return getManager().valueBuilder()
+                .memoryCache()
+                .key("%s-subtitles-%s-%s".formatted(getSubtitleSource().name(), episodeUrl, language))
+                .collectionSupplier(TVsubtitlesSubtitleDescriptor.class, () -> {
+                    Set<TVsubtitlesSubtitleDescriptor> lSubtitles = new HashSet<>();
+                    try {
+                        Document searchEpisodeDoc =
+                                this.getHtml(episodeUrl.replace(".html", "-" + language.getLangCode() + ".html")).cacheType(CacheType.NONE)
+                                        .getAsJsoupDocument();
+                        Elements searchEpisodes = searchEpisodeDoc.select(".left_articles > a");
 
-            BiPredicate<Elements, String> isRowWithText = (row, text) -> row.get(1).text().contains(text);
-            Function<Elements, String> getRowValue = row -> row.get(2).text();
-            for (Element ep : searchEpisodes) {
-                String url = ep.attr("href");
-                if (url.contains("subtitle-")) {
-                    Document subtitlePageDoc = this.getHtml(DOMAIN + url).cacheType(CacheType.NONE).getAsJsoupDocument();
-                    String filename = null, rip = null, title = null, author = null;
-                    Elements subtitlePageTableDoc = subtitlePageDoc.getElementsByClass("subtitle1");
-                    if (subtitlePageTableDoc.size() == 1) {
-                        for (Element item : subtitlePageTableDoc.get(0).getElementsByTag("tr")) {
-                            Elements row = item.getElementsByTag("td");
-                            if (row.size() != 3) {
-                                continue;
-                            }
-                            if (isRowWithText.test(row, "episode title:")) {
-                                title = getRowValue.apply(row);
-                            } else if (isRowWithText.test(row, "filename:")) {
-                                filename = getRowValue.apply(row);
-                            } else if (isRowWithText.test(row, "rip:")) {
-                                rip = getRowValue.apply(row);
-                            } else if (isRowWithText.test(row, "author:")) {
-                                author = getRowValue.apply(row);
-                            }
-                            if (filename != null && rip != null) {
-                                TVsubtitlesSubtitleDescriptor sub = TVsubtitlesSubtitleDescriptor.builder()
-                                        .filename(filename)
-                                        .url(DOMAIN + "/files/" + URLEncoder.encode(
-                                                filename.replace(title + ".", "").replace(".srt", ".zip").replace(" - ", "_"),
-                                                StandardCharsets.UTF_8))
-                                        .rip(rip)
-                                        .author(author)
-                                        .build();
-                                lSubtitles.add(sub);
-                                rip = null;
-                                filename = null;
-                                title = null;
-                                author = null;
+                        BiPredicate<Elements, String> isRowWithText = (row, text) -> row.get(1).text().contains(text);
+                        Function<Elements, String> getRowValue = row -> row.get(2).text();
+                        for (Element ep : searchEpisodes) {
+                            String url = ep.attr("href");
+                            if (url.contains("subtitle-")) {
+                                Document subtitlePageDoc = this.getHtml(DOMAIN + url).cacheType(CacheType.NONE).getAsJsoupDocument();
+                                String filename = null, rip = null, title = null, author = null;
+                                Elements subtitlePageTableDoc = subtitlePageDoc.getElementsByClass("subtitle1");
+                                if (subtitlePageTableDoc.size() == 1) {
+                                    for (Element item : subtitlePageTableDoc.get(0).getElementsByTag("tr")) {
+                                        Elements row = item.getElementsByTag("td");
+                                        if (row.size() != 3) {
+                                            continue;
+                                        }
+                                        if (isRowWithText.test(row, "episode title:")) {
+                                            title = getRowValue.apply(row);
+                                        } else if (isRowWithText.test(row, "filename:")) {
+                                            filename = getRowValue.apply(row);
+                                        } else if (isRowWithText.test(row, "rip:")) {
+                                            rip = getRowValue.apply(row);
+                                        } else if (isRowWithText.test(row, "author:")) {
+                                            author = getRowValue.apply(row);
+                                        }
+                                        if (filename != null && rip != null) {
+                                            TVsubtitlesSubtitleDescriptor sub = TVsubtitlesSubtitleDescriptor.builder()
+                                                    .filename(filename)
+                                                    .url(DOMAIN + "/files/" + URLEncoder.encode(
+                                                            filename.replace(title + ".", "").replace(".srt", ".zip").replace(" - ", "_"),
+                                                            StandardCharsets.UTF_8))
+                                                    .rip(rip)
+                                                    .author(author)
+                                                    .build();
+                                            lSubtitles.add(sub);
+                                            rip = null;
+                                            filename = null;
+                                            title = null;
+                                            author = null;
+                                        }
+                                    }
+                                }
                             }
                         }
+                        return lSubtitles;
+                    } catch (Exception e) {
+                        throw new TvSubtiltesException(e);
                     }
-                }
-            }
-            return lSubtitles;
-        } catch (Exception e) {
-            throw new TvSubtiltesException(e);
-        }
+                })
+                .getCollection();
     }
 
     private Optional<String> getEpisodeUrl(String showUrl, int season, int episode) throws TvSubtiltesException {
-        try {
-            String seasonUrl = showUrl.replace(".html", "-" + season + ".html");
-            Element searchSeasonTable = this.getHtml(seasonUrl).cacheType(CacheType.MEMORY).getAsJsoupDocument().getElementById("table5");
-
-            String formatedSeasonEpisode = season + "x" + (episode < 10 ? "0" + episode : "" + episode);
-            return searchSeasonTable.getElementsByTag("tr").stream().skip(1)
-                    .filter(row -> Optional.ofNullable(row.selectFirst("td")).map(element -> formatedSeasonEpisode.equals(element.text()))
-                            .orElse(false))
-                    .map(element -> DOMAIN + "/" + element.select("td").get(1).selectFirst("a").attr("href")).findAny();
-        } catch (Exception e) {
-            throw new TvSubtiltesException(e);
-        }
+        return getManager().valueBuilder()
+                .memoryCache()
+                .key("%s-episodeUrl-%s-%s-%s".formatted(getSubtitleSource().name(), showUrl, season, episode))
+                .optionalSupplier(() -> {
+                    try {
+                        String formatedSeasonEpisode = season + "x" + (episode < 10 ? "0" + episode : "" + episode);
+                        return getHtml(showUrl.replace(".html", "-" + season + ".html"))
+                                .getAsJsoupDocument()
+                                .getElementById("table5").getElementsByTag("tr").stream().skip(1)
+                                .filter(row -> Optional.ofNullable(row.selectFirst("td"))
+                                        .map(element -> formatedSeasonEpisode.equals(element.text()))
+                                        .orElse(false))
+                                .map(element -> DOMAIN + "/" + element.select("td").get(1).selectFirst("a").attr("href")).findAny();
+                    } catch (Exception e) {
+                        throw new TvSubtiltesException(e);
+                    }
+                }).getOptional();
     }
 
     @Override

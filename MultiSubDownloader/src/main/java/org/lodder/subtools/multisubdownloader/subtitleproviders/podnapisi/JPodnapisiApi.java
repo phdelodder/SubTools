@@ -100,20 +100,24 @@ public class JPodnapisiApi extends XmlRPC implements SubtitleApi {
 
     @SuppressWarnings("unchecked")
     public List<PodnapisiSubtitleDescriptor> getSubtitles(String[] filehash, Language language) throws PodnapisiException {
-        try {
-            checkLoginStatus();
-            Map<String, List<Map<String, String>>> response =
-                    (Map<String, List<Map<String, String>>>) invoke("search", new Object[] { getToken(), filehash });
-            List<Map<String, String>> subtitleData =
-                    response.get("subtitles") == null ? new ArrayList<>() : (List<Map<String, String>>) response.get("subtitles");
+        return getManager().valueBuilder().memoryCache()
+                .key("%s-subtitles-%s-%s".formatted(getSubtitleSource().getName(), filehash, language))
+                .collectionSupplier(PodnapisiSubtitleDescriptor.class, () -> {
+                    try {
+                        checkLoginStatus();
+                        Map<String, List<Map<String, String>>> response =
+                                (Map<String, List<Map<String, String>>>) invoke("search", new Object[] { getToken(), filehash });
+                        List<Map<String, String>> subtitleData =
+                                response.get("subtitles") == null ? new ArrayList<>() : (List<Map<String, String>>) response.get("subtitles");
 
-            return subtitleData.stream()
-                    .filter(subtitle -> languageIdToLanguage(subtitle.get("LanguageCode")) == language)
-                    .map(this::parsePodnapisiSubtitle)
-                    .toList();
-        } catch (Exception e) {
-            throw new PodnapisiException(e);
-        }
+                        return subtitleData.stream()
+                                .filter(subtitle -> languageIdToLanguage(subtitle.get("LanguageCode")) == language)
+                                .map(this::parsePodnapisiSubtitle)
+                                .toList();
+                    } catch (Exception e) {
+                        throw new PodnapisiException(e);
+                    }
+                }).getCollection();
     }
 
     public List<PodnapisiSubtitleDescriptor> getMovieSubtitles(String movieName, int year, int season, int episode, Language language)
@@ -130,29 +134,35 @@ public class JPodnapisiApi extends XmlRPC implements SubtitleApi {
 
     private List<PodnapisiSubtitleDescriptor> getSubtitles(SerieMapping providerSerieId, Integer year, int season, int episode, Language language)
             throws PodnapisiException {
-        try {
-            StringBuilder url = new StringBuilder(DOMAIN + "/sl/ppodnapisi/search?sK=")
-                    .append(URLEncoder.encode(providerSerieId.getProviderId().trim().toLowerCase(), StandardCharsets.UTF_8));
-            if (PODNAPISI_LANGS.containsKey(language)) {
-                url.append("&sJ=").append(PODNAPISI_LANGS.get(language));
-            }
-            if (year != null) {
-                url.append("&sY=").append(year);
-            }
-            if (season > 0) {
-                url.append("&sTS=").append(season).append("&sT=1"); // series
-            } else {
-                url.append("&sT=0"); // movies
-            }
-            if (episode > 0) {
-                url.append("&sTE=").append(episode);
-            }
-            url.append("&sXML=1");
+        return getManager().valueBuilder()
+                .memoryCache()
+                .key("%s-subtitles-%s-%s-%s-%s".formatted(getSubtitleSource().name(), providerSerieId.getProviderId(), season, episode, language))
+                .collectionSupplier(PodnapisiSubtitleDescriptor.class, () -> {
+                    try {
+                        StringBuilder url = new StringBuilder(DOMAIN + "/sl/ppodnapisi/search?sK=")
+                                .append(URLEncoder.encode(providerSerieId.getProviderId().trim().toLowerCase(), StandardCharsets.UTF_8));
+                        if (PODNAPISI_LANGS.containsKey(language)) {
+                            url.append("&sJ=").append(PODNAPISI_LANGS.get(language));
+                        }
+                        if (year != null) {
+                            url.append("&sY=").append(year);
+                        }
+                        if (season > 0) {
+                            url.append("&sTS=").append(season).append("&sT=1"); // series
+                        } else {
+                            url.append("&sT=0"); // movies
+                        }
+                        if (episode > 0) {
+                            url.append("&sTE=").append(episode);
+                        }
+                        url.append("&sXML=1");
 
-            return getXML(url.toString()).select(".subtitle-entry").stream().map(this::parsePodnapisiSubtitle).toList();
-        } catch (Exception e) {
-            throw new PodnapisiException(e);
-        }
+                        return getXML(url.toString()).select(".subtitle-entry").stream().map(this::parsePodnapisiSubtitle).toList();
+                    } catch (Exception e) {
+                        throw new PodnapisiException(e);
+                    }
+                })
+                .getCollection();
     }
 
     @SuppressWarnings("unchecked")
