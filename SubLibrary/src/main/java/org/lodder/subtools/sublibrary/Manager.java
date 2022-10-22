@@ -253,16 +253,21 @@ public class Manager {
     }
 
     public interface ValueBuilderCacheTypeIntf {
-        ValueBuilderKeyIntf cacheType(CacheType cacheType);
+
+        <T extends Serializable> ValueBuilderKeyIntf<T> cacheType(CacheType cacheType);
+
+        <T extends Object> ValueBuilderKeyIntf<T> memoryCache();
+
+        <T extends Serializable> ValueBuilderKeyIntf<T> diskCache();
     }
 
-    public interface ValueBuilderKeyIntf {
-        ValueBuilderIsPresentIntf key(String key);
+    public interface ValueBuilderKeyIntf<T> {
+        ValueBuilderIsPresentIntf<T> key(String key);
 
-        ValuesBuilderCacheTypeIntf keyFilter(Predicate<String> keyFilter);
+        ValuesBuilderCacheTypeIntf<T> keyFilter(Predicate<String> keyFilter);
     }
 
-    public interface ValueBuilderIsPresentIntf extends ValuesBuilderCacheTypeIntf {
+    public interface ValueBuilderIsPresentIntf<T> extends ValuesBuilderCacheTypeIntf<T> {
         boolean isPresent();
 
         boolean isExpiredTemporary();
@@ -272,79 +277,77 @@ public class Manager {
         OptionalLong getTemporaryTimeToLive();
     }
 
-    public interface ValuesBuilderCacheTypeIntf extends ValueBuilderRetryIntf {
-        <T extends Serializable> ValueBuilderGetOptionalIntf<T, Nothing> returnType(Class<T> returnType);
+    public interface ValuesBuilderCacheTypeIntf<T> extends ValueBuilderRetryIntf<T> {
+        <S extends T> ValueBuilderGetOptionalIntf<S, Nothing> returnType(Class<S> returnType);
 
-        <C extends Collection<T>, T extends Serializable> ValueBuilderGetCollectionIntf<C, T, Nothing> returnType(Class<C> collectionReturnType,
-                Class<T> returnType);
+        <C extends Collection<S>, S extends T> ValueBuilderGetCollectionIntf<C, S, Nothing> returnType(Class<C> collectionReturnType,
+                Class<S> returnType);
 
         void remove();
     }
 
-    public interface ValueBuilderRetryIntf extends ValueBuilderValueSupplierIntf {
-        ValueBuilderRetryConditionIntf retries(int retries);
+    public interface ValueBuilderRetryIntf<T> extends ValueBuilderValueSupplierIntf<T> {
+        ValueBuilderRetryConditionIntf<T> retries(int retries);
 
-        <T extends Serializable> ValueBuilderGetValueStoreTempValueIntf<T, Nothing> value(T value);
+        <S extends T> ValueBuilderGetValueStoreTempValueIntf<S, Nothing> value(S value);
 
-        <T extends Serializable> ValueBuilderGetOptionalStoreTempValueIntf<T, Nothing> optionalValue(Optional<T> optionalValue);
+        <S extends T> ValueBuilderGetOptionalStoreTempValueIntf<S, Nothing> optionalValue(Optional<S> optionalValue);
 
-        <T extends Serializable> ValueBuilderGetOptionalIntStoreTempValueIntf<Nothing> optionalIntValue(OptionalInt optionalIntValue);
+        ValueBuilderGetOptionalIntStoreTempValueIntf<Nothing> optionalIntValue(OptionalInt optionalIntValue);
 
-        <C extends Collection<T>, T extends Serializable> ValueBuilderGetCollectionIntf<C, T, Nothing>
-                collectionValue(C collectionValue);
+        <C extends Collection<S>, S extends T> ValueBuilderGetCollectionIntf<C, S, Nothing> collectionValue(C collectionValue);
     }
 
-    public interface ValueBuilderRetryConditionIntf {
-        ValueBuilderRetryWaitIntf retryPredicate(Predicate<Exception> retryPredicate);
+    public interface ValueBuilderRetryConditionIntf<T> {
+        ValueBuilderRetryWaitIntf<T> retryPredicate(Predicate<Exception> retryPredicate);
     }
 
-    public interface ValueBuilderRetryWaitIntf {
-        ValueBuilderValueSupplierIntf retryWait(int retryWait);
+    public interface ValueBuilderRetryWaitIntf<T> {
+        ValueBuilderValueSupplierIntf<T> retryWait(int retryWait);
     }
 
-    public interface ValueBuilderValueSupplierIntf {
+    public interface ValueBuilderValueSupplierIntf<T> {
 
-        <T extends Serializable, X extends Exception> ValueBuilderGetValueStoreTempValueIntf<T, X>
-                valueSupplier(ThrowingSupplier<T, X> valueSupplier);
+        <S extends T, X extends Exception> ValueBuilderGetValueStoreTempValueIntf<S, X> valueSupplier(ThrowingSupplier<S, X> valueSupplier);
 
-        <C extends Collection<T>, T extends Serializable, X extends Exception> ValueBuilderGetCollectionIntf<C, T, X>
-                collectionSupplier(Class<T> collectionValueType, ThrowingSupplier<C, X> valueSupplier);
+        <C extends Collection<S>, S extends T, X extends Exception> ValueBuilderGetCollectionIntf<C, S, X>
+                collectionSupplier(Class<S> collectionValueType, ThrowingSupplier<C, X> valueSupplier);
 
-        <T extends Serializable, X extends Exception> ValueBuilderGetOptionalStoreTempValueIntf<T, X>
-                optionalSupplier(ThrowingSupplier<Optional<T>, X> valueSupplier);
+        <S extends T, X extends Exception> ValueBuilderGetOptionalStoreTempValueIntf<S, X>
+                optionalSupplier(ThrowingSupplier<Optional<S>, X> valueSupplier);
 
         <X extends Exception> ValueBuilderGetOptionalIntStoreTempValueIntf<X>
                 optionalIntSupplier(ThrowingSupplier<OptionalInt, X> optionalIntSupplier);
     }
 
-    public interface ValueBuilderGetValueStoreTempValueIntf<T extends Serializable, X extends Exception> extends ValueBuilderGetValueIntf<T, X> {
+    public interface ValueBuilderGetValueStoreTempValueIntf<T, X extends Exception> extends ValueBuilderGetValueIntf<T, X> {
         ValueBuilderGetValueStoreTempValueTtlIntf<T, X> storeTempNullValue();
     }
 
-    public interface ValueBuilderGetValueStoreTempValueTtlIntf<T extends Serializable, X extends Exception>
+    public interface ValueBuilderGetValueStoreTempValueTtlIntf<T, X extends Exception>
             extends ValueBuilderGetValueIntf<T, X> {
         ValueBuilderGetValueIntf<T, X> timeToLive(long seconds);
 
         ValueBuilderGetValueIntf<T, X> timeToLiveFunction(Function<Long, Long> timeToLiveFunction);
     }
 
-    public interface ValueBuilderGetValueIntf<T extends Serializable, X extends Exception> extends ValueBuilderStoreIntf<X> {
+    public interface ValueBuilderGetValueIntf<T, X extends Exception> extends ValueBuilderStoreIntf<X> {
         T get() throws X;
     }
 
-    public interface ValueBuilderGetOptionalStoreTempValueIntf<T extends Serializable, X extends Exception>
+    public interface ValueBuilderGetOptionalStoreTempValueIntf<T, X extends Exception>
             extends ValueBuilderGetOptionalIntf<T, X> {
         ValueBuilderGetOptionalStoreTempValueTtlIntf<T, X> storeTempNullValue();
     }
 
-    public interface ValueBuilderGetOptionalStoreTempValueTtlIntf<T extends Serializable, X extends Exception>
+    public interface ValueBuilderGetOptionalStoreTempValueTtlIntf<T, X extends Exception>
             extends ValueBuilderGetOptionalIntf<T, X> {
         ValueBuilderGetOptionalIntf<T, X> timeToLive(long seconds);
 
         ValueBuilderGetOptionalIntf<T, X> timeToLiveFunction(Function<Long, Long> timeToLiveFunction);
     }
 
-    public interface ValueBuilderGetOptionalIntf<T extends Serializable, X extends Exception> extends ValueBuilderStoreIntf<X> {
+    public interface ValueBuilderGetOptionalIntf<T, X extends Exception> extends ValueBuilderStoreIntf<X> {
         List<Pair<String, T>> getEntries();
 
         Optional<T> getOptional() throws X;
@@ -364,19 +367,19 @@ public class Manager {
         OptionalInt getOptionalInt() throws X;
     }
 
-    // public interface ValueBuilderGetCollectionStoreTempValueIntf<C extends Collection<T>, T extends Serializable, X extends Exception>
+    // public interface ValueBuilderGetCollectionStoreTempValueIntf<C extends Collection<T>, T, X extends Exception>
     // extends ValueBuilderGetCollectionIntf<C, T, X> {
     // ValueBuilderGetCollectionStoreTempValueTtlIntf<C, T, X> storeTempValue();
     // }
     //
-    // public interface ValueBuilderGetCollectionStoreTempValueTtlIntf<C extends Collection<T>, T extends Serializable, X extends Exception>
+    // public interface ValueBuilderGetCollectionStoreTempValueTtlIntf<C extends Collection<T>, T, X extends Exception>
     // extends ValueBuilderGetCollectionIntf<C, T, X> {
     // ValueBuilderGetCollectionIntf<C, T, X> timeToLive(long seconds);
     //
     // ValueBuilderGetCollectionIntf<C, T, X> timeToLiveFunction(Function<Long, Long> timeToLiveFunction);
     // }
 
-    public interface ValueBuilderGetCollectionIntf<C extends Collection<T>, T extends Serializable, X extends Exception>
+    public interface ValueBuilderGetCollectionIntf<C extends Collection<T>, T, X extends Exception>
             extends ValueBuilderStoreIntf<X> {
         C getCollection() throws X;
     }
@@ -391,11 +394,11 @@ public class Manager {
     @Accessors(chain = true, fluent = true)
     @RequiredArgsConstructor
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static class ValueBuilder<C extends Collection<T>, T extends Serializable, X extends Exception>
+    public static class ValueBuilder<C extends Collection<T>, T, X extends Exception>
             implements ValueBuilderGetOptionalIntf<T, X>, ValueBuilderCacheTypeIntf,
-            ValueBuilderValueSupplierIntf, ValueBuilderKeyIntf, ValueBuilderGetCollectionIntf<C, T, X>, ValueBuilderGetOptionalIntIntf<X>,
-            ValueBuilderRetryIntf, ValueBuilderRetryConditionIntf, ValueBuilderRetryWaitIntf,
-            ValueBuilderIsPresentIntf, ValuesBuilderCacheTypeIntf,
+            ValueBuilderValueSupplierIntf<T>, ValueBuilderKeyIntf<T>, ValueBuilderGetCollectionIntf<C, T, X>, ValueBuilderGetOptionalIntIntf<X>,
+            ValueBuilderRetryIntf<T>, ValueBuilderRetryConditionIntf<T>, ValueBuilderRetryWaitIntf<T>,
+            ValueBuilderIsPresentIntf<T>, ValuesBuilderCacheTypeIntf<T>,
             ValueBuilderStoreIntf<X>, ValueBuilderGetOptionalIntStoreTempValueIntf<X>, ValueBuilderGetOptionalStoreTempValueIntf<T, X>,
             ValueBuilderGetOptionalIntStoreTempValueTtlIntf<X>, ValueBuilderGetOptionalStoreTempValueTtlIntf<T, X>,
             ValueBuilderGetValueStoreTempValueIntf<T, X>, ValueBuilderGetValueStoreTempValueTtlIntf<T, X>, ValueBuilderGetValueIntf<T, X> {
@@ -423,6 +426,18 @@ public class Manager {
         private boolean storeTempNullValue;
         private Function<Long, Long> timeToLiveFunction;
 
+        //
+        // @Override
+        // public ValueBuilder<C, T, X> timeToLiveFunction(Function<Long, Long> timeToLiveFunction) {
+        // this.timeToLiveFunction = timeToLiveFunction;
+        // return this;
+        // }
+        @Override
+        public ValueBuilder<C, T, Nothing> optionalIntValue(OptionalInt optionalIntValue) {
+            this.optionalIntValue = optionalIntValue;
+            return (ValueBuilder<C, T, Nothing>) this;
+        }
+
         @Override
         public ValueBuilder<C, T, X> retries(int retries) {
             if (retries < 0) {
@@ -433,26 +448,38 @@ public class Manager {
         }
 
         @Override
-        public <S extends Serializable> ValueBuilder<?, S, Nothing> returnType(Class<S> returnType) {
+        public ValueBuilder<?, ?, ?> memoryCache() {
+            this.cacheType = CacheType.MEMORY;
+            return this;
+        }
+
+        @Override
+        public <S extends Serializable> ValueBuilder<?, S, ?> diskCache() {
+            this.cacheType = CacheType.DISK;
+            return (ValueBuilder<?, S, ?>) this;
+        }
+
+        @Override
+        public <S extends T> ValueBuilder<?, S, Nothing> returnType(Class<S> returnType) {
             this.returnType = (Class<T>) returnType;
             return (ValueBuilder<?, S, Nothing>) this;
         }
 
         @Override
-        public <L extends Collection<S>, S extends Serializable> ValueBuilderGetCollectionIntf<L, S, Nothing>
+        public <L extends Collection<S>, S extends T> ValueBuilderGetCollectionIntf<L, S, Nothing>
                 returnType(Class<L> collectionReturnType, Class<S> returnType) {
             this.returnType = (Class<T>) returnType;
             return (ValueBuilder<L, S, Nothing>) this;
         }
 
         @Override
-        public <S extends Serializable, E extends Exception> ValueBuilder<?, S, E> valueSupplier(ThrowingSupplier<S, E> valueSupplier) {
+        public <S extends T, E extends Exception> ValueBuilder<?, S, E> valueSupplier(ThrowingSupplier<S, E> valueSupplier) {
             this.valueSupplier = (ThrowingSupplier<T, X>) valueSupplier;
             return (ValueBuilder<?, S, E>) this;
         }
 
         @Override
-        public <S extends Serializable, E extends Exception> ValueBuilder<?, S, E>
+        public <S extends T, E extends Exception> ValueBuilder<?, S, E>
                 optionalSupplier(ThrowingSupplier<Optional<S>, E> valueSupplier) {
             this.optionalSupplier = (ThrowingSupplier) valueSupplier;
             return (ValueBuilder<?, S, E>) this;
@@ -465,26 +492,26 @@ public class Manager {
         }
 
         @Override
-        public <L extends Collection<S>, S extends Serializable, E extends Exception> ValueBuilder<L, S, E>
+        public <L extends Collection<S>, S extends T, E extends Exception> ValueBuilder<L, S, E>
                 collectionSupplier(Class<S> collectionValueType, ThrowingSupplier<L, E> collectionSupplier) {
             this.collectionSupplier = (ThrowingSupplier<C, X>) collectionSupplier;
             return (ValueBuilder<L, S, E>) this;
         }
 
         @Override
-        public <S extends Serializable> ValueBuilder<?, S, Nothing> value(S value) {
-            this.value = (T) value;
+        public <S extends T> ValueBuilder<?, S, Nothing> value(S value) {
+            this.value = value;
             return (ValueBuilder<?, S, Nothing>) this;
         }
 
         @Override
-        public <S extends Serializable> ValueBuilder<?, S, Nothing> optionalValue(Optional<S> optionalValue) {
+        public <S extends T> ValueBuilder<?, S, Nothing> optionalValue(Optional<S> optionalValue) {
             this.optionalValue = (Optional<T>) optionalValue;
             return (ValueBuilder<?, S, Nothing>) this;
         }
 
         @Override
-        public <L extends Collection<S>, S extends Serializable> ValueBuilder<L, S, Nothing> collectionValue(L collectionValue) {
+        public <L extends Collection<S>, S extends T> ValueBuilder<L, S, Nothing> collectionValue(L collectionValue) {
             this.collectionValue = (C) collectionValue;
             return (ValueBuilder<L, S, Nothing>) this;
         }

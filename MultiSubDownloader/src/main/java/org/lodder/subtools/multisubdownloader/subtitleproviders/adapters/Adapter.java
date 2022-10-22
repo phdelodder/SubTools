@@ -4,6 +4,7 @@ import static org.lodder.subtools.sublibrary.util.OptionalExtension.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -104,8 +105,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
         }
     }
 
-    Collection<T> searchSerieSubtitles(TvRelease tvRelease, Language language)
-            throws X;
+    Collection<T> searchSerieSubtitles(TvRelease tvRelease, Language language) throws X;
 
     Set<Subtitle> convertToSubtitles(TvRelease tvRelease, Collection<T> subtitles, Language language);
 
@@ -114,7 +114,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
     String getProviderName();
 
     default Optional<SerieMapping> getProviderSerieId(String serieName, String displayName, int season, OptionalInt tvdbIdOptional) throws X {
-        Supplier<ValueBuilderIsPresentIntf> tvdbIdValueBuilder =
+        Supplier<ValueBuilderIsPresentIntf<Serializable>> tvdbIdValueBuilder =
                 () -> mapToObj(tvdbIdOptional, tvdbId -> getManager().valueBuilder().cacheType(CacheType.DISK)
                         .key("%s-serieName-tvdbId:%s-%s".formatted(getProviderName(), tvdbId,
                                 useSeasonForSerieId() ? season : -1))).orElseThrow();
@@ -125,7 +125,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
         if (StringUtils.isBlank(serieName)) {
             return Optional.empty();
         }
-        ValueBuilderIsPresentIntf serieNameValueBuilder = getManager().valueBuilder()
+        ValueBuilderIsPresentIntf<Serializable> serieNameValueBuilder = getManager().valueBuilder()
                 .cacheType(CacheType.DISK)
                 .key("%s-serieName-name:%s-%s".formatted(getProviderName(), serieName.toLowerCase(), useSeasonForSerieId() ? season : 0));
 
@@ -163,7 +163,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
         } else if (!getUserInteractionSettings().isOptionsConfirmProviderMapping() && providerSerieIds.size() == 1) {
             return Optional.of(new SerieMapping(serieName, providerSerieIds.get(0).getId(), providerSerieIds.get(0).getName()));
         }
-        ValueBuilderIsPresentIntf previousResultsValueBuilder = getManager().valueBuilder()
+        ValueBuilderIsPresentIntf<Serializable> previousResultsValueBuilder = getManager().valueBuilder()
                 .cacheType(CacheType.MEMORY)
                 .key("%s-serieName-prev-results:%s-%s".formatted(getProviderName(), displayName.toLowerCase(), useSeasonForSerieId() ? season : 0));
 

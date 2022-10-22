@@ -1,5 +1,6 @@
 package org.lodder.subtools.sublibrary.data.tvdb;
 
+import java.io.Serializable;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
@@ -58,7 +59,7 @@ public class TheTvdbAdapter {
 
     public Optional<TheTvdbSerie> getSerie(String serieName) {
         String encodedSerieName = URLEncoder.encode(serieName.toLowerCase().replace(" ", "-"), StandardCharsets.UTF_8);
-        ValueBuilderIsPresentIntf valueBuilder = manager.valueBuilder()
+        ValueBuilderIsPresentIntf<Serializable> valueBuilder = manager.valueBuilder()
                 .cacheType(CacheType.DISK)
                 .key("TVDB-tvdbSerie-%s-%s".formatted(encodedSerieName, null));
         if (valueBuilder.isPresent()) {
