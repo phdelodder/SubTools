@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2;
+package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -11,7 +11,8 @@ import java.util.stream.StreamSupport;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleApi;
-import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.exception.OpenSubtitlesException;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.exception.OpenSubtitlesException;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.model.OpensubtitleSerieId;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;

@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2;
+package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.model;
 
 import org.lodder.subtools.sublibrary.data.ProviderSerieId;
 
