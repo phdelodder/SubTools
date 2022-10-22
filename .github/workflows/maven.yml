@@ -20,10 +20,3 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-      echo "::set-output name=releaseName::`ls home/runner/work/SubTools/SubTools/SubSort/target/subsort-*.jar | awk -F '(/|.jar)' '{print $8}'`"
-    - name: Upload jar
-      if: success()
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ steps.buildRelease.outputs.releaseName }}
-        path: "home/runner/work/SubTools/SubTools/SubSort/target/subsort-*.jar"
