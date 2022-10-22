@@ -13,6 +13,7 @@ import org.lodder.subtools.sublibrary.data.ProviderSerieId;
 import org.lodder.subtools.sublibrary.data.imdb.exception.ImdbException;
 import org.lodder.subtools.sublibrary.data.imdb.exception.ImdbSearchIdException;
 import org.lodder.subtools.sublibrary.data.imdb.model.ImdbDetails;
+import org.lodder.subtools.sublibrary.exception.SubtitlesProviderInitException;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
@@ -40,17 +41,15 @@ public class ImdbAdapter {
             try {
                 return new ImdbApi(manager);
             } catch (Exception e) {
-                LOGGER.error("API IMDB INIT (%s)".formatted(e.getMessage()), e);
+                throw new SubtitlesProviderInitException("IMDB", e);
             }
-            return null;
         });
         this.imdbSearchIdApi = new LazySupplier<>(() -> {
             try {
                 return new ImdbSearchIdApi(manager);
             } catch (Exception e) {
-                LOGGER.error("API IMDB INIT (%s)".formatted(e.getMessage()), e);
+                throw new SubtitlesProviderInitException("IMDB", e);
             }
-            return null;
         });
     }
 

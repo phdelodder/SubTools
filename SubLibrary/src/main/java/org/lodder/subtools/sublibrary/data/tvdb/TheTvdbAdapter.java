@@ -18,6 +18,7 @@ import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.tvdb.exception.TheTvdbException;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbEpisode;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbSerie;
+import org.lodder.subtools.sublibrary.exception.SubtitlesProviderInitException;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
@@ -47,9 +48,8 @@ public class TheTvdbAdapter {
             try {
                 return new TheTvdbApi("A1720D2DDFDCE82D");
             } catch (Exception e) {
-                LOGGER.error("API TVDB INIT (%s)".formatted(e.getMessage()), e);
+                throw new SubtitlesProviderInitException("IMDB", e);
             }
-            return null;
         });
     }
 

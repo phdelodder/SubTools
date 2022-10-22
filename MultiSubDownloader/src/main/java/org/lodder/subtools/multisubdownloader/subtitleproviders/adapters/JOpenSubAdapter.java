@@ -23,7 +23,7 @@ import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
-import org.lodder.subtools.sublibrary.util.lazy.LazyThrowingSupplier;
+import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
 import org.opensubtitles.model.Latest200ResponseDataInnerAttributesFilesInner;
 import org.opensubtitles.model.SubtitleAttributes;
 import org.slf4j.Logger;
@@ -38,13 +38,13 @@ public class JOpenSubAdapter
         extends AbstractAdapter<org.opensubtitles.model.Subtitle, OpensubtitleSerieId, OpenSubtitlesException> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JOpenSubAdapter.class);
-    private static LazyThrowingSupplier<OpenSubtitlesApi, SubtitlesProviderInitException> osApi;
+    private static LazySupplier<OpenSubtitlesApi> osApi;
 
     public JOpenSubAdapter(boolean isLoginEnabled, String username, String password, Manager manager,
             UserInteractionHandler userInteractionHandler) {
         super(manager, userInteractionHandler);
         if (osApi == null) {
-            osApi = new LazyThrowingSupplier<>(() -> {
+            osApi = new LazySupplier<>(() -> {
                 try {
                     if (isLoginEnabled) {
                         return new OpenSubtitlesApi(manager, username, password);

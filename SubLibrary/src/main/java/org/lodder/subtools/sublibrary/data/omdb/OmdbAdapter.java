@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.omdb.model.OmdbDetails;
+import org.lodder.subtools.sublibrary.exception.SubtitlesProviderInitException;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
 import org.slf4j.Logger;
@@ -27,9 +28,8 @@ public class OmdbAdapter {
             try {
                 return new OmdbApi(manager, userInteractionHandler);
             } catch (Exception e) {
-                LOGGER.error("API OMDB INIT (%s)".formatted(e.getMessage()), e);
+                throw new SubtitlesProviderInitException("IMDB", e);
             }
-            return null;
         });
     }
 

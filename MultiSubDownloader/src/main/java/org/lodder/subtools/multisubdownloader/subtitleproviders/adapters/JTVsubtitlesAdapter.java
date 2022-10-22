@@ -25,7 +25,7 @@ import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
-import org.lodder.subtools.sublibrary.util.lazy.LazyThrowingSupplier;
+import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,12 +37,12 @@ import lombok.experimental.ExtensionMethod;
 public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDescriptor, ProviderSerieId, TvSubtiltesException> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JTVsubtitlesAdapter.class);
-    private static LazyThrowingSupplier<JTVSubtitlesApi, SubtitlesProviderInitException> jtvapi;
+    private static LazySupplier<JTVSubtitlesApi> jtvapi;
 
     public JTVsubtitlesAdapter(Manager manager, UserInteractionHandler userInteractionHandler) {
         super(manager, userInteractionHandler);
         if (jtvapi == null) {
-            jtvapi = new LazyThrowingSupplier<>(() -> {
+            jtvapi = new LazySupplier<>(() -> {
                 try {
                     return new JTVSubtitlesApi(manager);
                 } catch (Exception e) {

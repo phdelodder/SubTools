@@ -32,7 +32,7 @@ import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.lodder.subtools.sublibrary.util.StringUtil;
-import org.lodder.subtools.sublibrary.util.lazy.LazyThrowingSupplier;
+import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +45,12 @@ import lombok.experimental.ExtensionMethod;
 public class JSubsceneAdapter extends AbstractAdapter<SubsceneSubtitleDescriptor, ProviderSerieId, SubsceneException> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JSubsceneAdapter.class);
-    private static LazyThrowingSupplier<SubsceneApi, SubtitlesProviderInitException> api;
+    private static LazySupplier<SubsceneApi> api;
 
     public JSubsceneAdapter(Manager manager, UserInteractionHandler userInteractionHandler) {
         super(manager, userInteractionHandler);
         if (api == null) {
-            api = new LazyThrowingSupplier<>(() -> {
+            api = new LazySupplier<>(() -> {
                 try {
                     return new SubsceneApi(manager);
                 } catch (Exception e) {

@@ -23,7 +23,7 @@ import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.lodder.subtools.sublibrary.util.StringUtil;
-import org.lodder.subtools.sublibrary.util.lazy.LazyThrowingSupplier;
+import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,13 +35,13 @@ import lombok.experimental.ExtensionMethod;
 public class JAddic7edAdapter extends AbstractAdapter<Addic7edSubtitleDescriptor, ProviderSerieId, Addic7edException> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edAdapter.class);
-    private static LazyThrowingSupplier<JAddic7edApi, SubtitlesProviderInitException> jaapi;
+    private static LazySupplier<JAddic7edApi> jaapi;
 
     public JAddic7edAdapter(boolean isLoginEnabled, String username, String password, boolean speedy, Manager manager,
             UserInteractionHandler userInteractionHandler) {
         super(manager, userInteractionHandler);
         if (jaapi == null) {
-            jaapi = new LazyThrowingSupplier<>(() -> {
+            jaapi = new LazySupplier<>(() -> {
                 try {
                     return isLoginEnabled ? new JAddic7edApi(username, password, speedy, manager) : new JAddic7edApi(speedy, manager);
                 } catch (Exception e) {

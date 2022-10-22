@@ -23,7 +23,7 @@ import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
-import org.lodder.subtools.sublibrary.util.lazy.LazyThrowingSupplier;
+import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,12 +35,12 @@ import lombok.experimental.ExtensionMethod;
 public class JPodnapisiAdapter extends AbstractAdapter<PodnapisiSubtitleDescriptor, ProviderSerieId, PodnapisiException> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JPodnapisiAdapter.class);
-    private static LazyThrowingSupplier<JPodnapisiApi, SubtitlesProviderInitException> jpapi;
+    private static LazySupplier<JPodnapisiApi> jpapi;
 
     public JPodnapisiAdapter(Manager manager, UserInteractionHandler userInteractionHandler) {
         super(manager, userInteractionHandler);
         if (jpapi == null) {
-            jpapi = new LazyThrowingSupplier<>(() -> {
+            jpapi = new LazySupplier<>(() -> {
                 try {
                     return new JPodnapisiApi("JBierSubDownloader", manager);
                 } catch (Exception e) {
