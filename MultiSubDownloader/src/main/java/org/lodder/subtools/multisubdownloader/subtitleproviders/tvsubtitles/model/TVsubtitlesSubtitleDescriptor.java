@@ -2,17 +2,17 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.mod
 
 import java.io.Serializable;
 
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
+@Builder
 public class TVsubtitlesSubtitleDescriptor implements Serializable {
 
     private static final long serialVersionUID = 6423513286301479905L;
-    private String filename;
-    private String url;
-    private String rip;
-    private String author;
+    private final String filename;
+    private final String url;
+    private final String rip;
+    private final String author;
 
 }

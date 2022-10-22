@@ -20,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.sublibrary.DetectLanguage;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
 import org.lodder.subtools.sublibrary.cache.InMemoryCache;
 import org.lodder.subtools.sublibrary.cache.SerializableDiskCache;
@@ -36,9 +35,9 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
 import org.lodder.subtools.sublibrary.privateRepo.model.IndexSubtitle;
+import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
-import org.lodder.subtools.sublibrary.util.http.CookieManager;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
 import org.lodder.subtools.subsort.lib.control.VideoFileFactory;
 import org.slf4j.Logger;
@@ -50,8 +49,8 @@ import lombok.experimental.ExtensionMethod;
 public class SortSubtitle {
 
     private static final String BACKING_STORE_AVAIL = "BackingStoreAvail";
-    private final Manager manager;
     private final UserInteractionHandler userInteractionHandler;
+    private final Manager manager;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSubtitle.class);
 
@@ -61,7 +60,7 @@ public class SortSubtitle {
                 SerializableDiskCache.cacheBuilder().keyType(String.class).valueType(String.class)
                         .timeToLive(TimeUnit.SECONDS.convert(500, TimeUnit.DAYS))
                         .timerInterval(TimeUnit.SECONDS.convert(1, TimeUnit.DAYS))
-                        .maxItems(1500)
+                        .maxItems(5000)
                         .build();
 
         InMemoryCache<String, String> inMemoryCache =
@@ -71,10 +70,7 @@ public class SortSubtitle {
                         .maxItems(500)
                         .build();
 
-        HttpClient httpClient = new HttpClient();
-        httpClient.setCookieManager(new CookieManager());
-
-        this.manager = new Manager(httpClient, inMemoryCache, diskCache);
+        this.manager = new Manager(new HttpClient(), inMemoryCache, diskCache);
 
         if (!backingStoreAvailable()) {
             LOGGER.error("Unable to store preferences, used debug for reason");
@@ -97,7 +93,7 @@ public class SortSubtitle {
     private void setTvdbInfo(TvRelease tvRelease) {
         TheTvdbAdapter.getInstance(manager, userInteractionHandler).getSerie(tvRelease.getName())
                 .ifPresent(tvdbSerie -> {
-                    tvRelease.setTvdbId(Integer.parseInt(tvdbSerie.getId()));
+                    tvRelease.setTvdbId(tvdbSerie.getId());
                     tvRelease.setOriginalName(tvdbSerie.getSerieName());
                 });
     }

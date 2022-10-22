@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.function.Predicate;
 
 import org.apache.commons.collections4.map.LRUMap;
@@ -25,26 +26,26 @@ public class InMemoryCache<K, V> {
     private final Map<K, CacheObject<V>> cacheMap;
     private final Long timeToLive;
 
-    protected InMemoryCache(Long timeToLive, Long timerInterval, Integer maxItems) {
-        if (timeToLive != null && timeToLive < 1) {
+    protected InMemoryCache(Long timeToLiveSeconds, Long timerIntervalSeconds, Integer maxItems) {
+        if (timeToLiveSeconds != null && timeToLiveSeconds < 1) {
             throw new IllegalStateException("maxItems should be a positive number");
         }
-        if (timerInterval != null && timerInterval < 1) {
+        if (timerIntervalSeconds != null && timerIntervalSeconds < 1) {
             throw new IllegalStateException("timerInterval should be a positive number");
         }
-        if (timeToLive != null && timeToLive < 1) {
+        if (timeToLiveSeconds != null && timeToLiveSeconds < 1) {
             throw new IllegalStateException("timeToLive should be a positive number");
         }
-        if (timeToLive == null && timerInterval != null) {
+        if (timeToLiveSeconds == null && timerIntervalSeconds != null) {
             throw new IllegalStateException("timeToLive should be specified when timerInterval is used");
         }
-        if (timeToLive != null && timerInterval != null && timeToLive < timerInterval) {
+        if (timeToLiveSeconds != null && timerIntervalSeconds != null && timeToLiveSeconds < timerIntervalSeconds) {
             throw new IllegalStateException("timerInterval should be greater than timeToLive");
         }
-        if (timerInterval != null) {
-            createCleanUpThread(timerInterval);
+        if (timerIntervalSeconds != null) {
+            createCleanUpThread(timerIntervalSeconds * 1000);
         }
-        this.timeToLive = timeToLive;
+        this.timeToLive = timeToLiveSeconds * 1000;
         this.cacheMap = maxItems != null ? new LRUMap<>(maxItems) : new HashMap<>();
     }
 
@@ -89,7 +90,7 @@ public class InMemoryCache<K, V> {
         Thread t = new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(timerInterval * 1000);
+                    Thread.sleep(timerInterval);
                 } catch (InterruptedException ex) {
                 }
                 cleanup();
@@ -101,7 +102,11 @@ public class InMemoryCache<K, V> {
     }
 
     public void put(K key, V value) {
-        put(key, new CacheObject<>(value));
+        put(key, new ExpiringCacheObject<>(value));
+    }
+
+    public void put(K key, V value, long timeToLive) {
+        put(key, new TemporaryCacheObject<>(timeToLive, value));
     }
 
     protected void put(K key, CacheObject<V> value) {
@@ -128,23 +133,63 @@ public class InMemoryCache<K, V> {
         }
     }
 
-    public <X extends Exception> V getOrPut(K key, ThrowingSupplier<V, X> supplier) throws X {
+    public boolean isTemporaryObject(K key) {
         synchronized (cacheMap) {
-            CacheObject<V> obj;
-            if (cacheMap.containsKey(key)) {
-                obj = cacheMap.get(key);
-            } else {
-                V value = supplier.get();
-                obj = new CacheObject<>(value);
-                cacheMap.put(key, obj);
-            }
+            CacheObject<V> obj = cacheMap.get(key);
             if (obj == null) {
-                return null;
+                return false;
             } else {
-                obj.updateLastAccessed();
-                return obj.getValue();
+                return obj instanceof TemporaryCacheObject<?>;
             }
         }
+    }
+
+    public boolean isTemporaryExpired(K key) {
+        synchronized (cacheMap) {
+            CacheObject<V> obj = cacheMap.get(key);
+            if (obj == null) {
+                return false;
+            } else {
+                return obj instanceof TemporaryCacheObject<?> tempCacheObject && tempCacheObject.isExpired();
+            }
+        }
+    }
+
+    public OptionalLong getTemporaryTimeToLive(K key) {
+        synchronized (cacheMap) {
+            CacheObject<V> obj = cacheMap.get(key);
+            if (obj == null) {
+                return OptionalLong.empty();
+            } else {
+                return obj instanceof TemporaryCacheObject<?> tempCacheObject ? OptionalLong.of(tempCacheObject.getTimeToLive())
+                        : OptionalLong.empty();
+            }
+        }
+    }
+
+    public <X extends Exception> V getOrPut(K key, ThrowingSupplier<V, X> supplier) throws X {
+        boolean containsKey = false;
+        CacheObject<V> obj = null;
+        synchronized (cacheMap) {
+            if (cacheMap.containsKey(key)) {
+                containsKey = true;
+                obj = cacheMap.get(key);
+            }
+        }
+        if (!containsKey) {
+            V value = supplier.get();
+            obj = new ExpiringCacheObject<>(value);
+            synchronized (cacheMap) {
+                cacheMap.put(key, obj);
+            }
+        }
+        if (obj == null) {
+            return null;
+        } else {
+            obj.updateLastAccessed();
+            return obj.getValue();
+        }
+
     }
 
     public void remove(K key) {
@@ -160,15 +205,17 @@ public class InMemoryCache<K, V> {
     }
 
     public void cleanup() {
-        long now = System.currentTimeMillis();
         synchronized (cacheMap) {
             Iterator<Entry<K, CacheObject<V>>> itr = cacheMap.entrySet().iterator();
             while (itr.hasNext()) {
                 Entry<K, CacheObject<V>> entry = itr.next();
-                if (now > timeToLive + entry.getValue().getCreated()) {
+                if (entry.getValue().isExpired(timeToLive)) {
                     itr.remove();
                 }
             }
+
+            // TODO clean disk cache?
+            // TODO remove temporary from diskcahe, but not memorycache
             Thread.yield();
         }
     }

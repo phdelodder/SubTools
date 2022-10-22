@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
 import java.util.prefs.Preferences;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
@@ -22,11 +24,8 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.multisubdownloader.settings.model.State;
-import org.lodder.subtools.sublibrary.CacheKeyMatchEnum;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.CacheType;
-import org.lodder.subtools.sublibrary.settings.model.TvdbMapping;
-import org.lodder.subtools.sublibrary.settings.model.TvdbMappings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,6 +131,9 @@ public class SettingsControl {
         if (version == 2) {
             migrateSettingsV2ToV3();
         }
+        if (version == 3) {
+            migrateSettingsV3ToV4();
+        }
     }
 
     public void migrateSettingsV0ToV1() {
@@ -216,18 +218,36 @@ public class SettingsControl {
     }
 
     public void migrateSettingsV2ToV3() {
-        int numberOfItems = preferences.getInt("DictionarySize", 0);
-        IntStream.range(0, numberOfItems).forEach(i -> {
-            String v = preferences.get("Dictionary" + i, "");
-            String[] items = v.split("\\\\\\\\");
-            int tvdbId = Integer.parseInt(items[1]);
-            TvdbMapping tvdbMapping = new TvdbMapping(tvdbId, items[0]);
-            TvdbMappings.persistTvdbMapping(manager, tvdbMapping);
-            preferences.remove("Dictionary" + i);
-        });
-        preferences.remove("DictionarySize");
+        // int numberOfItems = preferences.getInt("DictionarySize", 0);
+        // IntStream.range(0, numberOfItems).forEach(i -> {
+        // String v = preferences.get("Dictionary" + i, "");
+        // String[] items = v.split("\\\\\\\\");
+        // int tvdbId = Integer.parseInt(items[1]);
+        // SerieMapping tvdbMapping = new SerieMapping(items[0], tvdbId, String.valueOf(tvdbId));
+        // manager.valueBuilder()
+        // .cacheType(CacheType.DISK)
+        // .key("TVDB-SerieId-%s-%s".formatted(tvdbMapping.getName(), null))
+        // .value(tvdbMapping)
+        // .store();
+        // preferences.remove("Dictionary" + i);
+        // });
+        // preferences.remove("DictionarySize");
 
         settings.setSettingsVersion(3);
+        SETTINGS_VERSION.store(this, preferences);
+    }
+
+    public void migrateSettingsV3ToV4() {
+        int numberOfItems = preferences.getInt("ExcludeItemSize", 0);
+        Pattern pattern = Pattern.compile("(.*?)\\[*==\\](.*?)");
+        IntStream.range(0, numberOfItems).forEach(i -> {
+            String v = preferences.get("ExcludeItem" + i, "");
+            Matcher matcher = pattern.matcher(v);
+            matcher.matches();
+            String newValue = matcher.group(2) + "//" + matcher.group(1);
+            preferences.put("ExcludeItem" + i, newValue);
+        });
+        settings.setSettingsVersion(4);
         SETTINGS_VERSION.store(this, preferences);
     }
 
@@ -248,15 +268,15 @@ public class SettingsControl {
     }
 
     private void migrateDatabase() {
-        int version = manager.getValueBuilder().key("DATABSE_VERSION").cacheType(CacheType.DISK).valueSupplier(() -> 0).get();
+        int version = manager.valueBuilder().cacheType(CacheType.DISK).key("DATABSE_VERSION").valueSupplier(() -> 0).get();
         if (version == 0) {
             migrateDatabaseV0ToV1();
         }
     }
 
     private void migrateDatabaseV0ToV1() {
-        manager.getRemoveCacheValueBuilder().key("TVDB-SerieMapping-").matchType(CacheKeyMatchEnum.STARTING_WITH).cacheType(CacheType.DISK).remove();
-        manager.getRemoveCacheValueBuilder().key("TVDB-SerieId-").matchType(CacheKeyMatchEnum.STARTING_WITH).cacheType(CacheType.DISK).remove();
-        manager.getStoreValueBuilder().key("DATABSE_VERSION").cacheType(CacheType.DISK).value(1).store();
+        manager.valueBuilder().cacheType(CacheType.DISK).keyFilter(k -> k.startsWith("TVDB-SerieMapping-")).remove();
+        manager.valueBuilder().cacheType(CacheType.DISK).keyFilter(k -> k.startsWith("TVDB-SerieId-")).remove();
+        manager.valueBuilder().cacheType(CacheType.DISK).key("DATABSE_VERSION").value(1).store();
     }
 }

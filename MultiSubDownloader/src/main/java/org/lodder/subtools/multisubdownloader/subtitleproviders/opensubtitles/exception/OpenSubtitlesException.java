@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.exception;
+package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.exception;
 
 import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;

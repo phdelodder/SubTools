@@ -1,10 +1,12 @@
 package org.lodder.subtools.multisubdownloader;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
+import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -26,7 +28,6 @@ import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
 import org.lodder.subtools.sublibrary.cache.InMemoryCache;
 import org.lodder.subtools.sublibrary.cache.SerializableDiskCache;
-import org.lodder.subtools.sublibrary.util.http.CookieManager;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +84,7 @@ public class App {
         }
 
         if (line.hasCliOption(CliOption.NO_GUI)) {
-            bootstrapper.initialize();
+            bootstrapper.initialize(new UserInteractionHandlerCLI(prefctrl.getSettings()));
             CLI cmd = new CLI(prefctrl, app);
 
             /* Defined here so there is output on console */
@@ -101,10 +102,10 @@ public class App {
             /* Defined here so there is output in the splash */
             importPreferences(line);
 
-            bootstrapper.initialize();
+            bootstrapper.initialize(new UserInteractionHandlerGUI(prefctrl.getSettings(), null));
             EventQueue.invokeLater(() -> {
                 try {
-                    GUI window = new GUI(prefctrl, app);
+                    JFrame window = new GUI(prefctrl, app);
                     window.setVisible(true);
                     splash.setVisible(false);
                     splash.dispose();
@@ -145,25 +146,20 @@ public class App {
         if (splash != null) {
             splash.setProgressMsg("Creating Manager");
         }
-        DiskCache<String, String> diskCache =
-                SerializableDiskCache.cacheBuilder().keyType(String.class).valueType(String.class)
+        DiskCache<String, Serializable> diskCache =
+                SerializableDiskCache.cacheBuilder().keyType(String.class).valueType(Serializable.class)
                         .timeToLive(TimeUnit.SECONDS.convert(500, TimeUnit.DAYS))
                         .timerInterval(TimeUnit.SECONDS.convert(1, TimeUnit.DAYS))
-                        .maxItems(1500)
+                        .maxItems(5000)
                         .build();
 
-        InMemoryCache<String, String> inMemoryCache =
-                InMemoryCache.builder().keyType(String.class).valueType(String.class)
+        InMemoryCache<String, Serializable> inMemoryCache =
+                InMemoryCache.builder().keyType(String.class).valueType(Serializable.class)
                         .timeToLive(TimeUnit.SECONDS.convert(10, TimeUnit.MINUTES))
                         .timerInterval(100L)
                         .maxItems(500)
                         .build();
 
-        HttpClient httpClient = new HttpClient();
-        httpClient.setCookieManager(new CookieManager());
-
-        // UserInteractionHandler userInteractionHanlder = useGui ? new UserInteractionHandlerGUI() : new UserInteractionHandlerCLI();
-
-        return new Manager(httpClient, inMemoryCache, diskCache);
+        return new Manager(new HttpClient(), inMemoryCache, diskCache);
     }
 }

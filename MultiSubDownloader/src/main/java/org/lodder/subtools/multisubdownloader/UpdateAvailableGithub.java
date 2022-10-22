@@ -5,6 +5,8 @@ import static java.time.temporal.ChronoUnit.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jsoup.nodes.Element;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
@@ -54,8 +56,9 @@ public class UpdateAvailableGithub {
     }
 
     private Optional<GitHubRelease> getLatestGithubRelease() {
-        return manager.getValueBuilder()
-                .key("GitHub-update").cacheType(CacheType.MEMORY)
+        return manager.valueBuilder()
+                .cacheType(CacheType.MEMORY)
+                .key("GitHub-update")
                 .optionalSupplier(() -> {
                     try {
                         Element element = manager.getPageContentBuilder().url("https://github.com/phdelodder/SubTools/releases")
@@ -63,8 +66,12 @@ public class UpdateAvailableGithub {
                                 .cacheType(CacheType.NONE)
                                 .getAsJsoupDocument()
                                 .selectFirst("#repo-content-turbo-frame .box a[href='/phdelodder/SubTools/releases/latest']");
-                        String version = element.parent().selectFirst("a").text().split("-")[1];
-                        String versionBlockUrl = "https://github.com/phdelodder/SubTools/releases/expanded_assets/subtools-" + version;
+                        Pattern versionPattern = Pattern.compile("[0-9]*\\.[0-9]\\.[0-9]");
+                        String versionText = element.parent().selectFirst("a").text();
+                        Matcher matcher = versionPattern.matcher(versionText);
+                        matcher.find();
+                        String version = matcher.group();
+                        String versionBlockUrl = "https://github.com/phdelodder/SubTools/releases/expanded_assets/" + versionText;
                         String url = "https://github.com" + manager.getPageContentBuilder().url(versionBlockUrl)
                                 .userAgent(null)
                                 .cacheType(CacheType.NONE)
@@ -72,7 +79,7 @@ public class UpdateAvailableGithub {
                                 .selectFirst(".Box-row a[href$='.jar']").attr("href");
                         return Optional.of(new GitHubRelease(version, url));
                     } catch (Exception e) {
-                        LOGGER.error("Could not find latest github release");
+                        LOGGER.error(Messages.getString("LoggingPanel.UpdateCheckFailed"));
                         return Optional.empty();
                     }
                 }).getOptional();

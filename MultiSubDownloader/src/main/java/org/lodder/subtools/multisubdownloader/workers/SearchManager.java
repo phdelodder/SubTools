@@ -106,18 +106,20 @@ public class SearchManager implements Cancelable {
 
     }
 
-    public synchronized void onCompleted(SearchWorker worker) {
+    public void onCompleted(SearchWorker worker) {
         Release release = worker.getRelease();
         List<Subtitle> subtitles = new ArrayList<>(worker.getSubtitles());
 
-        calculateProgress();
 
         /* set the score of the found subtitles */
         ScoreCalculator calculator = this.scoreCalculators.get(release);
         subtitles.forEach(subtitle -> subtitle.setScore(calculator.calculate(subtitle)));
 
-        /* Tell the progresslistener our total progress */
-        this.progressListener.progress(this.getProgress());
+        synchronized (this) {
+            calculateProgress();
+            /* Tell the progresslistener our total progress */
+            this.progressListener.progress(this.getProgress());
+        }
 
         onFound.onFound(release, subtitles);
     }
@@ -128,19 +130,21 @@ public class SearchManager implements Cancelable {
         return true;
     }
 
-    public synchronized Release getNextRelease(SubtitleProvider provider) {
-        if (!this.hasNextRelease(provider)) {
-            /* Tell the progressListener this provider is finished */
-            this.progressListener.progress(provider, queue.get(provider).size(), null);
-            return null;
+    public Release getNextRelease(SubtitleProvider provider) {
+        synchronized (provider) {
+            if (!this.hasNextRelease(provider)) {
+                /* Tell the progressListener this provider is finished */
+                this.progressListener.progress(provider, queue.get(provider).size(), null);
+                return null;
+            }
+
+            Release release = queue.get(provider).poll();
+
+            /* Tell the progressListener we are starting on a new Release */
+            this.progressListener.progress(provider, queue.get(provider).size(), release);
+
+            return release;
         }
-
-        Release release = queue.get(provider).poll();
-
-        /* Tell the progressListener we are starting on a new Release */
-        this.progressListener.progress(provider, queue.get(provider).size(), release);
-
-        return release;
     }
 
     public boolean hasNextRelease(SubtitleProvider provider) {

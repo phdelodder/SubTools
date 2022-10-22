@@ -33,6 +33,11 @@ public class CLIFileindexerProgress extends CLIProgress<CLIFileindexerProgress> 
     }
 
     @Override
+    public void reset() {
+        this.setEnabled(true);
+    }
+
+    @Override
     public void onError(ActionException exception) {
         if (!this.isEnabled()) {
             return;

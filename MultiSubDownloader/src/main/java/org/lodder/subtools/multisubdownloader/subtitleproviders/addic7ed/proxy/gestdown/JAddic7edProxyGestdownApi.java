@@ -1,25 +1,26 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.proxy.gestdown;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import org.apache.commons.io.FilenameUtils;
 import org.gestdown.api.SubtitlesApi;
 import org.gestdown.api.TvShowsApi;
 import org.gestdown.invoker.ApiException;
 import org.gestdown.model.EpisodeDto;
-import org.gestdown.model.ShowDto;
 import org.gestdown.model.ShowSearchRequest;
 import org.gestdown.model.SubtitleDto;
 import org.gestdown.model.SubtitleSearchResponse;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleApi;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.data.Html;
+import org.lodder.subtools.sublibrary.data.ProviderSerieId;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
+import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.lodder.subtools.sublibrary.util.StringUtil;
 
@@ -39,30 +40,39 @@ public class JAddic7edProxyGestdownApi extends Html implements SubtitleApi {
         subtitlesApi = new SubtitlesApi();
     }
 
-    public List<String> getSerieNameForName(String name) throws ApiException {
-        return getValue("%s-SerieName-%s".formatted("Gestdown", name))
-                .cacheType(CacheType.MEMORY)
-                .collectionSupplier(String.class,
-                        () -> tvShowsApi.showsSearchPost(new ShowSearchRequest().query(name)).getShows().stream().map(ShowDto::getName).toList())
-                .getCollection();
+    public List<ProviderSerieId> getProviderSerieName(String serieName) throws ApiException {
+        try {
+            return tvShowsApi.showsSearchPost(new ShowSearchRequest().query(serieName)).getShows().stream()
+                    .map(showDto -> new ProviderSerieId(serieName, showDto.getName())).toList();
+        } catch (Exception e) {
+            throw new ApiException(e);
+        }
     }
 
-    public List<Subtitle> searchSubtitles(String showName, int season, int episode, Language language) throws ApiException {
-        SubtitleSearchResponse response = subtitlesApi.subtitlesFindLanguageShowSeasonEpisodeGet(language.getName(), showName, season, episode);
-        return response.getMatchingSubtitles().stream()
-                .filter(SubtitleDto::isCompleted).map(sub -> mapToSubtitle(sub, response.getEpisode(), language))
-                .toList();
+    public Set<Subtitle> getSubtitles(SerieMapping providerSerieId, int season, int episode, Language language) throws ApiException {
+        return getManager().valueBuilder()
+                .memoryCache()
+                .key("%s-subtitles-%s-%s-%s-%s".formatted(getSubtitleSource().name(), providerSerieId.getProviderId(), season, episode, language))
+                .collectionSupplier(Subtitle.class, () -> {
+                    Set<Subtitle> results = new HashSet<>();
+                    SubtitleSearchResponse response = subtitlesApi.subtitlesFindLanguageShowSeasonEpisodeGet(language.getName(),
+                            providerSerieId.getProviderId(), season, episode);
+                    response.getMatchingSubtitles().stream()
+                            .filter(SubtitleDto::isCompleted).map(sub -> mapToSubtitle(sub, response.getEpisode(), language))
+                            .forEach(results::add);
+                    return results;
+                }).getCollection();
     }
 
     private Subtitle mapToSubtitle(SubtitleDto sub, EpisodeDto episodedto, Language language) {
         return Subtitle.downloadSource(getDownloadUrl(sub.getDownloadUri()))
                 .subtitleSource(getSubtitleSource())
-                .fileName(StringUtil.removeIllegalFilenameChars(episodedto.getTitle() + " " + sub.getVersion()))
+                .fileName(StringUtil
+                        .removeIllegalFilenameChars("%s - %s - %s".formatted(episodedto.getShow(), episodedto.getTitle(), sub.getVersion())))
                 .language(language)
                 .quality(ReleaseParser.getQualityKeyword(episodedto.getTitle() + " " + sub.getVersion()))
                 .subtitleMatchType(SubtitleMatchType.EVERYTHING)
-                .releaseGroup(ReleaseParser.extractReleasegroup(episodedto.getTitle() + " " + sub.getVersion(),
-                        FilenameUtils.isExtension(episodedto.getTitle() + " " + sub.getVersion(), "srt")))
+                .releaseGroup(sub.getVersion())
                 .uploader("")
                 .hearingImpaired(false);
     }

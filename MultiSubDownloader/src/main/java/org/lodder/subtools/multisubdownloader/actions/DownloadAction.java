@@ -12,13 +12,13 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
-import org.lodder.subtools.sublibrary.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
+import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.lodder.subtools.sublibrary.util.http.DropBoxClient;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ public class DownloadAction {
     private final Manager manager;
     private final UserInteractionHandler userInteractionHandler;
 
-    public void download(Release release, Subtitle subtitle, int version) throws IOException, ManagerException {
+    public void download(Release release, Subtitle subtitle, Integer version) throws IOException, ManagerException {
         switch (release.getVideoType()) {
             case EPISODE -> download(release, subtitle, settings.getEpisodeLibrarySettings(), version);
             case MOVIE -> download(release, subtitle, settings.getMovieLibrarySettings(), version);
@@ -48,7 +48,8 @@ public class DownloadAction {
         download(release, subtitle, 0);
     }
 
-    private void download(Release release, Subtitle subtitle, LibrarySettings librarySettings, int version) throws IOException, ManagerException {
+    private void download(Release release, Subtitle subtitle, LibrarySettings librarySettings, Integer version)
+            throws IOException, ManagerException {
         LOGGER.trace("cleanUpFiles: LibraryAction", librarySettings.getLibraryAction());
         PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager, userInteractionHandler);
         final File path = new File(pathLibraryBuilder.build(release));

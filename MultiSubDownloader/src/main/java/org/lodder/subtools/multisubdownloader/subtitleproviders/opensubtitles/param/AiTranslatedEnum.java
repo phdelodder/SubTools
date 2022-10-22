@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.api.v2.param;
+package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.param;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public enum TrustedSourcesEnum implements ParamIntf {
-    INCLUDE("include"), ONLY("only");
+public enum AiTranslatedEnum implements ParamIntf {
+    EXCLUDE("exclude"), INCLUDE("include");
 
     private final String value;
 

@@ -124,6 +124,10 @@ public class TvRelease extends Release {
         return tvdbId == 0 ? OptionalInt.empty() : OptionalInt.of(tvdbId);
     }
 
+    public int getFirstEpisodeNumber() {
+        return episodeNumbers.get(0);
+    }
+
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + ": " + this.getName() + " s" + this.getSeason() + " e"
@@ -133,5 +137,9 @@ public class TvRelease extends Release {
     @Override
     public String getReleaseDescription() {
         return getNameWithSeasonEpisode();
+    }
+
+    public String getDisplayName() {
+        return StringUtils.isNotBlank(getOriginalName()) ? getOriginalName() : getName();
     }
 }

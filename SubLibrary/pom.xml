@@ -120,6 +120,10 @@
 			<groupId>com.massisframework</groupId>
 			<artifactId>j-text-utils</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

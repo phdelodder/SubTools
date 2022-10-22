@@ -12,7 +12,7 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 import lombok.Getter;
 
 @Getter
-public class UserInteractionHandlerGUI extends org.lodder.subtools.sublibrary.UserInteractionHandlerGUI implements UserInteractionHandler {
+public class UserInteractionHandlerGUI extends org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandlerGUI implements UserInteractionHandler {
 
     public UserInteractionHandlerGUI(UserInteractionSettingsIntf settings, JFrame frame) {
         super(settings, frame);

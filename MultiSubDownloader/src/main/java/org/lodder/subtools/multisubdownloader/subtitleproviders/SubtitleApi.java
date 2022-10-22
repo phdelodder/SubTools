@@ -5,4 +5,5 @@ import org.lodder.subtools.sublibrary.model.SubtitleSource;
 public interface SubtitleApi {
 
     SubtitleSource getSubtitleSource();
+
 }

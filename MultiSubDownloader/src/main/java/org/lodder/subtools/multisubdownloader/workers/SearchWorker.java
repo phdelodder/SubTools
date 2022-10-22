@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.sublibrary.Language;
+import org.lodder.subtools.sublibrary.exception.SubtitlesProviderInitException;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.slf4j.Logger;
@@ -28,27 +29,31 @@ public class SearchWorker extends Thread {
     public void run() {
         Language language = this.scheduler.getLanguage();
         this.busy = false;
-        while (!this.isInterrupted()) {
-            this.busy = true;
-            Release release = this.scheduler.getNextRelease(provider);
-            if (release == null) {
+        try {
+            while (!this.isInterrupted()) {
+                this.busy = true;
+                Release release = this.scheduler.getNextRelease(provider);
+                if (release == null) {
+                    this.busy = false;
+                    break;
+                }
+                this.release = release;
+                LOGGER.debug("[Search] {} searching {} ", this.provider.getName(), release.toString());
+
+                Set<Subtitle> subtitles = this.provider.search(release, language);
+
+                /* clone to prevent other threads from ever messing with it */
+                this.subtitles = Set.copyOf(subtitles);
+
                 this.busy = false;
-                break;
+                LOGGER.debug("[Search] {} found {} subtitles for {} ", this.provider.getName(), subtitles.size(), release.toString());
+
+                if (!this.isInterrupted()) {
+                    this.scheduler.onCompleted(this);
+                }
             }
-            this.release = release;
-            LOGGER.debug("[Search] {} searching {} ", this.provider.getName(), release.toString());
-
-            Set<Subtitle> subtitles = this.provider.search(release, language, scheduler.getUserInteractionHandler());
-
-            /* clone to prevent other threads from ever messing with it */
-            this.subtitles = Set.copyOf(subtitles);
-
-            this.busy = false;
-            LOGGER.debug("[Search] {} found {} subtitles for {} ", this.provider.getName(), subtitles.size(), release.toString());
-
-            if (!this.isInterrupted()) {
-                this.scheduler.onCompleted(this);
-            }
+        } catch (SubtitlesProviderInitException e) {
+            LOGGER.error("API %s INIT (%s)".formatted(e.getProviderName(), e.getMessage()), e);
         }
     }
 

@@ -5,7 +5,6 @@ import java.io.File;
 import org.lodder.subtools.multisubdownloader.lib.xml.XMLExclude;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.xml.XMLMappingTvdbScene;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +18,7 @@ public class Export {
     private static final Logger LOGGER = LoggerFactory.getLogger(Export.class);
 
     public enum ExportListType {
-        EXCLUDE, TRANSLATE, PREFERENCES
+        EXCLUDE, PREFERENCES
     }
 
     public Export(SettingsControl settingsControl) {
@@ -30,9 +29,6 @@ public class Export {
         doExport(manager, ExportListType.EXCLUDE, file);
     }
 
-    public void translate(Manager manager, File file) {
-        doExport(manager, ExportListType.TRANSLATE, file);
-    }
 
     public void preferences(Manager manager, File file) {
         doExport(manager, ExportListType.PREFERENCES, file);
@@ -43,7 +39,6 @@ public class Export {
             switch (listType) {
                 case PREFERENCES -> settingsControl.exportPreferences(file);
                 case EXCLUDE -> XMLExclude.write(settingsControl.getSettings().getExcludeList(), file);
-                case TRANSLATE -> XMLMappingTvdbScene.write(manager, file);
                 default -> throw new IllegalArgumentException("Unexpected value: " + listType);
             }
         } catch (final Throwable e) {

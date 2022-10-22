@@ -8,8 +8,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
-import org.lodder.subtools.sublibrary.cache.CacheType;
-import org.lodder.subtools.sublibrary.data.XmlHTTP;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
 import org.lodder.subtools.sublibrary.xml.XmlExtension;
 import org.w3c.dom.Element;
@@ -38,24 +36,20 @@ public class TheTvdbMirrors {
     private final List<String> bannerList = new ArrayList<>();
     private final List<String> zipList = new ArrayList<>();
 
-    private final XmlHTTP xmlHTTPAPI;
-
     public TheTvdbMirrors(String apikey, Manager manager) throws ManagerException, ParserConfigurationException {
-        // Make this synchronized so that only one
         synchronized (this) {
-            xmlHTTPAPI = new XmlHTTP(manager);
-            String urlString = "http://www.thetvdb.com/api/" + apikey + "/mirrors.xml";
-
-            xmlHTTPAPI.getXML(urlString).cacheType(CacheType.NONE).getAsDocument().ifPresent(doc -> {
-                doc.getElementsByTagName("Mirror").stream()
-                        .filter(nMirror -> nMirror.getNodeType() == Node.ELEMENT_NODE)
-                        .map(Element.class::cast)
-                        .forEach(eMirror -> {
-                            String url = XMLHelper.getStringTagValue("mirrorpath", eMirror);
-                            int typeMask = XMLHelper.getIntTagValue("typemask", eMirror);
-                            addMirror(typeMask, url);
-                        });
-            });
+            manager.getPageContentBuilder()
+                    .url("http://www.thetvdb.com/api/" + apikey + "/mirrors.xml")
+                    .getAsDocument().ifPresent(doc -> {
+                        doc.getElementsByTagName("Mirror").stream()
+                                .filter(nMirror -> nMirror.getNodeType() == Node.ELEMENT_NODE)
+                                .map(Element.class::cast)
+                                .forEach(eMirror -> {
+                                    String url = XMLHelper.getStringTagValue("mirrorpath", eMirror);
+                                    int typeMask = XMLHelper.getIntTagValue("typemask", eMirror);
+                                    addMirror(typeMask, url);
+                                });
+                    });
 
         }
     }

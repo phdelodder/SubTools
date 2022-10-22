@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 
-public interface UserInteractionHandler extends org.lodder.subtools.sublibrary.UserInteractionHandler {
+public interface UserInteractionHandler extends org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler {
 
     default List<Subtitle> getAutomaticSelection(List<Subtitle> subtitles) {
         final List<Subtitle> shortlist;

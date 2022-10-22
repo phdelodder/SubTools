@@ -299,10 +299,6 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
         menuBar.setImportPreferencesAction(arg0 -> importList(manager, Import.ImportListType.PREFERENCES));
 
-        menuBar.setImportTranslationsAction(arg0 -> importList(manager, Import.ImportListType.TRANSLATE));
-
-        menuBar.setExportTranslationsAction(arg0 -> exportList(manager, Export.ExportListType.TRANSLATE));
-
         menuBar.setCheckUpdateAction(arg0 -> checkUpdate(true));
 
         menuBar.setAboutAction(arg0 -> showAbout());
@@ -653,12 +649,12 @@ public class GUI extends JFrame implements PropertyChangeListener {
         return searchProgressDialog;
     }
 
-    public void hideSearchProgressDialog() {
-        if (searchProgressDialog == null) {
-            return;
-        }
-        searchProgressDialog.setVisible(false);
-    }
+    // public void hideSearchProgressDialog() {
+    // if (searchProgressDialog == null) {
+    // return;
+    // }
+    // searchProgressDialog.setVisible(false);
+    // }
 
     public IndexingProgressDialog createFileIndexerProgressDialog(Cancelable searchAction) {
         fileIndexerProgressDialog = new IndexingProgressDialog(this, searchAction);

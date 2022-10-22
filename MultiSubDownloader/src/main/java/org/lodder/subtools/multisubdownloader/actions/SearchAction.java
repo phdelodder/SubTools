@@ -50,6 +50,8 @@ public abstract class SearchAction implements Runnable, Cancelable, SearchHandle
 
     private void search() throws ActionException {
         this.statusListener = this.getIndexingProgressListener();
+        this.getIndexingProgressListener().reset();
+        this.getSearchProgressListener().reset();
 
         validate();
 

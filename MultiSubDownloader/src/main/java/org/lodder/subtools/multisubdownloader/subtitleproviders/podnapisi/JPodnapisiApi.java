@@ -14,36 +14,40 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.xmlrpc.XmlRpcException;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.exception.PodnapisiException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.model.PodnapisiSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.CacheType;
+import org.lodder.subtools.sublibrary.data.ProviderSerieId;
 import org.lodder.subtools.sublibrary.data.XmlRPC;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
-import org.lodder.subtools.sublibrary.xml.XMLHelper;
+import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
+import org.lodder.subtools.sublibrary.util.OptionalExtension;
+import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 import org.lodder.subtools.sublibrary.xml.XmlExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.experimental.ExtensionMethod;
 
-@ExtensionMethod({ XmlExtension.class })
+@Getter(value = AccessLevel.PROTECTED)
+@ExtensionMethod({ XmlExtension.class, OptionalExtension.class })
 public class JPodnapisiApi extends XmlRPC implements SubtitleApi {
 
-    private LocalDateTime nextCheck;
-    private final Manager manager;
     public static final int maxAge = 90;
     private static final Logger LOGGER = LoggerFactory.getLogger(JPodnapisiApi.class);
     private static final String DOMAIN = "https://www.podnapisi.net";
+    private LocalDateTime nextCheck;
+    @Getter
+    private final Manager manager;
 
     public JPodnapisiApi(String useragent, Manager manager) {
         super(useragent, "http://ssp.podnapisi.net:8000/RPC2/");
@@ -87,58 +91,78 @@ public class JPodnapisiApi extends XmlRPC implements SubtitleApi {
         return this.getToken() != null;
     }
 
-    @SuppressWarnings("unchecked")
-    public List<PodnapisiSubtitleDescriptor> searchSubtitles(String[] filehash, Language language) throws PodnapisiException {
-        try {
-            checkLoginStatus();
-            Map<String, List<Map<String, String>>> response =
-                    (Map<String, List<Map<String, String>>>) invoke("search", new Object[] { getToken(), filehash });
-            List<Map<String, String>> subtitleData =
-                    response.get("subtitles") == null ? new ArrayList<>() : (List<Map<String, String>>) response.get("subtitles");
-
-            return subtitleData.stream()
-                    .filter(subtitle -> languageIdToLanguage(subtitle.get("LanguageCode")) == language)
-                    .map(this::parsePodnapisiSubtitle)
-                    .toList();
-        } catch (Exception e) {
-            throw new PodnapisiException(e);
-        }
+    public Optional<ProviderSerieId> getPodnapisiShowName(String showName) throws PodnapisiException {
+        String url = DOMAIN + "/sl/ppodnapisi/search?sK=" + URLEncoder.encode(showName.trim().toLowerCase(), StandardCharsets.UTF_8);
+        return getXML(url).selectFirst(".subtitle-entry") != null
+                ? Optional.of(new ProviderSerieId(showName, showName))
+                : Optional.empty();
     }
 
-    public List<PodnapisiSubtitleDescriptor> searchSubtitles(String filename, int year, int season, int episode, Language language)
-            throws PodnapisiException {
-        if (StringUtils.isBlank(filename)) {
-            return List.of();
-        }
-        try {
-            StringBuilder url = new StringBuilder(DOMAIN + "/sl/ppodnapisi/search?sK=")
-                    .append(URLEncoder.encode(filename, StandardCharsets.UTF_8));
-            if (PODNAPISI_LANGS.containsKey(language)) {
-                url.append("&sJ=").append(PODNAPISI_LANGS.get(language));
-            }
-            if (year > 0) {
-                url.append("&sY=").append(year);
-            }
-            if (season > 0) {
-                url.append("&sTS=").append(season).append("&sT=1"); // series
-            } else {
-                url.append("&sT=0"); // movies
-            }
-            if (episode > 0) {
-                url.append("&sTE=").append(episode);
-            }
-            url.append("&sXML=1");
+    @SuppressWarnings("unchecked")
+    public List<PodnapisiSubtitleDescriptor> getSubtitles(String[] filehash, Language language) throws PodnapisiException {
+        return getManager().valueBuilder().memoryCache()
+                .key("%s-subtitles-%s-%s".formatted(getSubtitleSource().getName(), filehash, language))
+                .collectionSupplier(PodnapisiSubtitleDescriptor.class, () -> {
+                    try {
+                        checkLoginStatus();
+                        Map<String, List<Map<String, String>>> response =
+                                (Map<String, List<Map<String, String>>>) invoke("search", new Object[] { getToken(), filehash });
+                        List<Map<String, String>> subtitleData =
+                                response.get("subtitles") == null ? new ArrayList<>() : (List<Map<String, String>>) response.get("subtitles");
 
-            return getXML(url.toString()).map(doc -> doc.getElementsByTagName("subtitle").stream()
-                    .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
-                    .filter(node -> "subtitle".equals(node.getNodeName()))
-                    .map(Element.class::cast)
-                    .map(this::parsePodnapisiSubtitle)
-                    .collect(Collectors.toList()))
-                    .orElseGet(List::of);
-        } catch (Exception e) {
-            throw new PodnapisiException(e);
-        }
+                        return subtitleData.stream()
+                                .filter(subtitle -> languageIdToLanguage(subtitle.get("LanguageCode")) == language)
+                                .map(this::parsePodnapisiSubtitle)
+                                .toList();
+                    } catch (Exception e) {
+                        throw new PodnapisiException(e);
+                    }
+                }).getCollection();
+    }
+
+    public List<PodnapisiSubtitleDescriptor> getMovieSubtitles(String movieName, int year, int season, int episode, Language language)
+            throws PodnapisiException {
+        return getSubtitles(new SerieMapping(movieName, movieName, movieName), year, season, episode, language);
+
+    }
+
+    public List<PodnapisiSubtitleDescriptor> getSerieSubtitles(SerieMapping providerSerieId, int season, int episode, Language language)
+            throws PodnapisiException {
+        return getSubtitles(providerSerieId, null, season, episode, language);
+
+    }
+
+    private List<PodnapisiSubtitleDescriptor> getSubtitles(SerieMapping providerSerieId, Integer year, int season, int episode, Language language)
+            throws PodnapisiException {
+        return getManager().valueBuilder()
+                .memoryCache()
+                .key("%s-subtitles-%s-%s-%s-%s".formatted(getSubtitleSource().name(), providerSerieId.getProviderId(), season, episode, language))
+                .collectionSupplier(PodnapisiSubtitleDescriptor.class, () -> {
+                    try {
+                        StringBuilder url = new StringBuilder(DOMAIN + "/sl/ppodnapisi/search?sK=")
+                                .append(URLEncoder.encode(providerSerieId.getProviderId().trim().toLowerCase(), StandardCharsets.UTF_8));
+                        if (PODNAPISI_LANGS.containsKey(language)) {
+                            url.append("&sJ=").append(PODNAPISI_LANGS.get(language));
+                        }
+                        if (year != null) {
+                            url.append("&sY=").append(year);
+                        }
+                        if (season > 0) {
+                            url.append("&sTS=").append(season).append("&sT=1"); // series
+                        } else {
+                            url.append("&sT=0"); // movies
+                        }
+                        if (episode > 0) {
+                            url.append("&sTE=").append(episode);
+                        }
+                        url.append("&sXML=1");
+
+                        return getXML(url.toString()).select(".subtitle-entry").stream().map(this::parsePodnapisiSubtitle).toList();
+                    } catch (Exception e) {
+                        throw new PodnapisiException(e);
+                    }
+                })
+                .getCollection();
     }
 
     @SuppressWarnings("unchecked")
@@ -196,41 +220,38 @@ public class JPodnapisiApi extends XmlRPC implements SubtitleApi {
         }
     }
 
-    protected Optional<Document> getXML(String url) throws PodnapisiException {
+    protected Document getXML(String url) throws PodnapisiException {
         try {
-            return manager.getPageContentBuilder().url(url).userAgent(getUserAgent()).cacheType(CacheType.MEMORY).getAsDocument();
+            return manager.getPageContentBuilder().url(url).userAgent(getUserAgent()).cacheType(CacheType.MEMORY).retries(1)
+                    .retryPredicate(e -> e instanceof HttpClientException httpClientException && httpClientException.getResponseCode() >= 500
+                            && httpClientException.getResponseCode() < 600)
+                    .retryWait(5).getAsJsoupDocument();
         } catch (Exception e) {
             throw new PodnapisiException(e);
         }
     }
 
-    private PodnapisiSubtitleDescriptor parsePodnapisiSubtitle(Element eElement) {
-        PodnapisiSubtitleDescriptor psd = new PodnapisiSubtitleDescriptor();
-        psd.setFlagsString(XMLHelper.getStringTagValue("flags", eElement));
-        psd.setLanguage(languageIdToLanguage(XMLHelper.getStringTagValue("languageId", eElement)));
-        psd.setMatchRanking(XMLHelper.getStringTagValue("rating", eElement));
-        psd.setReleaseString(XMLHelper.getStringTagValue("release", eElement));
-        psd.setSubtitleId(XMLHelper.getStringTagValue("id", eElement));
-        psd.setSubtitleRating(XMLHelper.getStringTagValue("rating", eElement));
-        psd.setUploaderName(XMLHelper.getStringTagValue("uploaderName", eElement));
-        psd.setUploaderUid(XMLHelper.getStringTagValue("uploaderId", eElement));
-        psd.setUrl(XMLHelper.getStringTagValue("url", eElement) + "/download?");
-        return psd;
+    private PodnapisiSubtitleDescriptor parsePodnapisiSubtitle(Element elem) {
+        return PodnapisiSubtitleDescriptor.builder()
+                .hearingImpaired(elem.selectFirst(".flags i[data-content='Hearing impaired']") != null)
+                .language(languageIdToLanguage(elem.selectFirst(".language").text()))
+                .releaseString(elem.selectFirst(".release").text())
+                .uploaderName(elem.select("td").get(4).select("a").text())
+                .url(elem.selectFirst("td a").attr("href")).build();
     }
 
     private PodnapisiSubtitleDescriptor parsePodnapisiSubtitle(Map<String, String> subtitle) {
-        PodnapisiSubtitleDescriptor psd = new PodnapisiSubtitleDescriptor();
-        psd.setFlagsString(subtitle.get("FlagsString"));
-        // psd.setInexact(subtitle.get("Inexact"));
-        psd.setLanguage(languageIdToLanguage(subtitle.get("LanguageCode")));
-        psd.setMatchRanking(subtitle.get("MatchRanking"));
-        psd.setReleaseString(subtitle.get("ReleaseString"));
-        psd.setSubtitleId(subtitle.get("SubtitleId"));
-        psd.setSubtitleRating(subtitle.get("SubtitleRating"));
-        psd.setUploaderName(subtitle.get("UploaderName"));
-        psd.setUploaderUid(subtitle.get("UploaderUid"));
-        psd.setUrl(subtitle.get("url"));
-        return psd;
+        return PodnapisiSubtitleDescriptor.builder()
+                // .flagsString(subtitle.get("FlagsString"))
+                // psd.setInexact(subtitle.get("Inexact"))
+                .language(languageIdToLanguage(subtitle.get("LanguageCode")))
+                // .matchRanking(subtitle.get("MatchRanking"))
+                .releaseString(subtitle.get("ReleaseString"))
+                // .subtitleId(subtitle.get("SubtitleId"))
+                // .subtitleRating(subtitle.get("SubtitleRating"))
+                .uploaderName(subtitle.get("UploaderName"))
+                // .uploaderUid(subtitle.get("UploaderUid"))
+                .url(subtitle.get("url")).build();
     }
 
     @Override
