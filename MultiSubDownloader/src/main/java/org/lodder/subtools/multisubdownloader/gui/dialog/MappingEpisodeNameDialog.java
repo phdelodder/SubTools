@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -62,7 +63,7 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
 
     @Getter
     private enum MappingType {
-        TVDB("TVDB", new SelectionForKeyPrefix("", "TVDB-serieId-")),
+        TVDB("TVDB", new SelectionForKeyPrefix("", "TVDB-serieId-", k -> k.replace("-serieId-", "-tvdbSerie-"))),
         ADDIC7ED("Addic7ed", new SelectionForKeyPrefix("", "ADDIC7ED-serieName-name:"), new SelectionForKeyPrefix("", "ADDIC7ED-serieName-tvdbId:")),
         ADDIC7ED_PROXY("Addic7ed (Proxy)", new SelectionForKeyPrefix("", "ADDIC7ED-GESTDOWN-serieName-name:"),
                 new SelectionForKeyPrefix("", "ADDIC7ED-GESTDOWN-serieName-tvdbId:")),
@@ -102,18 +103,26 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
         }
     }
 
-    private static record SelectionForKeyPrefix(String name, String keyPrefix) {}
+    private static record SelectionForKeyPrefix(String name, String keyPrefix, Function<String, String> deleteOtherFunction) {
+        public SelectionForKeyPrefix(String name, String keyPrefix) {
+            this(name, keyPrefix, null);
+        }
+    }
 
     @Getter
     @Setter
     @RequiredArgsConstructor
     private static class Row extends Vector<String> {
         private static final long serialVersionUID = 8620670431074648999L;
-        @Getter
         private final String key;
+        private SerieMapping serieMapping;
+        private final SelectionForKeyPrefix selectionForKeyPrefix;
 
-        public Row(String key, String name, String providerId, String providerName) {
+        public Row(String key, String name, String providerId, String providerName, SerieMapping serieMapping,
+                SelectionForKeyPrefix selectionForKeyPrefix) {
             this.key = key;
+            this.serieMapping = serieMapping;
+            this.selectionForKeyPrefix = selectionForKeyPrefix;
             add(name);
             add(providerId);
             add(providerName);
@@ -128,23 +137,24 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
         void setMappingType(MappingType mappingType) {
             setDataVector(null, new String[] { mappingType.getNameColumn(), mappingType.getMappingColumn(), mappingType.getProviderNameColumn() });
             Arrays.stream(mappingType.getSelectionForKeyPrefixList())
-                    .flatMap(selectionForKeyPrefix -> MappingType.MAPPING_SUPPLIER.apply(manager, selectionForKeyPrefix).stream())
-                    .sorted(Comparator.comparing(
-                            serieMappingPair -> serieMappingPair.getValue() == null || serieMappingPair.getValue().getProviderName() == null ? "zzz"
-                                    : serieMappingPair.getValue().getProviderName()))
-                    .forEach(serieMappingPair -> {
-                        SerieMapping serieMapping = serieMappingPair.getValue();
-                        String name = serieMapping.getName();
-                        String providerId = serieMapping.getProviderId() == null ? "" : String.valueOf(serieMapping.getProviderId());
-                        String providerName = serieMapping.getProviderName();
-                        if (providerId != null) {
-                            if (providerId.contains("/")) {
-                                providerId = providerId.substring(providerId.lastIndexOf("/") + 1);
-                            }
-                            providerId = providerId.replace(".html", "");
-                        }
-                        addRow(new Row(serieMappingPair.getKey(), name, providerId, providerName));
-                    });
+                    .map(selectionForKeyPrefix -> MappingType.MAPPING_SUPPLIER.apply(manager, selectionForKeyPrefix).stream()
+                            .map(serieMappingPair -> {
+                                SerieMapping serieMapping = serieMappingPair.getValue();
+                                String name = serieMapping.getName();
+                                String providerId = serieMapping.getProviderId() == null ? "" : String.valueOf(serieMapping.getProviderId());
+                                String providerName = serieMapping.getProviderName();
+                                if (providerId != null) {
+                                    if (providerId.contains("/")) {
+                                        providerId = providerId.substring(providerId.lastIndexOf("/") + 1);
+                                    }
+                                    providerId = providerId.replace(".html", "");
+                                }
+                                return new Row(serieMappingPair.getKey(), name, providerId, providerName, serieMapping, selectionForKeyPrefix);
+                            }))
+                    .flatMap(s -> s)
+                    .sorted(Comparator.comparing(row -> row.getSerieMapping() == null || row.getSerieMapping().getProviderName() == null ? "zzz"
+                            : row.getSerieMapping().getProviderName()))
+                    .forEach(this::addRow);
         }
 
         @Override
@@ -220,8 +230,13 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
                             .cacheType(CacheType.DISK)
                             .key(key)
                             .remove();
+                    if (row.getSelectionForKeyPrefix().deleteOtherFunction() != null) {
+                        manager.valueBuilder()
+                                .cacheType(CacheType.DISK)
+                                .key(row.getSelectionForKeyPrefix().deleteOtherFunction().apply(key))
+                                .remove();
+                    }
                     model.removeRow(rowNbr);
-
                 });
                 buttonPane.add(btnDeleteSelectedRow, "skip");
             }
