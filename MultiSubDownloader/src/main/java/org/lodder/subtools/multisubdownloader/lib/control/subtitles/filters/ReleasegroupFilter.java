@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -26,10 +27,8 @@ public class ReleasegroupFilter extends Filter {
                         FilenameUtils.isExtension(subtitle.getFileName(), "srt")));
             }
 
-            if (subtitle.getReleaseGroup().toLowerCase()
-                    .contains(release.getReleaseGroup().toLowerCase())
-                    || release.getReleaseGroup().toLowerCase()
-                            .contains(subtitle.getReleaseGroup().toLowerCase())) {
+            if ((release.getReleaseGroup() != null && StringUtils.containsIgnoreCase(subtitle.getReleaseGroup(), release.getReleaseGroup()))
+                    || (subtitle.getReleaseGroup() != null && StringUtils.containsIgnoreCase(release.getReleaseGroup(), subtitle.getReleaseGroup()))){
                 LOGGER.debug("getSubtitlesFiltered: found KEYWORD based TEAM match [{}] ",
                         subtitle.getFileName());
 

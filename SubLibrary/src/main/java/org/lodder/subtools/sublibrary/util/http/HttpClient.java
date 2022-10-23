@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.sublibrary.util.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,7 @@ public class HttpClient {
             conn = (HttpURLConnection) url.openConnection();
             cookieManager.setCookies(conn);
             conn.setRequestMethod("POST");
-            if (userAgent.length() > 0) {
+            if (StringUtils.isNotBlank(userAgent)) {
                 conn.setRequestProperty("user-agent", userAgent);
             }
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");

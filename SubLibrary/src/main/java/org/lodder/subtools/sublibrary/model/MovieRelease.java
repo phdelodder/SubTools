@@ -53,7 +53,7 @@ public class MovieRelease extends Release {
 
         @Override
         public MovieRelease build() {
-            return new MovieRelease(file, description, releaseGroup, quality, name, year);
+            return new MovieRelease(file, description, releaseGroup, quality, name, year == null ? 0 : year);
         }
     }
 
