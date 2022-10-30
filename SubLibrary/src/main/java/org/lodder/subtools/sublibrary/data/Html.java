@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.Manager.PageContentBuilderCacheTypeIntf;
-import org.lodder.subtools.sublibrary.ManagerException;
 
 import lombok.Getter;
 
@@ -34,10 +33,6 @@ public class Html {
 
     public PageContentBuilderCacheTypeIntf getHtml(String url) {
         return manager.getPageContentBuilder().url(url).userAgent(userAgent);
-    }
-
-    public String postHtml(String url, Map<String, String> data) throws ManagerException {
-        return manager.post(url, userAgent, data);
     }
 
     public void sleepSeconds(long seconds) {

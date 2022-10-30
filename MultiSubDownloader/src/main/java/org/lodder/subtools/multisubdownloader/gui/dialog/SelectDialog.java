@@ -77,9 +77,6 @@ public class SelectDialog extends MultiSubDialog {
                     setVisible(false);
                 });
                 allButton.setActionCommand("Alles");
-                if (subtitles.size() == 1) {
-                    allButton.setEnabled(false);
-                }
                 buttonPane.add(allButton);
             }
             {
