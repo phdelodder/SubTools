@@ -1,7 +1,7 @@
 package org.lodder.subtools.sublibrary.data.imdb;
 
+import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
@@ -77,7 +77,7 @@ public class ImdbAdapter {
                             .orElseMap(() -> getImdbIdOnYahoo(title, year))
                             .orElseMap(() -> promtUserToEnterImdbId(title, year)))
                     .storeTempNullValue().getOptionalInt();
-        } catch (ImdbSearchIdException e) {
+        } catch (Exception e) {
             LOGGER.error("API IMDB getImdbId for title [%s] (%s)".formatted(title, e.getMessage()), e);
             return OptionalInt.empty();
         }
@@ -96,27 +96,27 @@ public class ImdbAdapter {
     }
 
     private OptionalInt getImdbIdCommon(String title, Integer year,
-            ThrowingBiFunction<String, Integer, List<ProviderSerieId>, ImdbSearchIdException> providerSerieIdSupplier) {
-        List<ProviderSerieId> providerSerieIds;
-                    try {
-                        providerSerieIds = providerSerieIdSupplier.apply(title, year);
-                    } catch (ImdbSearchIdException e) {
-                        LOGGER.error("API IMDB getImdbId for title [%s] and year [%s] (%s)".formatted(title, year, e.getMessage()), e);
-                        return OptionalInt.empty();
-                    }
-                    if (!userInteractionHandler.getSettings().isOptionsConfirmProviderMapping() && providerSerieIds.size() == 1) {
-                        // found single exact match
-            return OptionalInt.of(Integer.parseInt(providerSerieIds.get(0).getId()));
+            ThrowingBiFunction<String, Integer, Collection<ProviderSerieId>, ImdbSearchIdException> providerSerieIdSupplier) {
+        Collection<ProviderSerieId> providerSerieIds;
+        try {
+            providerSerieIds = providerSerieIdSupplier.apply(title, year);
+        } catch (ImdbSearchIdException e) {
+            LOGGER.error("API IMDB getImdbId for title [%s] and year [%s] (%s)".formatted(title, year, e.getMessage()), e);
+            return OptionalInt.empty();
+        }
+        if (!userInteractionHandler.getSettings().isOptionsConfirmProviderMapping() && providerSerieIds.size() == 1) {
+            // found single exact match
+            return OptionalInt.of(Integer.parseInt(providerSerieIds.iterator().next().getId()));
         }
         String formattedTitle = title.replaceAll("[^A-Za-z]", "");
         return userInteractionHandler
                 .selectFromList(
                         providerSerieIds.stream().sorted(Comparator
-                                            .comparing((ProviderSerieId providerSerieId) -> providerSerieId.getName().replaceAll("[^A-Za-z]", "")
-                                                    .equalsIgnoreCase(formattedTitle), Comparator.reverseOrder())
-                                            .thenComparing(ProviderSerieId::getName))
+                                .comparing((ProviderSerieId providerSerieId) -> providerSerieId.getName().replaceAll("[^A-Za-z]", "")
+                                        .equalsIgnoreCase(formattedTitle), Comparator.reverseOrder())
+                                .thenComparing(ProviderSerieId::getName))
                                 .toList(),
-                        Messages.getString("SelectImdbMatchForSerie").formatted(title),
+                        Messages.getString("Prompter.SelectImdbMatchForSerie").formatted(title),
                         "IMDB",
                         ProviderSerieId::getName)
                 .mapToInt(providerSerieId -> Integer.parseInt(providerSerieId.getId()));
