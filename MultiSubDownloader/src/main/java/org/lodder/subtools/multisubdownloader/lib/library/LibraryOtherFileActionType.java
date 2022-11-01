@@ -2,22 +2,25 @@ package org.lodder.subtools.multisubdownloader.lib.library;
 
 import java.util.Arrays;
 
+import org.lodder.subtools.multisubdownloader.Messages;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum LibraryOtherFileActionType {
-    NOTHING("-- Maak uw keuze --"),
-    REMOVE("Verwijderen"),
-    RENAME("Hernoemen"),
-    MOVE("Verplaatsen"),
-    MOVEANDRENAME("Verplaats en Hernoemen");
 
-    private final String description;
+    NOTHING("PreferenceDialog.Action.Nothing"),
+    REMOVE("PreferenceDialog.Action.Remove"),
+    RENAME("PreferenceDialog.Action.Rename"),
+    MOVE("PreferenceDialog.Action.Move"),
+    MOVEANDRENAME("PreferenceDialog.Action.MoveAndRename");
+
+    private final String msgCode;
 
     @Override
     public String toString() {
-        return this.description;
+        return Messages.getString(msgCode);
     }
 
     @Deprecated(since = "Settings version 2")
