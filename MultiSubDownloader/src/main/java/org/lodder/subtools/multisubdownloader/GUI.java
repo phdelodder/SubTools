@@ -133,7 +133,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     }
 
     private void checkUpdate(final boolean forceUpdateCheck) {
-        UpdateAvailableGithub u = new UpdateAvailableGithub(manager, settingsControl);
+        UpdateAvailableGithub u = new UpdateAvailableGithub(manager);
         Optional<String> updateUrl = (forceUpdateCheck && u.isNewVersionAvailable())
                 || (!forceUpdateCheck && u.shouldCheckForNewUpdate(settingsControl.getSettings().getUpdateCheckPeriod())
                         && u.isNewVersionAvailable()) ? u.getLatestDownloadUrl() : Optional.empty();

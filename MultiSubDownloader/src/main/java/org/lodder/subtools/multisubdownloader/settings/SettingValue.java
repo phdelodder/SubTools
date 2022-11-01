@@ -1,7 +1,6 @@
 package org.lodder.subtools.multisubdownloader.settings;
 
 import java.io.File;
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
@@ -24,7 +23,6 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
-import org.lodder.subtools.multisubdownloader.settings.model.State;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.sublibrary.Language;
 
@@ -137,10 +135,7 @@ public enum SettingValue {
     SERIE_SOURCE_OPENSUBTITLES(true, SettingsControl::getSettings, Settings::isSerieSourceOpensubtitles, Settings::setSerieSourceOpensubtitles),
     SERIE_SOURCE_PODNAPISI(true, SettingsControl::getSettings, Settings::isSerieSourcePodnapisi, Settings::setSerieSourcePodnapisi),
     SERIE_SOURCE_TV_SUBTITLES(true, SettingsControl::getSettings, Settings::isSerieSourceTvSubtitles, Settings::setSerieSourceTvSubtitles),
-    SERIE_SOURCE_SUBSCENE(true, SettingsControl::getSettings, Settings::isSerieSourceSubscene, Settings::setSerieSourceSubscene),
-
-    // STATE
-    LATEST_UPDATE_CHECK(LocalDate.MIN, LocalDate::toString, LocalDate::parse, SettingsControl::getState, State::getLatestUpdateCheck, State::setLatestUpdateCheck);
+    SERIE_SOURCE_SUBSCENE(true, SettingsControl::getSettings, Settings::isSerieSourceSubscene, Settings::setSerieSourceSubscene);
 
     private final BiConsumer<SettingsControl, Preferences> storeValueFunction;
     private final BiConsumer<SettingsControl, Preferences> loadValueFunction;

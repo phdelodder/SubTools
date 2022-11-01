@@ -66,7 +66,7 @@ public class CLI {
     }
 
     private void checkUpdate(Manager manager) {
-        UpdateAvailableGithub u = new UpdateAvailableGithub(manager, settingControl);
+        UpdateAvailableGithub u = new UpdateAvailableGithub(manager);
         if (u.shouldCheckForNewUpdate(settings.getUpdateCheckPeriod())) {
             System.out.println(Messages.getString("UpdateAppAvailable") + ": " + u.getLatestDownloadUrl());
         }

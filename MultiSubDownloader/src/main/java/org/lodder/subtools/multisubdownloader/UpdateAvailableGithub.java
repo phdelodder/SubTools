@@ -9,10 +9,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jsoup.nodes.Element;
-import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.sublibrary.ConfigProperties;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.Manager.ValueBuilderIsPresentIntf;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,22 +26,22 @@ public class UpdateAvailableGithub {
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateAvailableGithub.class);
 
     private final Manager manager;
-    private final SettingsControl settingsControl;
 
     public boolean shouldCheckForNewUpdate(UpdateCheckPeriod updateCheckPeriod) {
-        LocalDate latestUpdateCheck = settingsControl.getState().getLatestUpdateCheck();
-        settingsControl.getState().setLatestUpdateCheck(LocalDate.now());
+        ValueBuilderIsPresentIntf<Serializable> valueBuilder = manager.valueBuilder().cacheType(CacheType.DISK).key("LastUpdateCheck");
+        LocalDate latestUpdateCheck = valueBuilder.valueSupplier(() -> LocalDate.MIN).get();
         try {
-            return switch (updateCheckPeriod) {
+            boolean shouldCheckForUpdate = switch (updateCheckPeriod) {
                 case DAILY -> DAYS.between(latestUpdateCheck, LocalDate.now()) > 0;
                 case WEEKLY -> DAYS.between(latestUpdateCheck, LocalDate.now()) > 6;
                 case MONTHLY -> DAYS.between(latestUpdateCheck, LocalDate.now()) > 30;
                 case MANUAL -> false;
                 default -> false;
             };
+            valueBuilder.value(LocalDate.now()).store();
+            return shouldCheckForUpdate;
         } catch (Exception e) {
             LOGGER.error("checkProgram", e);
-            settingsControl.getState().setLatestUpdateCheck(latestUpdateCheck);
             return false;
         }
     }
