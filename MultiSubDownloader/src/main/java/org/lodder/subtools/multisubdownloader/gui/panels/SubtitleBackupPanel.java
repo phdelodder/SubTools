@@ -20,7 +20,7 @@ public class SubtitleBackupPanel extends JPanel {
     private JLabel lblBackupLocatie;
     private JTextField txtBackupSubtitlePath;
     private JButton btnBrowseBackup;
-    private JCheckBox chkBackupUseWebsiteFileName;
+    private JCheckBox chkBackupUseSourceFileName;
     private ActionListener browseBackupAction;
     private JLabel lblTitle;
 
@@ -37,8 +37,10 @@ public class SubtitleBackupPanel extends JPanel {
         lblBackupLocatie = new JLabel(Messages.getString("PreferenceDialog.Location"));
         txtBackupSubtitlePath = new JTextField();
         txtBackupSubtitlePath.setColumns(10);
+        txtBackupSubtitlePath.setEnabled(false);
         btnBrowseBackup = new JButton(Messages.getString("App.Browse"));
-        chkBackupUseWebsiteFileName = new JCheckBox(Messages.getString("PreferenceDialog.IncludeSourceInFileName"));
+        btnBrowseBackup.setEnabled(false);
+        chkBackupUseSourceFileName = new JCheckBox(Messages.getString("PreferenceDialog.IncludeSourceInFileName"));
         lblTitle = new JLabel(Messages.getString("PreferenceDialog.SubtitlesBackup"));
     }
 
@@ -47,6 +49,11 @@ public class SubtitleBackupPanel extends JPanel {
             if (browseBackupAction != null) {
                 browseBackupAction.actionPerformed(arg0);
             }
+        });
+        chkBackupSubtitle.addChangeListener(e -> {
+            boolean enabled = ((JCheckBox) e.getSource()).isSelected();
+            txtBackupSubtitlePath.setEnabled(enabled);
+            btnBrowseBackup.setEnabled(enabled);
         });
     }
 
@@ -57,7 +64,7 @@ public class SubtitleBackupPanel extends JPanel {
         add(lblBackupLocatie, "cell 1 2,alignx left");
         add(txtBackupSubtitlePath, "cell 2 2 2 1,growx");
         add(btnBrowseBackup, "cell 4 2,alignx center");
-        add(chkBackupUseWebsiteFileName, "cell 1 3 4 1");
+        add(chkBackupUseSourceFileName, "cell 1 3 4 1");
         add(btnBrowseBackup, "cell 4 2,alignx center");
     }
 
@@ -82,11 +89,11 @@ public class SubtitleBackupPanel extends JPanel {
     }
 
     public void setBackupUseWebsiteFilenameSelected(boolean b) {
-        this.chkBackupUseWebsiteFileName.setSelected(b);
+        this.chkBackupUseSourceFileName.setSelected(b);
     }
 
     public boolean isBackupUseWebsiteFilenameSelected() {
-        return chkBackupUseWebsiteFileName.isSelected();
+        return chkBackupUseSourceFileName.isSelected();
     }
 
 }

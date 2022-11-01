@@ -338,6 +338,11 @@ public class PreferenceDialog extends MultiSubDialog {
                 {
                     chkUserAddic7edLogin = new JCheckBox(Messages.getString("PreferenceDialog.UseAddic7edLogin"));
                     pnlAddic7edLoginSettings.add(chkUserAddic7edLogin, "cell 0 1 3 1");
+                    chkUserAddic7edLogin.addChangeListener(e -> {
+                        boolean enabled = ((JCheckBox) e.getSource()).isSelected();
+                        txtAddic7edUsername.setEnabled(enabled);
+                        txtAddic7edPassword.setEnabled(enabled);
+                    });
                 }
                 {
                     JLabel lblUsername = new JLabel(Messages.getString("PreferenceDialog.Username"));
@@ -347,6 +352,7 @@ public class PreferenceDialog extends MultiSubDialog {
                     txtAddic7edUsername = new JTextField();
                     pnlAddic7edLoginSettings.add(txtAddic7edUsername, "cell 2 2,growx");
                     txtAddic7edUsername.setColumns(10);
+                    txtAddic7edUsername.setEnabled(false);
                 }
                 {
                     JLabel lblAddic7edPassword = new JLabel(Messages.getString("PreferenceDialog.Password"));
@@ -356,6 +362,7 @@ public class PreferenceDialog extends MultiSubDialog {
                     txtAddic7edPassword = new JPasswordField();
                     pnlAddic7edLoginSettings.add(txtAddic7edPassword, "cell 2 3,growx");
                     txtAddic7edPassword.setColumns(10);
+                    txtAddic7edPassword.setEnabled(false);
                 }
                 //
                 JPanel pnlOpenSubtiltesLoginSettings = new JPanel();
@@ -366,6 +373,11 @@ public class PreferenceDialog extends MultiSubDialog {
                 {
                     chkUserOpenSubtitlesLogin = new JCheckBox(Messages.getString("PreferenceDialog.UseOpenSubtitlesLogin"));
                     pnlOpenSubtiltesLoginSettings.add(chkUserOpenSubtitlesLogin, "cell 0 1 3 1");
+                    chkUserOpenSubtitlesLogin.addChangeListener(e -> {
+                        boolean enabled = ((JCheckBox) e.getSource()).isSelected();
+                        txtOpenSubtitlesUsername.setEnabled(enabled);
+                        txtOpenSubtitlesPassword.setEnabled(enabled);
+                    });
                 }
                 {
                     JLabel lblUsername = new JLabel(Messages.getString("PreferenceDialog.Username"));
@@ -375,6 +387,7 @@ public class PreferenceDialog extends MultiSubDialog {
                     txtOpenSubtitlesUsername = new JTextField();
                     pnlOpenSubtiltesLoginSettings.add(txtOpenSubtitlesUsername, "cell 2 2,growx");
                     txtOpenSubtitlesUsername.setColumns(10);
+                    txtOpenSubtitlesUsername.setEnabled(false);
                 }
                 {
                     JLabel lblOpenSubtitlesPassword = new JLabel(Messages.getString("PreferenceDialog.Password"));
@@ -384,6 +397,7 @@ public class PreferenceDialog extends MultiSubDialog {
                     txtOpenSubtitlesPassword = new JPasswordField();
                     pnlOpenSubtiltesLoginSettings.add(txtOpenSubtitlesPassword, "cell 2 3,growx");
                     txtOpenSubtitlesPassword.setColumns(10);
+                    txtOpenSubtitlesPassword.setEnabled(false);
                 }
                 //
                 JPanel pnlLocalSourcesSettings = new JPanel();
