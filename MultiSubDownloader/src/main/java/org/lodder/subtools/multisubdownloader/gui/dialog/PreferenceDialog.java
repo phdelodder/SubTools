@@ -692,6 +692,6 @@ public class PreferenceDialog extends MultiSubDialog {
     }
 
     private <T> Stream<T> stream(ListModel<T> listModel) {
-        return IntStream.rangeClosed(0, listModel.getSize()).mapToObj(listModel::getElementAt);
+        return IntStream.range(0, listModel.getSize()).mapToObj(listModel::getElementAt);
     }
 }
