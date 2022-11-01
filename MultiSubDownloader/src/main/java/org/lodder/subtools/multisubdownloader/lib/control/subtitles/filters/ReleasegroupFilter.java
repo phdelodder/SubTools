@@ -28,9 +28,9 @@ public class ReleasegroupFilter extends Filter {
             }
 
             if ((release.getReleaseGroup() != null && StringUtils.containsIgnoreCase(subtitle.getReleaseGroup(), release.getReleaseGroup()))
-                    || (subtitle.getReleaseGroup() != null && StringUtils.containsIgnoreCase(release.getReleaseGroup(), subtitle.getReleaseGroup()))){
-                LOGGER.debug("getSubtitlesFiltered: found KEYWORD based TEAM match [{}] ",
-                        subtitle.getFileName());
+                    || (subtitle.getReleaseGroup() != null
+                            && StringUtils.containsIgnoreCase(release.getReleaseGroup(), subtitle.getReleaseGroup()))) {
+                LOGGER.debug("getSubtitlesFiltered: found KEYWORD based TEAM match [{}] ", subtitle.getFileName());
 
                 subtitle.setSubtitleMatchType(SubtitleMatchType.TEAM);
 

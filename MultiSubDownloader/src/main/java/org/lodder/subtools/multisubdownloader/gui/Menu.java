@@ -68,14 +68,14 @@ public class Menu extends JMenuBar {
 
     private void createComponents() {
         mnFile = new JMenu(Messages.getString("Menu.File"));
-        mntmQuit = new JMenuItem(Messages.getString("Menu.Close"));
+        mntmQuit = new JMenuItem(Messages.getString("App.Close"));
         mnBeeld = new JMenu(Messages.getString("Menu.View"));
         mnZoekResulaten = new JMenu(Messages.getString("Menu.SearchResults"));
         chckbxmntmBestandsnaam = new JCheckBoxMenuItem(Messages.getString("Menu.Filename"));
         chckbxmntmType = new JCheckBoxMenuItem(Messages.getString("Menu.Type"));
         chckbxmntmTitle = new JCheckBoxMenuItem(Messages.getString("Menu.Title"));
-        chckbxmntmSeason = new JCheckBoxMenuItem(Messages.getString("Menu.Season"));
-        chckbxmntmEpisode = new JCheckBoxMenuItem(Messages.getString("Menu.Episode"));
+        chckbxmntmSeason = new JCheckBoxMenuItem(Messages.getString("App.Season"));
+        chckbxmntmEpisode = new JCheckBoxMenuItem(Messages.getString("App.Episode"));
         chckbxmntmAlleenGevondenTonen = new JCheckBoxMenuItem(Messages.getString("Menu.OnlyShowFound"));
         mntmLoggingWissen = new JMenuItem(Messages.getString("Menu.EraseLogging"));
         mntmRenameSerieFiles = new JMenuItem(Messages.getString("Menu.RenameSerie"));
@@ -84,7 +84,7 @@ public class Menu extends JMenuBar {
         mnImportexport = new JMenu(Messages.getString("Menu.SerieNames"));
         mntmTranslateShowNames = new JMenuItem(Messages.getString("Menu.MappingTvdbScene"));
         mnImporteerexporteer = new JMenu(Messages.getString("Menu.ImportExport"));
-        mnEdit = new JMenu(Messages.getString("Menu.Edit"));
+        mnEdit = new JMenu(Messages.getString("App.Edit"));
         mnHelp = new JMenu(Messages.getString("Menu.Help"));
         mntmExportTranslate = new JMenuItem(Messages.getString("Menu.ExportMappingTvdbScene"));
         mntmImportTranslate = new JMenuItem(Messages.getString("Menu.ImportMappingTvdbScene"));

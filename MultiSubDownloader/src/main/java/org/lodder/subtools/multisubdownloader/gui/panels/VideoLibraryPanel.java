@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.dialog.StructureBuilderDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.extra.PartialDisableComboBox;
@@ -103,19 +104,18 @@ public abstract class VideoLibraryPanel extends JPanel {
     private void checkEnableStatus(JPanel panel, boolean status) {
         for (Component c : panel.getComponents()) {
             if (!(VideoType.MOVIE == videoType && c.equals(chkUseTVDBNaming))) {
-                if (c instanceof JTextField && ((JTextField) c).getText().isEmpty()
-                        && VideoType.MOVIE == videoType && !c.equals(pnlStructureFolder.getStructure())
-                        && !c.equals(pnlStructureFile.getTxtDefaultNlText())
-                        && !c.equals(pnlStructureFile.getTxtDefaultEnText())) {
+                if (c instanceof JTextField textField && textField.getText().isEmpty()
+                        && VideoType.MOVIE == videoType && !textField.equals(pnlStructureFolder.getStructure())
+                        && !textField.equals(pnlStructureFile.getTxtDefaultNlText())
+                        && !textField.equals(pnlStructureFile.getTxtDefaultEnText())) {
                     c.setVisible(false);
-                } else if (c instanceof JButton && c.equals(pnlStructureFile.getBtnBuildStructure())
-                        && VideoType.MOVIE == videoType) {
+                } else if (c instanceof JButton && c.equals(pnlStructureFile.getBtnBuildStructure()) && VideoType.MOVIE == videoType) {
                     c.setVisible(false);
                 } else {
                     c.setVisible(status);
                 }
-                if (c instanceof JCheckBox && ((JCheckBox) c).isSelected()) {
-                    ((JCheckBox) c).setSelected(status);
+                if (c instanceof JCheckBox checkBox && checkBox.isSelected()) {
+                    checkBox.setSelected(status);
                 }
             }
         }
@@ -123,15 +123,16 @@ public abstract class VideoLibraryPanel extends JPanel {
 
     public boolean isValidPanelValues() {
         LibraryActionType libraryActionType = (LibraryActionType) cbxLibraryAction.getSelectedItem();
-        if ((libraryActionType != null) && (LibraryActionType.MOVEANDRENAME.equals(libraryActionType)
-                || LibraryActionType.MOVE.equals(libraryActionType))) {
+        if (libraryActionType != null &&
+                (LibraryActionType.MOVEANDRENAME.equals(libraryActionType) || LibraryActionType.MOVE.equals(libraryActionType))) {
             if (!pnlStructureFolder.getLibraryFolder().isEmpty()) {
                 File f = new File(pnlStructureFolder.getLibraryFolder());
                 try {
                     if (!f.getCanonicalFile().isDirectory()) {
-                        final String message = "Geen geldig pad is ingegeven in 'Map - Locatie' op Bibliotheek info ";
+                        String message = Messages.getString("PreferenceDialog.ErrorInvalidPath", "'%s - %s'"
+                                .formatted(Messages.getString("PreferenceDialog.MoveToLibrary"), Messages.getString("PreferenceDialog.Location")));
                         JOptionPane.showConfirmDialog(this, message, "MultiSubDownloader", JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
-                        LOGGER.debug("isValidPanelValues: Geen geldig pad is ingegeven in 'Map - Locatie' op Bibliotheek info.");
+                        LOGGER.debug("isValidPanelValues: " + message);
                         return false;
                     }
                 } catch (HeadlessException | IOException e) {
@@ -215,7 +216,7 @@ public abstract class VideoLibraryPanel extends JPanel {
     private void initialize_ui() {
         setLayout(new MigLayout("", "[243.00,grow][grow]", "[][100px][][][][][125.00][]"));
 
-        add(new JLabel("Bibiliotheek opties"), "cell 0 0 2 1,gapy 5");
+        add(new JLabel(Messages.getString("PreferenceDialog.LibraryOptions")), "cell 0 0 2 1,gapy 5");
         add(new JSeparator(), "cell 0 0 2 1,growx,gapy 5");
 
         if (!renameMode) {
@@ -223,7 +224,7 @@ public abstract class VideoLibraryPanel extends JPanel {
             add(pnlBackup, "cell 0 1 2 1,grow");
         }
 
-        add(new JLabel("Volgende acties uitvoeren:"), "cell 0 2,alignx left");
+        add(new JLabel(Messages.getString("PreferenceDialog.PerformActions")), "cell 0 2,alignx left");
 
         cbxLibraryAction = new JComboBox<>();
         cbxLibraryAction.setModel(new DefaultComboBoxModel<>(LibraryActionType.values()));
@@ -236,16 +237,16 @@ public abstract class VideoLibraryPanel extends JPanel {
         });
         add(cbxLibraryAction, "cell 1 2,growx");
 
-        chkReplaceWindowsChar = new JCheckBox("Ongeldige Windows karakters vervangen");
+        chkReplaceWindowsChar = new JCheckBox(Messages.getString("PreferenceDialog.ReplaceInvalidWindowsChars"));
         add(chkReplaceWindowsChar, "cell 0 3 2 1");
 
-        chkUseTVDBNaming = new JCheckBox("Gebruik de benaming van TheTVDB in plaats van de serie naam in de bestandsnaam");
+        chkUseTVDBNaming = new JCheckBox(Messages.getString("PreferenceDialog.UseTvdbName"));
         if (VideoType.MOVIE.equals(videoType)) {
             chkUseTVDBNaming.setVisible(false);
         }
         add(chkUseTVDBNaming, "cell 0 4 2 1");
 
-        add(new JLabel("Andere bestanden (nfo, jpg, sample, ...):"), "cell 0 5,alignx trailing");
+        add(new JLabel(Messages.getString("PreferenceDialog.ActionForOtherFiles")), "cell 0 5,alignx trailing");
 
         cbxLibraryOtherFileAction = new PartialDisableComboBox(LibraryOtherFileActionType.values());
         add(cbxLibraryOtherFileAction, "cell 1 5,growx");
@@ -261,7 +262,8 @@ public abstract class VideoLibraryPanel extends JPanel {
         pnlBackup = new SubtitleBackupPanel();
 
         pnlBackup.setBrowseBackupAction(arg0 -> {
-            File path = MemoryFolderChooser.getInstance().selectDirectory(VideoLibraryPanel.this.getRootPane(), "Selecteer Ondertitel Backup map");
+            File path = MemoryFolderChooser.getInstance().selectDirectory(VideoLibraryPanel.this.getRootPane(),
+                    Messages.getString("PreferenceDialog.SubtitleBackupFolder"));
             pnlBackup.setBackupSubtitlePath(path.getAbsolutePath());
         });
     }
@@ -270,13 +272,14 @@ public abstract class VideoLibraryPanel extends JPanel {
         pnlStructureFolder = new StructureFolderPanel();
 
         pnlStructureFolder.setBrowseAction(arg0 -> {
-            File path = MemoryFolderChooser.getInstance().selectDirectory(VideoLibraryPanel.this.getRootPane(), "Selecteer Bibiliotheek map");
+            File path = MemoryFolderChooser.getInstance().selectDirectory(VideoLibraryPanel.this.getRootPane(),
+                    Messages.getString("PreferenceDialog.LibraryFolder"));
             pnlStructureFolder.setLibraryFolder(path.getAbsolutePath());
         });
 
         pnlStructureFolder.setBuildStructureAction(arg0 -> {
-            final StructureBuilderDialog sDialog = new StructureBuilderDialog(null, "Structure Builder", true, videoType,
-                    StructureBuilderDialog.StrucutureType.FOLDER, getLibrarySettings(), manager, userInteractionHandler);
+            final StructureBuilderDialog sDialog = new StructureBuilderDialog(null, Messages.getString("PreferenceDialog.StructureBuilderTitle"),
+                    true, videoType, StructureBuilderDialog.StrucutureType.FOLDER, getLibrarySettings(), manager, userInteractionHandler);
             String value = sDialog.showDialog(pnlStructureFolder.getStructure().getText());
             if (!"".equals(value)) {
                 pnlStructureFolder.getStructure().setText(value);
@@ -288,8 +291,8 @@ public abstract class VideoLibraryPanel extends JPanel {
         pnlStructureFile = new StructureFilePanel();
 
         pnlStructureFile.setBuildStructureAction(arg0 -> {
-            final StructureBuilderDialog sDialog = new StructureBuilderDialog(null, "Structure Builder", true, videoType,
-                    StructureBuilderDialog.StrucutureType.FILE, getLibrarySettings(), manager, userInteractionHandler);
+            final StructureBuilderDialog sDialog = new StructureBuilderDialog(null, Messages.getString("PreferenceDialog.StructureBuilderTitle"),
+                    true, videoType, StructureBuilderDialog.StrucutureType.FILE, getLibrarySettings(), manager, userInteractionHandler);
             String value = sDialog.showDialog(pnlStructureFile.getFileStructure());
             if (!value.isEmpty()) {
                 pnlStructureFile.setFileStructure(value);

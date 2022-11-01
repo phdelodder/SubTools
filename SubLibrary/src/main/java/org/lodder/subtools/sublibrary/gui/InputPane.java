@@ -68,8 +68,8 @@ public class InputPane {
             InputPaneBuilderPromptIntf, InputPaneBuilderErrorMessageIntf, InputPaneBuilderValidatorIntf, InputPaneBuilderMessageIntf,
             InputPaneBuilderTitleIntf {
         private static final long serialVersionUID = 1L;
-        private final static String OK = Messages.getString("PreferenceDialog.OK");
-        private final static String CANCEL = Messages.getString("PreferenceDialog.Cancel");
+        private final static String OK = Messages.getString("App.OK");
+        private final static String CANCEL = Messages.getString("App.Cancel");
         private String title;
         private String message;
         private String errorMessage;

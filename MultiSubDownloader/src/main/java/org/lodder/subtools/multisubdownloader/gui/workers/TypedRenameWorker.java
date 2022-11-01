@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.swing.SwingWorker;
 
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.actions.RenameAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
@@ -20,6 +21,8 @@ import org.lodder.subtools.sublibrary.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.Setter;
+
 public class TypedRenameWorker extends SwingWorker<Void, String> implements Cancelable {
 
     private final UserInteractionHandler userInteractionHandler;
@@ -27,6 +30,7 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
     private VideoType videoType;
     private final FilenameExtensionFilter patterns;
     private boolean isRecursive;
+    @Setter
     private ReleaseFactory releaseFactory;
     private RenameAction renameAction;
 
@@ -36,9 +40,7 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
             boolean isRecursive, Manager manager, UserInteractionHandler userInteractionHandler) {
         this.userInteractionHandler = userInteractionHandler;
         setParameters(dir, librarySettings, videoType, isRecursive, manager);
-        patterns =
-                new FilenameExtensionFilter(
-                        StringUtil.join(VideoPatterns.EXTENSIONS, new String[] { "srt" }));
+        patterns = new FilenameExtensionFilter(StringUtil.join(VideoPatterns.EXTENSIONS, new String[] { "srt" }));
     }
 
     public void setParameters(File dir, LibrarySettings librarySettings, VideoType videoType,
@@ -47,10 +49,6 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
         this.videoType = videoType;
         this.isRecursive = isRecursive;
         this.renameAction = new RenameAction(librarySettings, manager, userInteractionHandler);
-    }
-
-    public void setReleaseFactory(ReleaseFactory releaseFactory) {
-        this.releaseFactory = releaseFactory;
     }
 
     @Override
@@ -83,6 +81,6 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
 
     @Override
     protected void process(List<String> data) {
-        data.forEach(s -> StatusMessenger.instance.message("Bestand hernoemen: " + s));
+        data.forEach(s -> StatusMessenger.instance.message(Messages.getString("MainWindow.RenamingFile", s)));
     }
 }

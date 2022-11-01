@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum SubtitleTableColumnName implements CustomColumnName {
-    SELECT(Messages.getString("SubtitleTableColumnName.Select"), Boolean.class, true),
+    SELECT(Messages.getString("App.Select"), Boolean.class, true),
     SCORE(Messages.getString("SubtitleTableColumnName.Score"), Integer.class, false),
     FILENAME(Messages.getString("SubtitleTableColumnName.Filename"), String.class, false),
     SOURCE(Messages.getString("SubtitleTableColumnName.Source"), String.class, false),

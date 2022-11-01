@@ -115,7 +115,7 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
         JPanel buttonPane = new JPanel();
         buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
         getContentPane().add(buttonPane, BorderLayout.SOUTH);
-        JButton okButton = new JButton(Messages.getString("StructureBuilderDialog.OK"));
+        JButton okButton = new JButton(Messages.getString("App.OK"));
         okButton.addActionListener(e -> {
             setVisible(false);
             dispose(); // this is needed to dispose the dialog and return the control to the window
@@ -123,7 +123,7 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
         okButton.setActionCommand("OK");
         buttonPane.add(okButton);
         getRootPane().setDefaultButton(okButton);
-        JButton cancelButton = new JButton(Messages.getString("StructureBuilderDialog.Cancel"));
+        JButton cancelButton = new JButton(Messages.getString("App.Cancel"));
         cancelButton.addActionListener(e -> {
             setVisible(false);
             txtStructure.setText(oldStructure);

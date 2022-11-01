@@ -83,11 +83,10 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
                 panel.add(lblFolderToRenamemove, gbc_lblFolderToRenamemove);
             }
             {
-                JButton btnBrowser = new JButton(Messages.getString("RenameDialog.Browse"));
+                JButton btnBrowser = new JButton(Messages.getString("App.Browse"));
                 btnBrowser.addActionListener(arg0 -> {
-                    File path =
-                            MemoryFolderChooser.getInstance().selectDirectory(getContentPane(),
-                                    Messages.getString("RenameDialog.SelectFolderForRenameReplace"));
+                    File path = MemoryFolderChooser.getInstance().selectDirectory(getContentPane(),
+                            Messages.getString("RenameDialog.SelectFolderForRenameReplace"));
                     txtRenameLocation.setText(path.getAbsolutePath());
                 });
                 {
@@ -149,7 +148,7 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
                 getRootPane().setDefaultButton(renameButton);
             }
             {
-                JButton cancelButton = new JButton(Messages.getString("RenameDialog.Cancel"));
+                JButton cancelButton = new JButton(Messages.getString("App.Cancel"));
                 cancelButton.addActionListener(arg0 -> setVisible(false));
                 cancelButton.setActionCommand("Cancel");
                 buttonPane.add(cancelButton);

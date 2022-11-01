@@ -6,6 +6,8 @@ import javax.swing.JLabel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
+import org.lodder.subtools.multisubdownloader.Messages;
+
 import net.miginfocom.swing.MigLayout;
 
 public class StructureFilePanel extends StructurePanel {
@@ -29,7 +31,7 @@ public class StructureFilePanel extends StructurePanel {
     }
 
     private void addComponentsToPanel() {
-        add(new JLabel("Bestanden hernoemen"), "cell 0 0 5 1,gapy 5");
+        add(new JLabel(Messages.getString("PreferenceDialog.RenameFiles")), "cell 0 0 5 1,gapy 5");
         add(new JSeparator(), "cell 0 0 5 1,growx,gapy 5");
         add(lblStructuur_1, "cell 1 1,alignx left");
         add(txtFileStructure, "cell 2 1 2 1,growx");
@@ -48,12 +50,12 @@ public class StructureFilePanel extends StructurePanel {
     }
 
     private void createComponents() {
-        lblStructuur_1 = new JLabel("Structuur");
+        lblStructuur_1 = new JLabel(Messages.getString("PreferenceDialog.Structure"));
 
         txtFileStructure = new JTextField();
         txtFileStructure.setColumns(10);
 
-        chkIncludeLanguageCode = new JCheckBox("Taal in de bestandsnaam van de ondertitel plaatsen");
+        chkIncludeLanguageCode = new JCheckBox(Messages.getString("PreferenceDialog.IncludeLanguageInFileName"));
 
         lblNederlands = new JLabel("Nederlands");
 

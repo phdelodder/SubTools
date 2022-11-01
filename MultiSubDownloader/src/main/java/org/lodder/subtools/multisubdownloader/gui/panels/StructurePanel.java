@@ -6,6 +6,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
+import org.lodder.subtools.multisubdownloader.Messages;
+
 import java.awt.event.ActionListener;
 
 public abstract class StructurePanel extends JPanel {
@@ -30,9 +32,9 @@ public abstract class StructurePanel extends JPanel {
     }
 
     private void createComponents() {
-        btnBuildStructure = new JButton("Structuur");
+        btnBuildStructure = new JButton(Messages.getString("StructureBuilderDialog.Structure"));
 
-        chkReplaceSpace = new JCheckBox("Vervangen spatie door: ");
+        chkReplaceSpace = new JCheckBox(Messages.getString("PreferenceDialog.ReplaceSpaceWith"));
 
         cbxReplaceSpaceChar = new JComboBox<>();
         cbxReplaceSpaceChar.setModel(new DefaultComboBoxModel<>(new String[] { "-", ".", "_" }));

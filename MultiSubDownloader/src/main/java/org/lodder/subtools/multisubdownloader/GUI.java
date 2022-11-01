@@ -125,6 +125,13 @@ public class GUI extends JFrame implements PropertyChangeListener {
         initPopupMenu();
     }
 
+    public void redraw() {
+        close();
+        // setVisible(false);
+        getContentPane().removeAll();
+        initialize();
+    }
+
     private void checkUpdate(final boolean forceUpdateCheck) {
         UpdateAvailableGithub u = new UpdateAvailableGithub(manager, settingsControl);
         Optional<String> updateUrl = (forceUpdateCheck && u.isNewVersionAvailable())
@@ -368,7 +375,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
                 final int response =
                         JOptionPane.showConfirmDialog(
                                 getThis(),
-                                Messages.getString("MainWindow.OnlyMoveToLibraryStructure"), Messages.getString("MainWindow.Confirm"), //$NON-NLS-2$
+                                Messages.getString("MainWindow.OnlyMoveToLibraryStructure"), Messages.getString("App.Confirm"), //$NON-NLS-2$
                                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                 if (response == JOptionPane.YES_OPTION) {
                     rename();
@@ -440,7 +447,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
     private void initPopupMenu() {
         popupMenu = new MyPopupMenu();
-        JMenuItem menuItem = new JMenuItem(Messages.getString("MainWindow.Copy"));
+        JMenuItem menuItem = new JMenuItem(Messages.getString("App.Copy"));
         menuItem.addActionListener(arg0 -> {
             final CustomTable t = (CustomTable) popupMenu.getInvoker();
             final DefaultTableModel model = (DefaultTableModel) t.getModel();
@@ -536,7 +543,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
         }
     }
 
-    protected JFrame getThis() {
+    protected GUI getThis() {
         return this;
     }
 

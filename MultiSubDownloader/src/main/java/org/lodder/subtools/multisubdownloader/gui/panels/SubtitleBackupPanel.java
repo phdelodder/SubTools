@@ -7,6 +7,8 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
+import org.lodder.subtools.multisubdownloader.Messages;
+
 import java.awt.event.ActionListener;
 
 import net.miginfocom.swing.MigLayout;
@@ -31,13 +33,13 @@ public class SubtitleBackupPanel extends JPanel {
     }
 
     private void createComponents() {
-        chkBackupSubtitle = new JCheckBox("Backup ondertitels?");
-        lblBackupLocatie = new JLabel("Locatie");
+        chkBackupSubtitle = new JCheckBox(Messages.getString("PreferenceDialog.BackupSubtitles"));
+        lblBackupLocatie = new JLabel(Messages.getString("PreferenceDialog.Location"));
         txtBackupSubtitlePath = new JTextField();
         txtBackupSubtitlePath.setColumns(10);
-        btnBrowseBackup = new JButton("Bladeren");
-        chkBackupUseWebsiteFileName = new JCheckBox("Naam gebruik van de ondertitel bron?");
-        lblTitle = new JLabel("Ondertitel Backup");
+        btnBrowseBackup = new JButton(Messages.getString("App.Browse"));
+        chkBackupUseWebsiteFileName = new JCheckBox(Messages.getString("PreferenceDialog.IncludeSourceInFileName"));
+        lblTitle = new JLabel(Messages.getString("PreferenceDialog.SubtitlesBackup"));
     }
 
     private void setupListeners() {

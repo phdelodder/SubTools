@@ -70,6 +70,7 @@ public class App {
         final Container app = new Container();
         final Manager manager = createManager(!line.hasCliOption(CliOption.NO_GUI));
         prefctrl = new SettingsControl(manager);
+        Messages.setLanguage(prefctrl.getSettings().getLanguage());
         Bootstrapper bootstrapper = new Bootstrapper(app, prefctrl.getSettings(), preferences, manager);
 
         if (line.hasCliOption(CliOption.HELP)) {
