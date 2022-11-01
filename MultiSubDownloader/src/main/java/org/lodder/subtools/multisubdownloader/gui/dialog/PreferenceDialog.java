@@ -13,7 +13,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -51,8 +50,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.FlowLayout;
 
 import net.miginfocom.swing.MigLayout;
@@ -670,25 +667,6 @@ public class PreferenceDialog extends MultiSubDialog {
             settingsCtrl.store();
         }
         this.eventEmitter.fire(new Event("providers.settings.change"));
-    }
-
-    private static <T extends Component> List<T> getChildren(Class<T> clazz, final Container container) {
-        Component[] components;
-        if (container instanceof JMenu) {
-            components = ((JMenu) container).getMenuComponents();
-        } else {
-            components = container.getComponents();
-        }
-        List<T> compList = new ArrayList<>();
-        for (Component comp : components) {
-            if (clazz.isAssignableFrom(comp.getClass())) {
-                compList.add(clazz.cast(comp));
-            }
-            if (comp instanceof Container) {
-                compList.addAll(getChildren(clazz, (Container) comp));
-            }
-        }
-        return compList;
     }
 
     private <T> Stream<T> stream(ListModel<T> listModel) {
