@@ -207,6 +207,11 @@ public class PreferenceDialog extends MultiSubDialog {
 
                     chkUseProxy = new JCheckBox(Messages.getString("PreferenceDialog.UseProxyServer"));
                     pnlGeneral.add(chkUseProxy, "alignx left,aligny center, span 1 2");
+                    chkUseProxy.addChangeListener(e -> {
+                        boolean enabled = ((JCheckBox) e.getSource()).isSelected();
+                        txtProxyHost.setEnabled(enabled);
+                        txtProxyPort.setEnabled(enabled);
+                    });
 
                     JLabel lblProxyHost = new JLabel(Messages.getString("PreferenceDialog.Hostname"));
                     pnlGeneral.add(lblProxyHost, "split");
@@ -214,6 +219,7 @@ public class PreferenceDialog extends MultiSubDialog {
                     txtProxyHost = new JTextField();
                     pnlGeneral.add(txtProxyHost, "wrap");
                     txtProxyHost.setColumns(10);
+                    txtProxyHost.setEnabled(false);
 
                     JLabel lblProxyPoort = new JLabel(Messages.getString("PreferenceDialog.Port"));
                     pnlGeneral.add(lblProxyPoort, "split");
@@ -221,6 +227,7 @@ public class PreferenceDialog extends MultiSubDialog {
                     txtProxyPort = new JTextField();
                     pnlGeneral.add(txtProxyPort, "wrap");
                     txtProxyPort.setColumns(10);
+                    txtProxyPort.setEnabled(false);
                 }
             }
 
