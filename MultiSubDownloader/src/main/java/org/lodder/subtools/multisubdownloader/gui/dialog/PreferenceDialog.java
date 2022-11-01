@@ -26,6 +26,7 @@ import javax.swing.ListModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
@@ -152,17 +153,19 @@ public class PreferenceDialog extends MultiSubDialog {
 
                     JButton btnAddFolder = new JButton(Messages.getString("PreferenceDialog.AddFolder"));
                     btnAddFolder.addActionListener(arg -> {
-                        String path = MemoryFolderChooser.getInstance().selectDirectory(getContentPane(),
-                                Messages.getString("PreferenceDialog.SelectFolder")).getAbsolutePath();
-                        if (defaultIncomingFoldersList.getModel().getSize() == 0) {
-                            defaultIncomingFoldersList.addItem(SettingsExcludeType.FOLDER, path);
-                        } else {
-                            boolean exists = stream(defaultIncomingFoldersList.getModel()).map(panel -> ((JLabel) panel.getComponent(0)).getText())
-                                    .filter(Objects::nonNull).anyMatch(path::equals);
-                            if (!exists) {
-                                defaultIncomingFoldersList.addItem(SettingsExcludeType.FOLDER, path);
-                            }
-                        }
+                        MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), Messages.getString("PreferenceDialog.SelectFolder"))
+                                .map(File::getAbsolutePath).ifPresent(path -> {
+                                    if (defaultIncomingFoldersList.getModel().getSize() == 0) {
+                                        defaultIncomingFoldersList.addItem(SettingsExcludeType.FOLDER, path);
+                                    } else {
+                                        boolean exists = stream(defaultIncomingFoldersList.getModel())
+                                                .map(panel -> ((JLabel) panel.getComponent(0)).getText())
+                                                .filter(Objects::nonNull).anyMatch(path::equals);
+                                        if (!exists) {
+                                            defaultIncomingFoldersList.addItem(SettingsExcludeType.FOLDER, path);
+                                        }
+                                    }
+                                });
                     });
                     pnlGeneral.add(btnAddFolder, "split");
 
@@ -396,22 +399,23 @@ public class PreferenceDialog extends MultiSubDialog {
                 {
                     JButton btnBrowseLocalSources = new JButton(Messages.getString("PreferenceDialog.AddFolder"));
                     btnBrowseLocalSources.addActionListener(arg0 -> {
-                        File path = MemoryFolderChooser.getInstance().selectDirectory(getContentPane(),
-                                Messages.getString("PreferenceDialog.SelectFolder"));
-                        if (localSourcesFoldersList.getModel().getSize() == 0) {
-                            localSourcesFoldersList.addItem(SettingsExcludeType.FOLDER, path.getAbsolutePath());
-                        } else {
-                            boolean exists = false;
-                            for (int i = 0; i < localSourcesFoldersList.getModel().getSize(); i++) {
-                                if (localSourcesFoldersList.getDescription(i) != null
-                                        && localSourcesFoldersList.getDescription(i).equals(path.getAbsolutePath())) {
-                                    exists = true;
-                                }
-                            }
-                            if (!exists) {
-                                localSourcesFoldersList.addItem(SettingsExcludeType.FOLDER, path.getAbsolutePath());
-                            }
-                        }
+                        MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), Messages.getString("PreferenceDialog.SelectFolder"))
+                                .map(File::getAbsolutePath).ifPresent(path -> {
+                                    if (localSourcesFoldersList.getModel().getSize() == 0) {
+                                        localSourcesFoldersList.addItem(SettingsExcludeType.FOLDER, path);
+                                    } else {
+                                        boolean exists = false;
+                                        for (int i = 0; i < localSourcesFoldersList.getModel().getSize(); i++) {
+                                            if (localSourcesFoldersList.getDescription(i) != null
+                                                    && localSourcesFoldersList.getDescription(i).equals(path)) {
+                                                exists = true;
+                                            }
+                                        }
+                                        if (!exists) {
+                                            localSourcesFoldersList.addItem(SettingsExcludeType.FOLDER, path);
+                                        }
+                                    }
+                                });
                     });
                     pnlLocalSourcesSettings.add(btnBrowseLocalSources, "cell 1 1,alignx left,aligny top");
                 }
@@ -540,12 +544,13 @@ public class PreferenceDialog extends MultiSubDialog {
 
     private void addExcludeItem(SettingsExcludeType seType) {
         if (seType == SettingsExcludeType.FOLDER) {
-            File path = MemoryFolderChooser.getInstance().selectDirectory(getContentPane(),
-                    Messages.getString("PreferenceDialog.SelectExcludeFolder"));
-            excludeList.addItem(seType, path.getAbsolutePath());
+            MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), Messages.getString("PreferenceDialog.SelectExcludeFolder"))
+                    .map(File::getAbsolutePath).ifPresent(path -> excludeList.addItem(seType, path));
         } else if (seType == SettingsExcludeType.REGEX) {
             String regex = JOptionPane.showInputDialog(Messages.getString("PreferenceDialog.EnterRegex"));
-            excludeList.addItem(seType, regex);
+            if (StringUtils.isNotBlank(regex)) {
+                excludeList.addItem(seType, regex);
+            }
         }
     }
 

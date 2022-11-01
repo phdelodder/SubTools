@@ -258,21 +258,17 @@ public abstract class VideoLibraryPanel extends JPanel {
     private void createBackupPanel() {
         pnlBackup = new SubtitleBackupPanel();
 
-        pnlBackup.setBrowseBackupAction(arg0 -> {
-            File path = MemoryFolderChooser.getInstance().selectDirectory(VideoLibraryPanel.this.getRootPane(),
-                    Messages.getString("PreferenceDialog.SubtitleBackupFolder"));
-            pnlBackup.setBackupSubtitlePath(path.getAbsolutePath());
-        });
+        pnlBackup.setBrowseBackupAction(arg0 -> MemoryFolderChooser.getInstance()
+                .selectDirectory(VideoLibraryPanel.this.getRootPane(), Messages.getString("PreferenceDialog.SubtitleBackupFolder"))
+                .map(File::getAbsolutePath).ifPresent(pnlBackup::setBackupSubtitlePath));
     }
 
     private void createStructureFolderPanel() {
         pnlStructureFolder = new StructureFolderPanel();
 
-        pnlStructureFolder.setBrowseAction(arg0 -> {
-            File path = MemoryFolderChooser.getInstance().selectDirectory(VideoLibraryPanel.this.getRootPane(),
-                    Messages.getString("PreferenceDialog.LibraryFolder"));
-            pnlStructureFolder.setLibraryFolder(path.getAbsolutePath());
-        });
+        pnlStructureFolder.setBrowseAction(arg0 -> MemoryFolderChooser.getInstance()
+                .selectDirectory(VideoLibraryPanel.this.getRootPane(), Messages.getString("PreferenceDialog.LibraryFolder"))
+                .map(File::getAbsolutePath).ifPresent(pnlStructureFolder::setLibraryFolder));
 
         pnlStructureFolder.setBuildStructureAction(arg0 -> {
             final StructureBuilderDialog sDialog = new StructureBuilderDialog(null, Messages.getString("PreferenceDialog.StructureBuilderTitle"),

@@ -84,11 +84,9 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
             }
             {
                 JButton btnBrowser = new JButton(Messages.getString("App.Browse"));
-                btnBrowser.addActionListener(arg0 -> {
-                    File path = MemoryFolderChooser.getInstance().selectDirectory(getContentPane(),
-                            Messages.getString("RenameDialog.SelectFolderForRenameReplace"));
-                    txtRenameLocation.setText(path.getAbsolutePath());
-                });
+                btnBrowser.addActionListener(arg0 -> MemoryFolderChooser.getInstance()
+                        .selectDirectory(getContentPane(), Messages.getString("RenameDialog.SelectFolderForRenameReplace"))
+                        .map(File::getAbsolutePath).ifPresent(txtRenameLocation::setText));
                 {
                     txtRenameLocation = new JTextField();
                     GridBagConstraints gbc_txtRenameLocation = new GridBagConstraints();

@@ -508,39 +508,42 @@ public class GUI extends JFrame implements PropertyChangeListener {
     }
 
     private void downloadText() {
-        CustomTable subtitleTable = pnlSearchText.getResultPanel().getTable();
-        final VideoTableModel model = (VideoTableModel) subtitleTable.getModel();
-        File path = MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), Messages.getString("MainWindow.SelectFolder"));
+        MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), Messages.getString("MainWindow.SelectFolder"))
+                .ifPresent(path -> {
+                    CustomTable subtitleTable = pnlSearchText.getResultPanel().getTable();
+                    final VideoTableModel model = (VideoTableModel) subtitleTable.getModel();
+                    for (int i = 0; i < model.getRowCount(); i++) {
+                        if ((Boolean) model.getValueAt(i, subtitleTable.getColumnIdByName(SearchColumnName.SELECT))) {
+                            final Subtitle subtitle = (Subtitle) model.getValueAt(i, subtitleTable.getColumnIdByName(SearchColumnName.OBJECT));
+                            String filename = "";
+                            if (!subtitle.getFileName().endsWith(".srt")) {
+                                filename = subtitle.getFileName() + ".srt";
+                            }
+                            if (OsCheck.getOperatingSystemType() == OSType.Windows) {
+                                filename = StringUtil.removeIllegalWindowsChars(filename);
+                            }
 
-        for (int i = 0; i < model.getRowCount(); i++) {
-            if ((Boolean) model.getValueAt(i, subtitleTable.getColumnIdByName(SearchColumnName.SELECT))) {
-                final Subtitle subtitle = (Subtitle) model.getValueAt(i, subtitleTable.getColumnIdByName(SearchColumnName.OBJECT));
-                String filename = "";
-                if (!subtitle.getFileName().endsWith(".srt")) {
-                    filename = subtitle.getFileName() + ".srt";
-                }
-                if (OsCheck.getOperatingSystemType() == OSType.Windows) {
-                    filename = StringUtil.removeIllegalWindowsChars(filename);
-                }
-
-                try {
-                    if (subtitle.getSourceLocation() == Subtitle.SourceLocation.FILE) {
-                        Files.copy(subtitle.getFile(), new File(path, subtitle.getFileName()));
-                    } else {
-                        Manager manager = (Manager) this.app.make("Manager");
-                        String url =
-                                subtitle.getSourceLocation() == Subtitle.SourceLocation.URL ? subtitle.getUrl() : subtitle.getUrlSupplier().get();
-                        manager.store(url, new File(path, filename));
+                            try {
+                                if (subtitle.getSourceLocation() == Subtitle.SourceLocation.FILE) {
+                                    Files.copy(subtitle.getFile(), new File(path, subtitle.getFileName()));
+                                } else {
+                                    Manager manager = (Manager) this.app.make("Manager");
+                                    String url =
+                                            subtitle.getSourceLocation() == Subtitle.SourceLocation.URL ? subtitle.getUrl()
+                                                    : subtitle.getUrlSupplier().get();
+                                    manager.store(url, new File(path, filename));
+                                }
+                            } catch (IOException | ManagerException e) {
+                                LOGGER.error("downloadText", e);
+                            } catch (SubtitlesProviderException e) {
+                                LOGGER.error("Error while getting url for [%s] for subtitle provider [%s] (%s)".formatted(filename,
+                                        e.getSubtitleProvider(), e.getMessage()), e);
+                                throw new RuntimeException(e);
+                            }
+                        }
                     }
-                } catch (IOException | ManagerException e) {
-                    LOGGER.error("downloadText", e);
-                } catch (SubtitlesProviderException e) {
-                    LOGGER.error("Error while getting url for [%s] for subtitle provider [%s] (%s)".formatted(filename, e.getSubtitleProvider(),
-                            e.getMessage()), e);
-                    throw new RuntimeException(e);
-                }
-            }
-        }
+                });
+
     }
 
     protected GUI getThis() {
@@ -584,8 +587,8 @@ public class GUI extends JFrame implements PropertyChangeListener {
     }
 
     private void selectIncomingFolder() {
-        File path = MemoryFolderChooser.getInstance().selectDirectory(getThis(), Messages.getString("MainWindow.SelectFolder"));
-        pnlSearchFileInput.setIncomingPath(path.getAbsolutePath());
+        MemoryFolderChooser.getInstance().selectDirectory(getThis(), Messages.getString("MainWindow.SelectFolder"))
+                .map(File::getAbsolutePath).ifPresent(pnlSearchFileInput::setIncomingPath);
     }
 
     @Override
