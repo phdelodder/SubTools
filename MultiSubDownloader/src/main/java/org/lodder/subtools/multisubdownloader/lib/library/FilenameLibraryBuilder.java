@@ -26,16 +26,16 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
 
             filename = getLibrarySettings().getLibraryFilenameStructure();
             // order is important!
-            filename = filename.replaceAll("%SHOW NAME%", show);
+            filename = filename.replace("%SHOW NAME%", show);
             filename = replaceFormatedEpisodeNumber(filename, "%EEX%", tvRelease.getEpisodeNumbers(), true);
             filename = replaceFormatedEpisodeNumber(filename, "%EX%", tvRelease.getEpisodeNumbers(), false);
-            filename = filename.replaceAll("%SS%", formatedNumber(tvRelease.getSeason(), true));
-            filename = filename.replaceAll("%S%", formatedNumber(tvRelease.getSeason(), false));
-            filename = filename.replaceAll("%EE%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), true));
-            filename = filename.replaceAll("%E%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), false));
-            filename = filename.replaceAll("%TITLE%", tvRelease.getTitle());
-            filename = filename.replaceAll("%QUALITY%", release.getQuality());
-            filename = filename.replaceAll("%DESCRIPTION%", release.getDescription());
+            filename = filename.replace("%SS%", formatedNumber(tvRelease.getSeason(), true));
+            filename = filename.replace("%S%", formatedNumber(tvRelease.getSeason(), false));
+            filename = filename.replace("%EE%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), true));
+            filename = filename.replace("%E%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), false));
+            filename = filename.replace("%TITLE%", tvRelease.getTitle());
+            filename = filename.replace("%QUALITY%", release.getQuality());
+            filename = filename.replace("%DESCRIPTION%", release.getDescription());
 
             filename += "." + release.getExtension();
         } else {
@@ -45,7 +45,7 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
             filename = StringUtil.removeIllegalWindowsChars(filename);
         }
         if (getLibrarySettings().isLibraryFilenameReplaceSpace()) {
-            filename = filename.replaceAll(" ", getLibrarySettings().getLibraryFilenameReplacingSpaceSign());
+            filename = filename.replace(" ", getLibrarySettings().getLibraryFilenameReplacingSpaceSign());
         }
         return filename;
     }
@@ -90,7 +90,7 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
             filename = StringUtil.removeIllegalWindowsChars(filename);
         }
         if (getLibrarySettings().isLibraryFilenameReplaceSpace()) {
-            filename = filename.replaceAll(" ", getLibrarySettings().getLibraryFilenameReplacingSpaceSign());
+            filename = filename.replace(" ", getLibrarySettings().getLibraryFilenameReplacingSpaceSign());
         }
         return filename;
     }

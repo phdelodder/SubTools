@@ -93,7 +93,7 @@ public enum SettingValue {
     EPISODE_LIBRARY_FOLDER(null, File::getAbsolutePath, File::new, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFolder, LibrarySettings::setLibraryFolder),
     EPISODE_LIBRARY_FOLDER_STRUCTURE("%SHOW NAME%.S%SS%E%EE%.%TITLE%", sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFolderStructure, LibrarySettings::setLibraryFolderStructure),
     EPISODE_LIBRARY_REMOVE_EMPTY_FOLDERS(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryRemoveEmptyFolders, LibrarySettings::setLibraryRemoveEmptyFolders),
-    EPISODE_LIBRARY_FILENAME_STRUCTURE("%SHOW NAME%%SEPARATOR%Season %S%", sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFilenameStructure, LibrarySettings::setLibraryFilenameStructure),
+    EPISODE_LIBRARY_FILENAME_STRUCTURE("%SHOW NAME%%SEPARATOR%%Season %S%", sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFilenameStructure, LibrarySettings::setLibraryFilenameStructure),
     EPISODE_LIBRARY_REPLACE_SPACE(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryFilenameReplaceSpace, LibrarySettings::setLibraryFilenameReplaceSpace),
     EPISODE_LIBRARY_REPLACING_SIGN("", sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFilenameReplacingSpaceSign, LibrarySettings::setLibraryFilenameReplacingSpaceSign),
     EPISODE_LIBRARY_FOLDER_REPLACE_SPACE(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryFolderReplaceSpace, LibrarySettings::setLibraryFolderReplaceSpace),

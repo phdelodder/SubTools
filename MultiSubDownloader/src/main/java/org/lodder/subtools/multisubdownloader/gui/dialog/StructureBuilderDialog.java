@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -43,20 +42,22 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
     private JTextField txtStructure;
     private final VideoType videoType;
     private final LibrarySettings librarySettings;
-    private final StrucutureType structureType;
+    private final StructureType structureType;
     private JLabel lblPreview;
     private TvRelease tvRelease;
     private MovieRelease movieRelease;
     private String oldStructure;
     private final Manager manager;
     private final UserInteractionHandler userInteractionHandler;
+    private int tagRow = 0;
+    private int tagCol = 0;
 
-    public enum StrucutureType {
+    public enum StructureType {
         FILE, FOLDER
     }
 
     public StructureBuilderDialog(JFrame frame, String title, boolean modal, VideoType videoType,
-            StrucutureType structureType, LibrarySettings librarySettings, Manager manager, UserInteractionHandler userInteractionHandler) {
+            StructureType structureType, LibrarySettings librarySettings, Manager manager, UserInteractionHandler userInteractionHandler) {
         super(frame, title, modal);
         this.videoType = videoType;
         this.librarySettings = librarySettings;
@@ -100,6 +101,9 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
             // add movie tags
             buildLabelTable(MOVIE_TAGS, 5);
         }
+        if (structureType == StructureType.FOLDER) {
+            buildLabelTable(FOLDER_TAGS, 5);
+        }
 
         contentPanel.add(tagPanel, "cell 0 0 2 1,grow");
         JLabel lblNewLabel = new JLabel(Messages.getString("StructureBuilderDialog.Structure"));
@@ -134,21 +138,20 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
 
     }
 
-    // Needs miglayout
     private void buildLabelTable(Map<String, String> map, int maxRows) {
-        int row = 0;
-        int col = 0;
-        for (Entry<String, String> entry : map.entrySet()) {
-            JLabel label = new JLabel(entry.getKey());
-            label.addMouseListener(new InsertTag());
-            label.setToolTipText(entry.getValue());
-            row++;
-            if (row > maxRows) {
-                col++;
-                row = 1;
-            }
-            tagPanel.add(label, "cell " + col + " " + row);
+        map.forEach(this::addTag);
+    }
+
+    private void addTag(String tag, String tooltipText) {
+        JLabel label = new JLabel(tag);
+        label.addMouseListener(new InsertTag());
+        label.setToolTipText(tooltipText);
+        tagRow++;
+        if (tagRow > 5) {
+            tagCol++;
+            tagRow = 1;
         }
+        tagPanel.add(label, "cell " + tagCol + " " + tagRow);
     }
 
     public String showDialog(String structure) {
@@ -270,7 +273,7 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
             put("%S%", Messages.getString("StructureBuilderDialog.NumberOfSeasonsWithoutLeading"));
             put("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfRelease"));
             put("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.Description"));
-            put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
+            // put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
         }
     });
 
@@ -281,6 +284,13 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
             put("%YEAR%", Messages.getString("StructureBuilderDialog.MovieYear"));
             put("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfMovie"));
             put("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.MovieDescription"));
+            // put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
+        }
+    });
+
+    private static final Map<String, String> FOLDER_TAGS = Collections.unmodifiableMap(new HashMap<>() {
+        private static final long serialVersionUID = 5943868685951628245L;
+        {
             put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
         }
     });

@@ -253,8 +253,8 @@ public class SettingsControl {
 
     private static String migrateLibraryStructureV0(String oldStructure) {
         return switch (oldStructure) {
-            case "Show\\Season" -> "%SHOW NAME%%SEPARATOR%Season %S%";
-            case "Show\\Series" -> "%SHOW NAME%%SEPARATOR%Series %S%";
+            case "Show\\Season" -> "%SHOW NAME%%SEPARATOR%%Season %S%";
+            case "Show\\Series" -> "%SHOW NAME%%SEPARATOR%%Series %S%";
             case "\\" -> "%SEPARATOR%";
             case "Show S00E00.extension" -> "%SHOW NAME% S%SS%E%EE%";
             case "Show S00E00 Title.extension" -> "%SHOW NAME% S%SS%E%EE% %TITLE%";

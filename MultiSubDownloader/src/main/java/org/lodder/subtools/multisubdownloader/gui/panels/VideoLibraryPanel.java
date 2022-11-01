@@ -272,7 +272,7 @@ public abstract class VideoLibraryPanel extends JPanel {
 
         pnlStructureFolder.setBuildStructureAction(arg0 -> {
             final StructureBuilderDialog sDialog = new StructureBuilderDialog(null, Messages.getString("PreferenceDialog.StructureBuilderTitle"),
-                    true, videoType, StructureBuilderDialog.StrucutureType.FOLDER, getLibrarySettings(), manager, userInteractionHandler);
+                    true, videoType, StructureBuilderDialog.StructureType.FOLDER, getLibrarySettings(), manager, userInteractionHandler);
             String value = sDialog.showDialog(pnlStructureFolder.getStructure().getText());
             if (!"".equals(value)) {
                 pnlStructureFolder.getStructure().setText(value);
@@ -285,7 +285,7 @@ public abstract class VideoLibraryPanel extends JPanel {
 
         pnlStructureFile.setBuildStructureAction(arg0 -> {
             final StructureBuilderDialog sDialog = new StructureBuilderDialog(null, Messages.getString("PreferenceDialog.StructureBuilderTitle"),
-                    true, videoType, StructureBuilderDialog.StrucutureType.FILE, getLibrarySettings(), manager, userInteractionHandler);
+                    true, videoType, StructureBuilderDialog.StructureType.FILE, getLibrarySettings(), manager, userInteractionHandler);
             String value = sDialog.showDialog(pnlStructureFile.getFileStructure());
             if (!value.isEmpty()) {
                 pnlStructureFile.setFileStructure(value);
