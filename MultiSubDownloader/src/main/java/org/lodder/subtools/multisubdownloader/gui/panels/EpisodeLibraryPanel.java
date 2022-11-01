@@ -13,12 +13,4 @@ public class EpisodeLibraryPanel extends VideoLibraryPanel {
         super(libSettings, VideoType.EPISODE, manager, renameMode, userInteractionHandler);
         repaint();
     }
-
-    @Override
-    protected void initializeEmptyValues() {
-        /** Default values for new setup **/
-        pnlStructureFile.setFileStructure("%SHOW NAME%.S%SS%E%EE%.%TITLE%");
-        pnlStructureFolder.getStructure().setText("%SHOW NAME%%SEPARATOR%Season %S%");
-    }
-
 }

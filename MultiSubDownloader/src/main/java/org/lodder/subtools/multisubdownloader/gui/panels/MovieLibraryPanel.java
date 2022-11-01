@@ -13,12 +13,4 @@ public class MovieLibraryPanel extends VideoLibraryPanel {
         super(libSettings, VideoType.MOVIE, manager, renameMode, userInteractionHandler);
         repaint();
     }
-
-    @Override
-    protected void initializeEmptyValues() {
-        /** Default values for new setup **/
-        pnlStructureFile.setFileStructure("");
-        pnlStructureFolder.getStructure().setText("%MOVIE TITLE% (%YEAR%)");
-    }
-
 }

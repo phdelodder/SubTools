@@ -161,25 +161,25 @@ public class SettingsControl {
             EXCLUDE_ITEM.store(this, preferences);
         }
 
-        EPISODE_LIBRARY_STRUCTURE.load(this, preferences);
+        EPISODE_LIBRARY_FOLDER_STRUCTURE.load(this, preferences);
         settings.getEpisodeLibrarySettings()
                 .setLibraryFolderStructure(migrateLibraryStructureV0(settings.getEpisodeLibrarySettings().getLibraryFolderStructure()));
-        EPISODE_LIBRARY_STRUCTURE.store(this, preferences);
+        EPISODE_LIBRARY_FOLDER_STRUCTURE.store(this, preferences);
 
-        EPISODE_LIBRARY_FILENAME.load(this, preferences);
+        EPISODE_LIBRARY_FILENAME_STRUCTURE.load(this, preferences);
         settings.getEpisodeLibrarySettings()
                 .setLibraryFilenameStructure(migrateLibraryStructureV0(settings.getEpisodeLibrarySettings().getLibraryFilenameStructure()));
-        EPISODE_LIBRARY_FILENAME.store(this, preferences);
+        EPISODE_LIBRARY_FILENAME_STRUCTURE.store(this, preferences);
 
-        MOVIE_LIBRARY_STRUCTURE.load(this, preferences);
+        MOVIE_LIBRARY_FOLDER_STRUCTURE.load(this, preferences);
         settings.getEpisodeLibrarySettings()
                 .setLibraryFolderStructure(migrateLibraryStructureV0(settings.getEpisodeLibrarySettings().getLibraryFolderStructure()));
-        MOVIE_LIBRARY_STRUCTURE.store(this, preferences);
+        MOVIE_LIBRARY_FOLDER_STRUCTURE.store(this, preferences);
 
-        MOVIE_LIBRARY_FILENAME.load(this, preferences);
+        MOVIE_LIBRARY_FILENAME_STRUCTURE.load(this, preferences);
         settings.getEpisodeLibrarySettings()
                 .setLibraryFilenameStructure(migrateLibraryStructureV0(settings.getEpisodeLibrarySettings().getLibraryFilenameStructure()));
-        MOVIE_LIBRARY_FILENAME.store(this, preferences);
+        MOVIE_LIBRARY_FILENAME_STRUCTURE.store(this, preferences);
 
         try {
             Arrays.stream(preferences.keys()).forEach(key -> {

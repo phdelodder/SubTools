@@ -94,11 +94,11 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
                 "cell 0 0 2 1,alignx left,aligny top");
         if (videoType == VideoType.EPISODE) {
             // add tv show tags
-            buildLabelTable(EPISODE_TAGS, 4);
+            buildLabelTable(EPISODE_TAGS, 5);
 
         } else if (videoType == VideoType.MOVIE) {
             // add movie tags
-            buildLabelTable(MOVIE_TAGS, 4);
+            buildLabelTable(MOVIE_TAGS, 5);
         }
 
         contentPanel.add(tagPanel, "cell 0 0 2 1,grow");
@@ -257,46 +257,33 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
 
     }
 
-    private static final Map<String, String> EPISODE_TAGS = Collections
-            .unmodifiableMap(new HashMap<String, String>() {
-                /**
-                         *
-                         */
-                private static final long serialVersionUID = 3313041588123263612L;
+    private static final Map<String, String> EPISODE_TAGS = Collections.unmodifiableMap(new HashMap<>() {
+        private static final long serialVersionUID = 3313041588123263612L;
+        {
+            put("%SHOW NAME%", Messages.getString("StructureBuilderDialog.NameTvShow"));
+            put("%TITLE%", Messages.getString("StructureBuilderDialog.EpisodeTitle"));
+            put("%EE%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZero"));
+            put("%EEX%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZeroForMultipe"));
+            put("%E%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeWithoutLeadingZero"));
+            put("%EX%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZeroMultiple"));
+            put("%SS%", Messages.getString("StructureBuilderDialog.NumberOfSeasonLeading"));
+            put("%S%", Messages.getString("StructureBuilderDialog.NumberOfSeasonsWithoutLeading"));
+            put("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfRelease"));
+            put("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.Description"));
+            put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
+        }
+    });
 
-                {
-                    put("%SHOW NAME%", Messages.getString("StructureBuilderDialog.NameTvShow"));
-                    put("%TITLE%", Messages.getString("StructureBuilderDialog.EpisodeTitle"));
-                    put("%EE%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZero"));
-                    put("%EEX%",
-                            Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZeroForMultipe"));
-                    put("%E%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeWithoutLeadingZero"));
-                    put("%EX%",
-                            Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZeroMultiple"));
-                    put("%SS%", Messages.getString("StructureBuilderDialog.NumberOfSeasonLeading"));
-                    put("%S%", Messages.getString("StructureBuilderDialog.NumberOfSeasonsWithoutLeading"));
-                    put("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfRelease"));
-                    put("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.Description"));
-                    put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
-                }
-            });
-
-    private static final Map<String, String> MOVIE_TAGS = Collections
-            .unmodifiableMap(new HashMap<String, String>() {
-                /**
-                         *
-                         */
-                private static final long serialVersionUID = 5943868685951628245L;
-
-                {
-                    put("%MOVIE NAME%", Messages.getString("StructureBuilderDialog.MovieName"));
-                    put("%YEAR%", Messages.getString("StructureBuilderDialog.MovieYear"));
-                    put("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfMovie"));
-                    put("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.MovieDescription"));
-                    put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
-
-                }
-            });
+    private static final Map<String, String> MOVIE_TAGS = Collections.unmodifiableMap(new HashMap<>() {
+        private static final long serialVersionUID = 5943868685951628245L;
+        {
+            put("%MOVIE TITLE%", Messages.getString("StructureBuilderDialog.MovieName"));
+            put("%YEAR%", Messages.getString("StructureBuilderDialog.MovieYear"));
+            put("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfMovie"));
+            put("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.MovieDescription"));
+            put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
+        }
+    });
     private JPanel tagPanel;
 
 }

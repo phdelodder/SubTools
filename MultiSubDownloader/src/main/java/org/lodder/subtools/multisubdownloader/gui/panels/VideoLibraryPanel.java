@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
+import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.dialog.StructureBuilderDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
@@ -148,7 +149,8 @@ public abstract class VideoLibraryPanel extends JPanel {
 
         if (!renameMode) {
             pnlBackup.setBackupSubtitleSelected(libSettings.isLibraryBackupSubtitle());
-            pnlBackup.setBackupSubtitlePath(libSettings.getLibraryBackupSubtitlePath().getAbsolutePath());
+            pnlBackup.setBackupSubtitlePath(
+                    libSettings.getLibraryBackupSubtitlePath() == null ? null : libSettings.getLibraryBackupSubtitlePath().getAbsolutePath());
             pnlBackup.setBackupUseWebsiteFilenameSelected(libSettings.isLibraryBackupUseWebsiteFileName());
         }
         this.cbxLibraryAction.setSelectedItem(libSettings.getLibraryAction());
@@ -157,7 +159,7 @@ public abstract class VideoLibraryPanel extends JPanel {
         this.cbxLibraryOtherFileAction.setSelectedItem(libSettings.getLibraryOtherFileAction());
 
         if (libSettings.getLibraryFolder() != null) {
-            pnlStructureFolder.setLibraryFolder(libSettings.getLibraryFolder().getAbsolutePath());
+            pnlStructureFolder.setLibraryFolder(libSettings.getLibraryFolder() == null ? null : libSettings.getLibraryFolder().getAbsolutePath());
         }
         pnlStructureFolder.getStructure().setText(libSettings.getLibraryFolderStructure());
         pnlStructureFolder.setRemoveEmptyFolderSelected(libSettings.isLibraryRemoveEmptyFolders());
@@ -171,11 +173,6 @@ public abstract class VideoLibraryPanel extends JPanel {
         pnlStructureFile.getTxtDefaultEnText().setText(libSettings.getDefaultEnText());
         pnlStructureFile.getTxtDefaultNlText().setText(libSettings.getDefaultNlText());
 
-        if (pnlStructureFolder.getLibraryFolder().isEmpty()
-                && pnlStructureFile.getFileStructure().isEmpty()
-                && pnlStructureFolder.getStructure().getText().isEmpty()) {
-            initializeEmptyValues();
-        }
         checkEnableStatusPanel();
         checkPosibleOtherFileActions();
     }
@@ -183,7 +180,8 @@ public abstract class VideoLibraryPanel extends JPanel {
     public LibrarySettings getLibrarySettings() {
         if (!renameMode) {
             this.libSettings.setLibraryBackupSubtitle(pnlBackup.isBackupSubtitleSelected());
-            this.libSettings.setLibraryBackupSubtitlePath(new File(pnlBackup.getBackupSubtitlePath()));
+            this.libSettings.setLibraryBackupSubtitlePath(
+                    StringUtils.isBlank(pnlBackup.getBackupSubtitlePath()) ? null : new File(pnlBackup.getBackupSubtitlePath()));
             this.libSettings.setLibraryBackupUseWebsiteFileName(pnlBackup.isBackupUseWebsiteFilenameSelected());
         }
         this.libSettings.setLibraryAction((LibraryActionType) this.cbxLibraryAction.getSelectedItem());
@@ -191,7 +189,8 @@ public abstract class VideoLibraryPanel extends JPanel {
         this.libSettings.setLibraryReplaceChars(this.chkReplaceWindowsChar.isSelected());
         this.libSettings.setLibraryOtherFileAction((LibraryOtherFileActionType) this.cbxLibraryOtherFileAction.getSelectedItem());
 
-        this.libSettings.setLibraryFolder(new File(pnlStructureFolder.getLibraryFolder()));
+        this.libSettings.setLibraryFolder(
+                StringUtils.isBlank(pnlStructureFolder.getLibraryFolder()) ? null : new File(pnlStructureFolder.getLibraryFolder()));
         this.libSettings.setLibraryFolderStructure(pnlStructureFolder.getStructure().getText());
         this.libSettings.setLibraryRemoveEmptyFolders(pnlStructureFolder.isRemoveEmptyFolderSelected());
 
@@ -210,8 +209,6 @@ public abstract class VideoLibraryPanel extends JPanel {
 
         return libSettings;
     }
-
-    protected abstract void initializeEmptyValues();
 
     private void initialize_ui() {
         setLayout(new MigLayout("", "[243.00,grow][grow]", "[][100px][][][][][125.00][]"));
