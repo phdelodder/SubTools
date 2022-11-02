@@ -189,7 +189,7 @@ public class PreferenceDialog extends MultiSubDialog {
                     btnAddExcludeFolder.addActionListener(arg0 -> addExcludeItem(SettingsExcludeType.FOLDER));
                     pnlGeneral.add(btnAddExcludeFolder, "split");
 
-                    JButton btnDeleteExcludeFoledr = new JButton(Messages.getString("PreferenceDialog.DeleteItem"));
+                    JButton btnDeleteExcludeFoledr = new JButton(Messages.getString("PreferenceDialog.DeleteFolder"));
                     btnDeleteExcludeFoledr.addActionListener(arg0 -> removeExcludeItem());
                     pnlGeneral.add(btnDeleteExcludeFoledr);
 
