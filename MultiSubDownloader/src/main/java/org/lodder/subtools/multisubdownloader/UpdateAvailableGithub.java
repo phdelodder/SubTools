@@ -12,7 +12,6 @@ import org.jsoup.nodes.Element;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.sublibrary.ConfigProperties;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.Manager.ValueBuilderIsPresentIntf;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,17 +27,15 @@ public class UpdateAvailableGithub {
     private final Manager manager;
 
     public boolean shouldCheckForNewUpdate(UpdateCheckPeriod updateCheckPeriod) {
-        ValueBuilderIsPresentIntf<Serializable> valueBuilder = manager.valueBuilder().cacheType(CacheType.DISK).key("LastUpdateCheck");
-        LocalDate latestUpdateCheck = valueBuilder.valueSupplier(() -> LocalDate.MIN).get();
+        LocalDate lastUpdateCheck = manager.valueBuilder().cacheType(CacheType.DISK).key("LastUpdateCheck").valueSupplier(() -> LocalDate.MIN).get();
         try {
             boolean shouldCheckForUpdate = switch (updateCheckPeriod) {
-                case DAILY -> DAYS.between(latestUpdateCheck, LocalDate.now()) > 0;
-                case WEEKLY -> DAYS.between(latestUpdateCheck, LocalDate.now()) > 6;
-                case MONTHLY -> DAYS.between(latestUpdateCheck, LocalDate.now()) > 30;
+                case DAILY -> DAYS.between(lastUpdateCheck, LocalDate.now()) > 0;
+                case WEEKLY -> DAYS.between(lastUpdateCheck, LocalDate.now()) > 6;
+                case MONTHLY -> DAYS.between(lastUpdateCheck, LocalDate.now()) > 30;
                 case MANUAL -> false;
                 default -> false;
             };
-            valueBuilder.value(LocalDate.now()).store();
             return shouldCheckForUpdate;
         } catch (Exception e) {
             LOGGER.error("checkProgram", e);
@@ -77,6 +74,7 @@ public class UpdateAvailableGithub {
                                 .cacheType(CacheType.NONE)
                                 .getAsJsoupDocument()
                                 .selectFirst(".Box-row a[href$='.jar']").attr("href");
+                        manager.valueBuilder().cacheType(CacheType.DISK).key("LastUpdateCheck").value(LocalDate.now()).store();
                         return Optional.of(new GitHubRelease(version, url));
                     } catch (Exception e) {
                         LOGGER.error(Messages.getString("LoggingPanel.UpdateCheckFailed"));
