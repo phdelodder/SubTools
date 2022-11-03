@@ -20,7 +20,6 @@ import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesHasher;
 import org.lodder.subtools.sublibrary.Language;
-import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.Manager.ValueBuilderIsPresentIntf;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.ProviderSerieId;
@@ -41,8 +40,6 @@ import org.slf4j.LoggerFactory;
  */
 public interface Adapter<T, S extends ProviderSerieId, X extends Exception> extends SubtitleProvider {
     Logger LOGGER = LoggerFactory.getLogger(Adapter.class);
-
-    Manager getManager();
 
     default UserInteractionSettingsIntf getUserInteractionSettings() {
         return getUserInteractionHandler().getSettings();
@@ -110,8 +107,6 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
     Set<Subtitle> convertToSubtitles(TvRelease tvRelease, Collection<T> subtitles, Language language);
 
     List<S> getSortedProviderSerieIds(String serieName, int season) throws X;
-
-    String getProviderName();
 
     default Optional<SerieMapping> getProviderSerieId(String serieName, String displayName, int season, OptionalInt tvdbIdOptional) throws X {
         Supplier<ValueBuilderIsPresentIntf<Serializable>> tvdbIdValueBuilder =

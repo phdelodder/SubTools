@@ -139,6 +139,7 @@ public class JOpenSubAdapter
         String originalName = tvRelease.getOriginalName().replaceAll("[^A-Za-z]", "").toLowerCase();
         return subtitles.stream().map(org.opensubtitles.model.Subtitle::getAttributes)
                 .flatMap(attributes -> attributes.getFiles().stream()
+                        .filter(file -> file.getFileName() != null)
                         .filter(file -> {
                             String subFileName = file.getFileName().replaceAll("[^A-Za-z]", "").toLowerCase();
                             return subFileName.contains(name) || (StringUtils.isNotBlank(originalName) && subFileName.contains(originalName));

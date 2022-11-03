@@ -34,8 +34,6 @@ public class SerializableDiskCache<K extends Serializable, V extends Serializabl
 
         DiskCacheBuilderOtherIntf<K, V> timeToLive(Long timeToLive);
 
-        DiskCacheBuilderOtherIntf<K, V> timerInterval(Long timerInterval);
-
         DiskCacheBuilderOtherIntf<K, V> maxItems(Integer maxItems);
 
         DiskCacheBuilderPasswordIntf<K, V> username(String username);
@@ -55,7 +53,6 @@ public class SerializableDiskCache<K extends Serializable, V extends Serializabl
         private Class<K> keyType;
         private Class<V> valueType;
         private Long timeToLive;
-        private Long timerInterval;
         private Integer maxItems;
         private String username;
         private String password;
@@ -77,13 +74,13 @@ public class SerializableDiskCache<K extends Serializable, V extends Serializabl
 
         @Override
         public SerializableDiskCache<K, V> build() {
-            return new SerializableDiskCache<>(keyType, valueType, timeToLive, timerInterval, maxItems, username, password, cacheName);
+            return new SerializableDiskCache<>(keyType, valueType, timeToLive, maxItems, username, password, cacheName);
         }
     }
 
-    private SerializableDiskCache(Class<K> keyType, Class<V> valueType, Long timeToLive, Long timerInterval, Integer maxItems, String username,
-            String password, String cacheName) {
-        super(timeToLive, timerInterval, maxItems, username, password, cacheName);
+    private SerializableDiskCache(Class<K> keyType, Class<V> valueType, Long timeToLive, Integer maxItems, String username, String password,
+            String cacheName) {
+        super(timeToLive, maxItems, username, password, cacheName);
         this.dbKeyType = keyType;
         this.dbValueType = valueType;
     }

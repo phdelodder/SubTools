@@ -27,6 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
+import org.lodder.subtools.sublibrary.cache.Cache;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
 import org.lodder.subtools.sublibrary.cache.InMemoryCache;
@@ -291,6 +292,56 @@ public class Manager {
                     return getContentWithoutCache(urlString, userAgent);
                 }
                 throw new ManagerException(e);
+            }
+        }
+    }
+
+    // =========== \\
+    // CLEAR CACHE \\
+    // =========== \\
+
+    public ClearExpiredCacheBuilderCacheTypeIntf clearExpiredCacheBuilder() {
+        return new ClearExpiredCacheBuilder<>(inMemoryCache, diskCache);
+    }
+
+    public interface ClearExpiredCacheBuilderCacheTypeIntf {
+
+        ClearExpiredCacheBuilderKeyFilterIntf cacheType(CacheType cacheType);
+    }
+
+    public interface ClearExpiredCacheBuilderKeyFilterIntf extends ClearExpiredCacheBuilderClearIntf {
+
+        <K> ClearExpiredCacheBuilderClearIntf<K> keyFilter(Predicate<K> keyFilter);
+    }
+
+    public interface ClearExpiredCacheBuilderClearIntf<K> {
+
+        void clear();
+    }
+
+    @Setter
+    @Accessors(chain = true, fluent = true)
+    @RequiredArgsConstructor
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static class ClearExpiredCacheBuilder<K>
+            implements ClearExpiredCacheBuilderCacheTypeIntf, ClearExpiredCacheBuilderKeyFilterIntf, ClearExpiredCacheBuilderClearIntf {
+        private final InMemoryCache inMemoryCache;
+        private final DiskCache diskCache;
+        private CacheType cacheType;
+        private Predicate<K> keyFilter;
+
+        @Override
+        public <T> ClearExpiredCacheBuilder<T> keyFilter(Predicate<T> keyFilter) {
+            this.keyFilter = (Predicate<K>) keyFilter;
+            return (ClearExpiredCacheBuilder<T>) this;
+        }
+
+        @Override
+        public void clear() {
+            switch (cacheType) {
+                case MEMORY -> inMemoryCache.cleanup(keyFilter);
+                case DISK -> diskCache.cleanup(keyFilter);
+                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             }
         }
     }
@@ -593,7 +644,7 @@ public class Manager {
             };
         }
 
-        private T getOrPutValue(InMemoryCache cache) throws X {
+        private T getOrPutValue(Cache cache) throws X {
             if (cache.contains(key)) {
                 try {
                     return (T) cache.get(key).get();
@@ -628,7 +679,7 @@ public class Manager {
             };
         }
 
-        private C getOrPutCollection(InMemoryCache cache) throws X {
+        private C getOrPutCollection(Cache cache) throws X {
             if (cache.contains(key)) {
                 try {
                     return (C) cache.get(key).get();
@@ -663,7 +714,7 @@ public class Manager {
             };
         }
 
-        private Optional<T> getOrPutOptional(InMemoryCache cache) throws X {
+        private Optional<T> getOrPutOptional(Cache cache) throws X {
             boolean containsKey = cache.contains(key);
             if (!containsKey && storeTempNullValue) {
                 timeToLive(calculateTtl()).store();
@@ -697,7 +748,7 @@ public class Manager {
             };
         }
 
-        private OptionalInt getOrPutOptionalInt(InMemoryCache cache) throws X {
+        private OptionalInt getOrPutOptionalInt(Cache cache) throws X {
             boolean containsKey = cache.contains(key);
             if (!containsKey && storeTempNullValue) {
                 timeToLive(calculateTtl()).store();
@@ -779,7 +830,7 @@ public class Manager {
             };
         }
 
-        private OptionalLong getTemporaryTimeToLive(InMemoryCache cache) {
+        private OptionalLong getTemporaryTimeToLive(Cache cache) {
             return cache.getTemporaryTimeToLive(key).map(v -> TimeUnit.SECONDS.convert(v, TimeUnit.MILLISECONDS));
         }
 

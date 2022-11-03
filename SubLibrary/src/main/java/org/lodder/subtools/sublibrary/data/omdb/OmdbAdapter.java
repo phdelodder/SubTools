@@ -28,9 +28,13 @@ public class OmdbAdapter {
             try {
                 return new OmdbApi(manager);
             } catch (Exception e) {
-                throw new SubtitlesProviderInitException("IMDB", e);
+                throw new SubtitlesProviderInitException(getProviderName(), e);
             }
         });
+    }
+
+    public String getProviderName() {
+        return "OMDB";
     }
 
     private OmdbApi getApi() {
@@ -41,12 +45,12 @@ public class OmdbAdapter {
         try {
             return getManager().valueBuilder()
                     .cacheType(CacheType.DISK)
-                    .key("OMDB-movieDetails-" + imdbId)
+                    .key("%S-movieDetails-".formatted(getProviderName(), imdbId))
                     .optionalSupplier(() -> getApi().getMovieDetails(imdbId))
                     .storeTempNullValue()
                     .getOptional();
         } catch (Exception e) {
-            LOGGER.error("API OMDB getMovieDetails for id [%s] (%s)".formatted(imdbId, e.getMessage()), e);
+            LOGGER.error("API %s getMovieDetails for id [%s] (%s)".formatted(getProviderName(), imdbId, e.getMessage()), e);
             return Optional.empty();
         }
     }

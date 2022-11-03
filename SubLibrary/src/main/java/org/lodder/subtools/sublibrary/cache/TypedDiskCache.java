@@ -38,8 +38,6 @@ public class TypedDiskCache<K, V> extends DiskCache<K, V> {
 
         DiskCacheBuilderOtherIntf<K, V> timeToLive(Long timeToLive);
 
-        DiskCacheBuilderOtherIntf<K, V> timerInterval(Long timerInterval);
-
         DiskCacheBuilderOtherIntf<K, V> maxItems(Integer maxItems);
 
         DiskCacheBuilderPasswordIntf<K, V> username(String username);
@@ -57,7 +55,6 @@ public class TypedDiskCache<K, V> extends DiskCache<K, V> {
             DiskCacheBuilderToObjectMapperValueIntf<K, V>, DiskCacheBuilderToStringMapperValueIntf<K>, DiskCacheBuilderToObjectMapperKeyIntf<K>,
             DiskCacheBuilderToStringMapperKeyIntf {
         private Long timeToLive;
-        private Long timerInterval;
         private Integer maxItems;
         private String username;
         private String password;
@@ -83,16 +80,15 @@ public class TypedDiskCache<K, V> extends DiskCache<K, V> {
 
         @Override
         public TypedDiskCache<K, V> build() {
-            return new TypedDiskCache<>(timeToLive, timerInterval, maxItems, username, password, toStringMapperKey, toObjectMapperKey,
-                    toStringMapperValue, toObjectMapperValue, cacheName);
+            return new TypedDiskCache<>(timeToLive, maxItems, username, password, toStringMapperKey, toObjectMapperKey, toStringMapperValue,
+                    toObjectMapperValue, cacheName);
         }
     }
 
-    private TypedDiskCache(Long timeToLive, Long timerInterval, Integer maxItems, String username, String password,
-            Function<K, String> toStringMapperKey,
+    private TypedDiskCache(Long timeToLive, Integer maxItems, String username, String password, Function<K, String> toStringMapperKey,
             Function<String, K> toObjectMapperKey, Function<V, String> toStringMapperValue, Function<String, V> toObjectMapperValue,
             String cacheName) {
-        super(timeToLive, timerInterval, maxItems, username, password, cacheName);
+        super(timeToLive, maxItems, username, password, cacheName);
         this.toStringMapperKey = toStringMapperKey;
         this.toObjectMapperKey = toObjectMapperKey;
         this.toStringMapperValue = toStringMapperValue;

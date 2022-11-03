@@ -60,4 +60,9 @@ class TemporaryCacheObject<T> implements CacheObject<T>, Serializable {
         }
         return Optional.empty();
     }
+
+    @Override
+    public long getAge() {
+        return getCreated();
+    }
 }

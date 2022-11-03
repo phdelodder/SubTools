@@ -41,27 +41,31 @@ public class ImdbAdapter {
             try {
                 return new ImdbApi(manager);
             } catch (Exception e) {
-                throw new SubtitlesProviderInitException("IMDB", e);
+                throw new SubtitlesProviderInitException(getProviderName(), e);
             }
         });
         this.imdbSearchIdApi = new LazySupplier<>(() -> {
             try {
                 return new ImdbSearchIdApi(manager);
             } catch (Exception e) {
-                throw new SubtitlesProviderInitException("IMDB", e);
+                throw new SubtitlesProviderInitException(getProviderName(), e);
             }
         });
+    }
+
+    public String getProviderName() {
+        return "IMDB";
     }
 
     public Optional<ImdbDetails> getMovieDetails(int imdbId) {
         return manager.valueBuilder()
                 .cacheType(CacheType.DISK)
-                .key("IMDB-MovieDetails:" + imdbId)
+                .key("%s-MovieDetails:%s".formatted(getProviderName(), imdbId))
                 .optionalSupplier(() -> {
                     try {
                         return imdbApi.get().getMovieDetails(imdbId);
                     } catch (ImdbException e) {
-                        LOGGER.error("API IMDB getMovieDetails for id [%s] (%s)".formatted(imdbId, e.getMessage()), e);
+                        LOGGER.error("API %s getMovieDetails for id [%s] (%s)".formatted(getProviderName(), imdbId, e.getMessage()), e);
                         return Optional.empty();
                     }
                 }).getOptional();
@@ -71,14 +75,14 @@ public class ImdbAdapter {
         try {
             return manager.valueBuilder()
                     .cacheType(CacheType.DISK)
-                    .key("IMDB-id-%s-%s".formatted(title, year))
+                    .key("%s-id-%s-%s".formatted(getProviderName(), title, year))
                     .optionalIntSupplier(() -> getImdbIdOnImdb(title, year)
                             .orElseMap(() -> getImdbIdOnGoogle(title, year))
                             .orElseMap(() -> getImdbIdOnYahoo(title, year))
                             .orElseMap(() -> promtUserToEnterImdbId(title, year)))
                     .storeTempNullValue().getOptionalInt();
         } catch (Exception e) {
-            LOGGER.error("API IMDB getImdbId for title [%s] (%s)".formatted(title, e.getMessage()), e);
+            LOGGER.error("API %s getImdbId for title [%s] (%s)".formatted(getProviderName(), title, e.getMessage()), e);
             return OptionalInt.empty();
         }
     }
@@ -101,7 +105,7 @@ public class ImdbAdapter {
         try {
             providerSerieIds = providerSerieIdSupplier.apply(title, year);
         } catch (ImdbSearchIdException e) {
-            LOGGER.error("API IMDB getImdbId for title [%s] and year [%s] (%s)".formatted(title, year, e.getMessage()), e);
+            LOGGER.error("API %s getImdbId for title [%s] and year [%s] (%s)".formatted(getProviderName(), title, year, e.getMessage()), e);
             return OptionalInt.empty();
         }
         if (!userInteractionHandler.getSettings().isOptionsConfirmProviderMapping() && providerSerieIds.size() == 1) {
@@ -117,13 +121,13 @@ public class ImdbAdapter {
                                 .thenComparing(ProviderSerieId::getName))
                                 .toList(),
                         Messages.getString("Prompter.SelectImdbMatchForSerie").formatted(title),
-                        "IMDB",
+                        getProviderName(),
                         ProviderSerieId::getName)
                 .mapToInt(providerSerieId -> Integer.parseInt(providerSerieId.getId()));
     }
 
     private OptionalInt promtUserToEnterImdbId(String title, int year) {
-        return userInteractionHandler.enter("IMDB", Messages.getString("Prompter.EnterImdbMatchForSerie").formatted(title),
+        return userInteractionHandler.enter(getProviderName(), Messages.getString("Prompter.EnterImdbMatchForSerie").formatted(title),
                 Messages.getString("Prompter.ValueIsNotValid"), StringUtils::isNumeric).mapToInt(Integer::parseInt);
     }
 

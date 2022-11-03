@@ -14,6 +14,7 @@ import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider
 import org.lodder.subtools.multisubdownloader.workers.SearchHandler;
 import org.lodder.subtools.multisubdownloader.workers.SearchManager;
 import org.lodder.subtools.sublibrary.Language;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 @Getter(value = AccessLevel.PROTECTED)
 public abstract class SearchAction implements Runnable, Cancelable, SearchHandler {
 
+    private final Manager manager;
     private final @NonNull Settings settings;
     private final @NonNull SubtitleProviderStore subtitleProviderStore;
     private StatusListener statusListener;
@@ -77,6 +79,7 @@ public abstract class SearchAction implements Runnable, Cancelable, SearchHandle
         /* Create a new SearchManager. */
         this.searchManager =
                 SearchManager.createWithSettings(this.settings)
+                        .manager(manager)
                         /* Tell the manager which language we want */
                         .language(language)
                         /* Tell the manager where to push progressUpdates */

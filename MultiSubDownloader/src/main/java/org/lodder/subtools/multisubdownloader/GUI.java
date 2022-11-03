@@ -327,6 +327,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
         TextGuiSearchAction searchAction;
         try {
             searchAction = TextGuiSearchAction.createWithSettings(settings)
+                    .manager(manager)
                     .subtitleProviderStore(subtitleProviderStore)
                     .mainwindow(this)
                     .searchPanel(pnlSearchText)
@@ -361,6 +362,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
         try {
             FileGuiSearchAction searchAction = FileGuiSearchAction
                     .createWithSettings(settings)
+                    .manager(manager)
                     .subtitleProviderStore((SubtitleProviderStore) this.app.make("SubtitleProviderStore"))
                     .mainwindow(this)
                     .searchPanel(pnlSearchFile)

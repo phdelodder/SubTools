@@ -34,6 +34,7 @@ public class SearchWorker extends Thread {
                 this.busy = true;
                 Release release = this.scheduler.getNextRelease(provider);
                 if (release == null) {
+                    provider.clearCache();
                     this.busy = false;
                     break;
                 }

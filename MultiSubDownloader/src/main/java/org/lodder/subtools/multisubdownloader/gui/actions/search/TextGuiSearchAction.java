@@ -14,6 +14,7 @@ import org.lodder.subtools.multisubdownloader.gui.panels.SearchTextInputPanel;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -25,6 +26,10 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 public class TextGuiSearchAction extends GuiSearchAction<SearchTextInputPanel> {
+
+    public interface FileGuiSearchActionBuilderManager {
+        TextGuiSearchActionBuilderSubtitleProviderStore manager(Manager manager);
+    }
 
     public interface TextGuiSearchActionBuilderSubtitleProviderStore {
         TextGuiSearchActionBuilderGUI subtitleProviderStore(SubtitleProviderStore subtitleProviderStore);
@@ -46,7 +51,7 @@ public class TextGuiSearchAction extends GuiSearchAction<SearchTextInputPanel> {
         TextGuiSearchAction build() throws SearchSetupException;
     }
 
-    public static TextGuiSearchActionBuilderSubtitleProviderStore createWithSettings(Settings settings) {
+    public static FileGuiSearchActionBuilderManager createWithSettings(Settings settings) {
         return new TextGuiSearchActionBuilder(settings);
     }
 
@@ -54,9 +59,10 @@ public class TextGuiSearchAction extends GuiSearchAction<SearchTextInputPanel> {
     @Setter
     @Accessors(chain = true, fluent = true)
     public static class TextGuiSearchActionBuilder
-            implements TextGuiSearchActionBuilderBuild, TextGuiSearchActionBuilderReleaseFactory,
-            TextGuiSearchActionBuilderSearchPanel, TextGuiSearchActionBuilderGUI, TextGuiSearchActionBuilderSubtitleProviderStore {
+            implements TextGuiSearchActionBuilderBuild, TextGuiSearchActionBuilderReleaseFactory, TextGuiSearchActionBuilderSearchPanel,
+            TextGuiSearchActionBuilderGUI, TextGuiSearchActionBuilderSubtitleProviderStore, FileGuiSearchActionBuilderManager {
         private final Settings settings;
+        private Manager manager;
         private SubtitleProviderStore subtitleProviderStore;
         private GUI mainwindow;
         private SearchPanel<SearchTextInputPanel> searchPanel;
@@ -64,13 +70,13 @@ public class TextGuiSearchAction extends GuiSearchAction<SearchTextInputPanel> {
 
         @Override
         public TextGuiSearchAction build() throws SearchSetupException {
-            return new TextGuiSearchAction(settings, subtitleProviderStore, mainwindow, searchPanel, releaseFactory);
+            return new TextGuiSearchAction(manager, settings, subtitleProviderStore, mainwindow, searchPanel, releaseFactory);
         }
     }
 
-    private TextGuiSearchAction(Settings settings, SubtitleProviderStore subtitleProviderStore, GUI mainwindow,
+    private TextGuiSearchAction(Manager manager, Settings settings, SubtitleProviderStore subtitleProviderStore, GUI mainwindow,
             SearchPanel<SearchTextInputPanel> searchPanel, ReleaseFactory releaseFactory) throws SearchSetupException {
-        super(settings, subtitleProviderStore, mainwindow, searchPanel, releaseFactory);
+        super(manager, settings, subtitleProviderStore, mainwindow, searchPanel, releaseFactory);
     }
 
     @Override
