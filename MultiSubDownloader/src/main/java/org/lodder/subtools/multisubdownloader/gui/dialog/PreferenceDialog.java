@@ -81,6 +81,8 @@ public class PreferenceDialog extends MultiSubDialog {
     private JComboBox<Language> cbxLanguage;
     private JCheckBox chkDefaultSelection;
     private DefaultSelectionPanel pnlDefaultSelection;
+    private JButton btnBrowseLocalSources, btnRemoveLocalSources;
+    private JScrollPane scrlPlocalSources;
     private final UserInteractionHandler userInteractionHandler;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PreferenceDialog.class);
@@ -333,6 +335,12 @@ public class PreferenceDialog extends MultiSubDialog {
                 pnlSerieSourcesSelectionSettings.add(chkSerieSourceSubscene, "cell 0 5 2 1");
                 chkSerieSourceLocal = new JCheckBox(Messages.getString("PreferenceDialog.Local"));
                 pnlSerieSourcesSelectionSettings.add(chkSerieSourceLocal, "cell 0 6 2 1");
+                chkSerieSourceLocal.addChangeListener(e -> {
+                    boolean enabled = ((JCheckBox) e.getSource()).isSelected();
+                    btnBrowseLocalSources.setEnabled(enabled);
+                    btnRemoveLocalSources.setEnabled(enabled);
+                    scrlPlocalSources.setEnabled(enabled);
+                });
                 //
                 JPanel pnlAddic7edLoginSettings = new JPanel();
                 pnlSerieSources.add(pnlAddic7edLoginSettings, "cell 0 1 3 1,grow");
@@ -415,7 +423,8 @@ public class PreferenceDialog extends MultiSubDialog {
                     pnlLocalSourcesSettings.add(lblLocalSources, "cell 0 1,alignx left,aligny center");
                 }
                 {
-                    JButton btnBrowseLocalSources = new JButton(Messages.getString("PreferenceDialog.AddFolder"));
+                    btnBrowseLocalSources = new JButton(Messages.getString("PreferenceDialog.AddFolder"));
+                    btnBrowseLocalSources.setEnabled(false);
                     btnBrowseLocalSources.addActionListener(arg0 -> {
                         MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), Messages.getString("PreferenceDialog.SelectFolder"))
                                 .map(File::getAbsolutePath).ifPresent(path -> {
@@ -438,7 +447,8 @@ public class PreferenceDialog extends MultiSubDialog {
                     pnlLocalSourcesSettings.add(btnBrowseLocalSources, "cell 1 1,alignx left,aligny top");
                 }
                 {
-                    JButton btnRemoveLocalSources = new JButton(Messages.getString("PreferenceDialog.DeleteFolder"));
+                    btnRemoveLocalSources = new JButton(Messages.getString("PreferenceDialog.DeleteFolder"));
+                    btnRemoveLocalSources.setEnabled(false);
                     btnRemoveLocalSources.addActionListener(arg0 -> {
                         DefaultListModel<JPanel> model = (DefaultListModel<JPanel>) localSourcesFoldersList.getModel();
                         int selected = localSourcesFoldersList.getSelectedIndex();
@@ -449,7 +459,8 @@ public class PreferenceDialog extends MultiSubDialog {
                     pnlLocalSourcesSettings.add(btnRemoveLocalSources, "cell 2 1");
                 }
                 {
-                    JScrollPane scrlPlocalSources = new JScrollPane();
+                    scrlPlocalSources = new JScrollPane();
+                    scrlPlocalSources.setEnabled(false);
                     pnlLocalSourcesSettings.add(scrlPlocalSources, "cell 1 2 2 1,grow");
                     {
                         localSourcesFoldersList = new JListWithImages();
