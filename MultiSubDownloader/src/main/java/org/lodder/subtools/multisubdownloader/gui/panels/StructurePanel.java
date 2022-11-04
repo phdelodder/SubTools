@@ -11,15 +11,22 @@ import org.lodder.subtools.sublibrary.util.JComponentExtension;
 
 import java.awt.event.ActionListener;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod(JComponentExtension.class)
 public abstract class StructurePanel extends JPanel {
 
     private static final long serialVersionUID = 7507970016496546514L;
+    @Setter
     private ActionListener buildStructureAction;
-    protected JButton btnBuildStructure;
+    @Getter(value = AccessLevel.PROTECTED)
+    private JButton btnBuildStructure;
+    @Getter(value = AccessLevel.PROTECTED)
     private JCheckBox chkReplaceSpace;
+    @Getter(value = AccessLevel.PROTECTED)
     private JComboBox<String> cbxReplaceSpaceChar;
 
     public StructurePanel() {
@@ -46,22 +53,6 @@ public abstract class StructurePanel extends JPanel {
         chkReplaceSpace.addSelectedChangeListener(cbxReplaceSpaceChar::setEnabled);
 
 
-    }
-
-    protected JCheckBox getChkReplaceSpace() {
-        return chkReplaceSpace;
-    }
-
-    protected JComboBox<String> getCbxReplaceSpaceChar() {
-        return cbxReplaceSpaceChar;
-    }
-
-    protected JButton getBtnBuildStructure() {
-        return btnBuildStructure;
-    }
-
-    public void setBuildStructureAction(ActionListener actionListener) {
-        this.buildStructureAction = actionListener;
     }
 
     public String getReplaceSpaceChar() {

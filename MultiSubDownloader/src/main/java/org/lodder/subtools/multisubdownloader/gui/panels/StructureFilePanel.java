@@ -86,7 +86,7 @@ public class StructureFilePanel extends StructurePanel {
 
     @Override
     public JButton getBtnBuildStructure() {
-        return btnBuildStructure;
+        return super.getBtnBuildStructure();
     }
 
     public JTextField getTxtDefaultNlText() {

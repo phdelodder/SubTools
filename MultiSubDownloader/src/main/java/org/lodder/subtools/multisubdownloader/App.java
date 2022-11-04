@@ -165,7 +165,7 @@ public class App {
         DiskCache<String, Serializable> diskCache =
                 SerializableDiskCache.cacheBuilder().keyType(String.class).valueType(Serializable.class)
                         .timeToLive(TimeUnit.SECONDS.convert(500, TimeUnit.DAYS))
-                        .maxItems(5000)
+                        .maxItems(2500)
                         .build();
 
         InMemoryCache<String, Serializable> inMemoryCache =
