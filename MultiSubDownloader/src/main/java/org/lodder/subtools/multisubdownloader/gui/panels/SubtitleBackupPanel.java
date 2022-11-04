@@ -8,11 +8,14 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
 import org.lodder.subtools.multisubdownloader.Messages;
+import org.lodder.subtools.sublibrary.util.JComponentExtension;
 
 import java.awt.event.ActionListener;
 
+import lombok.experimental.ExtensionMethod;
 import net.miginfocom.swing.MigLayout;
 
+@ExtensionMethod(JComponentExtension.class)
 public class SubtitleBackupPanel extends JPanel {
 
     private static final long serialVersionUID = -1498846730946617177L;
@@ -50,8 +53,7 @@ public class SubtitleBackupPanel extends JPanel {
                 browseBackupAction.actionPerformed(arg0);
             }
         });
-        chkBackupSubtitle.addChangeListener(e -> {
-            boolean enabled = ((JCheckBox) e.getSource()).isSelected();
+        chkBackupSubtitle.addSelectedChangeListener(enabled -> {
             txtBackupSubtitlePath.setEnabled(enabled);
             btnBrowseBackup.setEnabled(enabled);
         });

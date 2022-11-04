@@ -46,14 +46,17 @@ import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
+import org.lodder.subtools.sublibrary.util.JComponentExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
+import lombok.experimental.ExtensionMethod;
 import net.miginfocom.swing.MigLayout;
 
+@ExtensionMethod(JComponentExtension.class)
 public class PreferenceDialog extends MultiSubDialog {
 
     private static final long serialVersionUID = -5730220264781738564L;
@@ -206,8 +209,7 @@ public class PreferenceDialog extends MultiSubDialog {
 
                     chkUseProxy = new JCheckBox(Messages.getString("PreferenceDialog.UseProxyServer"));
                     pnlGeneral.add(chkUseProxy, "alignx left,aligny center, span 1 2");
-                    chkUseProxy.addChangeListener(e -> {
-                        boolean enabled = ((JCheckBox) e.getSource()).isSelected();
+                    chkUseProxy.addSelectedChangeListener(enabled -> {
                         txtProxyHost.setEnabled(enabled);
                         txtProxyPort.setEnabled(enabled);
                     });
@@ -335,8 +337,7 @@ public class PreferenceDialog extends MultiSubDialog {
                 pnlSerieSourcesSelectionSettings.add(chkSerieSourceSubscene, "cell 0 5 2 1");
                 chkSerieSourceLocal = new JCheckBox(Messages.getString("PreferenceDialog.Local"));
                 pnlSerieSourcesSelectionSettings.add(chkSerieSourceLocal, "cell 0 6 2 1");
-                chkSerieSourceLocal.addChangeListener(e -> {
-                    boolean enabled = ((JCheckBox) e.getSource()).isSelected();
+                chkSerieSourceLocal.addSelectedChangeListener(enabled -> {
                     btnBrowseLocalSources.setEnabled(enabled);
                     btnRemoveLocalSources.setEnabled(enabled);
                     scrlPlocalSources.setEnabled(enabled);
@@ -350,8 +351,7 @@ public class PreferenceDialog extends MultiSubDialog {
                 {
                     chkUserAddic7edLogin = new JCheckBox(Messages.getString("PreferenceDialog.UseAddic7edLogin"));
                     pnlAddic7edLoginSettings.add(chkUserAddic7edLogin, "cell 0 1 3 1");
-                    chkUserAddic7edLogin.addChangeListener(e -> {
-                        boolean enabled = ((JCheckBox) e.getSource()).isSelected();
+                    chkUserAddic7edLogin.addSelectedChangeListener(enabled -> {
                         txtAddic7edUsername.setEnabled(enabled);
                         txtAddic7edPassword.setEnabled(enabled);
                     });
@@ -385,8 +385,7 @@ public class PreferenceDialog extends MultiSubDialog {
                 {
                     chkUserOpenSubtitlesLogin = new JCheckBox(Messages.getString("PreferenceDialog.UseOpenSubtitlesLogin"));
                     pnlOpenSubtiltesLoginSettings.add(chkUserOpenSubtitlesLogin, "cell 0 1 3 1");
-                    chkUserOpenSubtitlesLogin.addChangeListener(e -> {
-                        boolean enabled = ((JCheckBox) e.getSource()).isSelected();
+                    chkUserOpenSubtitlesLogin.addSelectedChangeListener(enabled -> {
                         txtOpenSubtitlesUsername.setEnabled(enabled);
                         txtOpenSubtitlesPassword.setEnabled(enabled);
                     });

@@ -7,9 +7,13 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 import org.lodder.subtools.multisubdownloader.Messages;
+import org.lodder.subtools.sublibrary.util.JComponentExtension;
 
 import java.awt.event.ActionListener;
 
+import lombok.experimental.ExtensionMethod;
+
+@ExtensionMethod(JComponentExtension.class)
 public abstract class StructurePanel extends JPanel {
 
     private static final long serialVersionUID = 7507970016496546514L;
@@ -34,15 +38,14 @@ public abstract class StructurePanel extends JPanel {
     private void createComponents() {
         btnBuildStructure = new JButton(Messages.getString("StructureBuilderDialog.Structure"));
 
-        chkReplaceSpace = new JCheckBox(Messages.getString("PreferenceDialog.ReplaceSpaceWith"));
-        chkReplaceSpace.addChangeListener(e -> {
-            boolean enabled = ((JCheckBox) e.getSource()).isSelected();
-            cbxReplaceSpaceChar.setEnabled(enabled);
-        });
-
         cbxReplaceSpaceChar = new JComboBox<>();
         cbxReplaceSpaceChar.setEnabled(false);
         cbxReplaceSpaceChar.setModel(new DefaultComboBoxModel<>(new String[] { "-", ".", "_" }));
+
+        chkReplaceSpace = new JCheckBox(Messages.getString("PreferenceDialog.ReplaceSpaceWith"));
+        chkReplaceSpace.addSelectedChangeListener(cbxReplaceSpaceChar::setEnabled);
+
+
     }
 
     protected JCheckBox getChkReplaceSpace() {
