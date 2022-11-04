@@ -49,7 +49,10 @@ public class UpdateAvailableGithub {
 
     public boolean isNewVersionAvailable() {
         String currentVersion = ConfigProperties.getInstance().getProperty("version").replace("-SNAPSHOT", "");
-        return getLatestGithubRelease().map(githubRelease -> compareVersions(githubRelease.getVersion(), currentVersion) > 0).orElse(false);
+        return getLatestGithubRelease().map(githubRelease -> compareVersions(githubRelease.getVersion(), currentVersion) > 0
+                || (ConfigProperties.getInstance().getProperty("version").contains("-SNAPSHOT")
+                        && currentVersion.equals(githubRelease.getVersion())))
+                .orElse(false);
     }
 
     private Optional<GitHubRelease> getLatestGithubRelease() {
