@@ -276,6 +276,11 @@
 				<artifactId>typetools</artifactId>
 				<version>0.6.3</version>
 			</dependency>
+			<dependency>
+				<groupId>org.jooq</groupId>
+				<artifactId>joor</artifactId>
+				<version>0.9.14</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 

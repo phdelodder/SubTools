@@ -163,7 +163,6 @@ public class CLI {
             return Arrays.stream(Language.values()).filter(lang -> lang.name().equalsIgnoreCase(languageString)).findAny()
                     .orElseThrow(() -> new CliException(Messages.getString("App.NoValidLanguage")));
         } else {
-            System.out.println(Messages.getString("App.NoLanguageUseDefault"));
             return Language.ENGLISH;
         }
     }
