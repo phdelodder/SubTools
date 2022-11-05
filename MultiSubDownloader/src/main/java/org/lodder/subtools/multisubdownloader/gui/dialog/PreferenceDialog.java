@@ -325,7 +325,12 @@ public class PreferenceDialog extends MultiSubDialog {
                 pnlSerieSourcesSelectionSettings.add(chkSerieSourceAddic7ed, "cell 0 1 2 1");
                 chkSerieSourceAddic7edProxy = new JCheckBox(Messages.getString("PreferenceDialog.Proxy"));
                 pnlSerieSourcesSelectionSettings.add(chkSerieSourceAddic7edProxy, "cell 0 1 3 1");
-                chkSerieSourceAddic7ed.addActionListener(e -> chkSerieSourceAddic7edProxy.setEnabled(((JCheckBox) e.getSource()).isSelected()));
+                chkSerieSourceAddic7ed.addSelectedChangeListener(enabled -> {
+                    chkSerieSourceAddic7edProxy.setEnabled(enabled);
+                    chkUserAddic7edLogin.setEnabled(enabled);
+                    txtAddic7edUsername.setEnabled(enabled);
+                    txtAddic7edPassword.setEnabled(enabled);
+                });
 
                 chkSerieSourceTvSubtitles = new JCheckBox("Tv Subtitles");
                 pnlSerieSourcesSelectionSettings.add(chkSerieSourceTvSubtitles, "cell 0 2 2 1");
@@ -333,6 +338,12 @@ public class PreferenceDialog extends MultiSubDialog {
                 pnlSerieSourcesSelectionSettings.add(chkSerieSourcePodnapisi, "cell 0 3 2 1");
                 chkSerieSourceOpensubtitles = new JCheckBox("Opensubtitles");
                 pnlSerieSourcesSelectionSettings.add(chkSerieSourceOpensubtitles, "cell 0 4 2 1");
+                chkSerieSourceOpensubtitles.addSelectedChangeListener(enabled -> {
+                    chkUserOpenSubtitlesLogin.setEnabled(enabled);
+                    txtOpenSubtitlesUsername.setEnabled(enabled);
+                    txtOpenSubtitlesPassword.setEnabled(enabled);
+                });
+
                 chkSerieSourceSubscene = new JCheckBox("Subscene");
                 pnlSerieSourcesSelectionSettings.add(chkSerieSourceSubscene, "cell 0 5 2 1");
                 chkSerieSourceLocal = new JCheckBox(Messages.getString("PreferenceDialog.Local"));
