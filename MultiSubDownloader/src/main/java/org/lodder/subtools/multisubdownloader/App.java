@@ -77,11 +77,6 @@ public class App {
         Messages.setLanguage(prefctrl.getSettings().getLanguage());
         Bootstrapper bootstrapper = new Bootstrapper(app, prefctrl.getSettings(), preferences, manager);
 
-        if (line.hasCliOption(CliOption.HELP)) {
-            formatter.printHelp(ConfigProperties.getInstance().getProperty("name"), getCLIOptions());
-            return;
-        }
-
         if (line.hasCliOption(CliOption.TRACE)) {
             setLogLevel(Level.ALL);
         } else if (line.hasCliOption(CliOption.DEBUG)) {
@@ -97,11 +92,14 @@ public class App {
 
             try {
                 cmd.setUp(line);
+                if (line.hasCliOption(CliOption.HELP)) {
+                    formatter.printHelp(ConfigProperties.getInstance().getProperty("name"), getCLIOptions());
+                    return;
+                }
             } catch (CliException e) {
                 System.out.println("Error: " + e.getMessage());
                 return;
             }
-
             cmd.run();
         } else {
             /* Defined here so there is output in the splash */
