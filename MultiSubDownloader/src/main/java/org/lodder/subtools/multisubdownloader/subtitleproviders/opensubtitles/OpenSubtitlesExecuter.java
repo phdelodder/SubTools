@@ -10,7 +10,7 @@ public abstract class OpenSubtitlesExecuter {
         try {
             return callable.get();
         } catch (ApiException e) {
-            if (e.getCode() == 429) {
+            if (e.getCode() == 429 || e.getMessage().contains("ratelimit")) {
                 // Too Many Requests
                 try {
                     Thread.sleep(1000);
