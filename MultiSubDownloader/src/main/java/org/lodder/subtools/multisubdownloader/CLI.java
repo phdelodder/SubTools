@@ -81,6 +81,7 @@ public class CLI {
         this.subtitleSelection = line.hasCliOption(CliOption.SELECTION);
         this.verboseProgress = line.hasCliOption(CliOption.VERBOSE_PROGRESS);
         this.dryRun = line.hasCliOption(CliOption.DRY_RUN);
+        Messages.setLanguage(language);
     }
 
     public void run() {
@@ -163,7 +164,7 @@ public class CLI {
                     .orElseThrow(() -> new CliException(Messages.getString("App.NoValidLanguage")));
         } else {
             System.out.println(Messages.getString("App.NoLanguageUseDefault"));
-            return Language.DUTCH;
+            return Language.ENGLISH;
         }
     }
 }

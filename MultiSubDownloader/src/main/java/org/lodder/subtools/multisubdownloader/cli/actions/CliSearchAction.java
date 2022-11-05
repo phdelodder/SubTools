@@ -128,8 +128,7 @@ public class CliSearchAction extends SearchAction {
         @Override
         public CliSearchAction build() throws SearchSetupException {
             return new CliSearchAction(manager, settings, subtitleProviderStore, indexingProgressListener, searchProgressListener, cli,
-                    fileListAction,
-                    language, releaseFactory, filtering, folders, overwriteSubtitles, recursive);
+                    fileListAction, language, releaseFactory, filtering, folders, overwriteSubtitles, recursive);
         }
     }
 
