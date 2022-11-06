@@ -50,7 +50,7 @@ public abstract class StructurePanel extends JPanel {
         cbxReplaceSpaceChar.setModel(new DefaultComboBoxModel<>(new String[] { "-", ".", "_" }));
 
         chkReplaceSpace = new JCheckBox(Messages.getString("PreferenceDialog.ReplaceSpaceWith"));
-        chkReplaceSpace.addSelectedChangeListener(cbxReplaceSpaceChar::setEnabled);
+        chkReplaceSpace.addCheckedChangeListener(cbxReplaceSpaceChar::setEnabled);
 
 
     }

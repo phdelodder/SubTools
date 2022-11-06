@@ -53,9 +53,9 @@ public class SubtitleBackupPanel extends JPanel {
                 browseBackupAction.actionPerformed(arg0);
             }
         });
-        chkBackupSubtitle.addSelectedChangeListener(enabled -> {
-            txtBackupSubtitlePath.setEnabled(enabled);
-            btnBrowseBackup.setEnabled(enabled);
+        chkBackupSubtitle.addCheckedChangeListener(checked -> {
+            txtBackupSubtitlePath.setEnabled(checked);
+            btnBrowseBackup.setEnabled(checked);
         });
     }
 

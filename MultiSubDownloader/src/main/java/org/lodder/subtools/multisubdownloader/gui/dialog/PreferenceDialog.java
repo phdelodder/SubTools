@@ -33,6 +33,7 @@ import org.lodder.subtools.multisubdownloader.framework.event.Event;
 import org.lodder.subtools.multisubdownloader.gui.ToStringListCellRenderer;
 import org.lodder.subtools.multisubdownloader.gui.extra.JListWithImages;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
+import org.lodder.subtools.multisubdownloader.gui.extra.PanelCheckBox;
 import org.lodder.subtools.multisubdownloader.gui.panels.DefaultSelectionPanel;
 import org.lodder.subtools.multisubdownloader.gui.panels.EpisodeLibraryPanel;
 import org.lodder.subtools.multisubdownloader.gui.panels.MovieLibraryPanel;
@@ -73,8 +74,8 @@ public class PreferenceDialog extends MultiSubDialog {
     private JTextField txtProxyPort, txtAddic7edPassword, txtOpenSubtitlesPassword;
     private JCheckBox chkUseProxy, chkUserAddic7edLogin, chkUserOpenSubtitlesLogin, chkExcludeHearingImpaired;
     private JListWithImages defaultIncomingFoldersList, localSourcesFoldersList;
-    private JCheckBox chkSerieSourceAddic7ed, chkSerieSourceTvSubtitles, chkSerieSourcePodnapisi,
-            chkSerieSourceOpensubtitles, chkSerieSourceLocal, chkSerieSourceSubscene, chkSerieSourceAddic7edProxy;
+    private JCheckBox chkSourceAddic7ed, chkSourceTvSubtitles, chkSourcePodnapisi,
+            chkSourceOpenSubtitles, chkSourceLocal, chkSourceSubscene, chkSourceAddic7edProxy;
     private JComboBox<SettingsProcessEpisodeSource> cbxEpisodeProcessSource;
     private JCheckBox chkMinScoreSelection;
     private JCheckBox chkConfirmProviderMapping;
@@ -209,9 +210,9 @@ public class PreferenceDialog extends MultiSubDialog {
 
                     chkUseProxy = new JCheckBox(Messages.getString("PreferenceDialog.UseProxyServer"));
                     pnlGeneral.add(chkUseProxy, "alignx left,aligny center, span 1 2");
-                    chkUseProxy.addSelectedChangeListener(enabled -> {
-                        txtProxyHost.setEnabled(enabled);
-                        txtProxyPort.setEnabled(enabled);
+                    chkUseProxy.addCheckedChangeListener(checked -> {
+                        txtProxyHost.setEnabled(checked);
+                        txtProxyPort.setEnabled(checked);
                     });
 
                     JLabel lblProxyHost = new JLabel(Messages.getString("PreferenceDialog.Hostname"));
@@ -307,178 +308,92 @@ public class PreferenceDialog extends MultiSubDialog {
                     pnlOptions.add(chkConfirmProviderMapping, "cell 1 15,growx");
                 }
             }
+
+            // SERIE PROVIDERS TAB
             {
-
-                JPanel pnlSerieSources = new JPanel();
+                JPanel pnlSerieSources = new JPanel(new MigLayout("", "[grow, nogrid]"));
                 tabbedPane.addTab(Messages.getString("PreferenceDialog.SerieSources"), null, pnlSerieSources, null);
-                pnlSerieSources.setLayout(new MigLayout("", "[grow]", "[][top][]"));
-                JPanel pnlSerieSourcesSelectionSettings = new JPanel();
-                pnlSerieSources.add(pnlSerieSourcesSelectionSettings, "cell 0 0 3 1,grow");
-                pnlSerieSourcesSelectionSettings.setLayout(new MigLayout("",
-                        "[50px:n][][100.00,grow][grow][grow]", "[][][][][][][]"));
-                pnlSerieSourcesSelectionSettings.add(new JLabel(Messages.getString("PreferenceDialog.SelectPreferedSources")),
-                        "cell 0 0 5 1,gapy 5");
-                pnlSerieSources.add(pnlSerieSourcesSelectionSettings, "cell 0 0 3 1,grow");
-                pnlSerieSourcesSelectionSettings.add(new JSeparator(), "cell 0 0 5 1,growx,gapy 5");
 
-                chkSerieSourceAddic7ed = new JCheckBox("Addic7ed");
-                pnlSerieSourcesSelectionSettings.add(chkSerieSourceAddic7ed, "cell 0 1 2 1");
-                chkSerieSourceAddic7edProxy = new JCheckBox(Messages.getString("PreferenceDialog.Proxy"));
-                pnlSerieSourcesSelectionSettings.add(chkSerieSourceAddic7edProxy, "cell 0 1 3 1");
-                chkSerieSourceAddic7ed.addSelectedChangeListener(enabled -> {
-                    chkSerieSourceAddic7edProxy.setEnabled(enabled);
-                    chkUserAddic7edLogin.setEnabled(enabled);
-                    txtAddic7edUsername.setEnabled(enabled);
-                    txtAddic7edPassword.setEnabled(enabled);
-                });
+                pnlSerieSources.add(new JLabel(Messages.getString("PreferenceDialog.SelectPreferedSources")), "split");
+                pnlSerieSources.add(new JSeparator(), "wrap, growx, gapy 5");
 
-                chkSerieSourceTvSubtitles = new JCheckBox("Tv Subtitles");
-                pnlSerieSourcesSelectionSettings.add(chkSerieSourceTvSubtitles, "cell 0 2 2 1");
-                chkSerieSourcePodnapisi = new JCheckBox("Podnapisi");
-                pnlSerieSourcesSelectionSettings.add(chkSerieSourcePodnapisi, "cell 0 3 2 1");
-                chkSerieSourceOpensubtitles = new JCheckBox("Opensubtitles");
-                pnlSerieSourcesSelectionSettings.add(chkSerieSourceOpensubtitles, "cell 0 4 2 1");
-                chkSerieSourceOpensubtitles.addSelectedChangeListener(enabled -> {
-                    chkUserOpenSubtitlesLogin.setEnabled(enabled);
-                    txtOpenSubtitlesUsername.setEnabled(enabled);
-                    txtOpenSubtitlesPassword.setEnabled(enabled);
-                });
+                // ADDIC7ED
+                chkSourceAddic7ed = new JCheckBox("Addic7ed");
+                chkUserAddic7edLogin = new JCheckBox(Messages.getString("PreferenceDialog.UseAddic7edLogin"));
+                chkSourceAddic7edProxy = new JCheckBox(Messages.getString("PreferenceDialog.Proxy"));
+                pnlSerieSources
+                        .addComponent("wrap", new PanelCheckBox(chkSourceAddic7ed)
+                                .addComponent("wrap", chkSourceAddic7edProxy)
+                                .addComponent("wrap", new PanelCheckBox(chkUserAddic7edLogin)
+                                        .addComponent("alignx trailing", new JLabel(Messages.getString("PreferenceDialog.Username")))
+                                        .addComponent("wrap", txtAddic7edUsername = new JTextField().columns(10))
+                                        .addComponent("alignx trailing", new JLabel(Messages.getString("PreferenceDialog.Password")))
+                                        .addComponent("wrap", txtAddic7edPassword = new JPasswordField(10).columns(10))));
 
-                chkSerieSourceSubscene = new JCheckBox("Subscene");
-                pnlSerieSourcesSelectionSettings.add(chkSerieSourceSubscene, "cell 0 5 2 1");
-                chkSerieSourceLocal = new JCheckBox(Messages.getString("PreferenceDialog.Local"));
-                pnlSerieSourcesSelectionSettings.add(chkSerieSourceLocal, "cell 0 6 2 1");
-                chkSerieSourceLocal.addSelectedChangeListener(enabled -> {
-                    btnBrowseLocalSources.setEnabled(enabled);
-                    btnRemoveLocalSources.setEnabled(enabled);
-                    scrlPlocalSources.setEnabled(enabled);
-                });
-                //
-                JPanel pnlAddic7edLoginSettings = new JPanel();
-                pnlSerieSources.add(pnlAddic7edLoginSettings, "cell 0 1 3 1,grow");
-                pnlAddic7edLoginSettings.setLayout(new MigLayout("", "[50px:n][][grow][grow]", "[][][][]"));
-                pnlAddic7edLoginSettings.add(new JLabel(Messages.getString("PreferenceDialog.Addic7edLogin")), "cell 0 0 4 1,gapy 5");
-                pnlAddic7edLoginSettings.add(new JSeparator(), "cell 0 0 4 1,growx,gapy 5");
-                {
-                    chkUserAddic7edLogin = new JCheckBox(Messages.getString("PreferenceDialog.UseAddic7edLogin"));
-                    pnlAddic7edLoginSettings.add(chkUserAddic7edLogin, "cell 0 1 3 1");
-                    chkUserAddic7edLogin.addSelectedChangeListener(enabled -> {
-                        txtAddic7edUsername.setEnabled(enabled);
-                        txtAddic7edPassword.setEnabled(enabled);
-                    });
-                }
-                {
-                    JLabel lblUsername = new JLabel(Messages.getString("PreferenceDialog.Username"));
-                    pnlAddic7edLoginSettings.add(lblUsername, "cell 1 2,alignx trailing");
-                }
-                {
-                    txtAddic7edUsername = new JTextField();
-                    pnlAddic7edLoginSettings.add(txtAddic7edUsername, "cell 2 2,growx");
-                    txtAddic7edUsername.setColumns(10);
-                    txtAddic7edUsername.setEnabled(false);
-                }
-                {
-                    JLabel lblAddic7edPassword = new JLabel(Messages.getString("PreferenceDialog.Password"));
-                    pnlAddic7edLoginSettings.add(lblAddic7edPassword, "cell 1 3,alignx trailing");
-                }
-                {
-                    txtAddic7edPassword = new JPasswordField();
-                    pnlAddic7edLoginSettings.add(txtAddic7edPassword, "cell 2 3,growx");
-                    txtAddic7edPassword.setColumns(10);
-                    txtAddic7edPassword.setEnabled(false);
-                }
-                //
-                JPanel pnlOpenSubtiltesLoginSettings = new JPanel();
-                pnlSerieSources.add(pnlOpenSubtiltesLoginSettings, "cell 0 1 3 1,grow");
-                pnlOpenSubtiltesLoginSettings.setLayout(new MigLayout("", "[50px:n][][grow][grow]", "[][][][]"));
-                pnlOpenSubtiltesLoginSettings.add(new JLabel(Messages.getString("PreferenceDialog.OpenSubtitlesLogin")), "cell 0 0 4 1,gapy 5");
-                pnlOpenSubtiltesLoginSettings.add(new JSeparator(), "cell 0 0 4 1,growx,gapy 5");
-                {
-                    chkUserOpenSubtitlesLogin = new JCheckBox(Messages.getString("PreferenceDialog.UseOpenSubtitlesLogin"));
-                    pnlOpenSubtiltesLoginSettings.add(chkUserOpenSubtitlesLogin, "cell 0 1 3 1");
-                    chkUserOpenSubtitlesLogin.addSelectedChangeListener(enabled -> {
-                        txtOpenSubtitlesUsername.setEnabled(enabled);
-                        txtOpenSubtitlesPassword.setEnabled(enabled);
-                    });
-                }
-                {
-                    JLabel lblUsername = new JLabel(Messages.getString("PreferenceDialog.Username"));
-                    pnlOpenSubtiltesLoginSettings.add(lblUsername, "cell 1 2,alignx trailing");
-                }
-                {
-                    txtOpenSubtitlesUsername = new JTextField();
-                    pnlOpenSubtiltesLoginSettings.add(txtOpenSubtitlesUsername, "cell 2 2,growx");
-                    txtOpenSubtitlesUsername.setColumns(10);
-                    txtOpenSubtitlesUsername.setEnabled(false);
-                }
-                {
-                    JLabel lblOpenSubtitlesPassword = new JLabel(Messages.getString("PreferenceDialog.Password"));
-                    pnlOpenSubtiltesLoginSettings.add(lblOpenSubtitlesPassword, "cell 1 3,alignx trailing");
-                }
-                {
-                    txtOpenSubtitlesPassword = new JPasswordField();
-                    pnlOpenSubtiltesLoginSettings.add(txtOpenSubtitlesPassword, "cell 2 3,growx");
-                    txtOpenSubtitlesPassword.setColumns(10);
-                    txtOpenSubtitlesPassword.setEnabled(false);
-                }
-                //
-                JPanel pnlLocalSourcesSettings = new JPanel();
-                pnlSerieSources.add(pnlLocalSourcesSettings, "cell 0 2 3 1,grow");
-                pnlLocalSourcesSettings.setLayout(new MigLayout("", "[][][][grow]", "[][][]"));
-                pnlLocalSourcesSettings.add(new JLabel(Messages.getString("PreferenceDialog.LocalFolders")), "cell 0 0 5 1,gapy 5");
-                pnlLocalSourcesSettings.add(new JSeparator(), "cell 0 0 5 1,growx,gapy 5");
+                // TV SUBTITLES
+                pnlSerieSources.add(chkSourceTvSubtitles = new JCheckBox("Tv Subtitles"), "wrap");
 
-                {
-                    JLabel lblLocalSources = new JLabel(Messages.getString("PreferenceDialog.LocalFolderWithSubtitles"));
-                    pnlLocalSourcesSettings.add(lblLocalSources, "cell 0 1,alignx left,aligny center");
-                }
-                {
-                    btnBrowseLocalSources = new JButton(Messages.getString("PreferenceDialog.AddFolder"));
-                    btnBrowseLocalSources.setEnabled(false);
-                    btnBrowseLocalSources.addActionListener(arg0 -> {
-                        MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), Messages.getString("PreferenceDialog.SelectFolder"))
-                                .map(File::getAbsolutePath).ifPresent(path -> {
-                                    if (localSourcesFoldersList.getModel().getSize() == 0) {
-                                        localSourcesFoldersList.addItem(SettingsExcludeType.FOLDER, path);
-                                    } else {
-                                        boolean exists = false;
-                                        for (int i = 0; i < localSourcesFoldersList.getModel().getSize(); i++) {
-                                            if (localSourcesFoldersList.getDescription(i) != null
-                                                    && localSourcesFoldersList.getDescription(i).equals(path)) {
-                                                exists = true;
-                                            }
-                                        }
-                                        if (!exists) {
-                                            localSourcesFoldersList.addItem(SettingsExcludeType.FOLDER, path);
+                // PODNAPISI
+                pnlSerieSources.add(chkSourcePodnapisi = new JCheckBox("Podnapisi"), "wrap");
+
+                // OPENSUBTITLES
+                chkSourceOpenSubtitles = new JCheckBox("OpenSubtitles");
+                chkUserOpenSubtitlesLogin = new JCheckBox(Messages.getString("PreferenceDialog.UseOpenSubtitlesLogin"));
+                pnlSerieSources
+                        .addComponent("wrap", new PanelCheckBox(chkSourceOpenSubtitles)
+                                .addComponent("wrap", new PanelCheckBox(chkUserOpenSubtitlesLogin)
+                                        .addComponent("alignx trailing", new JLabel(Messages.getString("PreferenceDialog.Username")))
+                                        .addComponent("wrap", txtOpenSubtitlesUsername = new JTextField().columns(10))
+                                        .addComponent("alignx trailing", new JLabel(Messages.getString("PreferenceDialog.Password")))
+                                        .addComponent("wrap", txtOpenSubtitlesPassword = new JPasswordField(10).columns(10))));
+
+                // SUBSCENE
+                pnlSerieSources.add(chkSourceSubscene = new JCheckBox("Subscene"), "wrap");
+
+                // LOCAL
+                chkSourceLocal = new JCheckBox(Messages.getString("PreferenceDialog.Local"));
+                btnBrowseLocalSources = new JButton(Messages.getString("PreferenceDialog.AddFolder"));
+                btnRemoveLocalSources = new JButton(Messages.getString("PreferenceDialog.DeleteFolder"));
+                scrlPlocalSources = new JScrollPane().scrollPane(localSourcesFoldersList = new JListWithImages());
+
+                pnlSerieSources
+                        .addComponent("wrap", new PanelCheckBox(chkSourceLocal)
+                                .addComponent("aligny top, gapy 5px", new JLabel(Messages.getString("PreferenceDialog.LocalFolderWithSubtitles")))
+                                .addComponent("wrap", new JPanel(new MigLayout("insets 0", "[grow, nogrid]"))
+                                        .addComponent("split", btnBrowseLocalSources)
+                                        .addComponent("wrap", btnRemoveLocalSources)
+                                        .addComponent("wrap", scrlPlocalSources)));
+
+                btnBrowseLocalSources.addActionListener(arg0 -> {
+                    MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), Messages.getString("PreferenceDialog.SelectFolder"))
+                            .map(File::getAbsolutePath).ifPresent(path -> {
+                                if (localSourcesFoldersList.getModel().getSize() == 0) {
+                                    localSourcesFoldersList.addItem(SettingsExcludeType.FOLDER, path);
+                                } else {
+                                    boolean exists = false;
+                                    for (int i = 0; i < localSourcesFoldersList.getModel().getSize(); i++) {
+                                        if (localSourcesFoldersList.getDescription(i) != null
+                                                && localSourcesFoldersList.getDescription(i).equals(path)) {
+                                            exists = true;
                                         }
                                     }
-                                });
-                    });
-                    pnlLocalSourcesSettings.add(btnBrowseLocalSources, "cell 1 1,alignx left,aligny top");
-                }
-                {
-                    btnRemoveLocalSources = new JButton(Messages.getString("PreferenceDialog.DeleteFolder"));
-                    btnRemoveLocalSources.setEnabled(false);
-                    btnRemoveLocalSources.addActionListener(arg0 -> {
-                        DefaultListModel<JPanel> model = (DefaultListModel<JPanel>) localSourcesFoldersList.getModel();
-                        int selected = localSourcesFoldersList.getSelectedIndex();
-                        if (model.size() > 0 && selected >= 0) {
-                            model.removeElementAt(selected);
-                        }
-                    });
-                    pnlLocalSourcesSettings.add(btnRemoveLocalSources, "cell 2 1");
-                }
-                {
-                    scrlPlocalSources = new JScrollPane();
-                    scrlPlocalSources.setEnabled(false);
-                    pnlLocalSourcesSettings.add(scrlPlocalSources, "cell 1 2 2 1,grow");
-                    {
-                        localSourcesFoldersList = new JListWithImages();
-                        scrlPlocalSources.setViewportView(localSourcesFoldersList);
+                                    if (!exists) {
+                                        localSourcesFoldersList.addItem(SettingsExcludeType.FOLDER, path);
+                                    }
+                                }
+                            });
+                });
+
+                btnRemoveLocalSources.addActionListener(arg0 -> {
+                    DefaultListModel<JPanel> model = (DefaultListModel<JPanel>) localSourcesFoldersList.getModel();
+                    int selected = localSourcesFoldersList.getSelectedIndex();
+                    if (model.size() > 0 && selected >= 0) {
+                        model.removeElementAt(selected);
                     }
-                }
+                });
             }
         }
+
         {
             JPanel buttonPane = new JPanel();
             buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -530,14 +445,14 @@ public class PreferenceDialog extends MultiSubDialog {
         chkUserOpenSubtitlesLogin.setSelected(settingsCtrl.getSettings().isLoginOpenSubtitlesEnabled());
         txtOpenSubtitlesUsername.setText(settingsCtrl.getSettings().getLoginOpenSubtitlesUsername());
         txtOpenSubtitlesPassword.setText(settingsCtrl.getSettings().getLoginOpenSubtitlesPassword());
-        chkSerieSourceAddic7ed.setSelected(settingsCtrl.getSettings().isSerieSourceAddic7ed());
-        chkSerieSourceAddic7edProxy.setSelected(settingsCtrl.getSettings().isSerieSourceAddic7edProxy());
-        chkSerieSourceAddic7edProxy.setEnabled(settingsCtrl.getSettings().isSerieSourceAddic7ed());
-        chkSerieSourceTvSubtitles.setSelected(settingsCtrl.getSettings().isSerieSourceTvSubtitles());
-        chkSerieSourcePodnapisi.setSelected(settingsCtrl.getSettings().isSerieSourcePodnapisi());
-        chkSerieSourceOpensubtitles.setSelected(settingsCtrl.getSettings().isSerieSourceOpensubtitles());
-        chkSerieSourceLocal.setSelected(settingsCtrl.getSettings().isSerieSourceLocal());
-        chkSerieSourceSubscene.setSelected(settingsCtrl.getSettings().isSerieSourceSubscene());
+        chkSourceAddic7ed.setSelected(settingsCtrl.getSettings().isSerieSourceAddic7ed());
+        chkSourceAddic7edProxy.setSelected(settingsCtrl.getSettings().isSerieSourceAddic7edProxy());
+        chkSourceAddic7edProxy.setEnabled(settingsCtrl.getSettings().isSerieSourceAddic7ed());
+        chkSourceTvSubtitles.setSelected(settingsCtrl.getSettings().isSerieSourceTvSubtitles());
+        chkSourcePodnapisi.setSelected(settingsCtrl.getSettings().isSerieSourcePodnapisi());
+        chkSourceOpenSubtitles.setSelected(settingsCtrl.getSettings().isSerieSourceOpensubtitles());
+        chkSourceLocal.setSelected(settingsCtrl.getSettings().isSerieSourceLocal());
+        chkSourceSubscene.setSelected(settingsCtrl.getSettings().isSerieSourceSubscene());
         cbxUpdateCheckPeriod.setSelectedItem(settingsCtrl.getSettings().getUpdateCheckPeriod());
         chkDefaultSelection.setSelected(settingsCtrl.getSettings().isOptionsDefaultSelection());
         pnlDefaultSelection.setDefaultSelectionList(settingsCtrl.getSettings().getOptionsDefaultSelectionQualityList());
@@ -672,13 +587,13 @@ public class PreferenceDialog extends MultiSubDialog {
                 folList.add(new File(localSourcesFoldersList.getDescription(i)));
             }
             settingsCtrl.getSettings().setLocalSourcesFolders(folList);
-            settingsCtrl.getSettings().setSerieSourceAddic7ed(chkSerieSourceAddic7ed.isSelected());
-            settingsCtrl.getSettings().setSerieSourceAddic7edProxy(chkSerieSourceAddic7edProxy.isSelected());
-            settingsCtrl.getSettings().setSerieSourceTvSubtitles(chkSerieSourceTvSubtitles.isSelected());
-            settingsCtrl.getSettings().setSerieSourcePodnapisi(chkSerieSourcePodnapisi.isSelected());
-            settingsCtrl.getSettings().setSerieSourceOpensubtitles(chkSerieSourceOpensubtitles.isSelected());
-            settingsCtrl.getSettings().setSerieSourceLocal(chkSerieSourceLocal.isSelected());
-            settingsCtrl.getSettings().setSerieSourceSubscene(chkSerieSourceSubscene.isSelected());
+            settingsCtrl.getSettings().setSerieSourceAddic7ed(chkSourceAddic7ed.isSelected());
+            settingsCtrl.getSettings().setSerieSourceAddic7edProxy(chkSourceAddic7edProxy.isSelected());
+            settingsCtrl.getSettings().setSerieSourceTvSubtitles(chkSourceTvSubtitles.isSelected());
+            settingsCtrl.getSettings().setSerieSourcePodnapisi(chkSourcePodnapisi.isSelected());
+            settingsCtrl.getSettings().setSerieSourceOpensubtitles(chkSourceOpenSubtitles.isSelected());
+            settingsCtrl.getSettings().setSerieSourceLocal(chkSourceLocal.isSelected());
+            settingsCtrl.getSettings().setSerieSourceSubscene(chkSourceSubscene.isSelected());
         } else {
             status = false;
         }
