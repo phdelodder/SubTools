@@ -8,7 +8,6 @@ import javax.swing.SwingConstants;
 import org.lodder.subtools.sublibrary.util.JComponentExtension;
 
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.LayoutManager;
 
 import lombok.experimental.ExtensionMethod;
@@ -46,14 +45,6 @@ public class PanelCheckBox extends JPanel {
     @Override
     public void add(Component comp, Object constraints) {
         panel.add(comp, constraints);
-    }
-
-    public <T extends Container, S extends Container> PanelCheckBox addComponent(T component, S child, Object constraints) {
-        return this.addComponent(child, constraints);
-    }
-
-    public <T extends Container, S extends Container> PanelCheckBox addComponent(T component, Object constraints, S child) {
-        return this.addComponent(constraints, child);
     }
 
     private void setEnabledChildren(boolean enabled) {
