@@ -125,8 +125,15 @@ public class GUI extends JFrame implements PropertyChangeListener {
         initPopupMenu();
     }
 
+    public void redraw() {
+        close();
+        // setVisible(false);
+        getContentPane().removeAll();
+        initialize();
+    }
+
     private void checkUpdate(final boolean forceUpdateCheck) {
-        UpdateAvailableGithub u = new UpdateAvailableGithub(manager, settingsControl);
+        UpdateAvailableGithub u = new UpdateAvailableGithub(manager);
         Optional<String> updateUrl = (forceUpdateCheck && u.isNewVersionAvailable())
                 || (!forceUpdateCheck && u.shouldCheckForNewUpdate(settingsControl.getSettings().getUpdateCheckPeriod())
                         && u.isNewVersionAvailable()) ? u.getLatestDownloadUrl() : Optional.empty();
@@ -320,6 +327,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
         TextGuiSearchAction searchAction;
         try {
             searchAction = TextGuiSearchAction.createWithSettings(settings)
+                    .manager(manager)
                     .subtitleProviderStore(subtitleProviderStore)
                     .mainwindow(this)
                     .searchPanel(pnlSearchText)
@@ -354,6 +362,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
         try {
             FileGuiSearchAction searchAction = FileGuiSearchAction
                     .createWithSettings(settings)
+                    .manager(manager)
                     .subtitleProviderStore((SubtitleProviderStore) this.app.make("SubtitleProviderStore"))
                     .mainwindow(this)
                     .searchPanel(pnlSearchFile)
@@ -368,7 +377,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
                 final int response =
                         JOptionPane.showConfirmDialog(
                                 getThis(),
-                                Messages.getString("MainWindow.OnlyMoveToLibraryStructure"), Messages.getString("MainWindow.Confirm"), //$NON-NLS-2$
+                                Messages.getString("MainWindow.OnlyMoveToLibraryStructure"), Messages.getString("App.Confirm"), //$NON-NLS-2$
                                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                 if (response == JOptionPane.YES_OPTION) {
                     rename();
@@ -440,7 +449,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
     private void initPopupMenu() {
         popupMenu = new MyPopupMenu();
-        JMenuItem menuItem = new JMenuItem(Messages.getString("MainWindow.Copy"));
+        JMenuItem menuItem = new JMenuItem(Messages.getString("App.Copy"));
         menuItem.addActionListener(arg0 -> {
             final CustomTable t = (CustomTable) popupMenu.getInvoker();
             final DefaultTableModel model = (DefaultTableModel) t.getModel();
@@ -501,42 +510,45 @@ public class GUI extends JFrame implements PropertyChangeListener {
     }
 
     private void downloadText() {
-        CustomTable subtitleTable = pnlSearchText.getResultPanel().getTable();
-        final VideoTableModel model = (VideoTableModel) subtitleTable.getModel();
-        File path = MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), Messages.getString("MainWindow.SelectFolder"));
+        MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), Messages.getString("MainWindow.SelectFolder"))
+                .ifPresent(path -> {
+                    CustomTable subtitleTable = pnlSearchText.getResultPanel().getTable();
+                    final VideoTableModel model = (VideoTableModel) subtitleTable.getModel();
+                    for (int i = 0; i < model.getRowCount(); i++) {
+                        if ((Boolean) model.getValueAt(i, subtitleTable.getColumnIdByName(SearchColumnName.SELECT))) {
+                            final Subtitle subtitle = (Subtitle) model.getValueAt(i, subtitleTable.getColumnIdByName(SearchColumnName.OBJECT));
+                            String filename = "";
+                            if (!subtitle.getFileName().endsWith(".srt")) {
+                                filename = subtitle.getFileName() + ".srt";
+                            }
+                            if (OsCheck.getOperatingSystemType() == OSType.Windows) {
+                                filename = StringUtil.removeIllegalWindowsChars(filename);
+                            }
 
-        for (int i = 0; i < model.getRowCount(); i++) {
-            if ((Boolean) model.getValueAt(i, subtitleTable.getColumnIdByName(SearchColumnName.SELECT))) {
-                final Subtitle subtitle = (Subtitle) model.getValueAt(i, subtitleTable.getColumnIdByName(SearchColumnName.OBJECT));
-                String filename = "";
-                if (!subtitle.getFileName().endsWith(".srt")) {
-                    filename = subtitle.getFileName() + ".srt";
-                }
-                if (OsCheck.getOperatingSystemType() == OSType.Windows) {
-                    filename = StringUtil.removeIllegalWindowsChars(filename);
-                }
-
-                try {
-                    if (subtitle.getSourceLocation() == Subtitle.SourceLocation.FILE) {
-                        Files.copy(subtitle.getFile(), new File(path, subtitle.getFileName()));
-                    } else {
-                        Manager manager = (Manager) this.app.make("Manager");
-                        String url =
-                                subtitle.getSourceLocation() == Subtitle.SourceLocation.URL ? subtitle.getUrl() : subtitle.getUrlSupplier().get();
-                        manager.store(url, new File(path, filename));
+                            try {
+                                if (subtitle.getSourceLocation() == Subtitle.SourceLocation.FILE) {
+                                    Files.copy(subtitle.getFile(), new File(path, subtitle.getFileName()));
+                                } else {
+                                    Manager manager = (Manager) this.app.make("Manager");
+                                    String url =
+                                            subtitle.getSourceLocation() == Subtitle.SourceLocation.URL ? subtitle.getUrl()
+                                                    : subtitle.getUrlSupplier().get();
+                                    manager.store(url, new File(path, filename));
+                                }
+                            } catch (IOException | ManagerException e) {
+                                LOGGER.error("downloadText", e);
+                            } catch (SubtitlesProviderException e) {
+                                LOGGER.error("Error while getting url for [%s] for subtitle provider [%s] (%s)".formatted(filename,
+                                        e.getSubtitleProvider(), e.getMessage()), e);
+                                throw new RuntimeException(e);
+                            }
+                        }
                     }
-                } catch (IOException | ManagerException e) {
-                    LOGGER.error("downloadText", e);
-                } catch (SubtitlesProviderException e) {
-                    LOGGER.error("Error while getting url for [%s] for subtitle provider [%s] (%s)".formatted(filename, e.getSubtitleProvider(),
-                            e.getMessage()), e);
-                    throw new RuntimeException(e);
-                }
-            }
-        }
+                });
+
     }
 
-    protected JFrame getThis() {
+    protected GUI getThis() {
         return this;
     }
 
@@ -577,8 +589,8 @@ public class GUI extends JFrame implements PropertyChangeListener {
     }
 
     private void selectIncomingFolder() {
-        File path = MemoryFolderChooser.getInstance().selectDirectory(getThis(), Messages.getString("MainWindow.SelectFolder"));
-        pnlSearchFileInput.setIncomingPath(path.getAbsolutePath());
+        MemoryFolderChooser.getInstance().selectDirectory(getThis(), Messages.getString("MainWindow.SelectFolder"))
+                .map(File::getAbsolutePath).ifPresent(pnlSearchFileInput::setIncomingPath);
     }
 
     @Override

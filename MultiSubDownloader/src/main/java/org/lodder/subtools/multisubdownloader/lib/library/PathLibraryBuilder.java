@@ -39,25 +39,25 @@ public class PathLibraryBuilder extends LibraryBuilder {
             show = StringUtil.removeIllegalWindowsChars(show);
         }
 
-        folder = folder.replaceAll("%SHOW NAME%", show);
+        folder = folder.replace("%SHOW NAME%", show);
         // order is important!
         folder = replaceFormatedEpisodeNumber(folder, "%EEX%", tvRelease.getEpisodeNumbers(), true);
         folder = replaceFormatedEpisodeNumber(folder, "%EX%", tvRelease.getEpisodeNumbers(), false);
-        folder = folder.replaceAll("%SS%", formatedNumber(tvRelease.getSeason(), true));
-        folder = folder.replaceAll("%S%", formatedNumber(tvRelease.getSeason(), false));
-        folder = folder.replaceAll("%EE%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), true));
-        folder = folder.replaceAll("%E%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), false));
-        folder = folder.replaceAll("%TITLE%", tvRelease.getTitle());
+        folder = folder.replace("%SS%", formatedNumber(tvRelease.getSeason(), true));
+        folder = folder.replace("%S%", formatedNumber(tvRelease.getSeason(), false));
+        folder = folder.replace("%EE%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), true));
+        folder = folder.replace("%E%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), false));
+        folder = folder.replace("%TITLE%", tvRelease.getTitle());
         try {
-            folder = folder.replaceAll("%SEPARATOR%", File.separator);
+            folder = folder.replace("%SEPARATOR%", File.separator);
         } catch (IndexOutOfBoundsException | IllegalArgumentException ioobe) {
             // windows hack needs "\\" instead of "\"
-            folder = folder.replaceAll("%SEPARATOR%", File.separator + File.separator);
+            folder = folder.replace("%SEPARATOR%", File.separator + File.separator);
         }
-        folder = folder.replaceAll("%QUALITY%", tvRelease.getQuality());
+        folder = folder.replace("%QUALITY%", tvRelease.getQuality());
 
         if (getLibrarySettings().isLibraryFolderReplaceSpace()) {
-            folder = folder.replaceAll(" ", getLibrarySettings().getLibraryFolderReplacingSpaceSign());
+            folder = folder.replace(" ", getLibrarySettings().getLibraryFolderReplacingSpaceSign());
         }
 
         return folder;
@@ -71,13 +71,13 @@ public class PathLibraryBuilder extends LibraryBuilder {
             title = StringUtil.removeIllegalWindowsChars(title);
         }
 
-        folder = folder.replaceAll("%MOVIE TITLE%", title);
-        folder = folder.replaceAll("%YEAR%", Integer.toString(movieRelease.getYear()));
-        folder = folder.replaceAll("%SEPARATOR%", File.separator);
-        folder = folder.replaceAll("%QUALITY%", movieRelease.getQuality());
+        folder = folder.replace("%MOVIE TITLE%", title);
+        folder = folder.replace("%YEAR%", Integer.toString(movieRelease.getYear()));
+        folder = folder.replace("%SEPARATOR%", File.separator);
+        folder = folder.replace("%QUALITY%", movieRelease.getQuality());
 
         if (getLibrarySettings().isLibraryFolderReplaceSpace()) {
-            folder = folder.replaceAll(" ", getLibrarySettings().getLibraryFolderReplacingSpaceSign());
+            folder = folder.replace(" ", getLibrarySettings().getLibraryFolderReplacingSpaceSign());
         }
 
         return folder;

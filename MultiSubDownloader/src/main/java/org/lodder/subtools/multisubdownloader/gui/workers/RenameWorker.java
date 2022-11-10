@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.swing.SwingWorker;
 
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.actions.RenameAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
@@ -73,6 +74,6 @@ public class RenameWorker extends SwingWorker<Void, String> implements Cancelabl
 
     @Override
     protected void process(List<String> data) {
-        data.forEach(s -> StatusMessenger.instance.message("Bestand hernoemen: " + s));
+        data.forEach(s -> StatusMessenger.instance.message(Messages.getString("MainWindow.RenamingFile", s)));
     }
 }

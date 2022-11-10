@@ -17,6 +17,7 @@ import org.lodder.subtools.multisubdownloader.listeners.SearchProgressListener;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.sublibrary.Language;
+import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 
@@ -28,6 +29,10 @@ import lombok.experimental.Accessors;
 
 @RequiredArgsConstructor
 public class SearchManager implements Cancelable {
+
+    public interface SearchManagerManager {
+        SearchManagerLanguage manager(@NonNull Manager manager);
+    }
 
     public interface SearchManagerLanguage {
         SearchManagerProgressListener language(@NonNull Language language);
@@ -48,7 +53,9 @@ public class SearchManager implements Cancelable {
     @Setter
     @Accessors(fluent = true)
     public static class SearchManagerBuilder
-            implements SearchManagerOnFound, SearchManagerUserInteractionHandler, SearchManagerProgressListener, SearchManagerLanguage {
+            implements SearchManagerOnFound, SearchManagerUserInteractionHandler, SearchManagerProgressListener, SearchManagerLanguage,
+            SearchManagerManager {
+        private Manager manager;
         private Settings settings;
         private Language language;
         private SearchProgressListener progressListener;
@@ -56,13 +63,14 @@ public class SearchManager implements Cancelable {
 
         @Override
         public SearchManager onFound(SearchHandler onFound) {
-            return new SearchManager(settings, onFound, language, progressListener, userInteractionHandler);
+            return new SearchManager(manager, settings, onFound, language, progressListener, userInteractionHandler);
         }
     }
 
     private final Map<SubtitleProvider, Queue<Release>> queue = new HashMap<>();
     private final Map<SubtitleProvider, SearchWorker> workers = new HashMap<>();
     private final Map<Release, ScoreCalculator> scoreCalculators = new HashMap<>();
+    private final Manager manager;
     private final Settings settings;
     @Getter
     private int progress = 0;
@@ -75,7 +83,7 @@ public class SearchManager implements Cancelable {
     @Getter
     private final UserInteractionHandler userInteractionHandler;
 
-    public static SearchManagerLanguage createWithSettings(Settings settings) {
+    public static SearchManagerManager createWithSettings(Settings settings) {
         return new SearchManagerBuilder().settings(settings);
     }
 
@@ -109,7 +117,6 @@ public class SearchManager implements Cancelable {
     public void onCompleted(SearchWorker worker) {
         Release release = worker.getRelease();
         List<Subtitle> subtitles = new ArrayList<>(worker.getSubtitles());
-
 
         /* set the score of the found subtitles */
         ScoreCalculator calculator = this.scoreCalculators.get(release);

@@ -18,7 +18,7 @@ import lombok.Setter;
 @Builder
 public class PodnapisiSubtitleDescriptor {
 
-    // private String subtitleId;
+    private String subtitleId;
     private Language language;
     private String uploaderName;
     // private String uploaderUid;
@@ -28,5 +28,7 @@ public class PodnapisiSubtitleDescriptor {
     private String url;
     private boolean hearingImpaired;
     private boolean isInexact;
-
+    private String year;
+    private String omdb;
+    private String imdb;
 }

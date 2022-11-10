@@ -6,6 +6,8 @@ import javax.swing.JLabel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
+import org.lodder.subtools.multisubdownloader.Messages;
+
 import java.awt.event.ActionListener;
 
 import net.miginfocom.swing.MigLayout;
@@ -31,7 +33,7 @@ public class StructureFolderPanel extends StructurePanel {
     }
 
     private void addComponentsToPanel() {
-        add(new JLabel("Verplaatsen naar Bibiliotheek"), "cell 0 0 5 1,gapy 5");
+        add(new JLabel(Messages.getString("PreferenceDialog.MoveToLibrary")), "cell 0 0 5 1,gapy 5");
         add(new JSeparator(), "cell 0 0 5 1,growx,gapy 5");
         add(lblLocatie, "cell 1 1,alignx left");
         add(txtLibraryFolder, "cell 2 1 2 1,growx");
@@ -53,19 +55,19 @@ public class StructureFolderPanel extends StructurePanel {
     }
 
     private void createComponents() {
-        lblLocatie = new JLabel("Locatie");
+        lblLocatie = new JLabel(Messages.getString("PreferenceDialog.Location"));
 
         txtLibraryFolder = new JTextField();
         txtLibraryFolder.setColumns(10);
 
-        btnBrowse = new JButton("Bladeren");
+        btnBrowse = new JButton(Messages.getString("App.Browse"));
 
-        lblStructuur = new JLabel("Structuur");
+        lblStructuur = new JLabel(Messages.getString("StructureBuilderDialog.Structure"));
 
         txtFolderStructure = new JTextField();
         txtFolderStructure.setColumns(10);
 
-        chkRemoveEmptyFolder = new JCheckBox("Lege mappen verwijderen");
+        chkRemoveEmptyFolder = new JCheckBox(Messages.getString("PreferenceDialog.RemoveEmptyFolders"));
     }
 
     public void setBrowseAction(ActionListener actionListener) {

@@ -6,14 +6,27 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
+import org.lodder.subtools.multisubdownloader.Messages;
+import org.lodder.subtools.sublibrary.util.JComponentExtension;
+
 import java.awt.event.ActionListener;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.ExtensionMethod;
+
+@ExtensionMethod(JComponentExtension.class)
 public abstract class StructurePanel extends JPanel {
 
     private static final long serialVersionUID = 7507970016496546514L;
+    @Setter
     private ActionListener buildStructureAction;
-    protected JButton btnBuildStructure;
+    @Getter(value = AccessLevel.PROTECTED)
+    private JButton btnBuildStructure;
+    @Getter(value = AccessLevel.PROTECTED)
     private JCheckBox chkReplaceSpace;
+    @Getter(value = AccessLevel.PROTECTED)
     private JComboBox<String> cbxReplaceSpaceChar;
 
     public StructurePanel() {
@@ -30,28 +43,16 @@ public abstract class StructurePanel extends JPanel {
     }
 
     private void createComponents() {
-        btnBuildStructure = new JButton("Structuur");
-
-        chkReplaceSpace = new JCheckBox("Vervangen spatie door: ");
+        btnBuildStructure = new JButton(Messages.getString("StructureBuilderDialog.Structure"));
 
         cbxReplaceSpaceChar = new JComboBox<>();
+        cbxReplaceSpaceChar.setEnabled(false);
         cbxReplaceSpaceChar.setModel(new DefaultComboBoxModel<>(new String[] { "-", ".", "_" }));
-    }
 
-    protected JCheckBox getChkReplaceSpace() {
-        return chkReplaceSpace;
-    }
+        chkReplaceSpace = new JCheckBox(Messages.getString("PreferenceDialog.ReplaceSpaceWith"));
+        chkReplaceSpace.addCheckedChangeListener(cbxReplaceSpaceChar::setEnabled);
 
-    protected JComboBox<String> getCbxReplaceSpaceChar() {
-        return cbxReplaceSpaceChar;
-    }
 
-    protected JButton getBtnBuildStructure() {
-        return btnBuildStructure;
-    }
-
-    public void setBuildStructureAction(ActionListener actionListener) {
-        this.buildStructureAction = actionListener;
     }
 
     public String getReplaceSpaceChar() {

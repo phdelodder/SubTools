@@ -4,6 +4,8 @@ import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JWindow;
 
+import org.lodder.subtools.multisubdownloader.Messages;
+
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -24,7 +26,7 @@ public class Splash extends JWindow {
         setBounds(100, 100, 501, 100);
         getContentPane().setLayout(new MigLayout("", "[][475px,center][]", "[][40px:n]"));
 
-        label = new JLabel("MultiSubDownloader Starting ...");
+        label = new JLabel(Messages.getString("Splash.starting"));
         getContentPane().add(label, "cell 1 0 2 1,alignx left");
 
         progressBar = new JProgressBar(0, 100);

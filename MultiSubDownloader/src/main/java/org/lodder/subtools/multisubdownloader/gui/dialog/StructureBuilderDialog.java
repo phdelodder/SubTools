@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -43,20 +42,22 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
     private JTextField txtStructure;
     private final VideoType videoType;
     private final LibrarySettings librarySettings;
-    private final StrucutureType structureType;
+    private final StructureType structureType;
     private JLabel lblPreview;
     private TvRelease tvRelease;
     private MovieRelease movieRelease;
     private String oldStructure;
     private final Manager manager;
     private final UserInteractionHandler userInteractionHandler;
+    private int tagRow = 0;
+    private int tagCol = 0;
 
-    public enum StrucutureType {
+    public enum StructureType {
         FILE, FOLDER
     }
 
     public StructureBuilderDialog(JFrame frame, String title, boolean modal, VideoType videoType,
-            StrucutureType structureType, LibrarySettings librarySettings, Manager manager, UserInteractionHandler userInteractionHandler) {
+            StructureType structureType, LibrarySettings librarySettings, Manager manager, UserInteractionHandler userInteractionHandler) {
         super(frame, title, modal);
         this.videoType = videoType;
         this.librarySettings = librarySettings;
@@ -94,11 +95,14 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
                 "cell 0 0 2 1,alignx left,aligny top");
         if (videoType == VideoType.EPISODE) {
             // add tv show tags
-            buildLabelTable(EPISODE_TAGS, 4);
+            buildLabelTable(EPISODE_TAGS, 5);
 
         } else if (videoType == VideoType.MOVIE) {
             // add movie tags
-            buildLabelTable(MOVIE_TAGS, 4);
+            buildLabelTable(MOVIE_TAGS, 5);
+        }
+        if (structureType == StructureType.FOLDER) {
+            buildLabelTable(FOLDER_TAGS, 5);
         }
 
         contentPanel.add(tagPanel, "cell 0 0 2 1,grow");
@@ -115,7 +119,7 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
         JPanel buttonPane = new JPanel();
         buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
         getContentPane().add(buttonPane, BorderLayout.SOUTH);
-        JButton okButton = new JButton(Messages.getString("StructureBuilderDialog.OK"));
+        JButton okButton = new JButton(Messages.getString("App.OK"));
         okButton.addActionListener(e -> {
             setVisible(false);
             dispose(); // this is needed to dispose the dialog and return the control to the window
@@ -123,7 +127,7 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
         okButton.setActionCommand("OK");
         buttonPane.add(okButton);
         getRootPane().setDefaultButton(okButton);
-        JButton cancelButton = new JButton(Messages.getString("StructureBuilderDialog.Cancel"));
+        JButton cancelButton = new JButton(Messages.getString("App.Cancel"));
         cancelButton.addActionListener(e -> {
             setVisible(false);
             txtStructure.setText(oldStructure);
@@ -134,21 +138,20 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
 
     }
 
-    // Needs miglayout
     private void buildLabelTable(Map<String, String> map, int maxRows) {
-        int row = 0;
-        int col = 0;
-        for (Entry<String, String> entry : map.entrySet()) {
-            JLabel label = new JLabel(entry.getKey());
-            label.addMouseListener(new InsertTag());
-            label.setToolTipText(entry.getValue());
-            row++;
-            if (row > maxRows) {
-                col++;
-                row = 1;
-            }
-            tagPanel.add(label, "cell " + col + " " + row);
+        map.forEach(this::addTag);
+    }
+
+    private void addTag(String tag, String tooltipText) {
+        JLabel label = new JLabel(tag);
+        label.addMouseListener(new InsertTag());
+        label.setToolTipText(tooltipText);
+        tagRow++;
+        if (tagRow > 5) {
+            tagCol++;
+            tagRow = 1;
         }
+        tagPanel.add(label, "cell " + tagCol + " " + tagRow);
     }
 
     public String showDialog(String structure) {
@@ -257,46 +260,40 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
 
     }
 
-    private static final Map<String, String> EPISODE_TAGS = Collections
-            .unmodifiableMap(new HashMap<String, String>() {
-                /**
-                         *
-                         */
-                private static final long serialVersionUID = 3313041588123263612L;
+    private static final Map<String, String> EPISODE_TAGS = Collections.unmodifiableMap(new HashMap<>() {
+        private static final long serialVersionUID = 3313041588123263612L;
+        {
+            put("%SHOW NAME%", Messages.getString("StructureBuilderDialog.NameTvShow"));
+            put("%TITLE%", Messages.getString("StructureBuilderDialog.EpisodeTitle"));
+            put("%EE%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZero"));
+            put("%EEX%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZeroForMultipe"));
+            put("%E%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeWithoutLeadingZero"));
+            put("%EX%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZeroMultiple"));
+            put("%SS%", Messages.getString("StructureBuilderDialog.NumberOfSeasonLeading"));
+            put("%S%", Messages.getString("StructureBuilderDialog.NumberOfSeasonsWithoutLeading"));
+            put("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfRelease"));
+            put("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.Description"));
+            // put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
+        }
+    });
 
-                {
-                    put("%SHOW NAME%", Messages.getString("StructureBuilderDialog.NameTvShow"));
-                    put("%TITLE%", Messages.getString("StructureBuilderDialog.EpisodeTitle"));
-                    put("%EE%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZero"));
-                    put("%EEX%",
-                            Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZeroForMultipe"));
-                    put("%E%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeWithoutLeadingZero"));
-                    put("%EX%",
-                            Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZeroMultiple"));
-                    put("%SS%", Messages.getString("StructureBuilderDialog.NumberOfSeasonLeading"));
-                    put("%S%", Messages.getString("StructureBuilderDialog.NumberOfSeasonsWithoutLeading"));
-                    put("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfRelease"));
-                    put("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.Description"));
-                    put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
-                }
-            });
+    private static final Map<String, String> MOVIE_TAGS = Collections.unmodifiableMap(new HashMap<>() {
+        private static final long serialVersionUID = 5943868685951628245L;
+        {
+            put("%MOVIE TITLE%", Messages.getString("StructureBuilderDialog.MovieName"));
+            put("%YEAR%", Messages.getString("StructureBuilderDialog.MovieYear"));
+            put("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfMovie"));
+            put("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.MovieDescription"));
+            // put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
+        }
+    });
 
-    private static final Map<String, String> MOVIE_TAGS = Collections
-            .unmodifiableMap(new HashMap<String, String>() {
-                /**
-                         *
-                         */
-                private static final long serialVersionUID = 5943868685951628245L;
-
-                {
-                    put("%MOVIE NAME%", Messages.getString("StructureBuilderDialog.MovieName"));
-                    put("%YEAR%", Messages.getString("StructureBuilderDialog.MovieYear"));
-                    put("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfMovie"));
-                    put("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.MovieDescription"));
-                    put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
-
-                }
-            });
+    private static final Map<String, String> FOLDER_TAGS = Collections.unmodifiableMap(new HashMap<>() {
+        private static final long serialVersionUID = 5943868685951628245L;
+        {
+            put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
+        }
+    });
     private JPanel tagPanel;
 
 }

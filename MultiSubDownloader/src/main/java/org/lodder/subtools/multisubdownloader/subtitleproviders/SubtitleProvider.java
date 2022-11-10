@@ -3,6 +3,8 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders;
 import java.util.Set;
 
 import org.lodder.subtools.sublibrary.Language;
+import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -44,4 +46,16 @@ public interface SubtitleProvider {
         }
         return Set.of();
     }
+
+    default void clearCache() {
+        getManager().clearExpiredCacheBuilder()
+                .cacheType(CacheType.DISK)
+                .keyFilter((String k) -> k.startsWith(getProviderName() + "-"))
+                .clear();
+    }
+
+    String getProviderName();
+
+    Manager getManager();
+
 }

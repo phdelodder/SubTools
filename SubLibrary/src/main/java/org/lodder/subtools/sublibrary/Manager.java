@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,6 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
+import org.lodder.subtools.sublibrary.cache.Cache;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
 import org.lodder.subtools.sublibrary.cache.InMemoryCache;
@@ -54,16 +56,6 @@ public class Manager {
     private final InMemoryCache inMemoryCache;
     private final DiskCache diskCache;
 
-    public String downloadText(String urlString) throws ManagerException {
-        try {
-            return httpClient.downloadText(urlString);
-        } catch (MalformedURLException e) {
-            throw new ManagerException("incorrect url", e);
-        } catch (IOException e) {
-            throw new ManagerException(e);
-        }
-    }
-
     public boolean store(String downloadlink, File file) throws ManagerException {
         try {
             return httpClient.doDownloadFile(new URL(downloadlink), file);
@@ -72,18 +64,75 @@ public class Manager {
         }
     }
 
-    public String post(String urlString, String userAgent, Map<String, String> data) throws ManagerException {
-        try {
-            return httpClient.doPost(new URL(urlString), userAgent, data);
-        } catch (MalformedURLException e) {
-            throw new ManagerException("incorrect url", e);
-        } catch (HttpClientSetupException | HttpClientException e) {
-            throw new ManagerException(e);
-        }
-    }
-
     public void storeCookies(String domain, Map<String, String> cookieMap) {
         httpClient.storeCookies(domain, cookieMap);
+    }
+
+    // ==== \\
+    // POST \\
+    // ==== \\
+
+    public PostBuilderUrlIntf postBuilder() {
+        return new PostBuilder(httpClient);
+    }
+
+    public interface PostBuilderUrlIntf {
+        PostBuilderUserAgentIntf url(String url);
+    }
+
+    public interface PostBuilderUserAgentIntf extends PostBuilderDataMapIntf {
+        PostBuilderDataMapIntf userAgent(String userAgent);
+    }
+
+    public interface PostBuilderDataMapIntf extends PostBuilderDataIntf {
+        PostBuilderPostIntf data(Map<String, String> data);
+    }
+
+    public interface PostBuilderDataIntf extends PostBuilderPostIntf {
+        PostBuilderDataIntf addData(String key, String value);
+    }
+
+    public interface PostBuilderPostIntf {
+        String post() throws ManagerException;
+
+        org.jsoup.nodes.Document postAsJsoupDocument() throws ManagerException;
+    }
+
+    @Setter
+    @Accessors(chain = true, fluent = true)
+    @RequiredArgsConstructor
+    public static class PostBuilder
+            implements PostBuilderUrlIntf, PostBuilderUserAgentIntf, PostBuilderDataMapIntf, PostBuilderDataIntf, PostBuilderPostIntf {
+        private final HttpClient httpClient;
+        private String url;
+        private String userAgent;
+        private Map<String, String> data;
+
+        @Override
+        public PostBuilderDataIntf addData(String key, String value) {
+            if (data == null) {
+                data = new HashMap<>();
+            }
+            data.put(key, value);
+            return this;
+        }
+
+        @Override
+        public String post() throws ManagerException {
+            try {
+                return httpClient.doPost(new URL(url), userAgent, data == null ? new HashMap<>() : data);
+            } catch (MalformedURLException e) {
+                throw new ManagerException("incorrect url", e);
+            } catch (HttpClientSetupException | HttpClientException e) {
+                throw new ManagerException(e);
+            }
+        }
+
+        @Override
+        public org.jsoup.nodes.Document postAsJsoupDocument() throws ManagerException {
+            return Jsoup.parse(post());
+        }
+
     }
 
     // ================ \\
@@ -243,6 +292,56 @@ public class Manager {
                     return getContentWithoutCache(urlString, userAgent);
                 }
                 throw new ManagerException(e);
+            }
+        }
+    }
+
+    // =========== \\
+    // CLEAR CACHE \\
+    // =========== \\
+
+    public ClearExpiredCacheBuilderCacheTypeIntf clearExpiredCacheBuilder() {
+        return new ClearExpiredCacheBuilder<>(inMemoryCache, diskCache);
+    }
+
+    public interface ClearExpiredCacheBuilderCacheTypeIntf {
+
+        ClearExpiredCacheBuilderKeyFilterIntf cacheType(CacheType cacheType);
+    }
+
+    public interface ClearExpiredCacheBuilderKeyFilterIntf extends ClearExpiredCacheBuilderClearIntf {
+
+        <K> ClearExpiredCacheBuilderClearIntf<K> keyFilter(Predicate<K> keyFilter);
+    }
+
+    public interface ClearExpiredCacheBuilderClearIntf<K> {
+
+        void clear();
+    }
+
+    @Setter
+    @Accessors(chain = true, fluent = true)
+    @RequiredArgsConstructor
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static class ClearExpiredCacheBuilder<K>
+            implements ClearExpiredCacheBuilderCacheTypeIntf, ClearExpiredCacheBuilderKeyFilterIntf, ClearExpiredCacheBuilderClearIntf {
+        private final InMemoryCache inMemoryCache;
+        private final DiskCache diskCache;
+        private CacheType cacheType;
+        private Predicate<K> keyFilter;
+
+        @Override
+        public <T> ClearExpiredCacheBuilder<T> keyFilter(Predicate<T> keyFilter) {
+            this.keyFilter = (Predicate<K>) keyFilter;
+            return (ClearExpiredCacheBuilder<T>) this;
+        }
+
+        @Override
+        public void clear() {
+            switch (cacheType) {
+                case MEMORY -> inMemoryCache.cleanup(keyFilter);
+                case DISK -> diskCache.cleanup(keyFilter);
+                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             }
         }
     }
@@ -545,7 +644,7 @@ public class Manager {
             };
         }
 
-        private T getOrPutValue(InMemoryCache cache) throws X {
+        private T getOrPutValue(Cache cache) throws X {
             if (cache.contains(key)) {
                 try {
                     return (T) cache.get(key).get();
@@ -580,7 +679,7 @@ public class Manager {
             };
         }
 
-        private C getOrPutCollection(InMemoryCache cache) throws X {
+        private C getOrPutCollection(Cache cache) throws X {
             if (cache.contains(key)) {
                 try {
                     return (C) cache.get(key).get();
@@ -615,7 +714,7 @@ public class Manager {
             };
         }
 
-        private Optional<T> getOrPutOptional(InMemoryCache cache) throws X {
+        private Optional<T> getOrPutOptional(Cache cache) throws X {
             boolean containsKey = cache.contains(key);
             if (!containsKey && storeTempNullValue) {
                 timeToLive(calculateTtl()).store();
@@ -649,7 +748,7 @@ public class Manager {
             };
         }
 
-        private OptionalInt getOrPutOptionalInt(InMemoryCache cache) throws X {
+        private OptionalInt getOrPutOptionalInt(Cache cache) throws X {
             boolean containsKey = cache.contains(key);
             if (!containsKey && storeTempNullValue) {
                 timeToLive(calculateTtl()).store();
@@ -731,7 +830,7 @@ public class Manager {
             };
         }
 
-        private OptionalLong getTemporaryTimeToLive(InMemoryCache cache) {
+        private OptionalLong getTemporaryTimeToLive(Cache cache) {
             return cache.getTemporaryTimeToLive(key).map(v -> TimeUnit.SECONDS.convert(v, TimeUnit.MILLISECONDS));
         }
 

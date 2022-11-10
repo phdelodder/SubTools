@@ -7,6 +7,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.lodder.subtools.multisubdownloader.GUI;
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandlerGUI;
 import org.lodder.subtools.multisubdownloader.actions.DownloadAction;
 import org.lodder.subtools.multisubdownloader.actions.UserInteractionHandlerAction;
@@ -86,7 +87,7 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
 
     @Override
     protected void process(List<String> data) {
-        data.forEach(s -> StatusMessenger.instance.message("Ondertitel downloaden voor: " + s));
+        data.forEach(s -> StatusMessenger.instance.message(Messages.getString("MainWindow.DownloadingSubtitle", s)));
     }
 
     private void showErrorMessage(String message) {

@@ -8,25 +8,34 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.codehaus.plexus.util.FileUtils;
 import org.lodder.subtools.sublibrary.util.lazy.LazyBiFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class DiskCache<K, V> extends InMemoryCache<K, V> {
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
+
+public abstract class DiskCache<K, V> extends Cache<K, V> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiskCache.class);
     public static final Object LOCK = new Object();
+    private final Long timeToLiveSeconds;
+    private final Set<K> doublesToRemove = new HashSet<>();
+    private final Map<K, CacheObject<V>> removedToAdd = new HashMap<>();
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private final LazyBiFunction<DiskCache, String, Connection> connection = new LazyBiFunction<>((cache, tableName) -> {
+    private final LazyBiFunction<DiskCache<K, V>, String, Connection> connection = new LazyBiFunction<>((cache, tableName) -> {
         try {
             synchronized (cache.getCacheMap()) {
                 File path = new File(System.getProperty("user.home"), ".MultiSubDownloader");
@@ -44,17 +53,28 @@ public abstract class DiskCache<K, V> extends InMemoryCache<K, V> {
                 }
 
                 boolean errorWhileReadingCacheFile = false;
-                try (Statement stmt = connection.createStatement();
+                try (
+                        Statement stmt = connection.createStatement();
                         ResultSet rs = stmt.executeQuery("SELECT key, cacheobject FROM %s;".formatted(tableName));) {
+                    // Map<K, CacheObject<V>> tempCache = new HashMap<>();
+                    Multimap<K, CacheObject<V>> tempCache = MultimapBuilder.hashKeys()
+                            .treeSetValues(Comparator.comparingLong((CacheObject<V> value) -> value.getAge()).reversed()).build();
                     synchronized (cache.getCacheMap()) {
                         while (rs.next()) {
                             try {
-                                cache.put(cache.diskObjectToKey(rs.getObject("key")), cache.diskCacheObjectToValue(rs.getObject("cacheobject")));
+                                tempCache.put(cache.diskObjectToKey(rs.getObject("key")), cache.diskCacheObjectToValue(rs.getObject("cacheobject")));
                             } catch (SQLException e2) {
                                 LOGGER.error("Unable to insert object in disk cache. (%s)".formatted(e2.getMessage()), e2);
                                 errorWhileReadingCacheFile = true;
                             }
                         }
+                        Map<K, Collection<CacheObject<V>>> map = tempCache.asMap();
+                        map.entrySet().stream().filter(entry -> entry.getValue().size() > 1).forEach(entry -> {
+                            doublesToRemove.add(entry.getKey());
+                            removedToAdd.put(entry.getKey(), entry.getValue().iterator().next());
+                        });
+                        map.entrySet().stream().sorted(Comparator.comparingLong(entry -> entry.getValue().iterator().next().getAge()))
+                                .forEach(entry -> put(entry.getKey(), entry.getValue().iterator().next()));
                     }
                 } catch (SQLException e) {
                     LOGGER.error("Unable while insert objects in disk cache!" + e.getMessage(), e);
@@ -80,46 +100,60 @@ public abstract class DiskCache<K, V> extends InMemoryCache<K, V> {
     });
     private final String tableName;
 
-    protected abstract Class getDbKeyType();
+    protected abstract Class<K> getDbKeyType();
 
-    protected abstract Class getDbValueType();
+    protected abstract Class<V> getDbValueType();
 
     private Connection getConnection() {
         return connection.apply(this, tableName);
     }
 
-    protected DiskCache(Long timeToLive, Long timerInterval, Integer maxItems, String username, String password, String tableName) {
-        super(timeToLive, timerInterval, maxItems);
+    protected DiskCache(Long timeToLiveSeconds, Integer maxItems, String username, String password, String tableName) {
+        super(maxItems);
+        if (timeToLiveSeconds != null && timeToLiveSeconds < 1) {
+            throw new IllegalStateException("maxItems should be a positive number");
+        }
+        if (timeToLiveSeconds != null && timeToLiveSeconds < 1) {
+            throw new IllegalStateException("timeToLive should be a positive number");
+        }
+        this.timeToLiveSeconds = timeToLiveSeconds;
         this.tableName = StringUtils.isBlank(tableName) ? "cacheobjects" : tableName;
         // initialize map in other thread
-        new Thread(() -> getConnection()).start();
-        if (timeToLive != null && timeToLive > 0) {
-            cleanup();
-        }
+        new Thread(() -> {
+            getConnection();
+            doublesToRemove.forEach(this::removeFromDisk);
+            removedToAdd.forEach(this::put);
+            removedToAdd.keySet().forEach(this::putFromMemoryCache);
+        }).start();
     }
 
-    @Override
     public void cleanup() {
+        cleanup(null);
+    }
+
+    public void cleanup(Predicate<K> keyFilter) {
         synchronized (getCacheMap()) {
             Iterator<Entry<K, CacheObject<V>>> itr = getCacheMap().entrySet().iterator();
             while (itr.hasNext()) {
                 Entry<K, CacheObject<V>> entry = itr.next();
-                if (!(entry.getValue() instanceof TemporaryCacheObject) && entry.getValue().isExpired(getTimeToLive())) {
+                if ((keyFilter == null || keyFilter.test(entry.getKey())) && entry.getValue().isExpired(timeToLiveSeconds * 1000)) {
                     itr.remove();
+                    removeFromDisk(entry.getKey());
                 }
-                remove(entry.getKey());
             }
             Thread.yield();
         }
     }
 
-    protected abstract K diskObjectToKey(Object key);
-
-    protected abstract CacheObject<V> diskCacheObjectToValue(Object value);
-
     @Override
-    public final void remove(K key) {
+    public void remove(K key) {
         super.remove(key);
+        synchronized (LOCK) {
+            removeFromDisk(key);
+        }
+    }
+
+    private void removeFromDisk(K key) {
         synchronized (LOCK) {
             try (PreparedStatement prep = getConnection().prepareStatement("delete from %s where key = ?".formatted(tableName))) {
                 // prep.clearParameters();
@@ -131,23 +165,31 @@ public abstract class DiskCache<K, V> extends InMemoryCache<K, V> {
         }
     }
 
+    protected abstract K diskObjectToKey(Object key);
+
+    protected abstract CacheObject<V> diskCacheObjectToValue(Object value);
+
     protected abstract Object keyToDiskObject(K key);
 
     protected abstract Object cacheObjectToDiskObject(CacheObject<V> value);
 
     @Override
     public final void put(K key, V value) {
-        super.put(key, value);
-        putFromMemoryCache(key, value);
+        synchronized (LOCK) {
+            super.put(key, value);
+            putFromMemoryCache(key);
+        }
     }
 
     @Override
     public final void put(K key, V value, long timeToLive) {
-        super.put(key, value, timeToLive);
-        putFromMemoryCache(key, value);
+        synchronized (LOCK) {
+            super.put(key, value, timeToLive);
+            putFromMemoryCache(key);
+        }
     }
 
-    private final void putFromMemoryCache(K key, V value) {
+    private final void putFromMemoryCache(K key) {
         synchronized (LOCK) {
             try (PreparedStatement prep = getConnection().prepareCall("INSERT INTO %s (key,cacheobject) VALUES (?,?)".formatted(tableName))) {
                 prep.clearParameters();
@@ -166,13 +208,5 @@ public abstract class DiskCache<K, V> extends InMemoryCache<K, V> {
 
     public void putWithoutPersist(K key, V value) {
         super.put(key, value);
-    }
-
-    @Override
-    public void deleteEntries(Predicate<K> keyFilter) {
-        synchronized (LOCK) {
-            List<Pair<K, V>> entries = super.getEntries(keyFilter);
-            entries.forEach(pair -> remove(pair.getKey()));
-        }
     }
 }

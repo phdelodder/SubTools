@@ -41,8 +41,8 @@ public class CLI {
     private static final Logger LOGGER = LoggerFactory.getLogger(CLI.class);
 
     private final Container app;
-    private final SettingsControl settingControl;
     private final Settings settings;
+    private final Manager manager;
     private boolean recursive = false;
     private Language language;
     private boolean force = false;
@@ -57,17 +57,17 @@ public class CLI {
 
     public CLI(SettingsControl settingControl, Container app) {
         this.app = app;
-        this.settingControl = settingControl;
         this.settings = settingControl.getSettings();
-        checkUpdate((Manager) this.app.make("Manager"));
+        this.manager = (Manager) this.app.make("Manager");
+        checkUpdate(manager);
         userInteractionHandler = new UserInteractionHandlerCLI(settings);
         userInteractionHandlerAction = new UserInteractionHandlerAction(settings, userInteractionHandler);
         downloadAction = new DownloadAction(settings, (Manager) this.app.make("Manager"), userInteractionHandler);
     }
 
     private void checkUpdate(Manager manager) {
-        UpdateAvailableGithub u = new UpdateAvailableGithub(manager, settingControl);
-        if (u.shouldCheckForNewUpdate(settings.getUpdateCheckPeriod())) {
+        UpdateAvailableGithub u = new UpdateAvailableGithub(manager);
+        if (u.shouldCheckForNewUpdate(settings.getUpdateCheckPeriod()) && u.isNewVersionAvailable()) {
             System.out.println(Messages.getString("UpdateAppAvailable") + ": " + u.getLatestDownloadUrl());
         }
     }
@@ -81,6 +81,7 @@ public class CLI {
         this.subtitleSelection = line.hasCliOption(CliOption.SELECTION);
         this.verboseProgress = line.hasCliOption(CliOption.VERBOSE_PROGRESS);
         this.dryRun = line.hasCliOption(CliOption.DRY_RUN);
+        Messages.setLanguage(language);
     }
 
     public void run() {
@@ -104,6 +105,7 @@ public class CLI {
         try {
             CliSearchAction
                     .createWithSettings(settings)
+                    .manager(manager)
                     .subtitleProviderStore((SubtitleProviderStore) app.make("SubtitleProviderStore"))
                     .indexingProgressListener(new CLIFileindexerProgress().verbose(verboseProgress))
                     .searchProgressListener(new CLISearchProgress().verbose(verboseProgress))
@@ -161,8 +163,7 @@ public class CLI {
             return Arrays.stream(Language.values()).filter(lang -> lang.name().equalsIgnoreCase(languageString)).findAny()
                     .orElseThrow(() -> new CliException(Messages.getString("App.NoValidLanguage")));
         } else {
-            System.out.println(Messages.getString("App.NoLanguageUseDefault"));
-            return Language.DUTCH;
+            return Language.ENGLISH;
         }
     }
 }

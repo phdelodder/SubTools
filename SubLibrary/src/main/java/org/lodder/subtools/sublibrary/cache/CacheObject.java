@@ -26,4 +26,6 @@ public interface CacheObject<T> {
         }
         throw new IllegalStateException("Could not parse value: " + string);
     }
+
+    long getAge();
 }

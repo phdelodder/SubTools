@@ -26,16 +26,16 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
 
             filename = getLibrarySettings().getLibraryFilenameStructure();
             // order is important!
-            filename = filename.replaceAll("%SHOW NAME%", show);
+            filename = filename.replace("%SHOW NAME%", show);
             filename = replaceFormatedEpisodeNumber(filename, "%EEX%", tvRelease.getEpisodeNumbers(), true);
             filename = replaceFormatedEpisodeNumber(filename, "%EX%", tvRelease.getEpisodeNumbers(), false);
-            filename = filename.replaceAll("%SS%", formatedNumber(tvRelease.getSeason(), true));
-            filename = filename.replaceAll("%S%", formatedNumber(tvRelease.getSeason(), false));
-            filename = filename.replaceAll("%EE%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), true));
-            filename = filename.replaceAll("%E%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), false));
-            filename = filename.replaceAll("%TITLE%", tvRelease.getTitle());
-            filename = filename.replaceAll("%QUALITY%", release.getQuality());
-            filename = filename.replaceAll("%DESCRIPTION%", release.getDescription());
+            filename = filename.replace("%SS%", formatedNumber(tvRelease.getSeason(), true));
+            filename = filename.replace("%S%", formatedNumber(tvRelease.getSeason(), false));
+            filename = filename.replace("%EE%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), true));
+            filename = filename.replace("%E%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), false));
+            filename = filename.replace("%TITLE%", tvRelease.getTitle());
+            filename = filename.replace("%QUALITY%", release.getQuality());
+            filename = filename.replace("%DESCRIPTION%", release.getDescription());
 
             filename += "." + release.getExtension();
         } else {
@@ -45,7 +45,7 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
             filename = StringUtil.removeIllegalWindowsChars(filename);
         }
         if (getLibrarySettings().isLibraryFilenameReplaceSpace()) {
-            filename = filename.replaceAll(" ", getLibrarySettings().getLibraryFilenameReplacingSpaceSign());
+            filename = filename.replace(" ", getLibrarySettings().getLibraryFilenameReplacingSpaceSign());
         }
         return filename;
     }
@@ -61,12 +61,12 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
         }
         if (getLibrarySettings().isLibraryIncludeLanguageCode()) {
             if (language == null) {
-                filename = changeExtension(filename, ".nld.srt");
+                filename = changeExtension(filename, ".%s.srt".formatted(Language.ENGLISH.getLangCode()));
             } else {
                 filename = switch (language) {
                     case DUTCH -> {
                         if ("".equals(getLibrarySettings().getDefaultNlText())) {
-                            yield changeExtension(filename, ".nld.srt");
+                            yield changeExtension(filename, ".%s.srt".formatted(Language.DUTCH.getLangCode()));
                         } else {
                             final String ext = "." + getLibrarySettings().getDefaultNlText() + ".srt";
                             yield changeExtension(filename, ext);
@@ -74,13 +74,13 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
                     }
                     case ENGLISH -> {
                         if ("".equals(getLibrarySettings().getDefaultEnText())) {
-                            yield changeExtension(filename, ".eng.srt");
+                            yield changeExtension(filename, ".%s.srt".formatted(Language.ENGLISH.getLangCode()));
                         } else {
                             final String ext = "." + getLibrarySettings().getDefaultEnText() + ".srt";
                             yield changeExtension(filename, ext);
                         }
                     }
-                    default -> changeExtension(filename, ".nld.srt");
+                    default -> changeExtension(filename, ".%s.srt".formatted(language.getLangCode()));
                 };
             }
         } else {
@@ -90,7 +90,7 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
             filename = StringUtil.removeIllegalWindowsChars(filename);
         }
         if (getLibrarySettings().isLibraryFilenameReplaceSpace()) {
-            filename = filename.replaceAll(" ", getLibrarySettings().getLibraryFilenameReplacingSpaceSign());
+            filename = filename.replace(" ", getLibrarySettings().getLibraryFilenameReplacingSpaceSign());
         }
         return filename;
     }

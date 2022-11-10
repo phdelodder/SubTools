@@ -185,7 +185,7 @@ public class JSubsceneAdapter extends AbstractAdapter<SubsceneSubtitleDescriptor
             OptionalInt season = IntStream.rangeClosed(1, 100)
                     .filter(i -> providerSerieId.getId().endsWith("-%s-season".formatted(getOrdinalName(i).toLowerCase()))).findAny();
             if (season.isPresent()) {
-                return "%s (%s %s)".formatted(providerSerieId.getName(), Messages.getString("Menu.Season"), season.getAsInt());
+                return "%s (%s %s)".formatted(providerSerieId.getName(), Messages.getString("App.Season"), season.getAsInt());
             }
         }
         return providerSerieId.getName();

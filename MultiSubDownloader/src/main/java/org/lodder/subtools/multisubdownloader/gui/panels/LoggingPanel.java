@@ -8,6 +8,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 
+import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.extra.LogTextAppender;
 
 import ch.qos.logback.classic.Level;
@@ -24,7 +25,7 @@ public class LoggingPanel extends JPanel {
         this.setLayout(new MigLayout("", "[698px,grow][]", "[][70px,grow]"));
 
         final JScrollPane scrollPane_1 = new JScrollPane();
-        this.add(new JLabel("Logging"), "cell 0 0,alignx right,gaptop 5");
+        this.add(new JLabel(Messages.getString("App.Logging")), "cell 0 0,alignx right,gaptop 5");
         this.add(new JSeparator(), "cell 0 0,growx,gaptop 5");
 
         final JComboBox<Level> cbxLogLevel = new JComboBox<>();

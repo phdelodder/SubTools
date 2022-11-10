@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.rep
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.sublibrary.model.Release;
 
 public class GroupReplacer implements KeywordReplacer {
@@ -18,7 +19,7 @@ public class GroupReplacer implements KeywordReplacer {
         weights.remove(reservedKey);
 
         /* add replaced value */
-        String group = release.getReleaseGroup().toLowerCase();
+        String group = StringUtils.lowerCase(release.getReleaseGroup());
         weights.put(group, weight);
     }
 }

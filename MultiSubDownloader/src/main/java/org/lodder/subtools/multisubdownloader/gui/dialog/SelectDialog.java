@@ -61,7 +61,7 @@ public class SelectDialog extends MultiSubDialog {
             buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
             getContentPane().add(buttonPane, "cell 0 2,grow");
             {
-                JButton okButton = new JButton(Messages.getString("SelectDialog.OK"));
+                JButton okButton = new JButton(Messages.getString("App.OK"));
                 okButton.addActionListener(arg0 -> {
                     selectedSubtitleIdxs = getSelectedIdxs();
                     setVisible(false);
@@ -77,13 +77,10 @@ public class SelectDialog extends MultiSubDialog {
                     setVisible(false);
                 });
                 allButton.setActionCommand("Alles");
-                if (subtitles.size() == 1) {
-                    allButton.setEnabled(false);
-                }
                 buttonPane.add(allButton);
             }
             {
-                JButton cancelButton = new JButton(Messages.getString("SelectDialog.Cancel"));
+                JButton cancelButton = new JButton(Messages.getString("App.Cancel"));
                 cancelButton.addActionListener(arg0 -> {
                     selectedSubtitleIdxs = List.of();
                     setVisible(false);

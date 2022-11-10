@@ -242,9 +242,9 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
             }
 
             {
-                JButton closeButton = new JButton(Messages.getString("MappingEpisodeNameDialog.Close"));
+                JButton closeButton = new JButton(Messages.getString("App.Close"));
                 closeButton.addActionListener(arg0 -> setVisible(false));
-                closeButton.setActionCommand(Messages.getString("MappingEpisodeNameDialog.Close"));
+                closeButton.setActionCommand(Messages.getString("App.Close"));
                 buttonPane.add(closeButton, "skip");
                 getRootPane().setDefaultButton(closeButton);
             }

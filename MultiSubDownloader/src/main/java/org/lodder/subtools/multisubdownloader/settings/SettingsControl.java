@@ -161,25 +161,25 @@ public class SettingsControl {
             EXCLUDE_ITEM.store(this, preferences);
         }
 
-        EPISODE_LIBRARY_STRUCTURE.load(this, preferences);
+        EPISODE_LIBRARY_FOLDER_STRUCTURE.load(this, preferences);
         settings.getEpisodeLibrarySettings()
                 .setLibraryFolderStructure(migrateLibraryStructureV0(settings.getEpisodeLibrarySettings().getLibraryFolderStructure()));
-        EPISODE_LIBRARY_STRUCTURE.store(this, preferences);
+        EPISODE_LIBRARY_FOLDER_STRUCTURE.store(this, preferences);
 
-        EPISODE_LIBRARY_FILENAME.load(this, preferences);
+        EPISODE_LIBRARY_FILENAME_STRUCTURE.load(this, preferences);
         settings.getEpisodeLibrarySettings()
                 .setLibraryFilenameStructure(migrateLibraryStructureV0(settings.getEpisodeLibrarySettings().getLibraryFilenameStructure()));
-        EPISODE_LIBRARY_FILENAME.store(this, preferences);
+        EPISODE_LIBRARY_FILENAME_STRUCTURE.store(this, preferences);
 
-        MOVIE_LIBRARY_STRUCTURE.load(this, preferences);
+        MOVIE_LIBRARY_FOLDER_STRUCTURE.load(this, preferences);
         settings.getEpisodeLibrarySettings()
                 .setLibraryFolderStructure(migrateLibraryStructureV0(settings.getEpisodeLibrarySettings().getLibraryFolderStructure()));
-        MOVIE_LIBRARY_STRUCTURE.store(this, preferences);
+        MOVIE_LIBRARY_FOLDER_STRUCTURE.store(this, preferences);
 
-        MOVIE_LIBRARY_FILENAME.load(this, preferences);
+        MOVIE_LIBRARY_FILENAME_STRUCTURE.load(this, preferences);
         settings.getEpisodeLibrarySettings()
                 .setLibraryFilenameStructure(migrateLibraryStructureV0(settings.getEpisodeLibrarySettings().getLibraryFilenameStructure()));
-        MOVIE_LIBRARY_FILENAME.store(this, preferences);
+        MOVIE_LIBRARY_FILENAME_STRUCTURE.store(this, preferences);
 
         try {
             Arrays.stream(preferences.keys()).forEach(key -> {
@@ -253,8 +253,8 @@ public class SettingsControl {
 
     private static String migrateLibraryStructureV0(String oldStructure) {
         return switch (oldStructure) {
-            case "Show\\Season" -> "%SHOW NAME%%SEPARATOR%Season %S%";
-            case "Show\\Series" -> "%SHOW NAME%%SEPARATOR%Series %S%";
+            case "Show\\Season" -> "%SHOW NAME%%SEPARATOR%%Season %S%";
+            case "Show\\Series" -> "%SHOW NAME%%SEPARATOR%%Series %S%";
             case "\\" -> "%SEPARATOR%";
             case "Show S00E00.extension" -> "%SHOW NAME% S%SS%E%EE%";
             case "Show S00E00 Title.extension" -> "%SHOW NAME% S%SS%E%EE% %TITLE%";

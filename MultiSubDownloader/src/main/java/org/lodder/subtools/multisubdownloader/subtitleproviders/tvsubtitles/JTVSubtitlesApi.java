@@ -4,14 +4,12 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -42,9 +40,13 @@ public class JTVSubtitlesApi extends Html implements SubtitleApi {
 
     public List<ProviderSerieId> getUrisForSerieName(String serieName) throws TvSubtiltesException {
         try {
-            Document searchShowDoc = Jsoup.parse(postHtml(DOMAIN + "/search.php", Map.of("qs", serieName)));
-            return searchShowDoc.select(".left_articles > ul > li a").stream()
-                    .map(element -> new ProviderSerieId(element.text(), StringUtils.substringAfterLast(element.attr("href"), "/"))).toList();
+            return getManager().postBuilder()
+                    .url(DOMAIN + "/search.php")
+                    .addData("qs", serieName)
+                    .postAsJsoupDocument()
+                    .select(".left_articles > ul > li a").stream()
+                    .map(element -> new ProviderSerieId(element.text(), StringUtils.substringAfterLast(element.attr("href"), "/")))
+                    .toList();
         } catch (Exception e) {
             throw new TvSubtiltesException(e);
         }

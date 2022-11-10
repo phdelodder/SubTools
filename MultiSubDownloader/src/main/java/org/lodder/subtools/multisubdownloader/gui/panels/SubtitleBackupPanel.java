@@ -7,10 +7,15 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
+import org.lodder.subtools.multisubdownloader.Messages;
+import org.lodder.subtools.sublibrary.util.JComponentExtension;
+
 import java.awt.event.ActionListener;
 
+import lombok.experimental.ExtensionMethod;
 import net.miginfocom.swing.MigLayout;
 
+@ExtensionMethod(JComponentExtension.class)
 public class SubtitleBackupPanel extends JPanel {
 
     private static final long serialVersionUID = -1498846730946617177L;
@@ -18,7 +23,7 @@ public class SubtitleBackupPanel extends JPanel {
     private JLabel lblBackupLocatie;
     private JTextField txtBackupSubtitlePath;
     private JButton btnBrowseBackup;
-    private JCheckBox chkBackupUseWebsiteFileName;
+    private JCheckBox chkBackupUseSourceFileName;
     private ActionListener browseBackupAction;
     private JLabel lblTitle;
 
@@ -31,13 +36,15 @@ public class SubtitleBackupPanel extends JPanel {
     }
 
     private void createComponents() {
-        chkBackupSubtitle = new JCheckBox("Backup ondertitels?");
-        lblBackupLocatie = new JLabel("Locatie");
+        chkBackupSubtitle = new JCheckBox(Messages.getString("PreferenceDialog.BackupSubtitles"));
+        lblBackupLocatie = new JLabel(Messages.getString("PreferenceDialog.Location"));
         txtBackupSubtitlePath = new JTextField();
         txtBackupSubtitlePath.setColumns(10);
-        btnBrowseBackup = new JButton("Bladeren");
-        chkBackupUseWebsiteFileName = new JCheckBox("Naam gebruik van de ondertitel bron?");
-        lblTitle = new JLabel("Ondertitel Backup");
+        txtBackupSubtitlePath.setEnabled(false);
+        btnBrowseBackup = new JButton(Messages.getString("App.Browse"));
+        btnBrowseBackup.setEnabled(false);
+        chkBackupUseSourceFileName = new JCheckBox(Messages.getString("PreferenceDialog.IncludeSourceInFileName"));
+        lblTitle = new JLabel(Messages.getString("PreferenceDialog.SubtitlesBackup"));
     }
 
     private void setupListeners() {
@@ -45,6 +52,10 @@ public class SubtitleBackupPanel extends JPanel {
             if (browseBackupAction != null) {
                 browseBackupAction.actionPerformed(arg0);
             }
+        });
+        chkBackupSubtitle.addCheckedChangeListener(checked -> {
+            txtBackupSubtitlePath.setEnabled(checked);
+            btnBrowseBackup.setEnabled(checked);
         });
     }
 
@@ -55,7 +66,7 @@ public class SubtitleBackupPanel extends JPanel {
         add(lblBackupLocatie, "cell 1 2,alignx left");
         add(txtBackupSubtitlePath, "cell 2 2 2 1,growx");
         add(btnBrowseBackup, "cell 4 2,alignx center");
-        add(chkBackupUseWebsiteFileName, "cell 1 3 4 1");
+        add(chkBackupUseSourceFileName, "cell 1 3 4 1");
         add(btnBrowseBackup, "cell 4 2,alignx center");
     }
 
@@ -80,11 +91,11 @@ public class SubtitleBackupPanel extends JPanel {
     }
 
     public void setBackupUseWebsiteFilenameSelected(boolean b) {
-        this.chkBackupUseWebsiteFileName.setSelected(b);
+        this.chkBackupUseSourceFileName.setSelected(b);
     }
 
     public boolean isBackupUseWebsiteFilenameSelected() {
-        return chkBackupUseWebsiteFileName.isSelected();
+        return chkBackupUseSourceFileName.isSelected();
     }
 
 }

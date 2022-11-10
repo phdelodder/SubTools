@@ -42,7 +42,7 @@ public class JPodnapisiAdapter extends AbstractAdapter<PodnapisiSubtitleDescript
         if (jpapi == null) {
             jpapi = new LazySupplier<>(() -> {
                 try {
-                    return new JPodnapisiApi("JBierSubDownloader", manager);
+                    return new JPodnapisiApi(manager, "JBierSubDownloader");
                 } catch (Exception e) {
                     throw new SubtitlesProviderInitException(getProviderName(), e);
                 }
@@ -66,7 +66,7 @@ public class JPodnapisiAdapter extends AbstractAdapter<PodnapisiSubtitleDescript
 
     @Override
     public List<PodnapisiSubtitleDescriptor> searchMovieSubtitlesWithHash(String hash, Language language) throws PodnapisiException {
-        return getApi().getSubtitles(new String[] { hash }, language);
+        return List.of();
     }
 
     @Override

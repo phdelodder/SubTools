@@ -90,8 +90,7 @@ public class SearchSubtitles extends OpenSubtitlesExecuter {
                                 language != null ? language.getLangCode() : null, movieHash,
                                 userId, getValue(hearingImpaired), getValue(foreignPartsOnly), getValue(trustedSources), getValue(machineTranslated),
                                 getValue(aiTranslated), orderBy == null ? null : orderBy.getParamName(), getValue(orderDirection), parentFeatureId,
-                                parentImdbId,
-                                parentTmdbId, season, episode, year, getValue(movieHashMatch), page));
+                                parentImdbId, parentTmdbId, season, episode, year, getValue(movieHashMatch), page));
                     } catch (Exception e) {
                         throw new OpenSubtitlesException(e);
                     }

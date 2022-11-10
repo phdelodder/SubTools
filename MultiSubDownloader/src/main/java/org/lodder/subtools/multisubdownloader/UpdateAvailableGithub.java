@@ -9,7 +9,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jsoup.nodes.Element;
-import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.sublibrary.ConfigProperties;
 import org.lodder.subtools.sublibrary.Manager;
@@ -26,22 +25,20 @@ public class UpdateAvailableGithub {
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateAvailableGithub.class);
 
     private final Manager manager;
-    private final SettingsControl settingsControl;
 
     public boolean shouldCheckForNewUpdate(UpdateCheckPeriod updateCheckPeriod) {
-        LocalDate latestUpdateCheck = settingsControl.getState().getLatestUpdateCheck();
-        settingsControl.getState().setLatestUpdateCheck(LocalDate.now());
+        LocalDate lastUpdateCheck = manager.valueBuilder().cacheType(CacheType.DISK).key("LastUpdateCheck").valueSupplier(() -> LocalDate.MIN).get();
         try {
-            return switch (updateCheckPeriod) {
-                case DAILY -> DAYS.between(latestUpdateCheck, LocalDate.now()) > 0;
-                case WEEKLY -> DAYS.between(latestUpdateCheck, LocalDate.now()) > 6;
-                case MONTHLY -> DAYS.between(latestUpdateCheck, LocalDate.now()) > 30;
+            boolean shouldCheckForUpdate = switch (updateCheckPeriod) {
+                case DAILY -> DAYS.between(lastUpdateCheck, LocalDate.now()) > 0;
+                case WEEKLY -> DAYS.between(lastUpdateCheck, LocalDate.now()) > 6;
+                case MONTHLY -> DAYS.between(lastUpdateCheck, LocalDate.now()) > 30;
                 case MANUAL -> false;
                 default -> false;
             };
+            return shouldCheckForUpdate;
         } catch (Exception e) {
             LOGGER.error("checkProgram", e);
-            settingsControl.getState().setLatestUpdateCheck(latestUpdateCheck);
             return false;
         }
     }
@@ -52,7 +49,10 @@ public class UpdateAvailableGithub {
 
     public boolean isNewVersionAvailable() {
         String currentVersion = ConfigProperties.getInstance().getProperty("version").replace("-SNAPSHOT", "");
-        return getLatestGithubRelease().map(githubRelease -> compareVersions(githubRelease.getVersion(), currentVersion) > 0).orElse(false);
+        return getLatestGithubRelease().map(githubRelease -> compareVersions(githubRelease.getVersion(), currentVersion) > 0
+                || (ConfigProperties.getInstance().getProperty("version").contains("-SNAPSHOT")
+                        && currentVersion.equals(githubRelease.getVersion())))
+                .orElse(false);
     }
 
     private Optional<GitHubRelease> getLatestGithubRelease() {
@@ -77,6 +77,7 @@ public class UpdateAvailableGithub {
                                 .cacheType(CacheType.NONE)
                                 .getAsJsoupDocument()
                                 .selectFirst(".Box-row a[href$='.jar']").attr("href");
+                        manager.valueBuilder().cacheType(CacheType.DISK).key("LastUpdateCheck").value(LocalDate.now()).store();
                         return Optional.of(new GitHubRelease(version, url));
                     } catch (Exception e) {
                         LOGGER.error(Messages.getString("LoggingPanel.UpdateCheckFailed"));

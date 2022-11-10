@@ -5,6 +5,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+import org.lodder.subtools.multisubdownloader.Messages;
+
 import java.awt.event.ActionListener;
 
 import net.miginfocom.swing.MigLayout;
@@ -28,13 +30,13 @@ public class SearchFileInputPanel extends InputPanel {
     }
 
     private void addComponentsToPanel() {
-        add(new JLabel("Locatie nieuwe afleveringen"), "cell 1 0,alignx trailing");
+        add(new JLabel(Messages.getString("MainWindow.LocationNewEpisodes")), "cell 1 0,alignx trailing");
         add(txtIncomingPath, "cell 2 0,alignx leading");
         add(btnBrowse, "cell 3 0");
         add(chkRecursive, "cell 2 1 2 1");
         add(chkforceSubtitleOverwrite, "cell 2 3 2 1");
         add(getSearchButton(), "cell 0 5 3 1,alignx center");
-        add(new JLabel("Selecteer de gewenste ondertitel taal"), "cell 2 2");
+        add(new JLabel(Messages.getString("MainWindow.SelectSubtitleLanguage")), "cell 2 2");
         add(getLanguageCbx(), "cell 3 2");
     }
 
@@ -50,10 +52,10 @@ public class SearchFileInputPanel extends InputPanel {
         txtIncomingPath = new JTextField();
         txtIncomingPath.setColumns(20);
 
-        chkRecursive = new JCheckBox("Mappen in map doorzoeken");
-        chkforceSubtitleOverwrite = new JCheckBox("Negeer bestaande ondertitel bestanden");
+        chkRecursive = new JCheckBox(Messages.getString("MainWindow.RecursiveSearch"));
+        chkforceSubtitleOverwrite = new JCheckBox(Messages.getString("MainWindow.ignoreExistingSubtitles"));
 
-        btnBrowse = new JButton("Bladeren");
+        btnBrowse = new JButton(Messages.getString("App.Browse"));
     }
 
     public void setRecursiveSelected(boolean selected) {

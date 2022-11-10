@@ -1,15 +1,18 @@
 package org.lodder.subtools.multisubdownloader.settings;
 
 import java.io.File;
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
 import java.util.stream.IntStream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
@@ -20,12 +23,12 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
-import org.lodder.subtools.multisubdownloader.settings.model.State;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.sublibrary.Language;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import net.jodah.typetools.TypeResolver;
 
 public enum SettingValue {
 
@@ -51,8 +54,9 @@ public enum SettingValue {
     DEFAULT_SELECTION_QUALITY(SettingsControl::getSettings, Settings::getOptionsDefaultSelectionQualityList),
     DEFAULT_SELECTION_QUALITY_ENABLED(false, SettingsControl::getSettings, Settings::isOptionsDefaultSelection, Settings::setOptionsDefaultSelection),
 
-    OPTIONS_ALWAYS_CONFIRM(true, SettingsControl::getSettings, Settings::isOptionsAlwaysConfirm, Settings::setOptionsAlwaysConfirm),
-    OPTIONS_CONFIRM_MAPPING(false, SettingsControl::getSettings, Settings::isOptionsConfirmProviderMapping, Settings::setOptionsConfirmProviderMapping),
+    OPTIONS_LANGUAGE(Language.ENGLISH, SettingsControl::getSettings, Settings::getLanguage, Settings::setLanguage),
+    OPTIONS_ALWAYS_CONFIRM(false, SettingsControl::getSettings, Settings::isOptionsAlwaysConfirm, Settings::setOptionsAlwaysConfirm),
+    OPTIONS_CONFIRM_MAPPING(true, SettingsControl::getSettings, Settings::isOptionsConfirmProviderMapping, Settings::setOptionsConfirmProviderMapping),
     OPTIONS_MIN_AUTOMATIC_SELECTION(false, SettingsControl::getSettings, Settings::isOptionsMinAutomaticSelection, Settings::setOptionsMinAutomaticSelection),
     OPTIONS_MIN_AUTOMATIC_SELECTION_VALUE(0, SettingsControl::getSettings, Settings::getOptionsMinAutomaticSelectionValue, Settings::setOptionsMinAutomaticSelectionValue),
     OPTION_SUBTITLE_EXACT_MATCH(true, SettingsControl::getSettings, Settings::isOptionSubtitleExactMatch, Settings::setOptionSubtitleExactMatch),
@@ -63,7 +67,7 @@ public enum SettingValue {
     OPTION_RECURSIVE(false, SettingsControl::getSettings, Settings::isOptionRecursive, Settings::setOptionRecursive),
     PROCESS_EPISODE_SOURCE(SettingsProcessEpisodeSource.TVDB, SettingsProcessEpisodeSource::toString, SettingsProcessEpisodeSource::valueOf, SettingsControl::getSettings, Settings::getProcessEpisodeSource, Settings::setProcessEpisodeSource),
     UPDATE_CHECK_PERIOD(UpdateCheckPeriod.WEEKLY, UpdateCheckPeriod::toString, UpdateCheckPeriod::valueOf, SettingsControl::getSettings, Settings::getUpdateCheckPeriod, Settings::setUpdateCheckPeriod),
-    SUBTITLE_LANGUAGE(Language.DUTCH, Language::name, Language::fromValue, SettingsControl::getSettings, Settings::getSubtitleLanguage, Settings::setSubtitleLanguage),
+    SUBTITLE_LANGUAGE(Language.DUTCH, SettingsControl::getSettings, Settings::getSubtitleLanguage, Settings::setSubtitleLanguage),
 
     // SCREEN SETTINGS
     SCREEN_HIDE_EPISODE(true, sCtr -> sCtr.getSettings().getScreenSettings(), ScreenSettings::isHideEpisode, ScreenSettings::setHideEpisode),
@@ -79,17 +83,17 @@ public enum SettingValue {
     GENERAL_PROXY_PORT(80, SettingsControl::getSettings, Settings::getGeneralProxyPort, Settings::setGeneralProxyPort),
 
     // LIBRARY SERIE
-    EPISODE_LIBRARY_BACKUP_SUBTITLE_PATH(new File(""), File::getAbsolutePath, File::new, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryBackupSubtitlePath, LibrarySettings::setLibraryBackupSubtitlePath),
+    EPISODE_LIBRARY_BACKUP_SUBTITLE_PATH(null, File::getAbsolutePath, File::new, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryBackupSubtitlePath, LibrarySettings::setLibraryBackupSubtitlePath),
     EPISODE_LIBRARY_BACKUP_SUBTITLE(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryBackupSubtitle, LibrarySettings::setLibraryBackupSubtitle),
     EPISODE_LIBRARY_BACKUP_USE_WEBSITE_FILE_NAME(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryBackupUseWebsiteFileName, LibrarySettings::setLibraryBackupUseWebsiteFileName),
-    EPISODE_LIBRARY_ACTION(LibraryActionType.NOTHING, LibraryActionType::name, LibraryActionType::valueOf, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryAction, LibrarySettings::setLibraryAction),
+    EPISODE_LIBRARY_ACTION(LibraryActionType.NOTHING, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryAction, LibrarySettings::setLibraryAction),
     EPISODE_LIBRARY_USE_T_V_D_B_NAMING(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryUseTVDBNaming, LibrarySettings::setLibraryUseTVDBNaming),
     EPISODE_LIBRARY_REPLACE_CHARS(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryReplaceChars, LibrarySettings::setLibraryReplaceChars),
-    EPISODE_LIBRARY_OTHER_FILE_ACTION(LibraryOtherFileActionType.NOTHING, LibraryOtherFileActionType::name, LibraryOtherFileActionType::valueOf, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryOtherFileAction, LibrarySettings::setLibraryOtherFileAction),
-    EPISODE_LIBRARY_FOLDER(new File(""), File::getAbsolutePath, File::new, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFolder, LibrarySettings::setLibraryFolder),
-    EPISODE_LIBRARY_STRUCTURE("", sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFolderStructure, LibrarySettings::setLibraryFolderStructure),
+    EPISODE_LIBRARY_OTHER_FILE_ACTION(LibraryOtherFileActionType.NOTHING, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryOtherFileAction, LibrarySettings::setLibraryOtherFileAction),
+    EPISODE_LIBRARY_FOLDER(null, File::getAbsolutePath, File::new, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFolder, LibrarySettings::setLibraryFolder),
+    EPISODE_LIBRARY_FOLDER_STRUCTURE("%SHOW NAME%.S%SS%E%EE%.%TITLE%", sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFolderStructure, LibrarySettings::setLibraryFolderStructure),
     EPISODE_LIBRARY_REMOVE_EMPTY_FOLDERS(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryRemoveEmptyFolders, LibrarySettings::setLibraryRemoveEmptyFolders),
-    EPISODE_LIBRARY_FILENAME("", sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFilenameStructure, LibrarySettings::setLibraryFilenameStructure),
+    EPISODE_LIBRARY_FILENAME_STRUCTURE("%SHOW NAME%%SEPARATOR%%Season %S%", sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFilenameStructure, LibrarySettings::setLibraryFilenameStructure),
     EPISODE_LIBRARY_REPLACE_SPACE(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryFilenameReplaceSpace, LibrarySettings::setLibraryFilenameReplaceSpace),
     EPISODE_LIBRARY_REPLACING_SIGN("", sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFilenameReplacingSpaceSign, LibrarySettings::setLibraryFilenameReplacingSpaceSign),
     EPISODE_LIBRARY_FOLDER_REPLACE_SPACE(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryFolderReplaceSpace, LibrarySettings::setLibraryFolderReplaceSpace),
@@ -99,17 +103,17 @@ public enum SettingValue {
     EPISODE_LIBRARY_DEFAULT_EN_TEXT("", sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getDefaultEnText, LibrarySettings::setDefaultEnText),
 
     // LIBRARY MOVIE
-    MOVIE_LIBRARY_BACKUP_SUBTITLE_PATH(new File(""), File::getAbsolutePath, File::new, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryBackupSubtitlePath, LibrarySettings::setLibraryBackupSubtitlePath),
+    MOVIE_LIBRARY_BACKUP_SUBTITLE_PATH(null, File::getAbsolutePath, File::new, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryBackupSubtitlePath, LibrarySettings::setLibraryBackupSubtitlePath),
     MOVIE_LIBRARY_BACKUP_SUBTITLE(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryBackupSubtitle, LibrarySettings::setLibraryBackupSubtitle),
     MOVIE_LIBRARY_BACKUP_USE_WEBSITE_FILE_NAME(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryBackupUseWebsiteFileName, LibrarySettings::setLibraryBackupUseWebsiteFileName),
-    MOVIE_LIBRARY_ACTION(LibraryActionType.NOTHING, LibraryActionType::name, LibraryActionType::valueOf, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryAction, LibrarySettings::setLibraryAction),
+    MOVIE_LIBRARY_ACTION(LibraryActionType.NOTHING, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryAction, LibrarySettings::setLibraryAction),
     MOVIE_LIBRARY_USE_T_V_D_B_NAMING(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryUseTVDBNaming, LibrarySettings::setLibraryUseTVDBNaming),
     MOVIE_LIBRARY_REPLACE_CHARS(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryReplaceChars, LibrarySettings::setLibraryReplaceChars),
-    MOVIE_LIBRARY_OTHER_FILE_ACTION(LibraryOtherFileActionType.NOTHING, LibraryOtherFileActionType::name, LibraryOtherFileActionType::valueOf, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryOtherFileAction, LibrarySettings::setLibraryOtherFileAction),
-    MOVIE_LIBRARY_FOLDER(new File(""), File::getAbsolutePath, File::new, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryFolder, LibrarySettings::setLibraryFolder),
-    MOVIE_LIBRARY_STRUCTURE("", sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryFolderStructure, LibrarySettings::setLibraryFolderStructure),
+    MOVIE_LIBRARY_OTHER_FILE_ACTION(LibraryOtherFileActionType.NOTHING, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryOtherFileAction, LibrarySettings::setLibraryOtherFileAction),
+    MOVIE_LIBRARY_FOLDER(null, File::getAbsolutePath, File::new, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryFolder, LibrarySettings::setLibraryFolder),
+    MOVIE_LIBRARY_FOLDER_STRUCTURE("", sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryFolderStructure, LibrarySettings::setLibraryFolderStructure),
     MOVIE_LIBRARY_REMOVE_EMPTY_FOLDERS(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryRemoveEmptyFolders, LibrarySettings::setLibraryRemoveEmptyFolders),
-    MOVIE_LIBRARY_FILENAME("", sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryFilenameStructure, LibrarySettings::setLibraryFilenameStructure),
+    MOVIE_LIBRARY_FILENAME_STRUCTURE("%MOVIE TITLE% (%YEAR%)", sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryFilenameStructure, LibrarySettings::setLibraryFilenameStructure),
     MOVIE_LIBRARY_REPLACE_SPACE(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryFilenameReplaceSpace, LibrarySettings::setLibraryFilenameReplaceSpace),
     MOVIE_LIBRARY_REPLACING_SIGN("", sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryFilenameReplacingSpaceSign, LibrarySettings::setLibraryFilenameReplacingSpaceSign),
     MOVIE_LIBRARY_FOLDER_REPLACE_SPACE(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryFolderReplaceSpace, LibrarySettings::setLibraryFolderReplaceSpace),
@@ -131,13 +135,24 @@ public enum SettingValue {
     SERIE_SOURCE_OPENSUBTITLES(true, SettingsControl::getSettings, Settings::isSerieSourceOpensubtitles, Settings::setSerieSourceOpensubtitles),
     SERIE_SOURCE_PODNAPISI(true, SettingsControl::getSettings, Settings::isSerieSourcePodnapisi, Settings::setSerieSourcePodnapisi),
     SERIE_SOURCE_TV_SUBTITLES(true, SettingsControl::getSettings, Settings::isSerieSourceTvSubtitles, Settings::setSerieSourceTvSubtitles),
-    SERIE_SOURCE_SUBSCENE(true, SettingsControl::getSettings, Settings::isSerieSourceSubscene, Settings::setSerieSourceSubscene),
-
-    // STATE
-    LATEST_UPDATE_CHECK(LocalDate.MIN, LocalDate::toString, LocalDate::parse, SettingsControl::getState, State::getLatestUpdateCheck, State::setLatestUpdateCheck);
+    SERIE_SOURCE_SUBSCENE(true, SettingsControl::getSettings, Settings::isSerieSourceSubscene, Settings::setSerieSourceSubscene);
 
     private final BiConsumer<SettingsControl, Preferences> storeValueFunction;
     private final BiConsumer<SettingsControl, Preferences> loadValueFunction;
+
+    <T, E extends Enum<E>> SettingValue(E defaultValue, Function<SettingsControl, T> rootElementFuntion,
+            Function<T, E> valueGetter, BiConsumer<T, E> valueSetter) {
+        String key = getKey();
+        this.storeValueFunction = (settingsControl, preferences) -> {
+            E value = valueGetter.apply(rootElementFuntion.apply(settingsControl));
+            if (value != defaultValue) {
+                preferences.put(key, value.name());
+            }
+        };
+        Class<E> enumType = (Class<E>) TypeResolver.resolveRawArgument(Enum.class, defaultValue.getClass());
+        this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFuntion.apply(settingsControl),
+                Enum.valueOf(enumType, preferences.get(key, defaultValue.name())));
+    }
 
     <T> SettingValue(boolean defaultValue, Function<SettingsControl, T> rootElementFuntion, Function<T, Boolean> valueGetter,
             BiConsumer<T, Boolean> valueSetter) {
@@ -175,21 +190,27 @@ public enum SettingValue {
 
     <T> SettingValue(String defaultValue, Function<SettingsControl, T> rootElementFuntion, Function<T, String> valueGetter,
             BiConsumer<T, String> valueSetter) {
-        this(defaultValue, Function.identity(), Function.identity(), rootElementFuntion, valueGetter, valueSetter);
+        this(defaultValue, Function.identity(), Function.identity(), rootElementFuntion, valueGetter, valueSetter, StringUtils::equals);
     }
 
     <T, V> SettingValue(V defaultValue, Function<V, String> toStringMapper, Function<String, V> toObjectMapper,
-            Function<SettingsControl, T> rootElementFuntion, Function<T, V> valueGetter,
-            BiConsumer<T, V> valueSetter) {
+            Function<SettingsControl, T> rootElementFuntion, Function<T, V> valueGetter, BiConsumer<T, V> valueSetter) {
+        this(defaultValue, toStringMapper, toObjectMapper, rootElementFuntion, valueGetter, valueSetter, Objects::equals);
+    }
+
+    <T, V> SettingValue(V defaultValue, Function<V, String> toStringMapper, Function<String, V> toObjectMapper,
+            Function<SettingsControl, T> rootElementFuntion, Function<T, V> valueGetter, BiConsumer<T, V> valueSetter,
+            BiPredicate<V, V> equalsPredicate) {
         String key = getKey();
         this.storeValueFunction = (settingsControl, preferences) -> {
             V value = valueGetter.apply(rootElementFuntion.apply(settingsControl));
-            if (value != defaultValue) {
+            if (!equalsPredicate.test(value, defaultValue)) {
                 preferences.put(key, toStringMapper.apply(value));
             }
         };
         this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFuntion.apply(settingsControl),
-                toObjectMapper.apply(preferences.get(key, toStringMapper.apply(defaultValue))));
+                Optional.ofNullable(preferences.get(key, Optional.ofNullable(defaultValue).map(toStringMapper::apply).orElse(null)))
+                        .map(toObjectMapper::apply).orElse(defaultValue));
     }
 
     <T> SettingValue(Function<SettingsControl, T> rootElementFuntion, Function<T, Collection<String>> collectionGetter) {

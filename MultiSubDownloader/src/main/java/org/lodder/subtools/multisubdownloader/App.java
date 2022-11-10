@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader;
 import java.io.File;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
@@ -22,9 +23,12 @@ import org.lodder.subtools.multisubdownloader.framework.Bootstrapper;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.gui.Splash;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.multisubdownloader.util.CLIExtension;
 import org.lodder.subtools.sublibrary.ConfigProperties;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
 import org.lodder.subtools.sublibrary.cache.InMemoryCache;
 import org.lodder.subtools.sublibrary.cache.SerializableDiskCache;
@@ -70,12 +74,8 @@ public class App {
         final Container app = new Container();
         final Manager manager = createManager(!line.hasCliOption(CliOption.NO_GUI));
         prefctrl = new SettingsControl(manager);
+        Messages.setLanguage(prefctrl.getSettings().getLanguage());
         Bootstrapper bootstrapper = new Bootstrapper(app, prefctrl.getSettings(), preferences, manager);
-
-        if (line.hasCliOption(CliOption.HELP)) {
-            formatter.printHelp(ConfigProperties.getInstance().getProperty("name"), getCLIOptions());
-            return;
-        }
 
         if (line.hasCliOption(CliOption.TRACE)) {
             setLogLevel(Level.ALL);
@@ -92,11 +92,14 @@ public class App {
 
             try {
                 cmd.setUp(line);
+                if (line.hasCliOption(CliOption.HELP)) {
+                    formatter.printHelp(ConfigProperties.getInstance().getProperty("name"), getCLIOptions());
+                    return;
+                }
             } catch (CliException e) {
                 System.out.println("Error: " + e.getMessage());
                 return;
             }
-
             cmd.run();
         } else {
             /* Defined here so there is output in the splash */
@@ -114,6 +117,17 @@ public class App {
                 }
             });
         }
+        new Thread(() -> {
+            SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) app.make("SubtitleProviderStore");
+            List<String> providerNames = subtitleProviderStore.getAllProviders().stream().map(SubtitleProvider::getProviderName)
+                    .map(providerName -> providerName.contains("-") ? providerName.split("-")[0] : providerName)
+                    .map(providerName -> providerName + "-").toList();
+            manager.clearExpiredCacheBuilder()
+                    .cacheType(CacheType.DISK)
+                    .keyFilter((String key) -> providerNames.stream().noneMatch(key::startsWith))
+                    .clear();
+        }).start();
+
     }
 
     private static void setLogLevel(Level level) {
@@ -149,8 +163,7 @@ public class App {
         DiskCache<String, Serializable> diskCache =
                 SerializableDiskCache.cacheBuilder().keyType(String.class).valueType(Serializable.class)
                         .timeToLive(TimeUnit.SECONDS.convert(500, TimeUnit.DAYS))
-                        .timerInterval(TimeUnit.SECONDS.convert(1, TimeUnit.DAYS))
-                        .maxItems(5000)
+                        .maxItems(2500)
                         .build();
 
         InMemoryCache<String, Serializable> inMemoryCache =

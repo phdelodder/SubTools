@@ -54,4 +54,9 @@ class ExpiringCacheObject<T> implements CacheObject<T>, Serializable {
         }
         return Optional.empty();
     }
+
+    @Override
+    public long getAge() {
+        return getLastAccessed();
+    }
 }

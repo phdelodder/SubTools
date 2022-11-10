@@ -49,9 +49,13 @@ public class TheTvdbAdapter {
             try {
                 return new TheTvdbApi(manager, "A1720D2DDFDCE82D");
             } catch (Exception e) {
-                throw new SubtitlesProviderInitException("IMDB", e);
+                throw new SubtitlesProviderInitException(getProviderName(), e);
             }
         });
+    }
+
+    public String getProviderName() {
+        return "TVDB";
     }
 
     private TheTvdbApi getApi() {
@@ -62,7 +66,7 @@ public class TheTvdbAdapter {
         String encodedSerieName = URLEncoder.encode(serieName.toLowerCase().replace(" ", "-"), StandardCharsets.UTF_8);
         ValueBuilderIsPresentIntf<Serializable> valueBuilder = manager.valueBuilder()
                 .cacheType(CacheType.DISK)
-                .key("TVDB-tvdbSerie-%s".formatted(encodedSerieName));
+                .key("%s-tvdbSerie-%s".formatted(getProviderName(), encodedSerieName));
         if (valueBuilder.isPresent() && (!valueBuilder.isTemporaryObject() || !valueBuilder.isExpiredTemporary())) {
             return valueBuilder.returnType(TheTvdbSerie.class).getOptional();
         }
@@ -88,7 +92,7 @@ public class TheTvdbAdapter {
                 tvdbSerie = userInteractionHandler
                         .selectFromList(serieIds.stream().sorted(comparator).toList(),
                                 Messages.getString("Prompter.SelectTvdbMatchForSerie").formatted(serieName),
-                                "tvdb", s -> "%s (%s)".formatted(s.getSerieName(), s.getFirstAired()))
+                                getProviderName(), s -> "%s (%s)".formatted(s.getSerieName(), s.getFirstAired()))
                         .orElseMap(() -> askUserToEnterTvdbId(serieName).mapToOptionalObj(id -> getApi().getSerie(id, null)));
             } catch (TheTvdbException e) {
                 tvdbSerie = Optional.empty();
@@ -104,7 +108,7 @@ public class TheTvdbAdapter {
             valueBuilder.optionalValue(tvdbSerie).store();
             manager.valueBuilder()
                     .cacheType(CacheType.DISK)
-                    .key("TVDB-serieId-%s".formatted(encodedSerieName))
+                    .key("%s-serieId-%s".formatted(getProviderName(), encodedSerieName))
                     .optionalValue(tvdbSerie.mapToObj(tvdbS -> new SerieMapping(serieName, tvdbS.getId(), tvdbS.getSerieName())))
                     .storeTempNullValue()
                     .store();
@@ -115,12 +119,12 @@ public class TheTvdbAdapter {
     public Optional<TheTvdbEpisode> getEpisode(int tvdbId, int season, int episode) {
         return manager.valueBuilder()
                 .cacheType(CacheType.DISK)
-                .key("TVDB-episode-%s-%s-%s".formatted(tvdbId, season, episode))
+                .key("%s-episode-%s-%s-%s".formatted(getProviderName(), tvdbId, season, episode))
                 .optionalSupplier(() -> {
                     try {
                         return getApi().getEpisode(tvdbId, season, episode, Language.ENGLISH);
                     } catch (TheTvdbException e) {
-                        LOGGER.error("API TVDB getEpisode for serie id [%s] %s (%s)".formatted(tvdbId,
+                        LOGGER.error("API %s getEpisode for serie id [%s] %s (%s)".formatted(getProviderName(), tvdbId,
                                 TvRelease.formatSeasonEpisode(season, episode), e.getMessage()), e);
                         return Optional.empty();
                     }
