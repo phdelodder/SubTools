@@ -62,7 +62,7 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
     }
 
     @Getter
-    private enum MappingType {
+    public enum MappingType {
         TVDB("TVDB", new SelectionForKeyPrefix("", "TVDB-serieId-", k -> k.replace("-serieId-", "-tvdbSerie-"))),
         ADDIC7ED("Addic7ed", new SelectionForKeyPrefix("", "ADDIC7ED-serieName-name:"), new SelectionForKeyPrefix("", "ADDIC7ED-serieName-tvdbId:")),
         ADDIC7ED_PROXY("Addic7ed (Proxy)", new SelectionForKeyPrefix("", "ADDIC7ED-GESTDOWN-serieName-name:"),
@@ -74,7 +74,7 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
                 new SelectionForKeyPrefix("", "OPENSUBTITLES-serieName-tvdbId:")),
         PODNAPISI("Podnapisi", new SelectionForKeyPrefix("", "PODNAPISI-serieName:"), new SelectionForKeyPrefix("", "PODNAPISI-serieName-tvdbId:"));
 
-        private static final BiFunction<Manager, SelectionForKeyPrefix, List<Pair<String, SerieMapping>>> MAPPING_SUPPLIER;
+        public static final BiFunction<Manager, SelectionForKeyPrefix, List<Pair<String, SerieMapping>>> MAPPING_SUPPLIER;
         private final String name;
         private final String nameColumn;
         private final String mappingColumn;
@@ -103,7 +103,7 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
         }
     }
 
-    private static record SelectionForKeyPrefix(String name, String keyPrefix, Function<String, String> deleteOtherFunction) {
+    public static record SelectionForKeyPrefix(String name, String keyPrefix, Function<String, String> deleteOtherFunction) {
         public SelectionForKeyPrefix(String name, String keyPrefix) {
             this(name, keyPrefix, null);
         }

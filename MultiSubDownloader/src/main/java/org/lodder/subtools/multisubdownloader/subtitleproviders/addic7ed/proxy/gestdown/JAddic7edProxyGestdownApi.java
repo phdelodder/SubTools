@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.proxy.
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.gestdown.api.SubtitlesApi;
 import org.gestdown.api.TvShowsApi;
@@ -41,7 +42,7 @@ public class JAddic7edProxyGestdownApi extends Html implements SubtitleApi {
 
     public List<ProviderSerieId> getProviderSerieName(String serieName) throws ApiException {
         return tvShowsApi.showsSearchSearchGet(serieName).getShows().stream()
-                .map(showDto -> new ProviderSerieId(serieName, showDto.getName())).toList();
+                .map(showDto -> new ProviderSerieId(serieName, showDto.getId().toString())).toList();
 
     }
 
@@ -51,8 +52,8 @@ public class JAddic7edProxyGestdownApi extends Html implements SubtitleApi {
                 .key("%s-subtitles-%s-%s-%s-%s".formatted(getSubtitleSource().name(), providerSerieId.getProviderId(), season, episode, language))
                 .collectionSupplier(Subtitle.class, () -> {
                     Set<Subtitle> results = new HashSet<>();
-                    SubtitleSearchResponse response = subtitlesApi.subtitlesFindLanguageShowSeasonEpisodeGet(language.getName(),
-                            providerSerieId.getProviderId(), season, episode);
+                    SubtitleSearchResponse response = subtitlesApi.subtitlesGetShowUniqueIdSeasonEpisodeLanguageGet(language.getName(),
+                            UUID.fromString(providerSerieId.getProviderId()), season, episode);
                     response.getMatchingSubtitles().stream()
                             .filter(SubtitleDto::isCompleted).map(sub -> mapToSubtitle(sub, response.getEpisode(), language))
                             .forEach(results::add);
