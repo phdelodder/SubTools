@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.lodder.subtools.multisubdownloader.gui.dialog.MappingEpisodeNameDialog.MappingType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
@@ -134,6 +135,9 @@ public class SettingsControl {
         if (version == 3) {
             migrateSettingsV3ToV4();
         }
+        if (version == 4) {
+            migrateSettingsV4ToV5();
+        }
     }
 
     public void migrateSettingsV0ToV1() {
@@ -248,6 +252,19 @@ public class SettingsControl {
             preferences.put("ExcludeItem" + i, newValue);
         });
         settings.setSettingsVersion(4);
+        SETTINGS_VERSION.store(this, preferences);
+    }
+
+    public void migrateSettingsV4ToV5() {
+        Arrays.stream(MappingType.ADDIC7ED_PROXY.getSelectionForKeyPrefixList())
+                .forEach(selectionForKeyPrefix -> MappingType.MAPPING_SUPPLIER.apply(manager, selectionForKeyPrefix).stream()
+                        .forEach(serieMappingPair -> {
+                            manager.valueBuilder()
+                                    .cacheType(CacheType.DISK)
+                                    .key(serieMappingPair.getKey())
+                                    .remove();
+                        }));
+        settings.setSettingsVersion(5);
         SETTINGS_VERSION.store(this, preferences);
     }
 
