@@ -8,7 +8,6 @@ import org.gestdown.api.SubtitlesApi;
 import org.gestdown.api.TvShowsApi;
 import org.gestdown.invoker.ApiException;
 import org.gestdown.model.EpisodeDto;
-import org.gestdown.model.ShowSearchRequest;
 import org.gestdown.model.SubtitleDto;
 import org.gestdown.model.SubtitleSearchResponse;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleApi;
@@ -41,12 +40,9 @@ public class JAddic7edProxyGestdownApi extends Html implements SubtitleApi {
     }
 
     public List<ProviderSerieId> getProviderSerieName(String serieName) throws ApiException {
-        try {
-            return tvShowsApi.showsSearchPost(new ShowSearchRequest().query(serieName)).getShows().stream()
-                    .map(showDto -> new ProviderSerieId(serieName, showDto.getName())).toList();
-        } catch (Exception e) {
-            throw new ApiException(e);
-        }
+        return tvShowsApi.showsSearchSearchGet(serieName).getShows().stream()
+                .map(showDto -> new ProviderSerieId(serieName, showDto.getName())).toList();
+
     }
 
     public Set<Subtitle> getSubtitles(SerieMapping providerSerieId, int season, int episode, Language language) throws ApiException {

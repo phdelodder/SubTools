@@ -3,7 +3,7 @@
   "info": {
     "title": "Gestdown: Addicted Proxy",
     "description": "Provide a full api to search and download subtitles from Addic7ed website.",
-    "version": "2.18.0"
+    "version": "3.5.7"
   },
   "servers": [
     {
@@ -25,59 +25,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApplicationInfoDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/stats/top/{top}": {
-      "get": {
-        "tags": [
-          "Stats"
-        ],
-        "summary": "Return the top show by popularity",
-        "parameters": [
-          {
-            "name": "top",
-            "in": "path",
-            "description": "",
-            "required": true,
-            "schema": {
-              "maximum": 50,
-              "minimum": 1,
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/TopShowDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/TopShowDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/TopShowDto"
-                  }
                 }
               }
             }
@@ -163,6 +110,9 @@
           },
           "400": {
             "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
           },
           "429": {
             "description": "Too Many Requests",
@@ -264,7 +214,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated": true
       }
     },
     "/subtitles/find/{language}/{show}/{season}/{episode}": {
@@ -366,42 +317,87 @@
               }
             }
           }
-        }
+        },
+        "deprecated": true
       }
     },
-    "/shows/search": {
-      "post": {
+    "/subtitles/get/{showUniqueId}/{season}/{episode}/{language}": {
+      "get": {
         "tags": [
-          "TvShows"
+          "Subtitles"
         ],
-        "summary": "Search shows that contains the given query",
-        "requestBody": {
-          "description": "",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ShowSearchRequest"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ShowSearchRequest"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/ShowSearchRequest"
-              }
+        "summary": "Get subtitles for an episode of a given show in the wanted language",
+        "parameters": [
+          {
+            "name": "language",
+            "in": "path",
+            "description": "Language to search for",
+            "required": true,
+            "schema": {
+              "minLength": 2,
+              "type": "string"
+            }
+          },
+          {
+            "name": "showUniqueId",
+            "in": "path",
+            "description": "Name of the show",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "season",
+            "in": "path",
+            "description": "Season number to look for",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "episode",
+            "in": "path",
+            "description": "Episode number to look for",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
             }
           }
-        },
+        ],
         "responses": {
           "200": {
-            "description": "Returns the matching shows",
+            "description": "Returns the matching subtitles",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ShowSearchResponse"
+                  "$ref": "#/components/schemas/SubtitleSearchResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Couldn't find the show or its season/episode",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Doesn't follow the right format for the search: Show S00E00",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WrongFormatResponse"
                 }
               }
             }
@@ -415,6 +411,9 @@
                 }
               }
             }
+          },
+          "423": {
+            "description": "Refreshing the show, currently don't have data, try again later"
           }
         }
       }
@@ -432,6 +431,7 @@
             "description": "Name of the show to search for",
             "required": true,
             "schema": {
+              "minLength": 3,
               "type": "string"
             }
           }
@@ -782,19 +782,6 @@
         },
         "additionalProperties": false,
         "description": "Represent the information relating to a show"
-      },
-      "ShowSearchRequest": {
-        "type": "object",
-        "properties": {
-          "query": {
-            "type": "string",
-            "description": "Name of the show you're looking for",
-            "nullable": true,
-            "example": "Wellington"
-          }
-        },
-        "additionalProperties": false,
-        "description": "Search for a specific show"
       },
       "ShowSearchResponse": {
         "type": "object",
