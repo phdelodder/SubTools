@@ -56,6 +56,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.multisubdownloader.util.Export;
 import org.lodder.subtools.multisubdownloader.util.Import;
+import org.lodder.subtools.multisubdownloader.util.PropertiesReader;
 import org.lodder.subtools.sublibrary.ConfigProperties;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
@@ -484,10 +485,13 @@ public class GUI extends JFrame implements PropertyChangeListener {
     }
 
     private void showAbout() {
-        JOptionPane.showConfirmDialog(this,
-                Messages.getString("MainWindow.CurrentVersion") + ": "
-                        + ConfigProperties.getInstance().getProperty(Messages.getString("MainWindow.Version")),
-                ConfigProperties.getInstance().getProperty("name"), JOptionPane.CLOSED_OPTION);
+        String version = ConfigProperties.getInstance().getProperty(Messages.getString("MainWindow.Version"));
+        StringBuilder sb = new StringBuilder();
+        sb.append(Messages.getString("MainWindow.CurrentVersion")).append(": ").append(version);
+        if (version.contains("-SNAPSHOT")) {
+            sb.append(" (%s)".formatted(PropertiesReader.getProperty("build.timestamp")));
+        }
+        JOptionPane.showConfirmDialog(this, sb.toString(), ConfigProperties.getInstance().getProperty("name"), JOptionPane.CLOSED_OPTION);
     }
 
     protected void rename() {

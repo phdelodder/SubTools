@@ -5,16 +5,29 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class PropertiesReader {
-    private Properties properties;
 
-    public PropertiesReader(String propertyFileName) throws IOException {
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream(propertyFileName)) {
+    private final Properties properties;
+    private static PropertiesReader propertiesReaderInstance;
+
+    public PropertiesReader() throws IOException {
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream("properties-from-pom.properties")) {
             this.properties = new Properties();
             this.properties.load(is);
         }
     }
 
-    public String getProperty(String propertyName) {
-        return this.properties.getProperty(propertyName);
+    private static PropertiesReader getPropertiesReader() {
+        if (propertiesReaderInstance == null) {
+            try {
+                propertiesReaderInstance = new PropertiesReader();
+            } catch (IOException e) {
+                throw new IllegalStateException("Should not happen", e);
+            }
+        }
+        return propertiesReaderInstance;
+    }
+
+    public static String getProperty(String propertyName) {
+        return PropertiesReader.getPropertiesReader().properties.getProperty(propertyName);
     }
 }

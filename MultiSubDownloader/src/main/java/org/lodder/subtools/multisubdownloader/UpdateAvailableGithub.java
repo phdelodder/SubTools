@@ -2,7 +2,6 @@ package org.lodder.subtools.multisubdownloader;
 
 import static java.time.temporal.ChronoUnit.*;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -136,8 +135,8 @@ public class UpdateAvailableGithub {
                 }).getOptional();
     }
 
-    private LocalDateTime getBuildTista() throws IOException {
-        String timestamp = new PropertiesReader("properties-from-pom.properties").getProperty("build.timestamp");
+    private LocalDateTime getBuildTista() {
+        String timestamp = PropertiesReader.getProperty("build.timestamp");
         return zonedDateTimeStringToLocalDateTime(timestamp);
     }
 
