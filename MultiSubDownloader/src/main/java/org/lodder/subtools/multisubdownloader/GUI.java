@@ -88,6 +88,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     private static final long serialVersionUID = 1L;
     private final Container app;
     private final Manager manager;
+    private final Settings settings;
     private final UserInteractionHandlerGUI userInteractionHandler;
     private StatusLabel lblStatus;
     private final SettingsControl settingsControl;
@@ -110,6 +111,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     public GUI(final SettingsControl settingsControl, Container app) {
         this.app = app;
         this.manager = (Manager) this.app.make("Manager");
+        this.settings = (Settings) this.app.make("Settings");
         this.userInteractionHandler = new UserInteractionHandlerGUI(settingsControl.getSettings(), this);
         setTitle(ConfigProperties.getInstance().getProperty("name"));
         /*
@@ -133,7 +135,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     }
 
     private void checkUpdate(final boolean forceUpdateCheck) {
-        UpdateAvailableGithub u = new UpdateAvailableGithub(manager);
+        UpdateAvailableGithub u = new UpdateAvailableGithub(manager, settings);
         Optional<String> updateUrl = (forceUpdateCheck && u.isNewVersionAvailable())
                 || (!forceUpdateCheck && u.shouldCheckForNewUpdate(settingsControl.getSettings().getUpdateCheckPeriod())
                         && u.isNewVersionAvailable()) ? u.getLatestDownloadUrl() : Optional.empty();
