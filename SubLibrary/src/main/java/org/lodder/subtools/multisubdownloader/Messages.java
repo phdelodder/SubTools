@@ -1,15 +1,10 @@
 package org.lodder.subtools.multisubdownloader;
 
-import java.net.URISyntaxException;
-import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
-import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 import org.lodder.subtools.sublibrary.Language;
 
@@ -48,17 +43,19 @@ public class Messages {
     }
 
     public static List<Language> getAvailableLanguages() {
-        try {
-            List<Language> languages =
-                    Arrays.stream(Paths.get(Messages.class.getClassLoader().getResource("messages.properties").toURI()).getParent().toFile()
-                            .listFiles((dir, name) -> name.matches(BUNDLE_NAME + "_.*\\.properties")))
-                            .map(file -> file.getName().replace(BUNDLE_NAME + "_", "").replace(".properties", "")).map(Language::fromIdOptional)
-                            .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
-            languages.add(DEFAULT_LANGUAGE);
-            Collections.sort(languages);
-            return languages;
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
+        // try {
+        // List<Language> languages =
+        // Arrays.stream(Paths.get(Messages.class.getClassLoader().getResource("messages.properties").toURI()).getParent().toFile()
+        // .listFiles((dir, name) -> name.matches(BUNDLE_NAME + "_.*\\.properties")))
+        // .map(file -> file.getName().replace(BUNDLE_NAME + "_", "").replace(".properties", "")).map(Language::fromIdOptional)
+        // .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+
+        List<Language> languages = List.of(Language.fromValue("nl"));
+        languages.add(DEFAULT_LANGUAGE);
+        Collections.sort(languages);
+        return languages;
+        // } catch (URISyntaxException e) {
+        // throw new RuntimeException(e);
+        // }
     }
 }
