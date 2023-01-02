@@ -97,11 +97,7 @@ public class UpdateAvailableGithub {
                                 .getAsJsoupDocument()
                                 .selectFirst(".Box-row a[href$='.jar']");
                         String url = DOMAIN + artifactElement.attr("href");
-
-                        LocalDateTime date =
-                                zonedDateTimeStringToLocalDateTime(artifactElement.parent().parent().selectFirst("relative-time").attr("datetime"));
                         updateLastUpdateCheck();
-
                         return Optional.of(url);
                     } catch (Exception e) {
                         LOGGER.error(Messages.getString("LoggingPanel.UpdateCheckFailed"));
