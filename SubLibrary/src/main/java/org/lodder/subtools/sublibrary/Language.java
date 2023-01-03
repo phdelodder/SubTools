@@ -88,6 +88,10 @@ public enum Language {
         return Arrays.stream(Language.values()).filter(lang -> lang.getLangCode().equalsIgnoreCase(languageId)).findAny();
     }
 
+    public static Language fromId(String languageId) {
+        return fromIdOptional(languageId).orElseThrow();
+    }
+
     public String getName() {
         return name().substring(0, 1).toUpperCase() + name().substring(1).toLowerCase();
     }

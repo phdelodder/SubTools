@@ -56,6 +56,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.multisubdownloader.util.Export;
 import org.lodder.subtools.multisubdownloader.util.Import;
+import org.lodder.subtools.multisubdownloader.util.PropertiesReader;
 import org.lodder.subtools.sublibrary.ConfigProperties;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
@@ -88,6 +89,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     private static final long serialVersionUID = 1L;
     private final Container app;
     private final Manager manager;
+    private final Settings settings;
     private final UserInteractionHandlerGUI userInteractionHandler;
     private StatusLabel lblStatus;
     private final SettingsControl settingsControl;
@@ -110,6 +112,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     public GUI(final SettingsControl settingsControl, Container app) {
         this.app = app;
         this.manager = (Manager) this.app.make("Manager");
+        this.settings = (Settings) this.app.make("Settings");
         this.userInteractionHandler = new UserInteractionHandlerGUI(settingsControl.getSettings(), this);
         setTitle(ConfigProperties.getInstance().getProperty("name"));
         /*
@@ -133,7 +136,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     }
 
     private void checkUpdate(final boolean forceUpdateCheck) {
-        UpdateAvailableGithub u = new UpdateAvailableGithub(manager);
+        UpdateAvailableGithub u = new UpdateAvailableGithub(manager, settings);
         Optional<String> updateUrl = (forceUpdateCheck && u.isNewVersionAvailable())
                 || (!forceUpdateCheck && u.shouldCheckForNewUpdate(settingsControl.getSettings().getUpdateCheckPeriod())
                         && u.isNewVersionAvailable()) ? u.getLatestDownloadUrl() : Optional.empty();
@@ -482,10 +485,13 @@ public class GUI extends JFrame implements PropertyChangeListener {
     }
 
     private void showAbout() {
-        JOptionPane.showConfirmDialog(this,
-                Messages.getString("MainWindow.CurrentVersion") + ": "
-                        + ConfigProperties.getInstance().getProperty(Messages.getString("MainWindow.Version")),
-                ConfigProperties.getInstance().getProperty("name"), JOptionPane.CLOSED_OPTION);
+        String version = ConfigProperties.getInstance().getProperty(Messages.getString("MainWindow.Version"));
+        StringBuilder sb = new StringBuilder();
+        sb.append(Messages.getString("MainWindow.CurrentVersion")).append(": ").append(version);
+        if (version.contains("-SNAPSHOT")) {
+            sb.append(" (%s)".formatted(PropertiesReader.getProperty("build.timestamp")));
+        }
+        JOptionPane.showConfirmDialog(this, sb.toString(), ConfigProperties.getInstance().getProperty("name"), JOptionPane.CLOSED_OPTION);
     }
 
     protected void rename() {

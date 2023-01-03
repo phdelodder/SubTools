@@ -24,6 +24,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
+import org.lodder.subtools.multisubdownloader.settings.model.UpdateType;
 import org.lodder.subtools.sublibrary.Language;
 
 import lombok.AccessLevel;
@@ -67,6 +68,7 @@ public enum SettingValue {
     OPTION_RECURSIVE(false, SettingsControl::getSettings, Settings::isOptionRecursive, Settings::setOptionRecursive),
     PROCESS_EPISODE_SOURCE(SettingsProcessEpisodeSource.TVDB, SettingsProcessEpisodeSource::toString, SettingsProcessEpisodeSource::valueOf, SettingsControl::getSettings, Settings::getProcessEpisodeSource, Settings::setProcessEpisodeSource),
     UPDATE_CHECK_PERIOD(UpdateCheckPeriod.WEEKLY, UpdateCheckPeriod::toString, UpdateCheckPeriod::valueOf, SettingsControl::getSettings, Settings::getUpdateCheckPeriod, Settings::setUpdateCheckPeriod),
+    USE_NIGHTLY(UpdateType.STABLE, SettingsControl::getSettings, Settings::getUpdateType, Settings::setUpdateType),
     SUBTITLE_LANGUAGE(Language.DUTCH, SettingsControl::getSettings, Settings::getSubtitleLanguage, Settings::setSubtitleLanguage),
 
     // SCREEN SETTINGS

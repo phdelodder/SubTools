@@ -53,6 +53,7 @@ public class Settings implements UserInteractionSettingsIntf {
     private boolean optionsMinAutomaticSelection;
     private int optionsMinAutomaticSelectionValue;
     private UpdateCheckPeriod updateCheckPeriod;
+    private UpdateType updateType;
     private boolean optionsDefaultSelection;
     private List<String> optionsDefaultSelectionQualityList = new ArrayList<>();
     private int settingsVersion;

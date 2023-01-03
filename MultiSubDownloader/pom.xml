@@ -17,6 +17,10 @@
 		</repository>
 	</repositories>
 
+	<properties>
+		<build.timestamp>${maven.build.timestamp}</build.timestamp>
+	</properties> 
+
 	<dependencies>
 		<dependency>
 			<groupId>org.lodder.subtools</groupId>
@@ -192,6 +196,22 @@
 								<importMapping>java.time.LocalDateTime=java.time.Instant</importMapping>
 							</importMappings>
 
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>properties-maven-plugin</artifactId>
+				<version>1.1.0</version>
+				<executions>
+					<execution>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>write-project-properties</goal>
+						</goals>
+						<configuration>
+							<outputFile>${project.build.outputDirectory}/properties-from-pom.properties</outputFile>
 						</configuration>
 					</execution>
 				</executions>

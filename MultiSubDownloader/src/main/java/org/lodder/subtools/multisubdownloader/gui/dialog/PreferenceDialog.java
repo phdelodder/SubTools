@@ -43,6 +43,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
+import org.lodder.subtools.multisubdownloader.settings.model.UpdateType;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
@@ -82,6 +83,7 @@ public class PreferenceDialog extends MultiSubDialog {
     private JSlider sldMinScoreSelection;
     private final Manager manager;
     private JComboBox<UpdateCheckPeriod> cbxUpdateCheckPeriod;
+    private JComboBox<UpdateType> cbxUpdateType;
     private JComboBox<Language> cbxLanguage;
     private JCheckBox chkDefaultSelection;
     private DefaultSelectionPanel pnlDefaultSelection;
@@ -132,17 +134,6 @@ public class PreferenceDialog extends MultiSubDialog {
                     cbxLanguage.setRenderer(new ToStringListCellRenderer<>(cbxLanguage.getRenderer(),
                             o -> Messages.getString(((Language) o).getMsgCode())));
                     pnlGeneral.add(cbxLanguage, "span");
-                }
-
-                {
-                    JLabel lblNewUpdateCheck = new JLabel(Messages.getString("PreferenceDialog.NewUpdateCheck"));
-                    pnlGeneral.add(lblNewUpdateCheck);
-
-                    cbxUpdateCheckPeriod = new JComboBox<>();
-                    cbxUpdateCheckPeriod.setModel(new DefaultComboBoxModel<>(UpdateCheckPeriod.values()));
-                    cbxUpdateCheckPeriod.setRenderer(new ToStringListCellRenderer<>(cbxUpdateCheckPeriod.getRenderer(),
-                            o -> Messages.getString(((UpdateCheckPeriod) o).getLangCode())));
-                    pnlGeneral.add(cbxUpdateCheckPeriod, "wrap");
                 }
 
                 {
@@ -204,6 +195,25 @@ public class PreferenceDialog extends MultiSubDialog {
                     pnlGeneral.add(btnAddExcludeRegex, "wrap, gapbottom 10px");
 
                 }
+
+                {
+                    pnlGeneral
+                            .addComponent(new JLabel(Messages.getString("PreferenceDialog.Update")), "span 2, split")
+                            .addComponent(new JSeparator(), "wrap, grow, gapy 5")
+                            .addComponent(new JLabel(Messages.getString("PreferenceDialog.NewUpdateCheck")), "gapx 5")
+                            .addComponent(cbxUpdateCheckPeriod = new JComboBox<>(), "wrap")
+                            .addComponent(new JLabel(Messages.getString("PreferenceDialog.UpdateType")), "gapx 5")
+                            .addComponent(cbxUpdateType = new JComboBox<>(), "wrap");
+
+                    cbxUpdateCheckPeriod.setModel(new DefaultComboBoxModel<>(UpdateCheckPeriod.values()));
+                    cbxUpdateCheckPeriod.setRenderer(new ToStringListCellRenderer<>(cbxUpdateCheckPeriod.getRenderer(),
+                            o -> Messages.getString(((UpdateCheckPeriod) o).getLangCode())));
+
+                    cbxUpdateType.setModel(new DefaultComboBoxModel<>(UpdateType.values()));
+                    cbxUpdateType.setRenderer(new ToStringListCellRenderer<>(cbxUpdateType.getRenderer(),
+                            o -> Messages.getString(((UpdateType) o).getMsgCode())));
+                }
+
                 {
                     pnlGeneral.add(new JLabel(Messages.getString("PreferenceDialog.ConfigureProxy")), "span 2, split");
                     pnlGeneral.add(new JSeparator(), "wrap, grow, gapy 5");
@@ -454,6 +464,7 @@ public class PreferenceDialog extends MultiSubDialog {
         chkSourceLocal.setSelected(settingsCtrl.getSettings().isSerieSourceLocal());
         chkSourceSubscene.setSelected(settingsCtrl.getSettings().isSerieSourceSubscene());
         cbxUpdateCheckPeriod.setSelectedItem(settingsCtrl.getSettings().getUpdateCheckPeriod());
+        cbxUpdateType.setSelectedItem(settingsCtrl.getSettings().getUpdateType());
         chkDefaultSelection.setSelected(settingsCtrl.getSettings().isOptionsDefaultSelection());
         pnlDefaultSelection.setDefaultSelectionList(settingsCtrl.getSettings().getOptionsDefaultSelectionQualityList());
         chkConfirmProviderMapping.setSelected(settingsCtrl.getSettings().isOptionsConfirmProviderMapping());
@@ -541,6 +552,7 @@ public class PreferenceDialog extends MultiSubDialog {
             settingsCtrl.getSettings().setLanguage((Language) cbxLanguage.getSelectedItem());
             settingsCtrl.getSettings().setExcludeList(list);
             settingsCtrl.getSettings().setUpdateCheckPeriod((UpdateCheckPeriod) cbxUpdateCheckPeriod.getSelectedItem());
+            settingsCtrl.getSettings().setUpdateType((UpdateType) cbxUpdateType.getSelectedItem());
             settingsCtrl.getSettings().setGeneralProxyEnabled(chkUseProxy.isSelected());
             settingsCtrl.getSettings().setGeneralProxyHost(txtProxyHost.getText());
             settingsCtrl.getSettings().setGeneralProxyPort(Integer.parseInt(txtProxyPort.getText()));
