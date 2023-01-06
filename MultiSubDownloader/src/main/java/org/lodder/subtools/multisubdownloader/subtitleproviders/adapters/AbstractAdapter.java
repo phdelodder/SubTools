@@ -1,6 +1,5 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -94,7 +93,7 @@ abstract class AbstractAdapter<T, S extends ProviderSerieId, X extends Exception
                         throw new RuntimeException("Max retries reached when calling %s".formatted(message));
                     }
                     try {
-                        Thread.sleep(Duration.ofSeconds(5));
+                        Thread.sleep(5000);
                     } catch (InterruptedException e1) {
                         // continue
                     }
