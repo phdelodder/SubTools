@@ -1,12 +1,12 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
-import java.time.Duration;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -88,10 +88,12 @@ public class JAddic7edViaProxyAdapter extends AbstractAdapter<Subtitle, Provider
                 .map(providerSerieId -> tvRelease.getEpisodeNumbers().stream()
                         .flatMap(episode -> {
                             try {
-                                return retry(() -> getApi().getSubtitles(providerSerieId, tvRelease.getSeason(), episode, language).stream(),
-                                        "getSubtitles: [%s]"
-                                                .formatted(TvRelease.formatName(providerSerieId.getProviderName(), tvRelease.getSeason(), episode)),
-                                        ReturnCode.REFRESHING, ReturnCode.RATE_LIMIT_REACHED);
+                                return new ExecuteCall<>(() -> getApi().getSubtitles(providerSerieId, tvRelease.getSeason(), episode, language))
+                                        .message("getSubtitles: [%s]".formatted(
+                                                TvRelease.formatName(providerSerieId.getProviderName(), tvRelease.getSeason(), episode)))
+                                        .retryWhenHttpCode(ReturnCode.REFRESHING)
+                                        .retryWhenHttpCode(ReturnCode.RATE_LIMIT_REACHED)
+                                        .execute().stream();
                             } catch (ApiException e) {
                                 LOGGER.error("API %s searchSubtitles for serie [%s] (%s)".formatted(getSubtitleSource().getName(),
                                         TvRelease.formatName(providerSerieId.getProviderName(), tvRelease.getSeason(), episode),
@@ -105,19 +107,19 @@ public class JAddic7edViaProxyAdapter extends AbstractAdapter<Subtitle, Provider
 
     @Override
     public List<ProviderSerieId> getSortedProviderSerieIds(String serieName, int season) throws ApiException {
-        try {
-            return retry(() -> getApi().getProviderSerieName(serieName).stream()
-                    .sorted(Comparator
-                            .comparing(n -> !serieName.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(n.getName().replaceAll("[^A-Za-z]", ""))))
-                    .toList(), "getProviderSerieName [%s]".formatted(serieName),
-                    ReturnCode.RATE_LIMIT_REACHED);
-        } catch (ApiException e) {
-            if (ReturnCode.NOT_FOUND.isSameCode(e.getCode())) {
-                LOGGER.info("API %s - Could not find serie name [%s]".formatted(getProviderName(), serieName));
-                return List.of();
-            }
-            throw e;
-        }
+        List<ProviderSerieId> providerSerieNames =
+                new ExecuteCall<>(() -> getApi().getProviderSerieName(serieName))
+                        .message("getProviderSerieName: [%s]".formatted(serieName))
+                        .retryWhenHttpCode(ReturnCode.RATE_LIMIT_REACHED)
+                        .handleHttpCode(ReturnCode.NOT_FOUND, () -> {
+                            LOGGER.info("API %s - Could not find serie name [%s]".formatted(getProviderName(), serieName));
+                            return List.of();
+                        })
+                        .execute();
+        return providerSerieNames.stream()
+                .sorted(Comparator
+                        .comparing(n -> !serieName.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(n.getName().replaceAll("[^A-Za-z]", ""))))
+                .toList();
     }
 
     @Override
@@ -149,30 +151,27 @@ public class JAddic7edViaProxyAdapter extends AbstractAdapter<Subtitle, Provider
         }
     }
 
-    private <T> T retry(ThrowingSupplier<T, ApiException> supplier, String message, ReturnCode... returnCodes) throws ApiException {
-        return retry(supplier, 3, message, returnCodes);
-    }
+    public static class ExecuteCall<T> extends AbstractAdapter.ExecuteCall<T, ApiException, ExecuteCall<T>> {
 
-    private <T> T retry(ThrowingSupplier<T, ApiException> supplier, int retriesLeft, String message, ReturnCode... returnCodes) throws ApiException {
-        if (retriesLeft <= 0) {
-            throw new RuntimeException("API %s - Max retries reached when calling %s".formatted(getProviderName(), message));
+        public ExecuteCall(ThrowingSupplier<T, ApiException> supplier) {
+            super(supplier);
         }
-        try {
-            return supplier.get();
-        } catch (ApiException e) {
-            if (retriesLeft == 0) {
-                throw e;
-            }
-            if (Arrays.stream(returnCodes).anyMatch(returnCode -> returnCode.isSameCode(e.getCode()))) {
-                try {
-                    Thread.sleep(Duration.ofSeconds(5));
-                } catch (InterruptedException e1) {
-                    // continue
-                }
-                return retry(supplier, retriesLeft--, message);
-            } else {
-                throw e;
-            }
+
+        public ExecuteCall<T> retryWhenHttpCode(ReturnCode returnCode) {
+            return super.retryWhenException(e -> returnCode.isSameCode(e.getCode()));
+        }
+
+        public ExecuteCall<T> handleHttpCode(ReturnCode returnCode, Function<ApiException, T> function) {
+            return super.handleException(e -> returnCode.isSameCode(e.getCode()), function);
+        }
+
+        public ExecuteCall<T> handleHttpCode(ReturnCode returnCode, Supplier<T> supplier) {
+            return super.handleException(e -> returnCode.isSameCode(e.getCode()), supplier);
+        }
+
+        @Override
+        public ExecuteCall<T> handleException(Supplier<T> suppliers) {
+            return super.handleException(e -> true, suppliers);
         }
     }
 }
