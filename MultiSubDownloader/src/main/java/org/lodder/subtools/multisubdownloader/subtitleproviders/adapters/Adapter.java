@@ -33,15 +33,12 @@ import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import lombok.experimental.ExtensionMethod;
-
 /**
  *
  * @param <T> type of the subtitle objects returned by the api
  * @param <S> type of the ProviderSerieId
  * @param <X> type of the exception thrown by the api
  */
-@ExtensionMethod({ OptionalExtension.class })
 public interface Adapter<T, S extends ProviderSerieId, X extends Exception> extends SubtitleProvider {
     Logger LOGGER = LoggerFactory.getLogger(Adapter.class);
 
@@ -117,8 +114,8 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
         if (StringUtils.isNotBlank(tvRelease.getCustomName())) {
             return getProviderSerieId(tvRelease, TvRelease::getOriginalName, TvRelease::getCustomName);
         } else {
-            return getProviderSerieId(tvRelease, TvRelease::getOriginalName)
-                    .orElseMap(() -> getProviderSerieId(tvRelease, TvRelease::getName));
+            Optional<SerieMapping> providerSerieId = getProviderSerieId(tvRelease, TvRelease::getOriginalName);
+            return providerSerieId.isPresent() ? providerSerieId : getProviderSerieId(tvRelease, TvRelease::getName);
         }
     }
 
