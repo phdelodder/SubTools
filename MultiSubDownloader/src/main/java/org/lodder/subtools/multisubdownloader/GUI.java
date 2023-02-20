@@ -480,7 +480,8 @@ public class GUI extends JFrame implements PropertyChangeListener {
     }
 
     protected void showTranslateShowNames() {
-        final MappingEpisodeNameDialog tDialog = new MappingEpisodeNameDialog(this, settingsControl, (Manager) this.app.make("Manager"));
+        final MappingEpisodeNameDialog tDialog = new MappingEpisodeNameDialog(this, settingsControl, (Manager) this.app.make("Manager"),
+                (SubtitleProviderStore) this.app.make("SubtitleProviderStore"), userInteractionHandler);
         tDialog.setVisible(true);
     }
 

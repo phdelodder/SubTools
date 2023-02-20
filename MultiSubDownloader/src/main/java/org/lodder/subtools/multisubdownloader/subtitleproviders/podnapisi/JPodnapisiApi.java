@@ -54,7 +54,7 @@ public class JPodnapisiApi implements SubtitleApi {
 
     public List<PodnapisiSubtitleDescriptor> getMovieSubtitles(String movieName, int year, int season, int episode, Language language)
             throws PodnapisiException {
-        return getSubtitles(new SerieMapping(movieName, movieName, movieName), year, season, episode, language);
+        return getSubtitles(new SerieMapping(movieName, movieName, movieName, season), year, season, episode, language);
 
     }
 

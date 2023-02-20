@@ -93,8 +93,7 @@ public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDesc
 
     @Override
     public Set<TVsubtitlesSubtitleDescriptor> searchSerieSubtitles(TvRelease tvRelease, Language language) throws TvSubtiltesException {
-        return getProviderSerieId(tvRelease.getOriginalName(), tvRelease.getDisplayName(), tvRelease.getSeason(), tvRelease.getTvdbId())
-                .orElseMap(() -> getProviderSerieId(tvRelease.getName(), tvRelease.getDisplayName(), tvRelease.getSeason(), tvRelease.getTvdbId()))
+        return getProviderSerieId(tvRelease)
                 .map(providerSerieId -> tvRelease.getEpisodeNumbers().stream()
                         .flatMap(episode -> {
                             try {

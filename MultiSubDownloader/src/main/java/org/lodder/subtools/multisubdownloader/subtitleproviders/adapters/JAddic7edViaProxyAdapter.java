@@ -80,11 +80,8 @@ public class JAddic7edViaProxyAdapter extends AbstractAdapter<Subtitle, Provider
     }
 
     @Override
-    public Set<Subtitle> searchSerieSubtitles(TvRelease tvRelease, Language language)
-            throws ApiException {
-        return getProviderSerieId(tvRelease.getOriginalName(), tvRelease.getDisplayName(), tvRelease.getSeason(), tvRelease.getTvdbId())
-                .orElseMap(() -> getProviderSerieId(tvRelease.getName(), tvRelease.getDisplayName(), tvRelease.getSeason(),
-                        tvRelease.getTvdbId()))
+    public Set<Subtitle> searchSerieSubtitles(TvRelease tvRelease, Language language) throws ApiException {
+        return getProviderSerieId(tvRelease)
                 .map(providerSerieId -> tvRelease.getEpisodeNumbers().stream()
                         .flatMap(episode -> {
                             try {

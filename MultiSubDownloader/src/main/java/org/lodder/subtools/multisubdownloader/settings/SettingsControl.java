@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.lodder.subtools.multisubdownloader.gui.dialog.MappingEpisodeNameDialog.MappingType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
@@ -27,6 +28,7 @@ import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType
 import org.lodder.subtools.multisubdownloader.settings.model.State;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.CacheType;
+import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,16 +128,16 @@ public class SettingsControl {
             state = new State();
             SettingValue.loadAll(this, preferences);
         }
-        if (version == 1) {
+        if (version <= 1) {
             migrateSettingsV1ToV2();
         }
-        if (version == 2) {
+        if (version <= 2) {
             migrateSettingsV2ToV3();
         }
-        if (version == 3) {
+        if (version <= 3) {
             migrateSettingsV3ToV4();
         }
-        if (version == 4) {
+        if (version <= 4) {
             migrateSettingsV4ToV5();
         }
     }
@@ -289,11 +291,39 @@ public class SettingsControl {
         if (version == 0) {
             migrateDatabaseV0ToV1();
         }
+        if (version <= 1) {
+            migrateDatabaseV1ToV2();
+        }
     }
 
     private void migrateDatabaseV0ToV1() {
         manager.valueBuilder().cacheType(CacheType.DISK).keyFilter(k -> k.startsWith("TVDB-SerieMapping-")).remove();
         manager.valueBuilder().cacheType(CacheType.DISK).keyFilter(k -> k.startsWith("TVDB-SerieId-")).remove();
         manager.valueBuilder().cacheType(CacheType.DISK).key("DATABSE_VERSION").value(1).store();
+    }
+
+    private void migrateDatabaseV1ToV2() {
+        List<Pair<String, SerieMapping>> entries = manager.valueBuilder().cacheType(CacheType.DISK)
+                .keyFilter(k -> k.startsWith("SUBSCENE-serieName-")).returnType(SerieMapping.class).getEntries();
+        List<Pair<String, SerieMapping>> editedEntries = entries.stream().map(pair -> {
+            int lastIndexOfDash = pair.getKey().lastIndexOf("-");
+            int season;
+            try {
+                season = Integer.parseInt(pair.getKey().substring(lastIndexOfDash + 1));
+            } catch (NumberFormatException e) {
+                season = -1;
+            }
+            String name = pair.getValue().getName();
+            String providerId = pair.getValue().getProviderId();
+            String providerName = pair.getValue().getProviderName();
+            SerieMapping serieMapping = new SerieMapping(name, providerId, providerName, season);
+            System.out.println(serieMapping);
+            return Pair.of(pair.getKey(), serieMapping);
+        }).toList();
+        editedEntries.forEach(entry -> {
+            manager.valueBuilder().cacheType(CacheType.DISK).key(entry.getKey()).remove();
+            manager.valueBuilder().cacheType(CacheType.DISK).key(entry.getKey()).value(entry.getValue()).store();
+        });
+        manager.valueBuilder().cacheType(CacheType.DISK).key("DATABSE_VERSION").value(2).store();
     }
 }

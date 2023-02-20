@@ -49,4 +49,8 @@ public class UserInteractionHandlerGUI implements UserInteractionHandler {
     public Optional<String> enter(String title, String message, String errorMessage, Predicate<String> validator) {
         return InputPane.create().title(title).message(message).errorMessage(errorMessage).validator(validator).prompt();
     }
+
+    public void message(String message, String title) {
+        JOptionPane.showMessageDialog(frame, message, title, JOptionPane.OK_OPTION);
+    }
 }

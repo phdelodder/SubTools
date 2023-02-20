@@ -25,6 +25,8 @@ public class TvRelease extends Release {
     // tvdb name
     private String originalName;
     private boolean special;
+    // custom name which can be used to search subtitle providers
+    private String customName;
 
     public String getNameWithSeasonEpisode() {
         return formatName(name, season, episodeNumbers.isEmpty() ? -1 : episodeNumbers.get(0));
@@ -66,6 +68,10 @@ public class TvRelease extends Release {
 
         TvReleaseBuilderOther title(String title);
 
+        TvReleaseBuilderOther customName(String customName);
+
+        TvReleaseBuilderOther originalName(String originalName);
+
         TvRelease build();
     }
 
@@ -86,6 +92,8 @@ public class TvRelease extends Release {
         private File file;
         private String description;
         private String releaseGroup;
+        private String customName;
+        private String originalName;
 
         @Override
         public TvReleaseBuilder episode(int episode) {
@@ -101,11 +109,12 @@ public class TvRelease extends Release {
 
         @Override
         public TvRelease build() {
-            return new TvRelease(file, description, releaseGroup, quality, name, title, season, episodes, special);
+            return new TvRelease(file, description, releaseGroup, quality, name, originalName, customName, title, season, episodes, special);
         }
     }
 
-    private TvRelease(File file, String description, String releaseGroup, String quality, String name, String title, int season,
+    private TvRelease(File file, String description, String releaseGroup, String quality, String name, String originalName, String customName,
+            String title, int season,
             List<Integer> episodeNumbers, boolean special) {
         super(VideoType.EPISODE, file, description, releaseGroup, quality);
         this.name = name;
@@ -114,6 +123,8 @@ public class TvRelease extends Release {
         this.episodeNumbers = episodeNumbers;
         this.originalName = "";
         this.special = special;
+        this.originalName = originalName;
+        this.customName = customName;
     }
 
     public void updateTvdbEpisodeInfo(TheTvdbEpisode tvdbEpisode) {

@@ -15,17 +15,23 @@ public class SerieMapping implements Serializable { // implements SerieMappingIn
     private final String name;
     private final String providerId;
     private final String providerName;
+    private final int season;
     private transient final String formattedName;
 
     public SerieMapping(String name, int providerId, String providerName) {
-        this(name, String.valueOf(providerId), providerName);
+        this(name, providerId, providerName, 0);
     }
 
-    public SerieMapping(String name, String providerId, String providerName) {
+    public SerieMapping(String name, int providerId, String providerName, int season) {
+        this(name, String.valueOf(providerId), providerName, season);
+    }
+
+    public SerieMapping(String name, String providerId, String providerName, int season) {
         this.name = name;
         this.providerId = providerId;
         this.providerName = providerName;
         this.formattedName = name.replaceAll("[^A-Za-z]", "");
+        this.season = season;
     }
 
     public static Function<String, String> getNameFormatter() {

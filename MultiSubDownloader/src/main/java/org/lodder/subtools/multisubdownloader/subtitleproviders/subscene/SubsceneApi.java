@@ -8,8 +8,12 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -17,6 +21,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.exception.SubsceneException;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.model.SubSceneSerieId;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.subscene.model.SubsceneSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
@@ -31,6 +36,8 @@ import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod({ OptionalExtension.class })
@@ -41,6 +48,7 @@ public class SubsceneApi extends Html implements SubtitleApi {
     private static final int RATEDURATION_LONG = 5; // seconds
     private static final String DOMAIN = "https://subscene.com";
     // private static final String SERIE_URL_PREFIX = DOMAIN + "/subtitles/";
+    private static final Pattern SERIE_NAME_PATTERN = Pattern.compile(".*? - ([A-Z][a-z]*) Season.*");
 
     private static final Predicate<Exception> RETRY_PREDICATE =
             exception -> (exception instanceof HttpClientException httpClientException
@@ -63,7 +71,7 @@ public class SubsceneApi extends Html implements SubtitleApi {
      * @return a {@link Map} containing a list of {@link ProviderSerieId provider serie ids} per type
      * @throws SubsceneException
      */
-    public Map<String, List<ProviderSerieId>> getSubSceneSerieNames(String serieName) throws SubsceneException {
+    public Map<String, List<SubSceneSerieId>> getSubSceneSerieNames(String serieName) throws SubsceneException {
         try {
             if (StringUtils.isBlank(serieName)) {
                 return Map.of();
@@ -73,7 +81,14 @@ public class SubsceneApi extends Html implements SubtitleApi {
 
             return searchResultElement.select("h2").stream()
                     .map(titleElement -> Pair.of(titleElement.text(), titleElement.nextElementSibling().select("a").stream()
-                            .map(aElem -> new ProviderSerieId(aElem.text(), aElem.attr("href"))).toList()))
+                            .map(aElem -> {
+                                Matcher matcher = SERIE_NAME_PATTERN.matcher(aElem.text());
+                                int season = 0;
+                                if (matcher.matches()) {
+                                    season = OrdinalNumber.optionalFromValue(matcher.group(1)).mapToInt(OrdinalNumber::getNumber).orElse(-1);
+                                }
+                                return new SubSceneSerieId(aElem.text(), aElem.attr("href"), season);
+                            }).toList()))
                     .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
         } catch (Exception e) {
             throw new SubsceneException(e);
@@ -235,4 +250,125 @@ public class SubsceneApi extends Html implements SubtitleApi {
 
         }
     });
+
+    @Getter
+    @RequiredArgsConstructor
+    private enum OrdinalNumber {
+        ZEROTH(0, "Zeroth"),
+        FIRST(1, "First"),
+        SECOND(2, "Second"),
+        THIRD(3, "Third"),
+        FOURTH(4, "Fourth"),
+        FIFTH(5, "Fifth"),
+        SIXTH(6, "Sixth"),
+        SEVENTH(7, "Seventh"),
+        EIGHTH(8, "Eighth"),
+        NINTH(9, "Ninth"),
+        TENTH(10, "Tenth"),
+        ELEVENTH(11, "Eleventh"),
+        TWELFTH(12, "Twelfth"),
+        THIRTEENTH(13, "Thirteenth"),
+        FOURTEENTH(14, "Fourteenth"),
+        FIFTEENTH(15, "Fifteenth"),
+        SIXTEENTH(16, "Sixteenth"),
+        SEVENTEENTH(17, "Seventeenth"),
+        EIGHTEENTH(18, "Eighteenth"),
+        NINETEENTH(19, "Nineteenth"),
+        TWENTIETH(20, "Twentieth"),
+        TWENTY_FIRST(21, "Twenty-First"),
+        TWENTY_SECOND(22, "Twenty-Second"),
+        TWENTY_THIRD(23, "Twenty-Third"),
+        TWENTY_FOURTH(24, "Twenty-Fourth"),
+        TWENTY_FIFTH(25, "Twenty-Fifth"),
+        TWENTY_SIXTH(26, "Twenty-Sixth"),
+        TWENTY_SEVENTH(27, "Twenty-Seventh"),
+        TWENTY_EIGHTH(28, "Twenty-Eighth"),
+        TWENTY_NINTH(29, "Twenty-Ninth"),
+        THIRTIETH(30, "Thirtieth"),
+        THIRTHY_FIRST(31, "Thirty-First"),
+        THIRTHY_SECOND(32, "Thirty-Second"),
+        THIRTHY_THIRD(33, "Thirty-Third"),
+        THIRTHY_FOURTH(34, "Thirty-Fourth"),
+        THIRTHY_FIFTH(35, "Thirty-Fifth"),
+        THIRTHY_SIXTH(36, "Thirty-Sixth"),
+        THIRTHY_SEVENTH(37, "Thirty-Seventh"),
+        THIRTHY_EIGHTH(38, "Thirty-Eighth"),
+        THIRTHY_NINTH(39, "Thirty-Ninth"),
+        FORTIETH(40, "Fortieth"),
+        FORTY_FIRST(41, "Forty-First"),
+        FORTY_SECOND(42, "Forty-Second"),
+        FORTY_THIRD(43, "Forty-Third"),
+        FORTY_FOURTH(44, "Forty-Fourth"),
+        FORTY_FIFTH(45, "Forty-Fifth"),
+        FORTY_SIXTH(46, "Forty-Sixth"),
+        FORTY_SEVENTH(47, "Forty-Seventh"),
+        FORTY_EIGHTH(48, "Forty-Eighth"),
+        FORTY_NINTH(49, "Forty-Ninth"),
+        FIFTIETH(50, "Fiftieth"),
+        FIFTY_FIRST(51, "Fifty-First"),
+        FIFTY_SECOND(52, "Fifty-Second"),
+        FIFTY_THIRD(53, "Fifty-Third"),
+        FIFTY_FOURTH(54, "Fifty-Fourth"),
+        FIFTY_FIFTH(55, "Fifty-Fifth"),
+        FIFTY_SIXTH(56, "Fifty-Sixth"),
+        FIFTY_SEVENTH(57, "Fifty-Seventh"),
+        FIFTY_EIGHTH(58, "Fifty-Eighth"),
+        FIFTY_NINTH(59, "Fifty-Ninth"),
+        SIXTIETH(60, "Sixtieth"),
+        SIXTY_FIRST(61, "Sixty-First"),
+        SIXTY_SECOND(62, "Sixty-Second"),
+        SIXTY_THIRD(63, "Sixty-Third"),
+        SIXTY_FOURTH(64, "Sixty-Fourth"),
+        SIXTY_FIFTH(65, "Sixty-Fifth"),
+        SIXTY_SIXTH(66, "Sixty-Sixth"),
+        SIXTY_SEVENTH(67, "Sixty-Seventh"),
+        SIXTY_EIGHTH(68, "Sixty-Eighth"),
+        SIXTY_NINTH(69, "Sixty-Ninth"),
+        SEVENTIETH(70, "Seventieth"),
+        SEVENTY_FIRST(71, "Seventy-First"),
+        SEVENTY_SECOND(72, "Seventy-Second"),
+        SEVENTY_THIRD(73, "Seventy-Third"),
+        SEVENTY_FOURTH(74, "Seventy-Fourth"),
+        SEVENTY_FIFTH(75, "Seventy-Fifth"),
+        SEVENTY_SIXTH(76, "Seventy-Sixth"),
+        SEVENTY_SEVENTH(77, "Seventy-Seventh"),
+        SEVENTY_EIGHTH(78, "Seventy-Eighth"),
+        SEVENTY_NINTH(79, "Seventy-Ninth"),
+        EIGHTIETH(80, "Eightieth"),
+        EIGHTY_FIRST(81, "Eighty-First"),
+        EIGHTY_SECOND(82, "Eighty-Second"),
+        EIGHTY_THIRD(83, "Eighty-Third"),
+        EIGHTY_FOURTH(84, "Eighty-Fourth"),
+        EIGHTY_FIFTH(85, "Eighty-Fifth"),
+        EIGHTY_SIXTH(86, "Eighty-Sixth"),
+        EIGHTY_SEVENTH(87, "Eighty-Seventh"),
+        EIGHTY_EIGHTH(88, "Eighty-Eighth"),
+        EIGHTY_NINTH(89, "Eighty-Ninth"),
+        NINETIETH(90, "Ninetieth"),
+        NINETY_FIRST(91, "Ninety-First"),
+        NINETY_SECOND(92, "Ninety-Second"),
+        NINETY_THIRD(93, "Ninety-Third"),
+        NINETY_FOURTH(94, "Ninety-Fourth"),
+        NINETY_FIFTH(95, "Ninety-Fifth"),
+        NINETY_SIXTH(96, "Ninety-Sixth"),
+        NINETY_SEVENTH(97, "Ninety-Seventh"),
+        NINETY_EIGHTH(98, "Ninety-Eighth"),
+        NINETY_NINTH(99, "Ninety-Ninth"),
+        HUNDREDTH(100, "Hundredth");
+
+        private final int number;
+        private final String value;
+
+        public static Optional<OrdinalNumber> optionalFromValue(String value) {
+            return Stream.of(OrdinalNumber.values()).filter(ordinalNumber -> StringUtils.equalsIgnoreCase(value, ordinalNumber.getValue()))
+                    .findAny();
+        }
+    }
+
+    public static String getOrdinalName(int ordinal) {
+        if (ordinal < 0 || ordinal > 100) {
+            return "not defined";
+        }
+        return OrdinalNumber.values()[ordinal].getValue();
+    }
 }

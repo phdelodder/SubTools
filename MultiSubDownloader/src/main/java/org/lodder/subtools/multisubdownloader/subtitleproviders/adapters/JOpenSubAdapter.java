@@ -110,8 +110,7 @@ public class JOpenSubAdapter
 
     @Override
     public Set<org.opensubtitles.model.Subtitle> searchSerieSubtitles(TvRelease tvRelease, Language language) throws OpenSubtitlesException {
-        return getProviderSerieId(tvRelease.getOriginalName(), tvRelease.getDisplayName(), tvRelease.getSeason(), tvRelease.getTvdbId())
-                .orElseMap(() -> getProviderSerieId(tvRelease.getName(), tvRelease.getDisplayName(), tvRelease.getSeason(), tvRelease.getTvdbId()))
+        return getProviderSerieId(tvRelease)
                 .map(providerSerieId -> tvRelease.getEpisodeNumbers().stream()
                         .flatMap(episode -> {
                             try {
