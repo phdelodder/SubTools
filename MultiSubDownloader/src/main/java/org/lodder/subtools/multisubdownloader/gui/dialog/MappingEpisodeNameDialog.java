@@ -246,7 +246,7 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
         {
             JPanel buttonPane = new JPanel();
             getContentPane().add(buttonPane, BorderLayout.SOUTH);
-            buttonPane.setLayout(new MigLayout("", "[25px][50px][grow][50px][25px]", "[][25px,grow,fill]"));
+            buttonPane.setLayout(new MigLayout("", "[25px][50px][grow][50px][grow][50px][25px]", "[][25px,grow,fill]"));
 
             {
                 JButton btnDeleteSelectedRow = new JButton(Messages.getString("MappingEpisodeNameDialog.DeleteRow"));
