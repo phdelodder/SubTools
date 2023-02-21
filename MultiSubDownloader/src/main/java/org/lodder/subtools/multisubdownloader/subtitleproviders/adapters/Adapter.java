@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.apache.commons.lang3.StringUtils;
@@ -108,7 +109,33 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
 
     List<S> getSortedProviderSerieIds(String serieName, int season) throws X;
 
-    default Optional<SerieMapping> getProviderSerieId(String serieName, String displayName, int season, OptionalInt tvdbIdOptional) throws X {
+    @Override
+    default Optional<SerieMapping> getProviderSerieId(TvRelease tvRelease) throws X {
+        if (StringUtils.isNotBlank(tvRelease.getCustomName())) {
+            return getProviderSerieId(tvRelease, TvRelease::getOriginalName, TvRelease::getCustomName);
+        } else {
+            Optional<SerieMapping> providerSerieId = getProviderSerieId(tvRelease, TvRelease::getOriginalName);
+            return providerSerieId.isPresent() ? providerSerieId : getProviderSerieId(tvRelease, TvRelease::getName);
+        }
+    }
+
+    default Optional<SerieMapping> getProviderSerieId(TvRelease tvRelease, Function<TvRelease, String> nameFunction) throws X {
+        return getProviderSerieId(tvRelease, nameFunction, nameFunction);
+    }
+
+    default Optional<SerieMapping> getProviderSerieId(TvRelease tvRelease, Function<TvRelease, String> nameFunction,
+            Function<TvRelease, String> customNameFunction) throws X {
+        return getProviderSerieId(nameFunction.apply(tvRelease), customNameFunction.apply(tvRelease), tvRelease.getDisplayName(),
+                tvRelease.getSeason(), tvRelease.getTvdbId());
+    }
+
+    default Optional<SerieMapping> getProviderSerieId(String serieName, String displayName, int season,
+            OptionalInt tvdbIdOptional) throws X {
+        return getProviderSerieId(serieName, serieName, displayName, season, tvdbIdOptional);
+    }
+
+    default Optional<SerieMapping> getProviderSerieId(String serieName, String serieNameToSearchFor, String displayName, int season,
+            OptionalInt tvdbIdOptional) throws X {
         Supplier<ValueBuilderIsPresentIntf<Serializable>> tvdbIdValueBuilder =
                 () -> mapToObj(tvdbIdOptional, tvdbId -> getManager().valueBuilder().cacheType(CacheType.DISK)
                         .key("%s-serieName-tvdbId:%s-%s".formatted(getProviderName(), tvdbId,
@@ -117,14 +144,15 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
             // if value using the tvdbId is present, return it
             return tvdbIdValueBuilder.get().returnType(SerieMapping.class).getOptional();
         }
-        if (StringUtils.isBlank(serieName)) {
+        if (StringUtils.isBlank(serieNameToSearchFor)) {
             return Optional.empty();
         }
+        int seasonToUse = useSeasonForSerieId() ? season : 0;
         ValueBuilderIsPresentIntf<Serializable> serieNameValueBuilder = getManager().valueBuilder()
                 .cacheType(CacheType.DISK)
-                .key("%s-serieName-name:%s-%s".formatted(getProviderName(), serieName.toLowerCase(), useSeasonForSerieId() ? season : 0));
+                .key("%s-serieName-name:%s-%s".formatted(getProviderName(), serieName.toLowerCase(), seasonToUse));
 
-        if (serieNameValueBuilder.isPresent()) {
+        if (StringUtils.equals(serieNameToSearchFor, displayName) && serieNameValueBuilder.isPresent()) {
             boolean returnValue;
             Optional<SerieMapping> value;
             if (serieNameValueBuilder.isTemporaryObject()) {
@@ -142,55 +170,60 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
             }
         }
 
-        List<S> providerSerieIds = getSortedProviderSerieIds(serieName, season);
+        List<S> providerSerieIds = getSortedProviderSerieIds(serieNameToSearchFor, seasonToUse);
         if (providerSerieIds.isEmpty()) {
             // if no provider serie id's could be found, store a temporary null value with expiration time of 1 day
             // (so the provider isn't contacted every time this method is being called)
             // If a temporary expired value was already found, persist the null value with a doubled expiration time
             serieNameValueBuilder
-                    .value(new SerieMapping(serieName, null, null))
+                    .value(new SerieMapping(serieName, null, null, seasonToUse))
                     .storeTempNullValue()
                     .timeToLive(OptionalExtension
                             .map(serieNameValueBuilder.getTemporaryTimeToLive(), v -> v * 2)
                             .orElseGet(() -> TimeUnit.SECONDS.convert(1, TimeUnit.DAYS)))
                     .storeAsTempValue();
             return Optional.empty();
-        } else if (!getUserInteractionSettings().isOptionsConfirmProviderMapping() && providerSerieIds.size() == 1) {
-            return Optional.of(new SerieMapping(serieName, providerSerieIds.get(0).getId(), providerSerieIds.get(0).getName()));
         }
-        ValueBuilderIsPresentIntf<Serializable> previousResultsValueBuilder = getManager().valueBuilder()
-                .cacheType(CacheType.MEMORY)
-                .key("%s-serieName-prev-results:%s-%s".formatted(getProviderName(), displayName.toLowerCase(), useSeasonForSerieId() ? season : 0));
 
-        boolean previousResultsPresent = previousResultsValueBuilder.isPresent();
-        Optional<S> uriForSerie;
-        // Check if the previous results were the same for the service. If so, don't ask the user to select again
-        if (previousResultsPresent
-                && previousResultsValueBuilder.returnType((Class<List<S>>) null, (Class<S>) null).getCollection().equals(providerSerieIds)) {
-            uriForSerie = Optional.empty();
+        SerieMapping serieMapping;
+        if (!getUserInteractionSettings().isOptionsConfirmProviderMapping() && providerSerieIds.size() == 1) {
+            serieMapping = new SerieMapping(serieName, providerSerieIds.get(0).getId(), providerSerieIds.get(0).getName(), seasonToUse);
         } else {
-            // let the user select the correct provider serie id
-            uriForSerie = getUserInteractionHandler().selectFromList(providerSerieIds,
-                    useSeasonForSerieId() ? Messages.getString("SelectDialog.SelectSerieNameForNameWithSeason").formatted(displayName, season)
-                            : Messages.getString("SelectDialog.SelectSerieNameForName").formatted(displayName),
-                    getProviderName(),
-                    this::providerSerieIdToDisplayString);
+            ValueBuilderIsPresentIntf<Serializable> previousResultsValueBuilder = getManager().valueBuilder()
+                    .cacheType(CacheType.MEMORY)
+                    .key("%s-serieName-prev-results:%s-%s".formatted(getProviderName(), displayName.toLowerCase(), seasonToUse));
+
+            boolean previousResultsPresent = previousResultsValueBuilder.isPresent();
+            Optional<S> uriForSerie;
+            // Check if the previous results were the same for the service. If so, don't ask the user to select again
+            if (previousResultsPresent
+                    && previousResultsValueBuilder.returnType((Class<List<S>>) null, (Class<S>) null).getCollection().equals(providerSerieIds)) {
+                uriForSerie = Optional.empty();
+            } else {
+                // let the user select the correct provider serie id
+                uriForSerie = getUserInteractionHandler().selectFromList(providerSerieIds,
+                        useSeasonForSerieId()
+                                ? Messages.getString("SelectDialog.SelectSerieNameForNameWithSeason").formatted(displayName, seasonToUse)
+                                : Messages.getString("SelectDialog.SelectSerieNameForName").formatted(displayName),
+                        getProviderName(),
+                        this::providerSerieIdToDisplayString);
+            }
+            if (uriForSerie.isEmpty()) {
+                // if no provider serie id was selected, store a temporary null value with expiration time of 1 day,
+                // or the doubled previously temporary value (if present)
+                serieNameValueBuilder
+                        .value(new SerieMapping(serieNameToSearchFor, null, null, seasonToUse))
+                        .storeTempNullValue()
+                        .timeToLive(OptionalExtension
+                                .map(serieNameValueBuilder.getTemporaryTimeToLive(), v -> v * 2)
+                                .orElseGet(() -> TimeUnit.SECONDS.convert(1, TimeUnit.DAYS)))
+                        .storeAsTempValue();
+                previousResultsValueBuilder.collectionValue(providerSerieIds).store();
+                return Optional.empty();
+            }
+            // create a serieMapping for the selected value
+            serieMapping = new SerieMapping(serieName, uriForSerie.get().getId(), uriForSerie.get().getName(), seasonToUse);
         }
-        if (uriForSerie.isEmpty()) {
-            // if no provider serie id was selected, store a temporary null value with expiration time of 1 day,
-            // or the doubled previously temporary value (if present)
-            serieNameValueBuilder
-                    .value(new SerieMapping(serieName, null, null))
-                    .storeTempNullValue()
-                    .timeToLive(OptionalExtension
-                            .map(serieNameValueBuilder.getTemporaryTimeToLive(), v -> v * 2)
-                            .orElseGet(() -> TimeUnit.SECONDS.convert(1, TimeUnit.DAYS)))
-                    .storeAsTempValue();
-            previousResultsValueBuilder.collectionValue(providerSerieIds).store();
-            return Optional.empty();
-        }
-        // create a serieMapping for the selected value
-        SerieMapping serieMapping = new SerieMapping(serieName, uriForSerie.get().getId(), uriForSerie.get().getName());
         if (tvdbIdOptional.isPresent()) {
             tvdbIdValueBuilder.get().value(serieMapping).store();
         } else {

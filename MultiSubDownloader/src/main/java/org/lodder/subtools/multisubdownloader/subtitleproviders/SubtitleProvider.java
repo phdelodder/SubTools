@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders;
 
+import java.util.Optional;
 import java.util.Set;
 
 import org.lodder.subtools.sublibrary.Language;
@@ -10,6 +11,7 @@ import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
 import org.slf4j.LoggerFactory;
 
 public interface SubtitleProvider {
@@ -57,5 +59,7 @@ public interface SubtitleProvider {
     String getProviderName();
 
     Manager getManager();
+
+    <X extends Exception> Optional<SerieMapping> getProviderSerieId(TvRelease tvRelease) throws X;
 
 }

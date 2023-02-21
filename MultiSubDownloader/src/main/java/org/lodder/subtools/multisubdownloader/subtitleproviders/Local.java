@@ -4,8 +4,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.lodder.subtools.multisubdownloader.lib.control.MovieReleaseControl;
 import org.lodder.subtools.multisubdownloader.lib.control.TvReleaseControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
@@ -22,6 +24,7 @@ import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoType;
+import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.util.Utils;
 import org.slf4j.Logger;
@@ -168,5 +171,10 @@ public class Local implements SubtitleProvider {
     @Override
     public String getProviderName() {
         return getSubtitleSource().name();
+    }
+
+    @Override
+    public <X extends Exception> Optional<SerieMapping> getProviderSerieId(TvRelease tvRelease) throws X {
+        throw new NotImplementedException();
     }
 }
