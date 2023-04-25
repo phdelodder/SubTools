@@ -3,7 +3,7 @@
   "info": {
     "title": "Gestdown: Addicted Proxy",
     "description": "Provide a full api to search and download subtitles from Addic7ed website.",
-    "version": "3.5.7"
+    "version": "4.6.3"
   },
   "servers": [
     {
@@ -327,6 +327,7 @@
           "Subtitles"
         ],
         "summary": "Get subtitles for an episode of a given show in the wanted language",
+        "description": "Start by using the /shows/search/SHOW_NAME to find the showUniqueId of the show you're interested in.\r\n            \r\nThen use the subtitles/get/ endpoint to get subtitle for the episode you want.",
         "parameters": [
           {
             "name": "language",
@@ -341,7 +342,7 @@
           {
             "name": "showUniqueId",
             "in": "path",
-            "description": "Name of the show",
+            "description": "Unique ID of the show, you can get it from Shows::Search",
             "required": true,
             "schema": {
               "type": "string",
@@ -433,6 +434,58 @@
             "schema": {
               "minLength": 3,
               "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the matching shows",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShowSearchResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Reached the rate limiting of the endpoint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shows/external/tvdb/{tvdbId}": {
+      "get": {
+        "tags": [
+          "TvShows"
+        ],
+        "summary": "Get a show by it's TvDB id: https://thetvdb.com/",
+        "parameters": [
+          {
+            "name": "tvdbId",
+            "in": "path",
+            "description": "Id of the show on TvDB",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             }
           }
         ],
@@ -778,6 +831,13 @@
               5,
               6
             ]
+          },
+          "tvDbId": {
+            "type": "integer",
+            "description": "Id of the show on the TvDB",
+            "format": "int32",
+            "nullable": true,
+            "example": 344280
           }
         },
         "additionalProperties": false,
