@@ -177,4 +177,9 @@ public class Local implements SubtitleProvider {
     public <X extends Exception> Optional<SerieMapping> getProviderSerieId(TvRelease tvRelease) throws X {
         throw new NotImplementedException();
     }
+
+    @Override
+    public <X extends Exception> Optional<SerieMapping> retrieveAndPersistSerieMappingForId(String serieName, String id, int season) throws X {
+        throw new NotImplementedException();
+    }
 }

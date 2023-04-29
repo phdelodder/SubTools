@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -131,6 +132,11 @@ public class JAddic7edAdapter extends AbstractAdapter<Addic7edSubtitleDescriptor
         return getApi().getProviderId(serieName).stream()
                 .sorted(Comparator.comparing(n -> !serieName.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(n.getName().replaceAll("[^A-Za-z]", ""))))
                 .toList();
+    }
+
+    @Override
+    public Optional<ProviderSerieId> retrieveProviderSerieIdForId(String id) throws Addic7edException {
+        return getApi().retrieveProviderSerieIdForId(id);
     }
 
     @Override

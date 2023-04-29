@@ -88,6 +88,13 @@ public class JAddic7edApi extends Html implements SubtitleApi {
         }
     }
 
+    public Optional<ProviderSerieId> retrieveProviderSerieIdForId(String id) throws Addic7edException {
+        return getContent(DOMAIN + "/show/" + id)
+                .map(doc -> doc.select("#header font").stream().map(element -> element.text().replace(" subtitles", ""))
+                        .map(name -> new ProviderSerieId(name, id)).findAny())
+                .orElseGet(Optional::empty);
+    }
+
     private List<ProviderSerieId> getAllMappings() throws Addic7edException {
         return ALL_MAPPINGS.get();
     }

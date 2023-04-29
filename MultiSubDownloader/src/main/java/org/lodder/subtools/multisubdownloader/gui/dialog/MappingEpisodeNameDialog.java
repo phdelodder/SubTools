@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
+import javax.swing.RowSorter.SortKey;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -83,24 +84,25 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
 
     @Getter
     public enum MappingType {
-        TVDB("TVDB", "TVDB", new SelectionForKeyPrefix("", "TVDB-serieId-", k -> k.replace("-serieId-", "-tvdbSerie-"))),
-        ADDIC7ED("Addic7ed", SubtitleSource.ADDIC7ED, new SelectionForKeyPrefix("", "ADDIC7ED-serieName-name:"),
+        TVDB("TVDB", "TVDB", false, new SelectionForKeyPrefix("", "TVDB-serieId-", k -> k.replace("-serieId-", "-tvdbSerie-"))),
+        ADDIC7ED("Addic7ed", SubtitleSource.ADDIC7ED, true, new SelectionForKeyPrefix("", "ADDIC7ED-serieName-name:"),
                 new SelectionForKeyPrefix("", "ADDIC7ED-serieName-tvdbId:")),
-        ADDIC7ED_PROXY("Addic7ed (Proxy)", SubtitleSource.ADDIC7ED.name() + "-GESTDOWN",
+        ADDIC7ED_PROXY("Addic7ed (Proxy)", SubtitleSource.ADDIC7ED.name() + "-GESTDOWN", false,
                 new SelectionForKeyPrefix("", "ADDIC7ED-GESTDOWN-serieName-name:"),
                 new SelectionForKeyPrefix("", "ADDIC7ED-GESTDOWN-serieName-tvdbId:")),
-        SUBSCENE("Subscene", SubtitleSource.SUBSCENE, new SelectionForKeyPrefix("", "SUBSCENE-serieName-name:"),
+        SUBSCENE("Subscene", SubtitleSource.SUBSCENE, false, new SelectionForKeyPrefix("", "SUBSCENE-serieName-name:"),
                 new SelectionForKeyPrefix("", "SUBSCENE-serieName-tvdbId:")),
-        TV_SUBTITLES("TVSubtitles", SubtitleSource.TVSUBTITLES, new SelectionForKeyPrefix("", "TVSUBTITLES-serieName-name:"),
+        TV_SUBTITLES("TVSubtitles", SubtitleSource.TVSUBTITLES, false, new SelectionForKeyPrefix("", "TVSUBTITLES-serieName-name:"),
                 new SelectionForKeyPrefix("", "TVSUBTITLES-serieName-tvdbId:")),
-        OPEN_SUBTITLES("OpenSubtitles", SubtitleSource.OPENSUBTITLES, new SelectionForKeyPrefix("", "OPENSUBTITLES-serieName-name:"),
+        OPEN_SUBTITLES("OpenSubtitles", SubtitleSource.OPENSUBTITLES, false, new SelectionForKeyPrefix("", "OPENSUBTITLES-serieName-name:"),
                 new SelectionForKeyPrefix("", "OPENSUBTITLES-serieName-tvdbId:")),
-        PODNAPISI("Podnapisi", SubtitleSource.PODNAPISI, new SelectionForKeyPrefix("", "PODNAPISI-serieName:"),
+        PODNAPISI("Podnapisi", SubtitleSource.PODNAPISI, false, new SelectionForKeyPrefix("", "PODNAPISI-serieName:"),
                 new SelectionForKeyPrefix("", "PODNAPISI-serieName-tvdbId:"));
 
         public static final BiFunction<Manager, SelectionForKeyPrefix, List<Pair<String, SerieMapping>>> MAPPING_SUPPLIER;
         private final String name;
         private final String providerName;
+        private final boolean canSearchForSerieId;
         private final String nameColumn;
         private final String mappingColumn;
         private final String providerNameColumn;
@@ -119,13 +121,14 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
                     .getEntries();
         }
 
-        MappingType(String name, SubtitleSource subtitleSource, SelectionForKeyPrefix... selectionForKeyPrefixList) {
-            this(name, subtitleSource.name(), selectionForKeyPrefixList);
+        MappingType(String name, SubtitleSource subtitleSource, boolean canSearchForSerieId, SelectionForKeyPrefix... selectionForKeyPrefixList) {
+            this(name, subtitleSource.name(), canSearchForSerieId, selectionForKeyPrefixList);
         }
 
-        MappingType(String name, String providerName, SelectionForKeyPrefix... selectionForKeyPrefixList) {
+        MappingType(String name, String providerName, boolean canSearchForSerieId, SelectionForKeyPrefix... selectionForKeyPrefixList) {
             this.name = name;
             this.providerName = providerName;
+            this.canSearchForSerieId = canSearchForSerieId;
             this.nameColumn = Messages.getString("MappingEpisodeNameDialog.SceneShowName");
             this.mappingColumn = Messages.getString("MappingEpisodeNameDialog.ProviderId");
             this.providerNameColumn = Messages.getString("MappingEpisodeNameDialog.ProviderName");
@@ -251,7 +254,7 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
             {
                 JButton btnDeleteSelectedRow = new JButton(Messages.getString("MappingEpisodeNameDialog.DeleteRow"));
                 btnDeleteSelectedRow.addActionListener(arg0 -> {
-                    int rowNbr = table.getSelectedRow();
+                    int rowNbr = table.convertRowIndexToModel(table.getSelectedRow());
                     MappingTableModel model = (MappingTableModel) table.getModel();
 
                     Row row = (Row) model.getDataVector().get(rowNbr);
@@ -273,14 +276,46 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
 
             {
                 btnAddCustomMapping.addActionListener(arg0 -> {
-                    int rowNbr = table.getSelectedRow();
+                    int rowNbr = table.convertRowIndexToModel(table.getSelectedRow());
                     MappingTableModel model = (MappingTableModel) table.getModel();
 
                     Row row = (Row) model.getDataVector().get(rowNbr);
                     String currentName = row.getSerieMapping().getName();
 
-                    String message = Messages.getString("MappingEpisodeNameDialog.enterNewNameForSerie", currentName);
                     selectedSubtitleProvider.ifPresent(provider -> {
+                        if (selectedMappingType.isCanSearchForSerieId()) {
+                            String selectMessage = Messages.getString("MappingEpisodeNameDialog.choiceSerieNameOrId");
+                            String choiceUsingNameMessage = Messages.getString("MappingEpisodeNameDialog.choiceSerieName");
+                            String choiceUsingIdMessage = Messages.getString("MappingEpisodeNameDialog.choiceSerieId");
+                            Optional<String> selectedOption =
+                                    userInteractionHandler.selectFromList(List.of(choiceUsingNameMessage, choiceUsingIdMessage), selectMessage,
+                                            selectMessage);
+                            if (selectedOption.isEmpty()) {
+                                return;
+                            } else if (selectedOption.get().equals(choiceUsingIdMessage)) {
+                                // Search using id
+                                String message = Messages.getString("MappingEpisodeNameDialog.enterIdForSerie", currentName);
+                                userInteractionHandler.enter(message, message).ifPresent(id -> {
+                                    try {
+                                        provider.retrieveAndPersistSerieMappingForId(currentName, id, row.getSerieMapping().getSeason())
+                                                .ifPresentOrElse(newSerieMapping -> {
+                                                    row.setSerieMapping(newSerieMapping);
+                                                    List<? extends SortKey> sortKeys = table.getRowSorter().getSortKeys();
+                                                    selectMappingType(selectedMappingType);
+                                                    table.getRowSorter().setSortKeys(sortKeys);
+                                                }, () -> userInteractionHandler.message(
+                                                        Messages.getString("MappingEpisodeNameDialog.NoResultFoundForSerieId", id),
+                                                        Messages.getString("App.Info")));
+                                    } catch (Exception e) {
+                                        userInteractionHandler.message(
+                                                Messages.getString("App.ErrorOccurred", e.getMessage()), Messages.getString("App.Error"));
+                                    }
+                                });
+                                return;
+                            }
+                        }
+                        // Search using name
+                        String message = Messages.getString("MappingEpisodeNameDialog.enterNewNameForSerie", currentName);
                         userInteractionHandler.enter(message, message).ifPresent(newName -> {
                             TvRelease tvRelease = TvRelease.builder()
                                     .name(currentName)
@@ -294,7 +329,9 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
                                             new SerieMapping(currentName, providerSerieId.getProviderId(), providerSerieId.getProviderName(),
                                                     providerSerieId.getSeason());
                                     row.setSerieMapping(newSerieMapping);
+                                    List<? extends SortKey> sortKeys = table.getRowSorter().getSortKeys();
                                     selectMappingType(selectedMappingType);
+                                    table.getRowSorter().setSortKeys(sortKeys);
                                 }, () -> userInteractionHandler.message(
                                         Messages.getString("MappingEpisodeNameDialog.NoResultsFoundForSerieName", newName),
                                         Messages.getString("App.Info")));

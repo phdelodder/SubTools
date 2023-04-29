@@ -62,4 +62,5 @@ public interface SubtitleProvider {
 
     <X extends Exception> Optional<SerieMapping> getProviderSerieId(TvRelease tvRelease) throws X;
 
+    <X extends Exception> Optional<SerieMapping> retrieveAndPersistSerieMappingForId(String serieName, String id, int season) throws X;
 }

@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
@@ -108,6 +109,24 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
     Set<Subtitle> convertToSubtitles(TvRelease tvRelease, Collection<T> subtitles, Language language);
 
     List<S> getSortedProviderSerieIds(String serieName, int season) throws X;
+
+    default Optional<S> retrieveProviderSerieIdForId(String id) throws X {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    default Optional<SerieMapping> retrieveAndPersistSerieMappingForId(String serieName, String id, int season) throws X {
+        return retrieveProviderSerieIdForId(id)
+                .map(serieId -> new SerieMapping(serieName, serieId.getId(), serieId.getName(), useSeasonForSerieId() ? season : -1))
+                .map(serieMapping -> {
+                    getManager().valueBuilder()
+                            .cacheType(CacheType.DISK)
+                            .key("%s-serieName-name:%s-%s".formatted(getProviderName(), serieName.toLowerCase(), serieMapping.getSeason()))
+                            .value(serieMapping)
+                            .store();
+                    return serieMapping;
+                });
+    }
 
     @Override
     default Optional<SerieMapping> getProviderSerieId(TvRelease tvRelease) throws X {
