@@ -78,8 +78,8 @@ public class JAddic7edApi extends Html implements SubtitleApi {
             List<ProviderSerieId> providerSerieId = getAllMappings().stream()
                     .filter(providerId -> {
                         String formattedSerieName = providerId.getName().replaceAll("[^A-Za-z]", "");
-                        return StringUtils.containsIgnoreCase(serieNameFormatted, formattedSerieName) ||
-                                StringUtils.containsIgnoreCase(formattedSerieName, serieNameFormatted);
+                        return !formattedSerieName.isBlank() && (StringUtils.containsIgnoreCase(serieNameFormatted, formattedSerieName) ||
+                                StringUtils.containsIgnoreCase(formattedSerieName, serieNameFormatted));
                     })
                     .toList();
             return providerSerieId.isEmpty() ? getAllMappings() : providerSerieId;
