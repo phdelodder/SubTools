@@ -1,7 +1,8 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed;
 
+import static java.nio.charset.StandardCharsets.*;
+
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -108,17 +109,10 @@ public class JAddic7edApi extends Html implements SubtitleApi {
                 .key("%s-subtitles-%s-%s-%s-%s".formatted(getSubtitleSource().name(), addic7edSerieMapping.getProviderId(), season, episode,
                         language))
                 .collectionSupplier(Addic7edSubtitleDescriptor.class, () -> {
-
-                    // http://www.addic7ed.com/serie/Smallville/9/11/Absolute_Justice
-                    // String url = "https://www.addic7ed.com/serie/" + showname.toLowerCase().replace(" ", "_") + "/" + season
-                    // + "/" + episode + "/" + title.toLowerCase().replace(" ", "_").replace("#", "");
-
-                    // https://www.addic7ed.com/show/9026
-
                     List<LanguageId> languageIds = LanguageId.forLanguage(language);
                     String url = "%s/serie/%s/%s/%s/%s".formatted(
                             DOMAIN,
-                            URLEncoder.encode(addic7edSerieMapping.getProviderId().toLowerCase().replace(" ", "_"), StandardCharsets.UTF_8),
+                            URLEncoder.encode(addic7edSerieMapping.getProviderName().replace(" ", "_"), UTF_8),
                             season,
                             episode,
                             languageIds.size() == 1 ? languageIds.get(0).getId() : LanguageId.ALL.getId());
