@@ -148,6 +148,6 @@ public class JAddic7edAdapter extends AbstractAdapter<Addic7edSubtitleDescriptor
 
     @Override
     public String providerSerieIdToDisplayString(ProviderSerieId providerSerieId) {
-        return providerSerieId.getName() + " - " + providerSerieId.getId();
+        return providerSerieId.getName();
     }
 }
