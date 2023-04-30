@@ -72,18 +72,22 @@ public class JAddic7edApi extends Html implements SubtitleApi {
         if (StringUtils.isBlank(serieName)) {
             return List.of();
         }
-        List<ProviderSerieId> providerSerieIds = getContent(DOMAIN + "/allshows/" + serieName.split(" ")[0])
-                .map(doc -> doc.select("table.tabel90 td a").stream()
-                        .map(element -> new ProviderSerieId(element.text(), element.attr("href").split("/")[2])).toList())
-                .orElseGet(List::of);
+        try {
+            List<ProviderSerieId> providerSerieIds = getContent(DOMAIN + "/allshows/" + serieName.split(" ")[0])
+                    .map(doc -> doc.select("table.tabel90 td a").stream()
+                            .map(element -> new ProviderSerieId(element.text(), element.attr("href").split("/")[2])).toList())
+                    .orElseGet(List::of);
 
-        String serieNameFormatted = serieName.replaceAll("[^A-Za-z]", "");
-        List<ProviderSerieId> providerSerieIdsFormatted = providerSerieIds.stream().filter(providerId -> {
-            String formattedSerieName = providerId.getName().replaceAll("[^A-Za-z]", "");
-            return StringUtils.containsIgnoreCase(serieNameFormatted, formattedSerieName) ||
-                    StringUtils.containsIgnoreCase(formattedSerieName, serieNameFormatted);
-        }).toList();
-        return !providerSerieIdsFormatted.isEmpty() ? providerSerieIdsFormatted : providerSerieIds;
+            String serieNameFormatted = serieName.replaceAll("[^A-Za-z]", "");
+            List<ProviderSerieId> providerSerieIdsFormatted = providerSerieIds.stream().filter(providerId -> {
+                String formattedSerieName = providerId.getName().replaceAll("[^A-Za-z]", "");
+                return StringUtils.containsIgnoreCase(serieNameFormatted, formattedSerieName) ||
+                        StringUtils.containsIgnoreCase(formattedSerieName, serieNameFormatted);
+            }).toList();
+            return !providerSerieIdsFormatted.isEmpty() ? providerSerieIdsFormatted : providerSerieIds;
+        } catch (Exception e) {
+            throw new Addic7edException(e);
+        }
     }
 
     // private List<ProviderSerieId> getAllMappings() throws Addic7edException {
