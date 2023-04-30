@@ -28,7 +28,6 @@ import org.lodder.subtools.sublibrary.data.ProviderSerieId;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
-import org.lodder.subtools.sublibrary.util.lazy.LazyThrowingSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,31 +72,30 @@ public class JAddic7edApi extends Html implements SubtitleApi {
         if (StringUtils.isBlank(serieName)) {
             return List.of();
         }
+        List<ProviderSerieId> providerSerieIds = getContent(DOMAIN + "/allshows/" + serieName.split(" ")[0])
+                .map(doc -> doc.select("table.tabel90 td a").stream()
+                        .map(element -> new ProviderSerieId(element.text(), element.attr("href").split("/")[2])).toList())
+                .orElseGet(List::of);
+
         String serieNameFormatted = serieName.replaceAll("[^A-Za-z]", "");
-        try {
-            List<ProviderSerieId> providerSerieId = getAllMappings().stream()
-                    .filter(providerId -> {
-                        String formattedSerieName = providerId.getName().replaceAll("[^A-Za-z]", "");
-                        return !formattedSerieName.isBlank() && (StringUtils.containsIgnoreCase(serieNameFormatted, formattedSerieName) ||
-                                StringUtils.containsIgnoreCase(formattedSerieName, serieNameFormatted));
-                    })
-                    .toList();
-            return providerSerieId.isEmpty() ? getAllMappings() : providerSerieId;
-        } catch (Exception e) {
-            throw new Addic7edException(e);
-        }
+        List<ProviderSerieId> providerSerieIdsFormatted = providerSerieIds.stream().filter(providerId -> {
+            String formattedSerieName = providerId.getName().replaceAll("[^A-Za-z]", "");
+            return StringUtils.containsIgnoreCase(serieNameFormatted, formattedSerieName) ||
+                    StringUtils.containsIgnoreCase(formattedSerieName, serieNameFormatted);
+        }).toList();
+        return !providerSerieIdsFormatted.isEmpty() ? providerSerieIdsFormatted : providerSerieIds;
     }
 
-    private List<ProviderSerieId> getAllMappings() throws Addic7edException {
-        return ALL_MAPPINGS.get();
-    }
-
-    private final LazyThrowingSupplier<List<ProviderSerieId>, Addic7edException> ALL_MAPPINGS =
-            new LazyThrowingSupplier<>(() -> getContent(DOMAIN)
-                    .map(doc -> doc.select("#qsShow option").stream()
-                            .map(e -> new ProviderSerieId(e.text(), e.attr("value")))
-                            .toList())
-                    .orElseGet(List::of));
+    // private List<ProviderSerieId> getAllMappings() throws Addic7edException {
+    // return ALL_MAPPINGS.get();
+    // }
+    //
+    // private final LazyThrowingSupplier<List<ProviderSerieId>, Addic7edException> ALL_MAPPINGS =
+    // new LazyThrowingSupplier<>(() -> getContent(DOMAIN)
+    // .map(doc -> doc.select("#qsShow option").stream()
+    // .map(e -> new ProviderSerieId(e.text(), e.attr("value")))
+    // .toList())
+    // .orElseGet(List::of));
 
     public List<Addic7edSubtitleDescriptor> getSubtitles(SerieMapping addic7edSerieMapping, int season, int episode, Language language)
             throws Addic7edException {
