@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -125,7 +126,7 @@ public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDesc
     }
 
     @Override
-    public List<ProviderSerieId> getSortedProviderSerieIds(String serieName, int season) throws TvSubtiltesException {
+    public List<ProviderSerieId> getSortedProviderSerieIds(OptionalInt tvdbIdOptional, String serieName, int season) throws TvSubtiltesException {
         Pattern yearPatter = Pattern.compile("\\((\\d\\d\\d\\d)-(\\d\\d\\d\\d)\\)");
         return getApi().getUrisForSerieName(serieName).stream()
                 .sorted(Comparator.comparing(

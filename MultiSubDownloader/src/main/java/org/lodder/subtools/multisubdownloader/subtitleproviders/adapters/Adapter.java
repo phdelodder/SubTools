@@ -107,7 +107,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
 
     Set<Subtitle> convertToSubtitles(TvRelease tvRelease, Collection<T> subtitles, Language language);
 
-    List<S> getSortedProviderSerieIds(String serieName, int season) throws X;
+    List<S> getSortedProviderSerieIds(OptionalInt tvdbIdOptional, String serieName, int season) throws X;
 
     @Override
     default Optional<SerieMapping> getProviderSerieId(TvRelease tvRelease) throws X {
@@ -170,7 +170,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
             }
         }
 
-        List<S> providerSerieIds = getSortedProviderSerieIds(serieNameToSearchFor, seasonToUse);
+        List<S> providerSerieIds = getSortedProviderSerieIds(tvdbIdOptional, serieNameToSearchFor, seasonToUse);
         if (providerSerieIds.isEmpty()) {
             // if no provider serie id's could be found, store a temporary null value with expiration time of 1 day
             // (so the provider isn't contacted every time this method is being called)

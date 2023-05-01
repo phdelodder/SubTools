@@ -42,8 +42,12 @@ public class JAddic7edProxyGestdownApi extends Html implements SubtitleApi {
 
     public List<ProviderSerieId> getProviderSerieName(String serieName) throws ApiException {
         return tvShowsApi.showsSearchSearchGet(serieName).getShows().stream()
-                .map(showDto -> new ProviderSerieId(serieName, showDto.getId().toString())).toList();
+                .map(showDto -> new ProviderSerieId(showDto.getName(), showDto.getId().toString())).toList();
+    }
 
+    public List<ProviderSerieId> getProviderSerieName(int tvdbId) throws ApiException {
+        return tvShowsApi.showsExternalTvdbTvdbIdGet(tvdbId).getShows().stream()
+                .map(showDto -> new ProviderSerieId(showDto.getName(), showDto.getId().toString())).toList();
     }
 
     public Set<Subtitle> getSubtitles(SerieMapping providerSerieId, int season, int episode, Language language) throws ApiException {
