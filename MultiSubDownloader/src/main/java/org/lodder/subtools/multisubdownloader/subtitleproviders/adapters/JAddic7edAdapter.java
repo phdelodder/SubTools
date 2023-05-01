@@ -121,10 +121,18 @@ public class JAddic7edAdapter extends AbstractAdapter<Addic7edSubtitleDescriptor
                         .quality(ReleaseParser.getQualityKeyword(sub.getTitel() + " " + sub.getVersion()))
                         .subtitleMatchType(SubtitleMatchType.EVERYTHING)
                         .releaseGroup(ReleaseParser.extractReleasegroup(sub.getTitel() + " " + sub.getVersion(),
-                                FilenameUtils.isExtension(sub.getTitel() + " " + sub.getVersion(), "srt")))
+                                hasExtension(sub.getTitel() + " " + sub.getVersion(), "srt")))
                         .uploader(sub.getUploader())
                         .hearingImpaired(false))
                 .collect(Collectors.toSet());
+    }
+
+    private static boolean hasExtension(String text, String extension) {
+        try {
+            return FilenameUtils.isExtension(text, extension);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     @Override
@@ -141,6 +149,6 @@ public class JAddic7edAdapter extends AbstractAdapter<Addic7edSubtitleDescriptor
 
     @Override
     public String providerSerieIdToDisplayString(ProviderSerieId providerSerieId) {
-        return providerSerieId.getName() + " - " + providerSerieId.getId();
+        return providerSerieId.getName();
     }
 }

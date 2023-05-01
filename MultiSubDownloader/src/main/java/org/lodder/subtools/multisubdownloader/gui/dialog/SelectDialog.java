@@ -66,7 +66,7 @@ public class SelectDialog extends MultiSubDialog {
                     selectedSubtitleIdxs = getSelectedIdxs();
                     setVisible(false);
                 });
-                okButton.setActionCommand("OK");
+                okButton.setActionCommand(Messages.getString("App.OK"));
                 buttonPane.add(okButton);
                 getRootPane().setDefaultButton(okButton);
             }
@@ -76,7 +76,7 @@ public class SelectDialog extends MultiSubDialog {
                     selectedSubtitleIdxs = IntStream.range(0, release.getMatchingSubs().size()).mapToObj(i -> i).toList();
                     setVisible(false);
                 });
-                allButton.setActionCommand("Alles");
+                allButton.setActionCommand(Messages.getString("App.All"));
                 buttonPane.add(allButton);
             }
             {
@@ -85,7 +85,7 @@ public class SelectDialog extends MultiSubDialog {
                     selectedSubtitleIdxs = List.of();
                     setVisible(false);
                 });
-                cancelButton.setActionCommand("Cancel");
+                cancelButton.setActionCommand(Messages.getString("App.Cancel"));
                 buttonPane.add(cancelButton);
             }
         }

@@ -1,7 +1,8 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed;
 
+import static java.nio.charset.StandardCharsets.*;
+
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -28,7 +29,6 @@ import org.lodder.subtools.sublibrary.data.ProviderSerieId;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
-import org.lodder.subtools.sublibrary.util.lazy.LazyThrowingSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,31 +73,34 @@ public class JAddic7edApi extends Html implements SubtitleApi {
         if (StringUtils.isBlank(serieName)) {
             return List.of();
         }
-        String serieNameFormatted = serieName.replaceAll("[^A-Za-z]", "");
         try {
-            List<ProviderSerieId> providerSerieId = getAllMappings().stream()
-                    .filter(providerId -> {
-                        String formattedSerieName = providerId.getName().replaceAll("[^A-Za-z]", "");
-                        return StringUtils.containsIgnoreCase(serieNameFormatted, formattedSerieName) ||
-                                StringUtils.containsIgnoreCase(formattedSerieName, serieNameFormatted);
-                    })
-                    .toList();
-            return providerSerieId.isEmpty() ? getAllMappings() : providerSerieId;
+            List<ProviderSerieId> providerSerieIds = getContent(DOMAIN + "/allshows/" + serieName.split(" ")[0])
+                    .map(doc -> doc.select("table.tabel90 td a").stream()
+                            .map(element -> new ProviderSerieId(element.text(), element.attr("href").split("/")[2])).toList())
+                    .orElseGet(List::of);
+
+            String serieNameFormatted = serieName.replaceAll("[^A-Za-z]", "");
+            List<ProviderSerieId> providerSerieIdsFormatted = providerSerieIds.stream().filter(providerId -> {
+                String formattedSerieName = providerId.getName().replaceAll("[^A-Za-z]", "");
+                return StringUtils.containsIgnoreCase(serieNameFormatted, formattedSerieName) ||
+                        StringUtils.containsIgnoreCase(formattedSerieName, serieNameFormatted);
+            }).toList();
+            return !providerSerieIdsFormatted.isEmpty() ? providerSerieIdsFormatted : providerSerieIds;
         } catch (Exception e) {
             throw new Addic7edException(e);
         }
     }
 
-    private List<ProviderSerieId> getAllMappings() throws Addic7edException {
-        return ALL_MAPPINGS.get();
-    }
-
-    private final LazyThrowingSupplier<List<ProviderSerieId>, Addic7edException> ALL_MAPPINGS =
-            new LazyThrowingSupplier<>(() -> getContent(DOMAIN)
-                    .map(doc -> doc.select("#qsShow option").stream()
-                            .map(e -> new ProviderSerieId(e.text(), e.attr("value")))
-                            .toList())
-                    .orElseGet(List::of));
+    // private List<ProviderSerieId> getAllMappings() throws Addic7edException {
+    // return ALL_MAPPINGS.get();
+    // }
+    //
+    // private final LazyThrowingSupplier<List<ProviderSerieId>, Addic7edException> ALL_MAPPINGS =
+    // new LazyThrowingSupplier<>(() -> getContent(DOMAIN)
+    // .map(doc -> doc.select("#qsShow option").stream()
+    // .map(e -> new ProviderSerieId(e.text(), e.attr("value")))
+    // .toList())
+    // .orElseGet(List::of));
 
     public List<Addic7edSubtitleDescriptor> getSubtitles(SerieMapping addic7edSerieMapping, int season, int episode, Language language)
             throws Addic7edException {
@@ -106,17 +109,10 @@ public class JAddic7edApi extends Html implements SubtitleApi {
                 .key("%s-subtitles-%s-%s-%s-%s".formatted(getSubtitleSource().name(), addic7edSerieMapping.getProviderId(), season, episode,
                         language))
                 .collectionSupplier(Addic7edSubtitleDescriptor.class, () -> {
-
-                    // http://www.addic7ed.com/serie/Smallville/9/11/Absolute_Justice
-                    // String url = "https://www.addic7ed.com/serie/" + showname.toLowerCase().replace(" ", "_") + "/" + season
-                    // + "/" + episode + "/" + title.toLowerCase().replace(" ", "_").replace("#", "");
-
-                    // https://www.addic7ed.com/show/9026
-
                     List<LanguageId> languageIds = LanguageId.forLanguage(language);
                     String url = "%s/serie/%s/%s/%s/%s".formatted(
                             DOMAIN,
-                            URLEncoder.encode(addic7edSerieMapping.getProviderId().toLowerCase().replace(" ", "_"), StandardCharsets.UTF_8),
+                            URLEncoder.encode(addic7edSerieMapping.getProviderName().replace(" ", "_"), UTF_8),
                             season,
                             episode,
                             languageIds.size() == 1 ? languageIds.get(0).getId() : LanguageId.ALL.getId());
