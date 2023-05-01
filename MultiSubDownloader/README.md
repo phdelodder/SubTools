@@ -1,9 +1,5 @@
 # MultiSubDownloader
 
-## Download
-
-A build is available [here](https://www.dropbox.com/sh/1gz18xwzinfgmbl/gDfSgYN1qC)
-
 ## Run
 
 ### CLI

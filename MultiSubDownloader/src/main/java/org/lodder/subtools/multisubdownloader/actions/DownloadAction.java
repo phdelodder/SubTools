@@ -12,15 +12,11 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
-import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
-import org.lodder.subtools.sublibrary.model.SubtitleSource;
-import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.util.Files;
-import org.lodder.subtools.sublibrary.util.http.DropBoxClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,20 +78,8 @@ public class DownloadAction {
             }
         }
 
-        if (ReleaseParser.getQualityKeyword(release.getFileName()).split(" ").length > 1) {
-            String dropBoxName = "";
-            if (subtitle.getSubtitleSource() == SubtitleSource.LOCAL) {
-                dropBoxName = PrivateRepoIndex.getFullFilename(FilenameLibraryBuilder.changeExtension(release.getFileName(), ".srt"), "?",
-                        subtitle.getSubtitleSource().toString());
-            } else {
-                dropBoxName = PrivateRepoIndex.getFullFilename(FilenameLibraryBuilder.changeExtension(release.getFileName(), ".srt"),
-                        subtitle.getUploader(), subtitle.getSubtitleSource().toString());
-            }
-            DropBoxClient.getDropBoxClient().put(subFile, dropBoxName, subtitle.getLanguage());
-        }
-
         if (success) {
-            if (!LibraryActionType.NOTHING.equals(librarySettings.getLibraryAction())) {
+            if (LibraryActionType.NOTHING != librarySettings.getLibraryAction()) {
                 final File oldLocationFile = new File(release.getPath(), release.getFileName());
                 if (oldLocationFile.exists()) {
                     final File newLocationFile = new File(path, videoFileName);
