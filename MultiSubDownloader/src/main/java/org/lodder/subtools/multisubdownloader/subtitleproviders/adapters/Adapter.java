@@ -2,9 +2,10 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
 import static org.lodder.subtools.sublibrary.util.OptionalExtension.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -33,12 +34,15 @@ import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.experimental.ExtensionMethod;
+
 /**
  *
  * @param <T> type of the subtitle objects returned by the api
  * @param <S> type of the ProviderSerieId
  * @param <X> type of the exception thrown by the api
  */
+@ExtensionMethod({ Files.class })
 public interface Adapter<T, S extends ProviderSerieId, X extends Exception> extends SubtitleProvider {
     Logger LOGGER = LoggerFactory.getLogger(Adapter.class);
 
@@ -52,7 +56,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
     default Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
         Set<T> subtitles = new HashSet<>();
         if (StringUtils.isNotBlank(movieRelease.getFileName())) {
-            File file = new File(movieRelease.getPath(), movieRelease.getFileName());
+            Path file = movieRelease.getPath().resolve(movieRelease.getFileName());
             if (file.exists()) {
                 try {
                     searchMovieSubtitlesWithHash(OpenSubtitlesHasher.computeHash(file), language).forEach(subtitles::add);

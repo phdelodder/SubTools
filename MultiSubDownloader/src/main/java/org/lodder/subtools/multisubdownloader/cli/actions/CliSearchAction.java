@@ -1,6 +1,7 @@
 package org.lodder.subtools.multisubdownloader.cli.actions;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +23,7 @@ import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.lodder.subtools.sublibrary.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +33,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import lombok.experimental.ExtensionMethod;
 
+@ExtensionMethod({ FileUtils.class, Files.class })
 @Setter
 public class CliSearchAction extends SearchAction {
 
@@ -44,7 +48,7 @@ public class CliSearchAction extends SearchAction {
     private final @NonNull Filtering filtering;
 
     private final boolean overwriteSubtitles;
-    private final @NonNull List<File> folders;
+    private final @NonNull List<Path> folders;
     private final boolean recursive;
     @Getter(value = AccessLevel.PROTECTED)
     private final @NonNull IndexingProgressListener indexingProgressListener;
@@ -88,7 +92,7 @@ public class CliSearchAction extends SearchAction {
     }
 
     public interface CliSearchActionBuilderFolders {
-        CliSearchActionBuilderOther folders(List<File> folders);
+        CliSearchActionBuilderOther folders(List<Path> folders);
     }
 
     public interface CliSearchActionBuilderOther {
@@ -121,7 +125,7 @@ public class CliSearchAction extends SearchAction {
         private Language language;
         private ReleaseFactory releaseFactory;
         private Filtering filtering;
-        private List<File> folders;
+        private List<Path> folders;
         private boolean overwriteSubtitles;
         private boolean recursive;
 
@@ -135,7 +139,7 @@ public class CliSearchAction extends SearchAction {
     private CliSearchAction(Manager manager, Settings settings, SubtitleProviderStore subtitleProviderStore,
             IndexingProgressListener indexingProgressListener, SearchProgressListener searchProgressListener,
             CLI cli, FileListAction fileListAction, Language language, ReleaseFactory releaseFactory,
-            Filtering filtering, List<File> folders, boolean overwriteSubtitles, boolean recursive) throws SearchSetupException {
+            Filtering filtering, List<Path> folders, boolean overwriteSubtitles, boolean recursive) throws SearchSetupException {
         super(manager, settings, subtitleProviderStore);
         this.indexingProgressListener = indexingProgressListener;
         this.searchProgressListener = searchProgressListener;
@@ -147,7 +151,7 @@ public class CliSearchAction extends SearchAction {
         this.folders = folders;
         this.overwriteSubtitles = overwriteSubtitles;
         this.recursive = recursive;
-        if (this.folders.size() <= 0) {
+        if (this.folders.isEmpty()) {
             throw new SearchSetupException("Folders must be set.");
         }
     }
@@ -156,7 +160,7 @@ public class CliSearchAction extends SearchAction {
     protected List<Release> createReleases() throws ActionException {
         fileListAction.setIndexingProgressListener(this.getIndexingProgressListener());
 
-        List<File> files = this.folders.stream()
+        List<Path> files = this.folders.stream()
                 .flatMap(folder -> fileListAction.getFileListing(folder, recursive, language, overwriteSubtitles).stream())
                 .toList();
 
@@ -173,12 +177,12 @@ public class CliSearchAction extends SearchAction {
         this.getIndexingProgressListener().progress(progress);
 
         List<Release> releases = new ArrayList<>();
-        for (File file : files) {
+        for (Path file : files) {
             index++;
             progress = (int) Math.floor((float) index / total * 100);
 
             /* Tell progressListener which file we are processing */
-            this.getIndexingProgressListener().progress(file.getName());
+            this.getIndexingProgressListener().progress(file.getFileNameAsString());
 
             Release release = this.releaseFactory.createRelease(file, getUserInteractionHandler());
             if (release == null) {

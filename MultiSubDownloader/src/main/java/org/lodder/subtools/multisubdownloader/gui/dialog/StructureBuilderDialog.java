@@ -1,6 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -72,11 +72,10 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
         ReleaseFactory releaseFactory = new ReleaseFactory(new Settings(), manager);
         if (videoType == VideoType.EPISODE) {
             tvRelease = (TvRelease) releaseFactory.createRelease(
-                    // new File(File.separator + "Castle.2009.S04E10.720p.HDTV.X264-DIMENSION.mkv"),
-                    new File(File.separator + "Terra.Nova.S01E01E02.720p.HDTV.x264-ORENJI.mkv"),
+                    Path.of("Terra.Nova.S01E01E02.720p.HDTV.x264-ORENJI.mkv"),
                     userInteractionHandler);
         } else if (videoType == VideoType.MOVIE) {
-            movieRelease = (MovieRelease) releaseFactory.createRelease(new File(File.separator + "Final.Destination.5.720p.Bluray.x264-TWiZTED"),
+            movieRelease = (MovieRelease) releaseFactory.createRelease(Path.of("Final.Destination.5.720p.Bluray.x264-TWiZTED"),
                     userInteractionHandler);
         }
     }
@@ -171,12 +170,12 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
             case FILE -> {
                 librarySettings.setLibraryFilenameStructure(txtStructure.getText());
                 FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager, userInteractionHandler);
-                lblPreview.setText(filenameLibraryBuilder.build(release));
+                lblPreview.setText(filenameLibraryBuilder.build(release).toString());
             }
             case FOLDER -> {
                 librarySettings.setLibraryFolderStructure(txtStructure.getText());
                 PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager, userInteractionHandler);
-                lblPreview.setText(pathLibraryBuilder.build(release));
+                lblPreview.setText(pathLibraryBuilder.build(release).toString());
             }
             default -> {
             }

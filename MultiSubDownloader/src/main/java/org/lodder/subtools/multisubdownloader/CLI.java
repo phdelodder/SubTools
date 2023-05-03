@@ -1,7 +1,7 @@
 package org.lodder.subtools.multisubdownloader;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,7 +46,7 @@ public class CLI {
     private boolean recursive = false;
     private Language language;
     private boolean force = false;
-    private List<File> folders = new ArrayList<>();
+    private List<Path> folders = new ArrayList<>();
     private boolean downloadall = false;
     private boolean subtitleSelection = false;
     private boolean verboseProgress = false;
@@ -149,9 +149,9 @@ public class CLI {
         }
     }
 
-    private List<File> getFolders(CommandLine line) {
+    private List<Path> getFolders(CommandLine line) {
         if (line.hasCliOption(CliOption.FOLDER)) {
-            return List.of(new File(line.getCliOptionValue(CliOption.FOLDER)));
+            return List.of(Path.of(line.getCliOptionValue(CliOption.FOLDER)));
         } else {
             return new ArrayList<>(this.settings.getDefaultFolders());
         }

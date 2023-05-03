@@ -1,6 +1,5 @@
 package org.lodder.subtools.multisubdownloader.gui.workers;
 
-import java.io.File;
 import java.util.List;
 
 import javax.swing.SwingWorker;
@@ -24,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * Created by IntelliJ IDEA. User: lodder Date: 4/12/11 Time: 8:52 AM To change this template use
- * File | Settings | File Templates.
+ * Path | Settings | Path Templates.
  */
 @RequiredArgsConstructor
 public class RenameWorker extends SwingWorker<Void, String> implements Cancelable {
@@ -63,7 +62,7 @@ public class RenameWorker extends SwingWorker<Void, String> implements Cancelabl
                     renameAction = new RenameAction(settings.getMovieLibrarySettings(), manager, userInteractionHandler);
                 }
                 if (renameAction != null) {
-                    renameAction.rename(new File(release.getPath(), release.getFileName()), release);
+                    renameAction.rename(release.getPath().resolve(release.getFileName()), release);
                 }
                 model.removeRow(i);
                 i--;

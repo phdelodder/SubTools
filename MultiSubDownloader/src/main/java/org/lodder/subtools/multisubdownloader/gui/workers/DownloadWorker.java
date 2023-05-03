@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Created by IntelliJ IDEA. User: lodder Date: 4/12/11 Time: 8:52 AM To change this template use
- * File | Settings | File Templates.
+ * Path | Settings | Path Templates.
  */
 public class DownloadWorker extends SwingWorker<Void, String> implements Cancelable {
 

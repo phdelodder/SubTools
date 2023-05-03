@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.lib.library;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
@@ -23,7 +24,7 @@ public abstract class LibraryBuilder {
     private final Manager manager;
     private final UserInteractionHandler userInteractionHandler;
 
-    public abstract String build(Release release);
+    public abstract Path build(Release release);
 
     protected String getShowName(String name) {
         if (librarySettings.isLibraryUseTVDBNaming()) {

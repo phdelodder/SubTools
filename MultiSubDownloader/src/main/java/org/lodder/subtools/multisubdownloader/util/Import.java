@@ -1,6 +1,6 @@
 package org.lodder.subtools.multisubdownloader.util;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Created by IntelliJ IDEA. User: lodder Date: 4/20/11 Time: 7:53 AM To change this template use
- * File | Settings | File Templates.
+ * Path | Settings | Path Templates.
  */
 public class Import {
 
@@ -30,15 +30,15 @@ public class Import {
         this.settingsControl = settingsControl;
     }
 
-    public void exclude(Manager manager, File file) {
+    public void exclude(Manager manager, Path file) {
         doImport(manager, ImportListType.EXCLUDE, file);
     }
 
-    public void preferences(Manager manager, File file) {
+    public void preferences(Manager manager, Path file) {
         doImport(manager, ImportListType.PREFERENCES, file);
     }
 
-    public void doImport(Manager manager, ImportListType listType, File file) {
+    public void doImport(Manager manager, ImportListType listType, Path file) {
         try {
             if (listType == ImportListType.PREFERENCES) {
                 settingsControl.importPreferences(file);

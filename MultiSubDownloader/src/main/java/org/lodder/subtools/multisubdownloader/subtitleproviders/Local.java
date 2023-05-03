@@ -1,7 +1,8 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders;
 
-import java.io.File;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -26,12 +27,15 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
+import org.lodder.subtools.sublibrary.util.FileUtils;
 import org.lodder.subtools.sublibrary.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import lombok.Getter;
+import lombok.experimental.ExtensionMethod;
 
+@ExtensionMethod({ FileUtils.class, Files.class })
 public class Local implements SubtitleProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Local.class);
@@ -52,7 +56,7 @@ public class Local implements SubtitleProvider {
         return SubtitleSource.LOCAL;
     }
 
-    private List<File> getPossibleSubtitles(String filter) {
+    private List<Path> getPossibleSubtitles(String filter) {
         return settings.getLocalSourcesFolders().stream()
                 .flatMap(local -> getAllSubtitlesFiles(local, filter).stream())
                 .toList();
@@ -70,7 +74,7 @@ public class Local implements SubtitleProvider {
             filter = tvRelease.getName().replaceAll("[^A-Za-z]", "").trim();
         }
 
-        for (File fileSub : getPossibleSubtitles(filter)) {
+        for (Path fileSub : getPossibleSubtitles(filter)) {
             try {
                 Release release = vfp.parse(fileSub);
                 if ((release.getVideoType() == VideoType.EPISODE)
@@ -86,12 +90,12 @@ public class Local implements SubtitleProvider {
                             listFoundSubtitles.add(
                                     Subtitle.downloadSource(fileSub)
                                             .subtitleSource(getSubtitleSource())
-                                            .fileName(fileSub.getName())
+                                            .fileName(fileSub.getFileNameAsString())
                                             .language(language)
-                                            .quality(ReleaseParser.getQualityKeyword(fileSub.getName()))
+                                            .quality(ReleaseParser.getQualityKeyword(fileSub.getFileNameAsString()))
                                             .subtitleMatchType(SubtitleMatchType.EVERYTHING)
-                                            .releaseGroup(ReleaseParser.extractReleasegroup(fileSub.getName(), true))
-                                            .uploader(fileSub.getAbsolutePath())
+                                            .releaseGroup(ReleaseParser.extractReleasegroup(fileSub.getFileNameAsString(), true))
+                                            .uploader(fileSub.toAbsolutePath().toString())
                                             .hearingImpaired(false));
                         }
                     }
@@ -115,7 +119,7 @@ public class Local implements SubtitleProvider {
 
         String filter = movieRelease.getName();
 
-        for (File fileSub : getPossibleSubtitles(filter)) {
+        for (Path fileSub : getPossibleSubtitles(filter)) {
             try {
                 Release release = releaseParser.parse(fileSub);
                 if (release.getVideoType() == VideoType.MOVIE) {
@@ -128,12 +132,12 @@ public class Local implements SubtitleProvider {
                             listFoundSubtitles.add(
                                     Subtitle.downloadSource(fileSub)
                                             .subtitleSource(getSubtitleSource())
-                                            .fileName(fileSub.getName())
+                                            .fileName(fileSub.getFileNameAsString())
                                             .language(language) // TODO previously: language(""). This was not correct?
-                                            .quality(ReleaseParser.getQualityKeyword(fileSub.getName()))
+                                            .quality(ReleaseParser.getQualityKeyword(fileSub.getFileNameAsString()))
                                             .subtitleMatchType(SubtitleMatchType.EVERYTHING)
-                                            .releaseGroup(ReleaseParser.extractReleasegroup(fileSub.getName(), true))
-                                            .uploader(fileSub.getAbsolutePath())
+                                            .releaseGroup(ReleaseParser.extractReleasegroup(fileSub.getFileNameAsString(), true))
+                                            .uploader(fileSub.toAbsolutePath().toString())
                                             .hearingImpaired(false));
                         }
                     }
@@ -150,22 +154,16 @@ public class Local implements SubtitleProvider {
         return listFoundSubtitles;
     }
 
-    private List<File> getAllSubtitlesFiles(File dir, String filter) {
-        final List<File> filelist = new ArrayList<>();
-        final File[] contents = dir.listFiles();
-        if (contents != null) {
-            for (File file : contents) {
-                if (file.isFile()) {
-                    if (file.getName().replaceAll("[^A-Za-z]", "").toLowerCase().contains(filter.toLowerCase())
-                            && "srt".equals(ReleaseParser.extractFileNameExtension(file.getName()))) {
-                        filelist.add(file);
-                    }
-                } else {
-                    filelist.addAll(getAllSubtitlesFiles(file, filter));
-                }
-            }
+    private List<Path> getAllSubtitlesFiles(Path dir, String filter) {
+        try {
+            return dir.list().filter(Files::isRegularFile)
+                    .filter(file -> file.hasExtension("srt"))
+                    .filter(file -> file.getFileNameAsString().replaceAll("[^A-Za-z]", "").toLowerCase().contains(filter.toLowerCase()))
+                    .toList();
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+            return List.of();
         }
-        return filelist;
     }
 
     @Override

@@ -2,8 +2,8 @@ package org.lodder.subtools.multisubdownloader;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Optional;
 
 import javax.swing.JEditorPane;
@@ -66,7 +66,7 @@ import org.lodder.subtools.sublibrary.OsCheck.OSType;
 import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.VideoType;
-import org.lodder.subtools.sublibrary.util.Files;
+import org.lodder.subtools.sublibrary.util.FileUtils;
 import org.lodder.subtools.sublibrary.util.StringUtil;
 import org.lodder.subtools.sublibrary.util.XmlFileFilter;
 import org.slf4j.Logger;
@@ -84,6 +84,9 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import lombok.experimental.ExtensionMethod;
+
+@ExtensionMethod({ FileUtils.class })
 public class GUI extends JFrame implements PropertyChangeListener {
 
     private static final long serialVersionUID = 1L;
@@ -534,13 +537,13 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
                             try {
                                 if (subtitle.getSourceLocation() == Subtitle.SourceLocation.FILE) {
-                                    Files.copy(subtitle.getFile(), new File(path, subtitle.getFileName()));
+                                    subtitle.getFile().copyToDir(path);
                                 } else {
                                     Manager manager = (Manager) this.app.make("Manager");
                                     String url =
                                             subtitle.getSourceLocation() == Subtitle.SourceLocation.URL ? subtitle.getUrl()
                                                     : subtitle.getUrlSupplier().get();
-                                    manager.store(url, new File(path, filename));
+                                    manager.store(url, path.resolve(filename));
                                 }
                             } catch (IOException | ManagerException e) {
                                 LOGGER.error("downloadText", e);
@@ -567,28 +570,26 @@ public class GUI extends JFrame implements PropertyChangeListener {
     private void importList(Manager manager, Import.ImportListType listType) {
         // Create a file chooser
         final JFileChooser fc = new JFileChooser();
-        XmlFileFilter filter = new XmlFileFilter();
         fc.setAcceptAllFileFilterUsed(false);
-        fc.setFileFilter(filter);
+        fc.setFileFilter(new XmlFileFilter());
         final int returnVal = fc.showOpenDialog(getThis());
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             Import i = new Import(getThis(), settingsControl);
-            i.doImport(manager, listType, fc.getSelectedFile());
+            i.doImport(manager, listType, fc.getSelectedFile().toPath());
         }
     }
 
     private void exportList(Manager manager, Export.ExportListType listType) {
         // Create a file chooser
         final JFileChooser fc = new JFileChooser();
-        XmlFileFilter filter = new XmlFileFilter();
         fc.setAcceptAllFileFilterUsed(false);
-        fc.setFileFilter(filter);
+        fc.setFileFilter(new XmlFileFilter());
         final int returnVal = fc.showSaveDialog(getThis());
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             Export e = new Export(settingsControl);
-            File f = fc.getSelectedFile();
-            if (!"xml".equalsIgnoreCase(XmlFileFilter.getExtension(f))) {
-                f = new File(f + ".xml");
+            Path f = fc.getSelectedFile().toPath();
+            if (!f.hasExtension("xml")) {
+                f = f.getParent().resolve(f.getFileNameAsString() + ".xml");
             }
             e.doExport(manager, listType, f);
         }
@@ -597,7 +598,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
     private void selectIncomingFolder() {
         MemoryFolderChooser.getInstance().selectDirectory(getThis(), Messages.getString("MainWindow.SelectFolder"))
-                .map(File::getAbsolutePath).ifPresent(pnlSearchFileInput::setIncomingPath);
+                .map(Path::toAbsolutePath).map(Path::toString).ifPresent(pnlSearchFileInput::setIncomingPath);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package org.lodder.subtools.multisubdownloader.lib.library;
 
+import java.nio.file.Path;
+
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
@@ -16,10 +18,9 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
     }
 
     @Override
-    public String build(Release release) {
+    public Path build(Release release) {
         String filename = "";
-        if ((LibraryActionType.RENAME.equals(getLibrarySettings().getLibraryAction())
-                || LibraryActionType.MOVEANDRENAME.equals(getLibrarySettings().getLibraryAction()))
+        if (getLibrarySettings().hasAnyLibraryAction(LibraryActionType.RENAME, LibraryActionType.MOVEANDRENAME)
                 && release instanceof TvRelease tvRelease
                 && !getLibrarySettings().getLibraryFilenameStructure().isEmpty()) {
             String show = getShowName(tvRelease.getName());
@@ -47,7 +48,7 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
         if (getLibrarySettings().isLibraryFilenameReplaceSpace()) {
             filename = filename.replace(" ", getLibrarySettings().getLibraryFilenameReplacingSpaceSign());
         }
-        return filename;
+        return Path.of(filename);
     }
 
     public String buildSubtitle(Release release, Subtitle sub, String filename, Integer version) {

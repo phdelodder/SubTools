@@ -1,6 +1,6 @@
 package org.lodder.subtools.sublibrary.model;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.OptionalInt;
 
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +23,7 @@ public class MovieRelease extends Release {
     }
 
     public interface MovieReleaseBuilderOther {
-        MovieReleaseBuilderOther file(File file);
+        MovieReleaseBuilderOther file(Path file);
 
         MovieReleaseBuilderOther quality(String quality);
 
@@ -47,7 +47,7 @@ public class MovieRelease extends Release {
         private Integer year;
 
         private String quality;
-        private File file;
+        private Path file;
         private String description;
         private String releaseGroup;
 
@@ -57,7 +57,7 @@ public class MovieRelease extends Release {
         }
     }
 
-    private MovieRelease(File file, String description, String releaseGroup, String quality, String name, int year) {
+    private MovieRelease(Path file, String description, String releaseGroup, String quality, String name, int year) {
         super(VideoType.MOVIE, file, description, releaseGroup, quality);
         this.name = name;
         this.year = year;

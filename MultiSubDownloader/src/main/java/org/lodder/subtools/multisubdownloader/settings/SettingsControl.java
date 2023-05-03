@@ -3,11 +3,11 @@ package org.lodder.subtools.multisubdownloader.settings;
 import static org.lodder.subtools.multisubdownloader.settings.SettingValue.*;
 
 import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.prefs.BackingStoreException;
@@ -33,7 +33,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import lombok.Getter;
+import lombok.experimental.ExtensionMethod;
 
+@ExtensionMethod({ Files.class })
 public class SettingsControl {
 
     private final Manager manager;
@@ -87,17 +89,17 @@ public class SettingsControl {
         updateProxySettings();
     }
 
-    public void exportPreferences(File file) {
+    public void exportPreferences(Path file) {
         store();
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            preferences.exportSubtree(fos);
+        try (OutputStream os = file.newOutputStream()) {
+            preferences.exportSubtree(os);
         } catch (IOException | BackingStoreException e) {
             LOGGER.error("exportPreferences", e);
         }
     }
 
-    public void importPreferences(File file) {
-        try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
+    public void importPreferences(Path file) {
+        try (InputStream is = new BufferedInputStream(file.newInputStream())) {
             preferences.clear();
             Preferences.importPreferences(is);
             load();

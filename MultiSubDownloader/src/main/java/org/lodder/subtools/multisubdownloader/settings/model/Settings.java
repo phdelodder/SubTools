@@ -1,6 +1,6 @@
 package org.lodder.subtools.multisubdownloader.settings.model;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +18,7 @@ import lombok.Setter;
 @Setter
 public class Settings implements UserInteractionSettingsIntf {
 
-    private File lastOutputDir;
+    private Path lastOutputDir;
     private boolean optionsAlwaysConfirm;
     private boolean optionSubtitleExactMatch = true;
     private boolean optionSubtitleKeywordMatch = true;
@@ -30,8 +30,8 @@ public class Settings implements UserInteractionSettingsIntf {
     private String generalProxyHost = "";
     private int generalProxyPort = 80;
     private boolean generalProxyEnabled;
-    private List<File> defaultIncomingFolders = new ArrayList<>();
-    private List<File> localSourcesFolders = new ArrayList<>();
+    private List<Path> defaultIncomingFolders = new ArrayList<>();
+    private List<Path> localSourcesFolders = new ArrayList<>();
     private boolean optionRecursive;
     private ScreenSettings screenSettings = new ScreenSettings();
     private boolean loginAddic7edEnabled;
@@ -60,7 +60,7 @@ public class Settings implements UserInteractionSettingsIntf {
     private boolean optionsConfirmProviderMapping;
     private Language language;
 
-    public List<File> getDefaultFolders() {
+    public List<Path> getDefaultFolders() {
         return getDefaultIncomingFolders();
     }
 

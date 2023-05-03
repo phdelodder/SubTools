@@ -1,6 +1,7 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Optional;
 
 import javax.swing.JFileChooser;
@@ -28,7 +29,11 @@ public class MemoryFolderChooser {
         return instance;
     }
 
-    public Optional<File> selectDirectory(Component c, String title, File file) {
+    public Optional<Path> selectDirectory(Component c, String title, Path path) {
+        return selectDirectory(c, title, path.toFile());
+    }
+
+    public Optional<Path> selectDirectory(Component c, String title, File file) {
         chooser.setDialogTitle(title);
         if (file == null || !StringUtils.isBlank(file.getAbsolutePath())) {
             if (memory == null) {
@@ -43,21 +48,21 @@ public class MemoryFolderChooser {
         int result = chooser.showOpenDialog(c);
         if (result == JFileChooser.APPROVE_OPTION) {
             memory = chooser.getSelectedFile();
-            return Optional.of(chooser.getSelectedFile());
+            return Optional.of(chooser.getSelectedFile().toPath());
         }
         return Optional.empty();
     }
 
-    public Optional<File> selectDirectory(Component c, String title) {
+    public Optional<Path> selectDirectory(Component c, String title) {
         return selectDirectory(c, title, memory);
     }
 
-    public void setMemory(File memory) {
-        this.memory = memory;
+    public void setMemory(Path memory) {
+        this.memory = memory.toFile();
     }
 
-    public File getMemory() {
-        return memory;
+    public Path getMemory() {
+        return memory.toPath();
     }
 
 }

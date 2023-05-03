@@ -1,5 +1,7 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
+import java.nio.file.Path;
+
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -20,6 +22,10 @@ public class JListWithImages extends JList<JPanel> {
     public JListWithImages() {
         setCellRenderer(new ImageListCellRenderer());
         setModel(new DefaultListModel<JPanel>());
+    }
+
+    public void addItem(SettingsExcludeType type, Path path) {
+        addItem(type, path.toString());
     }
 
     public void addItem(SettingsExcludeType type, String text) {

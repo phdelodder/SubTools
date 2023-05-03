@@ -11,7 +11,7 @@ import lombok.Setter;
  * User: lodder
  * Date: 20/08/11
  * Time: 13:44
- * To change this template use File | Settings | File Templates.
+ * To change this template use Path | Settings | Path Templates.
  */
 @Getter
 @Setter

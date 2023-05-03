@@ -1,12 +1,12 @@
 package org.lodder.subtools.sublibrary;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +56,7 @@ public class Manager {
     private final InMemoryCache inMemoryCache;
     private final DiskCache diskCache;
 
-    public boolean store(String downloadlink, File file) throws ManagerException {
+    public boolean store(String downloadlink, Path file) throws ManagerException {
         try {
             return httpClient.doDownloadFile(new URL(downloadlink), file);
         } catch (MalformedURLException e) {

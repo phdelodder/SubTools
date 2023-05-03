@@ -1,6 +1,7 @@
 package org.lodder.subtools.multisubdownloader.settings;
 
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
@@ -26,19 +27,19 @@ import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpis
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateType;
 import org.lodder.subtools.sublibrary.Language;
+import org.lodder.subtools.sublibrary.util.FileUtils;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import net.jodah.typetools.TypeResolver;
-
 public enum SettingValue {
 
     // SETTINGS
     SETTINGS_VERSION(0, SettingsControl::getSettings, Settings::getSettingsVersion, Settings::setSettingsVersion),
-    LAST_OUTPUT_DIR(new File(""), File::getAbsolutePath, File::new, SettingsControl::getSettings, settings -> MemoryFolderChooser.getInstance().getMemory(), Settings::setLastOutputDir),
+    LAST_OUTPUT_DIR(Path.of(""),FileUtils::toAbsolutePathAsString, Path::of, SettingsControl::getSettings, settings -> MemoryFolderChooser.getInstance().getMemory(), Settings::setLastOutputDir),
 
-    GENERAL_DEFAULT_INCOMING_FOLDER(File::getAbsolutePath, File::new, SettingsControl::getSettings, Settings::getDefaultIncomingFolders),
-    LOCAL_SUBTITLES_SOURCES_FOLDERS(File::getAbsolutePath, File::new, SettingsControl::getSettings, Settings::getLocalSourcesFolders),
+    GENERAL_DEFAULT_INCOMING_FOLDER(FileUtils::toAbsolutePathAsString, Path::of, SettingsControl::getSettings, Settings::getDefaultIncomingFolders),
+    LOCAL_SUBTITLES_SOURCES_FOLDERS(FileUtils::toAbsolutePathAsString, Path::of, SettingsControl::getSettings, Settings::getLocalSourcesFolders),
     EXCLUDE_ITEM(v -> v.getType().toString() + "//" + v.getDescription(),
             v -> {
                 String[] split = v.split("//", 2);
@@ -85,14 +86,14 @@ public enum SettingValue {
     GENERAL_PROXY_PORT(80, SettingsControl::getSettings, Settings::getGeneralProxyPort, Settings::setGeneralProxyPort),
 
     // LIBRARY SERIE
-    EPISODE_LIBRARY_BACKUP_SUBTITLE_PATH(null, File::getAbsolutePath, File::new, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryBackupSubtitlePath, LibrarySettings::setLibraryBackupSubtitlePath),
+    EPISODE_LIBRARY_BACKUP_SUBTITLE_PATH(null, FileUtils::toAbsolutePathAsString, Path::of, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryBackupSubtitlePath, LibrarySettings::setLibraryBackupSubtitlePath),
     EPISODE_LIBRARY_BACKUP_SUBTITLE(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryBackupSubtitle, LibrarySettings::setLibraryBackupSubtitle),
     EPISODE_LIBRARY_BACKUP_USE_WEBSITE_FILE_NAME(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryBackupUseWebsiteFileName, LibrarySettings::setLibraryBackupUseWebsiteFileName),
     EPISODE_LIBRARY_ACTION(LibraryActionType.NOTHING, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryAction, LibrarySettings::setLibraryAction),
     EPISODE_LIBRARY_USE_T_V_D_B_NAMING(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryUseTVDBNaming, LibrarySettings::setLibraryUseTVDBNaming),
     EPISODE_LIBRARY_REPLACE_CHARS(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryReplaceChars, LibrarySettings::setLibraryReplaceChars),
     EPISODE_LIBRARY_OTHER_FILE_ACTION(LibraryOtherFileActionType.NOTHING, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryOtherFileAction, LibrarySettings::setLibraryOtherFileAction),
-    EPISODE_LIBRARY_FOLDER(null, File::getAbsolutePath, File::new, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFolder, LibrarySettings::setLibraryFolder),
+    EPISODE_LIBRARY_FOLDER(null, FileUtils::toAbsolutePathAsString, Path::of, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFolder, LibrarySettings::setLibraryFolder),
     EPISODE_LIBRARY_FOLDER_STRUCTURE("%SHOW NAME%.S%SS%E%EE%.%TITLE%", sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFolderStructure, LibrarySettings::setLibraryFolderStructure),
     EPISODE_LIBRARY_REMOVE_EMPTY_FOLDERS(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryRemoveEmptyFolders, LibrarySettings::setLibraryRemoveEmptyFolders),
     EPISODE_LIBRARY_FILENAME_STRUCTURE("%SHOW NAME%%SEPARATOR%%Season %S%", sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFilenameStructure, LibrarySettings::setLibraryFilenameStructure),
@@ -105,14 +106,14 @@ public enum SettingValue {
     EPISODE_LIBRARY_DEFAULT_EN_TEXT("", sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getDefaultEnText, LibrarySettings::setDefaultEnText),
 
     // LIBRARY MOVIE
-    MOVIE_LIBRARY_BACKUP_SUBTITLE_PATH(null, File::getAbsolutePath, File::new, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryBackupSubtitlePath, LibrarySettings::setLibraryBackupSubtitlePath),
+    MOVIE_LIBRARY_BACKUP_SUBTITLE_PATH(null, FileUtils::toAbsolutePathAsString, Path::of, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryBackupSubtitlePath, LibrarySettings::setLibraryBackupSubtitlePath),
     MOVIE_LIBRARY_BACKUP_SUBTITLE(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryBackupSubtitle, LibrarySettings::setLibraryBackupSubtitle),
     MOVIE_LIBRARY_BACKUP_USE_WEBSITE_FILE_NAME(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryBackupUseWebsiteFileName, LibrarySettings::setLibraryBackupUseWebsiteFileName),
     MOVIE_LIBRARY_ACTION(LibraryActionType.NOTHING, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryAction, LibrarySettings::setLibraryAction),
     MOVIE_LIBRARY_USE_T_V_D_B_NAMING(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryUseTVDBNaming, LibrarySettings::setLibraryUseTVDBNaming),
     MOVIE_LIBRARY_REPLACE_CHARS(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryReplaceChars, LibrarySettings::setLibraryReplaceChars),
     MOVIE_LIBRARY_OTHER_FILE_ACTION(LibraryOtherFileActionType.NOTHING, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryOtherFileAction, LibrarySettings::setLibraryOtherFileAction),
-    MOVIE_LIBRARY_FOLDER(null, File::getAbsolutePath, File::new, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryFolder, LibrarySettings::setLibraryFolder),
+    MOVIE_LIBRARY_FOLDER(null, FileUtils::toAbsolutePathAsString, Path::of, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryFolder, LibrarySettings::setLibraryFolder),
     MOVIE_LIBRARY_FOLDER_STRUCTURE("", sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryFolderStructure, LibrarySettings::setLibraryFolderStructure),
     MOVIE_LIBRARY_REMOVE_EMPTY_FOLDERS(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryRemoveEmptyFolders, LibrarySettings::setLibraryRemoveEmptyFolders),
     MOVIE_LIBRARY_FILENAME_STRUCTURE("%MOVIE TITLE% (%YEAR%)", sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryFilenameStructure, LibrarySettings::setLibraryFilenameStructure),

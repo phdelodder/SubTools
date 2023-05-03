@@ -44,6 +44,10 @@
 			<artifactId>throwing-interfaces</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>name.falgout.jeffrey</groupId>
+			<artifactId>throwing-streams</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.optimaize.languagedetector</groupId>
 			<artifactId>language-detector</artifactId>
 		</dependency>
@@ -119,6 +123,10 @@
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.jodah</groupId>
+			<artifactId>typetools</artifactId>
 		</dependency>
 	</dependencies>
 	<build>

@@ -1,6 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -148,7 +148,7 @@ public class PreferenceDialog extends MultiSubDialog {
                     JButton btnAddFolder = new JButton(Messages.getString("PreferenceDialog.AddFolder"));
                     btnAddFolder.addActionListener(arg -> {
                         MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), Messages.getString("PreferenceDialog.SelectFolder"))
-                                .map(File::getAbsolutePath).ifPresent(path -> {
+                                .map(Path::toAbsolutePath).ifPresent(path -> {
                                     if (defaultIncomingFoldersList.getModel().getSize() == 0) {
                                         defaultIncomingFoldersList.addItem(SettingsExcludeType.FOLDER, path);
                                     } else {
@@ -376,7 +376,7 @@ public class PreferenceDialog extends MultiSubDialog {
 
                 btnBrowseLocalSources.addActionListener(arg0 -> {
                     MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), Messages.getString("PreferenceDialog.SelectFolder"))
-                            .map(File::getAbsolutePath).ifPresent(path -> {
+                            .map(Path::toAbsolutePath).ifPresent(path -> {
                                 if (localSourcesFoldersList.getModel().getSize() == 0) {
                                     localSourcesFoldersList.addItem(SettingsExcludeType.FOLDER, path);
                                 } else {
@@ -428,11 +428,11 @@ public class PreferenceDialog extends MultiSubDialog {
         for (SettingsExcludeItem element : settingsCtrl.getSettings().getExcludeList()) {
             excludeList.addItem(element.getType(), element.getDescription());
         }
-        for (File element : settingsCtrl.getSettings().getDefaultIncomingFolders()) {
-            defaultIncomingFoldersList.addItem(SettingsExcludeType.FOLDER, element.getAbsolutePath());
+        for (Path element : settingsCtrl.getSettings().getDefaultIncomingFolders()) {
+            defaultIncomingFoldersList.addItem(SettingsExcludeType.FOLDER, element.toAbsolutePath());
         }
-        for (File element : settingsCtrl.getSettings().getLocalSourcesFolders()) {
-            localSourcesFoldersList.addItem(SettingsExcludeType.FOLDER, element.getAbsolutePath());
+        for (Path element : settingsCtrl.getSettings().getLocalSourcesFolders()) {
+            localSourcesFoldersList.addItem(SettingsExcludeType.FOLDER, element.toAbsolutePath());
         }
         cbxLanguage.setSelectedItem(settingsCtrl.getSettings().getLanguage());
         chkUseProxy.setSelected(settingsCtrl.getSettings().isGeneralProxyEnabled());
@@ -510,7 +510,7 @@ public class PreferenceDialog extends MultiSubDialog {
     private void addExcludeItem(SettingsExcludeType seType) {
         if (seType == SettingsExcludeType.FOLDER) {
             MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), Messages.getString("PreferenceDialog.SelectExcludeFolder"))
-                    .map(File::getAbsolutePath).ifPresent(path -> excludeList.addItem(seType, path));
+                    .map(Path::toAbsolutePath).ifPresent(path -> excludeList.addItem(seType, path));
         } else if (seType == SettingsExcludeType.REGEX) {
             String regex = JOptionPane.showInputDialog(Messages.getString("PreferenceDialog.EnterRegex"));
             if (StringUtils.isNotBlank(regex)) {
@@ -530,9 +530,9 @@ public class PreferenceDialog extends MultiSubDialog {
     private void testAndSaveValues() {
         boolean status = true;
         if (testGeneralTab()) {
-            List<File> folList = new ArrayList<>();
+            List<Path> folList = new ArrayList<>();
             for (int i = 0; i < defaultIncomingFoldersList.getModel().getSize(); i++) {
-                folList.add(new File(defaultIncomingFoldersList.getDescription(i)));
+                folList.add(Path.of(defaultIncomingFoldersList.getDescription(i)));
             }
             settingsCtrl.getSettings().setDefaultIncomingFolders(folList);
 
@@ -594,9 +594,9 @@ public class PreferenceDialog extends MultiSubDialog {
             settingsCtrl.getSettings().setLoginOpenSubtitlesEnabled(chkUserOpenSubtitlesLogin.isSelected());
             settingsCtrl.getSettings().setLoginOpenSubtitlesUsername(txtOpenSubtitlesUsername.getText());
             settingsCtrl.getSettings().setLoginOpenSubtitlesPassword(txtOpenSubtitlesPassword.getText());
-            List<File> folList = new ArrayList<>();
+            List<Path> folList = new ArrayList<>();
             for (int i = 0; i < localSourcesFoldersList.getModel().getSize(); i++) {
-                folList.add(new File(localSourcesFoldersList.getDescription(i)));
+                folList.add(Path.of(localSourcesFoldersList.getDescription(i)));
             }
             settingsCtrl.getSettings().setLocalSourcesFolders(folList);
             settingsCtrl.getSettings().setSerieSourceAddic7ed(chkSourceAddic7ed.isSelected());

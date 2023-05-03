@@ -3,16 +3,17 @@ package org.lodder.subtools.sublibrary.util.http;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,7 +22,7 @@ import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.lodder.subtools.sublibrary.util.Files;
+import org.lodder.subtools.sublibrary.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,7 +103,7 @@ public class HttpClient {
         }
     }
 
-    public boolean doDownloadFile(URL url, final File file) {
+    public boolean doDownloadFile(URL url, final Path file) {
         LOGGER.debug("doDownloadFile: URL [{}], file [{}]", url, file);
         boolean success = true;
 
@@ -110,18 +111,18 @@ public class HttpClient {
             byte[] data = IOUtils.toByteArray(in);
             in.close();
 
-            if (url.getFile().endsWith(".zip") || Files.isZipFile(new ByteArrayInputStream(data))) {
-                Files.unzip(new ByteArrayInputStream(data), file, ".srt");
+            if (url.getFile().endsWith(".zip") || FileUtils.isZipFile(new ByteArrayInputStream(data))) {
+                FileUtils.unzip(new ByteArrayInputStream(data), file, ".srt");
             } else {
-                if (Files.isGZipCompressed(data)) {
-                    data = Files.decompressGZip(data);
+                if (FileUtils.isGZipCompressed(data)) {
+                    data = FileUtils.decompressGZip(data);
                 }
                 String content = new String(data, StandardCharsets.UTF_8);
                 if (content.contains("Daily Download count exceeded")) {
                     LOGGER.error("Download problem: Addic7ed Daily Download count exceeded!");
                     success = false;
                 } else {
-                    try (FileOutputStream outputStream = new FileOutputStream(file)) {
+                    try (OutputStream outputStream = Files.newOutputStream(file)) {
                         IOUtils.write(data, outputStream);
                     }
                 }

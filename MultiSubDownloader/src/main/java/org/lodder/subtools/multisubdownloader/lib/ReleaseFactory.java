@@ -1,6 +1,6 @@
 package org.lodder.subtools.multisubdownloader.lib;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import org.lodder.subtools.multisubdownloader.lib.control.MovieReleaseControl;
 import org.lodder.subtools.multisubdownloader.lib.control.ReleaseControl;
@@ -32,7 +32,7 @@ public class ReleaseFactory {
         this.manager = manager;
     }
 
-    public Release createRelease(final File file, UserInteractionHandler userInteractionHandler) {
+    public Release createRelease(Path file, UserInteractionHandler userInteractionHandler) {
         Release r = null;
 
         try {

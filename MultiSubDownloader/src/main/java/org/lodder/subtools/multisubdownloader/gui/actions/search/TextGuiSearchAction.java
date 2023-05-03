@@ -1,6 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.actions.search;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,7 +109,7 @@ public class TextGuiSearchAction extends GuiSearchAction<SearchTextInputPanel> {
                     .quality(getInputPanel().getQuality())
                     .build();
         } else {
-            release = getReleaseFactory().createRelease(new File(name), getUserInteractionHandler());
+            release = getReleaseFactory().createRelease(Path.of(name), getUserInteractionHandler());
         }
 
         List<Release> releases = new ArrayList<>();

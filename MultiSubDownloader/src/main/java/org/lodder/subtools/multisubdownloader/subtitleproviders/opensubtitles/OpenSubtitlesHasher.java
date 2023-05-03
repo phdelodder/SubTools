@@ -10,6 +10,7 @@ import java.nio.ByteOrder;
 import java.nio.LongBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
+import java.nio.file.Path;
 
 /**
  * Hash code is based on Media Player Classic. In natural language it calculates: size + 64bit
@@ -23,7 +24,8 @@ public class OpenSubtitlesHasher {
      */
     private static final int HASH_CHUNK_SIZE = 64 * 1024;
 
-    public static String computeHash(File file) throws IOException {
+    public static String computeHash(Path path) throws IOException {
+        File file = path.toFile();
         long size = file.length();
         long chunkSizeForFile = Math.min(HASH_CHUNK_SIZE, size);
 

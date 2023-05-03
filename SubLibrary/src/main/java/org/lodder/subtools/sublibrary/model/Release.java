@@ -1,12 +1,12 @@
 package org.lodder.subtools.sublibrary.model;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import lombok.Getter;
 
@@ -14,7 +14,7 @@ import lombok.Getter;
 public abstract class Release extends Video {
 
     private final Set<Subtitle> matchingSubs = new HashSet<>();
-    private final File file;
+    private final Path path;
     private final String quality;
     private final String description;
     private final String releaseGroup;
@@ -27,24 +27,24 @@ public abstract class Release extends Video {
         return new ArrayList<>(matchingSubs);
     }
 
-    protected Release(VideoType videoFileType, File file, String description, String releaseGroup, String quality) {
+    protected Release(VideoType videoFileType, Path path, String description, String releaseGroup, String quality) {
         super(videoFileType);
-        this.file = file;
+        this.path = path;
         this.description = description;
         this.releaseGroup = releaseGroup;
         this.quality = quality;
     }
 
     public String getFileName() {
-        return file != null ? file.getName() : null;
+        return path != null ? path.getFileName().toString() : null;
     }
 
-    public File getPath() {
-        return file != null ? file.getParentFile() : null;
+    public Path getPath() {
+        return path != null ? path.getParent() : null;
     }
 
     public String getExtension() {
-        return file != null ? FilenameUtils.getExtension(file.getName()) : null;
+        return StringUtils.substringAfterLast(getFileName(), ".");
     }
 
     @Override
@@ -53,6 +53,6 @@ public abstract class Release extends Video {
     }
 
     public String getReleaseDescription() {
-        return file.getName();
+        return getFileName();
     }
 }

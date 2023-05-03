@@ -1,9 +1,10 @@
 package org.lodder.subtools.sublibrary;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 
 import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
@@ -30,16 +31,16 @@ public class DetectLanguage {
             new LazySupplier<>(CommonTextObjectFactories::forDetectingOnLargeText);
     private static final double MIN_PROBABILITY = 0.9;
 
-    public static Language execute(File file) {
+    public static Language execute(Path file) {
         return execute(file, null);
     }
 
-    public static Language execute(File file, Language defaultLang) {
+    public static Language execute(Path file, Language defaultLang) {
         return executeOptional(file).orElse(defaultLang);
     }
 
-    public static Optional<Language> executeOptional(File file) {
-        try (Reader reader = new FileReader(file)) {
+    public static Optional<Language> executeOptional(Path file) {
+        try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             return DETECTOR.get().getProbabilities(TEXT_OBJECT_FACTORY.get().create().append(reader)).stream()
                     .filter(lang -> lang.getProbability() >= MIN_PROBABILITY).findFirst()
                     .map(lang -> lang.getLocale().getLanguage()).flatMap(Language::fromValueOptional);

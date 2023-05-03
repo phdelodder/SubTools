@@ -1,6 +1,6 @@
 package org.lodder.subtools.sublibrary.control;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,12 +23,12 @@ public class ReleaseParser {
     private static VideoPatterns videoPatterns = new VideoPatterns();
     private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseParser.class);
 
-    public final Release parse(File file) throws ReleaseParseException {
+    public final Release parse(Path file) throws ReleaseParseException {
         String foldername = "";
-        if (file.getParentFile() != null) {
-            foldername = file.getParentFile().getName();
+        if (file.getParent() != null) {
+            foldername = file.getParent().getFileName().toString();
         }
-        String[] parseNames = { file.getName(), foldername };
+        String[] parseNames = { file.getFileName().toString(), foldername };
 
         for (String fileParseName : parseNames) {
             for (NamedPattern np : videoPatterns.getCompiledPatterns()) {
@@ -39,10 +39,10 @@ public class ReleaseParser {
                 }
             }
         }
-        throw new ReleaseParseException("Unknow format, can't be parsed: " + file.getAbsolutePath());
+        throw new ReleaseParseException("Unknow format, can't be parsed: " + file.toAbsolutePath());
     }
 
-    protected final Release parsePatternResult(File file, String fileParseName) throws ReleaseParseException {
+    protected final Release parsePatternResult(Path file, String fileParseName) throws ReleaseParseException {
         List<String> namedgroups = namedMatcher.namedPattern().groupNames();
         String seriesname = "";
         List<Integer> episodenumbers = new ArrayList<>();
@@ -76,7 +76,7 @@ public class ReleaseParser {
                     .file(file)
                     .year(year)
                     .description(description)
-                    .releaseGroup(extractReleasegroup(file.getName(), true))
+                    .releaseGroup(extractReleasegroup(file.getFileName().toString(), true))
                     .quality(getQualityKeyword(fileParseName))
                     .build();
         }
@@ -147,7 +147,7 @@ public class ReleaseParser {
                 .episodes(episodenumbers)
                 .file(file)
                 .description(removeExtension(description))
-                .releaseGroup(extractReleasegroup(file.getName(), true))
+                .releaseGroup(extractReleasegroup(file.getFileName().toString(), true))
                 .special(isSpecialEpisode(seasonnumber, episodenumbers))
                 .quality(getQualityKeyword(fileParseName))
                 .build();
@@ -204,10 +204,10 @@ public class ReleaseParser {
         return keywords;
     }
 
-    public static String extractFileNameExtension(final String fileName) {
-        int mid = fileName.lastIndexOf(".");
-        return fileName.substring(mid + 1);
-    }
+    // public static String extractFileNameExtension(final String fileName) {
+    // int mid = fileName.lastIndexOf(".");
+    // return fileName.substring(mid + 1);
+    // }
 
     public static String extractReleasegroup(final String fileName, boolean hasExtension) {
         LOGGER.trace("extractReleasegroup: name: {} , hasExtension: {}", fileName, hasExtension);

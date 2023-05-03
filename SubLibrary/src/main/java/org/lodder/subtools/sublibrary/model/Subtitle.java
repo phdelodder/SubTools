@@ -1,6 +1,6 @@
 package org.lodder.subtools.sublibrary.model;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import org.apache.commons.lang3.builder.EqualsExclude;
 import org.lodder.subtools.sublibrary.Language;
@@ -22,7 +22,7 @@ public class Subtitle {
     @EqualsExclude
     private final ThrowingSupplier<String, ? extends SubtitlesProviderException> urlSupplier;
     private final String url;
-    private final File file;
+    private final Path file;
     private final SourceLocation sourceLocation;
 
     private String fileName;
@@ -54,7 +54,7 @@ public class Subtitle {
         this.sourceLocation = SourceLocation.URL;
     }
 
-    private Subtitle(File file) {
+    private Subtitle(Path file) {
         this.urlSupplier = null;
         this.url = null;
         this.file = file;
@@ -69,7 +69,7 @@ public class Subtitle {
         return new Subtitle(url);
     }
 
-    public static Subtitle downloadSource(File file) {
+    public static Subtitle downloadSource(Path file) {
         return new Subtitle(file);
     }
 

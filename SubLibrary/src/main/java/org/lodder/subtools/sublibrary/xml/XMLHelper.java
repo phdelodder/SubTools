@@ -1,12 +1,13 @@
 package org.lodder.subtools.sublibrary.xml;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -93,9 +94,9 @@ public class XMLHelper {
         return string.trim();
     }
 
-    public static void writeToFile(File file, Document doc) throws Exception {
+    public static void writeToFile(Path file, Document doc) throws Exception {
         String xmlString = getXMLAsString(doc);
-        try (FileOutputStream os = new FileOutputStream(file)) {
+        try (OutputStream os = Files.newOutputStream(file)) {
             byte[] xmlStringContent = xmlString.getBytes(StandardCharsets.UTF_8);
             os.write(xmlStringContent);
             os.close();

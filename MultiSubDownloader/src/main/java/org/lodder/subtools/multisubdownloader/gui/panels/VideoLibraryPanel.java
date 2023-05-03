@@ -1,7 +1,7 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
-import java.io.File;
-import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -30,8 +30,10 @@ import org.slf4j.LoggerFactory;
 import java.awt.Component;
 import java.awt.HeadlessException;
 
+import lombok.experimental.ExtensionMethod;
 import net.miginfocom.swing.MigLayout;
 
+@ExtensionMethod({ Files.class })
 public abstract class VideoLibraryPanel extends JPanel {
 
     private static final long serialVersionUID = -9175813173306481849L;
@@ -127,16 +129,16 @@ public abstract class VideoLibraryPanel extends JPanel {
         if (libraryActionType != null &&
                 (LibraryActionType.MOVEANDRENAME.equals(libraryActionType) || LibraryActionType.MOVE.equals(libraryActionType))) {
             if (!pnlStructureFolder.getLibraryFolder().isEmpty()) {
-                File f = new File(pnlStructureFolder.getLibraryFolder());
+                Path f = Path.of(pnlStructureFolder.getLibraryFolder());
                 try {
-                    if (!f.getCanonicalFile().isDirectory()) {
+                    if (!f.toAbsolutePath().isDirectory()) {
                         String message = Messages.getString("PreferenceDialog.ErrorInvalidPath", "'%s - %s'"
                                 .formatted(Messages.getString("PreferenceDialog.MoveToLibrary"), Messages.getString("PreferenceDialog.Location")));
                         JOptionPane.showConfirmDialog(this, message, "MultiSubDownloader", JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
                         LOGGER.debug("isValidPanelValues: " + message);
                         return false;
                     }
-                } catch (HeadlessException | IOException e) {
+                } catch (HeadlessException e) {
                     LOGGER.error(e.getMessage(), e);
                 }
             }
@@ -149,8 +151,8 @@ public abstract class VideoLibraryPanel extends JPanel {
 
         if (!renameMode) {
             pnlBackup.setBackupSubtitleSelected(libSettings.isLibraryBackupSubtitle());
-            pnlBackup.setBackupSubtitlePath(
-                    libSettings.getLibraryBackupSubtitlePath() == null ? null : libSettings.getLibraryBackupSubtitlePath().getAbsolutePath());
+            pnlBackup.setBackupSubtitlePath(libSettings.getLibraryBackupSubtitlePath() == null ? null
+                    : libSettings.getLibraryBackupSubtitlePath().toAbsolutePath().toString());
             pnlBackup.setBackupUseWebsiteFilenameSelected(libSettings.isLibraryBackupUseWebsiteFileName());
         }
         this.cbxLibraryAction.setSelectedItem(libSettings.getLibraryAction());
@@ -159,7 +161,8 @@ public abstract class VideoLibraryPanel extends JPanel {
         this.cbxLibraryOtherFileAction.setSelectedItem(libSettings.getLibraryOtherFileAction());
 
         if (libSettings.getLibraryFolder() != null) {
-            pnlStructureFolder.setLibraryFolder(libSettings.getLibraryFolder() == null ? null : libSettings.getLibraryFolder().getAbsolutePath());
+            pnlStructureFolder
+                    .setLibraryFolder(libSettings.getLibraryFolder() == null ? null : libSettings.getLibraryFolder().toAbsolutePath().toString());
         }
         pnlStructureFolder.getStructure().setText(libSettings.getLibraryFolderStructure());
         pnlStructureFolder.setRemoveEmptyFolderSelected(libSettings.isLibraryRemoveEmptyFolders());
@@ -181,7 +184,7 @@ public abstract class VideoLibraryPanel extends JPanel {
         if (!renameMode) {
             this.libSettings.setLibraryBackupSubtitle(pnlBackup.isBackupSubtitleSelected());
             this.libSettings.setLibraryBackupSubtitlePath(
-                    StringUtils.isBlank(pnlBackup.getBackupSubtitlePath()) ? null : new File(pnlBackup.getBackupSubtitlePath()));
+                    StringUtils.isBlank(pnlBackup.getBackupSubtitlePath()) ? null : Path.of(pnlBackup.getBackupSubtitlePath()));
             this.libSettings.setLibraryBackupUseWebsiteFileName(pnlBackup.isBackupUseWebsiteFilenameSelected());
         }
         this.libSettings.setLibraryAction((LibraryActionType) this.cbxLibraryAction.getSelectedItem());
@@ -190,7 +193,7 @@ public abstract class VideoLibraryPanel extends JPanel {
         this.libSettings.setLibraryOtherFileAction((LibraryOtherFileActionType) this.cbxLibraryOtherFileAction.getSelectedItem());
 
         this.libSettings.setLibraryFolder(
-                StringUtils.isBlank(pnlStructureFolder.getLibraryFolder()) ? null : new File(pnlStructureFolder.getLibraryFolder()));
+                StringUtils.isBlank(pnlStructureFolder.getLibraryFolder()) ? null : Path.of(pnlStructureFolder.getLibraryFolder()));
         this.libSettings.setLibraryFolderStructure(pnlStructureFolder.getStructure().getText());
         this.libSettings.setLibraryRemoveEmptyFolders(pnlStructureFolder.isRemoveEmptyFolderSelected());
 
@@ -260,7 +263,7 @@ public abstract class VideoLibraryPanel extends JPanel {
 
         pnlBackup.setBrowseBackupAction(arg0 -> MemoryFolderChooser.getInstance()
                 .selectDirectory(VideoLibraryPanel.this.getRootPane(), Messages.getString("PreferenceDialog.SubtitleBackupFolder"))
-                .map(File::getAbsolutePath).ifPresent(pnlBackup::setBackupSubtitlePath));
+                .map(Path::toAbsolutePath).map(Path::toString).ifPresent(pnlBackup::setBackupSubtitlePath));
     }
 
     private void createStructureFolderPanel() {
@@ -268,7 +271,7 @@ public abstract class VideoLibraryPanel extends JPanel {
 
         pnlStructureFolder.setBrowseAction(arg0 -> MemoryFolderChooser.getInstance()
                 .selectDirectory(VideoLibraryPanel.this.getRootPane(), Messages.getString("PreferenceDialog.LibraryFolder"))
-                .map(File::getAbsolutePath).ifPresent(pnlStructureFolder::setLibraryFolder));
+                .map(Path::toAbsolutePath).map(Path::toString).ifPresent(pnlStructureFolder::setLibraryFolder));
 
         pnlStructureFolder.setBuildStructureAction(arg0 -> {
             final StructureBuilderDialog sDialog = new StructureBuilderDialog(null, Messages.getString("PreferenceDialog.StructureBuilderTitle"),

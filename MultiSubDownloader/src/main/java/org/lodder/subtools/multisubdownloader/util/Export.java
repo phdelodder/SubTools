@@ -1,6 +1,6 @@
 package org.lodder.subtools.multisubdownloader.util;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import org.lodder.subtools.multisubdownloader.lib.xml.XMLExclude;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Created by IntelliJ IDEA. User: lodder Date: 4/20/11 Time: 7:52 AM To change this template use
- * File | Settings | File Templates.
+ * Path | Settings | Path Templates.
  */
 public class Export {
 
@@ -25,16 +25,16 @@ public class Export {
         this.settingsControl = settingsControl;
     }
 
-    public void exclude(Manager manager, File file) {
+    public void exclude(Manager manager, Path file) {
         doExport(manager, ExportListType.EXCLUDE, file);
     }
 
 
-    public void preferences(Manager manager, File file) {
+    public void preferences(Manager manager, Path file) {
         doExport(manager, ExportListType.PREFERENCES, file);
     }
 
-    public void doExport(Manager manager, ExportListType listType, File file) {
+    public void doExport(Manager manager, ExportListType listType, Path file) {
         try {
             switch (listType) {
                 case PREFERENCES -> settingsControl.exportPreferences(file);

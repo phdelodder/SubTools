@@ -67,7 +67,7 @@ public class Menu extends JMenuBar {
     }
 
     private void createComponents() {
-        mnFile = new JMenu(Messages.getString("Menu.File"));
+        mnFile = new JMenu(Messages.getString("Menu.Path"));
         mntmQuit = new JMenuItem(Messages.getString("App.Close"));
         mnBeeld = new JMenu(Messages.getString("Menu.View"));
         mnZoekResulaten = new JMenu(Messages.getString("Menu.SearchResults"));

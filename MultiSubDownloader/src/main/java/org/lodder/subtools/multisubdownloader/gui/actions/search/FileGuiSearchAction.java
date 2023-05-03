@@ -1,9 +1,8 @@
 package org.lodder.subtools.multisubdownloader.gui.actions.search;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.Messages;
@@ -120,13 +119,13 @@ public class FileGuiSearchAction extends GuiSearchAction<SearchFileInputPanel> {
         model.clearTable();
 
         /* get a list of videofiles */
-        List<File> files = getFiles(filePath, language, recursive, overwriteExistingSubtitles);
+        List<Path> files = getFiles(filePath, language, recursive, overwriteExistingSubtitles);
 
         /* create a list of releases from videofiles */
         return createReleases(files);
     }
 
-    private List<Release> createReleases(List<File> files) throws ActionException {
+    private List<Release> createReleases(List<Path> files) throws ActionException {
         /* parse every videofile */
         List<Release> releases = new ArrayList<>();
 
@@ -136,12 +135,12 @@ public class FileGuiSearchAction extends GuiSearchAction<SearchFileInputPanel> {
 
         this.getIndexingProgressListener().progress(progress);
 
-        for (File file : files) {
+        for (Path file : files) {
             index++;
             progress = (int) Math.floor((float) index / total * 100);
 
             /* Tell progressListener which file we are processing */
-            this.getIndexingProgressListener().progress(file.getName());
+            this.getIndexingProgressListener().progress(file.getFileName().toString());
 
             Release r = getReleaseFactory().createRelease(file, getUserInteractionHandler());
             if (r != null) {
@@ -155,11 +154,11 @@ public class FileGuiSearchAction extends GuiSearchAction<SearchFileInputPanel> {
         return releases;
     }
 
-    private List<File> getFiles(String filePath, Language language, boolean recursive, boolean overwriteExistingSubtitles) {
+    private List<Path> getFiles(String filePath, Language language, boolean recursive, boolean overwriteExistingSubtitles) {
         /* Get a list of selected directories */
-        List<File> dirs = new ArrayList<>();
+        List<Path> dirs = new ArrayList<>();
         if (!filePath.isEmpty()) {
-            dirs.add(new File(filePath));
+            dirs.add(Path.of(filePath));
         } else {
             dirs.addAll(this.getSettings().getDefaultFolders());
         }
@@ -171,6 +170,6 @@ public class FileGuiSearchAction extends GuiSearchAction<SearchFileInputPanel> {
         /* Start the getFileListing Action */
         return dirs.stream()
                 .flatMap(dir -> this.filelistAction.getFileListing(dir, recursive, language, overwriteExistingSubtitles).stream())
-                .collect(Collectors.toList());
+                .toList();
     }
 }
