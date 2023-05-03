@@ -6,7 +6,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -14,15 +13,16 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.sublibrary.util.FileUtils;
+import org.lodder.subtools.sublibrary.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,7 +108,7 @@ public class HttpClient {
         boolean success = true;
 
         try (InputStream in = url.getFile().endsWith(".gz") ? new GZIPInputStream(url.openStream()) : getInputStream(url)) {
-            byte[] data = IOUtils.toByteArray(in);
+            byte[] data = in.readAllBytes();
             in.close();
 
             if (url.getFile().endsWith(".zip") || FileUtils.isZipFile(new ByteArrayInputStream(data))) {
@@ -122,9 +122,7 @@ public class HttpClient {
                     LOGGER.error("Download problem: Addic7ed Daily Download count exceeded!");
                     success = false;
                 } else {
-                    try (OutputStream outputStream = Files.newOutputStream(file)) {
-                        IOUtils.write(data, outputStream);
-                    }
+                    Files.write(file, data, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
                 }
             }
         } catch (Exception e) {

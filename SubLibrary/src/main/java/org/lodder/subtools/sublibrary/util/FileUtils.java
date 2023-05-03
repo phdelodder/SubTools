@@ -16,12 +16,9 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class FileUtils {
-
-    private static final int BUF_SIZE = 0x1000; // 4K
 
     public static String getExtension(Path path) {
         return StringUtils.substringAfterLast(path.getFileName().toString(), ".");
@@ -287,12 +284,9 @@ public class FileUtils {
     }
 
     public static boolean isZipFile(InputStream inputStream) throws IOException {
-        int test = -1;
         try (DataInputStream in = new DataInputStream(new BufferedInputStream(inputStream))) {
-            test = in.readInt();
+            return in.readInt() == 0x504b0304;
         }
-
-        return test == 0x504b0304;
     }
 
     /*
@@ -316,11 +310,9 @@ public class FileUtils {
     }
 
     public static byte[] decompressGZip(byte[] data) throws IOException {
-        byte[] decompressedData = null;
         try (ByteArrayInputStream binput = new ByteArrayInputStream(data);
                 GZIPInputStream gzinput = new GZIPInputStream(binput)) {
-            decompressedData = IOUtils.toByteArray(gzinput);
+            return gzinput.readAllBytes();
         }
-        return decompressedData;
     }
 }

@@ -10,8 +10,8 @@ import dnl.utils.text.table.TextTable;
 
 public class CLISearchProgress extends CLIProgress<CLISearchProgress> implements SearchProgressListener {
 
-    TextTable table;
-    SearchProgressTableModel tableModel;
+    private final TextTable table;
+    private final SearchProgressTableModel tableModel;
 
     public CLISearchProgress() {
         tableModel = new SearchProgressTableModel();

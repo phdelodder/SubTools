@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.FilenameUtils;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.JAddic7edApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.exception.Addic7edException;
@@ -120,7 +119,7 @@ public class JAddic7edAdapter extends AbstractAdapter<Addic7edSubtitleDescriptor
                         .quality(ReleaseParser.getQualityKeyword(sub.getTitel() + " " + sub.getVersion()))
                         .subtitleMatchType(SubtitleMatchType.EVERYTHING)
                         .releaseGroup(ReleaseParser.extractReleasegroup(sub.getTitel() + " " + sub.getVersion(),
-                                FilenameUtils.isExtension(sub.getTitel() + " " + sub.getVersion(), "srt")))
+                                (sub.getTitel() + " " + sub.getVersion()).endsWith(".srt")))
                         .uploader(sub.getUploader())
                         .hearingImpaired(false))
                 .collect(Collectors.toSet());

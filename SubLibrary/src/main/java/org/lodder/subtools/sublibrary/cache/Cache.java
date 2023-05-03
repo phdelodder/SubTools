@@ -9,7 +9,6 @@ import java.util.OptionalLong;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.pivovarit.function.ThrowingSupplier;

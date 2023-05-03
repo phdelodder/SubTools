@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.JPodnapisiApi;
@@ -117,7 +116,7 @@ public class JPodnapisiAdapter extends AbstractAdapter<PodnapisiSubtitleDescript
                         .quality(ReleaseParser.getQualityKeyword(ossd.getReleaseString()))
                         .subtitleMatchType(SubtitleMatchType.EVERYTHING)
                         .releaseGroup(ReleaseParser.extractReleasegroup(ossd.getReleaseString(),
-                                FilenameUtils.isExtension(ossd.getReleaseString(), "srt")))
+                                StringUtils.endsWith(ossd.getReleaseString(), ".srt")))
                         .uploader(ossd.getUploaderName())
                         .hearingImpaired(ossd.isHearingImpaired()))
                 .collect(Collectors.toSet());

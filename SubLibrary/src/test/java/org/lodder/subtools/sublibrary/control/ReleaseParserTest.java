@@ -26,8 +26,7 @@ public class ReleaseParserTest {
 
     @Test
     public void testReleaseGroup() throws Exception {
-        String releaseGroup =
-                ReleaseParser.extractReleasegroup("The.Following.S03E01.HDTV.XviD-AFG", false);
+        String releaseGroup = ReleaseParser.extractReleasegroup("The.Following.S03E01.HDTV.XviD-AFG", false);
         assertEquals(releaseGroup, "AFG");
 
         releaseGroup = ReleaseParser.extractReleasegroup("The.Following.S03E01.HDTV.XviD-AFG", true);

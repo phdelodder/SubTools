@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesApi;
@@ -154,7 +153,7 @@ public class JOpenSubAdapter
                 .language(Language.fromIdOptional(attributes.getLanguage()).orElse(null))
                 .quality(ReleaseParser.getQualityKeyword(file.getFileName()))
                 .subtitleMatchType(SubtitleMatchType.EVERYTHING)
-                .releaseGroup(ReleaseParser.extractReleasegroup(file.getFileName(), FilenameUtils.isExtension(file.getFileName(), "srt")))
+                .releaseGroup(ReleaseParser.extractReleasegroup(file.getFileName(), file.getFileName().endsWith(".srt")))
                 .uploader(attributes.getUploader().getName())
                 .hearingImpaired(attributes.isHearingImpaired());
     }

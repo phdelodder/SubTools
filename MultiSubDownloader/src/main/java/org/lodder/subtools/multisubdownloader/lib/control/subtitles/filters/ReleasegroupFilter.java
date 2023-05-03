@@ -3,7 +3,6 @@ package org.lodder.subtools.multisubdownloader.lib.control.subtitles.filters;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -23,8 +22,7 @@ public class ReleasegroupFilter extends Filter {
         for (Subtitle subtitle : Subtitles) {
             // make sure the release is filled up!
             if (subtitle.getReleaseGroup().isEmpty()) {
-                subtitle.setReleaseGroup(ReleaseParser.extractReleasegroup(subtitle.getFileName(),
-                        FilenameUtils.isExtension(subtitle.getFileName(), "srt")));
+                subtitle.setReleaseGroup(ReleaseParser.extractReleasegroup(subtitle.getFileName(), subtitle.getFileName().endsWith(".srt")));
             }
 
             if ((release.getReleaseGroup() != null && StringUtils.containsIgnoreCase(subtitle.getReleaseGroup(), release.getReleaseGroup()))

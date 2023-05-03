@@ -1,7 +1,6 @@
 package org.lodder.subtools.multisubdownloader.settings;
 
 import java.nio.file.Path;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
@@ -14,7 +13,6 @@ import java.util.prefs.Preferences;
 import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.CaseUtils;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
@@ -28,6 +26,8 @@ import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateType;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.util.FileUtils;
+
+import com.google.common.base.CaseFormat;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -265,7 +265,7 @@ public enum SettingValue {
     }
 
     public String getKey() {
-        return CaseUtils.toCamelCase(name(), true, '_');
+        return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
     }
 
     public void store(SettingsControl settingsControl, Preferences preferences) {
