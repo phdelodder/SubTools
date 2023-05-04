@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesApi;
@@ -134,8 +135,8 @@ public class JOpenSubAdapter
 
     @Override
     public Set<Subtitle> convertToSubtitles(TvRelease tvRelease, Collection<org.opensubtitles.model.Subtitle> subtitles, Language language) {
-        String name = tvRelease.getName().replaceAll("[^A-Za-z]", "").toLowerCase();
-        String originalName = tvRelease.getOriginalName().replaceAll("[^A-Za-z]", "").toLowerCase();
+        String name = StringUtils.lowerCase(RegExUtils.replaceAll(tvRelease.getName(), "[^A-Za-z]", ""));
+        String originalName = StringUtils.lowerCase(RegExUtils.replaceAll(tvRelease.getOriginalName(), "[^A-Za-z]", ""));
         return subtitles.stream().map(org.opensubtitles.model.Subtitle::getAttributes)
                 .flatMap(attributes -> attributes.getFiles().stream()
                         .filter(file -> file.getFileName() != null)
