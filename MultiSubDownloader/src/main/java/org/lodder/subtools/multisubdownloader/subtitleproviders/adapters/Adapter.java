@@ -100,7 +100,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
         try {
             return convertToSubtitles(tvRelease, searchSerieSubtitles(tvRelease, language), language);
         } catch (Exception e) {
-            String displayName = StringUtils.isNotBlank(tvRelease.getOriginalName()) ? tvRelease.getOriginalName() : tvRelease.getName();
+            String displayName = StringUtils.defaultIfBlank(tvRelease.getOriginalName(), tvRelease.getName());
             LOGGER.error("API %s searchSubtitles for serie [%s] (%s)".formatted(getSubtitleSource().getName(),
                     TvRelease.formatName(displayName, tvRelease.getSeason(), tvRelease.getFirstEpisodeNumber()), e.getMessage()), e);
             return Set.of();
