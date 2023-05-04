@@ -126,14 +126,6 @@ public class JAddic7edAdapter extends AbstractAdapter<Addic7edSubtitleDescriptor
                 .collect(Collectors.toSet());
     }
 
-    private static boolean hasExtension(String text, String extension) {
-        try {
-            return FilenameUtils.isExtension(text, extension);
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-    }
-
     @Override
     public List<ProviderSerieId> getSortedProviderSerieIds(OptionalInt tvdbIdOptional, String serieName, int season) throws Addic7edException {
         return getApi().getProviderId(serieName).stream()
