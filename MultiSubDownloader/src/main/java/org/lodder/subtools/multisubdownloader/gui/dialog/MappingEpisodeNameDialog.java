@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
+import javax.swing.RowSorter.SortKey;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -251,7 +252,7 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
             {
                 JButton btnDeleteSelectedRow = new JButton(Messages.getString("MappingEpisodeNameDialog.DeleteRow"));
                 btnDeleteSelectedRow.addActionListener(arg0 -> {
-                    int rowNbr = table.getSelectedRow();
+                    int rowNbr = table.convertRowIndexToModel(table.getSelectedRow());
                     MappingTableModel model = (MappingTableModel) table.getModel();
 
                     Row row = (Row) model.getDataVector().get(rowNbr);
@@ -273,7 +274,7 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
 
             {
                 btnAddCustomMapping.addActionListener(arg0 -> {
-                    int rowNbr = table.getSelectedRow();
+                    int rowNbr = table.convertRowIndexToModel(table.getSelectedRow());
                     MappingTableModel model = (MappingTableModel) table.getModel();
 
                     Row row = (Row) model.getDataVector().get(rowNbr);
@@ -294,7 +295,9 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
                                             new SerieMapping(currentName, providerSerieId.getProviderId(), providerSerieId.getProviderName(),
                                                     providerSerieId.getSeason());
                                     row.setSerieMapping(newSerieMapping);
+                                    List<? extends SortKey> sortKeys = table.getRowSorter().getSortKeys();
                                     selectMappingType(selectedMappingType);
+                                    table.getRowSorter().setSortKeys(sortKeys);
                                 }, () -> userInteractionHandler.message(
                                         Messages.getString("MappingEpisodeNameDialog.NoResultsFoundForSerieName", newName),
                                         Messages.getString("App.Info")));

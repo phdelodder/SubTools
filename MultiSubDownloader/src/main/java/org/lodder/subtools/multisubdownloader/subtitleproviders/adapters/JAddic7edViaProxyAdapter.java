@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -103,17 +104,27 @@ public class JAddic7edViaProxyAdapter extends AbstractAdapter<Subtitle, Provider
     }
 
     @Override
-    public List<ProviderSerieId> getSortedProviderSerieIds(String serieName, int season) throws ApiException {
-        List<ProviderSerieId> providerSerieNames =
-                new ExecuteCall<>(() -> getApi().getProviderSerieName(serieName))
-                        .message("getProviderSerieName: [%s]".formatted(serieName))
-                        .retryWhenHttpCode(ReturnCode.RATE_LIMIT_REACHED)
-                        .handleHttpCode(ReturnCode.NOT_FOUND, () -> {
-                            LOGGER.info("API %s - Could not find serie name [%s]".formatted(getProviderName(), serieName));
-                            return List.of();
-                        })
-                        .execute();
-        return providerSerieNames.stream()
+    public List<ProviderSerieId> getSortedProviderSerieIds(OptionalInt tvdbIdOptional, String serieName, int season) throws ApiException {
+        List<ProviderSerieId> serieIds = tvdbIdOptional.mapToObj(tvdbId -> new ExecuteCall<>(() -> getApi().getProviderSerieName(tvdbId))
+                .message("getProviderSerieName: [%s]".formatted(tvdbId))
+                .retryWhenHttpCode(ReturnCode.RATE_LIMIT_REACHED)
+                .handleHttpCode(ReturnCode.NOT_FOUND, () -> {
+                    LOGGER.info("API %s - Could not find tvdbId [%s]".formatted(getProviderName(), tvdbId));
+                    return List.of();
+                })
+                .execute()).orElseGet(List::of);
+
+        if (serieIds.isEmpty()) {
+            serieIds = new ExecuteCall<>(() -> getApi().getProviderSerieName(serieName))
+                    .message("getProviderSerieName: [%s]".formatted(serieName))
+                    .retryWhenHttpCode(ReturnCode.RATE_LIMIT_REACHED)
+                    .handleHttpCode(ReturnCode.NOT_FOUND, () -> {
+                        LOGGER.info("API %s - Could not find serie name [%s]".formatted(getProviderName(), serieName));
+                        return List.of();
+                    })
+                    .execute();
+        }
+        return serieIds.stream()
                 .sorted(Comparator
                         .comparing(n -> !serieName.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(n.getName().replaceAll("[^A-Za-z]", ""))))
                 .toList();

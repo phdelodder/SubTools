@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -125,8 +126,16 @@ public class JAddic7edAdapter extends AbstractAdapter<Addic7edSubtitleDescriptor
                 .collect(Collectors.toSet());
     }
 
+    private static boolean hasExtension(String text, String extension) {
+        try {
+            return FilenameUtils.isExtension(text, extension);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
     @Override
-    public List<ProviderSerieId> getSortedProviderSerieIds(String serieName, int season) throws Addic7edException {
+    public List<ProviderSerieId> getSortedProviderSerieIds(OptionalInt tvdbIdOptional, String serieName, int season) throws Addic7edException {
         return getApi().getProviderId(serieName).stream()
                 .sorted(Comparator.comparing(n -> !serieName.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(n.getName().replaceAll("[^A-Za-z]", ""))))
                 .toList();
@@ -139,6 +148,6 @@ public class JAddic7edAdapter extends AbstractAdapter<Addic7edSubtitleDescriptor
 
     @Override
     public String providerSerieIdToDisplayString(ProviderSerieId providerSerieId) {
-        return providerSerieId.getName() + " - " + providerSerieId.getId();
+        return providerSerieId.getName();
     }
 }

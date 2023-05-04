@@ -111,7 +111,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
 
     Set<Subtitle> convertToSubtitles(TvRelease tvRelease, Collection<T> subtitles, Language language);
 
-    List<S> getSortedProviderSerieIds(String serieName, int season) throws X;
+    List<S> getSortedProviderSerieIds(OptionalInt tvdbIdOptional, String serieName, int season) throws X;
 
     @Override
     default Optional<SerieMapping> getProviderSerieId(TvRelease tvRelease) throws X {
@@ -174,7 +174,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
             }
         }
 
-        List<S> providerSerieIds = getSortedProviderSerieIds(serieNameToSearchFor, seasonToUse);
+        List<S> providerSerieIds = getSortedProviderSerieIds(tvdbIdOptional, serieNameToSearchFor, seasonToUse);
         if (providerSerieIds.isEmpty()) {
             // if no provider serie id's could be found, store a temporary null value with expiration time of 1 day
             // (so the provider isn't contacted every time this method is being called)
@@ -213,16 +213,18 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
                         this::providerSerieIdToDisplayString);
             }
             if (uriForSerie.isEmpty()) {
-                // if no provider serie id was selected, store a temporary null value with expiration time of 1 day,
-                // or the doubled previously temporary value (if present)
-                serieNameValueBuilder
-                        .value(new SerieMapping(serieNameToSearchFor, null, null, seasonToUse))
-                        .storeTempNullValue()
-                        .timeToLive(OptionalExtension
-                                .map(serieNameValueBuilder.getTemporaryTimeToLive(), v -> v * 2)
-                                .orElseGet(() -> TimeUnit.SECONDS.convert(1, TimeUnit.DAYS)))
-                        .storeAsTempValue();
-                previousResultsValueBuilder.collectionValue(providerSerieIds).store();
+                if (serieNameToSearchFor.equals(serieName)) {
+                    // if no provider serie id was selected, store a temporary null value with expiration time of 1 day,
+                    // or the doubled previously temporary value (if present)
+                    serieNameValueBuilder
+                            .value(new SerieMapping(serieNameToSearchFor, null, null, seasonToUse))
+                            .storeTempNullValue()
+                            .timeToLive(OptionalExtension
+                                    .map(serieNameValueBuilder.getTemporaryTimeToLive(), v -> v * 2)
+                                    .orElseGet(() -> TimeUnit.SECONDS.convert(1, TimeUnit.DAYS)))
+                            .storeAsTempValue();
+                    previousResultsValueBuilder.collectionValue(providerSerieIds).store();
+                }
                 return Optional.empty();
             }
             // create a serieMapping for the selected value

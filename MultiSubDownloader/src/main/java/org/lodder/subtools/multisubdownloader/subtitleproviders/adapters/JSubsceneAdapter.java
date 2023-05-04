@@ -114,7 +114,7 @@ public class JSubsceneAdapter extends AbstractAdapter<SubsceneSubtitleDescriptor
     }
 
     @Override
-    public List<SubSceneSerieId> getSortedProviderSerieIds(String serieName, int season) throws SubsceneException {
+    public List<SubSceneSerieId> getSortedProviderSerieIds(OptionalInt tvdbIdOptional, String serieName, int season) throws SubsceneException {
         ToIntFunction<String> providerTypeFunction = value -> switch (value) {
             case "TV-Serie" -> 1;
             case "Exact" -> 2;

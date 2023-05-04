@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -159,7 +160,8 @@ public class JOpenSubAdapter
     }
 
     @Override
-    public List<OpensubtitleSerieId> getSortedProviderSerieIds(String serieName, int season) throws OpenSubtitlesException {
+    public List<OpensubtitleSerieId> getSortedProviderSerieIds(OptionalInt tvdbIdOptional, String serieName, int season)
+            throws OpenSubtitlesException {
         return getApi().getProviderSerieIds(serieName).stream()
                 .sorted(Comparator.comparing(
                         (OpensubtitleSerieId n) -> !serieName.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(n.getName().replaceAll("[^A-Za-z]", "")))

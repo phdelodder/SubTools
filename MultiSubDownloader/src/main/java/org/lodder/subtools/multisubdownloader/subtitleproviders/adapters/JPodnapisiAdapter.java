@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -123,7 +124,7 @@ public class JPodnapisiAdapter extends AbstractAdapter<PodnapisiSubtitleDescript
     }
 
     @Override
-    public List<ProviderSerieId> getSortedProviderSerieIds(String serieName, int season) throws PodnapisiException {
+    public List<ProviderSerieId> getSortedProviderSerieIds(OptionalInt tvdbIdOptional, String serieName, int season) throws PodnapisiException {
         return getApi().getPodnapisiShowName(serieName).stream().toList();
     }
 
