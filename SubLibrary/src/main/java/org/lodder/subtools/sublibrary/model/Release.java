@@ -47,6 +47,10 @@ public abstract class Release extends Video {
         return StringUtils.substringAfterLast(getFileName(), ".");
     }
 
+    public boolean hasExtension(String extension) {
+        return StringUtils.endsWith(getFileName(), "." + extension);
+    }
+
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + ": " + this.getFileName() + " " + this.getQuality();

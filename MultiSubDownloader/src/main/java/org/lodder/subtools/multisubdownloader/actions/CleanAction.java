@@ -4,19 +4,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.util.FileUtils;
+import org.lodder.subtools.sublibrary.util.StreamExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import lombok.experimental.ExtensionMethod;
 
-@ExtensionMethod({ StringUtils.class, FileUtils.class, Files.class })
+@ExtensionMethod({ StringUtils.class, FileUtils.class, Files.class, StreamExtension.class })
 public class CleanAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CleanAction.class);
@@ -35,21 +35,19 @@ public class CleanAction {
             throw new IllegalArgumentException("Destination [%s] is not a folder".formatted(destination));
         }
 
-        List<Path> paths = release.getPath().list().filter(p -> (p.isDirectory() && p.fileNameContainsIgnoreCase(sampleDirName))
-                || (p.isRegularFile() && fileFilters.contains(p.getExtension()))).toList();
-
-        for (Path p : paths) {
-            switch (librarySettings.getLibraryOtherFileAction()) {
-                case MOVE -> move(p, destination);
-                case MOVEANDRENAME -> moveAndRename(p, destination, videoFileName);
-                case REMOVE -> delete(p);
-                case RENAME -> rename(p, destination, videoFileName);
-                case NOTHING -> {
-                }
-                default -> {
-                }
-            }
-        }
+        release.getPath().list().asThrowingStream(IOException.class)
+                .filter(p -> (p.isDirectory() && p.fileNameContainsIgnoreCase(sampleDirName))
+                        || (p.isRegularFile() && fileFilters.contains(p.getExtension())))
+                .forEach(p -> {
+                    switch (librarySettings.getLibraryOtherFileAction()) {
+                        case MOVE -> move(p, destination);
+                        case MOVEANDRENAME -> moveAndRename(p, destination, videoFileName);
+                        case REMOVE -> delete(p);
+                        case RENAME -> rename(p, destination, videoFileName);
+                        case NOTHING -> {}
+                        default -> {}
+                    }
+                });
     }
 
     private void rename(Path path, Path destinationFolder, String videoFileName) throws IOException {
@@ -59,9 +57,9 @@ public class CleanAction {
             if (!extension.isBlank()) {
                 extension = "." + extension;
             }
-            Files.move(path, path.resolveSibling(fileName + extension));
+            path.move(path.resolveSibling(fileName + extension));
         } else {
-            FileUtils.moveToDir(path, destinationFolder);
+            path.moveToDir(destinationFolder);
         }
     }
 
@@ -76,9 +74,9 @@ public class CleanAction {
             if (!extension.isBlank()) {
                 extension = "." + extension;
             }
-            Files.move(path, destinationFolder.resolve(fileName + extension));
+            path.moveToDirAndRename(destinationFolder, fileName + extension);
         } else {
-            FileUtils.moveToDir(path, destinationFolder);
+            path.moveToDir(destinationFolder);
         }
     }
 

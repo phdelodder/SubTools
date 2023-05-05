@@ -33,7 +33,7 @@ public class RenameAction {
 
     public void rename(Path f, Release release) {
         String filename = switch (librarySettings.getLibraryAction()) {
-            case MOVE, NOTHING -> f.getFileName().toString();
+            case MOVE, NOTHING -> f.getFileNameAsString();
             case MOVEANDRENAME -> getNewFilename(f, release);
             case RENAME -> getNewFilename(f, release);
             default -> "";
@@ -78,7 +78,7 @@ public class RenameAction {
     private String getNewFilename(Path f, Release release) {
         FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager, userInteractionHandler);
         String filename = filenameLibraryBuilder.build(release).toString();
-        if ("srt".equals(release.getExtension())) {
+        if (release.hasExtension("srt")) {
             Language language = null;
             if (librarySettings.isLibraryIncludeLanguageCode()) {
                 language = DetectLanguage.execute(f);
