@@ -106,10 +106,10 @@ public class NamedMatcher implements NamedMatchResult {
     }
 
     @Override
-    public Map<String, String> namedGroups() {
+    public Map<String, Integer> namedGroups() {
         return IntStream.rangeClosed(1, groupCount()).sequential()
                 .collect(LinkedHashMap::new,
-                        (map, i) -> map.put(parentPattern.groupNames().get(i - 1), matcher.group(i)),
+                        (map, i) -> map.put(parentPattern.groupNames().get(i - 1), i),
                         Map::putAll);
     }
 

@@ -24,8 +24,6 @@ import lombok.experimental.Accessors;
 
 public class InputPane {
 
-    private static final long serialVersionUID = 1L;
-
     private InputPane() {
         // hide constructor
     }

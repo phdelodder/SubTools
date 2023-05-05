@@ -11,7 +11,7 @@ public class Messages {
     private static final String BUNDLE_NAME = "messages";
     private static final Language DEFAULT_LANGUAGE = Language.ENGLISH;
     private static Language LANGUAGE;
-    private static ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME, new Locale(DEFAULT_LANGUAGE.getLangCode()));
+    private static ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME, Locale.forLanguageTag(DEFAULT_LANGUAGE.getLangCode()));
 
     private Messages() {
     }
@@ -34,7 +34,7 @@ public class Messages {
 
     public static void setLanguage(Language language) {
         LANGUAGE = language;
-        RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME, new Locale(language.getLangCode()));
+        RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME, Locale.forLanguageTag(language.getLangCode()));
     }
 
     public static Language getLanguage() {

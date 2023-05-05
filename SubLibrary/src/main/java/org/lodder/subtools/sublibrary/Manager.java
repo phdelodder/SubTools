@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -58,8 +59,8 @@ public class Manager {
 
     public boolean store(String downloadlink, Path file) throws ManagerException {
         try {
-            return httpClient.doDownloadFile(new URL(downloadlink), file);
-        } catch (MalformedURLException e) {
+            return httpClient.doDownloadFile(new URI(downloadlink).toURL(), file);
+        } catch (MalformedURLException | URISyntaxException e) {
             throw new ManagerException("incorrect url", e);
         }
     }
@@ -120,8 +121,8 @@ public class Manager {
         @Override
         public String post() throws ManagerException {
             try {
-                return httpClient.doPost(new URL(url), userAgent, data == null ? new HashMap<>() : data);
-            } catch (MalformedURLException e) {
+                return httpClient.doPost(new URI(url).toURL(), userAgent, data == null ? new HashMap<>() : data);
+            } catch (MalformedURLException | URISyntaxException e) {
                 throw new ManagerException("incorrect url", e);
             } catch (HttpClientSetupException | HttpClientException e) {
                 throw new ManagerException(e);
@@ -270,7 +271,7 @@ public class Manager {
 
         private String getContentWithoutCache(String urlString, String userAgent) throws ManagerException {
             try {
-                return httpClient.doGet(new URL(urlString), userAgent);
+                return httpClient.doGet(new URI(urlString).toURL(), userAgent);
             } catch (MalformedURLException e) {
                 if (retries-- > 0 && retryPredicate.test(e)) {
                     return getContentWithoutCache(urlString, userAgent);
@@ -292,6 +293,8 @@ public class Manager {
                     return getContentWithoutCache(urlString, userAgent);
                 }
                 throw new ManagerException(e);
+            } catch (URISyntaxException e) {
+                throw new ManagerException("Error occured creating url [%s]: %s".formatted(urlString, e.getMessage()), e);
             }
         }
     }

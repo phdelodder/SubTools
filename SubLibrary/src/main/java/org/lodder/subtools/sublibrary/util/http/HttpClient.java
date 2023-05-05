@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -87,7 +89,7 @@ public class HttpClient {
             cookieManager.storeCookies(conn);
 
             if ((conn.getResponseCode() == 302) && isUrl(conn.getHeaderField("Location"))) {
-                return doGet(new URL(conn.getHeaderField("Location")), userAgent);
+                return doGet(new URI(conn.getHeaderField("Location")).toURL(), userAgent);
             }
 
             String result = IOUtils.toString(conn.getInputStream(), StandardCharsets.UTF_8);
@@ -96,6 +98,8 @@ public class HttpClient {
 
         } catch (IOException e) {
             throw new HttpClientException(e, conn);
+        } catch (URISyntaxException e) {
+            throw new HttpClientSetupException(e);
         } finally {
             if (conn != null) {
                 conn.disconnect();
@@ -147,12 +151,11 @@ public class HttpClient {
             if (status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM
                     || status == HttpURLConnection.HTTP_SEE_OTHER) {
                 if (HttpClient.isUrl(conn.getHeaderField("Location"))) {
-                    url = new URL(conn.getHeaderField("Location"));
+                    url = new URI(conn.getHeaderField("Location")).toURL();
                 } else {
                     String protocol = url.getProtocol();
                     String host = conn.getURL().getHost();
-                    url = new URL(protocol + "://" + host + "/"
-                            + conn.getHeaderField("Location").trim().replace(" ", "%20"));
+                    url = new URI("%s://%s/%s".formatted(protocol, host, conn.getHeaderField("Location").trim().replace(" ", "%20"))).toURL();
                 }
                 return getInputStream(url);
             }
@@ -170,9 +173,11 @@ public class HttpClient {
         return matcher.find();
     }
 
-    public String downloadText(String url) throws java.io.IOException {
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(new URL(url).openStream(), StandardCharsets.UTF_8))) {
+    public String downloadText(String url) throws IOException {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(new URI(url).toURL().openStream(), StandardCharsets.UTF_8))) {
             return in.lines().collect(Collectors.joining());
+        } catch (URISyntaxException e) {
+            throw new IOException(e.getMessage(), e);
         }
     }
 
