@@ -22,7 +22,7 @@ public class Info {
                 case OPENSUBTITLES -> settings.isSerieSourceOpensubtitles();
                 case PODNAPISI -> settings.isSerieSourcePodnapisi();
                 case TVSUBTITLES -> settings.isSerieSourceTvSubtitles();
-                default -> false;
+                case SUBSCENE -> settings.isSerieSourceSubscene();
             };
             if (isCli) {
                 System.out.println(" - provider : " + source.toString() + " enabled: " + enabled);

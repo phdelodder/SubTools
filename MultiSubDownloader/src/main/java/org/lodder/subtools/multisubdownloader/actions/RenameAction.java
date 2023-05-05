@@ -36,7 +36,6 @@ public class RenameAction {
             case MOVE, NOTHING -> f.getFileNameAsString();
             case MOVEANDRENAME -> getNewFilename(f, release);
             case RENAME -> getNewFilename(f, release);
-            default -> "";
         };
         LOGGER.trace("rename: filename [{}]", filename);
 

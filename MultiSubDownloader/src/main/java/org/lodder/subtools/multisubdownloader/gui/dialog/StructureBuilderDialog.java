@@ -186,7 +186,6 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
         return switch (videoType) {
             case EPISODE -> tvRelease;
             case MOVIE -> movieRelease;
-            default -> null;
         };
     }
 

@@ -41,7 +41,6 @@ public class ReleaseFactory {
             releaseControl = switch (r.getVideoType()) {
                 case EPISODE -> new TvReleaseControl((TvRelease) r, settings, manager, userInteractionHandler);
                 case MOVIE -> new MovieReleaseControl((MovieRelease) r, settings, manager, userInteractionHandler);
-                default -> releaseControl;
             };
             releaseControl.process();
             r = releaseControl.getVideoFile();

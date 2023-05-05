@@ -218,7 +218,7 @@ public class Manager {
             return switch (cacheType) {
                 case NONE -> getContentWithoutCache(url, userAgent);
                 case MEMORY -> inMemoryCache.getOrPut(url, () -> getContentWithoutCache(url, userAgent));
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
+                case DISK -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 
@@ -643,7 +643,6 @@ public class Manager {
                 case NONE -> valueSupplier.get();
                 case MEMORY -> getOrPutValue(inMemoryCache);
                 case DISK -> getOrPutValue(diskCache);
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 
@@ -678,7 +677,6 @@ public class Manager {
                 case NONE -> collectionSupplier.get();
                 case MEMORY -> getOrPutCollection(inMemoryCache);
                 case DISK -> getOrPutCollection(diskCache);
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 
@@ -706,14 +704,12 @@ public class Manager {
                     case NONE -> Optional.empty();
                     case MEMORY -> inMemoryCache.get(key);
                     case DISK -> diskCache.get(key);
-                    default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
                 };
             }
             return switch (cacheType) {
                 case NONE -> optionalSupplier.get();
                 case MEMORY -> getOrPutOptional(inMemoryCache);
                 case DISK -> getOrPutOptional(diskCache);
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 
@@ -747,7 +743,6 @@ public class Manager {
                 case NONE -> optionalIntSupplier.get();
                 case MEMORY -> getOrPutOptionalInt(inMemoryCache);
                 case DISK -> getOrPutOptionalInt(diskCache);
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 
@@ -781,7 +776,6 @@ public class Manager {
                 case NONE -> List.of();
                 case MEMORY -> inMemoryCache.getEntries(keyFilter);
                 case DISK -> diskCache.getEntries(keyFilter);
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 
@@ -795,7 +789,6 @@ public class Manager {
                 case NONE -> false;
                 case MEMORY -> inMemoryCache.contains(key);
                 case DISK -> diskCache.contains(key);
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 
@@ -809,7 +802,6 @@ public class Manager {
                 case NONE -> false;
                 case MEMORY -> inMemoryCache.isTemporaryExpired(key);
                 case DISK -> diskCache.isTemporaryExpired(key);
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 
@@ -819,7 +811,6 @@ public class Manager {
                 case NONE -> false;
                 case MEMORY -> inMemoryCache.isTemporaryObject(key);
                 case DISK -> diskCache.isTemporaryObject(key);
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 
@@ -829,7 +820,6 @@ public class Manager {
                 case NONE -> OptionalLong.of(0);
                 case MEMORY -> getTemporaryTimeToLive(inMemoryCache);
                 case DISK -> getTemporaryTimeToLive(diskCache);
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 
