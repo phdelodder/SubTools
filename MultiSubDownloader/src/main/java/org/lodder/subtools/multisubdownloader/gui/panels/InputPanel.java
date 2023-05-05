@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
+import java.io.Serial;
 import java.util.Arrays;
 
 import javax.swing.DefaultComboBoxModel;
@@ -14,6 +15,7 @@ import org.lodder.subtools.sublibrary.Language;
 
 public abstract class InputPanel extends JPanel {
 
+    @Serial
     private static final long serialVersionUID = 7753220002440733463L;
     private JButton btnSearch;
     private JComboBox<LanguageWrapper> cbxLanguage;

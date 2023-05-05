@@ -9,7 +9,6 @@ import org.lodder.subtools.multisubdownloader.CLI;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandlerCLI;
-import org.lodder.subtools.multisubdownloader.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.actions.FileListAction;
 import org.lodder.subtools.multisubdownloader.actions.SearchAction;
 import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
@@ -157,7 +156,7 @@ public class CliSearchAction extends SearchAction {
     }
 
     @Override
-    protected List<Release> createReleases() throws ActionException {
+    protected List<Release> createReleases() {
         fileListAction.setIndexingProgressListener(this.getIndexingProgressListener());
 
         List<Path> files = this.folders.stream()
@@ -165,7 +164,7 @@ public class CliSearchAction extends SearchAction {
                 .toList();
 
         /* fix: remove carriage return from progressbar */
-        System.out.println("");
+        System.out.println();
 
         int total = files.size();
         int index = 0;

@@ -1,5 +1,6 @@
 package org.lodder.subtools.sublibrary.data;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import lombok.EqualsAndHashCode;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 @EqualsAndHashCode
 public class ProviderSerieId implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = -120703658294502220L;
     private final String name;
     private final String id;

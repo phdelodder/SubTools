@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
+import java.io.Serial;
 import java.util.ArrayList;
 
 import javax.swing.JComboBox;
@@ -13,6 +14,7 @@ import java.awt.Component;
  * @author http://vetruvet.blogspot.com/2011/03/jcombobox-with-disabled-items.html
  */
 public class PartialDisableComboBox extends JComboBox<Object> {
+    @Serial
     private static final long serialVersionUID = -1690671707274328126L;
 
     private final ArrayList<Boolean> itemsState = new ArrayList<>();
@@ -23,6 +25,7 @@ public class PartialDisableComboBox extends JComboBox<Object> {
             addItem(o);
         }
         this.setRenderer(new BasicComboBoxRenderer() {
+            @Serial
             private static final long serialVersionUID = -2774241371293899669L;
 
             @SuppressWarnings("rawtypes")

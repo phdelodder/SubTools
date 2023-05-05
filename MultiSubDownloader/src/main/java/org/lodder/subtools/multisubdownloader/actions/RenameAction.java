@@ -34,8 +34,7 @@ public class RenameAction {
     public void rename(Path f, Release release) {
         String filename = switch (librarySettings.getLibraryAction()) {
             case MOVE, NOTHING -> f.getFileNameAsString();
-            case MOVEANDRENAME -> getNewFilename(f, release);
-            case RENAME -> getNewFilename(f, release);
+            case MOVEANDRENAME, RENAME -> getNewFilename(f, release);
         };
         LOGGER.trace("rename: filename [{}]", filename);
 

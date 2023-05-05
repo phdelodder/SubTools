@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.subscene;
 
+import java.io.Serial;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -33,8 +34,6 @@ import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.lodder.subtools.sublibrary.util.http.HttpClientException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +42,6 @@ import lombok.experimental.ExtensionMethod;
 @ExtensionMethod({ OptionalExtension.class })
 public class SubsceneApi extends Html implements SubtitleApi {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SubsceneApi.class);
     private static final int RATEDURATION_SHORT = 1; // seconds
     private static final int RATEDURATION_LONG = 5; // seconds
     private static final String DOMAIN = "https://subscene.com";
@@ -66,10 +64,9 @@ public class SubsceneApi extends Html implements SubtitleApi {
     }
 
     /**
-     *
      * @param serieName the serie name
      * @return a {@link Map} containing a list of {@link ProviderSerieId provider serie ids} per type
-     * @throws SubsceneException
+     * @throws SubsceneException SubsceneException
      */
     public Map<String, List<SubSceneSerieId>> getSubSceneSerieNames(String serieName) throws SubsceneException {
         try {
@@ -150,7 +147,7 @@ public class SubsceneApi extends Html implements SubtitleApi {
         }
     }
 
-    private void setIncludeHearingImpairedWithCookier(boolean includeHearingImpaired) {
+    private void setIncludeHearingImpairedWithCookie(boolean includeHearingImpaired) {
         if (selectedIncludeHearingImpaired != includeHearingImpaired) {
             addCookie("HearingImpaired", includeHearingImpaired ? "2" : "0");
             selectedIncludeHearingImpaired = includeHearingImpaired;
@@ -167,6 +164,7 @@ public class SubsceneApi extends Html implements SubtitleApi {
     }
 
     private static final Map<Language, Integer> SUBSCENE_LANGS = Collections.unmodifiableMap(new EnumMap<>(Language.class) {
+        @Serial
         private static final long serialVersionUID = 2950169212654074275L;
 
         {

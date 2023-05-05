@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 
 public class SubtitleTableModel extends DefaultTableModel {
 
+    @Serial
     private static final long serialVersionUID = 4205143311042280620L;
 
     private final Class<?>[] columnTypes;

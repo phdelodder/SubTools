@@ -134,7 +134,7 @@ public class JSubsceneAdapter extends AbstractAdapter<SubsceneSubtitleDescriptor
                             }
                             return 0;
                         }, Comparator.reverseOrder())
-                        .thenComparing((SubSceneSerieId serieId) -> serieId.getSeason(), Comparator.reverseOrder()))
+                        .thenComparing(SubSceneSerieId::getSeason, Comparator.reverseOrder()))
                 .distinct()
                 .toList();
     }

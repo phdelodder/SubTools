@@ -9,11 +9,13 @@ import org.lodder.subtools.multisubdownloader.Messages;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.io.Serial;
 
 import net.miginfocom.swing.MigLayout;
 
 public class Splash extends JWindow {
 
+    @Serial
     private static final long serialVersionUID = -7795482367449509520L;
     private JLabel label;
     private JProgressBar progressBar;

@@ -5,6 +5,8 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+import java.io.Serial;
+
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.ToStringListCellRenderer;
 import org.lodder.subtools.sublibrary.model.VideoSearchType;
@@ -13,6 +15,7 @@ import net.miginfocom.swing.MigLayout;
 
 public class SearchTextInputPanel extends InputPanel {
 
+    @Serial
     private static final long serialVersionUID = 7030171360517948253L;
     private JComboBox<VideoSearchType> cbxVideoType;
     protected JTextField txtInputSeason;
@@ -100,7 +103,7 @@ public class SearchTextInputPanel extends InputPanel {
         } catch (NumberFormatException e) {
             season = 0;
         }
-        txtInputSeason.setText("" + season);
+        txtInputSeason.setText(String.valueOf(season));
 
         return season;
     }
@@ -113,7 +116,7 @@ public class SearchTextInputPanel extends InputPanel {
         } catch (NumberFormatException e) {
             episode = 0;
         }
-        txtInputEpisode.setText("" + episode);
+        txtInputEpisode.setText(String.valueOf(episode));
 
         return episode;
     }

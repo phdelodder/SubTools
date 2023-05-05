@@ -99,7 +99,6 @@ public class XMLHelper {
         try (OutputStream os = Files.newOutputStream(file)) {
             byte[] xmlStringContent = xmlString.getBytes(StandardCharsets.UTF_8);
             os.write(xmlStringContent);
-            os.close();
         }
     }
 

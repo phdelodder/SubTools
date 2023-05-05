@@ -1,5 +1,6 @@
 package org.lodder.subtools.sublibrary.settings.model;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.function.Function;
 
@@ -10,8 +11,9 @@ import lombok.ToString;
 @ToString
 public class SerieMapping implements Serializable { // implements SerieMappingIntf {
 
+    @Serial
     private static final long serialVersionUID = 6551798252915028805L;
-    private transient static final Function<String, String> NAME_FORMATTER = name -> name.replaceAll("[^A-Za-z]", "");
+    private static final Function<String, String> NAME_FORMATTER = name -> name.replaceAll("[^A-Za-z]", "");
     private final String name;
     private final String providerId;
     private final String providerName;

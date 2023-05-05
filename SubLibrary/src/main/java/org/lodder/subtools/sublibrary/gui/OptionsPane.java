@@ -17,7 +17,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class OptionsPane {
 
-    public static Object LOCK = new Object();
+    public static final Object LOCK = new Object();
 
     public static <T> OptionsPaneBuilderToStringMapperIntf<T> options(Collection<T> options) {
         return OptionsPaneBuilder.options(options);
@@ -104,7 +104,7 @@ public class OptionsPane {
                 if (toStringMapper == null) {
                     T[] options;
                     if (optionsList != null) {
-                        options = (T[]) optionsList.stream().toArray(Object[]::new);
+                        options = (T[]) optionsList.toArray();
                     } else {
                         options = optionsArray;
                     }

@@ -1,10 +1,13 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.exception;
 
+import java.io.Serial;
+
 import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 
 public class PodnapisiException extends SubtitlesProviderException {
 
+    @Serial
     private static final long serialVersionUID = -2390367212064062005L;
 
     public PodnapisiException() {

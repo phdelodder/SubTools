@@ -16,11 +16,13 @@ import org.lodder.subtools.sublibrary.model.Release;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.Serial;
 
 import net.miginfocom.swing.MigLayout;
 
 public class SearchProgressDialog extends MultiSubDialog implements SearchProgressListener {
 
+    @Serial
     private static final long serialVersionUID = -1331536352530988442L;
     private final Cancelable searchAction;
     private final GUI window;

@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
+import java.io.Serial;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,6 +38,7 @@ import net.miginfocom.swing.MigLayout;
 
 public class StructureBuilderDialog extends MultiSubDialog implements DocumentListener {
 
+    @Serial
     private static final long serialVersionUID = -5174968778375028124L;
     private final JPanel contentPanel = new JPanel();
     private JTextField txtStructure;
@@ -259,6 +261,7 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
     }
 
     private static final Map<String, String> EPISODE_TAGS = Collections.unmodifiableMap(new HashMap<>() {
+        @Serial
         private static final long serialVersionUID = 3313041588123263612L;
         {
             put("%SHOW NAME%", Messages.getString("StructureBuilderDialog.NameTvShow"));
@@ -276,6 +279,7 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
     });
 
     private static final Map<String, String> MOVIE_TAGS = Collections.unmodifiableMap(new HashMap<>() {
+        @Serial
         private static final long serialVersionUID = 5943868685951628245L;
         {
             put("%MOVIE TITLE%", Messages.getString("StructureBuilderDialog.MovieName"));
@@ -287,6 +291,7 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
     });
 
     private static final Map<String, String> FOLDER_TAGS = Collections.unmodifiableMap(new HashMap<>() {
+        @Serial
         private static final long serialVersionUID = 5943868685951628245L;
         {
             put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));

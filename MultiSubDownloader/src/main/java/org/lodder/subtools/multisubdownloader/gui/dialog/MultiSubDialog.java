@@ -5,9 +5,11 @@ import javax.swing.JFrame;
 
 import java.awt.Frame;
 import java.awt.Rectangle;
+import java.io.Serial;
 
 public class MultiSubDialog extends JDialog {
 
+    @Serial
     private static final long serialVersionUID = -2357021997104425566L;
 
     public MultiSubDialog(JFrame frame, String title, boolean modal) {

@@ -105,11 +105,9 @@ public class VideoPatterns {
             }
         }
 
-        if (VideoPatterns.QUALITYREGEXKEYWORDS.length > 0) {
-            for (String element : VideoPatterns.QUALITYREGEXKEYWORDS) {
-                sb.append(separator);
-                sb.append(element);
-            }
+        for (String element : VideoPatterns.QUALITYREGEXKEYWORDS) {
+            sb.append(separator);
+            sb.append(element);
         }
 
         sb.append(")");

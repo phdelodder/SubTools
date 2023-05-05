@@ -127,7 +127,7 @@ public class JTVSubtitlesApi extends Html implements SubtitleApi {
                 .key("%s-episodeUrl-%s-%s-%s".formatted(getSubtitleSource().name(), showUrl, season, episode))
                 .optionalSupplier(() -> {
                     try {
-                        String formatedSeasonEpisode = season + "x" + (episode < 10 ? "0" + episode : "" + episode);
+                        String formatedSeasonEpisode = season + "x" + (episode < 10 ? "0" + episode : String.valueOf(episode));
                         return getHtml(showUrl.replace(".html", "-" + season + ".html"))
                                 .getAsJsoupDocument()
                                 .getElementById("table5").getElementsByTag("tr").stream().skip(1)

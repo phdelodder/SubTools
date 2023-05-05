@@ -12,8 +12,6 @@ import org.lodder.subtools.sublibrary.data.tvdb.exception.TheTvdbException;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbEpisode;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbSerie;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.uwetrottmann.thetvdb.TheTvdb;
 import com.uwetrottmann.thetvdb.entities.Episode;
@@ -30,7 +28,6 @@ import retrofit2.Response;
 @ExtensionMethod({ OptionalExtension.class })
 public class TheTvdbApi {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TheTvdbApi.class);
     @Getter(value = AccessLevel.PRIVATE)
     private final Manager manager;
     private final TheTvdb theTvdb;

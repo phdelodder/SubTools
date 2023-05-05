@@ -47,12 +47,12 @@ abstract class AbstractAdapter<T, S extends ProviderSerieId, X extends Exception
 
         public E retryWhenException(Predicate<X> predicate) {
             retryPredicates.add(predicate);
-            return (E) this;
+            return getThis();
         }
 
         public E handleException(Predicate<X> predicate, Function<X, T> exceptionFunction) {
             exceptionHandlers.add(new HandleException<>(predicate, exceptionFunction));
-            return (E) this;
+            return getThis();
         }
 
         public E handleException(Predicate<X> predicate, Supplier<T> supplier) {
@@ -72,14 +72,15 @@ abstract class AbstractAdapter<T, S extends ProviderSerieId, X extends Exception
                 throw new IllegalStateException("Retries should be greater than 0");
             }
             this.retries = retries;
-            return (E) this;
+            return getThis();
         }
 
         public E message(String message) {
             this.message = message;
-            return (E) this;
+            return getThis();
         }
 
+        @SuppressWarnings("unchecked")
         public T execute() throws X {
             try {
                 return supplier.get();
@@ -107,6 +108,11 @@ abstract class AbstractAdapter<T, S extends ProviderSerieId, X extends Exception
                     }
                 }
             }
+        }
+
+        @SuppressWarnings("unchecked")
+        private E getThis() {
+            return (E) this;
         }
     }
 }

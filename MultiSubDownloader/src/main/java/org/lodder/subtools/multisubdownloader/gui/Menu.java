@@ -8,9 +8,11 @@ import javax.swing.JMenuItem;
 import org.lodder.subtools.multisubdownloader.Messages;
 
 import java.awt.event.ActionListener;
+import java.io.Serial;
 
 public class Menu extends JMenuBar {
 
+    @Serial
     private static final long serialVersionUID = -7384297314593169280L;
     private JMenu mnFile;
     private JMenuItem mntmQuit;

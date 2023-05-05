@@ -29,15 +29,12 @@ import org.lodder.subtools.sublibrary.data.ProviderSerieId;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod({ OptionalExtension.class })
 public class JAddic7edApi extends Html implements SubtitleApi {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edApi.class);
     private static final long RATEDURATION = 1; // seconds
     private static final String DOMAIN = "https://www.addic7ed.com";
     private final static Pattern TITLE_PATTERN = Pattern.compile(".*? - [0-9]+x[0-9]+ - (.*)");
@@ -132,8 +129,8 @@ public class JAddic7edApi extends Html implements SubtitleApi {
                         }
                     }
 
-                    String uploader, version, lang, download = null;
-                    boolean hearingImpaired = false;
+                    String uploader, version, lang, download;
+                    boolean hearingImpaired;
                     Elements blocks = doc.get().select(".tabel95[width='100%']");
 
                     List<Addic7edSubtitleDescriptor> lSubtitles = new ArrayList<>();

@@ -52,7 +52,7 @@ public abstract class DiskCache<K, V> extends Cache<K, V> {
                 }
                 Class.forName("org.hsqldb.jdbcDriver");
                 Connection connection = DriverManager.getConnection(
-                        "jdbc:hsqldb:file:" + path.toString() + "/diskcache.hsqldb;hsqldb.write_delay=false;shutdown=true", "user", "pass");
+                        "jdbc:hsqldb:file:" + path + "/diskcache.hsqldb;hsqldb.write_delay=false;shutdown=true", "user", "pass");
 
                 try (Statement stmt = connection.createStatement()) {
                     stmt.execute("create table IF NOT EXISTS %s (key %s, cacheobject %s);".formatted(tableName,
@@ -96,7 +96,7 @@ public abstract class DiskCache<K, V> extends Cache<K, V> {
                         LOGGER.error("Error while deleting the cache file, please delete it yourself: %s (%s)".formatted(path, e.getMessage()), e);
                     }
                     connection = DriverManager.getConnection(
-                            "jdbc:hsqldb:file:" + path.toString() + "/diskcache.hsqldb;hsqldb.write_delay=false;shutdown=true", "user", "pass");
+                            "jdbc:hsqldb:file:" + path + "/diskcache.hsqldb;hsqldb.write_delay=false;shutdown=true", "user", "pass");
                 }
                 return connection;
             }
@@ -118,9 +118,6 @@ public abstract class DiskCache<K, V> extends Cache<K, V> {
 
     protected DiskCache(Long timeToLiveSeconds, Integer maxItems, String username, String password, String tableName) {
         super(maxItems);
-        if (timeToLiveSeconds != null && timeToLiveSeconds < 1) {
-            throw new IllegalStateException("maxItems should be a positive number");
-        }
         if (timeToLiveSeconds != null && timeToLiveSeconds < 1) {
             throw new IllegalStateException("timeToLive should be a positive number");
         }
@@ -197,7 +194,7 @@ public abstract class DiskCache<K, V> extends Cache<K, V> {
         }
     }
 
-    private final void putFromMemoryCache(K key) {
+    private void putFromMemoryCache(K key) {
         synchronized (LOCK) {
             try (PreparedStatement prep = getConnection().prepareCall("INSERT INTO %s (key,cacheobject) VALUES (?,?)".formatted(tableName))) {
                 prep.clearParameters();

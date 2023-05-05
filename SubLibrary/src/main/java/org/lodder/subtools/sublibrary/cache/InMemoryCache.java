@@ -1,8 +1,6 @@
 package org.lodder.subtools.sublibrary.cache;
 
 import java.io.Serializable;
-import java.util.Iterator;
-import java.util.Map.Entry;
 import java.util.function.Predicate;
 
 import lombok.AccessLevel;
@@ -17,7 +15,7 @@ public class InMemoryCache<K, V> extends Cache<K, V> {
 
     protected InMemoryCache(Long timeToLiveSeconds, Long timerIntervalSeconds, Integer maxItems) {
         super(maxItems);
-        if (timeToLiveSeconds != null && timeToLiveSeconds < 1) {
+        if (maxItems != null && maxItems < 1) {
             throw new IllegalStateException("maxItems should be a positive number");
         }
         if (timerIntervalSeconds != null && timerIntervalSeconds < 1) {
@@ -96,13 +94,8 @@ public class InMemoryCache<K, V> extends Cache<K, V> {
 
     public void cleanup(Predicate<K> keyFilter) {
         synchronized (getCacheMap()) {
-            Iterator<Entry<K, CacheObject<V>>> itr = getCacheMap().entrySet().iterator();
-            while (itr.hasNext()) {
-                Entry<K, CacheObject<V>> entry = itr.next();
-                if ((keyFilter == null || keyFilter.test(entry.getKey())) && entry.getValue().isExpired(timeToLive)) {
-                    itr.remove();
-                }
-            }
+            getCacheMap().entrySet()
+                    .removeIf(entry -> (keyFilter == null || keyFilter.test(entry.getKey())) && entry.getValue().isExpired(timeToLive));
             Thread.yield();
         }
     }

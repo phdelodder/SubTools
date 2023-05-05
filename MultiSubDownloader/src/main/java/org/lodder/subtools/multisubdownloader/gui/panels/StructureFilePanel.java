@@ -6,12 +6,15 @@ import javax.swing.JLabel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
+import java.io.Serial;
+
 import org.lodder.subtools.multisubdownloader.Messages;
 
 import net.miginfocom.swing.MigLayout;
 
 public class StructureFilePanel extends StructurePanel {
 
+    @Serial
     private static final long serialVersionUID = -5458593307643063563L;
     private JLabel lblStructuur_1;
     private JTextField txtFileStructure;

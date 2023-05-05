@@ -11,6 +11,7 @@ import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.sublibrary.util.JComponentExtension;
 
 import java.awt.event.ActionListener;
+import java.io.Serial;
 
 import lombok.experimental.ExtensionMethod;
 import net.miginfocom.swing.MigLayout;
@@ -18,6 +19,7 @@ import net.miginfocom.swing.MigLayout;
 @ExtensionMethod(JComponentExtension.class)
 public class SubtitleBackupPanel extends JPanel {
 
+    @Serial
     private static final long serialVersionUID = -1498846730946617177L;
     private JCheckBox chkBackupSubtitle;
     private JLabel lblBackupLocatie;

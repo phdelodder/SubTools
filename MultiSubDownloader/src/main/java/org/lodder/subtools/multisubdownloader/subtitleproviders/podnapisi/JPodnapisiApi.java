@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi;
 
+import java.io.Serial;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -25,8 +26,6 @@ import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 import org.lodder.subtools.sublibrary.xml.XmlExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -39,7 +38,6 @@ import lombok.experimental.ExtensionMethod;
 public class JPodnapisiApi implements SubtitleApi {
 
     public static final int maxAge = 90;
-    private static final Logger LOGGER = LoggerFactory.getLogger(JPodnapisiApi.class);
     private static final String DOMAIN = "https://www.podnapisi.net";
     private final Manager manager;
     private final String userAgent;
@@ -136,6 +134,7 @@ public class JPodnapisiApi implements SubtitleApi {
 
     private static final Map<Language, String> PODNAPISI_LANGS = Collections
             .unmodifiableMap(new EnumMap<>(Language.class) {
+                @Serial
                 private static final long serialVersionUID = 2950169212654074275L;
 
                 {

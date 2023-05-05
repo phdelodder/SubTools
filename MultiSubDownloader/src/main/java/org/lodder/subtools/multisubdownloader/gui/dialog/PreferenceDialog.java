@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
+import java.io.Serial;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +62,7 @@ import net.miginfocom.swing.MigLayout;
 @ExtensionMethod(JComponentExtension.class)
 public class PreferenceDialog extends MultiSubDialog {
 
+    @Serial
     private static final long serialVersionUID = -5730220264781738564L;
     private final GUI gui;
     private final JPanel contentPanel = new JPanel();
@@ -154,7 +156,7 @@ public class PreferenceDialog extends MultiSubDialog {
                                     } else {
                                         boolean exists = stream(defaultIncomingFoldersList.getModel())
                                                 .map(panel -> ((JLabel) panel.getComponent(0)).getText())
-                                                .filter(Objects::nonNull).anyMatch(path::equals);
+                                                .filter(Objects::nonNull).anyMatch(path.toString()::equals);
                                         if (!exists) {
                                             defaultIncomingFoldersList.addItem(SettingsExcludeType.FOLDER, path);
                                         }
@@ -383,7 +385,7 @@ public class PreferenceDialog extends MultiSubDialog {
                                     boolean exists = false;
                                     for (int i = 0; i < localSourcesFoldersList.getModel().getSize(); i++) {
                                         if (localSourcesFoldersList.getDescription(i) != null
-                                                && localSourcesFoldersList.getDescription(i).equals(path)) {
+                                                && localSourcesFoldersList.getDescription(i).equals(path.toString())) {
                                             exists = true;
                                         }
                                     }
@@ -545,7 +547,7 @@ public class PreferenceDialog extends MultiSubDialog {
                 SettingsExcludeItem sei = new SettingsExcludeItem(excludeList.getDescription(i), excludeListType);
                 list.add(sei);
             }
-            if (Messages.getLanguage() != (Language) cbxLanguage.getSelectedItem()) {
+            if (Messages.getLanguage() != cbxLanguage.getSelectedItem()) {
                 Messages.setLanguage((Language) cbxLanguage.getSelectedItem());
                 gui.redraw();
             }

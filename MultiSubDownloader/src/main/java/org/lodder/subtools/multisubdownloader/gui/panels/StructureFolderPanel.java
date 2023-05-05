@@ -9,11 +9,13 @@ import javax.swing.JTextField;
 import org.lodder.subtools.multisubdownloader.Messages;
 
 import java.awt.event.ActionListener;
+import java.io.Serial;
 
 import net.miginfocom.swing.MigLayout;
 
 public class StructureFolderPanel extends StructurePanel {
 
+    @Serial
     private static final long serialVersionUID = 3476596236588408382L;
     private JLabel lblLocatie;
     private JTextField txtLibraryFolder;

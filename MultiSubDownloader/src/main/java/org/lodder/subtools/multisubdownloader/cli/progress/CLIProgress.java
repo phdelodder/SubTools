@@ -21,9 +21,10 @@ abstract class CLIProgress<T extends CLIProgress<T>> {
     public void disable() {
         this.isEnabled = false;
         /* Print a line */
-        System.out.println("");
+        System.out.println();
     }
 
+    @SuppressWarnings("unchecked")
     public T verbose(boolean isVerbose) {
         this.isVerbose = isVerbose;
         return (T) this;
@@ -46,6 +47,6 @@ abstract class CLIProgress<T extends CLIProgress<T>> {
         }
 
         bar.append("]   ").append(percent).append("%     ");
-        System.out.print("\r" + bar.toString());
+        System.out.print("\r" + bar);
     }
 }

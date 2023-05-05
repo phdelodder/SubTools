@@ -1,6 +1,5 @@
 package org.lodder.subtools.multisubdownloader.actions;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
@@ -40,7 +39,7 @@ public class UserInteractionHandlerAction {
     public List<Subtitle> subtitleSelection(Release release, final boolean subtitleSelectionDialog, final boolean dryRun) {
 
         // Sort subtitles by score
-        Collections.sort(release.getMatchingSubs(), new SubtitleComparator());
+        release.getMatchingSubs().sort(new SubtitleComparator());
         if (dryRun) {
             if (!release.getMatchingSubs().isEmpty()) {
                 userInteractionHandler.dryRunOutput(release);

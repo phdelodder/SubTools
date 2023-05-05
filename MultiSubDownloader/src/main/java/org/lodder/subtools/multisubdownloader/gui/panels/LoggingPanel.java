@@ -8,6 +8,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 
+import java.io.Serial;
+
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.extra.LogTextAppender;
 
@@ -16,6 +18,7 @@ import net.miginfocom.swing.MigLayout;
 
 public class LoggingPanel extends JPanel {
 
+    @Serial
     private static final long serialVersionUID = 1578326761175927376L;
     private final JTextArea txtLogging;
     private final ch.qos.logback.classic.Logger root =

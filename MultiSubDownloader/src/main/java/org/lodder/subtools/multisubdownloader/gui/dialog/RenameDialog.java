@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.gui.dialog;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.Serial;
 import java.nio.file.Path;
 
 import javax.swing.JButton;
@@ -34,10 +35,11 @@ import java.awt.Insets;
 
 public class RenameDialog extends MultiSubDialog implements PropertyChangeListener {
 
+    @Serial
     private static final long serialVersionUID = 1L;
-    private VideoLibraryPanel pnlLibrary;
+    private final VideoLibraryPanel pnlLibrary;
     private JTextField txtRenameLocation;
-    private JCheckBox chkRecursive;
+    private final JCheckBox chkRecursive;
     private ProgressDialog progressDialog;
 
     /**
@@ -154,14 +156,6 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
         }
     }
 
-    /**
-     *
-     * @param dir
-     * @param basedir
-     * @param settings
-     * @param librarySettings can be different from the store librarySettings
-     * @param manager
-     */
     protected void rename(Path dir, Path basedir, Settings settings, LibrarySettings librarySettings, Manager manager,
             UserInteractionHandler userInteractionHandler) {
         TypedRenameWorker renameWorker =
@@ -176,8 +170,7 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
-        if (event.getSource() instanceof TypedRenameWorker) {
-            final TypedRenameWorker renameWorker = (TypedRenameWorker) event.getSource();
+        if (event.getSource() instanceof TypedRenameWorker renameWorker) {
             if (renameWorker.isDone()) {
                 progressDialog.setVisible(false);
             } else {

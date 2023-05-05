@@ -41,7 +41,7 @@ public class HttpClient {
         this(new CookieManager());
     }
 
-    public String doGet(URL url, String userAgent) throws IOException, HttpClientException, HttpClientSetupException {
+    public String doGet(URL url, String userAgent) throws IOException, HttpClientException {
         URLConnection conn = url.openConnection();
         cookieManager.setCookies(conn);
 
@@ -59,7 +59,7 @@ public class HttpClient {
         throw new HttpClientException((HttpURLConnection) conn);
     }
 
-    public String doPost(URL url, String userAgent, Map<String, String> data) throws HttpClientSetupException, HttpClientException {
+    public String doPost(URL url, String userAgent, Map<String, String> data) throws HttpClientException {
         HttpURLConnection conn = null;
 
         try {
@@ -74,7 +74,7 @@ public class HttpClient {
                 conn.setRequestProperty("user-agent", userAgent);
             }
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            conn.setRequestProperty("Content-Length", "" + Integer.toString(urlParameters.getBytes(StandardCharsets.UTF_8).length));
+            conn.setRequestProperty("Content-Length", String.valueOf(urlParameters.getBytes(StandardCharsets.UTF_8).length));
             conn.setUseCaches(false);
             conn.setDoInput(true);
             conn.setDoOutput(true);
@@ -83,7 +83,6 @@ public class HttpClient {
             try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
                 out.writeBytes(urlParameters);
                 out.flush();
-                out.close();
             }
 
             cookieManager.storeCookies(conn);
@@ -96,10 +95,8 @@ public class HttpClient {
             conn.disconnect();
             return result;
 
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             throw new HttpClientException(e, conn);
-        } catch (URISyntaxException e) {
-            throw new HttpClientSetupException(e);
         } finally {
             if (conn != null) {
                 conn.disconnect();

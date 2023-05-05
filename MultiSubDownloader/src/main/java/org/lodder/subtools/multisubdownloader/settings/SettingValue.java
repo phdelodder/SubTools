@@ -152,6 +152,7 @@ public enum SettingValue {
                 preferences.put(key, value.name());
             }
         };
+        @SuppressWarnings("unchecked")
         Class<E> enumType = (Class<E>) TypeResolver.resolveRawArgument(Enum.class, defaultValue.getClass());
         this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFuntion.apply(settingsControl),
                 Enum.valueOf(enumType, preferences.get(key, defaultValue.name())));
@@ -212,8 +213,8 @@ public enum SettingValue {
             }
         };
         this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFuntion.apply(settingsControl),
-                Optional.ofNullable(preferences.get(key, Optional.ofNullable(defaultValue).map(toStringMapper::apply).orElse(null)))
-                        .map(toObjectMapper::apply).orElse(defaultValue));
+                Optional.ofNullable(preferences.get(key, Optional.ofNullable(defaultValue).map(toStringMapper).orElse(null)))
+                        .map(toObjectMapper).orElse(defaultValue));
     }
 
     <T> SettingValue(Function<SettingsControl, T> rootElementFuntion, Function<T, Collection<String>> collectionGetter) {
@@ -223,7 +224,7 @@ public enum SettingValue {
     <T, V> SettingValue(Function<V, String> toStringMapper, Function<String, V> toObjectMapper,
             Function<SettingsControl, T> rootElementFuntion, Function<T, Collection<V>> collectionGetter) {
         this(toStringMapper, toObjectMapper, rootElementFuntion, (object, v) -> collectionGetter.apply(object).add(v),
-                (object, consumer) -> collectionGetter.apply(object).forEach(consumer::accept));
+                (object, consumer) -> collectionGetter.apply(object).forEach(consumer));
     }
 
     <T, V> SettingValue(Function<V, String> toStringMapper, Function<String, V> toObjectMapper,

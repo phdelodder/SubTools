@@ -87,15 +87,15 @@ public class ImdbAdapter {
         }
     }
 
-    private OptionalInt getImdbIdOnImdb(String title, Integer year) throws ImdbSearchIdException {
+    private OptionalInt getImdbIdOnImdb(String title, Integer year) {
         return getImdbIdCommon(title, year, imdbSearchIdApi.get()::getImdbIdOnImdb);
     }
 
-    private OptionalInt getImdbIdOnGoogle(String title, Integer year) throws ImdbSearchIdException {
+    private OptionalInt getImdbIdOnGoogle(String title, Integer year) {
         return getImdbIdCommon(title, year, imdbSearchIdApi.get()::getImdbIdOnGoogle);
     }
 
-    private OptionalInt getImdbIdOnYahoo(String title, Integer year) throws ImdbSearchIdException {
+    private OptionalInt getImdbIdOnYahoo(String title, Integer year) {
         return getImdbIdCommon(title, year, imdbSearchIdApi.get()::getImdbIdOnYahoo);
     }
 

@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.Messages;
-import org.lodder.subtools.multisubdownloader.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.actions.FileListAction;
 import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
@@ -50,7 +49,7 @@ public class FileGuiSearchAction extends GuiSearchAction<SearchFileInputPanel> {
     }
 
     public interface FileGuiSearchActionBuilderBuild {
-        FileGuiSearchAction build() throws SearchSetupException;
+        FileGuiSearchAction build();
     }
 
     public static FileGuiSearchActionBuilderManager createWithSettings(Settings settings) {
@@ -72,13 +71,13 @@ public class FileGuiSearchAction extends GuiSearchAction<SearchFileInputPanel> {
         private ReleaseFactory releaseFactory;
 
         @Override
-        public FileGuiSearchAction build() throws SearchSetupException {
+        public FileGuiSearchAction build() {
             return new FileGuiSearchAction(manager, settings, subtitleProviderStore, mainwindow, searchPanel, releaseFactory);
         }
     }
 
     private FileGuiSearchAction(Manager manager, Settings settings, SubtitleProviderStore subtitleProviderStore, GUI mainwindow,
-            SearchPanel<SearchFileInputPanel> searchPanel, ReleaseFactory releaseFactory) throws SearchSetupException {
+            SearchPanel<SearchFileInputPanel> searchPanel, ReleaseFactory releaseFactory)  {
         super(manager, settings, subtitleProviderStore, mainwindow, searchPanel, releaseFactory);
         this.filelistAction = new FileListAction(settings);
     }
@@ -108,7 +107,7 @@ public class FileGuiSearchAction extends GuiSearchAction<SearchFileInputPanel> {
     }
 
     @Override
-    protected List<Release> createReleases() throws ActionException {
+    protected List<Release> createReleases() {
         SearchFileInputPanel inputPanel = getInputPanel();
         String filePath = inputPanel.getIncomingPath();
         Language language = inputPanel.getSelectedLanguage();
@@ -125,7 +124,7 @@ public class FileGuiSearchAction extends GuiSearchAction<SearchFileInputPanel> {
         return createReleases(files);
     }
 
-    private List<Release> createReleases(List<Path> files) throws ActionException {
+    private List<Release> createReleases(List<Path> files) {
         /* parse every videofile */
         List<Release> releases = new ArrayList<>();
 

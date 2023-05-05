@@ -121,7 +121,6 @@ public class TvRelease extends Release {
         this.title = title;
         this.season = season;
         this.episodeNumbers = episodeNumbers;
-        this.originalName = "";
         this.special = special;
         this.originalName = originalName;
         this.customName = customName;

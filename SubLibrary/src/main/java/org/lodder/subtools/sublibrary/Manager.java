@@ -35,7 +35,6 @@ import org.lodder.subtools.sublibrary.util.IOUtils;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
 import org.lodder.subtools.sublibrary.util.http.HttpClientException;
-import org.lodder.subtools.sublibrary.util.http.HttpClientSetupException;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
 import org.w3c.dom.Document;
 
@@ -124,7 +123,7 @@ public class Manager {
                 return httpClient.doPost(new URI(url).toURL(), userAgent, data == null ? new HashMap<>() : data);
             } catch (MalformedURLException | URISyntaxException e) {
                 throw new ManagerException("incorrect url", e);
-            } catch (HttpClientSetupException | HttpClientException e) {
+            } catch (HttpClientException e) {
                 throw new ManagerException(e);
             }
         }
@@ -272,11 +271,6 @@ public class Manager {
         private String getContentWithoutCache(String urlString, String userAgent) throws ManagerException {
             try {
                 return httpClient.doGet(new URI(urlString).toURL(), userAgent);
-            } catch (MalformedURLException e) {
-                if (retries-- > 0 && retryPredicate.test(e)) {
-                    return getContentWithoutCache(urlString, userAgent);
-                }
-                throw new ManagerException("incorrect url", e);
             } catch (HttpClientException e) {
                 if (retries-- > 0 && retryPredicate.test(e)) {
                     try {
@@ -288,13 +282,13 @@ public class Manager {
                 }
                 throw new ManagerException("Error occured with httpclient response: %s %s".formatted(e.getResponseCode(), e.getResponseMessage()),
                         e);
-            } catch (IOException | HttpClientSetupException e) {
+            } catch (IOException e) {
                 if (retries-- > 0 && retryPredicate.test(e)) {
                     return getContentWithoutCache(urlString, userAgent);
                 }
                 throw new ManagerException(e);
             } catch (URISyntaxException e) {
-                throw new ManagerException("Error occured creating url [%s]: %s".formatted(urlString, e.getMessage()), e);
+                throw new ManagerException("Invalid url [%s]".formatted(urlString), e);
             }
         }
     }

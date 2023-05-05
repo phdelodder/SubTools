@@ -11,20 +11,18 @@ import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.Serial;
 
 import net.miginfocom.swing.MigLayout;
 
 public class ProgressDialog extends MultiSubDialog implements Messenger {
 
+    @Serial
     private static final long serialVersionUID = -2320149791421648965L;
     private JProgressBar progressBar;
     private JLabel label;
-    private Cancelable worker;
+    private final Cancelable worker;
 
-    /**
-     * @param sft
-     * @wbp.parser.constructor
-     */
     public ProgressDialog(JFrame frame, Cancelable sft) {
         super(frame, Messages.getString("ProgressDialog.Title"), false);
         worker = sft;

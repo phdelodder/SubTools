@@ -25,9 +25,9 @@ public class Info {
                 case SUBSCENE -> settings.isSerieSourceSubscene();
             };
             if (isCli) {
-                System.out.println(" - provider : " + source.toString() + " enabled: " + enabled);
+                System.out.println(" - provider : " + source + " enabled: " + enabled);
             } else {
-                LOGGER.info(" - provider : " + source.toString() + " enabled: " + enabled);
+                LOGGER.info(" - provider : " + source + " enabled: " + enabled);
             }
         }
         if (isCli) {

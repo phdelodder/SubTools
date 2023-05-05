@@ -125,7 +125,7 @@ public class FileListAction {
         if (filename.contains("sample")) {
             return false;
         }
-        return Arrays.stream(VideoPatterns.EXTENSIONS).anyMatch(ext::equals);
+        return Arrays.asList(VideoPatterns.EXTENSIONS).contains(ext);
     }
 
     public boolean fileHasSubtitles(Path file, Language language) throws IOException {

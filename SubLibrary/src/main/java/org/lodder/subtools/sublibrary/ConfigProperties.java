@@ -6,7 +6,7 @@ import java.io.InputStream;
 public final class ConfigProperties {
 
     private static ConfigProperties configProps = null;
-    private java.util.Properties prop = new java.util.Properties();
+    private final java.util.Properties prop = new java.util.Properties();
 
     private ConfigProperties() {
         try (InputStream input = getClass().getResourceAsStream("/config.properties")) {

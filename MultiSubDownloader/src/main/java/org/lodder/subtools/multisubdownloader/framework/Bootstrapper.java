@@ -2,7 +2,6 @@ package org.lodder.subtools.multisubdownloader.framework;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.prefs.Preferences;
@@ -43,7 +42,7 @@ public class Bootstrapper {
         List<ServiceProvider> providers = this.getProviders();
 
         // Sort according to priority
-        Collections.sort(providers, new ServiceProviderComparator());
+        providers.sort(new ServiceProviderComparator());
 
         // Register ServiceProviders
         this.registerProviders(providers, userInteractionHandler);
@@ -57,7 +56,7 @@ public class Bootstrapper {
 
         List<ServiceProvider> providers = new ArrayList<>();
 
-        // Intantieer alle serviceproviders
+        // Instantiate all service providers
         for (Class serviceProviderClass : providerClasses) {
             ServiceProvider serviceProvider = null;
 
@@ -65,7 +64,7 @@ public class Bootstrapper {
                 Constructor constructor = serviceProviderClass.getConstructor();
                 serviceProvider = (ServiceProvider) constructor.newInstance();
             } catch (Exception e) {
-                LOGGER.error("ServiceProvider: '{}' failed to create instance.", serviceProviderClass.getClass().getName());
+                LOGGER.error("ServiceProvider: '{}' failed to create instance.", serviceProviderClass.getName());
             }
 
             if (serviceProvider == null) {
@@ -78,7 +77,7 @@ public class Bootstrapper {
     }
 
     public void registerProviders(List<ServiceProvider> providers, UserInteractionHandler userInteractionHandler) {
-        // Register serviceproviders
+        // Register service providers
         for (ServiceProvider provider : providers) {
             provider.register(this.app, userInteractionHandler);
             LOGGER.debug("ServiceProvider: '{}' registered.", provider.getClass().getName());

@@ -59,7 +59,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
             Path file = movieRelease.getPath().resolve(movieRelease.getFileName());
             if (file.exists()) {
                 try {
-                    searchMovieSubtitlesWithHash(OpenSubtitlesHasher.computeHash(file), language).forEach(subtitles::add);
+                    subtitles.addAll(searchMovieSubtitlesWithHash(OpenSubtitlesHasher.computeHash(file), language));
                 } catch (IOException e) {
                     LOGGER.error("Error calculating file hash", e);
                 } catch (Exception e) {
@@ -70,7 +70,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
         }
         movieRelease.getImdbId().ifPresent(imdbId -> {
             try {
-                searchMovieSubtitlesWithId(imdbId, language).forEach(subtitles::add);
+                subtitles.addAll(searchMovieSubtitlesWithId(imdbId, language));
             } catch (Exception e) {
                 LOGGER.error("API %s searchSubtitles using imdbid [%s] for movie [%s] (%s)".formatted(getSubtitleSource().getName(),
                         imdbId, movieRelease.getName(), e.getMessage()), e);
@@ -78,10 +78,10 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
         });
         if (subtitles.isEmpty()) {
             try {
-                searchMovieSubtitlesWithName(movieRelease.getName(), movieRelease.getYear(), language).forEach(subtitles::add);
+                subtitles.addAll(searchMovieSubtitlesWithName(movieRelease.getName(), movieRelease.getYear(), language));
             } catch (Exception e) {
                 LOGGER.error("API %s searchSubtitles using title for movie [%s] (%s)".formatted(getSubtitleSource().getName(),
-                        movieRelease.getName(), movieRelease.getName(), e.getMessage()), e);
+                        movieRelease.getName(), e.getMessage()), e);
             }
         }
         return convertToSubtitles(movieRelease, subtitles, language);
@@ -201,7 +201,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
             Optional<S> uriForSerie;
             // Check if the previous results were the same for the service. If so, don't ask the user to select again
             if (previousResultsPresent
-                    && previousResultsValueBuilder.returnType((Class<List<S>>) null, (Class<S>) null).getCollection().equals(providerSerieIds)) {
+                    && previousResultsValueBuilder.returnType((Class<List<S>>) null, null).getCollection().equals(providerSerieIds)) {
                 uriForSerie = Optional.empty();
             } else {
                 // let the user select the correct provider serie id

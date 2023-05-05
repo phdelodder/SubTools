@@ -39,13 +39,12 @@ public class UpdateAvailableGithub {
     public boolean shouldCheckForNewUpdate(UpdateCheckPeriod updateCheckPeriod) {
         LocalDate lastUpdateCheck = getLastUpdateCheck();
         try {
-            boolean shouldCheckForUpdate = switch (updateCheckPeriod) {
+            return switch (updateCheckPeriod) {
                 case DAILY -> DAYS.between(lastUpdateCheck, LocalDate.now()) > 0;
                 case WEEKLY -> DAYS.between(lastUpdateCheck, LocalDate.now()) > 6;
                 case MONTHLY -> DAYS.between(lastUpdateCheck, LocalDate.now()) > 30;
                 case MANUAL -> false;
             };
-            return shouldCheckForUpdate;
         } catch (Exception e) {
             LOGGER.error("checkProgram", e);
             return false;

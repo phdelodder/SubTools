@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
+import java.io.Serial;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -47,6 +48,7 @@ import net.miginfocom.swing.MigLayout;
 
 public class MappingEpisodeNameDialog extends MultiSubDialog {
 
+    @Serial
     private static final long serialVersionUID = 1L;
     private final JPanel contentPanel = new JPanel();
     private JTable table;
@@ -144,6 +146,7 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
     @Setter
     @RequiredArgsConstructor
     private static class Row extends Vector<String> {
+        @Serial
         private static final long serialVersionUID = 8620670431074648999L;
         private final String key;
         private SerieMapping serieMapping;
@@ -162,27 +165,25 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
 
     @RequiredArgsConstructor
     private static class MappingTableModel extends DefaultTableModel {
+        @Serial
         private static final long serialVersionUID = 7860605766969472980L;
         private final Manager manager;
 
         void setMappingType(MappingType mappingType) {
             setDataVector(null, new String[] { mappingType.getNameColumn(), mappingType.getMappingColumn(), mappingType.getProviderNameColumn() });
             Arrays.stream(mappingType.getSelectionForKeyPrefixList())
-                    .map(selectionForKeyPrefix -> MappingType.MAPPING_SUPPLIER.apply(manager, selectionForKeyPrefix).stream()
+                    .flatMap(selectionForKeyPrefix -> MappingType.MAPPING_SUPPLIER.apply(manager, selectionForKeyPrefix).stream()
                             .map(serieMappingPair -> {
                                 SerieMapping serieMapping = serieMappingPair.getValue();
                                 String name = serieMapping.getName();
-                                String providerId = serieMapping.getProviderId() == null ? "" : String.valueOf(serieMapping.getProviderId());
+                                String providerId = serieMapping.getProviderId() == null ? "" : serieMapping.getProviderId();
                                 String providerName = serieMapping.getProviderName();
-                                if (providerId != null) {
-                                    if (providerId.contains("/")) {
-                                        providerId = providerId.substring(providerId.lastIndexOf("/") + 1);
-                                    }
-                                    providerId = providerId.replace(".html", "");
+                                if (providerId.contains("/")) {
+                                    providerId = providerId.substring(providerId.lastIndexOf("/") + 1);
                                 }
+                                providerId = providerId.replace(".html", "");
                                 return new Row(serieMappingPair.getKey(), name, providerId, providerName, serieMapping, selectionForKeyPrefix);
                             }))
-                    .flatMap(s -> s)
                     .sorted(Comparator.comparing(row -> row.getSerieMapping() == null || row.getSerieMapping().getProviderName() == null ? "zzz"
                             : row.getSerieMapping().getName()))
                     .forEach(this::addRow);

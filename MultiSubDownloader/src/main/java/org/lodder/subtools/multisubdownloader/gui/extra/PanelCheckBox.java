@@ -9,12 +9,14 @@ import org.lodder.subtools.sublibrary.util.JComponentExtension;
 
 import java.awt.Component;
 import java.awt.LayoutManager;
+import java.io.Serial;
 
 import lombok.experimental.ExtensionMethod;
 import net.miginfocom.swing.MigLayout;
 
 @ExtensionMethod({ JComponentExtension.class })
 public class PanelCheckBox extends JPanel {
+    @Serial
     private static final long serialVersionUID = 1L;
     private final JCheckBox chk;
     private final JPanel panel;

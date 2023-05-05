@@ -1,14 +1,16 @@
 package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
 import java.awt.Dimension;
+import java.io.Serial;
 
 /**
  * A JTable that draws a zebra striped background.
  */
 public class ZebraJTable extends javax.swing.JTable {
 
+    @Serial
     private static final long serialVersionUID = -6943213333291518652L;
-    private final java.awt.Color rowColors[] = new java.awt.Color[2];
+    private final java.awt.Color[] rowColors = new java.awt.Color[2];
     private boolean drawStripes = false;
 
     public ZebraJTable() {

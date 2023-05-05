@@ -67,7 +67,7 @@ public class Local implements SubtitleProvider {
         Set<Subtitle> listFoundSubtitles = new HashSet<>();
         ReleaseParser vfp = new ReleaseParser();
 
-        String filter = "";
+        String filter;
         if (tvRelease.getOriginalName().length() > 0) {
             filter = tvRelease.getOriginalName().replaceAll("[^A-Za-z]", "").trim();
         } else {
@@ -86,7 +86,7 @@ public class Local implements SubtitleProvider {
                     if (((TvRelease) release).getTvdbId().equals(tvRelease.getTvdbId())) {
                         Language detectedLang = DetectLanguage.execute(fileSub);
                         if (detectedLang == language) {
-                            LOGGER.debug("Local Sub found, adding [{}]", fileSub.toString());
+                            LOGGER.debug("Local Sub found, adding [{}]", fileSub);
                             listFoundSubtitles.add(
                                     Subtitle.downloadSource(fileSub)
                                             .subtitleSource(getSubtitleSource())
@@ -128,7 +128,7 @@ public class Local implements SubtitleProvider {
                     if (((MovieRelease) release).getImdbId().equals(movieRelease.getImdbId())) {
                         Language detectedLang = DetectLanguage.execute(fileSub);
                         if (detectedLang == language) {
-                            LOGGER.debug("Local Sub found, adding {}", fileSub.toString());
+                            LOGGER.debug("Local Sub found, adding {}", fileSub);
                             listFoundSubtitles.add(
                                     Subtitle.downloadSource(fileSub)
                                             .subtitleSource(getSubtitleSource())

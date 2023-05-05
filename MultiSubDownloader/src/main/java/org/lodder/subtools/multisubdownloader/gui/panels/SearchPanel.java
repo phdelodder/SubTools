@@ -2,12 +2,15 @@ package org.lodder.subtools.multisubdownloader.gui.panels;
 
 import javax.swing.JPanel;
 
+import java.io.Serial;
+
 import lombok.Getter;
 import net.miginfocom.swing.MigLayout;
 
 @Getter
 public class SearchPanel<I extends InputPanel> extends JPanel {
 
+    @Serial
     private static final long serialVersionUID = -7602822323779710089L;
     private final ResultPanel resultPanel;
     private final I inputPanel;

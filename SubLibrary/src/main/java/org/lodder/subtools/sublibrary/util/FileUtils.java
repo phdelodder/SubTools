@@ -12,12 +12,18 @@ import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.lang3.StringUtils;
 
+import lombok.experimental.ExtensionMethod;
+import name.falgout.jeffrey.throwing.ThrowingConsumer;
+import name.falgout.jeffrey.throwing.ThrowingFunction;
+
+@ExtensionMethod({ StreamExtension.class })
 public class FileUtils {
 
     public static String getExtension(Path path) {
@@ -116,9 +122,8 @@ public class FileUtils {
     }
 
     private static Path moveNonEmptyDirectoryRecursively(Path source, Path target, StandardCopyOption... copyOptions) throws IOException {
-        for (Path child : Files.list(source).toList()) {
-            moveNonEmptyDirectory(child, target.resolve(child.getFileName()), copyOptions);
-        }
+        foreachSubfile(source, s -> s.asThrowingStream(IOException.class)
+                .forEach(child -> moveNonEmptyDirectory(child, target.resolve(child.getFileName()), copyOptions)));
         Files.delete(source);
         return target;
     }
@@ -232,7 +237,19 @@ public class FileUtils {
 
     public static boolean isEmptyDir(Path path) throws IOException {
         requireDir(path);
-        return Files.list(path).findAny().isEmpty();
+        return applySubfiles(path, children -> children.findAny().isEmpty());
+    }
+
+    public static <T, X extends Exception> T applySubfiles(Path path, ThrowingFunction<Stream<Path>, T, X> function) throws IOException, X {
+        try (Stream<Path> pathStream = Files.list(path)) {
+            return function.apply(pathStream);
+        }
+    }
+
+    public static <X extends Exception> void foreachSubfile(Path path, ThrowingConsumer<Stream<Path>, X> consumer) throws IOException, X {
+        try (Stream<Path> pathStream = Files.list(path)) {
+            consumer.accept(pathStream);
+        }
     }
 
     public static void requireDir(Path path) {
@@ -251,7 +268,7 @@ public class FileUtils {
                     byte[] buff = new byte[1024];
                     // get file name
                     try (OutputStream fos = Files.newOutputStream(outputFile)) {
-                        int l = 0;
+                        int l;
                         // write buffer to file
                         while ((l = zis.read(buff)) > 0) {
                             fos.write(buff, 0, l);
@@ -300,7 +317,7 @@ public class FileUtils {
      *
      * @throws java.io.IOException if the byte array couldn't be read
      */
-    public static boolean isGZipCompressed(byte[] bytes) throws IOException {
+    public static boolean isGZipCompressed(byte[] bytes) {
         if (bytes == null || bytes.length < 2) {
             return false;
         } else {

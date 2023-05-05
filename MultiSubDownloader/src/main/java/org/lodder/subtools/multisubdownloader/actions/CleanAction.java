@@ -30,7 +30,7 @@ public class CleanAction {
     }
 
     public void cleanUpFiles(Release release, Path destination, String videoFileName) throws IOException {
-        LOGGER.trace("cleanUpFiles: LibraryOtherFileAction", librarySettings.getLibraryOtherFileAction());
+        LOGGER.trace("cleanUpFiles: LibraryOtherFileAction {}", librarySettings.getLibraryOtherFileAction());
         if (!destination.isDirectory()) {
             throw new IllegalArgumentException("Destination [%s] is not a folder".formatted(destination));
         }

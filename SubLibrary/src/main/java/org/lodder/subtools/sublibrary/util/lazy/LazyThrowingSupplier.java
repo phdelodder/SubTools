@@ -14,7 +14,7 @@ public class LazyThrowingSupplier<T, X extends Exception> {
 
 	private final Object lock = new Object();
 
-	private boolean initialized = false;
+	private volatile boolean initialized = false;
 
 	public LazyThrowingSupplier(T value) {
 		supplier = null;

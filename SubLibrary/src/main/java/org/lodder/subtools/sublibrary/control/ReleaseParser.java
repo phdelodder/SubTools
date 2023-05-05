@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public class ReleaseParser {
 
     private NamedMatcher namedMatcher;
-    private static VideoPatterns videoPatterns = new VideoPatterns();
+    private static final VideoPatterns videoPatterns = new VideoPatterns();
     private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseParser.class);
 
     public final Release parse(Path file) throws ReleaseParseException {
@@ -179,7 +179,7 @@ public class ReleaseParser {
         return text.trim();
     }
 
-    public static final String getQualityKeyword(final String name) {
+    public static String getQualityKeyword(final String name) {
         LOGGER.trace("getQualityKeyword: name: {}", name);
         Pattern p = Pattern.compile(videoPatterns.getQualityKeysRegex(), Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher(name);

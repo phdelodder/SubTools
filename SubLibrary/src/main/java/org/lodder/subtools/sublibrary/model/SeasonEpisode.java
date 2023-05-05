@@ -25,7 +25,7 @@ public class SeasonEpisode {
 
     public SeasonEpisode(int season, int... episodes) {
         this.season = season;
-        this.episodes = Arrays.stream(episodes).mapToObj(i -> i).toList();
+        this.episodes = Arrays.stream(episodes).boxed().toList();
     }
 
     public static Optional<SeasonEpisode> fromText(String text) {

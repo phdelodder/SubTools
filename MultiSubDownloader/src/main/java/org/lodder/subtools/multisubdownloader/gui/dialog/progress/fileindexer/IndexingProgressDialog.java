@@ -1,5 +1,7 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog.progress.fileindexer;
 
+import java.io.Serial;
+
 import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
@@ -9,6 +11,7 @@ import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener
 
 public class IndexingProgressDialog extends ProgressDialog implements IndexingProgressListener {
 
+    @Serial
     private static final long serialVersionUID = 2974749335080501254L;
     private final GUI window;
     private boolean completed;

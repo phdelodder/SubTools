@@ -67,7 +67,7 @@ public class CLISearchProgress extends CLIProgress<CLISearchProgress> implements
 
         /* print table */
         if (isVerbose()) {
-            System.out.println("");
+            System.out.println();
             table.printTable();
         }
 

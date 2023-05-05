@@ -8,9 +8,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.io.Serial;
 
 public class ArrowButton extends JButton {
 
+    @Serial
     private static final long serialVersionUID = -4630720317499130016L;
 
     /**

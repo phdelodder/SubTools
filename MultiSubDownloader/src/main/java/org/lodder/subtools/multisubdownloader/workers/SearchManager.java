@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 import java.util.Queue;
 
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
-import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.ScoreCalculator;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.SortWeight;
@@ -17,7 +16,6 @@ import org.lodder.subtools.multisubdownloader.listeners.SearchProgressListener;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.sublibrary.Language;
-import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 
@@ -29,10 +27,6 @@ import lombok.experimental.Accessors;
 
 @RequiredArgsConstructor
 public class SearchManager implements Cancelable {
-
-    public interface SearchManagerManager {
-        SearchManagerLanguage manager(@NonNull Manager manager);
-    }
 
     public interface SearchManagerLanguage {
         SearchManagerProgressListener language(@NonNull Language language);
@@ -53,9 +47,7 @@ public class SearchManager implements Cancelable {
     @Setter
     @Accessors(fluent = true)
     public static class SearchManagerBuilder
-            implements SearchManagerOnFound, SearchManagerUserInteractionHandler, SearchManagerProgressListener, SearchManagerLanguage,
-            SearchManagerManager {
-        private Manager manager;
+            implements SearchManagerOnFound, SearchManagerUserInteractionHandler, SearchManagerProgressListener, SearchManagerLanguage {
         private Settings settings;
         private Language language;
         private SearchProgressListener progressListener;
@@ -63,14 +55,13 @@ public class SearchManager implements Cancelable {
 
         @Override
         public SearchManager onFound(SearchHandler onFound) {
-            return new SearchManager(manager, settings, onFound, language, progressListener, userInteractionHandler);
+            return new SearchManager(settings, onFound, language, progressListener, userInteractionHandler);
         }
     }
 
     private final Map<SubtitleProvider, Queue<Release>> queue = new HashMap<>();
     private final Map<SubtitleProvider, SearchWorker> workers = new HashMap<>();
     private final Map<Release, ScoreCalculator> scoreCalculators = new HashMap<>();
-    private final Manager manager;
     private final Settings settings;
     @Getter
     private int progress = 0;
@@ -83,7 +74,7 @@ public class SearchManager implements Cancelable {
     @Getter
     private final UserInteractionHandler userInteractionHandler;
 
-    public static SearchManagerManager createWithSettings(Settings settings) {
+    public static SearchManagerLanguage createWithSettings(Settings settings) {
         return new SearchManagerBuilder().settings(settings);
     }
 
@@ -92,24 +83,24 @@ public class SearchManager implements Cancelable {
             return;
         }
         this.workers.put(provider, new SearchWorker(provider, this));
-        this.queue.put(provider, new LinkedList<Release>());
+        this.queue.put(provider, new LinkedList<>());
     }
 
     public void addRelease(Release release) {
-        this.queue.entrySet().forEach(provider -> queue.get(provider.getKey()).add(release));
+        this.queue.forEach((key, value) -> queue.get(key).add(release));
         /* Create a scoreCalculator so we can score subtitles for this release */
         // TODO: extract to factory
         SortWeight weights = new SortWeight(release, this.settings.getSortWeights());
         this.scoreCalculators.put(release, new ScoreCalculator(weights));
     }
 
-    public void start() throws SearchSetupException {
+    public void start() {
         synchronized (this) {
             totalJobs = this.jobsLeft();
             if (totalJobs <= 0) {
                 return;
             }
-            workers.entrySet().forEach(entry -> entry.getValue().start());
+            workers.forEach((key, value) -> value.start());
         }
 
     }
@@ -133,7 +124,7 @@ public class SearchManager implements Cancelable {
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        workers.entrySet().forEach(worker -> worker.getValue().interrupt());
+        workers.forEach((key, value) -> value.interrupt());
         return true;
     }
 

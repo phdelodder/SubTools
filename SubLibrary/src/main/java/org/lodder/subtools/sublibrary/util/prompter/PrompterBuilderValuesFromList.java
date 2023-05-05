@@ -115,8 +115,7 @@ public class PrompterBuilderValuesFromList {
                 if (StringUtils.isBlank(value)) {
                     return prompt(PrompterUtil.showMessage(prompter, "Enter a valid value, try again."));
                 }
-                List<Integer> choices = Arrays.stream(value.split(",")).map(Integer::parseInt).map(i -> i - 1)
-                        .collect(Collectors.toList());
+                List<Integer> choices = Arrays.stream(value.split(",")).map(Integer::parseInt).map(i -> i - 1).toList();
                 if (choices.stream().distinct().count() != choices.size()) {
                     return prompt(PrompterUtil.showMessage(prompter, "Choose all distinct options, try again."));
                 }

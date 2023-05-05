@@ -131,13 +131,13 @@ public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDesc
         return getApi().getUrisForSerieName(serieName).stream()
                 .sorted(Comparator.comparing(
                         (ProviderSerieId n) -> !serieName.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(n.getName().replaceAll("[^A-Za-z]", "")))
-                        .thenComparing(Comparator.comparing((ProviderSerieId providerSerieId) -> {
+                        .thenComparing((ProviderSerieId providerSerieId) -> {
                             Matcher matcher = yearPatter.matcher(providerSerieId.getName());
                             if (matcher.find()) {
                                 return Integer.parseInt(matcher.group(2));
                             }
                             return 0;
-                        }, Comparator.reverseOrder())))
+                        }, Comparator.reverseOrder()))
                 .toList();
     }
 

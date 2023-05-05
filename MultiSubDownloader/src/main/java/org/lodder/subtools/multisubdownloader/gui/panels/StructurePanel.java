@@ -10,6 +10,7 @@ import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.sublibrary.util.JComponentExtension;
 
 import java.awt.event.ActionListener;
+import java.io.Serial;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -19,6 +20,7 @@ import lombok.experimental.ExtensionMethod;
 @ExtensionMethod(JComponentExtension.class)
 public abstract class StructurePanel extends JPanel {
 
+    @Serial
     private static final long serialVersionUID = 7507970016496546514L;
     @Setter
     private ActionListener buildStructureAction;

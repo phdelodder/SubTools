@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
+import java.io.Serial;
 import java.nio.file.Path;
 
 import javax.swing.DefaultListModel;
@@ -17,11 +18,12 @@ import java.awt.Toolkit;
 
 public class JListWithImages extends JList<JPanel> {
 
+    @Serial
     private static final long serialVersionUID = 342783165266555869L;
 
     public JListWithImages() {
         setCellRenderer(new ImageListCellRenderer());
-        setModel(new DefaultListModel<JPanel>());
+        setModel(new DefaultListModel<>());
     }
 
     public void addItem(SettingsExcludeType type, Path path) {

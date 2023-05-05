@@ -61,9 +61,9 @@ public class CLIFileindexerProgress extends CLIProgress<CLIFileindexerProgress> 
 
         if (isVerbose()) {
             /* newlines to counter the return carriage from printProgBar() */
-            System.out.println("");
+            System.out.println();
             System.out.println(this.currentFile);
-            System.out.println("");
+            System.out.println();
         }
 
         this.printProgBar(this.getProgress());

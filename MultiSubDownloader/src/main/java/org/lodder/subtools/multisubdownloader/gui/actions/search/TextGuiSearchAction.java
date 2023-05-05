@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.Messages;
-import org.lodder.subtools.multisubdownloader.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchPanel;
@@ -48,7 +47,7 @@ public class TextGuiSearchAction extends GuiSearchAction<SearchTextInputPanel> {
     }
 
     public interface TextGuiSearchActionBuilderBuild {
-        TextGuiSearchAction build() throws SearchSetupException;
+        TextGuiSearchAction build();
     }
 
     public static FileGuiSearchActionBuilderManager createWithSettings(Settings settings) {
@@ -69,13 +68,13 @@ public class TextGuiSearchAction extends GuiSearchAction<SearchTextInputPanel> {
         private ReleaseFactory releaseFactory;
 
         @Override
-        public TextGuiSearchAction build() throws SearchSetupException {
+        public TextGuiSearchAction build() {
             return new TextGuiSearchAction(manager, settings, subtitleProviderStore, mainwindow, searchPanel, releaseFactory);
         }
     }
 
     private TextGuiSearchAction(Manager manager, Settings settings, SubtitleProviderStore subtitleProviderStore, GUI mainwindow,
-            SearchPanel<SearchTextInputPanel> searchPanel, ReleaseFactory releaseFactory) throws SearchSetupException {
+            SearchPanel<SearchTextInputPanel> searchPanel, ReleaseFactory releaseFactory) {
         super(manager, settings, subtitleProviderStore, mainwindow, searchPanel, releaseFactory);
     }
 
@@ -87,7 +86,7 @@ public class TextGuiSearchAction extends GuiSearchAction<SearchTextInputPanel> {
     }
 
     @Override
-    protected List<Release> createReleases() throws ActionException {
+    protected List<Release> createReleases() {
         String name = getInputPanel().getReleaseName();
         VideoSearchType type = getInputPanel().getType();
 

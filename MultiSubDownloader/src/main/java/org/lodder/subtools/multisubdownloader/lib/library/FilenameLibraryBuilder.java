@@ -19,7 +19,7 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
 
     @Override
     public Path build(Release release) {
-        String filename = "";
+        String filename;
         if (getLibrarySettings().hasAnyLibraryAction(LibraryActionType.RENAME, LibraryActionType.MOVEANDRENAME)
                 && release instanceof TvRelease tvRelease
                 && !getLibrarySettings().getLibraryFilenameStructure().isEmpty()) {

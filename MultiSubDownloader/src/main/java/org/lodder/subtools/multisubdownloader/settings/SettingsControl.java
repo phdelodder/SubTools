@@ -261,7 +261,7 @@ public class SettingsControl {
 
     public void migrateSettingsV4ToV5() {
         Arrays.stream(MappingType.ADDIC7ED_PROXY.getSelectionForKeyPrefixList())
-                .forEach(selectionForKeyPrefix -> MappingType.MAPPING_SUPPLIER.apply(manager, selectionForKeyPrefix).stream()
+                .forEach(selectionForKeyPrefix -> MappingType.MAPPING_SUPPLIER.apply(manager, selectionForKeyPrefix)
                         .forEach(serieMappingPair -> {
                             manager.valueBuilder()
                                     .cacheType(CacheType.DISK)

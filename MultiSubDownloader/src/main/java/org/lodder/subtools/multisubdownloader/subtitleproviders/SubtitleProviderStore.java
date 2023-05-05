@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SubtitleProviderStore {
-    protected List<SubtitleProvider> subtitleProviders = new ArrayList<>();
+    protected final List<SubtitleProvider> subtitleProviders = new ArrayList<>();
 
     public List<SubtitleProvider> getAllProviders() {
         return new ArrayList<>(this.subtitleProviders);

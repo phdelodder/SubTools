@@ -68,11 +68,11 @@ public class MovieRelease extends Release {
     }
 
     public OptionalInt getTvdbId() {
-        return tvdbId == 0 ? OptionalInt.of(tvdbId) : OptionalInt.of(tvdbId);
+        return tvdbId == 0 ? OptionalInt.empty() : OptionalInt.of(tvdbId);
     }
 
     public OptionalInt getImdbId() {
-        return imdbId == 0 ? OptionalInt.of(imdbId) : OptionalInt.of(imdbId);
+        return imdbId == 0 ? OptionalInt.empty() : OptionalInt.of(imdbId);
     }
 
     @Override

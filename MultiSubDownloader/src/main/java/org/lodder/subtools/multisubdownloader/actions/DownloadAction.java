@@ -49,7 +49,7 @@ public class DownloadAction {
 
     private void download(Release release, Subtitle subtitle, LibrarySettings librarySettings, Integer version)
             throws IOException, ManagerException {
-        LOGGER.trace("cleanUpFiles: LibraryAction", librarySettings.getLibraryAction());
+        LOGGER.trace("cleanUpFiles: LibraryAction {}", librarySettings.getLibraryAction());
         PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager, userInteractionHandler);
         Path path = pathLibraryBuilder.build(release);
         if (!path.exists()) {

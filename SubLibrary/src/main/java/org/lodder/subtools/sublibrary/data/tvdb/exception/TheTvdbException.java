@@ -1,7 +1,10 @@
 package org.lodder.subtools.sublibrary.data.tvdb.exception;
 
+import java.io.Serial;
+
 public class TheTvdbException extends Exception {
 
+    @Serial
     private static final long serialVersionUID = 230737234160207201L;
 
     public TheTvdbException() {

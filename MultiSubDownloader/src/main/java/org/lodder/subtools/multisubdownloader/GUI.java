@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.io.Serial;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -22,7 +23,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
 import org.lodder.subtools.multisubdownloader.gui.Menu;
@@ -89,6 +89,7 @@ import lombok.experimental.ExtensionMethod;
 @ExtensionMethod({ FileUtils.class })
 public class GUI extends JFrame implements PropertyChangeListener {
 
+    @Serial
     private static final long serialVersionUID = 1L;
     private final Container app;
     private final Manager manager;
@@ -330,19 +331,14 @@ public class GUI extends JFrame implements PropertyChangeListener {
         resultPanel.setTable(createSubtitleTable());
         resultPanel.setDownloadAction(arg0 -> downloadText());
 
-        TextGuiSearchAction searchAction;
-        try {
-            searchAction = TextGuiSearchAction.createWithSettings(settings)
-                    .manager(manager)
-                    .subtitleProviderStore(subtitleProviderStore)
-                    .mainwindow(this)
-                    .searchPanel(pnlSearchText)
-                    .releaseFactory(new ReleaseFactory(settings, (Manager) app.make("Manager")))
-                    .build();
-            pnlSearchTextInput.setSearchAction(searchAction);
-        } catch (SearchSetupException e) {
-            throw new RuntimeException(e);
-        }
+        TextGuiSearchAction searchAction = TextGuiSearchAction.createWithSettings(settings)
+                .manager(manager)
+                .subtitleProviderStore(subtitleProviderStore)
+                .mainwindow(this)
+                .searchPanel(pnlSearchText)
+                .releaseFactory(new ReleaseFactory(settings, (Manager) app.make("Manager")))
+                .build();
+        pnlSearchTextInput.setSearchAction(searchAction);
     }
 
     private CustomTable createSubtitleTable() {
@@ -365,33 +361,29 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
         resultPanel.setTable(createVideoTable());
 
-        try {
-            FileGuiSearchAction searchAction = FileGuiSearchAction
-                    .createWithSettings(settings)
-                    .manager(manager)
-                    .subtitleProviderStore((SubtitleProviderStore) this.app.make("SubtitleProviderStore"))
-                    .mainwindow(this)
-                    .searchPanel(pnlSearchFile)
-                    .releaseFactory(new ReleaseFactory(settings, (Manager) app.make("Manager")))
-                    .build();
+        FileGuiSearchAction searchAction = FileGuiSearchAction
+                .createWithSettings(settings)
+                .manager(manager)
+                .subtitleProviderStore((SubtitleProviderStore) this.app.make("SubtitleProviderStore"))
+                .mainwindow(this)
+                .searchPanel(pnlSearchFile)
+                .releaseFactory(new ReleaseFactory(settings, (Manager) app.make("Manager")))
+                .build();
 
-            pnlSearchFileInput.setSelectFolderAction(arg0 -> selectIncomingFolder());
-            pnlSearchFileInput.setSearchAction(searchAction);
+        pnlSearchFileInput.setSelectFolderAction(arg0 -> selectIncomingFolder());
+        pnlSearchFileInput.setSearchAction(searchAction);
 
-            resultPanel.setDownloadAction(arg0 -> download());
-            resultPanel.setMoveAction(arg0 -> {
-                final int response =
-                        JOptionPane.showConfirmDialog(
-                                getThis(),
-                                Messages.getString("MainWindow.OnlyMoveToLibraryStructure"), Messages.getString("App.Confirm"), //$NON-NLS-2$
-                                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-                if (response == JOptionPane.YES_OPTION) {
-                    rename();
-                }
-            });
-        } catch (SearchSetupException e) {
-            throw new RuntimeException(e);
-        }
+        resultPanel.setDownloadAction(arg0 -> download());
+        resultPanel.setMoveAction(arg0 -> {
+            final int response =
+                    JOptionPane.showConfirmDialog(
+                            getThis(),
+                            Messages.getString("MainWindow.OnlyMoveToLibraryStructure"), Messages.getString("App.Confirm"), //$NON-NLS-2$
+                            JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            if (response == JOptionPane.YES_OPTION) {
+                rename();
+            }
+        });
     }
 
     private CustomTable createVideoTable() {
@@ -603,8 +595,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
-        if (event.getSource() instanceof DownloadWorker) {
-            final DownloadWorker downloadWorker = (DownloadWorker) event.getSource();
+        if (event.getSource() instanceof DownloadWorker downloadWorker) {
             if (downloadWorker.isDone()) {
                 pnlSearchFile.getResultPanel().enableButtons();
                 progressDialog.setVisible(false);
@@ -613,8 +604,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
                 progressDialog.updateProgress(progress);
                 StatusMessenger.instance.message(Messages.getString("MainWindow.StatusDownload"));
             }
-        } else if (event.getSource() instanceof RenameWorker) {
-            final RenameWorker renameWorker = (RenameWorker) event.getSource();
+        } else if (event.getSource() instanceof RenameWorker renameWorker) {
             if (renameWorker.isDone()) {
                 pnlSearchFile.getResultPanel().enableButtons();
                 progressDialog.setVisible(false);

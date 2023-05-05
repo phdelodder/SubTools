@@ -10,7 +10,7 @@ import java.awt.event.MouseEvent;
 
 public class PopupListener extends MouseAdapter {
 
-    private JPopupMenu popupMenu;
+    private final JPopupMenu popupMenu;
 
     public PopupListener(JPopupMenu popupMenu) {
         this.popupMenu = popupMenu;

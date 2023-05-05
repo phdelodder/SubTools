@@ -13,7 +13,7 @@ public class LazyThrowingFunction<T, S, X extends Exception> {
 
 	private final Object lock = new Object();
 
-	private boolean initialized = false;
+	private volatile boolean initialized = false;
 
     public S apply(T arg) throws X {
 		if (!initialized) {

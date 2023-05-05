@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +26,7 @@ import net.miginfocom.swing.MigLayout;
 
 public class DefaultSelectionPanel extends JPanel {
 
+    @Serial
     private static final long serialVersionUID = 2925926997236198235L;
     private JTable defaultSelectionTable;
     private final VideoPatterns videoPatterns = new VideoPatterns();

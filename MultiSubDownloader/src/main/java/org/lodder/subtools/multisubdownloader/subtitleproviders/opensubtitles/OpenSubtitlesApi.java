@@ -2,20 +2,16 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.stream.StreamSupport;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.exception.OpenSubtitlesException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.model.OpensubtitleSerieId;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
+import org.lodder.subtools.sublibrary.util.JSONUtils;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 import org.opensubtitles.api.AuthenticationApi;
@@ -27,7 +23,7 @@ import org.opensubtitles.model.LoginRequest;
 import lombok.Getter;
 import lombok.experimental.ExtensionMethod;
 
-@ExtensionMethod({ OptionalExtension.class })
+@ExtensionMethod({ OptionalExtension.class, JSONUtils.class })
 public class OpenSubtitlesApi implements SubtitleApi {
 
     private final String apikey = "lNNp0yv0ah8gytkmYPbHwuaATJqr4rS9";
@@ -75,8 +71,7 @@ public class OpenSubtitlesApi implements SubtitleApi {
                     .retryPredicate(exception -> exception instanceof HttpClientException e && e.getResponseCode() == 429)
                     .retryWait(5)
                     .getAsJsonArray();
-            return StreamSupport
-                    .stream(Spliterators.spliteratorUnknownSize((Iterator<JSONObject>) (Iterator) shows.iterator(), Spliterator.ORDERED), false)
+            return shows.stream()
                     .filter(show -> "tv".equals(show.getString("kind")))
                     .map(show -> new OpensubtitleSerieId(show.getString("name"), show.getInt("id"), show.getString("year")))
                     .toList();
