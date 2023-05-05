@@ -13,9 +13,11 @@ import org.lodder.subtools.sublibrary.model.SubtitleSource;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Getter
 @Setter
+@Accessors(chain = true)
 public class Settings implements UserInteractionSettingsIntf {
 
     private Path lastOutputDir;

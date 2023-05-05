@@ -549,13 +549,14 @@ public class PreferenceDialog extends MultiSubDialog {
                 Messages.setLanguage((Language) cbxLanguage.getSelectedItem());
                 gui.redraw();
             }
-            settingsCtrl.getSettings().setLanguage((Language) cbxLanguage.getSelectedItem());
-            settingsCtrl.getSettings().setExcludeList(list);
-            settingsCtrl.getSettings().setUpdateCheckPeriod((UpdateCheckPeriod) cbxUpdateCheckPeriod.getSelectedItem());
-            settingsCtrl.getSettings().setUpdateType((UpdateType) cbxUpdateType.getSelectedItem());
-            settingsCtrl.getSettings().setGeneralProxyEnabled(chkUseProxy.isSelected());
-            settingsCtrl.getSettings().setGeneralProxyHost(txtProxyHost.getText());
-            settingsCtrl.getSettings().setGeneralProxyPort(Integer.parseInt(txtProxyPort.getText()));
+            settingsCtrl.getSettings()
+                    .setLanguage((Language) cbxLanguage.getSelectedItem())
+                    .setExcludeList(list)
+                    .setUpdateCheckPeriod((UpdateCheckPeriod) cbxUpdateCheckPeriod.getSelectedItem())
+                    .setUpdateType((UpdateType) cbxUpdateType.getSelectedItem())
+                    .setGeneralProxyEnabled(chkUseProxy.isSelected())
+                    .setGeneralProxyHost(txtProxyHost.getText())
+                    .setGeneralProxyPort(Integer.parseInt(txtProxyPort.getText()));
         } else {
             status = false;
         }
@@ -572,40 +573,43 @@ public class PreferenceDialog extends MultiSubDialog {
             status = false;
         }
         if (testOptionsTab()) {
-            settingsCtrl.getSettings().setOptionsAlwaysConfirm(chkAlwaysConfirm.isSelected());
-            settingsCtrl.getSettings().setOptionsMinAutomaticSelection(chkMinScoreSelection.isSelected());
-            settingsCtrl.getSettings().setOptionsMinAutomaticSelectionValue(sldMinScoreSelection.getValue());
-            settingsCtrl.getSettings().setOptionSubtitleExactMatch(chkSubtitleExactMethod.isSelected());
-            settingsCtrl.getSettings().setOptionSubtitleKeywordMatch(chkSubtitleKeywordMethod.isSelected());
-            settingsCtrl.getSettings().setOptionSubtitleExcludeHearingImpaired(chkExcludeHearingImpaired.isSelected());
-            settingsCtrl.getSettings().setOptionsShowOnlyFound(chkOnlyFound.isSelected());
-            settingsCtrl.getSettings().setOptionsStopOnSearchError(chkStopOnSearchError.isSelected());
-            settingsCtrl.getSettings().setProcessEpisodeSource((SettingsProcessEpisodeSource) cbxEpisodeProcessSource.getSelectedItem());
-            settingsCtrl.getSettings().setOptionsDefaultSelection(this.chkDefaultSelection.isSelected());
-            settingsCtrl.getSettings().setOptionsDefaultSelectionQualityList(this.pnlDefaultSelection.getDefaultSelectionList());
-            settingsCtrl.getSettings().setOptionsConfirmProviderMapping(this.chkConfirmProviderMapping.isSelected());
+            settingsCtrl.getSettings()
+                    .setOptionsAlwaysConfirm(chkAlwaysConfirm.isSelected())
+                    .setOptionsMinAutomaticSelection(chkMinScoreSelection.isSelected())
+                    .setOptionsMinAutomaticSelectionValue(sldMinScoreSelection.getValue())
+                    .setOptionSubtitleExactMatch(chkSubtitleExactMethod.isSelected())
+                    .setOptionSubtitleKeywordMatch(chkSubtitleKeywordMethod.isSelected())
+                    .setOptionSubtitleExcludeHearingImpaired(chkExcludeHearingImpaired.isSelected())
+                    .setOptionsShowOnlyFound(chkOnlyFound.isSelected())
+                    .setOptionsStopOnSearchError(chkStopOnSearchError.isSelected())
+                    .setProcessEpisodeSource((SettingsProcessEpisodeSource) cbxEpisodeProcessSource.getSelectedItem())
+                    .setOptionsDefaultSelection(this.chkDefaultSelection.isSelected())
+                    .setOptionsDefaultSelectionQualityList(this.pnlDefaultSelection.getDefaultSelectionList())
+                    .setOptionsConfirmProviderMapping(this.chkConfirmProviderMapping.isSelected());
         } else {
             status = false;
         }
         if (testSerieSourcesTab()) {
-            settingsCtrl.getSettings().setLoginAddic7edEnabled(chkUserAddic7edLogin.isSelected());
-            settingsCtrl.getSettings().setLoginAddic7edUsername(txtAddic7edUsername.getText());
-            settingsCtrl.getSettings().setLoginAddic7edPassword(txtAddic7edPassword.getText());
-            settingsCtrl.getSettings().setLoginOpenSubtitlesEnabled(chkUserOpenSubtitlesLogin.isSelected());
-            settingsCtrl.getSettings().setLoginOpenSubtitlesUsername(txtOpenSubtitlesUsername.getText());
-            settingsCtrl.getSettings().setLoginOpenSubtitlesPassword(txtOpenSubtitlesPassword.getText());
+            settingsCtrl.getSettings()
+                    .setLoginAddic7edEnabled(chkUserAddic7edLogin.isSelected())
+                    .setLoginAddic7edUsername(txtAddic7edUsername.getText())
+                    .setLoginAddic7edPassword(txtAddic7edPassword.getText())
+                    .setLoginOpenSubtitlesEnabled(chkUserOpenSubtitlesLogin.isSelected())
+                    .setLoginOpenSubtitlesUsername(txtOpenSubtitlesUsername.getText())
+                    .setLoginOpenSubtitlesPassword(txtOpenSubtitlesPassword.getText());
             List<Path> folList = new ArrayList<>();
             for (int i = 0; i < localSourcesFoldersList.getModel().getSize(); i++) {
                 folList.add(Path.of(localSourcesFoldersList.getDescription(i)));
             }
-            settingsCtrl.getSettings().setLocalSourcesFolders(folList);
-            settingsCtrl.getSettings().setSerieSourceAddic7ed(chkSourceAddic7ed.isSelected());
-            settingsCtrl.getSettings().setSerieSourceAddic7edProxy(chkSourceAddic7edProxy.isSelected());
-            settingsCtrl.getSettings().setSerieSourceTvSubtitles(chkSourceTvSubtitles.isSelected());
-            settingsCtrl.getSettings().setSerieSourcePodnapisi(chkSourcePodnapisi.isSelected());
-            settingsCtrl.getSettings().setSerieSourceOpensubtitles(chkSourceOpenSubtitles.isSelected());
-            settingsCtrl.getSettings().setSerieSourceLocal(chkSourceLocal.isSelected());
-            settingsCtrl.getSettings().setSerieSourceSubscene(chkSourceSubscene.isSelected());
+            settingsCtrl.getSettings()
+                    .setLocalSourcesFolders(folList)
+                    .setSerieSourceAddic7ed(chkSourceAddic7ed.isSelected())
+                    .setSerieSourceAddic7edProxy(chkSourceAddic7edProxy.isSelected())
+                    .setSerieSourceTvSubtitles(chkSourceTvSubtitles.isSelected())
+                    .setSerieSourcePodnapisi(chkSourcePodnapisi.isSelected())
+                    .setSerieSourceOpensubtitles(chkSourceOpenSubtitles.isSelected())
+                    .setSerieSourceLocal(chkSourceLocal.isSelected())
+                    .setSerieSourceSubscene(chkSourceSubscene.isSelected());
         } else {
             status = false;
         }
