@@ -15,11 +15,7 @@ public class ScoreCalculator {
             return 0;
         }
 
-        String subtitleInfo = subtitle.getFileName();
-        subtitleInfo += " " + subtitle.getQuality();
-        subtitleInfo += " " + subtitle.getReleaseGroup();
-
-        subtitleInfo = subtitleInfo.trim().toLowerCase();
+        String subtitleInfo = "%s %s %s".formatted(subtitle.getFileName(), subtitle.getQuality(), subtitle.getReleaseGroup()).trim().toLowerCase();
 
         int score = weights.getWeights().keySet().stream().filter(subtitleInfo::contains).mapToInt(weights.getWeights()::get).sum();
         return (int) Math.ceil((float) score / weights.getMaxScore() * 100);

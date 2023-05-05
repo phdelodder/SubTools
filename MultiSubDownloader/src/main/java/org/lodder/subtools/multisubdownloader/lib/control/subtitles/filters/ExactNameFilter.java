@@ -2,7 +2,6 @@ package org.lodder.subtools.multisubdownloader.lib.control.subtitles.filters;
 
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -21,6 +20,6 @@ public class ExactNameFilter extends Filter {
                 .filter(subtitle -> p.matcher(subtitle.getFileName().toLowerCase().replace(".srt", "")).matches())
                 .peek(subtitle -> LOGGER.debug("getSubtitlesFiltered: found EXACT match [{}] ", subtitle.getFileName()))
                 .peek(subtitle -> subtitle.setSubtitleMatchType(SubtitleMatchType.EXACT))
-                .collect(Collectors.toList());
+                .toList();
     }
 }
