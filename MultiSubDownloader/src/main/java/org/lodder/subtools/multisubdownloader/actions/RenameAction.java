@@ -69,7 +69,7 @@ public class RenameAction {
                 Files.delete(release.getPath());
             }
         } catch (IOException e) {
-            LOGGER.error("Unsuccessfull in moving the file to the libary", e);
+            LOGGER.error("Unsuccessful in moving the file to the library", e);
         }
     }
 

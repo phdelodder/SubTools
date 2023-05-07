@@ -35,7 +35,7 @@ public class TextGuiSearchAction extends GuiSearchAction<SearchTextInputPanel> {
     }
 
     public interface TextGuiSearchActionBuilderGUI {
-        TextGuiSearchActionBuilderSearchPanel mainwindow(GUI mainwindow);
+        TextGuiSearchActionBuilderSearchPanel mainWindow(GUI mainWindow);
     }
 
     public interface TextGuiSearchActionBuilderSearchPanel {
@@ -63,19 +63,19 @@ public class TextGuiSearchAction extends GuiSearchAction<SearchTextInputPanel> {
         private final Settings settings;
         private Manager manager;
         private SubtitleProviderStore subtitleProviderStore;
-        private GUI mainwindow;
+        private GUI mainWindow;
         private SearchPanel<SearchTextInputPanel> searchPanel;
         private ReleaseFactory releaseFactory;
 
         @Override
         public TextGuiSearchAction build() {
-            return new TextGuiSearchAction(manager, settings, subtitleProviderStore, mainwindow, searchPanel, releaseFactory);
+            return new TextGuiSearchAction(manager, settings, subtitleProviderStore, mainWindow, searchPanel, releaseFactory);
         }
     }
 
-    private TextGuiSearchAction(Manager manager, Settings settings, SubtitleProviderStore subtitleProviderStore, GUI mainwindow,
+    private TextGuiSearchAction(Manager manager, Settings settings, SubtitleProviderStore subtitleProviderStore, GUI mainWindow,
             SearchPanel<SearchTextInputPanel> searchPanel, ReleaseFactory releaseFactory) {
-        super(manager, settings, subtitleProviderStore, mainwindow, searchPanel, releaseFactory);
+        super(manager, settings, subtitleProviderStore, mainWindow, searchPanel, releaseFactory);
     }
 
     @Override

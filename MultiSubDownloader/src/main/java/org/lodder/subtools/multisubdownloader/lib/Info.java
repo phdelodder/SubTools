@@ -37,8 +37,8 @@ public class Info {
         }
     }
 
-    public static void subtitleFiltering(Settings settings, boolean isClie) {
-        if (isClie) {
+    public static void subtitleFiltering(Settings settings, boolean isCli) {
+        if (isCli) {
             System.out.println("----- Subtitle Filtering ------");
             System.out.println(" - OptionSubtitleExactMatch : " + settings.isOptionSubtitleExactMatch());
             System.out.println(" - OptionSubtitleKeywordMatch : " + settings.isOptionSubtitleKeywordMatch());

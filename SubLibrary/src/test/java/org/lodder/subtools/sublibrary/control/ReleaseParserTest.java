@@ -156,7 +156,7 @@ public class ReleaseParserTest {
         releaseparser = new ReleaseParser();
 
         thrown.expect(ReleaseParseException.class);
-        thrown.expectMessage("Unknow format, can't be parsed: " + file.toAbsolutePath());
+        thrown.expectMessage("Unknown format, can't be parsed: " + file.toAbsolutePath());
         releaseparser.parse(file);
 
         fail("Expected an ReleaseParseException to be thrown");

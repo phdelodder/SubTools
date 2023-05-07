@@ -334,7 +334,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
         TextGuiSearchAction searchAction = TextGuiSearchAction.createWithSettings(settings)
                 .manager(manager)
                 .subtitleProviderStore(subtitleProviderStore)
-                .mainwindow(this)
+                .mainWindow(this)
                 .searchPanel(pnlSearchText)
                 .releaseFactory(new ReleaseFactory(settings, (Manager) app.make("Manager")))
                 .build();
@@ -365,7 +365,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
                 .createWithSettings(settings)
                 .manager(manager)
                 .subtitleProviderStore((SubtitleProviderStore) this.app.make("SubtitleProviderStore"))
-                .mainwindow(this)
+                .mainWindow(this)
                 .searchPanel(pnlSearchFile)
                 .releaseFactory(new ReleaseFactory(settings, (Manager) app.make("Manager")))
                 .build();

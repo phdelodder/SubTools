@@ -37,12 +37,12 @@ public class TheTvdbApi {
         this.theTvdb = new TheTvdb(apikey);
     }
 
-    public List<TheTvdbSerie> getSeries(String seriename, Language language) throws TheTvdbException {
+    public List<TheTvdbSerie> getSeries(String serieName, Language language) throws TheTvdbException {
         return getManager().valueBuilder()
                 .memoryCache()
-                .key("%s-series-%s-%s".formatted("TVDB", seriename, language))
+                .key("%s-series-%s-%s".formatted("TVDB", serieName, language))
                 .collectionSupplier(TheTvdbSerie.class, () -> {
-                    String encodedSerieName = URLEncoder.encode(seriename.toLowerCase().replace(" ", "-"), StandardCharsets.UTF_8);
+                    String encodedSerieName = URLEncoder.encode(serieName.toLowerCase().replace(" ", "-"), StandardCharsets.UTF_8);
                     try {
                         Response<SeriesResultsResponse> response =
                                 theTvdb.search().series(encodedSerieName, null, null, null, language == null ? null : language.getLangCode())

@@ -37,7 +37,7 @@ public class FileGuiSearchAction extends GuiSearchAction<SearchFileInputPanel> {
     }
 
     public interface FileGuiSearchActionBuilderGUI {
-        FileGuiSearchActionBuilderSearchPanel mainwindow(GUI mainwindow);
+        FileGuiSearchActionBuilderSearchPanel mainWindow(GUI mainWindow);
     }
 
     public interface FileGuiSearchActionBuilderSearchPanel {
@@ -66,19 +66,19 @@ public class FileGuiSearchAction extends GuiSearchAction<SearchFileInputPanel> {
         private final Settings settings;
         private Manager manager;
         private SubtitleProviderStore subtitleProviderStore;
-        private GUI mainwindow;
+        private GUI mainWindow;
         private SearchPanel<SearchFileInputPanel> searchPanel;
         private ReleaseFactory releaseFactory;
 
         @Override
         public FileGuiSearchAction build() {
-            return new FileGuiSearchAction(manager, settings, subtitleProviderStore, mainwindow, searchPanel, releaseFactory);
+            return new FileGuiSearchAction(manager, settings, subtitleProviderStore, mainWindow, searchPanel, releaseFactory);
         }
     }
 
-    private FileGuiSearchAction(Manager manager, Settings settings, SubtitleProviderStore subtitleProviderStore, GUI mainwindow,
+    private FileGuiSearchAction(Manager manager, Settings settings, SubtitleProviderStore subtitleProviderStore, GUI mainWindow,
             SearchPanel<SearchFileInputPanel> searchPanel, ReleaseFactory releaseFactory)  {
-        super(manager, settings, subtitleProviderStore, mainwindow, searchPanel, releaseFactory);
+        super(manager, settings, subtitleProviderStore, mainWindow, searchPanel, releaseFactory);
         this.filelistAction = new FileListAction(settings);
     }
 
@@ -100,7 +100,7 @@ public class FileGuiSearchAction extends GuiSearchAction<SearchFileInputPanel> {
         subtitles.forEach(release::addMatchingSub);
 
         model.addRow(release);
-        getMainwindow().repaint();
+        getMainWindow().repaint();
 
         /* Let GuiSearchAction also make some decisions */
         super.onFound(release, subtitles);
@@ -117,15 +117,15 @@ public class FileGuiSearchAction extends GuiSearchAction<SearchFileInputPanel> {
         VideoTableModel model = (VideoTableModel) this.getSearchPanel().getResultPanel().getTable().getModel();
         model.clearTable();
 
-        /* get a list of videofiles */
+        /* get a list of video files */
         List<Path> files = getFiles(filePath, language, recursive, overwriteExistingSubtitles);
 
-        /* create a list of releases from videofiles */
+        /* create a list of releases from video files */
         return createReleases(files);
     }
 
     private List<Release> createReleases(List<Path> files) {
-        /* parse every videofile */
+        /* parse every video file */
         List<Release> releases = new ArrayList<>();
 
         int total = files.size();
@@ -162,7 +162,7 @@ public class FileGuiSearchAction extends GuiSearchAction<SearchFileInputPanel> {
             dirs.addAll(this.getSettings().getDefaultFolders());
         }
 
-        /* Scan directories for videofiles */
+        /* Scan directories for video files */
         /* Tell Action where to send progressUpdates */
         this.filelistAction.setIndexingProgressListener(this.getIndexingProgressListener());
 

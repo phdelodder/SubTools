@@ -2,13 +2,12 @@ package org.lodder.subtools.sublibrary.data.imdb;
 
 import java.util.Optional;
 
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.data.imdb.exception.ImdbException;
 import org.lodder.subtools.sublibrary.data.imdb.model.ImdbDetails;
 
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class ImdbApi {

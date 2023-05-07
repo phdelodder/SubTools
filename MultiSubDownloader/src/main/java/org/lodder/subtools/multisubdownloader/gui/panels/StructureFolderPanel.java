@@ -17,11 +17,11 @@ public class StructureFolderPanel extends StructurePanel {
 
     @Serial
     private static final long serialVersionUID = 3476596236588408382L;
-    private JLabel lblLocatie;
+    private JLabel lblLocation;
     private JTextField txtLibraryFolder;
     private ActionListener browseAction;
     private JButton btnBrowse;
-    private JLabel lblStructuur;
+    private JLabel lblStructure;
     private JTextField txtFolderStructure;
     private JCheckBox chkRemoveEmptyFolder;
 
@@ -37,10 +37,10 @@ public class StructureFolderPanel extends StructurePanel {
     private void addComponentsToPanel() {
         add(new JLabel(Messages.getString("PreferenceDialog.MoveToLibrary")), "cell 0 0 5 1,gapy 5");
         add(new JSeparator(), "cell 0 0 5 1,growx,gapy 5");
-        add(lblLocatie, "cell 1 1,alignx left");
+        add(lblLocation, "cell 1 1,alignx left");
         add(txtLibraryFolder, "cell 2 1 2 1,growx");
         add(btnBrowse, "cell 4 1,alignx center");
-        add(lblStructuur, "cell 1 2,alignx left");
+        add(lblStructure, "cell 1 2,alignx left");
         add(txtFolderStructure, "cell 2 2 2 1,growx");
         add(getBtnBuildStructure(), "cell 4 2,alignx center");
         add(chkRemoveEmptyFolder, "cell 1 3 4 1,alignx left");
@@ -57,14 +57,14 @@ public class StructureFolderPanel extends StructurePanel {
     }
 
     private void createComponents() {
-        lblLocatie = new JLabel(Messages.getString("PreferenceDialog.Location"));
+        lblLocation = new JLabel(Messages.getString("PreferenceDialog.Location"));
 
         txtLibraryFolder = new JTextField();
         txtLibraryFolder.setColumns(10);
 
         btnBrowse = new JButton(Messages.getString("App.Browse"));
 
-        lblStructuur = new JLabel(Messages.getString("StructureBuilderDialog.Structure"));
+        lblStructure = new JLabel(Messages.getString("StructureBuilderDialog.Structure"));
 
         txtFolderStructure = new JTextField();
         txtFolderStructure.setColumns(10);

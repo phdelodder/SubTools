@@ -115,7 +115,7 @@ public class SearchManager implements Cancelable {
 
         synchronized (this) {
             calculateProgress();
-            /* Tell the progresslistener our total progress */
+            /* Tell the progress listener our total progress */
             this.progressListener.progress(this.getProgress());
         }
 

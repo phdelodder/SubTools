@@ -46,7 +46,7 @@ public class HttpClientException extends Exception {
                 this.responseCode = connection.getResponseCode();
                 this.responseMessage = connection.getResponseMessage();
             } catch (IOException e) {
-                // let's keep this quite!
+                // let's keep this quiet!
             }
         }
     }

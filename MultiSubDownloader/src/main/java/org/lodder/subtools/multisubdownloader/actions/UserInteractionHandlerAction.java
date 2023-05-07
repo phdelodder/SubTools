@@ -69,7 +69,7 @@ public class UserInteractionHandlerAction {
                         return List.of();
                     }
 
-                    // still more then 1 subtitle, let the user decide!
+                    // still more than 1 subtitle, let the user decide!
                     if (subtitleSelectionDialog) {
                         LOGGER.debug("determineWhatSubtitleDownload: Select subtitle with dialog");
                         return userInteractionHandler.selectSubtitles(release);

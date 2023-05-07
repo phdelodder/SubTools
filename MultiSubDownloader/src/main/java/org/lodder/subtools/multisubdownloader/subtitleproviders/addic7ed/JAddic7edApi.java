@@ -182,7 +182,7 @@ public class JAddic7edApi extends Html implements SubtitleApi {
                                     Addic7edSubtitleDescriptor sub =
                                             new Addic7edSubtitleDescriptor()
                                                     .setUploader(uploader)
-                                                    .setTitel(title.trim())
+                                                    .setTitle(title.trim())
                                                     .setVersion(version.trim())
                                                     .setUrl(download)
                                                     .setLanguage(Language.fromValueOptional(lang.trim()).orElse(null))
@@ -215,7 +215,7 @@ public class JAddic7edApi extends Html implements SubtitleApi {
         try {
             if (!speedy && !getManager().valueBuilder().cacheType(CacheType.MEMORY).key(url).isPresent()) {
                 // if (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
-                // LOGGER.info("RateLimiet is bereikt voor ADDIC7ed, gelieve {} sec te wachten", RATEDURATION);
+                // LOGGER.info("RateLimit is reached for ADDIC7ed, please wait {} seconds", RATEDURATION);
                 // }
                 while (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
                     try {

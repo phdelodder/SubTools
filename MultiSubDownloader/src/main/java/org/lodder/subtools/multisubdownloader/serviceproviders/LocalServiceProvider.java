@@ -55,7 +55,7 @@ public class LocalServiceProvider implements ServiceProvider {
             /* Change occurred, delete outdated provider from store */
             subtitleProviderStore.deleteProvider(subtitleProvider);
 
-            /* Re-create subtitleprovider */
+            /* Re-create subtitle provider */
             subtitleProvider = createProvider();
 
             /* Re-add provider to store */

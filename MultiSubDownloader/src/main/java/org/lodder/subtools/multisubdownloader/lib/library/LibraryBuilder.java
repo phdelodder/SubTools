@@ -34,8 +34,8 @@ public abstract class LibraryBuilder {
         }
     }
 
-    protected String replaceFormatedEpisodeNumber(String structure, String tag, List<Integer> episodeNumbers, boolean leadingZero) {
-        String formatedEpisodeNumber = "";
+    protected String replaceFormattedEpisodeNumber(String structure, String tag, List<Integer> episodeNumbers, boolean leadingZero) {
+        String formattedEpisodeNumber = "";
         if (structure.contains(tag)) {
             int posEnd = structure.indexOf(tag);
             String structurePart = structure.substring(0, posEnd);
@@ -44,18 +44,18 @@ public abstract class LibraryBuilder {
 
             StringBuilder builder = new StringBuilder();
             for (final int epNum : episodeNumbers) {
-                builder.append(separator).append(formatedNumber(epNum, leadingZero));
+                builder.append(separator).append(formattedNumber(epNum, leadingZero));
             }
-            formatedEpisodeNumber += builder.toString();
+            formattedEpisodeNumber += builder.toString();
 
             // strip the first separator off
-            formatedEpisodeNumber = formatedEpisodeNumber.substring(1);
+            formattedEpisodeNumber = formattedEpisodeNumber.substring(1);
         }
-        return structure.replace(tag, formatedEpisodeNumber);
+        return structure.replace(tag, formattedEpisodeNumber);
 
     }
 
-    protected String formatedNumber(int number, boolean leadingZero) {
+    protected String formattedNumber(int number, boolean leadingZero) {
         if (number < 10 && leadingZero) {
             return "0" + number;
         }

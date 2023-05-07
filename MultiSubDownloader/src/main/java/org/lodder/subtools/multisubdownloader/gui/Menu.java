@@ -16,35 +16,35 @@ public class Menu extends JMenuBar {
     private static final long serialVersionUID = -7384297314593169280L;
     private JMenu mnFile;
     private JMenuItem mntmQuit;
-    private JMenu mnBeeld;
+    private JMenu mnView;
     private ActionListener fileQuitAction;
     private ActionListener viewFilenameAction;
     private ActionListener viewTypeAction;
     private ActionListener viewTitleAction;
-    private JMenu mnZoekResulaten;
-    private JCheckBoxMenuItem chckbxmntmBestandsnaam;
+    private JMenu mnSearchResults;
+    private JCheckBoxMenuItem chckbxmntmFileName;
     private JCheckBoxMenuItem chckbxmntmType;
     private JCheckBoxMenuItem chckbxmntmTitle;
     private JCheckBoxMenuItem chckbxmntmSeason;
     private JCheckBoxMenuItem chckbxmntmEpisode;
-    private JCheckBoxMenuItem chckbxmntmAlleenGevondenTonen;
-    private JMenuItem mntmLoggingWissen;
+    private JCheckBoxMenuItem chckbxmntmShowOnlyFound;
+    private JMenuItem mntmClearLog;
     private JMenu mnEdit;
     private JMenu mnHelp;
     private JMenuItem mntmRenameSerieFiles;
     private JMenuItem mntmRenameMovieFiles;
     private JMenuItem mntmPreferences;
-    private JMenu mnImportexport;
+    private JMenu mnSerieNames;
     private JMenuItem mntmTranslateShowNames;
-    private JMenu mnImporteerexporteer;
+    private JMenu mnImportExport;
     private JMenuItem mntmExportTranslate;
     private JMenuItem mntmImportTranslate;
-    private JMenuItem mntmExporteerUistluitingen;
-    private JMenuItem mntmImporteerUitsluitingen;
-    private JMenuItem mntmExporteerVoorkeuren;
-    private JMenuItem mntmImporteerVoorkeuren;
+    private JMenuItem mntmExportExclusions;
+    private JMenuItem mntmImportExclusions;
+    private JMenuItem mntmExportPreferences;
+    private JMenuItem mntmImportPreferences;
     private JMenuItem mntmAbout;
-    private JMenuItem mntmControlerenVoorUpdate;
+    private JMenuItem mntmCheckForUpdate;
     protected ActionListener viewSeasonAction;
     protected ActionListener viewEpisodeAction;
     protected ActionListener viewShowOnlyFoundAction;
@@ -71,64 +71,64 @@ public class Menu extends JMenuBar {
     private void createComponents() {
         mnFile = new JMenu(Messages.getString("Menu.Path"));
         mntmQuit = new JMenuItem(Messages.getString("App.Close"));
-        mnBeeld = new JMenu(Messages.getString("Menu.View"));
-        mnZoekResulaten = new JMenu(Messages.getString("Menu.SearchResults"));
-        chckbxmntmBestandsnaam = new JCheckBoxMenuItem(Messages.getString("Menu.Filename"));
+        mnView = new JMenu(Messages.getString("Menu.View"));
+        mnSearchResults = new JMenu(Messages.getString("Menu.SearchResults"));
+        chckbxmntmFileName = new JCheckBoxMenuItem(Messages.getString("Menu.Filename"));
         chckbxmntmType = new JCheckBoxMenuItem(Messages.getString("Menu.Type"));
         chckbxmntmTitle = new JCheckBoxMenuItem(Messages.getString("Menu.Title"));
         chckbxmntmSeason = new JCheckBoxMenuItem(Messages.getString("App.Season"));
         chckbxmntmEpisode = new JCheckBoxMenuItem(Messages.getString("App.Episode"));
-        chckbxmntmAlleenGevondenTonen = new JCheckBoxMenuItem(Messages.getString("Menu.OnlyShowFound"));
-        mntmLoggingWissen = new JMenuItem(Messages.getString("Menu.EraseLogging"));
+        chckbxmntmShowOnlyFound = new JCheckBoxMenuItem(Messages.getString("Menu.OnlyShowFound"));
+        mntmClearLog = new JMenuItem(Messages.getString("Menu.EraseLogging"));
         mntmRenameSerieFiles = new JMenuItem(Messages.getString("Menu.RenameSerie"));
         mntmRenameMovieFiles = new JMenuItem(Messages.getString("Menu.RenameMovie"));
         mntmPreferences = new JMenuItem(Messages.getString("Menu.Preferences"));
-        mnImportexport = new JMenu(Messages.getString("Menu.SerieNames"));
+        mnSerieNames = new JMenu(Messages.getString("Menu.SerieNames"));
         mntmTranslateShowNames = new JMenuItem(Messages.getString("Menu.MappingTvdbScene"));
-        mnImporteerexporteer = new JMenu(Messages.getString("Menu.ImportExport"));
+        mnImportExport = new JMenu(Messages.getString("Menu.ImportExport"));
         mnEdit = new JMenu(Messages.getString("App.Edit"));
         mnHelp = new JMenu(Messages.getString("Menu.Help"));
         mntmExportTranslate = new JMenuItem(Messages.getString("Menu.ExportMappingTvdbScene"));
         mntmImportTranslate = new JMenuItem(Messages.getString("Menu.ImportMappingTvdbScene"));
-        mntmExporteerUistluitingen = new JMenuItem(Messages.getString("Menu.ExportExclusions"));
-        mntmImporteerUitsluitingen = new JMenuItem(Messages.getString("Menu.ImportExclusions"));
-        mntmExporteerVoorkeuren = new JMenuItem(Messages.getString("Menu.ExportPreferences"));
-        mntmImporteerVoorkeuren = new JMenuItem(Messages.getString("Menu.ImportPreferences"));
+        mntmExportExclusions = new JMenuItem(Messages.getString("Menu.ExportExclusions"));
+        mntmImportExclusions = new JMenuItem(Messages.getString("Menu.ImportExclusions"));
+        mntmExportPreferences = new JMenuItem(Messages.getString("Menu.ExportPreferences"));
+        mntmImportPreferences = new JMenuItem(Messages.getString("Menu.ImportPreferences"));
         mntmAbout = new JMenuItem(Messages.getString("Menu.About"));
-        mntmControlerenVoorUpdate = new JMenuItem(Messages.getString("Menu.CheckForUpdate"));
+        mntmCheckForUpdate = new JMenuItem(Messages.getString("Menu.CheckForUpdate"));
     }
 
     private void addComponentsToMenu() {
         mnFile.add(mntmQuit);
         add(mnFile);
 
-        mnZoekResulaten.add(chckbxmntmType);
-        mnZoekResulaten.add(chckbxmntmBestandsnaam);
-        mnZoekResulaten.add(chckbxmntmTitle);
-        mnZoekResulaten.add(chckbxmntmSeason);
-        mnZoekResulaten.add(chckbxmntmEpisode);
-        mnBeeld.add(mnZoekResulaten);
-        mnBeeld.add(chckbxmntmAlleenGevondenTonen);
-        mnBeeld.add(mntmLoggingWissen);
-        add(mnBeeld);
+        mnSearchResults.add(chckbxmntmType);
+        mnSearchResults.add(chckbxmntmFileName);
+        mnSearchResults.add(chckbxmntmTitle);
+        mnSearchResults.add(chckbxmntmSeason);
+        mnSearchResults.add(chckbxmntmEpisode);
+        mnView.add(mnSearchResults);
+        mnView.add(chckbxmntmShowOnlyFound);
+        mnView.add(mntmClearLog);
+        add(mnView);
 
         mnEdit.add(mntmRenameSerieFiles);
         mnEdit.add(mntmRenameMovieFiles);
         mnEdit.add(mntmPreferences);
         add(mnEdit);
 
-        mnImportexport.add(mntmTranslateShowNames);
-        add(mnImportexport);
+        mnSerieNames.add(mntmTranslateShowNames);
+        add(mnSerieNames);
 
-        mnImporteerexporteer.add(mntmExportTranslate);
-        mnImporteerexporteer.add(mntmImportTranslate);
-        mnImporteerexporteer.add(mntmExporteerUistluitingen);
-        mnImporteerexporteer.add(mntmImporteerUitsluitingen);
-        mnImporteerexporteer.add(mntmExporteerVoorkeuren);
-        mnImporteerexporteer.add(mntmImporteerVoorkeuren);
-        add(mnImporteerexporteer);
+        mnImportExport.add(mntmExportTranslate);
+        mnImportExport.add(mntmImportTranslate);
+        mnImportExport.add(mntmExportExclusions);
+        mnImportExport.add(mntmImportExclusions);
+        mnImportExport.add(mntmExportPreferences);
+        mnImportExport.add(mntmImportPreferences);
+        add(mnImportExport);
 
-        mnHelp.add(mntmControlerenVoorUpdate);
+        mnHelp.add(mntmCheckForUpdate);
         mnHelp.add(mntmAbout);
 
         add(mnHelp);
@@ -142,7 +142,7 @@ public class Menu extends JMenuBar {
             }
         });
 
-        chckbxmntmBestandsnaam.addActionListener(actionEvent -> {
+        chckbxmntmFileName.addActionListener(actionEvent -> {
             if (viewFilenameAction != null) {
                 viewFilenameAction.actionPerformed(actionEvent);
             }
@@ -172,13 +172,13 @@ public class Menu extends JMenuBar {
             }
         });
 
-        chckbxmntmAlleenGevondenTonen.addActionListener(arg0 -> {
+        chckbxmntmShowOnlyFound.addActionListener(arg0 -> {
             if (viewShowOnlyFoundAction != null) {
                 viewShowOnlyFoundAction.actionPerformed(arg0);
             }
         });
 
-        mntmLoggingWissen.addActionListener(arg0 -> {
+        mntmClearLog.addActionListener(arg0 -> {
             if (viewClearLogAction != null) {
                 viewClearLogAction.actionPerformed(arg0);
             }
@@ -208,25 +208,25 @@ public class Menu extends JMenuBar {
             }
         });
 
-        mntmExporteerUistluitingen.addActionListener(arg0 -> {
+        mntmExportExclusions.addActionListener(arg0 -> {
             if (exportExclusionsAction != null) {
                 exportExclusionsAction.actionPerformed(arg0);
             }
         });
 
-        mntmImporteerUitsluitingen.addActionListener(arg0 -> {
+        mntmImportExclusions.addActionListener(arg0 -> {
             if (importExclusionsAction != null) {
                 importExclusionsAction.actionPerformed(arg0);
             }
         });
 
-        mntmExporteerVoorkeuren.addActionListener(arg0 -> {
+        mntmExportPreferences.addActionListener(arg0 -> {
             if (exportPreferencesAction != null) {
                 exportPreferencesAction.actionPerformed(arg0);
             }
         });
 
-        mntmImporteerVoorkeuren.addActionListener(arg0 -> {
+        mntmImportPreferences.addActionListener(arg0 -> {
             if (importPreferencesAction != null) {
                 importPreferencesAction.actionPerformed(arg0);
             }
@@ -250,7 +250,7 @@ public class Menu extends JMenuBar {
             }
         });
 
-        mntmControlerenVoorUpdate.addActionListener(arg0 -> {
+        mntmCheckForUpdate.addActionListener(arg0 -> {
             if (checkUpdateAction != null) {
                 checkUpdateAction.actionPerformed(arg0);
             }
@@ -258,19 +258,19 @@ public class Menu extends JMenuBar {
     }
 
     public void setShowOnlyFound(boolean show) {
-        chckbxmntmAlleenGevondenTonen.setSelected(show);
+        chckbxmntmShowOnlyFound.setSelected(show);
     }
 
     public boolean isShowOnlyFound() {
-        return chckbxmntmAlleenGevondenTonen.isSelected();
+        return chckbxmntmShowOnlyFound.isSelected();
     }
 
     public boolean isViewFilenameSelected() {
-        return chckbxmntmBestandsnaam.isSelected();
+        return chckbxmntmFileName.isSelected();
     }
 
     public void setViewFileNameSelected(boolean arg0) {
-        this.chckbxmntmBestandsnaam.setSelected(arg0);
+        this.chckbxmntmFileName.setSelected(arg0);
     }
 
     public boolean isViewTypeSelected() {

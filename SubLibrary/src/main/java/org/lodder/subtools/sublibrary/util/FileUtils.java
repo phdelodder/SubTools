@@ -308,7 +308,7 @@ public class FileUtils {
 
     /*
      * Determines if a byte array is compressed. The java.util.zip GZip
-     * implementaiton does not expose the GZip header so it is difficult to
+     * implementation does not expose the GZip header so it is difficult to
      * determine if a string is compressed.
      *
      * @param bytes an array of bytes

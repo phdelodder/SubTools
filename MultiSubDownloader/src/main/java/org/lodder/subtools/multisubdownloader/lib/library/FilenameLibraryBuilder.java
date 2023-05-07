@@ -28,12 +28,12 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
             filename = getLibrarySettings().getLibraryFilenameStructure();
             // order is important!
             filename = filename.replace("%SHOW NAME%", show);
-            filename = replaceFormatedEpisodeNumber(filename, "%EEX%", tvRelease.getEpisodeNumbers(), true);
-            filename = replaceFormatedEpisodeNumber(filename, "%EX%", tvRelease.getEpisodeNumbers(), false);
-            filename = filename.replace("%SS%", formatedNumber(tvRelease.getSeason(), true));
-            filename = filename.replace("%S%", formatedNumber(tvRelease.getSeason(), false));
-            filename = filename.replace("%EE%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), true));
-            filename = filename.replace("%E%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), false));
+            filename = replaceFormattedEpisodeNumber(filename, "%EEX%", tvRelease.getEpisodeNumbers(), true);
+            filename = replaceFormattedEpisodeNumber(filename, "%EX%", tvRelease.getEpisodeNumbers(), false);
+            filename = filename.replace("%SS%", formattedNumber(tvRelease.getSeason(), true));
+            filename = filename.replace("%S%", formattedNumber(tvRelease.getSeason(), false));
+            filename = filename.replace("%EE%", formattedNumber(tvRelease.getEpisodeNumbers().get(0), true));
+            filename = filename.replace("%E%", formattedNumber(tvRelease.getEpisodeNumbers().get(0), false));
             filename = filename.replace("%TITLE%", tvRelease.getTitle());
             filename = filename.replace("%QUALITY%", release.getQuality());
             filename = filename.replace("%DESCRIPTION%", release.getDescription());

@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum OrderDirectionEnum implements ParamIntf {
-    ACSENDING("asc"), DESCENDING("desc");
+    ASCENDING("asc"), DESCENDING("desc");
 
     private final String value;
 

@@ -60,7 +60,7 @@ public class SearchWorker extends Thread {
 
     @Override
     public boolean isInterrupted() {
-        /* bugfix? interupt-state isn't being held */
+        /* bugfix? interrupt-state isn't being held */
         return super.isInterrupted() || this.isInterrupted;
     }
 

@@ -43,12 +43,12 @@ public class PathLibraryBuilder extends LibraryBuilder {
 
         folder = folder.replace("%SHOW NAME%", show);
         // order is important!
-        folder = replaceFormatedEpisodeNumber(folder, "%EEX%", tvRelease.getEpisodeNumbers(), true);
-        folder = replaceFormatedEpisodeNumber(folder, "%EX%", tvRelease.getEpisodeNumbers(), false);
-        folder = folder.replace("%SS%", formatedNumber(tvRelease.getSeason(), true));
-        folder = folder.replace("%S%", formatedNumber(tvRelease.getSeason(), false));
-        folder = folder.replace("%EE%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), true));
-        folder = folder.replace("%E%", formatedNumber(tvRelease.getEpisodeNumbers().get(0), false));
+        folder = replaceFormattedEpisodeNumber(folder, "%EEX%", tvRelease.getEpisodeNumbers(), true);
+        folder = replaceFormattedEpisodeNumber(folder, "%EX%", tvRelease.getEpisodeNumbers(), false);
+        folder = folder.replace("%SS%", formattedNumber(tvRelease.getSeason(), true));
+        folder = folder.replace("%S%", formattedNumber(tvRelease.getSeason(), false));
+        folder = folder.replace("%EE%", formattedNumber(tvRelease.getEpisodeNumbers().get(0), true));
+        folder = folder.replace("%E%", formattedNumber(tvRelease.getEpisodeNumbers().get(0), false));
         folder = folder.replace("%TITLE%", tvRelease.getTitle());
         folder = folder.replace("%QUALITY%", tvRelease.getQuality());
         if (getLibrarySettings().isLibraryFolderReplaceSpace()) {

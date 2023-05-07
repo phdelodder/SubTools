@@ -17,17 +17,17 @@ import org.slf4j.LoggerFactory;
 public class Filtering {
 
     private final Settings settings;
-    private final Filter exactname;
+    private final Filter exactName;
     private final Filter keyword;
-    private final Filter releasegroup;
+    private final Filter releaseGroup;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Filtering.class);
 
     public Filtering(Settings settings) {
         this.settings = settings;
-        exactname = new ExactNameFilter();
+        exactName = new ExactNameFilter();
         keyword = new KeywordFilter();
-        releasegroup = new ReleasegroupFilter();
+        releaseGroup = new ReleasegroupFilter();
     }
 
     public List<Subtitle> getFiltered(List<Subtitle> foundSubtitles, Release release) {
@@ -45,14 +45,14 @@ public class Filtering {
             if (!filteredSubtitles.isEmpty()) {
                 subtitles = filteredSubtitles;
             }
-            filteredSubtitles = releasegroup.doFilter(release, subtitles);
+            filteredSubtitles = releaseGroup.doFilter(release, subtitles);
             if (!filteredSubtitles.isEmpty()) {
                 subtitles = filteredSubtitles;
             }
         }
 
         if (settings.isOptionSubtitleExactMatch()) {
-            filteredSubtitles = exactname.doFilter(release, subtitles);
+            filteredSubtitles = exactName.doFilter(release, subtitles);
             if (!filteredSubtitles.isEmpty()) {
                 subtitles = filteredSubtitles;
             }

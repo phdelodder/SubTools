@@ -35,7 +35,7 @@ public class TheTvdbSerie implements Serializable {
     private String rating;
     private String runtime;
     private String status;
-    private String fanart;
+    private String fanArt;
     private String lastUpdated;
     private String poster;
 

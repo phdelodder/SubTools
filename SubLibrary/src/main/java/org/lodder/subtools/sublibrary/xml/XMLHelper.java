@@ -56,10 +56,10 @@ public class XMLHelper {
         return "";
     }
 
-    public static String getStringAtributeValue(String sTag, String sAtribute, Element eElement) {
-        LOGGER.trace("getStringAtributeValue: sTag [{}], sAtribute [{}]", sTag, sAtribute);
+    public static String getStringAttributeValue(String sTag, String sAttribute, Element eElement) {
+        LOGGER.trace("getStringAttributeValue: sTag [{}], sAttribute [{}]", sTag, sAttribute);
         NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
-        return XMLCleanup(((Element) nlList).getAttribute(sAtribute));
+        return XMLCleanup(((Element) nlList).getAttribute(sAttribute));
     }
 
     public static int getIntTagValue(String sTag, Element eElement) {
@@ -74,11 +74,11 @@ public class XMLHelper {
         return nValue != null && Boolean.parseBoolean(nValue.getNodeValue());
     }
 
-    public static boolean getBooleanAtributeValue(String sTag, String sAtribute, Element eElement) {
-        LOGGER.trace("getBooleanAtributeValue: sTag [{}], sAtribute [{}]", sTag, sAtribute);
+    public static boolean getBooleanAttributeValue(String sTag, String sAttribute, Element eElement) {
+        LOGGER.trace("getBooleanAttributeValue: sTag [{}], sAttribute [{}]", sTag, sAttribute);
         NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
-        return ((Element) nlList).getAttribute(sAtribute) != null
-                && Boolean.parseBoolean(((Element) nlList).getAttribute(sAtribute));
+        return ((Element) nlList).getAttribute(sAttribute) != null
+                && Boolean.parseBoolean(((Element) nlList).getAttribute(sAttribute));
     }
 
     public static String cleanBadChars(String string) {

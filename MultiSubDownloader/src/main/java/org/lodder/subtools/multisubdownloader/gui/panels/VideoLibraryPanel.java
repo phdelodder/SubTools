@@ -53,7 +53,7 @@ public abstract class VideoLibraryPanel extends JPanel {
         // repaint();
     }
 
-    private void checkPosibleOtherFileActions() {
+    private void checkPossibleOtherFileActions() {
         LibraryActionType libraryActionType = (LibraryActionType) cbxLibraryAction.getSelectedItem();
         if (libraryActionType != null) {
             for (int i = 0; i < cbxLibraryOtherFileAction.getModel().getSize(); i++) {
@@ -165,7 +165,7 @@ public abstract class VideoLibraryPanel extends JPanel {
         pnlStructureFile.getTxtDefaultNlText().setText(libSettings.getDefaultNlText());
 
         checkEnableStatusPanel();
-        checkPosibleOtherFileActions();
+        checkPossibleOtherFileActions();
     }
 
     public LibrarySettings getLibrarySettings() {
@@ -218,7 +218,7 @@ public abstract class VideoLibraryPanel extends JPanel {
         cbxLibraryAction.setModel(new DefaultComboBoxModel<>(LibraryActionType.values()));
         cbxLibraryAction.addItemListener(arg0 -> {
             checkEnableStatusPanel();
-            checkPosibleOtherFileActions();
+            checkPossibleOtherFileActions();
             if (!cbxLibraryOtherFileAction.isItemEnabled(cbxLibraryOtherFileAction.getSelectedIndex())) {
                 cbxLibraryOtherFileAction.setSelectedIndex(0);
             }

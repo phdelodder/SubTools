@@ -12,7 +12,7 @@ import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
 /**
- * CookieManager is a simple utilty for handling cookies when working with java.net.URL and
+ * CookieManager is a simple utility for handling cookies when working with java.net.URL and
  * java.net.URLConnection objects.
  *
  *
@@ -116,7 +116,7 @@ public class CookieManager {
 
     /**
      * Prior to opening a URLConnection, calling this method will set all unexpired cookies that match
-     * the path or subpaths for thi underlying URL
+     * the path or sub paths for this underlying URL
      *
      * The connection MUST NOT have been opened method or an IOException will be thrown.
      *

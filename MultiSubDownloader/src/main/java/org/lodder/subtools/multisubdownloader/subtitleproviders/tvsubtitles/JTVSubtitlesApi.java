@@ -14,7 +14,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleApi;
-import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.exception.TvSubtiltesException;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.exception.TvSubtitlesException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.model.TVsubtitlesSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
@@ -38,7 +38,7 @@ public class JTVSubtitlesApi extends Html implements SubtitleApi {
         super(manager);
     }
 
-    public List<ProviderSerieId> getUrisForSerieName(String serieName) throws TvSubtiltesException {
+    public List<ProviderSerieId> getUrisForSerieName(String serieName) throws TvSubtitlesException {
         try {
             return getManager().postBuilder()
                     .url(DOMAIN + "/search.php")
@@ -48,18 +48,18 @@ public class JTVSubtitlesApi extends Html implements SubtitleApi {
                     .map(element -> new ProviderSerieId(element.text(), StringUtils.substringAfterLast(element.attr("href"), "/")))
                     .toList();
         } catch (Exception e) {
-            throw new TvSubtiltesException(e);
+            throw new TvSubtitlesException(e);
         }
     }
 
     public Set<TVsubtitlesSubtitleDescriptor> getSubtitles(SerieMapping providerSerieId, int season, int episode, Language language)
-            throws TvSubtiltesException {
+            throws TvSubtitlesException {
         return getEpisodeUrl(SERIE_URL_PREFIX + providerSerieId.getProviderId(), season, episode)
                 .mapToObj(episodeUrl -> getSubtitles(episodeUrl, language))
                 .orElseGet(Set::of);
     }
 
-    private Set<TVsubtitlesSubtitleDescriptor> getSubtitles(String episodeUrl, Language language) throws TvSubtiltesException {
+    private Set<TVsubtitlesSubtitleDescriptor> getSubtitles(String episodeUrl, Language language) throws TvSubtitlesException {
         return getManager().valueBuilder()
                 .memoryCache()
                 .key("%s-subtitles-%s-%s".formatted(getSubtitleSource().name(), episodeUrl, language))
@@ -115,28 +115,28 @@ public class JTVSubtitlesApi extends Html implements SubtitleApi {
                         }
                         return lSubtitles;
                     } catch (Exception e) {
-                        throw new TvSubtiltesException(e);
+                        throw new TvSubtitlesException(e);
                     }
                 })
                 .getCollection();
     }
 
-    private Optional<String> getEpisodeUrl(String showUrl, int season, int episode) throws TvSubtiltesException {
+    private Optional<String> getEpisodeUrl(String showUrl, int season, int episode) throws TvSubtitlesException {
         return getManager().valueBuilder()
                 .memoryCache()
                 .key("%s-episodeUrl-%s-%s-%s".formatted(getSubtitleSource().name(), showUrl, season, episode))
                 .optionalSupplier(() -> {
                     try {
-                        String formatedSeasonEpisode = season + "x" + (episode < 10 ? "0" + episode : String.valueOf(episode));
+                        String formattedSeasonEpisode = season + "x" + (episode < 10 ? "0" + episode : String.valueOf(episode));
                         return getHtml(showUrl.replace(".html", "-" + season + ".html"))
                                 .getAsJsoupDocument()
                                 .getElementById("table5").getElementsByTag("tr").stream().skip(1)
                                 .filter(row -> Optional.ofNullable(row.selectFirst("td"))
-                                        .map(element -> formatedSeasonEpisode.equals(element.text()))
+                                        .map(element -> formattedSeasonEpisode.equals(element.text()))
                                         .orElse(false))
                                 .map(element -> DOMAIN + "/" + element.select("td").get(1).selectFirst("a").attr("href")).findAny();
                     } catch (Exception e) {
-                        throw new TvSubtiltesException(e);
+                        throw new TvSubtitlesException(e);
                     }
                 }).getOptional();
     }

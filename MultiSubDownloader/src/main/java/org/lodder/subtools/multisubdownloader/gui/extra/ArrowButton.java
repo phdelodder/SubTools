@@ -1,5 +1,7 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
+import java.io.Serial;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
@@ -8,7 +10,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Insets;
-import java.io.Serial;
 
 public class ArrowButton extends JButton {
 
@@ -50,8 +51,8 @@ public class ArrowButton extends JButton {
     /**
      * Sets the cardinal direction of the arrow(s).
      *
-     * @param direction the direction of the arrow(s), can be SwingConstants.NORTH,
-     *        SwingConstants.SOUTH, SwingConstants.WEST or SwingConstants.EAST
+     * @param direction the direction of the arrow(s), can be {@link SwingConstants#NORTH},
+     *        {@link SwingConstants#SOUTH}, {@link SwingConstants#WEST} or {@link SwingConstants#EAST}
      * @see #getDirection()
      */
     public void setDirection(int direction) {

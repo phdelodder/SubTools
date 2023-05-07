@@ -15,7 +15,7 @@ public class KeywordFilter extends Filter {
 
     @Override
     public List<Subtitle> doFilter(Release release, List<Subtitle> subtitles) {
-        String keywordsFile = ReleaseParser.getQualityKeyword(getReleasename(release));
+        String keywordsFile = ReleaseParser.getQualityKeyword(getReleaseName(release));
 
         return subtitles.stream()
                 .peek(subtitle -> {

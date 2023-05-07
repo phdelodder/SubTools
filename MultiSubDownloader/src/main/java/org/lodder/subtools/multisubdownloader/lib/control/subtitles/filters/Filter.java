@@ -11,7 +11,7 @@ public abstract class Filter {
 
     public abstract List<Subtitle> doFilter(Release release, List<Subtitle> Subtitles);
 
-    protected String getReleasename(Release release) {
+    protected String getReleaseName(Release release) {
         return release.getFileName() == null ? "" : release.getFileName().toLowerCase().replace("." + release.getExtension(), "");
     }
 

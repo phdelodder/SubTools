@@ -188,9 +188,9 @@ public class PreferenceDialog extends MultiSubDialog {
                     btnAddExcludeFolder.addActionListener(arg0 -> addExcludeItem(SettingsExcludeType.FOLDER));
                     pnlGeneral.add(btnAddExcludeFolder, "split");
 
-                    JButton btnDeleteExcludeFoledr = new JButton(Messages.getString("PreferenceDialog.DeleteFolder"));
-                    btnDeleteExcludeFoledr.addActionListener(arg0 -> removeExcludeItem());
-                    pnlGeneral.add(btnDeleteExcludeFoledr);
+                    JButton btnDeleteExcludeFolder = new JButton(Messages.getString("PreferenceDialog.DeleteFolder"));
+                    btnDeleteExcludeFolder.addActionListener(arg0 -> removeExcludeItem());
+                    pnlGeneral.add(btnDeleteExcludeFolder);
 
                     JButton btnAddExcludeRegex = new JButton(Messages.getString("PreferenceDialog.RegexToevoegen"));
                     btnAddExcludeRegex.addActionListener(arg0 -> addExcludeItem(SettingsExcludeType.REGEX));
@@ -326,7 +326,7 @@ public class PreferenceDialog extends MultiSubDialog {
                 JPanel pnlSerieSources = new JPanel(new MigLayout("", "[grow, nogrid]"));
                 tabbedPane.addTab(Messages.getString("PreferenceDialog.SerieSources"), null, pnlSerieSources, null);
 
-                pnlSerieSources.add(new JLabel(Messages.getString("PreferenceDialog.SelectPreferedSources")), "split");
+                pnlSerieSources.add(new JLabel(Messages.getString("PreferenceDialog.SelectPreferredSources")), "split");
                 pnlSerieSources.add(new JSeparator(), "wrap, growx, gapy 5");
 
                 // ADDIC7ED

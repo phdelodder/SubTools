@@ -16,7 +16,7 @@ public class Addic7edSubtitleDescriptor {
     private String version;
     private Language language;
     private String url;
-    private String titel;
+    private String title;
     private String uploader;
     private boolean hearingImpaired;
 }

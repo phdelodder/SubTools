@@ -56,9 +56,9 @@ public class Manager {
     private final InMemoryCache inMemoryCache;
     private final DiskCache diskCache;
 
-    public boolean store(String downloadlink, Path file) throws ManagerException {
+    public boolean store(String downloadLink, Path file) throws ManagerException {
         try {
-            return httpClient.doDownloadFile(new URI(downloadlink).toURL(), file);
+            return httpClient.doDownloadFile(new URI(downloadLink).toURL(), file);
         } catch (MalformedURLException | URISyntaxException e) {
             throw new ManagerException("incorrect url", e);
         }
@@ -280,7 +280,7 @@ public class Manager {
                     }
                     return getContentWithoutCache(urlString, userAgent);
                 }
-                throw new ManagerException("Error occured with httpclient response: %s %s".formatted(e.getResponseCode(), e.getResponseMessage()),
+                throw new ManagerException("Error occurred with httpclient response: %s %s".formatted(e.getResponseCode(), e.getResponseMessage()),
                         e);
             } catch (IOException e) {
                 if (retries-- > 0 && retryPredicate.test(e)) {

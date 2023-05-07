@@ -16,10 +16,10 @@ public class StructureFilePanel extends StructurePanel {
 
     @Serial
     private static final long serialVersionUID = -5458593307643063563L;
-    private JLabel lblStructuur_1;
+    private JLabel lblStructure_1;
     private JTextField txtFileStructure;
     private JCheckBox chkIncludeLanguageCode;
-    private JLabel lblNederlands;
+    private JLabel lblDutch;
     private JTextField txtDefaultNlText;
     private JLabel lblEnglish;
     private JTextField txtDefaultEnText;
@@ -36,13 +36,13 @@ public class StructureFilePanel extends StructurePanel {
     private void addComponentsToPanel() {
         add(new JLabel(Messages.getString("PreferenceDialog.RenameFiles")), "cell 0 0 5 1,gapy 5");
         add(new JSeparator(), "cell 0 0 5 1,growx,gapy 5");
-        add(lblStructuur_1, "cell 1 1,alignx left");
+        add(lblStructure_1, "cell 1 1,alignx left");
         add(txtFileStructure, "cell 2 1 2 1,growx");
         add(getBtnBuildStructure(), "cell 4 1");
         add(this.getChkReplaceSpace(), "cell 1 2 2 1");
         add(this.getCbxReplaceSpaceChar(), "cell 3 2,growx");
         add(chkIncludeLanguageCode, "cell 1 3 4 1");
-        add(lblNederlands, "cell 1 4,alignx trailing");
+        add(lblDutch, "cell 1 4,alignx trailing");
         add(txtDefaultNlText, "cell 2 4");
         add(lblEnglish, "cell 1 5,alignx trailing");
         add(txtDefaultEnText, "cell 2 5");
@@ -53,14 +53,14 @@ public class StructureFilePanel extends StructurePanel {
     }
 
     private void createComponents() {
-        lblStructuur_1 = new JLabel(Messages.getString("PreferenceDialog.Structure"));
+        lblStructure_1 = new JLabel(Messages.getString("PreferenceDialog.Structure"));
 
         txtFileStructure = new JTextField();
         txtFileStructure.setColumns(10);
 
         chkIncludeLanguageCode = new JCheckBox(Messages.getString("PreferenceDialog.IncludeLanguageInFileName"));
 
-        lblNederlands = new JLabel("Nederlands");
+        lblDutch = new JLabel("Nederlands");
 
         txtDefaultNlText = new JTextField();
         txtDefaultNlText.setColumns(10);

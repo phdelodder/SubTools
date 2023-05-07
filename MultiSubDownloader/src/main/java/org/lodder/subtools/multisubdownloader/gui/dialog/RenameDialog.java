@@ -75,14 +75,14 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
             gbl_panel.rowWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
             panel.setLayout(gbl_panel);
             {
-                JLabel lblFolderToRenamemove =
+                JLabel lblFolderToRenameMove =
                         new JLabel(Messages.getString("RenameDialog.FolderForRename/Move"));
-                GridBagConstraints gbc_lblFolderToRenamemove = new GridBagConstraints();
-                gbc_lblFolderToRenamemove.fill = GridBagConstraints.BOTH;
-                gbc_lblFolderToRenamemove.insets = new Insets(0, 0, 5, 5);
-                gbc_lblFolderToRenamemove.gridx = 0;
-                gbc_lblFolderToRenamemove.gridy = 0;
-                panel.add(lblFolderToRenamemove, gbc_lblFolderToRenamemove);
+                GridBagConstraints gbc_lblFolderToRenameMove = new GridBagConstraints();
+                gbc_lblFolderToRenameMove.fill = GridBagConstraints.BOTH;
+                gbc_lblFolderToRenameMove.insets = new Insets(0, 0, 5, 5);
+                gbc_lblFolderToRenameMove.gridx = 0;
+                gbc_lblFolderToRenameMove.gridy = 0;
+                panel.add(lblFolderToRenameMove, gbc_lblFolderToRenameMove);
             }
             {
                 JButton btnBrowser = new JButton(Messages.getString("App.Browse"));

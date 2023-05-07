@@ -69,10 +69,10 @@ public class OpenSubtitlesServiceProvider implements ServiceProvider {
 
         /* Listen for settings-change */
         emitter.listen("providers.settings.change", event -> {
-            /* Change occured, delete outdated provider from store */
+            /* Change occurred, delete outdated provider from store */
             subtitleProviderStore.deleteProvider(subtitleProvider);
 
-            /* Re-create subtitleprovider */
+            /* Re-create subtitle provider */
             subtitleProvider = createProvider(userInteractionHandler);
 
             /* Re-add provider to store */

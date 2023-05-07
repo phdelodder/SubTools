@@ -40,18 +40,18 @@ public class FileListAction {
         this.settings = settings;
     }
 
-    public List<Path> getFileListing(Path dir, boolean recursieve, Language language, boolean forceSubtitleOverwrite) {
-        LOGGER.trace("getFileListing: dir [{}] Recursive [{}] languageCode [{}] forceSubtitleOverwrite [{}]", dir, recursieve, language,
+    public List<Path> getFileListing(Path dir, boolean recursive, Language language, boolean forceSubtitleOverwrite) {
+        LOGGER.trace("getFileListing: dir [{}] Recursive [{}] languageCode [{}] forceSubtitleOverwrite [{}]", dir, recursive, language,
                 forceSubtitleOverwrite);
         /* Reset progress counters */
         this.progressFileIndex = 0;
         this.progressFilesTotal = 0;
 
         /* Start listing process */
-        return this._getFileListing(dir, recursieve, language, forceSubtitleOverwrite);
+        return this._getFileListing(dir, recursive, language, forceSubtitleOverwrite);
     }
 
-    private List<Path> _getFileListing(Path dir, boolean recursieve, Language language, boolean forceSubtitleOverwrite) {
+    private List<Path> _getFileListing(Path dir, boolean recursive, Language language, boolean forceSubtitleOverwrite) {
         final List<Path> filelist = new ArrayList<>();
         List<Path> contents;
         try {
@@ -70,9 +70,9 @@ public class FileListAction {
 
             /* Update progressListener */
             if (this.indexingProgressListener != null) {
-                /* Tell the progresslistener which directory we are handling */
+                /* Tell the progress listener which directory we are handling */
                 this.indexingProgressListener.progress(dir.toString());
-                /* Tell the progresslistener the overall progress */
+                /* Tell the progress listener the overall progress */
                 int progress = (int) Math.floor((float) this.progressFileIndex / this.progressFilesTotal * 100);
                 this.indexingProgressListener.progress(progress);
             }
@@ -81,8 +81,8 @@ public class FileListAction {
                 if (file.isRegularFile() && isValidVideoFile(file) && (!fileHasSubtitles(file, language) || forceSubtitleOverwrite)
                         && isNotExcluded(file)) {
                     filelist.add(file);
-                } else if (recursieve && file.isDirectory() && !isExcludedDir(file)) {
-                    filelist.addAll(getFileListing(file, recursieve, language, forceSubtitleOverwrite));
+                } else if (recursive && file.isDirectory() && !isExcludedDir(file)) {
+                    filelist.addAll(getFileListing(file, recursive, language, forceSubtitleOverwrite));
                 }
             } catch (IOException e) {
                 LOGGER.error(e.getMessage(), e);

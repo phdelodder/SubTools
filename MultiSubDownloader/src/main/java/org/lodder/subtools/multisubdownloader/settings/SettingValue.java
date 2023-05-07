@@ -143,31 +143,31 @@ public enum SettingValue {
     private final BiConsumer<SettingsControl, Preferences> storeValueFunction;
     private final BiConsumer<SettingsControl, Preferences> loadValueFunction;
 
-    <T, E extends Enum<E>> SettingValue(E defaultValue, Function<SettingsControl, T> rootElementFuntion,
+    <T, E extends Enum<E>> SettingValue(E defaultValue, Function<SettingsControl, T> rootElementFunction,
             Function<T, E> valueGetter, BiConsumer<T, E> valueSetter) {
         String key = getKey();
         this.storeValueFunction = (settingsControl, preferences) -> {
-            E value = valueGetter.apply(rootElementFuntion.apply(settingsControl));
+            E value = valueGetter.apply(rootElementFunction.apply(settingsControl));
             if (value != defaultValue) {
                 preferences.put(key, value.name());
             }
         };
         @SuppressWarnings("unchecked")
         Class<E> enumType = (Class<E>) TypeResolver.resolveRawArgument(Enum.class, defaultValue.getClass());
-        this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFuntion.apply(settingsControl),
+        this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFunction.apply(settingsControl),
                 Enum.valueOf(enumType, preferences.get(key, defaultValue.name())));
     }
 
-    <T> SettingValue(boolean defaultValue, Function<SettingsControl, T> rootElementFuntion, Function<T, Boolean> valueGetter,
+    <T> SettingValue(boolean defaultValue, Function<SettingsControl, T> rootElementFunction, Function<T, Boolean> valueGetter,
             BiConsumer<T, Boolean> valueSetter) {
         String key = getKey();
         this.storeValueFunction = (settingsControl, preferences) -> {
-            Boolean value = valueGetter.apply(rootElementFuntion.apply(settingsControl));
+            Boolean value = valueGetter.apply(rootElementFunction.apply(settingsControl));
             if (value != defaultValue) {
                 preferences.putBoolean(key, value);
             }
         };
-        this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFuntion.apply(settingsControl),
+        this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFunction.apply(settingsControl),
                 preferences.getBoolean(key, defaultValue));
     }
 
@@ -175,16 +175,16 @@ public enum SettingValue {
         this(defaultValue, Function.identity(), valueGetter, valueSetter);
     }
 
-    <T> SettingValue(int defaultValue, Function<SettingsControl, T> rootElementFuntion, Function<T, Integer> valueGetter,
+    <T> SettingValue(int defaultValue, Function<SettingsControl, T> rootElementFunction, Function<T, Integer> valueGetter,
             BiConsumer<T, Integer> valueSetter) {
         String key = getKey();
         this.storeValueFunction = (settingsControl, preferences) -> {
-            Integer value = valueGetter.apply(rootElementFuntion.apply(settingsControl));
+            Integer value = valueGetter.apply(rootElementFunction.apply(settingsControl));
             if (value != defaultValue) {
                 preferences.putInt(key, value);
             }
         };
-        this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFuntion.apply(settingsControl),
+        this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFunction.apply(settingsControl),
                 preferences.getInt(key, defaultValue));
     }
 
@@ -192,46 +192,46 @@ public enum SettingValue {
         this(defaultValue, Function.identity(), valueGetter, valueSetter);
     }
 
-    <T> SettingValue(String defaultValue, Function<SettingsControl, T> rootElementFuntion, Function<T, String> valueGetter,
+    <T> SettingValue(String defaultValue, Function<SettingsControl, T> rootElementFunction, Function<T, String> valueGetter,
             BiConsumer<T, String> valueSetter) {
-        this(defaultValue, Function.identity(), Function.identity(), rootElementFuntion, valueGetter, valueSetter, StringUtils::equals);
+        this(defaultValue, Function.identity(), Function.identity(), rootElementFunction, valueGetter, valueSetter, StringUtils::equals);
     }
 
     <T, V> SettingValue(V defaultValue, Function<V, String> toStringMapper, Function<String, V> toObjectMapper,
-            Function<SettingsControl, T> rootElementFuntion, Function<T, V> valueGetter, BiConsumer<T, V> valueSetter) {
-        this(defaultValue, toStringMapper, toObjectMapper, rootElementFuntion, valueGetter, valueSetter, Objects::equals);
+            Function<SettingsControl, T> rootElementFunction, Function<T, V> valueGetter, BiConsumer<T, V> valueSetter) {
+        this(defaultValue, toStringMapper, toObjectMapper, rootElementFunction, valueGetter, valueSetter, Objects::equals);
     }
 
     <T, V> SettingValue(V defaultValue, Function<V, String> toStringMapper, Function<String, V> toObjectMapper,
-            Function<SettingsControl, T> rootElementFuntion, Function<T, V> valueGetter, BiConsumer<T, V> valueSetter,
+            Function<SettingsControl, T> rootElementFunction, Function<T, V> valueGetter, BiConsumer<T, V> valueSetter,
             BiPredicate<V, V> equalsPredicate) {
         String key = getKey();
         this.storeValueFunction = (settingsControl, preferences) -> {
-            V value = valueGetter.apply(rootElementFuntion.apply(settingsControl));
+            V value = valueGetter.apply(rootElementFunction.apply(settingsControl));
             if (!equalsPredicate.test(value, defaultValue)) {
                 preferences.put(key, toStringMapper.apply(value));
             }
         };
-        this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFuntion.apply(settingsControl),
+        this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFunction.apply(settingsControl),
                 Optional.ofNullable(preferences.get(key, Optional.ofNullable(defaultValue).map(toStringMapper).orElse(null)))
                         .map(toObjectMapper).orElse(defaultValue));
     }
 
-    <T> SettingValue(Function<SettingsControl, T> rootElementFuntion, Function<T, Collection<String>> collectionGetter) {
-        this(Function.identity(), Function.identity(), rootElementFuntion, collectionGetter);
+    <T> SettingValue(Function<SettingsControl, T> rootElementFunction, Function<T, Collection<String>> collectionGetter) {
+        this(Function.identity(), Function.identity(), rootElementFunction, collectionGetter);
     }
 
     <T, V> SettingValue(Function<V, String> toStringMapper, Function<String, V> toObjectMapper,
-            Function<SettingsControl, T> rootElementFuntion, Function<T, Collection<V>> collectionGetter) {
-        this(toStringMapper, toObjectMapper, rootElementFuntion, (object, v) -> collectionGetter.apply(object).add(v),
+            Function<SettingsControl, T> rootElementFunction, Function<T, Collection<V>> collectionGetter) {
+        this(toStringMapper, toObjectMapper, rootElementFunction, (object, v) -> collectionGetter.apply(object).add(v),
                 (object, consumer) -> collectionGetter.apply(object).forEach(consumer));
     }
 
     <T, V> SettingValue(Function<V, String> toStringMapper, Function<String, V> toObjectMapper,
-            Function<SettingsControl, T> rootElementFuntion, BiConsumer<T, V> valueAdder, BiConsumer<T, Consumer<V>> valueConsumer) {
+            Function<SettingsControl, T> rootElementFunction, BiConsumer<T, V> valueAdder, BiConsumer<T, Consumer<V>> valueConsumer) {
         String key = getKey();
         this.storeValueFunction = (settingsControl, preferences) -> {
-            T object = rootElementFuntion.apply(settingsControl);
+            T object = rootElementFunction.apply(settingsControl);
             IntWrapper i = IntWrapper.of(-1);
             valueConsumer.accept(object, value -> preferences.put(key + i.increment(), toStringMapper.apply(value)));
             if (i.getValue() > -1) {
@@ -240,7 +240,7 @@ public enum SettingValue {
         };
         this.loadValueFunction = (settingsControl, preferences) -> {
             int numberOfItems = preferences.getInt(key + "Size", 0);
-            T object = rootElementFuntion.apply(settingsControl);
+            T object = rootElementFunction.apply(settingsControl);
             IntStream.range(0, numberOfItems).forEach(i -> {
                 valueAdder.accept(object, toObjectMapper.apply(preferences.get(key + i, "")));
             });
