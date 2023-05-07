@@ -20,4 +20,9 @@ public class OmdbDetails implements ReleaseDBIntf, Serializable {
     public String getName() {
         return title;
     }
+
+    @Override
+    public int year() {
+        return year;
+    }
 }

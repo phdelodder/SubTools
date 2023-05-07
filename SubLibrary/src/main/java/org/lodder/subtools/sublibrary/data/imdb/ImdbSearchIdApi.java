@@ -19,18 +19,16 @@ import org.lodder.subtools.sublibrary.data.imdb.exception.ImdbSearchIdException;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
 
+@RequiredArgsConstructor
 @ExtensionMethod({ OptionalExtension.class })
 class ImdbSearchIdApi {
 
     private static final Pattern IMDB_URL_ID_PATTERN = Pattern.compile("\\/title\\/tt([0-9]*)");
     @Getter
     private final Manager manager;
-
-    public ImdbSearchIdApi(Manager manager) {
-        this.manager = manager;
-    }
 
     public Set<ProviderSerieId> getImdbIdOnImdb(String title, Integer year) throws ImdbSearchIdException {
         return getManager().valueBuilder()

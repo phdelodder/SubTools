@@ -7,12 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@EqualsAndHashCode
-@Getter
-@RequiredArgsConstructor
-public class LanguageWrapper {
-    private final Language language;
-
+public record LanguageWrapper(Language language) {
     @Override
     public String toString() {
         return Messages.getString(language.getMsgCode());

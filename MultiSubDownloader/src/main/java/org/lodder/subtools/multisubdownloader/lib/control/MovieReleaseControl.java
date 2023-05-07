@@ -48,7 +48,7 @@ public class MovieReleaseControl extends ReleaseControl {
                 movieDetails = movieRelease.getImdbId().mapToObj(omdbAdapter::getMovieDetails).orElseGet(Optional::empty);
             }
             movieDetails.ifPresentDo(info -> {
-                movieRelease.setYear(info.getYear());
+                movieRelease.setYear(info.year());
                 movieRelease.setName(info.getName());
             }).ifEmptyDo(() -> LOGGER.error("Unable to get details from OMDB API, continue with filename info {}", movieRelease));
         }

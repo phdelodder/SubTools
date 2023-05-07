@@ -11,10 +11,11 @@ public class TableDisplayer<T> {
 
     private final List<ColumnDisplayer<T>> columnDisplayers;
 
-    public void display(T... tableElements) {
-        String[] columnNames = columnDisplayers.stream().map(ColumnDisplayer::getColumnName).toArray(String[]::new);
+    @SafeVarargs
+    public final void display(T... tableElements) {
+        String[] columnNames = columnDisplayers.stream().map(ColumnDisplayer::columnName).toArray(String[]::new);
         Object[][] dataTable = Arrays.stream(tableElements)
-                .map(tableElement -> columnDisplayers.stream().map(columnDisplayer -> columnDisplayer.getToStringMapper().apply(tableElement))
+                .map(tableElement -> columnDisplayers.stream().map(columnDisplayer -> columnDisplayer.toStringMapper().apply(tableElement))
                         .toArray())
                 .toArray(Object[][]::new);
 
@@ -26,9 +27,9 @@ public class TableDisplayer<T> {
 
     public void display(List<T> tableElements) {
 
-        String[] columnNames = columnDisplayers.stream().map(ColumnDisplayer::getColumnName).toArray(String[]::new);
+        String[] columnNames = columnDisplayers.stream().map(ColumnDisplayer::columnName).toArray(String[]::new);
         Object[][] dataTable = tableElements.stream()
-                .map(tableElement -> columnDisplayers.stream().map(columnDisplayer -> columnDisplayer.getToStringMapper().apply(tableElement))
+                .map(tableElement -> columnDisplayers.stream().map(columnDisplayer -> columnDisplayer.toStringMapper().apply(tableElement))
                         .toArray())
                 .toArray(Object[][]::new);
 

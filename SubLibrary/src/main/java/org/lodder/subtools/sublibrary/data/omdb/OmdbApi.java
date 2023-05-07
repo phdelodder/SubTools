@@ -8,19 +8,15 @@ import org.lodder.subtools.sublibrary.data.omdb.exception.OmdbException;
 import org.lodder.subtools.sublibrary.data.omdb.model.OmdbDetails;
 import org.w3c.dom.Element;
 
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 class OmdbApi {
 
-    @Getter
     private final Manager manager;
 
-    public OmdbApi(Manager manager) {
-        this.manager = manager;
-    }
-
     public Optional<OmdbDetails> getMovieDetails(int imdbId) throws OmdbException {
-        return getManager().valueBuilder()
+        return manager.valueBuilder()
                 .memoryCache()
                 .key("%s-moviedetails-%s".formatted("OMDB", imdbId))
                 .optionalSupplier(() -> {

@@ -28,7 +28,7 @@ public abstract class InputPanel extends JPanel {
     }
 
     public Language getSelectedLanguage() {
-        return ((LanguageWrapper) cbxLanguage.getSelectedItem()).getLanguage();
+        return ((LanguageWrapper) cbxLanguage.getSelectedItem()).language();
     }
 
     public void setSelectedlanguage(Language language) {
