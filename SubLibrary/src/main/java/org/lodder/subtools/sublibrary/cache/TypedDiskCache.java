@@ -2,8 +2,11 @@ package org.lodder.subtools.sublibrary.cache;
 
 import java.util.function.Function;
 
+import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
+
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.jodah.typetools.TypeResolver;
 
 public class TypedDiskCache<K, V> extends DiskCache<K, V> {
 
@@ -11,6 +14,12 @@ public class TypedDiskCache<K, V> extends DiskCache<K, V> {
     private final Function<String, K> toObjectMapperKey;
     private final Function<V, String> toStringMapperValue;
     private final Function<String, V> toObjectMapperValue;
+    @SuppressWarnings("unchecked")
+    private final LazySupplier<Class<K>> keyType =
+            new LazySupplier<>(() -> (Class<K>) TypeResolver.resolveRawArguments(TypedDiskCache.class, this.getClass())[0]);
+    @SuppressWarnings("unchecked")
+    private final LazySupplier<Class<V>> valueType =
+            new LazySupplier<>(() -> (Class<V>) TypeResolver.resolveRawArguments(TypedDiskCache.class, this.getClass())[1]);
 
     @SuppressWarnings("rawtypes")
     public static DiskCacheBuilderToStringMapperKeyIntf cacheBuilder() {
@@ -93,6 +102,7 @@ public class TypedDiskCache<K, V> extends DiskCache<K, V> {
         this.toObjectMapperKey = toObjectMapperKey;
         this.toStringMapperValue = toStringMapperValue;
         this.toObjectMapperValue = toObjectMapperValue;
+
     }
 
     @Override
@@ -116,13 +126,13 @@ public class TypedDiskCache<K, V> extends DiskCache<K, V> {
     }
 
     @Override
-    protected Class getDbKeyType() {
-        return String.class;
+    protected Class<K> getDbKeyType() {
+        return keyType.get();
     }
 
     @Override
-    protected Class getDbValueType() {
-        return String.class;
+    protected Class<V> getDbValueType() {
+        return valueType.get();
     }
 
 }

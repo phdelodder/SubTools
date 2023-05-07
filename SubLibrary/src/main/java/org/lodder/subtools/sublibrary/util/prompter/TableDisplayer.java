@@ -2,7 +2,6 @@ package org.lodder.subtools.sublibrary.util.prompter;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import dnl.utils.text.table.TextTable;
 import lombok.RequiredArgsConstructor;

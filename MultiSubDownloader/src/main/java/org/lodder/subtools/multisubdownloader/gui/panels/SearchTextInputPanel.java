@@ -1,11 +1,11 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
+import java.io.Serial;
+
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
-
-import java.io.Serial;
 
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.ToStringListCellRenderer;

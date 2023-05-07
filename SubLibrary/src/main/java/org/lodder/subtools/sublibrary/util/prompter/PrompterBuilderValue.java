@@ -75,6 +75,7 @@ public class PrompterBuilderValue {
             // hide constructor
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public <S> ValueBuilderValidatorMapperIntf<S> toObjectMapper(Function<String, S> toObjectMapper) {
             this.toObjectMapper = (Function<String, T>) toObjectMapper;

@@ -147,6 +147,7 @@ public class SubsceneApi extends Html implements SubtitleApi {
         }
     }
 
+    @SuppressWarnings("unused")
     private void setIncludeHearingImpairedWithCookie(boolean includeHearingImpaired) {
         if (selectedIncludeHearingImpaired != includeHearingImpaired) {
             addCookie("HearingImpaired", includeHearingImpaired ? "2" : "0");
