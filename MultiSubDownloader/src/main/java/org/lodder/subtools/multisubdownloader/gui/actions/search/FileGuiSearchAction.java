@@ -77,7 +77,7 @@ public class FileGuiSearchAction extends GuiSearchAction<SearchFileInputPanel> {
     }
 
     private FileGuiSearchAction(Manager manager, Settings settings, SubtitleProviderStore subtitleProviderStore, GUI mainWindow,
-            SearchPanel<SearchFileInputPanel> searchPanel, ReleaseFactory releaseFactory)  {
+            SearchPanel<SearchFileInputPanel> searchPanel, ReleaseFactory releaseFactory) {
         super(manager, settings, subtitleProviderStore, mainWindow, searchPanel, releaseFactory);
         this.filelistAction = new FileListAction(settings);
     }
@@ -155,12 +155,7 @@ public class FileGuiSearchAction extends GuiSearchAction<SearchFileInputPanel> {
 
     private List<Path> getFiles(String filePath, Language language, boolean recursive, boolean overwriteExistingSubtitles) {
         /* Get a list of selected directories */
-        List<Path> dirs = new ArrayList<>();
-        if (!filePath.isEmpty()) {
-            dirs.add(Path.of(filePath));
-        } else {
-            dirs.addAll(this.getSettings().getDefaultFolders());
-        }
+        List<Path> dirs = !filePath.isEmpty() ? List.of(Path.of(filePath)) : this.getSettings().getDefaultFolders();
 
         /* Scan directories for video files */
         /* Tell Action where to send progressUpdates */

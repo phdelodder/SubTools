@@ -1,28 +1,23 @@
 package org.lodder.subtools.sublibrary.control;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class RomanTest {
-
-    @Before
-    public void setUp() throws Exception {
-    }
+class RomanTest {
 
     @Test
-    public void testDecode() {
-        assertEquals(Roman.decode("M"), 1000);
-        assertEquals(Roman.decode("D"), 500);
-        assertEquals(Roman.decode("C"), 100);
-        assertEquals(Roman.decode("L"), 50);
-        assertEquals(Roman.decode("X"), 10);
-        assertEquals(Roman.decode("I"), 1);
+    void testDecode() {
+        assertThat(Roman.decode("M")).isEqualTo(1000);
+        assertThat(Roman.decode("D")).isEqualTo(500);
+        assertThat(Roman.decode("C")).isEqualTo(100);
+        assertThat(Roman.decode("L")).isEqualTo(50);
+        assertThat(Roman.decode("X")).isEqualTo(10);
+        assertThat(Roman.decode("I")).isEqualTo(1);
 
-        assertEquals(Roman.decode("MI"), 1001);
-        assertEquals(Roman.decode("VI"), 6);
-        assertEquals(Roman.decode("IV"), 4);
+        assertThat(Roman.decode("MI")).isEqualTo(1001);
+        assertThat(Roman.decode("VI")).isEqualTo(6);
+        assertThat(Roman.decode("IV")).isEqualTo(4);
     }
 
 }

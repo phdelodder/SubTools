@@ -1,26 +1,18 @@
 package org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lodder.subtools.sublibrary.model.Release;
 
-public class SortWeightTest {
-
-    protected SortWeight sortWeight;
-
-    @Before
-    public void setUp() throws Exception {
-        sortWeight = null;
-    }
+class SortWeightTest {
 
     @Test
-    public void test_it_generates_weights_for_release() throws Exception {
+    void test_it_generates_weights_for_release() throws Exception {
         // Arrested.Development.S01E01.DVDRip.XviD-MEDiEVAL
         Release release = mock(Release.class);
         when(release.getQuality()).thenReturn("DVDRip XviD");
@@ -32,21 +24,18 @@ public class SortWeightTest {
         definedWeights.put("hdtv", 1);
         definedWeights.put("%GROUP%", 5);
 
-        sortWeight = new SortWeight(release, definedWeights);
+        SortWeight sortWeight = new SortWeight(release, definedWeights);
         Map<String, Integer> weights = sortWeight.getWeights();
 
         /* check if we have the 3 weights */
-        assertEquals(3, weights.size());
-        assertTrue(weights.containsKey("dvdrip"));
-        assertTrue(weights.containsKey("xvid"));
-        assertTrue(weights.containsKey("medieval"));
+        assertThat(weights).hasSize(3).containsKeys("dvdrip", "xvid", "medieval");
 
         /* check if the weights are correct */
-        assertEquals((Integer) 2, weights.get("dvdrip"));
-        assertEquals((Integer) 1, weights.get("xvid"));
-        assertEquals((Integer) 5, weights.get("medieval"));
+        assertThat(weights.get("dvdrip")).isEqualTo(2);
+        assertThat(weights.get("xvid")).isEqualTo(1);
+        assertThat(weights.get("medieval")).isEqualTo(5);
 
         /* check if the maxScore is correct */
-        assertEquals(8, sortWeight.getMaxScore());
+        assertThat(sortWeight.getMaxScore()).isEqualTo(8);
     }
 }

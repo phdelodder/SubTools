@@ -1,34 +1,25 @@
 package org.lodder.subtools.multisubdownloader.lib.control.subtitles;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 
-public class FilteringTest {
-
-    protected Filtering filtering;
-
-    @Before
-    public void setUp() throws Exception {
-        filtering = null;
-    }
+class FilteringTest {
 
     @Test
-    public void testExcudeImpairedHearingFiltering() {
+    void testExcudeImpairedHearingFiltering() {
         Settings settings = createSettings(false, false, true);
 
-        filtering = new Filtering(settings);
+        Filtering filtering = new Filtering(settings);
 
-        Release release =
-                createRelease("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv", "DIMENSION", "mkv");
+        Release release = createRelease("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv", "DIMENSION", "mkv");
         List<Subtitle> listFoundSubtitles = new ArrayList<>();
         listFoundSubtitles.add(createSubtitle("", "", true, ""));
         listFoundSubtitles.add(createSubtitle("", "", false, ""));
@@ -36,100 +27,85 @@ public class FilteringTest {
 
         List<Subtitle> filtered = filtering.getFiltered(listFoundSubtitles, release);
 
-        assertEquals(filtered.size(), 1);
+        assertThat(filtered).hasSize(1);
 
     }
 
     @Test
-    public void testKeywordMatchFilter() {
-        Release release =
-                createRelease("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv", "DIMENSION", "mkv");
+    void testKeywordMatchFilter() {
+        Release release = createRelease("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv", "DIMENSION", "mkv");
         List<Subtitle> listFoundSubtitles = new ArrayList<>();
         listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.HDTV.XviD-AFG.srt", "AFG", false, ""));
         listFoundSubtitles.add(createSubtitle("criminal.minds.1012.hdtv-lol.srt", "lol", false, ""));
-        listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt",
-                "DIMENSION", true, ""));
-        listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt",
-                "DIMENSION", false, ""));
-        listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt",
-                "DIMENSION", false, "720p HDTV X264"));
-        listFoundSubtitles.add(createSubtitle(
-                "Criminal.Minds.S10E12.Anonymous.1080p.WEB-DL.DD5.1.H.264-CtrlHD", "CtrlHD", false, ""));
+        listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", true, ""));
+        listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", false, ""));
+        listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", false, "720p HDTV X264"));
+        listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.Anonymous.1080p.WEB-DL.DD5.1.H.264-CtrlHD", "CtrlHD", false, ""));
 
         // only keyword
         Settings settings = createSettings(true, false, false);
-        filtering = new Filtering(settings);
+        Filtering filtering = new Filtering(settings);
         List<Subtitle> filtered = filtering.getFiltered(listFoundSubtitles, release);
 
-        assertEquals(filtered.size(), 3);
+        assertThat(filtered).hasSize(3);
 
         // keyword and exclude hearing impaired
         settings = createSettings(true, false, true);
         filtering = new Filtering(settings);
         filtered = filtering.getFiltered(listFoundSubtitles, release);
 
-        assertEquals(filtered.size(), 2);
+        assertThat(filtered).hasSize(2);
     }
 
     @Test
-    public void testExactMatchFilter() {
-        Release release =
-                createRelease("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv", "DIMENSION", "mkv");
+    void testExactMatchFilter() {
+        Release release = createRelease("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv", "DIMENSION", "mkv");
         List<Subtitle> listFoundSubtitles = new ArrayList<>();
         listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.HDTV.XviD-AFG.srt", "AFG", false, ""));
         listFoundSubtitles.add(createSubtitle("criminal.minds.1012.hdtv-lol.srt", "lol", false, ""));
-        listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt",
-                "DIMENSION", true, ""));
-        listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt",
-                "DIMENSION", false, ""));
-        listFoundSubtitles.add(createSubtitle(
-                "Criminal.Minds.S10E12.Anonymous.1080p.WEB-DL.DD5.1.H.264-CtrlHD", "CtrlHD", false, ""));
+        listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", true, ""));
+        listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", false, ""));
+        listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.Anonymous.1080p.WEB-DL.DD5.1.H.264-CtrlHD", "CtrlHD", false, ""));
 
         // only exact match
         Settings settings = createSettings(false, true, false);
-        filtering = new Filtering(settings);
+        Filtering filtering = new Filtering(settings);
         List<Subtitle> filtered = filtering.getFiltered(listFoundSubtitles, release);
 
-        assertEquals(filtered.size(), 2);
+        assertThat(filtered).hasSize(2);
 
         // exact match and exclude hearing impaired
         settings = createSettings(false, true, true);
         filtering = new Filtering(settings);
         filtered = filtering.getFiltered(listFoundSubtitles, release);
 
-        assertEquals(filtered.size(), 1);
+        assertThat(filtered).hasSize(1);
     }
 
     @Test
-    public void testExactMatchAndKeywordMatchFilter() {
-        Release release =
-                createRelease("Criminal.Minds.S10E12.Anonymous.720p.HDTV.X264-DIMENSION.mkv", "DIMENSION",
-                        "mkv");
+    void testExactMatchAndKeywordMatchFilter() {
+        Release release = createRelease("Criminal.Minds.S10E12.Anonymous.720p.HDTV.X264-DIMENSION.mkv", "DIMENSION", "mkv");
         List<Subtitle> listFoundSubtitles = new ArrayList<>();
         listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.HDTV.XviD-AFG.srt", "AFG", false, ""));
         listFoundSubtitles.add(createSubtitle("criminal.minds.1012.hdtv-lol.srt", "lol", false, ""));
-        listFoundSubtitles.add(createSubtitle(
-                "Criminal.Minds.S10E12.Anonymous.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", true, ""));
-        listFoundSubtitles.add(createSubtitle(
-                "Criminal.Minds.S10E12.Anonymous.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", false, ""));
-        listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt",
-                "DIMENSION", false, ""));
-        listFoundSubtitles.add(createSubtitle(
-                "Criminal.Minds.S10E12.Anonymous.1080p.WEB-DL.DD5.1.H.264-CtrlHD", "CtrlHD", false, ""));
+        listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.Anonymous.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", true, ""));
+        listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.Anonymous.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", false, ""));
+        listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", false, ""));
+        listFoundSubtitles.add(createSubtitle("Criminal.Minds.S10E12.Anonymous.1080p.WEB-DL.DD5.1.H.264-CtrlHD", "CtrlHD", false, ""));
 
         // only exact match
         Settings settings = createSettings(true, true, false);
-        filtering = new Filtering(settings);
+        Filtering filtering = new Filtering(settings);
         List<Subtitle> filtered = filtering.getFiltered(listFoundSubtitles, release);
 
-        assertEquals(filtered.size(), 2);
+        assertThat(filtered).hasSize(2);
 
         // exact match and exclude hearing impaired
         settings = createSettings(true, true, true);
         filtering = new Filtering(settings);
         filtered = filtering.getFiltered(listFoundSubtitles, release);
 
-        assertEquals(filtered.size(), 1);
+        assertThat(filtered).hasSize(1);
     }
 
     private Settings createSettings(boolean keyword, boolean exact, boolean excludehearing) {

@@ -1,66 +1,45 @@
 package org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.HashMap;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 
-public class ScoreCalculatorTest {
-
-    protected ScoreCalculator calculator;
-
-    @Before
-    public void setUp() throws Exception {
-        calculator = null;
-    }
+class ScoreCalculatorTest {
 
     @Test
-    public void test_it_calculates_the_score_for_subtitle() throws Exception {
+    void test_it_calculates_the_score_for_subtitle() throws Exception {
         SortWeight weights = createWeights("DVDRip XviD", "MEDiEVAL");
 
-        calculator = new ScoreCalculator(weights);
-        int score;
+        ScoreCalculator calculator = new ScoreCalculator(weights);
         Subtitle subtitle;
 
-        subtitle =
-                createSubtitle("Arrested.Development.S01E01.DVDRip.XviD-MEDiEVAL.srt", "dvdrip xvid", "medieval");
-        score = calculator.calculate(subtitle);
-        assertEquals(100, score);
+        subtitle = createSubtitle("Arrested.Development.S01E01.DVDRip.XviD-MEDiEVAL.srt", "dvdrip xvid", "medieval");
+        assertThat(calculator.calculate(subtitle)).isEqualTo(100);
 
-        subtitle =
-                createSubtitle("Arrested Development 1x1 works with medieval.srt", "", "medieval");
-        score = calculator.calculate(subtitle);
-        assertEquals(63, score);
+        subtitle = createSubtitle("Arrested Development 1x1 works with medieval.srt", "", "medieval");
+        assertThat(calculator.calculate(subtitle)).isEqualTo(63);
 
-        subtitle =
-                createSubtitle("Arrested.Development.S01E01.BDrip.XviD-Acme.srt", "", "acme");
-        score = calculator.calculate(subtitle);
-        assertEquals(13, score);
+        subtitle = createSubtitle("Arrested.Development.S01E01.BDrip.XviD-Acme.srt", "", "acme");
+        assertThat(calculator.calculate(subtitle)).isEqualTo(13);
 
-        subtitle =
-                createSubtitle("Arrested.Development.S01E01.DVDRip.DivX-Acme.srt", "", "acme");
-        score = calculator.calculate(subtitle);
-        assertEquals(25, score);
+        subtitle = createSubtitle("Arrested.Development.S01E01.DVDRip.DivX-Acme.srt", "", "acme");
+        assertThat(calculator.calculate(subtitle)).isEqualTo(25);
 
-        subtitle =
-                createSubtitle("Arrested.Development.S01E01.BluRay.x264-OSCORP.srt", "", "oscorp");
-        score = calculator.calculate(subtitle);
-        assertEquals(0, score);
+        subtitle = createSubtitle("Arrested.Development.S01E01.BluRay.x264-OSCORP.srt", "", "oscorp");
+        assertThat(calculator.calculate(subtitle)).isZero();
 
         /* test bugfix: #27 */
         weights = createWeights("720p hdtv x264", "DIMENSION");
         calculator = new ScoreCalculator(weights);
 
-        subtitle =
-                createSubtitle("Criminal Minds - 10x12 - Anonymous 720pDimension Vertaling: Het Criminal Minds Team", "720p",
-                        "720pDimension Vertaling: Het Criminal Minds Team");
-        score = calculator.calculate(subtitle);
-        assertEquals(70, score);
+        subtitle = createSubtitle("Criminal Minds - 10x12 - Anonymous 720pDimension Vertaling: Het Criminal Minds Team", "720p",
+                "720pDimension Vertaling: Het Criminal Minds Team");
+        assertThat(calculator.calculate(subtitle)).isEqualTo(70);
     }
 
     private Subtitle createSubtitle(String filename, String quality, String team) {
