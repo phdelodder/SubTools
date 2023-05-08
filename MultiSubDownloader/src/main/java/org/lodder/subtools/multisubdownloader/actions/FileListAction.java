@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -123,27 +124,32 @@ public class FileListAction {
 
     public boolean fileHasSubtitles(Path file, Language language) throws IOException {
         String extension = file.getExtension();
-        String subtitleName = VideoPatterns.EXTENSIONS.stream()
+        Optional<String> subtitleNameOptional = VideoPatterns.EXTENSIONS.stream()
                 .filter(extension::equals)
-                .map(allowedExtension -> file.changeExtension(subtitleExtension))
-                .findAny().orElse("");
+                .map(x -> file.changeExtension(subtitleExtension))
+                .findAny();
 
+        if (subtitleNameOptional.isEmpty()) {
+            return false;
+        }
+        String subtitleName = subtitleNameOptional.get();
         Path f = file.resolveSibling(subtitleName);
         if (f.exists()) {
             return true;
         } else {
+            String subtitleExtensionWithDot = "." + subtitleExtension;
             List<String> filters = switch (language) {
                 case DUTCH -> {
                     List<String> dutchFilterList = getFilters(dutchFilters);
                     if (!StringUtils.isBlank(settings.getEpisodeLibrarySettings().getDefaultNlText())) {
-                        dutchFilterList.add("." + settings.getEpisodeLibrarySettings().getDefaultNlText() + "." + subtitleExtension);
+                        dutchFilterList.add("." + settings.getEpisodeLibrarySettings().getDefaultNlText() + subtitleExtensionWithDot);
                     }
                     yield dutchFilterList;
                 }
                 case ENGLISH -> {
                     List<String> englishFilterList = getFilters(englishFilters);
                     if (!StringUtils.isBlank(settings.getEpisodeLibrarySettings().getDefaultEnText())) {
-                        englishFilterList.add("." + settings.getEpisodeLibrarySettings().getDefaultEnText() + "." + subtitleExtension);
+                        englishFilterList.add("." + settings.getEpisodeLibrarySettings().getDefaultEnText() + subtitleExtensionWithDot);
                     }
                     yield englishFilterList;
                 }
@@ -152,9 +158,9 @@ public class FileListAction {
                     yield List.of();
                 }
             };
-
-            return file.getParent().list().filter(p -> filters.contains(p.getExtension()))
-                    .anyMatch(p -> p.getFileNameAsString().contains(subtitleName.replace(subtitleExtension, "")));
+            String subtitleNameWithoutExtension = subtitleName.replace(subtitleExtensionWithDot, "");
+            return file.getParent().list().map(FileUtils::getFileNameAsString).filter(fileName -> filters.stream().anyMatch(fileName::endsWith))
+                    .anyMatch(fileName -> fileName.contains(subtitleNameWithoutExtension));
         }
     }
 

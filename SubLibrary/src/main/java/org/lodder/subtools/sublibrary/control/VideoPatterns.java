@@ -22,7 +22,7 @@ public class VideoPatterns {
 
     private static final Set<String> QUALITY_KEYWORDS_REGEX_SET = Set.of("web[ .-]dl", "dd5[ .]1");
 
-    public static final Set<String> EXTENSIONS = Set.of("avi", "mkv", "wmv", "ts", "mp4", "m4v");
+    public static final Set<String> EXTENSIONS = Set.of("mkv", "mp4", "avi", "wmv", "ts", "m4v");
 
     // order is important!!!!!!
     private static final String[] PATTERNS = {

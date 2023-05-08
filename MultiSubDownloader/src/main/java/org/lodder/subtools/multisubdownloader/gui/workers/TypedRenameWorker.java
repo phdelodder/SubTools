@@ -22,14 +22,14 @@ import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.util.FileUtils;
+import org.lodder.subtools.sublibrary.util.StreamExtension;
 
 import com.google.common.collect.Streams;
 
 import lombok.Setter;
 import lombok.experimental.ExtensionMethod;
-import name.falgout.jeffrey.throwing.stream.ThrowingStream;
 
-@ExtensionMethod({ FileUtils.class, Files.class })
+@ExtensionMethod({ FileUtils.class, Files.class, StreamExtension.class })
 public class TypedRenameWorker extends SwingWorker<Void, String> implements Cancelable {
 
     private final UserInteractionHandler userInteractionHandler;
@@ -58,7 +58,7 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
     }
 
     private void rename(Path dir) throws IOException {
-        ThrowingStream.of(dir.list(), IOException.class).forEach(file -> {
+        dir.list().asThrowingStream(IOException.class).forEach(file -> {
             if (file.isRegularFile() && !file.fileNameContainsIgnoreCase("sample") && extensions.contains(file.getExtension())) {
                 Release release = releaseFactory.createRelease(file, userInteractionHandler);
                 if (release != null) {
