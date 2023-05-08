@@ -1,12 +1,11 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
 import java.io.Serial;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -29,7 +28,6 @@ public class DefaultSelectionPanel extends JPanel {
     @Serial
     private static final long serialVersionUID = 2925926997236198235L;
     private JTable defaultSelectionTable;
-    private final VideoPatterns videoPatterns = new VideoPatterns();
 
     public DefaultSelectionPanel() {
         initialize_ui();
@@ -68,11 +66,8 @@ public class DefaultSelectionPanel extends JPanel {
         DefaultTableModel model = (DefaultTableModel) defaultSelectionTable.getModel();
         model.addRow(new Object[] { model.getRowCount() + 1, q });
         // These are the combobox values
-        List<String> both = new ArrayList<>();
-        Collections.addAll(both, Messages.getString("DefaultSelectionPanel.Select"));
-
-        both.addAll(videoPatterns.getQualityKeywords());
-        String[] values = both.toArray(new String[both.size()]);
+        String[] values = Stream.concat(Stream.of(Messages.getString("DefaultSelectionPanel.Select")), VideoPatterns.QUALITY_KEYWORDS.stream())
+                .toArray(String[]::new);
 
         // Set the combobox editor on the 1st visible column
         int vColIndex = 1;
@@ -84,9 +79,8 @@ public class DefaultSelectionPanel extends JPanel {
     }
 
     private void removeRuleRow() {
-        DefaultTableModel model = (DefaultTableModel) defaultSelectionTable.getModel();
         if (defaultSelectionTable.getSelectedRow() >= 0) {
-            model.removeRow(defaultSelectionTable.getSelectedRow());
+            ((DefaultTableModel) defaultSelectionTable.getModel()).removeRow(defaultSelectionTable.getSelectedRow());
         }
     }
 

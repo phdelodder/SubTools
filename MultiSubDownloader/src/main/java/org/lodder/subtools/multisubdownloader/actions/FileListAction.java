@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -32,7 +31,7 @@ public class FileListAction {
     private final Settings settings;
     private final Set<String> dutchFilters = Set.of("nld", "ned", "dutch", "dut", "nl");
     private final Set<String> englishFilters = Set.of("eng", "english", "en");
-    private final static String subtitleExtension = ".srt";
+    private final static String subtitleExtension = "srt";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileListAction.class);
 
@@ -119,22 +118,17 @@ public class FileListAction {
     }
 
     public boolean isValidVideoFile(Path file) {
-        String filename = file.getFileName().toString();
-        int mid = filename.lastIndexOf(".");
-        String ext = filename.substring(mid + 1);
-        if (filename.contains("sample")) {
-            return false;
-        }
-        return Arrays.asList(VideoPatterns.EXTENSIONS).contains(ext);
+        return !file.getFileNameAsString().contains("sample") && VideoPatterns.EXTENSIONS.contains(file.getExtension());
     }
 
     public boolean fileHasSubtitles(Path file, Language language) throws IOException {
-        String subname = Arrays.stream(VideoPatterns.EXTENSIONS)
-                .filter(allowedExtension -> file.getFileName().toString().contains("." + allowedExtension))
-                .map(allowedExtension -> file.getFileName().toString().replace("." + allowedExtension, subtitleExtension))
+        String extension = file.getExtension();
+        String subtitleName = VideoPatterns.EXTENSIONS.stream()
+                .filter(extension::equals)
+                .map(allowedExtension -> file.changeExtension(subtitleExtension))
                 .findAny().orElse("");
 
-        Path f = file.resolveSibling(subname);
+        Path f = file.resolveSibling(subtitleName);
         if (f.exists()) {
             return true;
         } else {
@@ -142,14 +136,14 @@ public class FileListAction {
                 case DUTCH -> {
                     List<String> dutchFilterList = getFilters(dutchFilters);
                     if (!StringUtils.isBlank(settings.getEpisodeLibrarySettings().getDefaultNlText())) {
-                        dutchFilterList.add("." + settings.getEpisodeLibrarySettings().getDefaultNlText().concat(subtitleExtension));
+                        dutchFilterList.add("." + settings.getEpisodeLibrarySettings().getDefaultNlText() + "." + subtitleExtension);
                     }
                     yield dutchFilterList;
                 }
                 case ENGLISH -> {
                     List<String> englishFilterList = getFilters(englishFilters);
                     if (!StringUtils.isBlank(settings.getEpisodeLibrarySettings().getDefaultEnText())) {
-                        englishFilterList.add("." + settings.getEpisodeLibrarySettings().getDefaultEnText().concat(subtitleExtension));
+                        englishFilterList.add("." + settings.getEpisodeLibrarySettings().getDefaultEnText() + "." + subtitleExtension);
                     }
                     yield englishFilterList;
                 }
@@ -160,12 +154,12 @@ public class FileListAction {
             };
 
             return file.getParent().list().filter(p -> filters.contains(p.getExtension()))
-                    .anyMatch(p -> p.getFileNameAsString().contains(subname.replace(subtitleExtension, "")));
+                    .anyMatch(p -> p.getFileNameAsString().contains(subtitleName.replace(subtitleExtension, "")));
         }
     }
 
     private List<String> getFilters(Set<String> words) {
-        return words.stream().map(word -> word + subtitleExtension).toList();
+        return words.stream().map(word -> word + "." + subtitleExtension).toList();
     }
 
     public void setIndexingProgressListener(IndexingProgressListener indexingProgressListener) {

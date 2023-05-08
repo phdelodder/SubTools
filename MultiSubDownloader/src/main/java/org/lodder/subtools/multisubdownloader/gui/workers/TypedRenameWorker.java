@@ -3,7 +3,6 @@ package org.lodder.subtools.multisubdownloader.gui.workers;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,7 +44,7 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
     public TypedRenameWorker(Path dir, LibrarySettings librarySettings, VideoType videoType,
             boolean isRecursive, Manager manager, UserInteractionHandler userInteractionHandler) {
         this.userInteractionHandler = userInteractionHandler;
-        this.extensions = Streams.concat(Arrays.stream(VideoPatterns.EXTENSIONS), Stream.of("srt")).collect(Collectors.toUnmodifiableSet());
+        this.extensions = Streams.concat(VideoPatterns.EXTENSIONS.stream(), Stream.of("srt")).collect(Collectors.toUnmodifiableSet());
         this.dir = dir;
         this.videoType = videoType;
         this.isRecursive = isRecursive;

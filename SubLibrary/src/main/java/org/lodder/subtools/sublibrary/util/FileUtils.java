@@ -34,6 +34,18 @@ public class FileUtils {
         return extension.equalsIgnoreCase(getExtension(path));
     }
 
+    public static String changeExtension(Path path, String newExtension) {
+        return StringUtils.substringBeforeLast(path.getFileName().toString(), ".") + "." + newExtension;
+    }
+
+    public static String withoutExtension(Path path) {
+        return changeExtension(path, "");
+    }
+
+    public static String withoutExtension(String path) {
+        return StringUtils.substringBeforeLast(path, ".");
+    }
+
     public static String toAbsolutePathAsString(Path path) {
         return path.toAbsolutePath().toString();
     }

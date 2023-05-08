@@ -74,8 +74,7 @@ public class Settings implements UserInteractionSettingsIntf {
         // TODO: user should be able to edit/add these through a panel
         sortWeights = new HashMap<>();
         sortWeights.put("%GROUP%", 5);
-        VideoPatterns videoPatterns = new VideoPatterns();
-        videoPatterns.getQualityKeywords().forEach(keyword -> sortWeights.put(keyword, 2));
+        VideoPatterns.QUALITY_KEYWORDS.forEach(keyword -> sortWeights.put(keyword, 2));
         /* overwrite keywords that should have low weight */
         // keywords that tend to have a lot of different sources:
         sortWeights.put("ts", 1);

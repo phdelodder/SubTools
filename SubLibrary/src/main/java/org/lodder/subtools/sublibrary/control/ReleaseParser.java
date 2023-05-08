@@ -12,6 +12,7 @@ import org.lodder.subtools.sublibrary.exception.ReleaseParseException;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
+import org.lodder.subtools.sublibrary.util.FileUtils;
 import org.lodder.subtools.sublibrary.util.NamedMatcher;
 import org.lodder.subtools.sublibrary.util.NamedPattern;
 import org.slf4j.Logger;
@@ -20,7 +21,6 @@ import org.slf4j.LoggerFactory;
 public class ReleaseParser {
 
     private NamedMatcher namedMatcher;
-    private static final VideoPatterns videoPatterns = new VideoPatterns();
     private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseParser.class);
 
     public final Release parse(Path file) throws ReleaseParseException {
@@ -31,7 +31,7 @@ public class ReleaseParser {
         String[] parseNames = { file.getFileName().toString(), folderName };
 
         for (String fileParseName : parseNames) {
-            for (NamedPattern np : videoPatterns.getCompiledPatterns()) {
+            for (NamedPattern np : VideoPatterns.COMPILED_PATTERNS) {
                 namedMatcher = np.matcher(fileParseName);
                 if (namedMatcher.find()) {
                     LOGGER.trace("Parsing match found using file name: {}", fileParseName);
@@ -146,7 +146,7 @@ public class ReleaseParser {
                 .season(seasonNumber)
                 .episodes(episodeNumbers)
                 .file(file)
-                .description(removeExtension(description))
+                .description(FileUtils.withoutExtension(description))
                 .releaseGroup(extractReleasegroup(file.getFileName().toString(), true))
                 .special(isSpecialEpisode(seasonNumber, episodeNumbers))
                 .quality(getQualityKeyword(fileParseName))
@@ -179,10 +179,9 @@ public class ReleaseParser {
         return text.trim();
     }
 
-    public static String getQualityKeyword(final String name) {
+    public static String getQualityKeyword(String name) {
         LOGGER.trace("getQualityKeyword: name: {}", name);
-        Pattern p = Pattern.compile(videoPatterns.getQualityKeysRegex(), Pattern.CASE_INSENSITIVE);
-        Matcher m = p.matcher(name);
+        Matcher m = VideoPatterns.QUALITY_KEYWORDS_REGEX_PATTERN.matcher(name.trim().toLowerCase());
         StringBuilder builder = new StringBuilder();
         while (m.find()) {
             builder.append(m.group(0).replace(".", " ")).append(" ");
@@ -193,9 +192,7 @@ public class ReleaseParser {
 
     public static List<String> getQualityKeyWords(String name) {
         LOGGER.trace("getQualityKeyWords: name: {}", name);
-        name = name.trim().toLowerCase();
-        Pattern p = Pattern.compile(videoPatterns.getQualityKeysRegex(), Pattern.CASE_INSENSITIVE);
-        Matcher m = p.matcher(name);
+        Matcher m = VideoPatterns.QUALITY_KEYWORDS_REGEX_PATTERN.matcher(name.trim().toLowerCase());
         List<String> keywords = new ArrayList<>();
         while (m.find()) {
             keywords.add(m.group(0));
@@ -203,11 +200,6 @@ public class ReleaseParser {
         LOGGER.trace("getQualityKeyWords: keyswords: {}", keywords);
         return keywords;
     }
-
-    // public static String extractFileNameExtension(final String fileName) {
-    // int mid = fileName.lastIndexOf(".");
-    // return fileName.substring(mid + 1);
-    // }
 
     public static String extractReleasegroup(final String fileName, boolean hasExtension) {
         LOGGER.trace("extractReleasegroup: name: {} , hasExtension: {}", fileName, hasExtension);
@@ -225,16 +217,6 @@ public class ReleaseParser {
 
         LOGGER.trace("extractReleasegroup: release group: {}", releaseGroup);
         return releaseGroup;
-    }
-
-    public static String removeExtension(final String fileName) {
-        final int index = fileName.lastIndexOf('.');
-
-        if (-1 == index) {
-            return fileName;
-        } else {
-            return fileName.substring(0, index);
-        }
     }
 
     public static boolean isSpecialEpisode(final int season, final List<Integer> episodeNumbers) {
