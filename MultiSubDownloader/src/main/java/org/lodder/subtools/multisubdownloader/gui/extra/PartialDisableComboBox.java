@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.gui.extra;
 
 import java.io.Serial;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.JComboBox;
 import javax.swing.JList;
@@ -21,9 +22,7 @@ public class PartialDisableComboBox extends JComboBox<Object> {
 
     public PartialDisableComboBox(Object[] items) {
         super();
-        for (Object o : items) {
-            addItem(o);
-        }
+        Arrays.stream(items).forEach(this::addItem);
         this.setRenderer(new BasicComboBoxRenderer() {
             @Serial
             private static final long serialVersionUID = -2774241371293899669L;

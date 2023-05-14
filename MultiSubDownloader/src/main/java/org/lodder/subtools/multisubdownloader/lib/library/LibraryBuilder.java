@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.lib.library;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.Manager;
@@ -42,11 +43,9 @@ public abstract class LibraryBuilder {
             int posBegin = structurePart.lastIndexOf("%");
             String separator = structure.substring(posBegin + 1, posEnd);
 
-            StringBuilder builder = new StringBuilder();
-            for (final int epNum : episodeNumbers) {
-                builder.append(separator).append(formattedNumber(epNum, leadingZero));
-            }
-            formattedEpisodeNumber += builder.toString();
+            formattedEpisodeNumber += episodeNumbers.stream()
+                    .map(episode -> separator + formattedNumber(episode, leadingZero))
+                    .collect(Collectors.joining());
 
             // strip the first separator off
             formattedEpisodeNumber = formattedEpisodeNumber.substring(1);

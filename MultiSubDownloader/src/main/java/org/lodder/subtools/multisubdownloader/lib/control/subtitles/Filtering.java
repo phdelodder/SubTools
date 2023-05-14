@@ -25,9 +25,9 @@ public class Filtering {
 
     public Filtering(Settings settings) {
         this.settings = settings;
-        exactName = new ExactNameFilter();
-        keyword = new KeywordFilter();
-        releaseGroup = new ReleasegroupFilter();
+        this.exactName = new ExactNameFilter();
+        this.keyword = new KeywordFilter();
+        this.releaseGroup = new ReleasegroupFilter();
     }
 
     public List<Subtitle> getFiltered(List<Subtitle> foundSubtitles, Release release) {

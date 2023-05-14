@@ -5,26 +5,13 @@ import java.io.Serial;
 import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 
+import lombok.experimental.StandardException;
+
+@StandardException
 public class SubsceneException extends SubtitlesProviderException {
 
     @Serial
     private static final long serialVersionUID = -9050358290926245586L;
-
-    public SubsceneException() {
-        super();
-    }
-
-    public SubsceneException(String message) {
-        super(message);
-    }
-
-    public SubsceneException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public SubsceneException(Throwable cause) {
-        super(cause);
-    }
 
     @Override
     public String getSubtitleProvider() {

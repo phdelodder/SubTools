@@ -5,26 +5,13 @@ import java.io.Serial;
 import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 
+import lombok.experimental.StandardException;
+
+@StandardException
 public class PodnapisiException extends SubtitlesProviderException {
 
     @Serial
     private static final long serialVersionUID = -2390367212064062005L;
-
-    public PodnapisiException() {
-        super();
-    }
-
-    public PodnapisiException(String message) {
-        super(message);
-    }
-
-    public PodnapisiException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public PodnapisiException(Throwable cause) {
-        super(cause);
-    }
 
     @Override
     public String getSubtitleProvider() {

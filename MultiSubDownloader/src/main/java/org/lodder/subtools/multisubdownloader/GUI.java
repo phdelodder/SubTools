@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Serial;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
@@ -52,6 +53,7 @@ import org.lodder.subtools.multisubdownloader.gui.workers.DownloadWorker;
 import org.lodder.subtools.multisubdownloader.gui.workers.RenameWorker;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
+import org.lodder.subtools.multisubdownloader.settings.model.ScreenSettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
 import org.lodder.subtools.multisubdownloader.util.Export;
@@ -68,6 +70,7 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.util.FileUtils;
 import org.lodder.subtools.sublibrary.util.StringUtil;
+import org.lodder.subtools.sublibrary.util.TriConsumer;
 import org.lodder.subtools.sublibrary.util.XmlFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -231,53 +234,15 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
         menuBar.setFileQuitAction(arg0 -> close());
 
-        menuBar.setViewFilenameAction(actionEvent -> {
-            CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
-            if (menuBar.isViewFilenameSelected()) {
-                customTable.unhideColumn(SearchColumnName.FILENAME);
-            } else {
-                customTable.hideColumn(SearchColumnName.FILENAME);
-            }
-        });
+        CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
 
-        menuBar.setViewTypeAction(arg0 -> {
-            CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
-            if (menuBar.isViewTitleSelected()) {
-                customTable.unhideColumn(SearchColumnName.TYPE);
-            } else {
-                customTable.hideColumn(SearchColumnName.TYPE);
-            }
-        });
-
-        menuBar.setViewTitleAction(arg0 -> {
-            CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
-            if (menuBar.isViewTitleSelected()) {
-                customTable.unhideColumn(SearchColumnName.TITLE);
-            } else {
-                customTable.hideColumn(SearchColumnName.TITLE);
-            }
-        });
-
-        menuBar.setViewSeasonAction(arg0 -> {
-            CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
-            if (menuBar.isViewSeasonSelected()) {
-                customTable.unhideColumn(SearchColumnName.SEASON);
-            } else {
-                customTable.hideColumn(SearchColumnName.SEASON);
-            }
-        });
-
-        menuBar.setViewEpisodeAction(arg0 -> {
-            CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
-            if (menuBar.isViewEpisodeSelected()) {
-                customTable.unhideColumn(SearchColumnName.EPISODE);
-            } else {
-                customTable.hideColumn(SearchColumnName.EPISODE);
-            }
-        });
+        menuBar.setViewFilenameAction(actionEvent -> customTable.setColumnVisibility(SearchColumnName.FILENAME, menuBar.isViewFilenameSelected()));
+        menuBar.setViewFilenameAction(actionEvent -> customTable.setColumnVisibility(SearchColumnName.TYPE, menuBar.isViewTitleSelected()));
+        menuBar.setViewFilenameAction(actionEvent -> customTable.setColumnVisibility(SearchColumnName.TITLE, menuBar.isViewTitleSelected()));
+        menuBar.setViewFilenameAction(actionEvent -> customTable.setColumnVisibility(SearchColumnName.SEASON, menuBar.isViewSeasonSelected()));
+        menuBar.setViewFilenameAction(actionEvent -> customTable.setColumnVisibility(SearchColumnName.EPISODE, menuBar.isViewEpisodeSelected()));
 
         menuBar.setViewShowOnlyFoundAction(arg0 -> {
-            CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
             settingsControl.getSettings().setOptionsShowOnlyFound(menuBar.isShowOnlyFound());
             ((VideoTableModel) customTable.getModel()).setShowOnlyFound(settingsControl.getSettings()
                     .isOptionsShowOnlyFound());
@@ -285,17 +250,13 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
         menuBar.setViewClearLogAction(arg0 -> ((LoggingPanel) pnlLogging).setLogText(""));
 
-        menuBar.setEditRenameTVAction(arg0 -> {
-            final RenameDialog rDialog =
-                    new RenameDialog(getThis(), settingsControl.getSettings(), VideoType.EPISODE, manager, userInteractionHandler);
+        Consumer<VideoType> showRenameDialog = videoType -> {
+            RenameDialog rDialog = new RenameDialog(getThis(), settingsControl.getSettings(), videoType, manager, userInteractionHandler);
             rDialog.setVisible(true);
-        });
+        };
 
-        menuBar.setEditRenameMovieAction(arg0 -> {
-            final RenameDialog rDialog =
-                    new RenameDialog(getThis(), settingsControl.getSettings(), VideoType.MOVIE, manager, userInteractionHandler);
-            rDialog.setVisible(true);
-        });
+        menuBar.setEditRenameTVAction(arg0 -> showRenameDialog.accept(VideoType.EPISODE));
+        menuBar.setEditRenameMovieAction(arg0 -> showRenameDialog.accept(VideoType.MOVIE));
 
         menuBar.setEditPreferencesAction(arg0 -> {
             final PreferenceDialog pDialog =
@@ -413,36 +374,17 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
     private void restoreScreenSettings() {
         CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
-        if (settingsControl.getSettings().getScreenSettings().isHideEpisode()) {
-            customTable.hideColumn(SearchColumnName.EPISODE);
-        } else {
-            menuBar.setViewEpisodeSelected(true);
-            customTable.unhideColumn(SearchColumnName.EPISODE);
-        }
-        if (settingsControl.getSettings().getScreenSettings().isHideFilename()) {
-            customTable.hideColumn(SearchColumnName.FILENAME);
-        } else {
-            menuBar.setViewFileNameSelected(true);
-            customTable.unhideColumn(SearchColumnName.FILENAME);
-        }
-        if (settingsControl.getSettings().getScreenSettings().isHideSeason()) {
-            customTable.hideColumn(SearchColumnName.SEASON);
-        } else {
-            menuBar.setViewSeasonSelected(true);
-            customTable.unhideColumn(SearchColumnName.SEASON);
-        }
-        if (settingsControl.getSettings().getScreenSettings().isHideType()) {
-            customTable.hideColumn(SearchColumnName.TYPE);
-        } else {
-            menuBar.setViewTitleSelected(true);
-            customTable.unhideColumn(SearchColumnName.TYPE);
-        }
-        if (settingsControl.getSettings().getScreenSettings().isHideTitle()) {
-            customTable.hideColumn(SearchColumnName.TITLE);
-        } else {
-            menuBar.setViewTitleSelected(true);
-            customTable.unhideColumn(SearchColumnName.TITLE);
-        }
+        TriConsumer<SearchColumnName, Boolean, Consumer<Boolean>> visibilityConsumer = (searchColumn, visible, setVisibleConsumer) -> {
+            customTable.setColumnVisibility(searchColumn, visible);
+            setVisibleConsumer.accept(visible);
+        };
+        ScreenSettings screenSettings = settingsControl.getSettings().getScreenSettings();
+
+        visibilityConsumer.accept(SearchColumnName.EPISODE, screenSettings.isHideEpisode(), menuBar::setViewEpisodeSelected);
+        visibilityConsumer.accept(SearchColumnName.FILENAME, screenSettings.isHideFilename(), menuBar::setViewFileNameSelected);
+        visibilityConsumer.accept(SearchColumnName.SEASON, screenSettings.isHideSeason(), menuBar::setViewSeasonSelected);
+        visibilityConsumer.accept(SearchColumnName.TYPE, screenSettings.isHideType(), menuBar::setViewTypeSelected);
+        visibilityConsumer.accept(SearchColumnName.TITLE, screenSettings.isHideTitle(), menuBar::setViewTitleSelected);
     }
 
     private void initPopupMenu() {

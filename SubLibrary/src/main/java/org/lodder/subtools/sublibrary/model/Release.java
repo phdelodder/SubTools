@@ -27,6 +27,10 @@ public abstract class Release extends Video {
         return new ArrayList<>(matchingSubs);
     }
 
+    public int getMatchingSubCount() {
+        return matchingSubs.size();
+    }
+
     protected Release(VideoType videoFileType, Path path, String description, String releaseGroup, String quality) {
         super(videoFileType);
         this.path = path;

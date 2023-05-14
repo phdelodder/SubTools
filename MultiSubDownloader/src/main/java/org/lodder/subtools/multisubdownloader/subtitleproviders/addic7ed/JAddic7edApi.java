@@ -143,7 +143,6 @@ public class JAddic7edApi extends Html implements SubtitleApi {
 
                         Elements classesNewsTitle = block.getElementsByClass("NewsTitle");
                         Elements classesNewsDate = block.getElementsByClass("newsDate").select("td[colspan=3]");
-                        Elements imgHearingImpaired = block.select("img[title~=Hearing]");
                         if (classesNewsTitle.size() == 1 && classesNewsDate.size() == 1) {
                             Matcher m = VERSION_PATTERN.matcher(classesNewsTitle.get(0).text().trim());
                             if (!m.matches()) {
@@ -151,7 +150,7 @@ public class JAddic7edApi extends Html implements SubtitleApi {
                             } else {
                                 version = m.group(1).trim();
                                 uploader = block.selectFirst("a[href*=user/]").text();
-                                hearingImpaired = imgHearingImpaired.size() > 0;
+                                hearingImpaired = !block.select("img[title~=Hearing]").isEmpty();
                             }
                         }
 

@@ -22,6 +22,14 @@ public class CustomTable extends ZebraJTable {
                 .orElse(-1);
     }
 
+    public void setColumnVisibility(SearchColumnName searchColumnName, boolean visible) {
+        if (visible) {
+            unhideColumn(searchColumnName);
+        } else {
+            hideColumn(searchColumnName);
+        }
+    }
+
     public void hideColumn(SearchColumnName searchColumnName) {
         int columnId = getColumnIdByName(searchColumnName);
         if (columnId > -1) {

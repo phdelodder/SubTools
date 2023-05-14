@@ -42,16 +42,14 @@ public class Import {
         try {
             if (listType == ImportListType.PREFERENCES) {
                 settingsControl.importPreferences(file);
-            } else if (listType == ImportListType.EXCLUDE && settingsControl.getSettings().getExcludeList().size() == 0) {
+            } else if (listType == ImportListType.EXCLUDE && settingsControl.getSettings().getExcludeList().isEmpty()) {
                 settingsControl.getSettings().setExcludeList(XMLExclude.read(file));
             } else {
                 final int response = JOptionPane.showConfirmDialog(frame,
                         "Do you want to add the imported list to the existing list?", "Confirm",
                         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-                if (response == JOptionPane.YES_OPTION) {
-                    if (listType == ImportListType.EXCLUDE) {
-                        settingsControl.getSettings().getExcludeList().addAll(XMLExclude.read(file));
-                    }
+                if (response == JOptionPane.YES_OPTION && listType == ImportListType.EXCLUDE) {
+                    settingsControl.getSettings().getExcludeList().addAll(XMLExclude.read(file));
                 }
             }
         } catch (final Throwable e) {

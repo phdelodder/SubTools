@@ -82,6 +82,9 @@ public class TheTvdbApi {
                                 theTvdb.series().episodesQuery(tvdbId, null, season, episode, null, null, null, null, null,
                                         language == null ? null : language.getLangCode()).execute();
                         if (response.isSuccessful()) {
+                            if (response.body().data == null) {
+                                return Optional.empty();
+                            }
                             return response.body().data.stream().map(serie -> episodeToTVDBEpisode(serie, language)).findFirst();
                         }
                         throw new TheTvdbException(response.errorBody().string());

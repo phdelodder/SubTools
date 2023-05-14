@@ -2,7 +2,8 @@ package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
 import java.io.Serial;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -15,101 +16,45 @@ import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class VideoTableModel extends DefaultTableModel {
 
     @Serial
     private static final long serialVersionUID = 4205143311042280620L;
 
+    private static final List<SearchColumnName> SHOW_COLUMNS =
+            List.of(SearchColumnName.TYPE, SearchColumnName.RELEASE, SearchColumnName.FILENAME, SearchColumnName.TITLE, SearchColumnName.SEASON,
+                    SearchColumnName.EPISODE, SearchColumnName.FOUND, SearchColumnName.SELECT, SearchColumnName.OBJECT);
+
+    private static final List<SearchColumnName> SUBTITLE_COLUMNS =
+            List.of(SearchColumnName.FILENAME, SearchColumnName.SOURCE, SearchColumnName.SCORE, SearchColumnName.SELECT, SearchColumnName.OBJECT);
+
+    private static final Map<SearchColumnName, Integer> SHOW_COLUMNS_INDEX = IntStream.range(0, SHOW_COLUMNS.size())
+            .collect(() -> new EnumMap<>(SearchColumnName.class), (map, i) -> map.put(SHOW_COLUMNS.get(i), i), (l, r) -> {
+                throw new IllegalArgumentException("Duplicate keys [%s] and [%s]".formatted(l, r));
+            });
+
     private final Class<?>[] columnTypes;
-    final boolean[] columnEditables;
+    private final Boolean[] columnEditables;
+    private final Map<Release, Row> rowMap = new LinkedHashMap<>();
     private boolean showOnlyFound = false;
-    private final Map<Release, Integer> rowMap = new HashMap<>();
+    @Setter
     private UserInteractionHandler userInteractionHandler;
 
-    public VideoTableModel(Object[][] data, Object[] columnNames) {
-        super(data, columnNames);
-        this.columnTypes = getColumnTypes(columnNames);
-        this.columnEditables = getColumnEditables(columnNames);
-    }
-
-    public void setUserInteractionHandler(UserInteractionHandler userInteractionHandler) {
-        this.userInteractionHandler = userInteractionHandler;
-    }
-
-    private Class<?>[] getColumnTypes(Object[] columnNames) {
-        Class<?>[] columnTypes = new Class[columnNames.length];
-        for (int i = 0; i < columnNames.length; i++) {
-            if (SearchColumnName.RELEASE.getColumnName().equals(columnNames[i])) {
-                columnTypes[i] = SearchColumnName.RELEASE.getC();
-            } else if (SearchColumnName.FILENAME.getColumnName().equals(columnNames[i])) {
-                columnTypes[i] = SearchColumnName.FILENAME.getC();
-            } else if (SearchColumnName.FOUND.getColumnName().equals(columnNames[i])) {
-                columnTypes[i] = SearchColumnName.FOUND.getC();
-            } else if (SearchColumnName.SELECT.getColumnName().equals(columnNames[i])) {
-                columnTypes[i] = SearchColumnName.SELECT.getC();
-            } else if (SearchColumnName.OBJECT.getColumnName().equals(columnNames[i])) {
-                columnTypes[i] = SearchColumnName.OBJECT.getC();
-            } else if (SearchColumnName.SEASON.getColumnName().equals(columnNames[i])) {
-                columnTypes[i] = SearchColumnName.SEASON.getC();
-            } else if (SearchColumnName.EPISODE.getColumnName().equals(columnNames[i])) {
-                columnTypes[i] = SearchColumnName.EPISODE.getC();
-            } else if (SearchColumnName.TYPE.getColumnName().equals(columnNames[i])) {
-                columnTypes[i] = SearchColumnName.TYPE.getC();
-            } else if (SearchColumnName.TITLE.getColumnName().equals(columnNames[i])) {
-                columnTypes[i] = SearchColumnName.TITLE.getC();
-            } else if (SearchColumnName.SOURCE.getColumnName().equals(columnNames[i])) {
-                columnTypes[i] = SearchColumnName.SOURCE.getC();
-            } else if (SearchColumnName.SCORE.getColumnName().equals(columnNames[i])) {
-                columnTypes[i] = SearchColumnName.SCORE.getC();
-            }
-        }
-        return columnTypes;
-    }
-
-    private boolean[] getColumnEditables(Object[] columnNames) {
-        boolean[] columnEditables = new boolean[columnNames.length];
-        for (int i = 0; i < columnNames.length; i++) {
-            if (SearchColumnName.RELEASE.getColumnName().equals(columnNames[i])) {
-                columnEditables[i] = SearchColumnName.RELEASE.isEditable();
-            } else if (SearchColumnName.FILENAME.getColumnName().equals(columnNames[i])) {
-                columnEditables[i] = SearchColumnName.FILENAME.isEditable();
-            } else if (SearchColumnName.FOUND.getColumnName().equals(columnNames[i])) {
-                columnEditables[i] = SearchColumnName.FOUND.isEditable();
-            } else if (SearchColumnName.SELECT.getColumnName().equals(columnNames[i])) {
-                columnEditables[i] = SearchColumnName.SELECT.isEditable();
-            } else if (SearchColumnName.OBJECT.getColumnName().equals(columnNames[i])) {
-                columnEditables[i] = SearchColumnName.OBJECT.isEditable();
-            } else if (SearchColumnName.SEASON.getColumnName().equals(columnNames[i])) {
-                columnEditables[i] = SearchColumnName.SEASON.isEditable();
-            } else if (SearchColumnName.EPISODE.getColumnName().equals(columnNames[i])) {
-                columnEditables[i] = SearchColumnName.EPISODE.isEditable();
-            } else if (SearchColumnName.TYPE.getColumnName().equals(columnNames[i])) {
-                columnEditables[i] = SearchColumnName.TYPE.isEditable();
-            } else if (SearchColumnName.TITLE.getColumnName().equals(columnNames[i])) {
-                columnEditables[i] = SearchColumnName.TITLE.isEditable();
-            } else if (SearchColumnName.SOURCE.getColumnName().equals(columnNames[i])) {
-                columnEditables[i] = SearchColumnName.SOURCE.isEditable();
-            } else if (SearchColumnName.SCORE.getColumnName().equals(columnNames[i])) {
-                columnEditables[i] = SearchColumnName.SCORE.isEditable();
-            }
-        }
-        return columnEditables;
+    private VideoTableModel(List<SearchColumnName> searchColumnNames) {
+        super(new Object[][] {}, searchColumnNames.stream().map(SearchColumnName::getColumnName).toArray(String[]::new));
+        this.columnTypes = searchColumnNames.stream().map(SearchColumnName::getC).toArray(Class<?>[]::new);
+        this.columnEditables = searchColumnNames.stream().map(SearchColumnName::isEditable).toArray(Boolean[]::new);
     }
 
     public static VideoTableModel getDefaultVideoTableModel() {
-        return new VideoTableModel(new Object[][] {}, new String[] {
-                SearchColumnName.TYPE.getColumnName(), SearchColumnName.RELEASE.getColumnName(),
-                SearchColumnName.FILENAME.getColumnName(), SearchColumnName.TITLE.getColumnName(),
-                SearchColumnName.SEASON.getColumnName(), SearchColumnName.EPISODE.getColumnName(),
-                SearchColumnName.FOUND.getColumnName(), SearchColumnName.SELECT.getColumnName(),
-                SearchColumnName.OBJECT.getColumnName() });
+        return new VideoTableModel(SHOW_COLUMNS);
     }
 
     public static VideoTableModel getDefaultSubtitleTableModel() {
-        return new VideoTableModel(new Object[][] {}, new String[] {
-                SearchColumnName.FILENAME.getColumnName(), SearchColumnName.SOURCE.getColumnName(),
-                SearchColumnName.SCORE.getColumnName(), SearchColumnName.SELECT.getColumnName(),
-                SearchColumnName.OBJECT.getColumnName() });
+        return new VideoTableModel(SUBTITLE_COLUMNS);
     }
 
     public void addRows(List<Release> l) {
@@ -120,83 +65,83 @@ public class VideoTableModel extends DefaultTableModel {
         /* If we try to add an existing release, we just have to update that row */
         synchronized (this) {
             if (rowMap.containsKey(release)) {
-                updateRow(release);
+                Row row = this.rowMap.get(release);
+                int rowNr = new ArrayList<>(rowMap.keySet()).indexOf(release);
+                int subsFound = row.updateSubsFound();
+                this.setValueAt(subsFound, rowNr, SHOW_COLUMNS_INDEX.get(SearchColumnName.FOUND));
                 return;
             }
 
-            if (!showOnlyFound || release.getMatchingSubs().size() > 0) {
-                rowMap.put(release, this.getRowCount());
-
-                Object[] row = createRow(release);
-                this.addRow(row);
+            if (!showOnlyFound || release.getMatchingSubCount() != 0) {
+                Row row = createRow(release);
+                rowMap.put(release, row);
+                this.addRow(row.getRowObject());
             }
         }
     }
 
-    private Object[] createRow(Release release) {
-        int cCount = getColumnCount();
-        Object[] row = new Object[cCount];
-        String columnName;
-        for (int i = 0; i < cCount; i++) {
-            columnName = this.getColumnName(i);
-            if (SearchColumnName.RELEASE.getColumnName().equals(columnName)) {
-                if (release instanceof TvRelease tvRelease) {
-                    row[i] = tvRelease.getOriginalName();
-                } else if (release instanceof MovieRelease movieRelease) {
-                    row[i] = movieRelease.getName();
+    private Row createRow(Release release) {
+        return new Row(release, userInteractionHandler);
+    }
+
+    private class Row {
+        private final Release release;
+        private final UserInteractionHandler userInteractionHandler;
+        @Getter
+        public final Object[] rowObject;
+
+        public Row(Release release, UserInteractionHandler userInteractionHandler) {
+            this.release = release;
+            this.userInteractionHandler = userInteractionHandler;
+            this.rowObject = SHOW_COLUMNS.stream().map(searchColumn -> switch (searchColumn) {
+                case RELEASE -> {
+                    if (release instanceof TvRelease tvRelease) {
+                        yield tvRelease.getOriginalName();
+                    } else if (release instanceof MovieRelease movieRelease) {
+                        yield movieRelease.getName();
+                    } else {
+                        throw new IllegalArgumentException("Unexpected release type: " + release.getClass());
+                    }
                 }
-            } else if (SearchColumnName.FILENAME.getColumnName().equals(columnName)) {
-                row[i] = release.getFileName();
-            } else if (SearchColumnName.FOUND.getColumnName().equals(columnName)) {
-                int selectionSize = release.getMatchingSubs().size();
-                if (userInteractionHandler != null) {
-                    selectionSize = userInteractionHandler.getAutomaticSelection(release.getMatchingSubs()).size();
-                }
-                if (selectionSize == release.getMatchingSubs().size()) {
-                    row[i] = release.getMatchingSubs().size();
-                } else {
-                    row[i] = selectionSize;
-                }
-            } else if (SearchColumnName.SELECT.getColumnName().equals(columnName)) {
-                row[i] = false;
-            } else if (SearchColumnName.OBJECT.getColumnName().equals(columnName)) {
-                row[i] = release;
-            } else if (SearchColumnName.SEASON.getColumnName().equals(columnName)) {
-                if (release instanceof TvRelease tvRelease) {
-                    row[i] = tvRelease.getSeason();
-                }
-            } else if (SearchColumnName.EPISODE.getColumnName().equals(columnName)) {
-                if (release instanceof TvRelease tvRelease) {
-                    row[i] = tvRelease.getEpisodeNumbers().get(0);
-                }
-            } else if (SearchColumnName.TYPE.getColumnName().equals(columnName)) {
-                row[i] = release.getVideoType();
-            } else if (SearchColumnName.TITLE.getColumnName().equals(columnName) && release instanceof TvRelease tvRelease) {
-                row[i] = tvRelease.getTitle();
+                case FILENAME -> release.getFileName();
+                case FOUND -> calculateSubsFound();
+                case SELECT -> false;
+                case OBJECT -> release;
+                case SEASON -> release instanceof TvRelease tvRelease ? tvRelease.getSeason() : null;
+                case EPISODE -> release instanceof TvRelease tvRelease ? tvRelease.getEpisodeNumbers().get(0) : null;
+                case TYPE -> release.getVideoType();
+                case TITLE -> release instanceof TvRelease tvRelease ? tvRelease.getTitle() : null;
+                default -> throw new IllegalArgumentException("Unexpected value: " + searchColumn);
+            }).toArray();
+        }
+
+        private int calculateSubsFound() {
+            int matchingSubsSize = release.getMatchingSubCount();
+            int selectionSize = userInteractionHandler != null
+                    ? userInteractionHandler.getAutomaticSelection(release.getMatchingSubs()).size()
+                    : matchingSubsSize;
+            return selectionSize == matchingSubsSize ? matchingSubsSize : selectionSize;
+        }
+
+        public int updateSubsFound() {
+            synchronized (this) {
+                int subsFound = calculateSubsFound();
+                rowObject[SHOW_COLUMNS_INDEX.get(SearchColumnName.FOUND)] = subsFound;
+                return subsFound;
             }
         }
-        return row;
     }
 
     public void addRow(Subtitle subtitle) {
         synchronized (this) {
-            int cCount = getColumnCount();
-            Object[] row = new Object[cCount];
-            String columnName;
-            for (int i = 0; i < cCount; i++) {
-                columnName = this.getColumnName(i);
-                if (SearchColumnName.FILENAME.getColumnName().equals(columnName)) {
-                    row[i] = subtitle.getFileName();
-                } else if (SearchColumnName.SELECT.getColumnName().equals(columnName)) {
-                    row[i] = false;
-                } else if (SearchColumnName.OBJECT.getColumnName().equals(columnName)) {
-                    row[i] = subtitle;
-                } else if (SearchColumnName.SOURCE.getColumnName().equals(columnName)) {
-                    row[i] = subtitle.getSubtitleSource();
-                } else if (SearchColumnName.SCORE.getColumnName().equals(columnName)) {
-                    row[i] = subtitle.getScore();
-                }
-            }
+            Object[] row = SUBTITLE_COLUMNS.stream().map(searchColumn -> switch (searchColumn) {
+                case FILENAME -> subtitle.getFileName();
+                case SELECT -> false;
+                case OBJECT -> subtitle;
+                case SOURCE -> subtitle.getSubtitleSource();
+                case SCORE -> subtitle.getScore();
+                default -> throw new IllegalArgumentException("Unexpected value: " + searchColumn);
+            }).toArray();
             this.addRow(row);
         }
     }
@@ -220,22 +165,6 @@ public class VideoTableModel extends DefaultTableModel {
             List<Release> newRowList = new ArrayList<>(this.rowMap.keySet());
             clearTable();
             addRows(newRowList);
-        }
-    }
-
-    private void updateRow(Release release) {
-        synchronized (this) {
-            int rowNr = this.rowMap.get(release);
-            Object[] row = this.createRow(release);
-
-            for (int columnNr = 0; columnNr < row.length; columnNr++) {
-                Object rowData = row[columnNr];
-                if (rowData == null) {
-                    continue;
-                }
-
-                this.setValueAt(rowData, rowNr, columnNr);
-            }
         }
     }
 

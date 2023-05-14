@@ -3,7 +3,6 @@ package org.lodder.subtools.multisubdownloader.gui.panels;
 import java.io.Serial;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -21,8 +20,10 @@ import org.lodder.subtools.multisubdownloader.gui.extra.MyComboBoxEditor;
 import org.lodder.subtools.multisubdownloader.gui.extra.MyComboBoxRenderer;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
 
+import lombok.experimental.ExtensionMethod;
 import net.miginfocom.swing.MigLayout;
 
+@ExtensionMethod({ Arrays.class })
 public class DefaultSelectionPanel extends JPanel {
 
     @Serial
@@ -66,8 +67,10 @@ public class DefaultSelectionPanel extends JPanel {
         DefaultTableModel model = (DefaultTableModel) defaultSelectionTable.getModel();
         model.addRow(new Object[] { model.getRowCount() + 1, q });
         // These are the combobox values
-        String[] values = Stream.concat(Stream.of(Messages.getString("DefaultSelectionPanel.Select")), VideoPatterns.QUALITY_KEYWORDS.stream())
-                .toArray(String[]::new);
+
+        Stream<String> sourceValues = VideoPatterns.Source.values().stream().map(VideoPatterns.Source::getValues).flatMap(Arrays::stream);
+
+        String[] values = Stream.concat(Stream.of(Messages.getString("DefaultSelectionPanel.Select")), sourceValues).toArray(String[]::new);
 
         // Set the combobox editor on the 1st visible column
         int vColIndex = 1;
@@ -107,12 +110,12 @@ public class DefaultSelectionPanel extends JPanel {
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        Arrays.stream(this.getComponents()).forEach(c -> c.setEnabled(enabled));
+        this.getComponents().stream().forEach(c -> c.setEnabled(enabled));
     }
 
     public List<String> getDefaultSelectionList() {
         DefaultTableModel model = (DefaultTableModel) defaultSelectionTable.getModel();
-        return IntStream.range(0, model.getRowCount()).mapToObj(i -> (String) model.getValueAt(i, 1)).collect(Collectors.toList());
+        return IntStream.range(0, model.getRowCount()).mapToObj(i -> (String) model.getValueAt(i, 1)).toList();
     }
 
     public void setDefaultSelectionList(List<String> optionsDefaultSelectionQualityList) {

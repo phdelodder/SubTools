@@ -129,10 +129,7 @@ public class JSubsceneAdapter extends AbstractAdapter<SubsceneSubtitleDescriptor
                         .comparing((SubSceneSerieId serieId) -> serieId.getSeason() == 0)
                         .thenComparing(serieId -> {
                             Matcher matcher = yearPattern.matcher(serieId.getName());
-                            if (matcher.find()) {
-                                return Integer.parseInt(matcher.group());
-                            }
-                            return 0;
+                            return matcher.find() ? Integer.parseInt(matcher.group()) : 0;
                         }, Comparator.reverseOrder())
                         .thenComparing(SubSceneSerieId::getSeason, Comparator.reverseOrder()))
                 .distinct()

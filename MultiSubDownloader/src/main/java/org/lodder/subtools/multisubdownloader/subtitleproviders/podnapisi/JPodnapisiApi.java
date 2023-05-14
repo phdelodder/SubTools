@@ -24,6 +24,7 @@ import org.lodder.subtools.sublibrary.data.ProviderSerieId;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
+import org.lodder.subtools.sublibrary.util.StringUtil;
 import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 import org.lodder.subtools.sublibrary.xml.XmlExtension;
 
@@ -34,7 +35,7 @@ import lombok.experimental.ExtensionMethod;
 
 @Getter(value = AccessLevel.PRIVATE)
 @RequiredArgsConstructor
-@ExtensionMethod({ XmlExtension.class, OptionalExtension.class })
+@ExtensionMethod({ XmlExtension.class, OptionalExtension.class, StringUtil.class })
 public class JPodnapisiApi implements SubtitleApi {
 
     public static final int maxAge = 90;
@@ -44,7 +45,7 @@ public class JPodnapisiApi implements SubtitleApi {
     private LocalDateTime nextCheck;
 
     public Optional<ProviderSerieId> getPodnapisiShowName(String showName) throws PodnapisiException {
-        String url = DOMAIN + "/sl/ppodnapisi/search?sK=" + URLEncoder.encode(showName.trim().toLowerCase(), StandardCharsets.UTF_8);
+        String url = DOMAIN + "/sl/ppodnapisi/search?sK=" + showName.trim().toLowerCase().urlEncode();
         return getXml(url).selectFirst(".subtitle-entry") != null
                 ? Optional.of(new ProviderSerieId(showName, showName))
                 : Optional.empty();

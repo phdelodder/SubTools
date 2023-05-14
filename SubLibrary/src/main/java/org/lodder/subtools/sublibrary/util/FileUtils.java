@@ -3,8 +3,6 @@ package org.lodder.subtools.sublibrary.util;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -290,26 +288,6 @@ public class FileUtils {
             }
         }
 
-    }
-
-    public static boolean isZipFile(File file) throws IOException {
-        boolean isZip = false;
-
-        if (file.isDirectory()) {
-            return isZip;
-        }
-        if (!file.canRead()) {
-            throw new IOException("Cannot read file " + file.getAbsolutePath());
-        }
-        if (file.length() < 4) {
-            return isZip;
-        }
-
-        try (FileInputStream fis = new FileInputStream(file)) {
-            isZip = isZipFile(fis);
-        }
-
-        return isZip;
     }
 
     public static boolean isZipFile(InputStream inputStream) throws IOException {

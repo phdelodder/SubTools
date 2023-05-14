@@ -27,27 +27,24 @@ public class ReleaseFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseFactory.class);
 
     public ReleaseFactory(Settings settings, Manager manager) {
-        releaseParser = new ReleaseParser();
+        this.releaseParser = new ReleaseParser();
         this.settings = settings;
         this.manager = manager;
     }
 
     public Release createRelease(Path file, UserInteractionHandler userInteractionHandler) {
-        Release r = null;
-
         try {
-            r = releaseParser.parse(file);
-
+            Release r = releaseParser.parse(file);
             releaseControl = switch (r.getVideoType()) {
                 case EPISODE -> new TvReleaseControl((TvRelease) r, settings, manager, userInteractionHandler);
                 case MOVIE -> new MovieReleaseControl((MovieRelease) r, settings, manager, userInteractionHandler);
             };
             releaseControl.process();
-            r = releaseControl.getVideoFile();
+            return releaseControl.getVideoFile();
 
         } catch (ReleaseParseException | ReleaseControlException e) {
             LOGGER.error("createRelease", e);
         }
-        return r;
+        return null;
     }
 }

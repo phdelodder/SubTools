@@ -1,8 +1,6 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles;
 
 import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -10,7 +8,9 @@ import java.nio.ByteOrder;
 import java.nio.LongBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 /**
  * Hash code is based on Media Player Classic. In natural language it calculates: size + 64bit
@@ -25,15 +25,12 @@ public class OpenSubtitlesHasher {
     private static final int HASH_CHUNK_SIZE = 64 * 1024;
 
     public static String computeHash(Path path) throws IOException {
-        File file = path.toFile();
-        long size = file.length();
+        long size = Files.size(path);
         long chunkSizeForFile = Math.min(HASH_CHUNK_SIZE, size);
 
-        try (FileInputStream fiStream = new FileInputStream(file);
-                FileChannel fileChannel = fiStream.getChannel();) {
+        try (FileChannel fileChannel = FileChannel.open(path, StandardOpenOption.READ)) {
             long head = computeHashForChunk(fileChannel.map(MapMode.READ_ONLY, 0, chunkSizeForFile));
             long tail = computeHashForChunk(fileChannel.map(MapMode.READ_ONLY, Math.max(size - HASH_CHUNK_SIZE, 0), chunkSizeForFile));
-
             return String.format("%016x", size + head + tail);
         }
     }
