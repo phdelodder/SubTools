@@ -349,9 +349,10 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
     private CustomTable createVideoTable() {
         CustomTable customTable = new CustomTable();
-        customTable.setModel(VideoTableModel.getDefaultVideoTableModel());
-        ((VideoTableModel) customTable.getModel()).setShowOnlyFound(settingsControl.getSettings().isOptionsShowOnlyFound());
-        ((VideoTableModel) customTable.getModel()).setUserInteractionHandler(userInteractionHandler);
+        VideoTableModel videoTableModel = VideoTableModel.getDefaultVideoTableModel();
+        customTable.setModel(videoTableModel);
+        videoTableModel.setShowOnlyFound(settingsControl.getSettings().isOptionsShowOnlyFound());
+        videoTableModel.setUserInteractionHandler(userInteractionHandler);
         final RowSorter<TableModel> sorter = new TableRowSorter<>(customTable.getModel());
         customTable.setRowSorter(sorter);
         customTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);

@@ -3,9 +3,13 @@ package org.lodder.subtools.multisubdownloader.gui.extra.table;
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Vector;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.swing.table.DefaultTableModel;
@@ -88,7 +92,7 @@ public class VideoTableModel extends DefaultTableModel {
         private final Release release;
         private final UserInteractionHandler userInteractionHandler;
         @Getter
-        public final Object[] rowObject;
+        public final Vector<Object> rowObject;
 
         public Row(Release release, UserInteractionHandler userInteractionHandler) {
             this.release = release;
@@ -112,7 +116,7 @@ public class VideoTableModel extends DefaultTableModel {
                 case TYPE -> release.getVideoType();
                 case TITLE -> release instanceof TvRelease tvRelease ? tvRelease.getTitle() : null;
                 default -> throw new IllegalArgumentException("Unexpected value: " + searchColumn);
-            }).toArray();
+            }).collect(Collectors.toCollection(Vector::new));
         }
 
         private int calculateSubsFound() {
@@ -126,22 +130,26 @@ public class VideoTableModel extends DefaultTableModel {
         public int updateSubsFound() {
             synchronized (this) {
                 int subsFound = calculateSubsFound();
-                rowObject[SHOW_COLUMNS_INDEX.get(SearchColumnName.FOUND)] = subsFound;
+                rowObject.set(SHOW_COLUMNS_INDEX.get(SearchColumnName.FOUND), subsFound);
                 return subsFound;
             }
+        }
+
+        public boolean isSelected() {
+            return (boolean) rowObject.get(SHOW_COLUMNS_INDEX.get(SearchColumnName.SELECT));
         }
     }
 
     public void addRow(Subtitle subtitle) {
         synchronized (this) {
-            Object[] row = SUBTITLE_COLUMNS.stream().map(searchColumn -> switch (searchColumn) {
+            Vector<Object> row = SUBTITLE_COLUMNS.stream().map(searchColumn -> switch (searchColumn) {
                 case FILENAME -> subtitle.getFileName();
                 case SELECT -> false;
                 case OBJECT -> subtitle;
                 case SOURCE -> subtitle.getSubtitleSource();
                 case SCORE -> subtitle.getScore();
                 default -> throw new IllegalArgumentException("Unexpected value: " + searchColumn);
-            }).toArray();
+            }).collect(Collectors.toCollection(Vector::new));
             this.addRow(row);
         }
     }
@@ -156,8 +164,29 @@ public class VideoTableModel extends DefaultTableModel {
         return columnEditables[column];
     }
 
-    public Integer getSelectedCount(int column) {
-        return (int) IntStream.range(0, getRowCount()).filter(i -> (Boolean) getValueAt(i, column)).count();
+    public void processTable(Runnable runnable) {
+        synchronized (this) {
+            runnable.run();
+        }
+    }
+
+    @Override
+    public void removeRow(int i) {
+        throw new IllegalStateException("Should not be used!)");
+    }
+
+    public void removeShow(Release selectedShow) {
+        Iterator<Release> iterator = rowMap.keySet().iterator();
+        int idx = -1;
+        while (iterator.hasNext()) {
+            idx++;
+            Release release = iterator.next();
+            if (release == selectedShow) {
+                iterator.remove();
+                super.removeRow(idx);
+                return;
+            }
+        }
     }
 
     private void updateTable() {
@@ -171,7 +200,7 @@ public class VideoTableModel extends DefaultTableModel {
     public void clearTable() {
         synchronized (this) {
             while (getRowCount() > 0) {
-                removeRow(0);
+                super.removeRow(0);
             }
             rowMap.clear();
         }
@@ -184,5 +213,19 @@ public class VideoTableModel extends DefaultTableModel {
 
     public boolean isShowOnlyFound() {
         return this.showOnlyFound;
+    }
+
+    public void executedSynchronized(Runnable runnable) {
+        synchronized (this) {
+            runnable.run();
+        }
+    }
+
+    public int getSelectedAmountOfShows() {
+        return (int) rowMap.values().stream().filter(Row::isSelected).count();
+    }
+
+    public List<Release> getSelectedShows() {
+        return rowMap.entrySet().stream().filter(entry -> entry.getValue().isSelected()).map(Entry::getKey).toList();
     }
 }
