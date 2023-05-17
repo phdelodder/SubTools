@@ -237,10 +237,10 @@ public class GUI extends JFrame implements PropertyChangeListener {
         CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
 
         menuBar.setViewFilenameAction(actionEvent -> customTable.setColumnVisibility(SearchColumnName.FILENAME, menuBar.isViewFilenameSelected()));
-        menuBar.setViewFilenameAction(actionEvent -> customTable.setColumnVisibility(SearchColumnName.TYPE, menuBar.isViewTitleSelected()));
-        menuBar.setViewFilenameAction(actionEvent -> customTable.setColumnVisibility(SearchColumnName.TITLE, menuBar.isViewTitleSelected()));
-        menuBar.setViewFilenameAction(actionEvent -> customTable.setColumnVisibility(SearchColumnName.SEASON, menuBar.isViewSeasonSelected()));
-        menuBar.setViewFilenameAction(actionEvent -> customTable.setColumnVisibility(SearchColumnName.EPISODE, menuBar.isViewEpisodeSelected()));
+        menuBar.setViewTypeAction(actionEvent -> customTable.setColumnVisibility(SearchColumnName.TYPE, menuBar.isViewTypeSelected()));
+        menuBar.setViewTitleAction(actionEvent -> customTable.setColumnVisibility(SearchColumnName.TITLE, menuBar.isViewTitleSelected()));
+        menuBar.setViewSeasonAction(actionEvent -> customTable.setColumnVisibility(SearchColumnName.SEASON, menuBar.isViewSeasonSelected()));
+        menuBar.setViewEpisodeAction(actionEvent -> customTable.setColumnVisibility(SearchColumnName.EPISODE, menuBar.isViewEpisodeSelected()));
 
         menuBar.setViewShowOnlyFoundAction(arg0 -> {
             settingsControl.getSettings().setOptionsShowOnlyFound(menuBar.isShowOnlyFound());
@@ -375,10 +375,11 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
     private void restoreScreenSettings() {
         CustomTable customTable = pnlSearchFile.getResultPanel().getTable();
-        TriConsumer<SearchColumnName, Boolean, Consumer<Boolean>> visibilityConsumer = (searchColumn, visible, setVisibleConsumer) -> {
-            customTable.setColumnVisibility(searchColumn, visible);
-            setVisibleConsumer.accept(visible);
+        TriConsumer<SearchColumnName, Boolean, Consumer<Boolean>> visibilityConsumer = (searchColumn, hidden, setVisibleConsumer) -> {
+            setVisibleConsumer.accept(!hidden);
+            customTable.setColumnVisibility(searchColumn, !hidden);
         };
+
         ScreenSettings screenSettings = settingsControl.getSettings().getScreenSettings();
 
         visibilityConsumer.accept(SearchColumnName.EPISODE, screenSettings.isHideEpisode(), menuBar::setViewEpisodeSelected);
@@ -573,7 +574,6 @@ public class GUI extends JFrame implements PropertyChangeListener {
         settingsControl.getSettings().getScreenSettings().setHideSeason(customTable.isHideColumn(SearchColumnName.SEASON));
         settingsControl.getSettings().getScreenSettings().setHideTitle(customTable.isHideColumn(SearchColumnName.TITLE));
         settingsControl.getSettings().getScreenSettings().setHideType(customTable.isHideColumn(SearchColumnName.TYPE));
-
     }
 
     public ProgressDialog setProgressDialog(Cancelable worker) {
@@ -601,13 +601,6 @@ public class GUI extends JFrame implements PropertyChangeListener {
         searchProgressDialog = new SearchProgressDialog(this, searchAction);
         return searchProgressDialog;
     }
-
-    // public void hideSearchProgressDialog() {
-    // if (searchProgressDialog == null) {
-    // return;
-    // }
-    // searchProgressDialog.setVisible(false);
-    // }
 
     public IndexingProgressDialog createFileIndexerProgressDialog(Cancelable searchAction) {
         fileIndexerProgressDialog = new IndexingProgressDialog(this, searchAction);
