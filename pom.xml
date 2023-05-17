@@ -207,6 +207,13 @@
 				<groupId>com.massisframework</groupId>
 				<artifactId>j-text-utils</artifactId>
 				<version>0.3.4</version>
+				<!-- not used, removed for smaller jar size -->
+				<exclusions>
+					<exclusion>
+						<groupId>commons-lang</groupId>
+						<artifactId>commons-lang</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.openapitools</groupId>

@@ -140,6 +140,8 @@
 							<packageName>org.opensubtitles</packageName>
 							<!--<language>java</language>-->
 							<!--<skipValidateSpec>true</skipValidateSpec>-->
+							<apisToGenerate>Authentication,Download,Subtitles</apisToGenerate>
+							<generateModelTests>false</generateModelTests>
 							<configOptions>
 								<typeMappings>integer=int,int=int</typeMappings>
 								<useSwaggerAnnotations>false</useSwaggerAnnotations>

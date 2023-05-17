@@ -182,6 +182,9 @@
 							<packageName>org.gestdown</packageName>
 							<!--<language>java</language>-->
 							<skipValidateSpec>true</skipValidateSpec>
+							<apisToGenerate>Subtitles,TvShows</apisToGenerate>
+							<modelsToGenerate>AbstractOpenApiSchema,EpisodeDto,EpisodeWithSubtitlesDto,ErrorResponse,SearchRequest,ShowDto,ShowSearchResponse,SubtitleDto,SubtitleSearchResponse,TvShowSubtitleResponse,WrongFormatResponse</modelsToGenerate>
+							<generateModelTests>false</generateModelTests>
 							<configOptions>
 								<typeMappings>integer=int,int=int</typeMappings>
 								<useSwaggerAnnotations>false</useSwaggerAnnotations>
