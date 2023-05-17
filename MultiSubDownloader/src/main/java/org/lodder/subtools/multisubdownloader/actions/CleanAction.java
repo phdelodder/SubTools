@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.util.FileUtils;
