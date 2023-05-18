@@ -156,7 +156,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
                 .cacheType(CacheType.DISK)
                 .key("%s-serieName-name:%s-%s".formatted(getProviderName(), serieName.toLowerCase(), seasonToUse));
 
-        if (StringUtils.equals(serieNameToSearchFor, displayName) && serieNameValueBuilder.isPresent()) {
+        if (StringUtils.equals(serieNameToSearchFor, serieName) && serieNameValueBuilder.isPresent()) {
             boolean returnValue;
             Optional<SerieMapping> value;
             if (serieNameValueBuilder.isTemporaryObject()) {
