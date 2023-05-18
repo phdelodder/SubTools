@@ -19,12 +19,10 @@ public abstract class InputPanel extends JPanel {
     private static final long serialVersionUID = 7753220002440733463L;
     private JButton btnSearch;
     private JComboBox<LanguageWrapper> cbxLanguage;
-    private SearchAction searchAction;
     private final LanguageWrapper[] languageSelection = Arrays.stream(Language.values()).map(LanguageWrapper::new).toArray(LanguageWrapper[]::new);
 
     public InputPanel() {
         createComponents();
-        setupListeners();
     }
 
     public Language getSelectedLanguage() {
@@ -35,8 +33,10 @@ public abstract class InputPanel extends JPanel {
         cbxLanguage.setSelectedItem(new LanguageWrapper(language));
     }
 
-    public void setSearchAction(SearchAction searchAction) {
-        this.searchAction = searchAction;
+    public void addSearchAction(SearchAction searchAction) {
+        if (searchAction != null) {
+            btnSearch.addActionListener(event -> new Thread(searchAction).start());
+        }
     }
 
     public void enableSearchButton() {
@@ -53,18 +53,6 @@ public abstract class InputPanel extends JPanel {
 
     protected JComboBox<LanguageWrapper> getLanguageCbx() {
         return this.cbxLanguage;
-    }
-
-    private void setupListeners() {
-        btnSearch.addActionListener(event -> {
-            if (searchAction == null) {
-                return;
-            }
-
-            Thread searchThread = new Thread(searchAction);
-            searchThread.start();
-
-        });
     }
 
     private void createComponents() {

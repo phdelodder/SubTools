@@ -299,7 +299,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
                 .searchPanel(pnlSearchText)
                 .releaseFactory(new ReleaseFactory(settings, (Manager) app.make("Manager")))
                 .build();
-        pnlSearchTextInput.setSearchAction(searchAction);
+        pnlSearchTextInput.addSearchAction(searchAction);
     }
 
     private CustomTable createSubtitleTable() {
@@ -331,8 +331,8 @@ public class GUI extends JFrame implements PropertyChangeListener {
                 .releaseFactory(new ReleaseFactory(settings, (Manager) app.make("Manager")))
                 .build();
 
-        pnlSearchFileInput.setSelectFolderAction(arg0 -> selectIncomingFolder());
-        pnlSearchFileInput.setSearchAction(searchAction);
+        pnlSearchFileInput.addSelectFolderAction(arg0 -> selectIncomingFolder());
+        pnlSearchFileInput.addSearchAction(searchAction);
 
         resultPanel.setDownloadAction(arg0 -> download());
         resultPanel.setMoveAction(arg0 -> {

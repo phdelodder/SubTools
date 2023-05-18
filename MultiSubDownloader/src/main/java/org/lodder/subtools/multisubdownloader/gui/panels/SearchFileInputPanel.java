@@ -1,5 +1,7 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
+import java.io.Serial;
+
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -8,7 +10,6 @@ import javax.swing.JTextField;
 import org.lodder.subtools.multisubdownloader.Messages;
 
 import java.awt.event.ActionListener;
-import java.io.Serial;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -20,14 +21,12 @@ public class SearchFileInputPanel extends InputPanel {
     private JCheckBox chkRecursive;
     private JCheckBox chkForceSubtitleOverwrite;
     private JButton btnBrowse;
-    private ActionListener selectFolderAction;
 
     public SearchFileInputPanel() {
         super();
         setLayout(new MigLayout("", "[][][][][][]", "[][][][][][]"));
 
         createComponents();
-        setupListeners();
         addComponentsToPanel();
     }
 
@@ -40,14 +39,6 @@ public class SearchFileInputPanel extends InputPanel {
         add(getSearchButton(), "cell 0 5 3 1,alignx center");
         add(new JLabel(Messages.getString("MainWindow.SelectSubtitleLanguage")), "cell 2 2");
         add(getLanguageCbx(), "cell 3 2");
-    }
-
-    private void setupListeners() {
-        btnBrowse.addActionListener(e -> {
-            if (selectFolderAction != null) {
-                selectFolderAction.actionPerformed(e);
-            }
-        });
     }
 
     private void createComponents() {
@@ -64,8 +55,10 @@ public class SearchFileInputPanel extends InputPanel {
         chkRecursive.setSelected(selected);
     }
 
-    public void setSelectFolderAction(ActionListener selectFolderAction) {
-        this.selectFolderAction = selectFolderAction;
+    public void addSelectFolderAction(ActionListener selectFolderAction) {
+        if (selectFolderAction != null) {
+            btnBrowse.addActionListener(e -> selectFolderAction.actionPerformed(e));
+        }
     }
 
     public void setIncomingPath(String path) {
