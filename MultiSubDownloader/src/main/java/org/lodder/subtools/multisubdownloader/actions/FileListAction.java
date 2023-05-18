@@ -64,25 +64,31 @@ public class FileListAction {
         /* Increase progressTotalFiles count */
         this.progressFilesTotal += contents.size();
 
+        if (this.indexingProgressListener != null) {
+            this.indexingProgressListener.progress(dir.toString());
+        }
+
         for (Path file : contents) {
             /* Increase progressFileIndex */
             this.progressFileIndex++;
 
             /* Update progressListener */
             if (this.indexingProgressListener != null) {
-                /* Tell the progress listener which directory we are handling */
-                this.indexingProgressListener.progress(dir.toString());
                 /* Tell the progress listener the overall progress */
                 int progress = (int) Math.floor((float) this.progressFileIndex / this.progressFilesTotal * 100);
                 this.indexingProgressListener.progress(progress);
             }
 
             try {
-                if (file.isRegularFile() && isValidVideoFile(file) && (!fileHasSubtitles(file, language) || forceSubtitleOverwrite)
-                        && isNotExcluded(file)) {
-                    filelist.add(file);
-                } else if (recursive && file.isDirectory() && !isExcludedDir(file)) {
+                if (file.isRegularFile()) {
+                    if (isValidVideoFile(file) && (forceSubtitleOverwrite || !fileHasSubtitles(file, language)) && isNotExcluded(file)) {
+                        filelist.add(file);
+                    }
+                } else if (recursive && !isExcludedDir(file)) {
                     filelist.addAll(getFileListing(file, recursive, language, forceSubtitleOverwrite));
+                    if (this.indexingProgressListener != null) {
+                        this.indexingProgressListener.progress(dir.toString());
+                    }
                 }
             } catch (IOException e) {
                 LOGGER.error(e.getMessage(), e);
@@ -119,7 +125,7 @@ public class FileListAction {
     }
 
     public boolean isValidVideoFile(Path file) {
-        return !file.getFileNameAsString().contains("sample") && VideoPatterns.EXTENSIONS.contains(file.getExtension());
+        return VideoPatterns.EXTENSIONS.contains(file.getExtension()) && !file.getFileNameAsString().contains("sample");
     }
 
     public boolean fileHasSubtitles(Path file, Language language) throws IOException {
