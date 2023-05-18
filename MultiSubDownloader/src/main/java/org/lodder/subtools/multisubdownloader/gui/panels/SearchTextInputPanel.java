@@ -71,7 +71,7 @@ public class SearchTextInputPanel extends InputPanel {
 
     private void videoTypeChanged() {
         VideoSearchType videoTypeChoice = (VideoSearchType) cbxVideoType.getSelectedItem();
-        if (VideoSearchType.EPISODE.equals(videoTypeChoice)) {
+        if (VideoSearchType.EPISODE == videoTypeChoice) {
             txtInputSeason.setEditable(true);
             txtInputSeason.setEnabled(true);
             txtInputEpisode.setEditable(true);
@@ -82,7 +82,7 @@ public class SearchTextInputPanel extends InputPanel {
             txtInputEpisode.setEditable(false);
             txtInputEpisode.setEnabled(false);
         }
-        if (VideoSearchType.RELEASE.equals(videoTypeChoice)) {
+        if (VideoSearchType.RELEASE == videoTypeChoice) {
             txtQualityVersion.setEditable(false);
             txtQualityVersion.setEnabled(false);
         } else {

@@ -1,13 +1,19 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
-import javax.swing.*;
-import java.awt.*;
 import java.io.Serial;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import lombok.experimental.ExtensionMethod;
-import net.miginfocom.swing.MigLayout;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
+
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.dialog.StructureBuilderDialog;
@@ -21,6 +27,12 @@ import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.awt.Component;
+import java.awt.HeadlessException;
+
+import lombok.experimental.ExtensionMethod;
+import net.miginfocom.swing.MigLayout;
 
 @ExtensionMethod({Files.class})
 public abstract class VideoLibraryPanel extends JPanel {
@@ -58,12 +70,12 @@ public abstract class VideoLibraryPanel extends JPanel {
         if (libraryActionType != null) {
             for (int i = 0; i < cbxLibraryOtherFileAction.getModel().getSize(); i++) {
                 LibraryOtherFileActionType ofa = (LibraryOtherFileActionType) cbxLibraryOtherFileAction.getItemAt(i);
-                if (LibraryActionType.MOVE.equals(libraryActionType)) {
+                if (LibraryActionType.MOVE == libraryActionType) {
                     cbxLibraryOtherFileAction.setItemEnabled(i,
-                            !LibraryOtherFileActionType.MOVEANDRENAME.equals(ofa) && !LibraryOtherFileActionType.RENAME.equals(ofa));
+                            LibraryOtherFileActionType.MOVEANDRENAME != ofa && LibraryOtherFileActionType.RENAME != ofa);
                 } else if (LibraryActionType.RENAME.equals(libraryActionType)) {
                     cbxLibraryOtherFileAction.setItemEnabled(i,
-                            !LibraryOtherFileActionType.MOVEANDRENAME.equals(ofa) && !LibraryOtherFileActionType.MOVE.equals(ofa));
+                            LibraryOtherFileActionType.MOVEANDRENAME != ofa && LibraryOtherFileActionType.MOVE != ofa);
                 } else if (LibraryActionType.MOVEANDRENAME.equals(libraryActionType)) {
                     // no disable needed
                     cbxLibraryOtherFileAction.setItemEnabled(i, true);
@@ -77,13 +89,13 @@ public abstract class VideoLibraryPanel extends JPanel {
     private void checkEnableStatusPanel() {
         LibraryActionType libraryActionType = (LibraryActionType) cbxLibraryAction.getSelectedItem();
         if (libraryActionType != null) {
-            if (LibraryActionType.MOVE.equals(libraryActionType)) {
+            if (LibraryActionType.MOVE == libraryActionType) {
                 checkEnableStatus(pnlStructureFile, false);
                 checkEnableStatus(pnlStructureFolder, true);
-            } else if (LibraryActionType.RENAME.equals(libraryActionType)) {
+            } else if (LibraryActionType.RENAME == libraryActionType) {
                 checkEnableStatus(pnlStructureFile, true);
                 checkEnableStatus(pnlStructureFolder, false);
-            } else if (LibraryActionType.MOVEANDRENAME.equals(libraryActionType)) {
+            } else if (LibraryActionType.MOVEANDRENAME == libraryActionType) {
                 checkEnableStatus(pnlStructureFile, true);
                 checkEnableStatus(pnlStructureFolder, true);
             } else {

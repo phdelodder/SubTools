@@ -94,22 +94,19 @@ public class TextGuiSearchAction extends GuiSearchAction<SearchTextInputPanel> {
         model.clearTable();
 
         // TODO: Redefine what a "release" is.
-        Release release;
-        if (VideoSearchType.EPISODE.equals(type)) {
-            release = TvRelease.builder()
+        Release release = switch (type) {
+            case EPISODE -> TvRelease.builder()
                     .name(name)
                     .season(getInputPanel().getSeason())
                     .episode(getInputPanel().getEpisode())
                     .quality(getInputPanel().getQuality())
                     .build();
-        } else if (VideoSearchType.MOVIE.equals(type)) {
-            release = MovieRelease.builder()
+            case MOVIE -> MovieRelease.builder()
                     .name(name)
                     .quality(getInputPanel().getQuality())
                     .build();
-        } else {
-            release = getReleaseFactory().createRelease(Path.of(name), getUserInteractionHandler());
-        }
+            default -> getReleaseFactory().createRelease(Path.of(name), getUserInteractionHandler());
+        };
 
         List<Release> releases = new ArrayList<>();
         if (release != null) {
