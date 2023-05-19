@@ -34,7 +34,7 @@ import java.awt.HeadlessException;
 import lombok.experimental.ExtensionMethod;
 import net.miginfocom.swing.MigLayout;
 
-@ExtensionMethod({Files.class})
+@ExtensionMethod({ Files.class })
 public abstract class VideoLibraryPanel extends JPanel {
 
     @Serial
@@ -70,39 +70,33 @@ public abstract class VideoLibraryPanel extends JPanel {
         if (libraryActionType != null) {
             for (int i = 0; i < cbxLibraryOtherFileAction.getModel().getSize(); i++) {
                 LibraryOtherFileActionType ofa = (LibraryOtherFileActionType) cbxLibraryOtherFileAction.getItemAt(i);
-                if (LibraryActionType.MOVE == libraryActionType) {
-                    cbxLibraryOtherFileAction.setItemEnabled(i,
-                            LibraryOtherFileActionType.MOVEANDRENAME != ofa && LibraryOtherFileActionType.RENAME != ofa);
-                } else if (LibraryActionType.RENAME.equals(libraryActionType)) {
-                    cbxLibraryOtherFileAction.setItemEnabled(i,
-                            LibraryOtherFileActionType.MOVEANDRENAME != ofa && LibraryOtherFileActionType.MOVE != ofa);
-                } else if (LibraryActionType.MOVEANDRENAME.equals(libraryActionType)) {
-                    // no disable needed
-                    cbxLibraryOtherFileAction.setItemEnabled(i, true);
-                } else {
-                    cbxLibraryOtherFileAction.setItemEnabled(i, LibraryOtherFileActionType.NOTHING.equals(ofa));
-                }
+                boolean enabled = switch (libraryActionType) {
+                    case MOVE -> LibraryOtherFileActionType.MOVEANDRENAME != ofa && LibraryOtherFileActionType.RENAME != ofa;
+                    case RENAME -> LibraryOtherFileActionType.MOVEANDRENAME != ofa && LibraryOtherFileActionType.MOVE != ofa;
+                    case MOVEANDRENAME -> true;
+                    case NOTHING -> LibraryOtherFileActionType.NOTHING == ofa;
+                };
+                cbxLibraryOtherFileAction.setItemEnabled(i, enabled);
             }
         }
     }
 
     private void checkEnableStatusPanel() {
         LibraryActionType libraryActionType = (LibraryActionType) cbxLibraryAction.getSelectedItem();
-        if (libraryActionType != null) {
-            if (LibraryActionType.MOVE == libraryActionType) {
-                checkEnableStatus(pnlStructureFile, false);
-                checkEnableStatus(pnlStructureFolder, true);
-            } else if (LibraryActionType.RENAME == libraryActionType) {
-                checkEnableStatus(pnlStructureFile, true);
-                checkEnableStatus(pnlStructureFolder, false);
-            } else if (LibraryActionType.MOVEANDRENAME == libraryActionType) {
-                checkEnableStatus(pnlStructureFile, true);
-                checkEnableStatus(pnlStructureFolder, true);
-            } else {
-                checkEnableStatus(pnlStructureFile, false);
-                checkEnableStatus(pnlStructureFolder, false);
-            }
-        }
+        boolean pnlStructureFileVisible = switch (libraryActionType) {
+            case MOVE -> false;
+            case RENAME -> true;
+            case MOVEANDRENAME -> true;
+            case NOTHING -> false;
+        };
+        boolean pnlStructureFolderVisible = switch (libraryActionType) {
+            case MOVE -> true;
+            case RENAME -> false;
+            case MOVEANDRENAME -> true;
+            case NOTHING -> false;
+        };
+        checkEnableStatus(pnlStructureFile, pnlStructureFileVisible);
+        checkEnableStatus(pnlStructureFolder, pnlStructureFolderVisible);
     }
 
     private void checkEnableStatus(JPanel panel, boolean status) {
@@ -151,8 +145,8 @@ public abstract class VideoLibraryPanel extends JPanel {
 
         if (!renameMode) {
             pnlBackup.setBackupSubtitleSelected(libSettings.isLibraryBackupSubtitle());
-            pnlBackup.setBackupSubtitlePath(libSettings.getLibraryBackupSubtitlePath() == null ? null :
-                    libSettings.getLibraryBackupSubtitlePath().toAbsolutePath().toString());
+            pnlBackup.setBackupSubtitlePath(libSettings.getLibraryBackupSubtitlePath() == null ? null
+                    : libSettings.getLibraryBackupSubtitlePath().toAbsolutePath().toString());
             pnlBackup.setBackupUseWebsiteFilenameSelected(libSettings.isLibraryBackupUseWebsiteFileName());
         }
         this.cbxLibraryAction.setSelectedItem(libSettings.getLibraryAction());
@@ -270,7 +264,8 @@ public abstract class VideoLibraryPanel extends JPanel {
         pnlStructureFolder = new StructureFolderPanel();
 
         pnlStructureFolder.setBrowseAction(arg0 -> MemoryFolderChooser.getInstance()
-                .selectDirectory(VideoLibraryPanel.this.getRootPane(), Messages.getString("PreferenceDialog.LibraryFolder")).map(Path::toAbsolutePath)
+                .selectDirectory(VideoLibraryPanel.this.getRootPane(), Messages.getString("PreferenceDialog.LibraryFolder"))
+                .map(Path::toAbsolutePath)
                 .map(Path::toString).ifPresent(pnlStructureFolder::setLibraryFolder));
 
         pnlStructureFolder.setBuildStructureAction(arg0 -> {
