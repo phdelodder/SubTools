@@ -12,7 +12,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -34,6 +33,7 @@ import org.lodder.subtools.multisubdownloader.framework.event.Event;
 import org.lodder.subtools.multisubdownloader.gui.ToStringListCellRenderer;
 import org.lodder.subtools.multisubdownloader.gui.extra.JListWithImages;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
+import org.lodder.subtools.multisubdownloader.gui.extra.MyComboBox;
 import org.lodder.subtools.multisubdownloader.gui.extra.PanelCheckBox;
 import org.lodder.subtools.multisubdownloader.gui.panels.DefaultSelectionPanel;
 import org.lodder.subtools.multisubdownloader.gui.panels.EpisodeLibraryPanel;
@@ -79,14 +79,14 @@ public class PreferenceDialog extends MultiSubDialog {
     private JListWithImages defaultIncomingFoldersList, localSourcesFoldersList;
     private JCheckBox chkSourceAddic7ed, chkSourceTvSubtitles, chkSourcePodnapisi,
             chkSourceOpenSubtitles, chkSourceLocal, chkSourceSubscene, chkSourceAddic7edProxy;
-    private JComboBox<SettingsProcessEpisodeSource> cbxEpisodeProcessSource;
+    private MyComboBox<SettingsProcessEpisodeSource> cbxEpisodeProcessSource;
     private JCheckBox chkMinScoreSelection;
     private JCheckBox chkConfirmProviderMapping;
     private JSlider sldMinScoreSelection;
     private final Manager manager;
-    private JComboBox<UpdateCheckPeriod> cbxUpdateCheckPeriod;
-    private JComboBox<UpdateType> cbxUpdateType;
-    private JComboBox<Language> cbxLanguage;
+    private MyComboBox<UpdateCheckPeriod> cbxUpdateCheckPeriod;
+    private MyComboBox<UpdateType> cbxUpdateType;
+    private MyComboBox<Language> cbxLanguage;
     private JCheckBox chkDefaultSelection;
     private DefaultSelectionPanel pnlDefaultSelection;
     private JButton btnBrowseLocalSources, btnRemoveLocalSources;
@@ -131,7 +131,7 @@ public class PreferenceDialog extends MultiSubDialog {
                     JLabel lblLanguage = new JLabel(Messages.getString("PreferenceDialog.Language"));
                     pnlGeneral.add(lblLanguage, "width 2");
 
-                    cbxLanguage = new JComboBox<>();
+                    cbxLanguage = new MyComboBox<>();
                     cbxLanguage.setModel(new DefaultComboBoxModel<>(Messages.getAvailableLanguages().toArray(Language[]::new)));
                     cbxLanguage.setRenderer(new ToStringListCellRenderer<>(cbxLanguage.getRenderer(),
                             o -> Messages.getString(((Language) o).getMsgCode())));
@@ -203,9 +203,9 @@ public class PreferenceDialog extends MultiSubDialog {
                             .addComponent(new JLabel(Messages.getString("PreferenceDialog.Update")), "span 2, split")
                             .addComponent(new JSeparator(), "wrap, grow, gapy 5")
                             .addComponent(new JLabel(Messages.getString("PreferenceDialog.NewUpdateCheck")), "gapx 5")
-                            .addComponent(cbxUpdateCheckPeriod = new JComboBox<>(), "wrap")
+                            .addComponent(cbxUpdateCheckPeriod = new MyComboBox<>(), "wrap")
                             .addComponent(new JLabel(Messages.getString("PreferenceDialog.UpdateType")), "gapx 5")
-                            .addComponent(cbxUpdateType = new JComboBox<>(), "wrap");
+                            .addComponent(cbxUpdateType = new MyComboBox<>(), "wrap");
 
                     cbxUpdateCheckPeriod.setModel(new DefaultComboBoxModel<>(UpdateCheckPeriod.values()));
                     cbxUpdateCheckPeriod.setRenderer(new ToStringListCellRenderer<>(cbxUpdateCheckPeriod.getRenderer(),
@@ -310,7 +310,7 @@ public class PreferenceDialog extends MultiSubDialog {
                     pnlOptions.add(new JSeparator(), "cell 0 13 5 1,growx");
                 }
                 {
-                    cbxEpisodeProcessSource = new JComboBox<>();
+                    cbxEpisodeProcessSource = new MyComboBox<>();
                     cbxEpisodeProcessSource.setModel(new DefaultComboBoxModel<>(SettingsProcessEpisodeSource.values()));
                     cbxEpisodeProcessSource.setEnabled(false);
                     pnlOptions.add(cbxEpisodeProcessSource, "cell 1 14,growx");
@@ -548,14 +548,14 @@ public class PreferenceDialog extends MultiSubDialog {
                 list.add(sei);
             }
             if (Messages.getLanguage() != cbxLanguage.getSelectedItem()) {
-                Messages.setLanguage((Language) cbxLanguage.getSelectedItem());
+                Messages.setLanguage(cbxLanguage.getSelectedItem());
                 gui.redraw();
             }
             settingsCtrl.getSettings()
-                    .setLanguage((Language) cbxLanguage.getSelectedItem())
+                    .setLanguage(cbxLanguage.getSelectedItem())
                     .setExcludeList(list)
-                    .setUpdateCheckPeriod((UpdateCheckPeriod) cbxUpdateCheckPeriod.getSelectedItem())
-                    .setUpdateType((UpdateType) cbxUpdateType.getSelectedItem())
+                    .setUpdateCheckPeriod(cbxUpdateCheckPeriod.getSelectedItem())
+                    .setUpdateType(cbxUpdateType.getSelectedItem())
                     .setGeneralProxyEnabled(chkUseProxy.isSelected())
                     .setGeneralProxyHost(txtProxyHost.getText())
                     .setGeneralProxyPort(Integer.parseInt(txtProxyPort.getText()));
@@ -584,7 +584,7 @@ public class PreferenceDialog extends MultiSubDialog {
                     .setOptionSubtitleExcludeHearingImpaired(chkExcludeHearingImpaired.isSelected())
                     .setOptionsShowOnlyFound(chkOnlyFound.isSelected())
                     .setOptionsStopOnSearchError(chkStopOnSearchError.isSelected())
-                    .setProcessEpisodeSource((SettingsProcessEpisodeSource) cbxEpisodeProcessSource.getSelectedItem())
+                    .setProcessEpisodeSource(cbxEpisodeProcessSource.getSelectedItem())
                     .setOptionsDefaultSelection(this.chkDefaultSelection.isSelected())
                     .setOptionsDefaultSelectionQualityList(this.pnlDefaultSelection.getDefaultSelectionList())
                     .setOptionsConfirmProviderMapping(this.chkConfirmProviderMapping.isSelected());

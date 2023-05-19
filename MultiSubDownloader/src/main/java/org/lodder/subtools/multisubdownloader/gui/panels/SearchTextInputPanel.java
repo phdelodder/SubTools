@@ -3,12 +3,12 @@ package org.lodder.subtools.multisubdownloader.gui.panels;
 import java.io.Serial;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.ToStringListCellRenderer;
+import org.lodder.subtools.multisubdownloader.gui.extra.MyComboBox;
 import org.lodder.subtools.sublibrary.model.VideoSearchType;
 
 import net.miginfocom.swing.MigLayout;
@@ -17,7 +17,7 @@ public class SearchTextInputPanel extends InputPanel {
 
     @Serial
     private static final long serialVersionUID = 7030171360517948253L;
-    private JComboBox<VideoSearchType> cbxVideoType;
+    private MyComboBox<VideoSearchType> cbxVideoType;
     protected JTextField txtInputSeason;
     protected JTextField txtInputEpisode;
     protected JTextField txtQualityVersion;
@@ -51,7 +51,7 @@ public class SearchTextInputPanel extends InputPanel {
     }
 
     private void createComponents() {
-        cbxVideoType = new JComboBox<>();
+        cbxVideoType = new MyComboBox<>();
         cbxVideoType.setModel(new DefaultComboBoxModel<>(VideoSearchType.values()));
         cbxVideoType.setRenderer(new ToStringListCellRenderer<>(cbxVideoType.getRenderer(),
                 o -> Messages.getString(((VideoSearchType) o).getMsgCode())));
@@ -70,7 +70,7 @@ public class SearchTextInputPanel extends InputPanel {
     }
 
     private void videoTypeChanged() {
-        VideoSearchType videoTypeChoice = (VideoSearchType) cbxVideoType.getSelectedItem();
+        VideoSearchType videoTypeChoice = cbxVideoType.getSelectedItem();
         if (VideoSearchType.EPISODE == videoTypeChoice) {
             txtInputSeason.setEditable(true);
             txtInputSeason.setEnabled(true);
@@ -92,7 +92,7 @@ public class SearchTextInputPanel extends InputPanel {
     }
 
     public VideoSearchType getType() {
-        return (VideoSearchType) cbxVideoType.getSelectedItem();
+        return cbxVideoType.getSelectedItem();
     }
 
     public int getSeason() {

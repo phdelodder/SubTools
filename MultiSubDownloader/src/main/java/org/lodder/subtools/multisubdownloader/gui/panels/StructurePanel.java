@@ -1,16 +1,17 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
+import java.io.Serial;
+
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 import org.lodder.subtools.multisubdownloader.Messages;
+import org.lodder.subtools.multisubdownloader.gui.extra.MyComboBox;
 import org.lodder.subtools.sublibrary.util.JComponentExtension;
 
 import java.awt.event.ActionListener;
-import java.io.Serial;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -29,7 +30,7 @@ public abstract class StructurePanel extends JPanel {
     @Getter(value = AccessLevel.PROTECTED)
     private JCheckBox chkReplaceSpace;
     @Getter(value = AccessLevel.PROTECTED)
-    private JComboBox<String> cbxReplaceSpaceChar;
+    private MyComboBox<String> cbxReplaceSpaceChar;
 
     public StructurePanel() {
         createComponents();
@@ -47,7 +48,7 @@ public abstract class StructurePanel extends JPanel {
     private void createComponents() {
         btnBuildStructure = new JButton(Messages.getString("StructureBuilderDialog.Structure"));
 
-        cbxReplaceSpaceChar = new JComboBox<>();
+        cbxReplaceSpaceChar = new MyComboBox<>();
         cbxReplaceSpaceChar.setEnabled(false);
         cbxReplaceSpaceChar.setModel(new DefaultComboBoxModel<>(new String[] { "-", ".", "_" }));
 
@@ -58,7 +59,7 @@ public abstract class StructurePanel extends JPanel {
     }
 
     public String getReplaceSpaceChar() {
-        return (String) this.getCbxReplaceSpaceChar().getSelectedItem();
+        return this.getCbxReplaceSpaceChar().getSelectedItem();
     }
 
     public void setReplaceSpaceChar(String s) {
