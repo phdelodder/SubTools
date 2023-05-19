@@ -46,7 +46,7 @@ public abstract class VideoLibraryPanel extends JPanel {
     private JComboBox<LibraryActionType> cbxLibraryAction;
     private JCheckBox chkReplaceWindowsChar;
     private JCheckBox chkUseTVDBNaming;
-    private PartialDisableComboBox cbxLibraryOtherFileAction;
+    private PartialDisableComboBox<LibraryOtherFileActionType> cbxLibraryOtherFileAction;
     private SubtitleBackupPanel pnlBackup;
     private final Manager manager;
     private final Boolean renameMode;
@@ -69,7 +69,7 @@ public abstract class VideoLibraryPanel extends JPanel {
         LibraryActionType libraryActionType = (LibraryActionType) cbxLibraryAction.getSelectedItem();
         if (libraryActionType != null) {
             for (int i = 0; i < cbxLibraryOtherFileAction.getModel().getSize(); i++) {
-                LibraryOtherFileActionType ofa = (LibraryOtherFileActionType) cbxLibraryOtherFileAction.getItemAt(i);
+                LibraryOtherFileActionType ofa = cbxLibraryOtherFileAction.getItemAt(i);
                 boolean enabled = switch (libraryActionType) {
                     case MOVE -> LibraryOtherFileActionType.MOVEANDRENAME != ofa && LibraryOtherFileActionType.RENAME != ofa;
                     case RENAME -> LibraryOtherFileActionType.MOVEANDRENAME != ofa && LibraryOtherFileActionType.MOVE != ofa;
@@ -242,7 +242,7 @@ public abstract class VideoLibraryPanel extends JPanel {
 
         add(new JLabel(Messages.getString("PreferenceDialog.ActionForOtherFiles")), "cell 0 5,alignx trailing");
 
-        cbxLibraryOtherFileAction = new PartialDisableComboBox(LibraryOtherFileActionType.values());
+        cbxLibraryOtherFileAction = new PartialDisableComboBox<>(LibraryOtherFileActionType.values());
         add(cbxLibraryOtherFileAction, "cell 1 5,growx");
 
         createStructureFolderPanel();
