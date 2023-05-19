@@ -2,12 +2,10 @@ package org.lodder.subtools.multisubdownloader.gui.panels;
 
 import java.io.Serial;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import org.lodder.subtools.multisubdownloader.Messages;
-import org.lodder.subtools.multisubdownloader.gui.ToStringListCellRenderer;
 import org.lodder.subtools.multisubdownloader.gui.extra.MyComboBox;
 import org.lodder.subtools.sublibrary.model.VideoSearchType;
 
@@ -51,9 +49,8 @@ public class SearchTextInputPanel extends InputPanel {
     }
 
     private void createComponents() {
-        cbxVideoType = new MyComboBox<>();
-        cbxVideoType.setModel(new DefaultComboBoxModel<>(VideoSearchType.values()));
-        cbxVideoType.setRenderer(ToStringListCellRenderer.ofMessage(cbxVideoType.getRenderer(), VideoSearchType::getMsgCode));
+        cbxVideoType = new MyComboBox<>(VideoSearchType.values())
+                .withToMessageStringRenderer(VideoSearchType::getMsgCode);
 
         txtInputVideoName = new JTextField();
         txtInputVideoName.setColumns(10);

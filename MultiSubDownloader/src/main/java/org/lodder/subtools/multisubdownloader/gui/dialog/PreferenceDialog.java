@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -30,7 +29,6 @@ import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
 import org.lodder.subtools.multisubdownloader.framework.event.Event;
-import org.lodder.subtools.multisubdownloader.gui.ToStringListCellRenderer;
 import org.lodder.subtools.multisubdownloader.gui.extra.JListWithImages;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.extra.MyComboBox;
@@ -131,9 +129,8 @@ public class PreferenceDialog extends MultiSubDialog {
                     JLabel lblLanguage = new JLabel(Messages.getString("PreferenceDialog.Language"));
                     pnlGeneral.add(lblLanguage, "width 2");
 
-                    cbxLanguage = new MyComboBox<>();
-                    cbxLanguage.setModel(new DefaultComboBoxModel<>(Messages.getAvailableLanguages().toArray(Language[]::new)));
-                    cbxLanguage.setRenderer(ToStringListCellRenderer.ofMessage(cbxLanguage.getRenderer(), Language::getMsgCode));
+                    cbxLanguage = new MyComboBox<>(Messages.getAvailableLanguages(), Language.class)
+                            .withToMessageStringRenderer(Language::getMsgCode);
                     pnlGeneral.add(cbxLanguage, "span");
                 }
 
@@ -198,21 +195,19 @@ public class PreferenceDialog extends MultiSubDialog {
                 }
 
                 {
+                    cbxUpdateCheckPeriod = new MyComboBox<>(UpdateCheckPeriod.values())
+                            .withToMessageStringRenderer(UpdateCheckPeriod::getLangCode);
+
+                    cbxUpdateType = new MyComboBox<>(UpdateType.values())
+                            .withToMessageStringRenderer(UpdateType::getMsgCode);
+
                     pnlGeneral
                             .addComponent(new JLabel(Messages.getString("PreferenceDialog.Update")), "span 2, split")
                             .addComponent(new JSeparator(), "wrap, grow, gapy 5")
                             .addComponent(new JLabel(Messages.getString("PreferenceDialog.NewUpdateCheck")), "gapx 5")
-                            .addComponent(cbxUpdateCheckPeriod = new MyComboBox<>(), "wrap")
+                            .addComponent(cbxUpdateCheckPeriod, "wrap")
                             .addComponent(new JLabel(Messages.getString("PreferenceDialog.UpdateType")), "gapx 5")
-                            .addComponent(cbxUpdateType = new MyComboBox<>(), "wrap");
-
-                    cbxUpdateCheckPeriod.setModel(new DefaultComboBoxModel<>(UpdateCheckPeriod.values()));
-                    cbxUpdateCheckPeriod
-                            .setRenderer(ToStringListCellRenderer.ofMessage(cbxUpdateCheckPeriod.getRenderer(), UpdateCheckPeriod::getLangCode));
-
-                    cbxUpdateType.setModel(new DefaultComboBoxModel<>(UpdateType.values()));
-                    cbxUpdateType
-                            .setRenderer(ToStringListCellRenderer.ofMessage(cbxUpdateType.getRenderer(), UpdateType::getMsgCode));
+                            .addComponent(cbxUpdateType, "wrap");
                 }
 
                 {
@@ -309,9 +304,8 @@ public class PreferenceDialog extends MultiSubDialog {
                     pnlOptions.add(new JSeparator(), "cell 0 13 5 1,growx");
                 }
                 {
-                    cbxEpisodeProcessSource = new MyComboBox<>();
-                    cbxEpisodeProcessSource.setModel(new DefaultComboBoxModel<>(SettingsProcessEpisodeSource.values()));
-                    cbxEpisodeProcessSource.setEnabled(false);
+                    cbxEpisodeProcessSource = new MyComboBox<>(SettingsProcessEpisodeSource.values())
+                            .disabled();
                     pnlOptions.add(cbxEpisodeProcessSource, "cell 1 14,growx");
                 }
                 {

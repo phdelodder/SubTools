@@ -2,7 +2,6 @@ package org.lodder.subtools.multisubdownloader.gui.panels;
 
 import java.io.Serial;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
@@ -48,9 +47,8 @@ public abstract class StructurePanel extends JPanel {
     private void createComponents() {
         btnBuildStructure = new JButton(Messages.getString("StructureBuilderDialog.Structure"));
 
-        cbxReplaceSpaceChar = new MyComboBox<>();
-        cbxReplaceSpaceChar.setEnabled(false);
-        cbxReplaceSpaceChar.setModel(new DefaultComboBoxModel<>(new String[] { "-", ".", "_" }));
+        cbxReplaceSpaceChar = new MyComboBox<>(new String[] { "-", ".", "_" })
+                .disabled();
 
         chkReplaceSpace = new JCheckBox(Messages.getString("PreferenceDialog.ReplaceSpaceWith"));
         chkReplaceSpace.addCheckedChangeListener(cbxReplaceSpaceChar::setEnabled);

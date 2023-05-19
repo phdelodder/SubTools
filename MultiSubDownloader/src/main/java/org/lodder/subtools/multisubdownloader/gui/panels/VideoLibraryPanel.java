@@ -4,7 +4,6 @@ import java.io.Serial;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -15,7 +14,6 @@ import javax.swing.JTextField;
 
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.Messages;
-import org.lodder.subtools.multisubdownloader.gui.ToStringListCellRenderer;
 import org.lodder.subtools.multisubdownloader.gui.dialog.StructureBuilderDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.extra.MyComboBox;
@@ -219,9 +217,8 @@ public abstract class VideoLibraryPanel extends JPanel {
 
         add(new JLabel(Messages.getString("PreferenceDialog.PerformActions")), "cell 0 2,alignx left");
 
-        cbxLibraryAction = new MyComboBox<>();
-        cbxLibraryAction.setModel(new DefaultComboBoxModel<>(LibraryActionType.values()));
-        cbxLibraryAction.setRenderer(ToStringListCellRenderer.ofMessage(cbxLibraryAction.getRenderer(), LibraryActionType::getMsgCode));
+        cbxLibraryAction = new MyComboBox<>(LibraryActionType.values())
+                .withToMessageStringRenderer(LibraryActionType::getMsgCode);
         cbxLibraryAction.addItemListener(arg0 -> {
             checkEnableStatusPanel();
             checkPossibleOtherFileActions();

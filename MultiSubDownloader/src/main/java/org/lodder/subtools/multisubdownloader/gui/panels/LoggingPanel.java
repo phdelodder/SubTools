@@ -2,7 +2,6 @@ package org.lodder.subtools.multisubdownloader.gui.panels;
 
 import java.io.Serial;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -31,11 +30,10 @@ public class LoggingPanel extends JPanel {
         this.add(new JLabel(Messages.getString("App.Logging")), "cell 0 0,alignx right,gaptop 5");
         this.add(new JSeparator(), "cell 0 0,growx,gaptop 5");
 
-        MyComboBox<Level> cbxLogLevel = new MyComboBox<>();
         Level[] logLevels = { Level.ALL, Level.TRACE, Level.DEBUG, Level.INFO, Level.WARN, Level.ERROR };
-        cbxLogLevel.setModel(new DefaultComboBoxModel<>(logLevels));
-        cbxLogLevel.setSelectedItem(root.getLevel());
-        cbxLogLevel.addActionListener(arg0 -> root.setLevel(cbxLogLevel.getSelectedItem()));
+        MyComboBox<Level> cbxLogLevel = new MyComboBox<>(logLevels)
+                .withSelectedItem(root.getLevel())
+                .withSelectedItemConsumer(root::setLevel);
         this.add(cbxLogLevel, "cell 1 0,alignx right");
         this.add(scrollPane_1, "cell 0 1 2 1,grow");
 
