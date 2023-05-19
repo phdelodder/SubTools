@@ -15,6 +15,7 @@ import javax.swing.JTextField;
 
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.Messages;
+import org.lodder.subtools.multisubdownloader.gui.ToStringListCellRenderer;
 import org.lodder.subtools.multisubdownloader.gui.dialog.StructureBuilderDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.extra.MyComboBox;
@@ -220,6 +221,7 @@ public abstract class VideoLibraryPanel extends JPanel {
 
         cbxLibraryAction = new MyComboBox<>();
         cbxLibraryAction.setModel(new DefaultComboBoxModel<>(LibraryActionType.values()));
+        cbxLibraryAction.setRenderer(ToStringListCellRenderer.ofMessage(cbxLibraryAction.getRenderer(), LibraryActionType::getMsgCode));
         cbxLibraryAction.addItemListener(arg0 -> {
             checkEnableStatusPanel();
             checkPossibleOtherFileActions();
@@ -233,7 +235,7 @@ public abstract class VideoLibraryPanel extends JPanel {
         add(chkReplaceWindowsChar, "cell 0 3 2 1");
 
         chkUseTVDBNaming = new JCheckBox(Messages.getString("PreferenceDialog.UseTvdbName"));
-        if (VideoType.MOVIE.equals(videoType)) {
+        if (VideoType.MOVIE == videoType) {
             chkUseTVDBNaming.setVisible(false);
         }
         add(chkUseTVDBNaming, "cell 0 4 2 1");

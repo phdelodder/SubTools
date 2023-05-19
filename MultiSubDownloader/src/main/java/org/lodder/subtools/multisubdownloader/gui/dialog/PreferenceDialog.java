@@ -133,8 +133,7 @@ public class PreferenceDialog extends MultiSubDialog {
 
                     cbxLanguage = new MyComboBox<>();
                     cbxLanguage.setModel(new DefaultComboBoxModel<>(Messages.getAvailableLanguages().toArray(Language[]::new)));
-                    cbxLanguage.setRenderer(new ToStringListCellRenderer<>(cbxLanguage.getRenderer(),
-                            o -> Messages.getString(((Language) o).getMsgCode())));
+                    cbxLanguage.setRenderer(ToStringListCellRenderer.ofMessage(cbxLanguage.getRenderer(), Language::getMsgCode));
                     pnlGeneral.add(cbxLanguage, "span");
                 }
 
@@ -208,12 +207,12 @@ public class PreferenceDialog extends MultiSubDialog {
                             .addComponent(cbxUpdateType = new MyComboBox<>(), "wrap");
 
                     cbxUpdateCheckPeriod.setModel(new DefaultComboBoxModel<>(UpdateCheckPeriod.values()));
-                    cbxUpdateCheckPeriod.setRenderer(new ToStringListCellRenderer<>(cbxUpdateCheckPeriod.getRenderer(),
-                            o -> Messages.getString(((UpdateCheckPeriod) o).getLangCode())));
+                    cbxUpdateCheckPeriod
+                            .setRenderer(ToStringListCellRenderer.ofMessage(cbxUpdateCheckPeriod.getRenderer(), UpdateCheckPeriod::getLangCode));
 
                     cbxUpdateType.setModel(new DefaultComboBoxModel<>(UpdateType.values()));
-                    cbxUpdateType.setRenderer(new ToStringListCellRenderer<>(cbxUpdateType.getRenderer(),
-                            o -> Messages.getString(((UpdateType) o).getMsgCode())));
+                    cbxUpdateType
+                            .setRenderer(ToStringListCellRenderer.ofMessage(cbxUpdateType.getRenderer(), UpdateType::getMsgCode));
                 }
 
                 {

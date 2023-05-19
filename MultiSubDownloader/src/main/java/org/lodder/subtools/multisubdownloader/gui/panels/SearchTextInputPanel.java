@@ -53,8 +53,7 @@ public class SearchTextInputPanel extends InputPanel {
     private void createComponents() {
         cbxVideoType = new MyComboBox<>();
         cbxVideoType.setModel(new DefaultComboBoxModel<>(VideoSearchType.values()));
-        cbxVideoType.setRenderer(new ToStringListCellRenderer<>(cbxVideoType.getRenderer(),
-                o -> Messages.getString(((VideoSearchType) o).getMsgCode())));
+        cbxVideoType.setRenderer(ToStringListCellRenderer.ofMessage(cbxVideoType.getRenderer(), VideoSearchType::getMsgCode));
 
         txtInputVideoName = new JTextField();
         txtInputVideoName.setColumns(10);
