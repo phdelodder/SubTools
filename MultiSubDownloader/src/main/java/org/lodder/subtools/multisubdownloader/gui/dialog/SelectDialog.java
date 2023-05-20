@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
+import java.io.Serial;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -27,6 +28,7 @@ import net.miginfocom.swing.MigLayout;
 
 public class SelectDialog extends MultiSubDialog {
 
+    @Serial
     private static final long serialVersionUID = -4092909537478305235L;
     private List<Integer> selectedSubtitleIdxs;
     private final List<Subtitle> subtitles;
@@ -73,7 +75,7 @@ public class SelectDialog extends MultiSubDialog {
             {
                 JButton allButton = new JButton(Messages.getString("SelectDialog.Everything"));
                 allButton.addActionListener(arg0 -> {
-                    selectedSubtitleIdxs = IntStream.range(0, release.getMatchingSubs().size()).mapToObj(i -> i).toList();
+                    selectedSubtitleIdxs = IntStream.range(0, release.getMatchingSubs().size()).boxed().toList();
                     setVisible(false);
                 });
                 allButton.setActionCommand(Messages.getString("App.All"));
@@ -124,7 +126,7 @@ public class SelectDialog extends MultiSubDialog {
     private List<Integer> getSelectedIdxs() {
         return IntStream.range(0, customTable.getModel().getRowCount())
                 .filter(i -> (boolean) customTable.getModel().getValueAt(i, customTable.getColumnIdByName(SubtitleTableColumnName.SELECT)))
-                .mapToObj(i -> i).toList();
+                .boxed().toList();
     }
 
     public List<Integer> getSelection() {

@@ -12,7 +12,7 @@ import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
 /**
- * CookieManager is a simple utilty for handling cookies when working with java.net.URL and
+ * CookieManager is a simple utility for handling cookies when working with java.net.URL and
  * java.net.URLConnection objects.
  *
  *
@@ -58,9 +58,8 @@ public class CookieManager {
      * thrown.
      *
      * @param conn a java.net.URLConnection - must be open, or IOException will be thrown
-     * @throws java.io.IOException Thrown if conn is not open.
      */
-    public void storeCookies(URLConnection conn) throws IOException {
+    public void storeCookies(URLConnection conn) {
 
         // let's determine the domain from where these cookies are being sent
         String domain = getDomainFromHost(conn.getURL().getHost());
@@ -80,7 +79,7 @@ public class CookieManager {
 
         // OK, now we are ready to get the cookies out of the URLConnection
 
-        String headerName = null;
+        String headerName;
         for (int i = 1; (headerName = conn.getHeaderFieldKey(i)) != null; i++) {
             if (SET_COOKIE.equalsIgnoreCase(headerName)) {
                 Map<String, String> cookie = new HashMap<>();
@@ -117,7 +116,7 @@ public class CookieManager {
 
     /**
      * Prior to opening a URLConnection, calling this method will set all unexpired cookies that match
-     * the path or subpaths for thi underlying URL
+     * the path or sub paths for this underlying URL
      *
      * The connection MUST NOT have been opened method or an IOException will be thrown.
      *

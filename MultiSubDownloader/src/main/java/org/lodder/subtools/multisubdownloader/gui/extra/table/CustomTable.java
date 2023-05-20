@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -8,6 +9,7 @@ import java.awt.event.MouseEvent;
 
 public class CustomTable extends ZebraJTable {
 
+    @Serial
     private static final long serialVersionUID = -3889524906608098585L;
     private final Map<SearchColumnName, int[]> columnSettings = new HashMap<>();
     private static final int MAX_WIDTH = 2147483647;
@@ -18,6 +20,14 @@ public class CustomTable extends ZebraJTable {
         return IntStream.range(0, this.getColumnCount())
                 .filter(i -> this.getColumnName(i).equals(customColumnName.getColumnName())).findFirst()
                 .orElse(-1);
+    }
+
+    public void setColumnVisibility(SearchColumnName searchColumnName, boolean visible) {
+        if (visible) {
+            unhideColumn(searchColumnName);
+        } else {
+            hideColumn(searchColumnName);
+        }
     }
 
     public void hideColumn(SearchColumnName searchColumnName) {

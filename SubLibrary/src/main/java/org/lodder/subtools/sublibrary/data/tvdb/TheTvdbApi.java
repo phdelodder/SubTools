@@ -12,8 +12,6 @@ import org.lodder.subtools.sublibrary.data.tvdb.exception.TheTvdbException;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbEpisode;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbSerie;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.uwetrottmann.thetvdb.TheTvdb;
 import com.uwetrottmann.thetvdb.entities.Episode;
@@ -30,7 +28,6 @@ import retrofit2.Response;
 @ExtensionMethod({ OptionalExtension.class })
 public class TheTvdbApi {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TheTvdbApi.class);
     @Getter(value = AccessLevel.PRIVATE)
     private final Manager manager;
     private final TheTvdb theTvdb;
@@ -40,12 +37,12 @@ public class TheTvdbApi {
         this.theTvdb = new TheTvdb(apikey);
     }
 
-    public List<TheTvdbSerie> getSeries(String seriename, Language language) throws TheTvdbException {
+    public List<TheTvdbSerie> getSeries(String serieName, Language language) throws TheTvdbException {
         return getManager().valueBuilder()
                 .memoryCache()
-                .key("%s-series-%s-%s".formatted("TVDB", seriename, language))
+                .key("%s-series-%s-%s".formatted("TVDB", serieName, language))
                 .collectionSupplier(TheTvdbSerie.class, () -> {
-                    String encodedSerieName = URLEncoder.encode(seriename.toLowerCase().replace(" ", "-"), StandardCharsets.UTF_8);
+                    String encodedSerieName = URLEncoder.encode(serieName.toLowerCase().replace(" ", "-"), StandardCharsets.UTF_8);
                     try {
                         Response<SeriesResultsResponse> response =
                                 theTvdb.search().series(encodedSerieName, null, null, null, language == null ? null : language.getLangCode())
@@ -85,6 +82,9 @@ public class TheTvdbApi {
                                 theTvdb.series().episodesQuery(tvdbId, null, season, episode, null, null, null, null, null,
                                         language == null ? null : language.getLangCode()).execute();
                         if (response.isSuccessful()) {
+                            if (response.body().data == null) {
+                                return Optional.empty();
+                            }
                             return response.body().data.stream().map(serie -> episodeToTVDBEpisode(serie, language)).findFirst();
                         }
                         throw new TheTvdbException(response.errorBody().string());

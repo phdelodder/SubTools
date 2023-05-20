@@ -3,25 +3,28 @@ package org.lodder.subtools.sublibrary.util.http;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.lodder.subtools.sublibrary.util.Files;
+import org.lodder.subtools.sublibrary.util.FileUtils;
+import org.lodder.subtools.sublibrary.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +41,7 @@ public class HttpClient {
         this(new CookieManager());
     }
 
-    public String doGet(URL url, String userAgent) throws IOException, HttpClientException, HttpClientSetupException {
+    public String doGet(URL url, String userAgent) throws IOException, HttpClientException {
         URLConnection conn = url.openConnection();
         cookieManager.setCookies(conn);
 
@@ -56,7 +59,7 @@ public class HttpClient {
         throw new HttpClientException((HttpURLConnection) conn);
     }
 
-    public String doPost(URL url, String userAgent, Map<String, String> data) throws HttpClientSetupException, HttpClientException {
+    public String doPost(URL url, String userAgent, Map<String, String> data) throws HttpClientException {
         HttpURLConnection conn = null;
 
         try {
@@ -71,7 +74,7 @@ public class HttpClient {
                 conn.setRequestProperty("user-agent", userAgent);
             }
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            conn.setRequestProperty("Content-Length", "" + Integer.toString(urlParameters.getBytes(StandardCharsets.UTF_8).length));
+            conn.setRequestProperty("Content-Length", String.valueOf(urlParameters.getBytes(StandardCharsets.UTF_8).length));
             conn.setUseCaches(false);
             conn.setDoInput(true);
             conn.setDoOutput(true);
@@ -80,20 +83,19 @@ public class HttpClient {
             try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
                 out.writeBytes(urlParameters);
                 out.flush();
-                out.close();
             }
 
             cookieManager.storeCookies(conn);
 
             if ((conn.getResponseCode() == 302) && isUrl(conn.getHeaderField("Location"))) {
-                return doGet(new URL(conn.getHeaderField("Location")), userAgent);
+                return doGet(new URI(conn.getHeaderField("Location")).toURL(), userAgent);
             }
 
             String result = IOUtils.toString(conn.getInputStream(), StandardCharsets.UTF_8);
             conn.disconnect();
             return result;
 
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             throw new HttpClientException(e, conn);
         } finally {
             if (conn != null) {
@@ -102,28 +104,26 @@ public class HttpClient {
         }
     }
 
-    public boolean doDownloadFile(URL url, final File file) {
+    public boolean doDownloadFile(URL url, final Path file) {
         LOGGER.debug("doDownloadFile: URL [{}], file [{}]", url, file);
         boolean success = true;
 
         try (InputStream in = url.getFile().endsWith(".gz") ? new GZIPInputStream(url.openStream()) : getInputStream(url)) {
-            byte[] data = IOUtils.toByteArray(in);
+            byte[] data = in.readAllBytes();
             in.close();
 
-            if (url.getFile().endsWith(".zip") || Files.isZipFile(new ByteArrayInputStream(data))) {
-                Files.unzip(new ByteArrayInputStream(data), file, ".srt");
+            if (url.getFile().endsWith(".zip") || FileUtils.isZipFile(new ByteArrayInputStream(data))) {
+                FileUtils.unzip(new ByteArrayInputStream(data), file, ".srt");
             } else {
-                if (Files.isGZipCompressed(data)) {
-                    data = Files.decompressGZip(data);
+                if (FileUtils.isGZipCompressed(data)) {
+                    data = FileUtils.decompressGZip(data);
                 }
                 String content = new String(data, StandardCharsets.UTF_8);
                 if (content.contains("Daily Download count exceeded")) {
                     LOGGER.error("Download problem: Addic7ed Daily Download count exceeded!");
                     success = false;
                 } else {
-                    try (FileOutputStream outputStream = new FileOutputStream(file)) {
-                        IOUtils.write(data, outputStream);
-                    }
+                    Files.write(file, data, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
                 }
             }
         } catch (Exception e) {
@@ -148,12 +148,11 @@ public class HttpClient {
             if (status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM
                     || status == HttpURLConnection.HTTP_SEE_OTHER) {
                 if (HttpClient.isUrl(conn.getHeaderField("Location"))) {
-                    url = new URL(conn.getHeaderField("Location"));
+                    url = new URI(conn.getHeaderField("Location")).toURL();
                 } else {
                     String protocol = url.getProtocol();
                     String host = conn.getURL().getHost();
-                    url = new URL(protocol + "://" + host + "/"
-                            + conn.getHeaderField("Location").trim().replace(" ", "%20"));
+                    url = new URI("%s://%s/%s".formatted(protocol, host, conn.getHeaderField("Location").trim().replace(" ", "%20"))).toURL();
                 }
                 return getInputStream(url);
             }
@@ -171,9 +170,11 @@ public class HttpClient {
         return matcher.find();
     }
 
-    public String downloadText(String url) throws java.io.IOException {
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(new URL(url).openStream(), StandardCharsets.UTF_8))) {
+    public String downloadText(String url) throws IOException {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(new URI(url).toURL().openStream(), StandardCharsets.UTF_8))) {
             return in.lines().collect(Collectors.joining());
+        } catch (URISyntaxException e) {
+            throw new IOException(e.getMessage(), e);
         }
     }
 

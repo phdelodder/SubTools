@@ -1,12 +1,13 @@
 package org.lodder.subtools.sublibrary;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +21,6 @@ import java.util.function.Predicate;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONArray;
@@ -31,10 +31,10 @@ import org.lodder.subtools.sublibrary.cache.Cache;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
 import org.lodder.subtools.sublibrary.cache.InMemoryCache;
+import org.lodder.subtools.sublibrary.util.IOUtils;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
 import org.lodder.subtools.sublibrary.util.http.HttpClientException;
-import org.lodder.subtools.sublibrary.util.http.HttpClientSetupException;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
 import org.w3c.dom.Document;
 
@@ -56,10 +56,10 @@ public class Manager {
     private final InMemoryCache inMemoryCache;
     private final DiskCache diskCache;
 
-    public boolean store(String downloadlink, File file) throws ManagerException {
+    public boolean store(String downloadLink, Path file) throws ManagerException {
         try {
-            return httpClient.doDownloadFile(new URL(downloadlink), file);
-        } catch (MalformedURLException e) {
+            return httpClient.doDownloadFile(new URI(downloadLink).toURL(), file);
+        } catch (MalformedURLException | URISyntaxException e) {
             throw new ManagerException("incorrect url", e);
         }
     }
@@ -120,10 +120,10 @@ public class Manager {
         @Override
         public String post() throws ManagerException {
             try {
-                return httpClient.doPost(new URL(url), userAgent, data == null ? new HashMap<>() : data);
-            } catch (MalformedURLException e) {
+                return httpClient.doPost(new URI(url).toURL(), userAgent, data == null ? new HashMap<>() : data);
+            } catch (MalformedURLException | URISyntaxException e) {
                 throw new ManagerException("incorrect url", e);
-            } catch (HttpClientSetupException | HttpClientException e) {
+            } catch (HttpClientException e) {
                 throw new ManagerException(e);
             }
         }
@@ -217,7 +217,7 @@ public class Manager {
             return switch (cacheType) {
                 case NONE -> getContentWithoutCache(url, userAgent);
                 case MEMORY -> inMemoryCache.getOrPut(url, () -> getContentWithoutCache(url, userAgent));
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
+                case DISK -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 
@@ -270,12 +270,7 @@ public class Manager {
 
         private String getContentWithoutCache(String urlString, String userAgent) throws ManagerException {
             try {
-                return httpClient.doGet(new URL(urlString), userAgent);
-            } catch (MalformedURLException e) {
-                if (retries-- > 0 && retryPredicate.test(e)) {
-                    return getContentWithoutCache(urlString, userAgent);
-                }
-                throw new ManagerException("incorrect url", e);
+                return httpClient.doGet(new URI(urlString).toURL(), userAgent);
             } catch (HttpClientException e) {
                 if (retries-- > 0 && retryPredicate.test(e)) {
                     try {
@@ -285,13 +280,15 @@ public class Manager {
                     }
                     return getContentWithoutCache(urlString, userAgent);
                 }
-                throw new ManagerException("Error occured with httpclient response: %s %s".formatted(e.getResponseCode(), e.getResponseMessage()),
+                throw new ManagerException("Error occurred with httpclient response: %s %s".formatted(e.getResponseCode(), e.getResponseMessage()),
                         e);
-            } catch (IOException | HttpClientSetupException e) {
+            } catch (IOException e) {
                 if (retries-- > 0 && retryPredicate.test(e)) {
                     return getContentWithoutCache(urlString, userAgent);
                 }
                 throw new ManagerException(e);
+            } catch (URISyntaxException e) {
+                throw new ManagerException("Invalid url [%s]".formatted(urlString), e);
             }
         }
     }
@@ -640,7 +637,6 @@ public class Manager {
                 case NONE -> valueSupplier.get();
                 case MEMORY -> getOrPutValue(inMemoryCache);
                 case DISK -> getOrPutValue(diskCache);
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 
@@ -675,7 +671,6 @@ public class Manager {
                 case NONE -> collectionSupplier.get();
                 case MEMORY -> getOrPutCollection(inMemoryCache);
                 case DISK -> getOrPutCollection(diskCache);
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 
@@ -703,14 +698,12 @@ public class Manager {
                     case NONE -> Optional.empty();
                     case MEMORY -> inMemoryCache.get(key);
                     case DISK -> diskCache.get(key);
-                    default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
                 };
             }
             return switch (cacheType) {
                 case NONE -> optionalSupplier.get();
                 case MEMORY -> getOrPutOptional(inMemoryCache);
                 case DISK -> getOrPutOptional(diskCache);
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 
@@ -744,7 +737,6 @@ public class Manager {
                 case NONE -> optionalIntSupplier.get();
                 case MEMORY -> getOrPutOptionalInt(inMemoryCache);
                 case DISK -> getOrPutOptionalInt(diskCache);
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 
@@ -778,7 +770,6 @@ public class Manager {
                 case NONE -> List.of();
                 case MEMORY -> inMemoryCache.getEntries(keyFilter);
                 case DISK -> diskCache.getEntries(keyFilter);
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 
@@ -792,7 +783,6 @@ public class Manager {
                 case NONE -> false;
                 case MEMORY -> inMemoryCache.contains(key);
                 case DISK -> diskCache.contains(key);
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 
@@ -806,7 +796,6 @@ public class Manager {
                 case NONE -> false;
                 case MEMORY -> inMemoryCache.isTemporaryExpired(key);
                 case DISK -> diskCache.isTemporaryExpired(key);
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 
@@ -816,7 +805,6 @@ public class Manager {
                 case NONE -> false;
                 case MEMORY -> inMemoryCache.isTemporaryObject(key);
                 case DISK -> diskCache.isTemporaryObject(key);
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 
@@ -826,7 +814,6 @@ public class Manager {
                 case NONE -> OptionalLong.of(0);
                 case MEMORY -> getTemporaryTimeToLive(inMemoryCache);
                 case DISK -> getTemporaryTimeToLive(diskCache);
-                default -> throw new IllegalArgumentException("Unexpected value: " + cacheType);
             };
         }
 

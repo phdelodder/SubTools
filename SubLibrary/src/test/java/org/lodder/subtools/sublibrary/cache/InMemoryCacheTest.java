@@ -1,16 +1,13 @@
 package org.lodder.subtools.sublibrary.cache;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.*;
 
-public class InMemoryCacheTest {
+import org.junit.jupiter.api.Test;
 
-    @Before
-    public void setUp() throws Exception {
-    }
+class InMemoryCacheTest {
 
     @Test
-    public void testAddRemoveObjects() {
+    void testAddRemoveObjects() {
         InMemoryCache<String, String> cache =
                 InMemoryCache.builder().keyType(String.class).valueType(String.class)
                         .timeToLive(200L)
@@ -25,18 +22,18 @@ public class InMemoryCacheTest {
         cache.put("IBM", "IBM");
         cache.put("Facebook", "Facebook");
 
-        System.out.println("6 Cache Object Added.. cache.size(): " + cache.size());
+        assertThat(cache.size()).as("Cache should contain 6 entries").isEqualTo(6);
         cache.remove("IBM");
-        System.out.println("One object removed.. cache.size(): " + cache.size());
+        assertThat(cache.size()).as("After deletion, cache should contain 5 entries").isEqualTo(5);
 
         cache.put("Twitter", "Twitter");
         cache.put("SAP", "SAP");
-        System.out.println("Two objects Added but reached maxItems.. cache.size(): " + cache.size());
 
+        assertThat(cache.size()).as("Cache should not contain more elements than it max defined size").isEqualTo(6);
     }
 
     @Test
-    public void testExpiredCacheObjects() throws InterruptedException {
+    void testExpiredCacheObjects() throws InterruptedException {
 
         InMemoryCache<String, String> cache =
                 InMemoryCache.builder().keyType(String.class).valueType(String.class)
@@ -51,11 +48,11 @@ public class InMemoryCacheTest {
         // Cache because of timeToLiveInSeconds value
         Thread.sleep(3000);
 
-        System.out.println("Two objects are added but reached timeToLive. cache.size(): " + cache.size());
+        assertThat(cache.size()).as("Cache should not contain items that are expired").isEqualTo(0);
     }
 
     @Test
-    public void testObjectsCleanupTime() throws InterruptedException {
+    void testObjectsCleanupTime() throws InterruptedException {
         int size = 500000;
 
         InMemoryCache<String, String> cache =
@@ -77,7 +74,6 @@ public class InMemoryCacheTest {
         double finish = (System.currentTimeMillis() - start) / 1000.0;
 
         System.out.println("Cleanup times for " + size + " objects are " + finish + " s");
-
     }
 
 }

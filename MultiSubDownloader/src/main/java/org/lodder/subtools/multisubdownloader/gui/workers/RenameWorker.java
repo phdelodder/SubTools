@@ -1,6 +1,5 @@
 package org.lodder.subtools.multisubdownloader.gui.workers;
 
-import java.io.File;
 import java.util.List;
 
 import javax.swing.SwingWorker;
@@ -10,7 +9,6 @@ import org.lodder.subtools.multisubdownloader.actions.RenameAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
-import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
@@ -24,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * Created by IntelliJ IDEA. User: lodder Date: 4/12/11 Time: 8:52 AM To change this template use
- * File | Settings | File Templates.
+ * Path | Settings | Path Templates.
  */
 @RequiredArgsConstructor
 public class RenameWorker extends SwingWorker<Void, String> implements Cancelable {
@@ -40,11 +38,13 @@ public class RenameWorker extends SwingWorker<Void, String> implements Cancelabl
     @Override
     protected Void doInBackground() {
         final VideoTableModel model = (VideoTableModel) table.getModel();
-        int selectedCount = model.getSelectedCount(table.getColumnIdByName(SearchColumnName.SELECT));
-        int progress = 0;
-        int k = 0;
-        for (int i = 0; i < model.getRowCount(); i++) {
-            if ((Boolean) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.SELECT))) {
+
+        model.executedSynchronized(() -> {
+            List<Release> selectedShows = model.getSelectedShows();
+            int selectedCount = selectedShows.size();
+            int progress = 0;
+            int k = 0;
+            for (Release selectedShow : selectedShows) {
                 k++;
                 if (k > 0) {
                     progress = 100 * k / selectedCount;
@@ -53,22 +53,20 @@ public class RenameWorker extends SwingWorker<Void, String> implements Cancelabl
                     progress = 1;
                 }
                 setProgress(progress);
-                final Release release =
-                        (Release) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.OBJECT));
-                if (release.getVideoType() == VideoType.EPISODE) {
+
+                if (selectedShow.getVideoType() == VideoType.EPISODE) {
                     LOGGER.debug("Treat as EPISODE");
                     renameAction = new RenameAction(settings.getEpisodeLibrarySettings(), manager, userInteractionHandler);
-                } else if (release.getVideoType() == VideoType.MOVIE) {
+                } else if (selectedShow.getVideoType() == VideoType.MOVIE) {
                     LOGGER.debug("Treat as MOVIE");
                     renameAction = new RenameAction(settings.getMovieLibrarySettings(), manager, userInteractionHandler);
                 }
                 if (renameAction != null) {
-                    renameAction.rename(new File(release.getPath(), release.getFileName()), release);
+                    renameAction.rename(selectedShow.getPath().resolve(selectedShow.getFileName()), selectedShow);
                 }
-                model.removeRow(i);
-                i--;
+                model.removeShow(selectedShow);
             }
-        }
+        });
         return null;
     }
 

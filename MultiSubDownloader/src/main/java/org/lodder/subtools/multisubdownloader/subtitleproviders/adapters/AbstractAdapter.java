@@ -19,9 +19,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- *
- * @param <T> type of the subtitle objects returned by the api
- * @param <X> type of the exception thrown by the api
+ * @param <T>
+ *         type of the subtitle objects returned by the api
+ * @param <X>
+ *         type of the exception thrown by the api
  */
 @Getter
 @RequiredArgsConstructor
@@ -38,21 +39,16 @@ abstract class AbstractAdapter<T, S extends ProviderSerieId, X extends Exception
         private final List<Predicate<X>> retryPredicates = new ArrayList<>();
         private final List<HandleException<T, X>> exceptionHandlers = new ArrayList<>();
 
-        @Getter
-        @RequiredArgsConstructor
-        private static class HandleException<T, X extends Exception> {
-            private final Predicate<X> predicate;
-            private final Function<X, T> exceptionFunction;
-        }
+        private record HandleException<T, X extends Exception>(Predicate<X> predicate, Function<X, T> exceptionFunction) {}
 
         public E retryWhenException(Predicate<X> predicate) {
             retryPredicates.add(predicate);
-            return (E) this;
+            return getThis();
         }
 
         public E handleException(Predicate<X> predicate, Function<X, T> exceptionFunction) {
             exceptionHandlers.add(new HandleException<>(predicate, exceptionFunction));
-            return (E) this;
+            return getThis();
         }
 
         public E handleException(Predicate<X> predicate, Supplier<T> supplier) {
@@ -72,14 +68,15 @@ abstract class AbstractAdapter<T, S extends ProviderSerieId, X extends Exception
                 throw new IllegalStateException("Retries should be greater than 0");
             }
             this.retries = retries;
-            return (E) this;
+            return getThis();
         }
 
         public E message(String message) {
             this.message = message;
-            return (E) this;
+            return getThis();
         }
 
+        @SuppressWarnings("unchecked")
         public T execute() throws X {
             try {
                 return supplier.get();
@@ -100,13 +97,18 @@ abstract class AbstractAdapter<T, S extends ProviderSerieId, X extends Exception
                     return execute();
                 } else {
                     try {
-                        return exceptionHandlers.stream().filter(handleException -> handleException.getPredicate().test(exception)).findAny()
-                                .map(handleException -> handleException.getExceptionFunction().apply(exception)).orElseThrow(() -> e);
+                        return exceptionHandlers.stream().filter(handleException -> handleException.predicate().test(exception)).findAny()
+                                .map(handleException -> handleException.exceptionFunction().apply(exception)).orElseThrow(() -> e);
                     } catch (Exception e1) {
                         throw (X) e1;
                     }
                 }
             }
+        }
+
+        @SuppressWarnings("unchecked")
+        private E getThis() {
+            return (E) this;
         }
     }
 }

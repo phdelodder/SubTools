@@ -9,14 +9,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.Component;
+import java.io.Serial;
 
 public class ImageListCellRenderer extends JLabel implements ListCellRenderer<Object> {
 
+    @Serial
     private static final long serialVersionUID = 2640608321583922789L;
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageListCellRenderer.class);
 
-    @Override
-    /**
+   /**
      * From http://java.sun.com/javase/6/docs/api/javax/swing/ListCellRenderer.html:
      *
      * Return a component that has been configured to display the specified value.
@@ -30,7 +31,8 @@ public class ImageListCellRenderer extends JLabel implements ListCellRenderer<Ob
      * isSelected - true if the specified cell is currently selected
      * cellHasFocus - true if the cell has focus
      */
-    public Component getListCellRendererComponent(JList<?> jlist, Object value, int cellIndex,
+   @Override
+   public Component getListCellRendererComponent(JList<?> jlist, Object value, int cellIndex,
             boolean isSelected, boolean cellHasFocus) {
         if (value instanceof JPanel) {
             Component component = (Component) value;

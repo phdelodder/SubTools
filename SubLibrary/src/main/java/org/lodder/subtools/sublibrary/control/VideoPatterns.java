@@ -1,32 +1,126 @@
 package org.lodder.subtools.sublibrary.control;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.lodder.subtools.sublibrary.util.NamedPattern;
 
-import com.mifmif.common.regex.Generex;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.ExtensionMethod;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
+@ExtensionMethod({ Arrays.class })
 public class VideoPatterns {
 
-    private List<NamedPattern> compiledPatterns = null;
-    private List<String> keys = null;
-    private String qualityRegex = null;
+    public interface VideoPatternEnumIntf {
+    }
 
-    protected static final String[] QUALITYKEYWORDS = { "hdtv", "dvdrip", "bluray",
+    @Getter
+    @RequiredArgsConstructor
+    public enum Quality implements VideoPatternEnumIntf {
+        Q1080P("1080p"),
+        Q1080I("1080i"),
+        Q720P("720p"),
+        Q480P("480p");
+
+        final String value;
+
+        public static Stream<String> getValuesStream() {
+            return Quality.values().stream().map(Quality::getValue);
+        }
+    }
+
+    @Getter
+    public enum VideoEncoding implements VideoPatternEnumIntf {
+        X264("x264", "h264"),
+        X265("x265", "h265");
+
+        final String[] values;
+
+        VideoEncoding(String... values) {
+            this.values = values;
+        }
+
+        public static Stream<String> getValuesStream() {
+            return VideoEncoding.values().stream().map(VideoEncoding::getValues).flatMap(Arrays::stream);
+        }
+    }
+
+    @Getter
+    public enum AudioEncoding implements VideoPatternEnumIntf {
+        DD5_1("dd5.1", "dd5-1");
+
+        final String[] values;
+
+        AudioEncoding(String... values) {
+            this.values = values;
+        }
+
+        public static Stream<String> getValuesStream() {
+            return AudioEncoding.values().stream().map(AudioEncoding::getValues).flatMap(Arrays::stream);
+        }
+    }
+
+    @Getter
+    public enum Source implements VideoPatternEnumIntf {
+        HDTV(false, "hdtv"),
+        DVDRIP(false, "dvdrip"),
+        BLURAY(false, "bluray"),
+        BDRIP(false, "bdrip"),
+        BRRIP(false, "brrip"),
+        XVID(false, "xvid"),
+        PDTV(false, "pdtv"),
+        DIVX(false, "divx"),
+        WEBRIP(false, "webrip"),
+        RERIP(false, "rerip"),
+        WEBDL(false, "webdl", "web-dl", "web.dl"),
+        TS(true, "ts"),
+        DVD_SCREENER(true, "dvdscreener"),
+        R5(true, "r5"),
+        CAM(true, "cam");
+
+        final boolean manyDifferentSources;
+        final String[] values;
+
+        Source(boolean manyDifferentSources, String... values) {
+            this.manyDifferentSources = manyDifferentSources;
+            this.values = values;
+        }
+
+        public static Stream<String> getValuesStream() {
+            return Source.values().stream().map(Source::getValues).flatMap(Arrays::stream);
+        }
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public enum VideoExtensions {
+        MKV("mkv"),
+        MP4("mp4"),
+        AVI("avi"),
+        WMV("wmv"),
+        TS("ts"),
+        M4V("m4v");
+
+        final String value;
+    }
+
+    private static final Set<String> QUALITY_KEYWORDS_SET = Set.of("hdtv", "dvdrip", "bluray",
             "1080p", "ts", "dvdscreener", "r5", "bdrip", "brrip", "720p", "xvid", "cam", "480p", "x264", "x265",
-            "1080i", "pdtv", "divx", "webrip", "h264", "h265", "rerip", "webdl" };
+            "1080i", "pdtv", "divx", "webrip", "h264", "h265", "rerip", "webdl");
 
-    protected static final String[] QUALITYREGEXKEYWORDS = { "web[ .-]dl", "dd5[ .]1" };
+    private static final Set<String> QUALITY_KEYWORDS_REGEX_SET = Set.of("web[ .-]dl", "dd5[ .]1");
 
-    public static final String[] EXTENSIONS = { "avi", "mkv", "wmv", "ts", "mp4", "m4v" };
+    public static final Set<String> EXTENSIONS = Set.of("mkv", "mp4", "avi", "wmv", "ts", "m4v");
 
     // order is important!!!!!!
-    protected final static String[] PATTERNS = {
+    private static final String[] PATTERNS = {
             // example:
             // Back.to.the.Future.Part.II.1989.720p.BluRay.X264-AMIABLE.mkv
             "(?<moviename>[\'\\w\\s:&()!.,_-]+)(?<part>Pt|Part|pt|part|Ep)(?<romanepisode>[I|V|X]+)[. ](?<year>19\\d{2}|20\\d{2})(?<description>[\'\\w\\s:&()!.,_-]+)",
@@ -63,73 +157,16 @@ public class VideoPatterns {
 
     };
 
-    public VideoPatterns() {
-        buildQualityKeywordsList();
-        buildCompiledPatternList();
-        buildQualityKeywordsRegex();
-    }
+    public static final List<NamedPattern> COMPILED_PATTERNS =
+            Arrays.stream(PATTERNS).map(p -> NamedPattern.compile(p, Pattern.CASE_INSENSITIVE)).toList();
 
-    public List<NamedPattern> getCompiledPatterns() {
-        return compiledPatterns;
-    }
+    public static final List<String> QUALITY_KEYWORDS = List.of();
+    // Stream.concat(QUALITY_KEYWORDS_SET.stream(),
+    // new Generex(QUALITY_KEYWORDS_REGEX_SET.stream().collect(Collectors.joining("|"))).getAllMatchedStrings().stream()).toList();
 
-    public String getQualityKeysRegex() {
-        return qualityRegex;
-    }
+    private static final String QUALITY_KEYWORDS_REGEX =
+            Stream.concat(QUALITY_KEYWORDS_SET.stream(), QUALITY_KEYWORDS_REGEX_SET.stream()).collect(Collectors.joining("|", "(", ")"));
 
-    public List<String> getQualityKeywords() {
-        return keys;
-    }
-
-    private void buildQualityKeywordsList() {
-        keys = new ArrayList<>();
-        Collections.addAll(keys, QUALITYKEYWORDS);
-        keys.addAll(getQualityRegexKeywords());
-    }
-
-    private void buildCompiledPatternList() {
-        compiledPatterns = Arrays.stream(PATTERNS).map(p -> NamedPattern.compile(p, Pattern.CASE_INSENSITIVE)).collect(Collectors.toList());
-    }
-
-    private void buildQualityKeywordsRegex() {
-        StringBuilder sb = new StringBuilder();
-        String separator = "|";
-
-        sb.append("(");
-
-        if (VideoPatterns.QUALITYKEYWORDS.length > 0) {
-            sb.append(VideoPatterns.QUALITYKEYWORDS[0]);
-            for (int i = 1; i < VideoPatterns.QUALITYKEYWORDS.length; i++) {
-                sb.append(separator);
-                sb.append(VideoPatterns.QUALITYKEYWORDS[i]);
-            }
-        }
-
-        if (VideoPatterns.QUALITYREGEXKEYWORDS.length > 0) {
-            for (String element : VideoPatterns.QUALITYREGEXKEYWORDS) {
-                sb.append(separator);
-                sb.append(element);
-            }
-        }
-
-        sb.append(")");
-        qualityRegex = sb.toString();
-    }
-
-    private List<String> getQualityRegexKeywords() {
-        StringBuilder regex = new StringBuilder();
-        String separator = "|";
-        if (VideoPatterns.QUALITYREGEXKEYWORDS.length > 0) {
-            regex.append(VideoPatterns.QUALITYREGEXKEYWORDS[0]);
-            for (int i = 1; i < VideoPatterns.QUALITYREGEXKEYWORDS.length; i++) {
-                regex.append(separator);
-                regex.append(VideoPatterns.QUALITYREGEXKEYWORDS[i]);
-            }
-        }
-
-        Generex generex = new Generex(regex.toString());
-
-        return generex.getAllMatchedStrings();
-    }
+    public static final Pattern QUALITY_KEYWORDS_REGEX_PATTERN = Pattern.compile(QUALITY_KEYWORDS_REGEX, Pattern.CASE_INSENSITIVE);
 
 }

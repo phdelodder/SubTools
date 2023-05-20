@@ -1,12 +1,13 @@
 package org.lodder.subtools.sublibrary.xml;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -55,10 +56,10 @@ public class XMLHelper {
         return "";
     }
 
-    public static String getStringAtributeValue(String sTag, String sAtribute, Element eElement) {
-        LOGGER.trace("getStringAtributeValue: sTag [{}], sAtribute [{}]", sTag, sAtribute);
+    public static String getStringAttributeValue(String sTag, String sAttribute, Element eElement) {
+        LOGGER.trace("getStringAttributeValue: sTag [{}], sAttribute [{}]", sTag, sAttribute);
         NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
-        return XMLCleanup(((Element) nlList).getAttribute(sAtribute));
+        return XMLCleanup(((Element) nlList).getAttribute(sAttribute));
     }
 
     public static int getIntTagValue(String sTag, Element eElement) {
@@ -73,11 +74,11 @@ public class XMLHelper {
         return nValue != null && Boolean.parseBoolean(nValue.getNodeValue());
     }
 
-    public static boolean getBooleanAtributeValue(String sTag, String sAtribute, Element eElement) {
-        LOGGER.trace("getBooleanAtributeValue: sTag [{}], sAtribute [{}]", sTag, sAtribute);
+    public static boolean getBooleanAttributeValue(String sTag, String sAttribute, Element eElement) {
+        LOGGER.trace("getBooleanAttributeValue: sTag [{}], sAttribute [{}]", sTag, sAttribute);
         NodeList nlList = eElement.getElementsByTagName(sTag).item(0).getChildNodes();
-        return ((Element) nlList).getAttribute(sAtribute) != null
-                && Boolean.parseBoolean(((Element) nlList).getAttribute(sAtribute));
+        return ((Element) nlList).getAttribute(sAttribute) != null
+                && Boolean.parseBoolean(((Element) nlList).getAttribute(sAttribute));
     }
 
     public static String cleanBadChars(String string) {
@@ -93,12 +94,11 @@ public class XMLHelper {
         return string.trim();
     }
 
-    public static void writeToFile(File file, Document doc) throws Exception {
+    public static void writeToFile(Path file, Document doc) throws Exception {
         String xmlString = getXMLAsString(doc);
-        try (FileOutputStream os = new FileOutputStream(file)) {
+        try (OutputStream os = Files.newOutputStream(file)) {
             byte[] xmlStringContent = xmlString.getBytes(StandardCharsets.UTF_8);
             os.write(xmlStringContent);
-            os.close();
         }
     }
 

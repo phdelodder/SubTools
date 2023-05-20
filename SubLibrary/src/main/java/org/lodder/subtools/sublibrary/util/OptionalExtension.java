@@ -101,7 +101,7 @@ public class OptionalExtension {
     }
 
     public static <T> OptionalInt mapToOptionalInt(Optional<Integer> optional) {
-        return optional.isPresent() ? OptionalInt.of(optional.get()) : OptionalInt.empty();
+        return optional.map(OptionalInt::of).orElseGet(OptionalInt::empty);
     }
 
     //

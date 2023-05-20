@@ -26,7 +26,7 @@ import lombok.NonNull;
 @Getter(value = AccessLevel.PROTECTED)
 public abstract class GuiSearchAction<P extends InputPanel> extends SearchAction {
 
-    private final @NonNull GUI mainwindow;
+    private final @NonNull GUI mainWindow;
     private final @NonNull SearchPanel<P> searchPanel;
     private final Filtering filtering;
     private final @NonNull ReleaseFactory releaseFactory;
@@ -35,9 +35,9 @@ public abstract class GuiSearchAction<P extends InputPanel> extends SearchAction
     private final UserInteractionHandlerGUI userInteractionHandler;
 
     public GuiSearchAction(Manager manager, Settings settings, SubtitleProviderStore subtitleProviderStore,
-            GUI mainwindow, SearchPanel<P> searchPanel, ReleaseFactory releaseFactory) {
+            GUI mainWindow, SearchPanel<P> searchPanel, ReleaseFactory releaseFactory) {
         super(manager, settings, subtitleProviderStore);
-        this.mainwindow = mainwindow;
+        this.mainWindow = mainWindow;
         this.searchPanel = searchPanel;
         this.filtering = new Filtering(settings);
         this.releaseFactory = releaseFactory;
@@ -47,9 +47,9 @@ public abstract class GuiSearchAction<P extends InputPanel> extends SearchAction
          * reset()-method might get implemented. But for now the GuiSearchAction will get a reference to
          * GUI and creates the listeners.
          */
-        this.indexingProgressListener = mainwindow.createFileIndexerProgressDialog(this);
-        this.searchProgressListener = mainwindow.createSearchProgressDialog(this);
-        this.userInteractionHandler = new UserInteractionHandlerGUI(settings, mainwindow);
+        this.indexingProgressListener = mainWindow.createFileIndexerProgressDialog(this);
+        this.searchProgressListener = mainWindow.createSearchProgressDialog(this);
+        this.userInteractionHandler = new UserInteractionHandlerGUI(settings, mainWindow);
     }
 
     protected P getInputPanel() {

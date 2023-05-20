@@ -5,13 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EventBag {
-    protected Map<String, Object> attributes = new HashMap<>();
+    protected final Map<String, Object> attributes = new HashMap<>();
 
     public Object getAttribute(String name) {
-        if (this.attributes.containsKey(name)) {
-            return this.attributes.get(name);
-        }
-        return null;
+        return this.attributes.get(name);
     }
 
     public Collection<String> getAttributeNames() {

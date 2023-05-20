@@ -29,15 +29,12 @@ import org.lodder.subtools.sublibrary.data.ProviderSerieId;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod({ OptionalExtension.class })
 public class JAddic7edApi extends Html implements SubtitleApi {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edApi.class);
     private static final long RATEDURATION = 1; // seconds
     private static final String DOMAIN = "https://www.addic7ed.com";
     private final static Pattern TITLE_PATTERN = Pattern.compile(".*? - [0-9]+x[0-9]+ - (.*)");
@@ -132,8 +129,8 @@ public class JAddic7edApi extends Html implements SubtitleApi {
                         }
                     }
 
-                    String uploader, version, lang, download = null;
-                    boolean hearingImpaired = false;
+                    String uploader, version, lang, download;
+                    boolean hearingImpaired;
                     Elements blocks = doc.get().select(".tabel95[width='100%']");
 
                     List<Addic7edSubtitleDescriptor> lSubtitles = new ArrayList<>();
@@ -146,7 +143,6 @@ public class JAddic7edApi extends Html implements SubtitleApi {
 
                         Elements classesNewsTitle = block.getElementsByClass("NewsTitle");
                         Elements classesNewsDate = block.getElementsByClass("newsDate").select("td[colspan=3]");
-                        Elements imgHearingImpaired = block.select("img[title~=Hearing]");
                         if (classesNewsTitle.size() == 1 && classesNewsDate.size() == 1) {
                             Matcher m = VERSION_PATTERN.matcher(classesNewsTitle.get(0).text().trim());
                             if (!m.matches()) {
@@ -154,7 +150,7 @@ public class JAddic7edApi extends Html implements SubtitleApi {
                             } else {
                                 version = m.group(1).trim();
                                 uploader = block.selectFirst("a[href*=user/]").text();
-                                hearingImpaired = imgHearingImpaired.size() > 0;
+                                hearingImpaired = !block.select("img[title~=Hearing]").isEmpty();
                             }
                         }
 
@@ -185,7 +181,7 @@ public class JAddic7edApi extends Html implements SubtitleApi {
                                     Addic7edSubtitleDescriptor sub =
                                             new Addic7edSubtitleDescriptor()
                                                     .setUploader(uploader)
-                                                    .setTitel(title.trim())
+                                                    .setTitle(title.trim())
                                                     .setVersion(version.trim())
                                                     .setUrl(download)
                                                     .setLanguage(Language.fromValueOptional(lang.trim()).orElse(null))
@@ -218,7 +214,7 @@ public class JAddic7edApi extends Html implements SubtitleApi {
         try {
             if (!speedy && !getManager().valueBuilder().cacheType(CacheType.MEMORY).key(url).isPresent()) {
                 // if (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
-                // LOGGER.info("RateLimiet is bereikt voor ADDIC7ed, gelieve {} sec te wachten", RATEDURATION);
+                // LOGGER.info("RateLimit is reached for ADDIC7ed, please wait {} seconds", RATEDURATION);
                 // }
                 while (ChronoUnit.SECONDS.between(lastRequest, LocalDateTime.now()) < RATEDURATION) {
                     try {

@@ -1,7 +1,8 @@
 package org.lodder.subtools.multisubdownloader.actions;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
@@ -13,12 +14,14 @@ import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
-import org.lodder.subtools.sublibrary.util.Files;
+import org.lodder.subtools.sublibrary.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.ExtensionMethod;
 
+@ExtensionMethod({ FileUtils.class, Files.class })
 @RequiredArgsConstructor
 public class RenameAction {
 
@@ -28,60 +31,52 @@ public class RenameAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RenameAction.class);
 
-    public void rename(File f, Release release) {
+    public void rename(Path f, Release release) {
         String filename = switch (librarySettings.getLibraryAction()) {
-            case MOVE, NOTHING -> f.getName();
-            case MOVEANDRENAME -> getNewFilename(f, release);
-            case RENAME -> getNewFilename(f, release);
-            default -> "";
+            case MOVE, NOTHING -> f.getFileNameAsString();
+            case MOVEANDRENAME, RENAME -> getNewFilename(f, release);
         };
         LOGGER.trace("rename: filename [{}]", filename);
 
         PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager, userInteractionHandler);
-        final File newDir = new File(pathLibraryBuilder.build(release));
-        boolean status = true;
+        Path newDir = pathLibraryBuilder.build(release);
         if (!newDir.exists()) {
-            LOGGER.debug("Creating dir [{}]", newDir.getAbsolutePath());
-            status = newDir.mkdirs();
+            LOGGER.debug("Creating dir [{}]", newDir.toAbsolutePath());
+            try {
+                Files.createDirectories(newDir);
+            } catch (IOException e) {
+                LOGGER.error("Could not create dir [%s]".formatted(newDir), e);
+                return;
+            }
         }
-
         LOGGER.trace("rename: newDir [{}]", newDir);
 
-        if (status) {
-            final File file = new File(release.getPath(), release.getFileName());
+        Path file = release.getPath().resolve(release.getFileName());
 
-            try {
-
-                if (LibraryActionType.MOVE.equals(librarySettings.getLibraryAction())
-                        || LibraryActionType.MOVEANDRENAME.equals(librarySettings.getLibraryAction())) {
-                    LOGGER.info("Moving [{}] to the library folder [{}] , this might take a while... ", filename, newDir);
-                    Files.move(file, new File(newDir, filename));
-                } else {
-                    LOGGER.info("Moving [{}] to the library folder [{}] , this might take a while... ", filename, release.getPath());
-                    Files.move(file, new File(release.getPath(), filename));
-                }
-                if (!LibraryOtherFileActionType.NOTHING.equals(librarySettings.getLibraryOtherFileAction())) {
-                    CleanAction cleanAction = new CleanAction(librarySettings);
-                    cleanAction.cleanUpFiles(release, newDir, filename);
-                }
-                File[] listFiles = release.getPath().listFiles();
-                if (librarySettings.isLibraryRemoveEmptyFolders() && listFiles != null && listFiles.length == 0) {
-                    boolean isDeleted = release.getPath().delete();
-                    if (isDeleted) {
-                        // do nothing
-                    }
-                }
-            } catch (IOException e) {
-                LOGGER.error("Unsuccessfull in moving the file to the libary", e);
+        try {
+            if (librarySettings.hasLibraryAction(LibraryActionType.MOVE) || librarySettings.hasLibraryAction(LibraryActionType.MOVEANDRENAME)) {
+                LOGGER.info("Moving [{}] to the library folder [{}] , this might take a while... ", filename, newDir);
+                file.moveToDirAndRename(newDir, filename);
+            } else {
+                LOGGER.info("Moving [{}] to the library folder [{}] , this might take a while... ", filename, release.getPath());
+                file.moveToDirAndRename(release.getPath(), filename);
+            }
+            if (!librarySettings.hasLibraryOtherFileAction(LibraryOtherFileActionType.NOTHING)) {
+                new CleanAction(librarySettings).cleanUpFiles(release, newDir, filename);
             }
 
+            if (librarySettings.isLibraryRemoveEmptyFolders() && release.getPath().isEmptyDir()) {
+                Files.delete(release.getPath());
+            }
+        } catch (IOException e) {
+            LOGGER.error("Unsuccessful in moving the file to the library", e);
         }
     }
 
-    private String getNewFilename(File f, Release release) {
+    private String getNewFilename(Path f, Release release) {
         FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager, userInteractionHandler);
-        String filename = filenameLibraryBuilder.build(release);
-        if ("srt".equals(release.getExtension())) {
+        String filename = filenameLibraryBuilder.build(release).toString();
+        if (release.hasExtension("srt")) {
             Language language = null;
             if (librarySettings.isLibraryIncludeLanguageCode()) {
                 language = DetectLanguage.execute(f);

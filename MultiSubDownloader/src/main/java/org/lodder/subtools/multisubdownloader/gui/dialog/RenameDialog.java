@@ -2,7 +2,8 @@ package org.lodder.subtools.multisubdownloader.gui.dialog;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
+import java.io.Serial;
+import java.nio.file.Path;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -34,10 +35,11 @@ import java.awt.Insets;
 
 public class RenameDialog extends MultiSubDialog implements PropertyChangeListener {
 
+    @Serial
     private static final long serialVersionUID = 1L;
-    private VideoLibraryPanel pnlLibrary;
+    private final VideoLibraryPanel pnlLibrary;
     private JTextField txtRenameLocation;
-    private JCheckBox chkRecursive;
+    private final JCheckBox chkRecursive;
     private ProgressDialog progressDialog;
 
     /**
@@ -73,20 +75,20 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
             gbl_panel.rowWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE };
             panel.setLayout(gbl_panel);
             {
-                JLabel lblFolderToRenamemove =
+                JLabel lblFolderToRenameMove =
                         new JLabel(Messages.getString("RenameDialog.FolderForRename/Move"));
-                GridBagConstraints gbc_lblFolderToRenamemove = new GridBagConstraints();
-                gbc_lblFolderToRenamemove.fill = GridBagConstraints.BOTH;
-                gbc_lblFolderToRenamemove.insets = new Insets(0, 0, 5, 5);
-                gbc_lblFolderToRenamemove.gridx = 0;
-                gbc_lblFolderToRenamemove.gridy = 0;
-                panel.add(lblFolderToRenamemove, gbc_lblFolderToRenamemove);
+                GridBagConstraints gbc_lblFolderToRenameMove = new GridBagConstraints();
+                gbc_lblFolderToRenameMove.fill = GridBagConstraints.BOTH;
+                gbc_lblFolderToRenameMove.insets = new Insets(0, 0, 5, 5);
+                gbc_lblFolderToRenameMove.gridx = 0;
+                gbc_lblFolderToRenameMove.gridy = 0;
+                panel.add(lblFolderToRenameMove, gbc_lblFolderToRenameMove);
             }
             {
                 JButton btnBrowser = new JButton(Messages.getString("App.Browse"));
                 btnBrowser.addActionListener(arg0 -> MemoryFolderChooser.getInstance()
                         .selectDirectory(getContentPane(), Messages.getString("RenameDialog.SelectFolderForRenameReplace"))
-                        .map(File::getAbsolutePath).ifPresent(txtRenameLocation::setText));
+                        .map(Path::toAbsolutePath).map(Path::toString).ifPresent(txtRenameLocation::setText));
                 {
                     txtRenameLocation = new JTextField();
                     GridBagConstraints gbc_txtRenameLocation = new GridBagConstraints();
@@ -133,10 +135,10 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
                 JButton renameButton = new JButton(Messages.getString("RenameDialog.Rename"));
                 renameButton.addActionListener(arg0 -> {
                     if (videoType == VideoType.EPISODE) {
-                        rename(new File(txtRenameLocation.getText()), new File(txtRenameLocation.getText()),
+                        rename(Path.of(txtRenameLocation.getText()), Path.of(txtRenameLocation.getText()),
                                 settings, pnlLibrary.getLibrarySettings(), manager, userInteractionHandler);
                     } else {
-                        rename(new File(txtRenameLocation.getText()), new File(txtRenameLocation.getText()),
+                        rename(Path.of(txtRenameLocation.getText()), Path.of(txtRenameLocation.getText()),
                                 new Settings(), pnlLibrary.getLibrarySettings(), manager, userInteractionHandler);
                     }
                     setVisible(false);
@@ -154,15 +156,7 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
         }
     }
 
-    /**
-     *
-     * @param dir
-     * @param basedir
-     * @param settings
-     * @param librarySettings can be different from the store librarySettings
-     * @param manager
-     */
-    protected void rename(File dir, File basedir, Settings settings, LibrarySettings librarySettings, Manager manager,
+    protected void rename(Path dir, Path basedir, Settings settings, LibrarySettings librarySettings, Manager manager,
             UserInteractionHandler userInteractionHandler) {
         TypedRenameWorker renameWorker =
                 new TypedRenameWorker(dir, librarySettings, VideoType.EPISODE,
@@ -176,8 +170,7 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
-        if (event.getSource() instanceof TypedRenameWorker) {
-            final TypedRenameWorker renameWorker = (TypedRenameWorker) event.getSource();
+        if (event.getSource() instanceof TypedRenameWorker renameWorker) {
             if (renameWorker.isDone()) {
                 progressDialog.setVisible(false);
             } else {

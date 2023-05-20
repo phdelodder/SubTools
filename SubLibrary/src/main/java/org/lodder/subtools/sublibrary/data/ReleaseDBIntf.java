@@ -4,5 +4,5 @@ public interface ReleaseDBIntf {
 
     String getName();
 
-    int getYear();
+    int year();
 }

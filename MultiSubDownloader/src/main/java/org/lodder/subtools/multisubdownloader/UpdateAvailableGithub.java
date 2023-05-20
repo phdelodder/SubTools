@@ -39,14 +39,12 @@ public class UpdateAvailableGithub {
     public boolean shouldCheckForNewUpdate(UpdateCheckPeriod updateCheckPeriod) {
         LocalDate lastUpdateCheck = getLastUpdateCheck();
         try {
-            boolean shouldCheckForUpdate = switch (updateCheckPeriod) {
+            return switch (updateCheckPeriod) {
                 case DAILY -> DAYS.between(lastUpdateCheck, LocalDate.now()) > 0;
                 case WEEKLY -> DAYS.between(lastUpdateCheck, LocalDate.now()) > 6;
                 case MONTHLY -> DAYS.between(lastUpdateCheck, LocalDate.now()) > 30;
                 case MANUAL -> false;
-                default -> false;
             };
-            return shouldCheckForUpdate;
         } catch (Exception e) {
             LOGGER.error("checkProgram", e);
             return false;
@@ -57,7 +55,6 @@ public class UpdateAvailableGithub {
         return switch (settings.getUpdateType()) {
             case STABLE -> getUrlLatestNewStableGithubRelease();
             case NIGHTLY -> getUrlLatestNewNightlyGithubRelease();
-            default -> throw new IllegalArgumentException("Unexpected value: " + settings.getUpdateType());
         };
     }
 
@@ -65,7 +62,6 @@ public class UpdateAvailableGithub {
         return switch (settings.getUpdateType()) {
             case STABLE -> getUrlLatestNewStableGithubRelease().isPresent();
             case NIGHTLY -> getUrlLatestNewNightlyGithubRelease().isPresent();
-            default -> throw new IllegalArgumentException("Unexpected value: " + settings.getUpdateType());
         };
     }
 

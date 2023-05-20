@@ -1,26 +1,20 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SubtitleProviderStore {
-    protected List<SubtitleProvider> subtitleProviders = new ArrayList<>();
+    protected final Set<SubtitleProvider> subtitleProviders = new HashSet<>();
 
-    public List<SubtitleProvider> getAllProviders() {
-        return new ArrayList<>(this.subtitleProviders);
+    public Set<SubtitleProvider> getAllProviders() {
+        return new HashSet<>(this.subtitleProviders);
     }
 
     public void addProvider(SubtitleProvider provider) {
-        if (!this.subtitleProviders.contains(provider)) {
-            this.subtitleProviders.add(provider);
-        }
+        this.subtitleProviders.add(provider);
     }
 
     public void deleteProvider(SubtitleProvider subtitleProvider) {
-        if (!this.subtitleProviders.contains(subtitleProvider)) {
-            return;
-        }
-
         this.subtitleProviders.remove(subtitleProvider);
     }
 }

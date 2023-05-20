@@ -1,7 +1,12 @@
 package org.lodder.subtools.multisubdownloader.gui.workers;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.SwingWorker;
 
@@ -16,35 +21,30 @@ import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
-import org.lodder.subtools.sublibrary.util.FilenameExtensionFilter;
-import org.lodder.subtools.sublibrary.util.StringUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.lodder.subtools.sublibrary.util.FileUtils;
+import org.lodder.subtools.sublibrary.util.StreamExtension;
+
+import com.google.common.collect.Streams;
 
 import lombok.Setter;
+import lombok.experimental.ExtensionMethod;
 
+@ExtensionMethod({ FileUtils.class, Files.class, StreamExtension.class })
 public class TypedRenameWorker extends SwingWorker<Void, String> implements Cancelable {
 
     private final UserInteractionHandler userInteractionHandler;
-    private File dir;
-    private VideoType videoType;
-    private final FilenameExtensionFilter patterns;
-    private boolean isRecursive;
+    private final Path dir;
+    private final VideoType videoType;
+    private final Set<String> extensions;
+    private final boolean isRecursive;
     @Setter
     private ReleaseFactory releaseFactory;
-    private RenameAction renameAction;
+    private final RenameAction renameAction;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TypedRenameWorker.class);
-
-    public TypedRenameWorker(File dir, LibrarySettings librarySettings, VideoType videoType,
+    public TypedRenameWorker(Path dir, LibrarySettings librarySettings, VideoType videoType,
             boolean isRecursive, Manager manager, UserInteractionHandler userInteractionHandler) {
         this.userInteractionHandler = userInteractionHandler;
-        setParameters(dir, librarySettings, videoType, isRecursive, manager);
-        patterns = new FilenameExtensionFilter(StringUtil.join(VideoPatterns.EXTENSIONS, new String[] { "srt" }));
-    }
-
-    public void setParameters(File dir, LibrarySettings librarySettings, VideoType videoType,
-            boolean isRecursive, Manager manager) {
+        this.extensions = Streams.concat(VideoPatterns.EXTENSIONS.stream(), Stream.of("srt")).collect(Collectors.toUnmodifiableSet());
         this.dir = dir;
         this.videoType = videoType;
         this.isRecursive = isRecursive;
@@ -52,31 +52,25 @@ public class TypedRenameWorker extends SwingWorker<Void, String> implements Canc
     }
 
     @Override
-    protected Void doInBackground() {
+    protected Void doInBackground() throws IOException {
         rename(dir);
         return null;
     }
 
-    private void rename(File dir) {
-        File[] contents = dir.listFiles();
-        if (contents == null) {
-            return;
-        }
-
-        for (File file : contents) {
-            if (file.isFile() && !file.getName().contains("sample") && patterns.accept(file.getAbsoluteFile(), file.getName())) {
-                Release release;
-                release = releaseFactory.createRelease(file, userInteractionHandler);
+    private void rename(Path dir) throws IOException {
+        dir.list().asThrowingStream(IOException.class).forEach(file -> {
+            if (file.isRegularFile() && !file.fileNameContainsIgnoreCase("sample") && extensions.contains(file.getExtension())) {
+                Release release = releaseFactory.createRelease(file, userInteractionHandler);
                 if (release != null) {
                     publish(release.getFileName());
                     if (release.getVideoType() == videoType) {
                         renameAction.rename(file, release);
                     }
                 }
-            } else if (file.isDirectory() && isRecursive) {
+            } else if (isRecursive && file.isDirectory()) {
                 rename(file);
             }
-        }
+        });
     }
 
     @Override

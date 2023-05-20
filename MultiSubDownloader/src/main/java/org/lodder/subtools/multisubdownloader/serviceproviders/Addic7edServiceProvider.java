@@ -81,7 +81,7 @@ public class Addic7edServiceProvider implements ServiceProvider {
             /* Change occurred, delete outdated provider from store */
             subtitleProviderStore.deleteProvider(subtitleProvider);
 
-            /* Re-create subtitleprovider */
+            /* Re-create subtitle provider */
             subtitleProvider = createProvider(userInteractionHandler);
 
             /* Re-add provider to store */

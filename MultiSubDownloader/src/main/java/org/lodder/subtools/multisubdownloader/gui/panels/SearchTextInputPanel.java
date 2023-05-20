@@ -1,20 +1,21 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JComboBox;
+import java.io.Serial;
+
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import org.lodder.subtools.multisubdownloader.Messages;
-import org.lodder.subtools.multisubdownloader.gui.ToStringListCellRenderer;
+import org.lodder.subtools.multisubdownloader.gui.extra.MyComboBox;
 import org.lodder.subtools.sublibrary.model.VideoSearchType;
 
 import net.miginfocom.swing.MigLayout;
 
 public class SearchTextInputPanel extends InputPanel {
 
+    @Serial
     private static final long serialVersionUID = 7030171360517948253L;
-    private JComboBox<VideoSearchType> cbxVideoType;
+    private MyComboBox<VideoSearchType> cbxVideoType;
     protected JTextField txtInputSeason;
     protected JTextField txtInputEpisode;
     protected JTextField txtQualityVersion;
@@ -48,10 +49,8 @@ public class SearchTextInputPanel extends InputPanel {
     }
 
     private void createComponents() {
-        cbxVideoType = new JComboBox<>();
-        cbxVideoType.setModel(new DefaultComboBoxModel<>(VideoSearchType.values()));
-        cbxVideoType.setRenderer(new ToStringListCellRenderer<>(cbxVideoType.getRenderer(),
-                o -> Messages.getString(((VideoSearchType) o).getMsgCode())));
+        cbxVideoType = new MyComboBox<>(VideoSearchType.values())
+                .withToMessageStringRenderer(VideoSearchType::getMsgCode);
 
         txtInputVideoName = new JTextField();
         txtInputVideoName.setColumns(10);
@@ -67,8 +66,8 @@ public class SearchTextInputPanel extends InputPanel {
     }
 
     private void videoTypeChanged() {
-        VideoSearchType videoTypeChoice = (VideoSearchType) cbxVideoType.getSelectedItem();
-        if (VideoSearchType.EPISODE.equals(videoTypeChoice)) {
+        VideoSearchType videoTypeChoice = cbxVideoType.getSelectedItem();
+        if (VideoSearchType.EPISODE == videoTypeChoice) {
             txtInputSeason.setEditable(true);
             txtInputSeason.setEnabled(true);
             txtInputEpisode.setEditable(true);
@@ -79,7 +78,7 @@ public class SearchTextInputPanel extends InputPanel {
             txtInputEpisode.setEditable(false);
             txtInputEpisode.setEnabled(false);
         }
-        if (VideoSearchType.RELEASE.equals(videoTypeChoice)) {
+        if (VideoSearchType.RELEASE == videoTypeChoice) {
             txtQualityVersion.setEditable(false);
             txtQualityVersion.setEnabled(false);
         } else {
@@ -89,7 +88,7 @@ public class SearchTextInputPanel extends InputPanel {
     }
 
     public VideoSearchType getType() {
-        return (VideoSearchType) cbxVideoType.getSelectedItem();
+        return cbxVideoType.getSelectedItem();
     }
 
     public int getSeason() {
@@ -100,7 +99,7 @@ public class SearchTextInputPanel extends InputPanel {
         } catch (NumberFormatException e) {
             season = 0;
         }
-        txtInputSeason.setText("" + season);
+        txtInputSeason.setText(String.valueOf(season));
 
         return season;
     }
@@ -113,7 +112,7 @@ public class SearchTextInputPanel extends InputPanel {
         } catch (NumberFormatException e) {
             episode = 0;
         }
-        txtInputEpisode.setText("" + episode);
+        txtInputEpisode.setText(String.valueOf(episode));
 
         return episode;
     }

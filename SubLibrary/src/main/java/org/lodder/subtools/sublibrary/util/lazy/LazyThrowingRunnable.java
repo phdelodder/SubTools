@@ -11,7 +11,7 @@ public class LazyThrowingRunnable<X extends Exception> {
 
 	private final Object lock = new Object();
 
-	private boolean initialized = false;
+	private volatile boolean initialized = false;
 
     public void run() throws X {
 		if (!initialized) {

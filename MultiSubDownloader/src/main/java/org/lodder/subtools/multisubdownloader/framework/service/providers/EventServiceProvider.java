@@ -14,7 +14,7 @@ public class EventServiceProvider implements ServiceProvider {
 
     @Override
     public void register(Container app, UserInteractionHandler userInteractionHandler) {
-        // EventEmitter toevoegen aan container
+        // Add EventEmitter to container
         app.bind("EventEmitter", new LazySupplier<>(Emitter::new));
     }
 }

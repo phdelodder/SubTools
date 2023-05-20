@@ -1,6 +1,6 @@
 package org.lodder.subtools.sublibrary.model;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.OptionalInt;
@@ -56,7 +56,7 @@ public class TvRelease extends Release {
     }
 
     public interface TvReleaseBuilderOther {
-        TvReleaseBuilderOther file(File file);
+        TvReleaseBuilderOther file(Path file);
 
         TvReleaseBuilderOther quality(String quality);
 
@@ -89,7 +89,7 @@ public class TvRelease extends Release {
         private List<Integer> episodes;
         private boolean special;
         private String quality;
-        private File file;
+        private Path file;
         private String description;
         private String releaseGroup;
         private String customName;
@@ -113,7 +113,7 @@ public class TvRelease extends Release {
         }
     }
 
-    private TvRelease(File file, String description, String releaseGroup, String quality, String name, String originalName, String customName,
+    private TvRelease(Path file, String description, String releaseGroup, String quality, String name, String originalName, String customName,
             String title, int season,
             List<Integer> episodeNumbers, boolean special) {
         super(VideoType.EPISODE, file, description, releaseGroup, quality);
@@ -121,7 +121,6 @@ public class TvRelease extends Release {
         this.title = title;
         this.season = season;
         this.episodeNumbers = episodeNumbers;
-        this.originalName = "";
         this.special = special;
         this.originalName = originalName;
         this.customName = customName;

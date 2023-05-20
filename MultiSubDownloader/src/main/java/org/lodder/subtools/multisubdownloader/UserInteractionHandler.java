@@ -2,7 +2,6 @@ package org.lodder.subtools.multisubdownloader;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
@@ -15,7 +14,7 @@ public interface UserInteractionHandler extends org.lodder.subtools.sublibrary.u
         if (getSettings().isOptionsMinAutomaticSelection()) {
             shortlist = subtitles.stream()
                     .filter(subtitle -> subtitle.getScore() >= getSettings().getOptionsMinAutomaticSelectionValue())
-                    .collect(Collectors.toList());
+                    .toList();
         } else {
             shortlist = new ArrayList<>(subtitles);
         }
@@ -24,9 +23,9 @@ public interface UserInteractionHandler extends org.lodder.subtools.sublibrary.u
             List<Subtitle> defaultSelectionsFound = getSettings().getOptionsDefaultSelectionQualityList().stream()
                     .flatMap(q -> shortlist.stream().filter(subtitle -> subtitle.getQuality().toLowerCase().contains(q.toLowerCase())))
                     .distinct()
-                    .collect(Collectors.toList());
+                    .toList();
 
-            if (defaultSelectionsFound.size() > 0) {
+            if (!defaultSelectionsFound.isEmpty()) {
                 return defaultSelectionsFound;
             }
         }

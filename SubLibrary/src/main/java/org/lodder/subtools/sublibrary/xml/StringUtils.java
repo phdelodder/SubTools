@@ -3,14 +3,13 @@ package org.lodder.subtools.sublibrary.xml;
 /**
  * Source: http://www.rgagnon.com/javadetails/java-0307.html
  */
-
 import java.util.HashMap;
 
 public class StringUtils {
     private StringUtils() {
     }
 
-    private static HashMap<String, String> htmlEntities;
+    private static final HashMap<String, String> htmlEntities;
     static {
         htmlEntities = new HashMap<>();
         htmlEntities.put("&lt;", "<");

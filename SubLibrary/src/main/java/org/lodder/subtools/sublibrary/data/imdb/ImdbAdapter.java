@@ -79,7 +79,7 @@ public class ImdbAdapter {
                     .optionalIntSupplier(() -> getImdbIdOnImdb(title, year)
                             .orElseMap(() -> getImdbIdOnGoogle(title, year))
                             .orElseMap(() -> getImdbIdOnYahoo(title, year))
-                            .orElseMap(() -> promtUserToEnterImdbId(title, year)))
+                            .orElseMap(() -> promptUserToEnterImdbId(title, year)))
                     .storeTempNullValue().getOptionalInt();
         } catch (Exception e) {
             LOGGER.error("API %s getImdbId for title [%s] (%s)".formatted(getProviderName(), title, e.getMessage()), e);
@@ -87,15 +87,15 @@ public class ImdbAdapter {
         }
     }
 
-    private OptionalInt getImdbIdOnImdb(String title, Integer year) throws ImdbSearchIdException {
+    private OptionalInt getImdbIdOnImdb(String title, Integer year) {
         return getImdbIdCommon(title, year, imdbSearchIdApi.get()::getImdbIdOnImdb);
     }
 
-    private OptionalInt getImdbIdOnGoogle(String title, Integer year) throws ImdbSearchIdException {
+    private OptionalInt getImdbIdOnGoogle(String title, Integer year) {
         return getImdbIdCommon(title, year, imdbSearchIdApi.get()::getImdbIdOnGoogle);
     }
 
-    private OptionalInt getImdbIdOnYahoo(String title, Integer year) throws ImdbSearchIdException {
+    private OptionalInt getImdbIdOnYahoo(String title, Integer year) {
         return getImdbIdCommon(title, year, imdbSearchIdApi.get()::getImdbIdOnYahoo);
     }
 
@@ -126,7 +126,7 @@ public class ImdbAdapter {
                 .mapToInt(providerSerieId -> Integer.parseInt(providerSerieId.getId()));
     }
 
-    private OptionalInt promtUserToEnterImdbId(String title, int year) {
+    private OptionalInt promptUserToEnterImdbId(String title, int year) {
         return userInteractionHandler.enter(getProviderName(), Messages.getString("Prompter.EnterImdbMatchForSerie").formatted(title),
                 Messages.getString("Prompter.ValueIsNotValid"), StringUtils::isNumeric).mapToInt(Integer::parseInt);
     }

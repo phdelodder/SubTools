@@ -1,5 +1,8 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
+import java.io.Serial;
+import java.nio.file.Path;
+
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -15,11 +18,16 @@ import java.awt.Toolkit;
 
 public class JListWithImages extends JList<JPanel> {
 
+    @Serial
     private static final long serialVersionUID = 342783165266555869L;
 
     public JListWithImages() {
         setCellRenderer(new ImageListCellRenderer());
-        setModel(new DefaultListModel<JPanel>());
+        setModel(new DefaultListModel<>());
+    }
+
+    public void addItem(SettingsExcludeType type, Path path) {
+        addItem(type, path.toString());
     }
 
     public void addItem(SettingsExcludeType type, String text) {
@@ -35,10 +43,8 @@ public class JListWithImages extends JList<JPanel> {
                 img = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/regex.gif"));
                 icon = resizeIcon(new ImageIcon(img), 20, 20);
             }
-            case FILE -> {
-            }
-            default -> {
-            }
+            case FILE -> {}
+            default -> {}
         }
 
         icon.setDescription(type.toString());

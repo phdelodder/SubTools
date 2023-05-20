@@ -1,6 +1,7 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
-import java.io.File;
+import java.io.Serial;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +38,7 @@ import net.miginfocom.swing.MigLayout;
 
 public class StructureBuilderDialog extends MultiSubDialog implements DocumentListener {
 
+    @Serial
     private static final long serialVersionUID = -5174968778375028124L;
     private final JPanel contentPanel = new JPanel();
     private JTextField txtStructure;
@@ -72,11 +74,10 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
         ReleaseFactory releaseFactory = new ReleaseFactory(new Settings(), manager);
         if (videoType == VideoType.EPISODE) {
             tvRelease = (TvRelease) releaseFactory.createRelease(
-                    // new File(File.separator + "Castle.2009.S04E10.720p.HDTV.X264-DIMENSION.mkv"),
-                    new File(File.separator + "Terra.Nova.S01E01E02.720p.HDTV.x264-ORENJI.mkv"),
+                    Path.of("Terra.Nova.S01E01E02.720p.HDTV.x264-ORENJI.mkv"),
                     userInteractionHandler);
         } else if (videoType == VideoType.MOVIE) {
-            movieRelease = (MovieRelease) releaseFactory.createRelease(new File(File.separator + "Final.Destination.5.720p.Bluray.x264-TWiZTED"),
+            movieRelease = (MovieRelease) releaseFactory.createRelease(Path.of("Final.Destination.5.720p.Bluray.x264-TWiZTED"),
                     userInteractionHandler);
         }
     }
@@ -171,12 +172,12 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
             case FILE -> {
                 librarySettings.setLibraryFilenameStructure(txtStructure.getText());
                 FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager, userInteractionHandler);
-                lblPreview.setText(filenameLibraryBuilder.build(release));
+                lblPreview.setText(filenameLibraryBuilder.build(release).toString());
             }
             case FOLDER -> {
                 librarySettings.setLibraryFolderStructure(txtStructure.getText());
                 PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager, userInteractionHandler);
-                lblPreview.setText(pathLibraryBuilder.build(release));
+                lblPreview.setText(pathLibraryBuilder.build(release).toString());
             }
             default -> {
             }
@@ -187,7 +188,6 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
         return switch (videoType) {
             case EPISODE -> tvRelease;
             case MOVIE -> movieRelease;
-            default -> null;
         };
     }
 
@@ -261,6 +261,7 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
     }
 
     private static final Map<String, String> EPISODE_TAGS = Collections.unmodifiableMap(new HashMap<>() {
+        @Serial
         private static final long serialVersionUID = 3313041588123263612L;
         {
             put("%SHOW NAME%", Messages.getString("StructureBuilderDialog.NameTvShow"));
@@ -278,6 +279,7 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
     });
 
     private static final Map<String, String> MOVIE_TAGS = Collections.unmodifiableMap(new HashMap<>() {
+        @Serial
         private static final long serialVersionUID = 5943868685951628245L;
         {
             put("%MOVIE TITLE%", Messages.getString("StructureBuilderDialog.MovieName"));
@@ -289,6 +291,7 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
     });
 
     private static final Map<String, String> FOLDER_TAGS = Collections.unmodifiableMap(new HashMap<>() {
+        @Serial
         private static final long serialVersionUID = 5943868685951628245L;
         {
             put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));

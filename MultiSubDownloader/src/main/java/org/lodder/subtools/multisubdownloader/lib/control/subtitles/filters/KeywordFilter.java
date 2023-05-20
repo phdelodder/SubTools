@@ -1,6 +1,5 @@
 package org.lodder.subtools.multisubdownloader.lib.control.subtitles.filters;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
@@ -15,26 +14,19 @@ public class KeywordFilter extends Filter {
     private static final Logger LOGGER = LoggerFactory.getLogger(KeywordFilter.class);
 
     @Override
-    public List<Subtitle> doFilter(Release release, List<Subtitle> Subtitles) {
-        List<Subtitle> filteredList = new ArrayList<>();
-        String keywordsFile = ReleaseParser.getQualityKeyword(getReleasename(release));
+    public List<Subtitle> doFilter(Release release, List<Subtitle> subtitles) {
+        String keywordsFile = ReleaseParser.getQualityKeyword(getReleaseName(release));
 
-        for (Subtitle subtitle : Subtitles) {
-            if (subtitle.getQuality().isEmpty()) {
-                subtitle.setQuality(ReleaseParser.getQualityKeyword(subtitle.getFileName()));
-            }
-
-            boolean checkKeywordMatch = checkKeywordSubtitleMatch(subtitle, keywordsFile);
-
-            if (checkKeywordMatch) {
-                LOGGER.debug("getSubtitlesFiltered: found KEYWORD match [{}] ", subtitle.getFileName());
-
-                subtitle.setSubtitleMatchType(SubtitleMatchType.KEYWORD);
-
-                filteredList.add(subtitle);
-            }
-        }
-        return filteredList;
+        return subtitles.stream()
+                .peek(subtitle -> {
+                    if (subtitle.getQuality().isEmpty()) {
+                        subtitle.setQuality(ReleaseParser.getQualityKeyword(subtitle.getFileName()));
+                    }
+                })
+                .filter(subtitle -> checkKeywordSubtitleMatch(subtitle, keywordsFile))
+                .peek(subtitle -> LOGGER.debug("getSubtitlesFiltered: found KEYWORD match [{}] ", subtitle.getFileName()))
+                .peek(subtitle -> subtitle.setSubtitleMatchType(SubtitleMatchType.KEYWORD))
+                .toList();
     }
 
 }

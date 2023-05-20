@@ -1,6 +1,6 @@
 package org.lodder.subtools.multisubdownloader.util;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Created by IntelliJ IDEA. User: lodder Date: 4/20/11 Time: 7:53 AM To change this template use
- * File | Settings | File Templates.
+ * Path | Settings | Path Templates.
  */
 public class Import {
 
@@ -30,28 +30,26 @@ public class Import {
         this.settingsControl = settingsControl;
     }
 
-    public void exclude(Manager manager, File file) {
+    public void exclude(Manager manager, Path file) {
         doImport(manager, ImportListType.EXCLUDE, file);
     }
 
-    public void preferences(Manager manager, File file) {
+    public void preferences(Manager manager, Path file) {
         doImport(manager, ImportListType.PREFERENCES, file);
     }
 
-    public void doImport(Manager manager, ImportListType listType, File file) {
+    public void doImport(Manager manager, ImportListType listType, Path file) {
         try {
             if (listType == ImportListType.PREFERENCES) {
                 settingsControl.importPreferences(file);
-            } else if (listType == ImportListType.EXCLUDE && settingsControl.getSettings().getExcludeList().size() == 0) {
+            } else if (listType == ImportListType.EXCLUDE && settingsControl.getSettings().getExcludeList().isEmpty()) {
                 settingsControl.getSettings().setExcludeList(XMLExclude.read(file));
             } else {
                 final int response = JOptionPane.showConfirmDialog(frame,
                         "Do you want to add the imported list to the existing list?", "Confirm",
                         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-                if (response == JOptionPane.YES_OPTION) {
-                    if (listType == ImportListType.EXCLUDE) {
-                        settingsControl.getSettings().getExcludeList().addAll(XMLExclude.read(file));
-                    }
+                if (response == JOptionPane.YES_OPTION && listType == ImportListType.EXCLUDE) {
+                    settingsControl.getSettings().getExcludeList().addAll(XMLExclude.read(file));
                 }
             }
         } catch (final Throwable e) {

@@ -1,12 +1,11 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.Serial;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -17,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.dialog.StructureBuilderDialog;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
+import org.lodder.subtools.multisubdownloader.gui.extra.MyComboBox;
 import org.lodder.subtools.multisubdownloader.gui.extra.PartialDisableComboBox;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
@@ -30,19 +30,22 @@ import org.slf4j.LoggerFactory;
 import java.awt.Component;
 import java.awt.HeadlessException;
 
+import lombok.experimental.ExtensionMethod;
 import net.miginfocom.swing.MigLayout;
 
+@ExtensionMethod({ Files.class })
 public abstract class VideoLibraryPanel extends JPanel {
 
+    @Serial
     private static final long serialVersionUID = -9175813173306481849L;
     private LibrarySettings libSettings;
     protected StructureFolderPanel pnlStructureFolder;
     protected StructureFilePanel pnlStructureFile;
     private final VideoType videoType;
-    private JComboBox<LibraryActionType> cbxLibraryAction;
+    private MyComboBox<LibraryActionType> cbxLibraryAction;
     private JCheckBox chkReplaceWindowsChar;
     private JCheckBox chkUseTVDBNaming;
-    private PartialDisableComboBox cbxLibraryOtherFileAction;
+    private PartialDisableComboBox<LibraryOtherFileActionType> cbxLibraryOtherFileAction;
     private SubtitleBackupPanel pnlBackup;
     private final Manager manager;
     private final Boolean renameMode;
@@ -61,54 +64,44 @@ public abstract class VideoLibraryPanel extends JPanel {
         // repaint();
     }
 
-    private void checkPosibleOtherFileActions() {
-        LibraryActionType libraryActionType = (LibraryActionType) cbxLibraryAction.getSelectedItem();
-        if (libraryActionType != null) {
-            for (int i = 0; i < cbxLibraryOtherFileAction.getModel().getSize(); i++) {
-                LibraryOtherFileActionType ofa =
-                        (LibraryOtherFileActionType) cbxLibraryOtherFileAction.getItemAt(i);
-                if (LibraryActionType.MOVE.equals(libraryActionType)) {
-                    cbxLibraryOtherFileAction.setItemEnabled(i, !LibraryOtherFileActionType.MOVEANDRENAME.equals(ofa)
-                            && !LibraryOtherFileActionType.RENAME.equals(ofa));
-                } else if (LibraryActionType.RENAME.equals(libraryActionType)) {
-                    cbxLibraryOtherFileAction.setItemEnabled(i, !LibraryOtherFileActionType.MOVEANDRENAME.equals(ofa)
-                            && !LibraryOtherFileActionType.MOVE.equals(ofa));
-                } else if (LibraryActionType.MOVEANDRENAME.equals(libraryActionType)) {
-                    // no disable needed
-                    cbxLibraryOtherFileAction.setItemEnabled(i, true);
-                } else {
-                    cbxLibraryOtherFileAction.setItemEnabled(i, LibraryOtherFileActionType.NOTHING.equals(ofa));
-                }
-            }
+    private void checkPossibleOtherFileActions() {
+        LibraryActionType libraryActionType = cbxLibraryAction.getSelectedItem();
+        for (int i = 0; i < cbxLibraryOtherFileAction.getModel().getSize(); i++) {
+            LibraryOtherFileActionType ofa = cbxLibraryOtherFileAction.getItemAt(i);
+            boolean enabled = switch (libraryActionType) {
+                case MOVE -> LibraryOtherFileActionType.MOVEANDRENAME != ofa && LibraryOtherFileActionType.RENAME != ofa;
+                case RENAME -> LibraryOtherFileActionType.MOVEANDRENAME != ofa && LibraryOtherFileActionType.MOVE != ofa;
+                case MOVEANDRENAME -> true;
+                case NOTHING -> LibraryOtherFileActionType.NOTHING == ofa;
+            };
+            cbxLibraryOtherFileAction.setItemEnabled(i, enabled);
         }
     }
 
     private void checkEnableStatusPanel() {
-        LibraryActionType libraryActionType = (LibraryActionType) cbxLibraryAction.getSelectedItem();
-        if (libraryActionType != null) {
-            if (LibraryActionType.MOVE.equals(libraryActionType)) {
-                checkEnableStatus(pnlStructureFile, false);
-                checkEnableStatus(pnlStructureFolder, true);
-            } else if (LibraryActionType.RENAME.equals(libraryActionType)) {
-                checkEnableStatus(pnlStructureFile, true);
-                checkEnableStatus(pnlStructureFolder, false);
-            } else if (LibraryActionType.MOVEANDRENAME.equals(libraryActionType)) {
-                checkEnableStatus(pnlStructureFile, true);
-                checkEnableStatus(pnlStructureFolder, true);
-            } else {
-                checkEnableStatus(pnlStructureFile, false);
-                checkEnableStatus(pnlStructureFolder, false);
-            }
-        }
+        LibraryActionType libraryActionType = cbxLibraryAction.getSelectedItem();
+        boolean pnlStructureFileVisible = switch (libraryActionType) {
+            case MOVE -> false;
+            case RENAME -> true;
+            case MOVEANDRENAME -> true;
+            case NOTHING -> false;
+        };
+        boolean pnlStructureFolderVisible = switch (libraryActionType) {
+            case MOVE -> true;
+            case RENAME -> false;
+            case MOVEANDRENAME -> true;
+            case NOTHING -> false;
+        };
+        checkEnableStatus(pnlStructureFile, pnlStructureFileVisible);
+        checkEnableStatus(pnlStructureFolder, pnlStructureFolderVisible);
     }
 
     private void checkEnableStatus(JPanel panel, boolean status) {
         for (Component c : panel.getComponents()) {
             if (!(VideoType.MOVIE == videoType && c.equals(chkUseTVDBNaming))) {
-                if (c instanceof JTextField textField && textField.getText().isEmpty()
-                        && VideoType.MOVIE == videoType && !textField.equals(pnlStructureFolder.getStructure())
-                        && !textField.equals(pnlStructureFile.getTxtDefaultNlText())
-                        && !textField.equals(pnlStructureFile.getTxtDefaultEnText())) {
+                if (c instanceof JTextField textField && textField.getText().isEmpty() && VideoType.MOVIE == videoType &&
+                        !textField.equals(pnlStructureFolder.getStructure()) && !textField.equals(pnlStructureFile.getTxtDefaultNlText()) &&
+                        !textField.equals(pnlStructureFile.getTxtDefaultEnText())) {
                     c.setVisible(false);
                 } else if (c instanceof JButton && c.equals(pnlStructureFile.getBtnBuildStructure()) && VideoType.MOVIE == videoType) {
                     c.setVisible(false);
@@ -123,20 +116,20 @@ public abstract class VideoLibraryPanel extends JPanel {
     }
 
     public boolean isValidPanelValues() {
-        LibraryActionType libraryActionType = (LibraryActionType) cbxLibraryAction.getSelectedItem();
-        if (libraryActionType != null &&
-                (LibraryActionType.MOVEANDRENAME.equals(libraryActionType) || LibraryActionType.MOVE.equals(libraryActionType))) {
+        LibraryActionType libraryActionType = cbxLibraryAction.getSelectedItem();
+        if (LibraryActionType.MOVEANDRENAME == libraryActionType || LibraryActionType.MOVE == libraryActionType) {
             if (!pnlStructureFolder.getLibraryFolder().isEmpty()) {
-                File f = new File(pnlStructureFolder.getLibraryFolder());
+                Path f = Path.of(pnlStructureFolder.getLibraryFolder());
                 try {
-                    if (!f.getCanonicalFile().isDirectory()) {
-                        String message = Messages.getString("PreferenceDialog.ErrorInvalidPath", "'%s - %s'"
-                                .formatted(Messages.getString("PreferenceDialog.MoveToLibrary"), Messages.getString("PreferenceDialog.Location")));
+                    if (!f.toAbsolutePath().isDirectory()) {
+                        String message = Messages.getString("PreferenceDialog.ErrorInvalidPath",
+                                "'%s - %s'".formatted(Messages.getString("PreferenceDialog.MoveToLibrary"),
+                                        Messages.getString("PreferenceDialog.Location")));
                         JOptionPane.showConfirmDialog(this, message, "MultiSubDownloader", JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
                         LOGGER.debug("isValidPanelValues: " + message);
                         return false;
                     }
-                } catch (HeadlessException | IOException e) {
+                } catch (HeadlessException e) {
                     LOGGER.error(e.getMessage(), e);
                 }
             }
@@ -149,8 +142,8 @@ public abstract class VideoLibraryPanel extends JPanel {
 
         if (!renameMode) {
             pnlBackup.setBackupSubtitleSelected(libSettings.isLibraryBackupSubtitle());
-            pnlBackup.setBackupSubtitlePath(
-                    libSettings.getLibraryBackupSubtitlePath() == null ? null : libSettings.getLibraryBackupSubtitlePath().getAbsolutePath());
+            pnlBackup.setBackupSubtitlePath(libSettings.getLibraryBackupSubtitlePath() == null ? null
+                    : libSettings.getLibraryBackupSubtitlePath().toAbsolutePath().toString());
             pnlBackup.setBackupUseWebsiteFilenameSelected(libSettings.isLibraryBackupUseWebsiteFileName());
         }
         this.cbxLibraryAction.setSelectedItem(libSettings.getLibraryAction());
@@ -159,7 +152,8 @@ public abstract class VideoLibraryPanel extends JPanel {
         this.cbxLibraryOtherFileAction.setSelectedItem(libSettings.getLibraryOtherFileAction());
 
         if (libSettings.getLibraryFolder() != null) {
-            pnlStructureFolder.setLibraryFolder(libSettings.getLibraryFolder() == null ? null : libSettings.getLibraryFolder().getAbsolutePath());
+            pnlStructureFolder.setLibraryFolder(
+                    libSettings.getLibraryFolder() == null ? null : libSettings.getLibraryFolder().toAbsolutePath().toString());
         }
         pnlStructureFolder.getStructure().setText(libSettings.getLibraryFolderStructure());
         pnlStructureFolder.setRemoveEmptyFolderSelected(libSettings.isLibraryRemoveEmptyFolders());
@@ -174,23 +168,23 @@ public abstract class VideoLibraryPanel extends JPanel {
         pnlStructureFile.getTxtDefaultNlText().setText(libSettings.getDefaultNlText());
 
         checkEnableStatusPanel();
-        checkPosibleOtherFileActions();
+        checkPossibleOtherFileActions();
     }
 
     public LibrarySettings getLibrarySettings() {
         if (!renameMode) {
             this.libSettings.setLibraryBackupSubtitle(pnlBackup.isBackupSubtitleSelected());
             this.libSettings.setLibraryBackupSubtitlePath(
-                    StringUtils.isBlank(pnlBackup.getBackupSubtitlePath()) ? null : new File(pnlBackup.getBackupSubtitlePath()));
+                    StringUtils.isBlank(pnlBackup.getBackupSubtitlePath()) ? null : Path.of(pnlBackup.getBackupSubtitlePath()));
             this.libSettings.setLibraryBackupUseWebsiteFileName(pnlBackup.isBackupUseWebsiteFilenameSelected());
         }
-        this.libSettings.setLibraryAction((LibraryActionType) this.cbxLibraryAction.getSelectedItem());
+        this.libSettings.setLibraryAction(this.cbxLibraryAction.getSelectedItem());
         this.libSettings.setLibraryUseTVDBNaming(this.chkUseTVDBNaming.isSelected());
         this.libSettings.setLibraryReplaceChars(this.chkReplaceWindowsChar.isSelected());
         this.libSettings.setLibraryOtherFileAction((LibraryOtherFileActionType) this.cbxLibraryOtherFileAction.getSelectedItem());
 
         this.libSettings.setLibraryFolder(
-                StringUtils.isBlank(pnlStructureFolder.getLibraryFolder()) ? null : new File(pnlStructureFolder.getLibraryFolder()));
+                StringUtils.isBlank(pnlStructureFolder.getLibraryFolder()) ? null : Path.of(pnlStructureFolder.getLibraryFolder()));
         this.libSettings.setLibraryFolderStructure(pnlStructureFolder.getStructure().getText());
         this.libSettings.setLibraryRemoveEmptyFolders(pnlStructureFolder.isRemoveEmptyFolderSelected());
 
@@ -223,11 +217,11 @@ public abstract class VideoLibraryPanel extends JPanel {
 
         add(new JLabel(Messages.getString("PreferenceDialog.PerformActions")), "cell 0 2,alignx left");
 
-        cbxLibraryAction = new JComboBox<>();
-        cbxLibraryAction.setModel(new DefaultComboBoxModel<>(LibraryActionType.values()));
+        cbxLibraryAction = new MyComboBox<>(LibraryActionType.values())
+                .withToMessageStringRenderer(LibraryActionType::getMsgCode);
         cbxLibraryAction.addItemListener(arg0 -> {
             checkEnableStatusPanel();
-            checkPosibleOtherFileActions();
+            checkPossibleOtherFileActions();
             if (!cbxLibraryOtherFileAction.isItemEnabled(cbxLibraryOtherFileAction.getSelectedIndex())) {
                 cbxLibraryOtherFileAction.setSelectedIndex(0);
             }
@@ -238,14 +232,14 @@ public abstract class VideoLibraryPanel extends JPanel {
         add(chkReplaceWindowsChar, "cell 0 3 2 1");
 
         chkUseTVDBNaming = new JCheckBox(Messages.getString("PreferenceDialog.UseTvdbName"));
-        if (VideoType.MOVIE.equals(videoType)) {
+        if (VideoType.MOVIE == videoType) {
             chkUseTVDBNaming.setVisible(false);
         }
         add(chkUseTVDBNaming, "cell 0 4 2 1");
 
         add(new JLabel(Messages.getString("PreferenceDialog.ActionForOtherFiles")), "cell 0 5,alignx trailing");
 
-        cbxLibraryOtherFileAction = new PartialDisableComboBox(LibraryOtherFileActionType.values());
+        cbxLibraryOtherFileAction = new PartialDisableComboBox<>(LibraryOtherFileActionType.values());
         add(cbxLibraryOtherFileAction, "cell 1 5,growx");
 
         createStructureFolderPanel();
@@ -260,7 +254,7 @@ public abstract class VideoLibraryPanel extends JPanel {
 
         pnlBackup.setBrowseBackupAction(arg0 -> MemoryFolderChooser.getInstance()
                 .selectDirectory(VideoLibraryPanel.this.getRootPane(), Messages.getString("PreferenceDialog.SubtitleBackupFolder"))
-                .map(File::getAbsolutePath).ifPresent(pnlBackup::setBackupSubtitlePath));
+                .map(Path::toAbsolutePath).map(Path::toString).ifPresent(pnlBackup::setBackupSubtitlePath));
     }
 
     private void createStructureFolderPanel() {
@@ -268,11 +262,13 @@ public abstract class VideoLibraryPanel extends JPanel {
 
         pnlStructureFolder.setBrowseAction(arg0 -> MemoryFolderChooser.getInstance()
                 .selectDirectory(VideoLibraryPanel.this.getRootPane(), Messages.getString("PreferenceDialog.LibraryFolder"))
-                .map(File::getAbsolutePath).ifPresent(pnlStructureFolder::setLibraryFolder));
+                .map(Path::toAbsolutePath)
+                .map(Path::toString).ifPresent(pnlStructureFolder::setLibraryFolder));
 
         pnlStructureFolder.setBuildStructureAction(arg0 -> {
-            final StructureBuilderDialog sDialog = new StructureBuilderDialog(null, Messages.getString("PreferenceDialog.StructureBuilderTitle"),
-                    true, videoType, StructureBuilderDialog.StructureType.FOLDER, getLibrarySettings(), manager, userInteractionHandler);
+            final StructureBuilderDialog sDialog =
+                    new StructureBuilderDialog(null, Messages.getString("PreferenceDialog.StructureBuilderTitle"), true, videoType,
+                            StructureBuilderDialog.StructureType.FOLDER, getLibrarySettings(), manager, userInteractionHandler);
             String value = sDialog.showDialog(pnlStructureFolder.getStructure().getText());
             if (!"".equals(value)) {
                 pnlStructureFolder.getStructure().setText(value);
@@ -284,8 +280,9 @@ public abstract class VideoLibraryPanel extends JPanel {
         pnlStructureFile = new StructureFilePanel();
 
         pnlStructureFile.setBuildStructureAction(arg0 -> {
-            final StructureBuilderDialog sDialog = new StructureBuilderDialog(null, Messages.getString("PreferenceDialog.StructureBuilderTitle"),
-                    true, videoType, StructureBuilderDialog.StructureType.FILE, getLibrarySettings(), manager, userInteractionHandler);
+            final StructureBuilderDialog sDialog =
+                    new StructureBuilderDialog(null, Messages.getString("PreferenceDialog.StructureBuilderTitle"), true, videoType,
+                            StructureBuilderDialog.StructureType.FILE, getLibrarySettings(), manager, userInteractionHandler);
             String value = sDialog.showDialog(pnlStructureFile.getFileStructure());
             if (!value.isEmpty()) {
                 pnlStructureFile.setFileStructure(value);

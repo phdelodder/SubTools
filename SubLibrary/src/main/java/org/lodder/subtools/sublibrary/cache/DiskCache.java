@@ -1,7 +1,8 @@
 package org.lodder.subtools.sublibrary.cache;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -19,7 +20,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.plexus.util.FileUtils;
+import org.lodder.subtools.sublibrary.util.FileUtils;
 import org.lodder.subtools.sublibrary.util.lazy.LazyBiFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 
+import lombok.experimental.ExtensionMethod;
+
+@ExtensionMethod({ Files.class })
 public abstract class DiskCache<K, V> extends Cache<K, V> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiskCache.class);
@@ -38,13 +42,17 @@ public abstract class DiskCache<K, V> extends Cache<K, V> {
     private final LazyBiFunction<DiskCache<K, V>, String, Connection> connection = new LazyBiFunction<>((cache, tableName) -> {
         try {
             synchronized (cache.getCacheMap()) {
-                File path = new File(System.getProperty("user.home"), ".MultiSubDownloader");
-                if (!path.exists() && !path.mkdir()) {
-                    throw new RuntimeException("Could not create folder " + path);
+                Path path = Path.of(System.getProperty("user.home")).resolve(".MultiSubDownloader");
+                if (!path.exists()) {
+                    try {
+                        Files.createDirectory(path);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Could not create folder " + path, e);
+                    }
                 }
                 Class.forName("org.hsqldb.jdbcDriver");
                 Connection connection = DriverManager.getConnection(
-                        "jdbc:hsqldb:file:" + path.toString() + "/diskcache.hsqldb;hsqldb.write_delay=false;shutdown=true", "user", "pass");
+                        "jdbc:hsqldb:file:" + path + "/diskcache.hsqldb;hsqldb.write_delay=false;shutdown=true", "user", "pass");
 
                 try (Statement stmt = connection.createStatement()) {
                     stmt.execute("create table IF NOT EXISTS %s (key %s, cacheobject %s);".formatted(tableName,
@@ -83,12 +91,12 @@ public abstract class DiskCache<K, V> extends Cache<K, V> {
                     LOGGER.error("Deleting cache file to fix errors");
                     connection.close();
                     try {
-                        FileUtils.deleteDirectory(path);
+                        FileUtils.delete(path);
                     } catch (IOException e) {
                         LOGGER.error("Error while deleting the cache file, please delete it yourself: %s (%s)".formatted(path, e.getMessage()), e);
                     }
                     connection = DriverManager.getConnection(
-                            "jdbc:hsqldb:file:" + path.toString() + "/diskcache.hsqldb;hsqldb.write_delay=false;shutdown=true", "user", "pass");
+                            "jdbc:hsqldb:file:" + path + "/diskcache.hsqldb;hsqldb.write_delay=false;shutdown=true", "user", "pass");
                 }
                 return connection;
             }
@@ -110,9 +118,6 @@ public abstract class DiskCache<K, V> extends Cache<K, V> {
 
     protected DiskCache(Long timeToLiveSeconds, Integer maxItems, String username, String password, String tableName) {
         super(maxItems);
-        if (timeToLiveSeconds != null && timeToLiveSeconds < 1) {
-            throw new IllegalStateException("maxItems should be a positive number");
-        }
         if (timeToLiveSeconds != null && timeToLiveSeconds < 1) {
             throw new IllegalStateException("timeToLive should be a positive number");
         }
@@ -189,7 +194,7 @@ public abstract class DiskCache<K, V> extends Cache<K, V> {
         }
     }
 
-    private final void putFromMemoryCache(K key) {
+    private void putFromMemoryCache(K key) {
         synchronized (LOCK) {
             try (PreparedStatement prep = getConnection().prepareCall("INSERT INTO %s (key,cacheobject) VALUES (?,?)".formatted(tableName))) {
                 prep.clearParameters();

@@ -1,6 +1,10 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
+import java.io.Serial;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.IntStream;
 
 import javax.swing.JComboBox;
 import javax.swing.JList;
@@ -12,17 +16,17 @@ import java.awt.Component;
  *
  * @author http://vetruvet.blogspot.com/2011/03/jcombobox-with-disabled-items.html
  */
-public class PartialDisableComboBox extends JComboBox<Object> {
+public class PartialDisableComboBox<T> extends JComboBox<T> {
+    @Serial
     private static final long serialVersionUID = -1690671707274328126L;
 
-    private final ArrayList<Boolean> itemsState = new ArrayList<>();
+    private final List<Boolean> itemsState = new ArrayList<>();
 
-    public PartialDisableComboBox(Object[] items) {
+    public PartialDisableComboBox(T[] items) {
         super();
-        for (Object o : items) {
-            addItem(o);
-        }
+        Arrays.stream(items).forEach(this::addItem);
         this.setRenderer(new BasicComboBoxRenderer() {
+            @Serial
             private static final long serialVersionUID = -2774241371293899669L;
 
             @SuppressWarnings("rawtypes")
@@ -38,21 +42,21 @@ public class PartialDisableComboBox extends JComboBox<Object> {
     }
 
     @Override
-    public void addItem(Object item) {
+    public void addItem(T item) {
         this.addItem(item, true);
     }
 
-    public void addItem(Object item, boolean enabled) {
+    public void addItem(T item, boolean enabled) {
         super.addItem(item);
         itemsState.add(enabled);
     }
 
     @Override
-    public void insertItemAt(Object item, int index) {
+    public void insertItemAt(T item, int index) {
         this.insertItemAt(item, index, true);
     }
 
-    public void insertItemAt(Object item, int index, boolean enabled) {
+    public void insertItemAt(T item, int index, boolean enabled) {
         super.insertItemAt(item, index);
         itemsState.add(index, enabled);
     }
@@ -74,11 +78,7 @@ public class PartialDisableComboBox extends JComboBox<Object> {
 
     @Override
     public void removeItem(Object item) {
-        for (int q = 0; q < this.getItemCount(); q++) {
-            if (this.getItemAt(q) == item) {
-                itemsState.remove(q);
-            }
-        }
+        IntStream.range(0, this.getItemCount()).filter(i -> this.getItemAt(i) == item).forEach(itemsState::remove);
         super.removeItem(item);
     }
 

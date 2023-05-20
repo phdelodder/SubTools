@@ -11,6 +11,7 @@ import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.sublibrary.util.JComponentExtension;
 
 import java.awt.event.ActionListener;
+import java.io.Serial;
 
 import lombok.experimental.ExtensionMethod;
 import net.miginfocom.swing.MigLayout;
@@ -18,9 +19,10 @@ import net.miginfocom.swing.MigLayout;
 @ExtensionMethod(JComponentExtension.class)
 public class SubtitleBackupPanel extends JPanel {
 
+    @Serial
     private static final long serialVersionUID = -1498846730946617177L;
     private JCheckBox chkBackupSubtitle;
-    private JLabel lblBackupLocatie;
+    private JLabel lblBackupLocation;
     private JTextField txtBackupSubtitlePath;
     private JButton btnBrowseBackup;
     private JCheckBox chkBackupUseSourceFileName;
@@ -37,7 +39,7 @@ public class SubtitleBackupPanel extends JPanel {
 
     private void createComponents() {
         chkBackupSubtitle = new JCheckBox(Messages.getString("PreferenceDialog.BackupSubtitles"));
-        lblBackupLocatie = new JLabel(Messages.getString("PreferenceDialog.Location"));
+        lblBackupLocation = new JLabel(Messages.getString("PreferenceDialog.Location"));
         txtBackupSubtitlePath = new JTextField();
         txtBackupSubtitlePath.setColumns(10);
         txtBackupSubtitlePath.setEnabled(false);
@@ -63,7 +65,7 @@ public class SubtitleBackupPanel extends JPanel {
         add(lblTitle, "cell 0 0 5 1,gapy 5");
         add(new JSeparator(), "cell 0 0 5 1,growx,gapy 5");
         add(chkBackupSubtitle, "cell 1 1 4 1");
-        add(lblBackupLocatie, "cell 1 2,alignx left");
+        add(lblBackupLocation, "cell 1 2,alignx left");
         add(txtBackupSubtitlePath, "cell 2 2 2 1,growx");
         add(btnBrowseBackup, "cell 4 2,alignx center");
         add(chkBackupUseSourceFileName, "cell 1 3 4 1");

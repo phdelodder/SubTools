@@ -5,12 +5,14 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
 import java.awt.Component;
+import java.io.Serial;
 
 public class MyComboBoxRenderer extends JComboBox<String> implements TableCellRenderer {
 
     /**
      * http://www.exampledepot.com/egs/javax.swing.table/ComboBox.html
      */
+    @Serial
     private static final long serialVersionUID = 5172245903060639082L;
 
     public MyComboBoxRenderer(String[] items) {

@@ -1,10 +1,12 @@
 package org.lodder.subtools.sublibrary.util.http;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.net.HttpURLConnection;
 
 public class HttpClientException extends Exception {
 
+    @Serial
     private static final long serialVersionUID = 5583416046207372599L;
     private int responseCode = -1;
     private String responseMessage = "";
@@ -44,7 +46,7 @@ public class HttpClientException extends Exception {
                 this.responseCode = connection.getResponseCode();
                 this.responseMessage = connection.getResponseMessage();
             } catch (IOException e) {
-                // let's keep this quite!
+                // let's keep this quiet!
             }
         }
     }

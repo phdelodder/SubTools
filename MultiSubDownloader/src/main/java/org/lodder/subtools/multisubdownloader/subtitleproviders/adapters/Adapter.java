@@ -2,9 +2,10 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.adapters;
 
 import static org.lodder.subtools.sublibrary.util.OptionalExtension.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -33,12 +34,15 @@ import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.experimental.ExtensionMethod;
+
 /**
  *
  * @param <T> type of the subtitle objects returned by the api
  * @param <S> type of the ProviderSerieId
  * @param <X> type of the exception thrown by the api
  */
+@ExtensionMethod({ Files.class })
 public interface Adapter<T, S extends ProviderSerieId, X extends Exception> extends SubtitleProvider {
     Logger LOGGER = LoggerFactory.getLogger(Adapter.class);
 
@@ -52,10 +56,10 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
     default Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language) {
         Set<T> subtitles = new HashSet<>();
         if (StringUtils.isNotBlank(movieRelease.getFileName())) {
-            File file = new File(movieRelease.getPath(), movieRelease.getFileName());
+            Path file = movieRelease.getPath().resolve(movieRelease.getFileName());
             if (file.exists()) {
                 try {
-                    searchMovieSubtitlesWithHash(OpenSubtitlesHasher.computeHash(file), language).forEach(subtitles::add);
+                    subtitles.addAll(searchMovieSubtitlesWithHash(OpenSubtitlesHasher.computeHash(file), language));
                 } catch (IOException e) {
                     LOGGER.error("Error calculating file hash", e);
                 } catch (Exception e) {
@@ -66,7 +70,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
         }
         movieRelease.getImdbId().ifPresent(imdbId -> {
             try {
-                searchMovieSubtitlesWithId(imdbId, language).forEach(subtitles::add);
+                subtitles.addAll(searchMovieSubtitlesWithId(imdbId, language));
             } catch (Exception e) {
                 LOGGER.error("API %s searchSubtitles using imdbid [%s] for movie [%s] (%s)".formatted(getSubtitleSource().getName(),
                         imdbId, movieRelease.getName(), e.getMessage()), e);
@@ -74,10 +78,10 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
         });
         if (subtitles.isEmpty()) {
             try {
-                searchMovieSubtitlesWithName(movieRelease.getName(), movieRelease.getYear(), language).forEach(subtitles::add);
+                subtitles.addAll(searchMovieSubtitlesWithName(movieRelease.getName(), movieRelease.getYear(), language));
             } catch (Exception e) {
                 LOGGER.error("API %s searchSubtitles using title for movie [%s] (%s)".formatted(getSubtitleSource().getName(),
-                        movieRelease.getName(), movieRelease.getName(), e.getMessage()), e);
+                        movieRelease.getName(), e.getMessage()), e);
             }
         }
         return convertToSubtitles(movieRelease, subtitles, language);
@@ -96,7 +100,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
         try {
             return convertToSubtitles(tvRelease, searchSerieSubtitles(tvRelease, language), language);
         } catch (Exception e) {
-            String displayName = StringUtils.isNotBlank(tvRelease.getOriginalName()) ? tvRelease.getOriginalName() : tvRelease.getName();
+            String displayName = StringUtils.defaultIfBlank(tvRelease.getOriginalName(), tvRelease.getName());
             LOGGER.error("API %s searchSubtitles for serie [%s] (%s)".formatted(getSubtitleSource().getName(),
                     TvRelease.formatName(displayName, tvRelease.getSeason(), tvRelease.getFirstEpisodeNumber()), e.getMessage()), e);
             return Set.of();
@@ -152,7 +156,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
                 .cacheType(CacheType.DISK)
                 .key("%s-serieName-name:%s-%s".formatted(getProviderName(), serieName.toLowerCase(), seasonToUse));
 
-        if (StringUtils.equals(serieNameToSearchFor, displayName) && serieNameValueBuilder.isPresent()) {
+        if (StringUtils.equals(serieNameToSearchFor, serieName) && serieNameValueBuilder.isPresent()) {
             boolean returnValue;
             Optional<SerieMapping> value;
             if (serieNameValueBuilder.isTemporaryObject()) {
@@ -197,7 +201,7 @@ public interface Adapter<T, S extends ProviderSerieId, X extends Exception> exte
             Optional<S> uriForSerie;
             // Check if the previous results were the same for the service. If so, don't ask the user to select again
             if (previousResultsPresent
-                    && previousResultsValueBuilder.returnType((Class<List<S>>) null, (Class<S>) null).getCollection().equals(providerSerieIds)) {
+                    && previousResultsValueBuilder.returnType((Class<List<S>>) null, null).getCollection().equals(providerSerieIds)) {
                 uriForSerie = Optional.empty();
             } else {
                 // let the user select the correct provider serie id

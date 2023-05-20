@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import javax.swing.JOptionPane;
 
@@ -17,7 +18,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class OptionsPane {
 
-    public static Object LOCK = new Object();
+    public static final Object LOCK = new Object();
 
     public static <T> OptionsPaneBuilderToStringMapperIntf<T> options(Collection<T> options) {
         return OptionsPaneBuilder.options(options);
@@ -98,25 +99,22 @@ public class OptionsPane {
             return new OptionsPaneBuilder<>(options, null);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public Optional<T> prompt() {
             synchronized (LOCK) {
                 if (toStringMapper == null) {
                     T[] options;
                     if (optionsList != null) {
-                        options = (T[]) optionsList.stream().toArray(Object[]::new);
+                        options = (T[]) optionsList.toArray();
                     } else {
                         options = optionsArray;
                     }
                     return Optional.ofNullable((T) JOptionPane.showInputDialog(parent, message, title, messageType, null, options, "0"));
                 } else {
-                    ElementWrapper<T>[] options;
-                    if (optionsList != null) {
-                        options = optionsList.stream().map(option -> new ElementWrapper<>(option, toStringMapper)).toArray(ElementWrapper[]::new);
-                    } else {
-                        options = Arrays.stream(optionsArray).map(option -> new ElementWrapper<>(option, toStringMapper))
-                                .toArray(ElementWrapper[]::new);
-                    }
+                    Stream<T> optionsStream = optionsList != null ? optionsList.stream() : Arrays.stream(optionsArray);
+                    ElementWrapper<T>[] options =
+                            optionsStream.map(option -> new ElementWrapper<>(option, toStringMapper)).toArray(ElementWrapper[]::new);
                     return Optional
                             .ofNullable((ElementWrapper<T>) JOptionPane.showInputDialog(parent, message, title, messageType, null, options, "0"))
                             .map(ElementWrapper::element);
@@ -125,7 +123,7 @@ public class OptionsPane {
         }
     }
 
-    private record ElementWrapper<T> (T element, Function<T, String> toStringMapper) {
+    private record ElementWrapper<T>(T element, Function<T, String> toStringMapper) {
         @Override
         public String toString() {
             return toStringMapper.apply(element);

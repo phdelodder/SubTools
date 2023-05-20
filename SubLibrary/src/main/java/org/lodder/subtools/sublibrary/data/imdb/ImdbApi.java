@@ -7,20 +7,16 @@ import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.data.imdb.exception.ImdbException;
 import org.lodder.subtools.sublibrary.data.imdb.model.ImdbDetails;
 
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class ImdbApi {
 
     private static final String DOMAIN = "https://www.imdb.com";
-    @Getter
     private final Manager manager;
 
-    public ImdbApi(Manager manager) {
-        this.manager = manager;
-    }
-
     public Optional<ImdbDetails> getMovieDetails(int imdbId) throws ImdbException {
-        return getManager().valueBuilder()
+        return manager.valueBuilder()
                 .memoryCache()
                 .key("%s-moviedetails-%s".formatted("IMDB", imdbId))
                 .optionalSupplier(() -> {

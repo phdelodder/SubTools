@@ -1,40 +1,38 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
-import java.util.Arrays;
+import java.io.Serial;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.actions.SearchAction;
-import org.lodder.subtools.multisubdownloader.gui.LanguageWrapper;
+import org.lodder.subtools.multisubdownloader.gui.extra.MyComboBox;
 import org.lodder.subtools.sublibrary.Language;
 
 public abstract class InputPanel extends JPanel {
 
+    @Serial
     private static final long serialVersionUID = 7753220002440733463L;
     private JButton btnSearch;
-    private JComboBox<LanguageWrapper> cbxLanguage;
-    private SearchAction searchAction;
-    private final LanguageWrapper[] languageSelection = Arrays.stream(Language.values()).map(LanguageWrapper::new).toArray(LanguageWrapper[]::new);
+    private MyComboBox<Language> cbxLanguage;
 
     public InputPanel() {
         createComponents();
-        setupListeners();
     }
 
     public Language getSelectedLanguage() {
-        return ((LanguageWrapper) cbxLanguage.getSelectedItem()).getLanguage();
+        return cbxLanguage.getSelectedItem();
     }
 
     public void setSelectedlanguage(Language language) {
-        cbxLanguage.setSelectedItem(new LanguageWrapper(language));
+        cbxLanguage.setSelectedItem(language);
     }
 
-    public void setSearchAction(SearchAction searchAction) {
-        this.searchAction = searchAction;
+    public void addSearchAction(SearchAction searchAction) {
+        if (searchAction != null) {
+            btnSearch.addActionListener(event -> new Thread(searchAction).start());
+        }
     }
 
     public void enableSearchButton() {
@@ -49,26 +47,13 @@ public abstract class InputPanel extends JPanel {
         return this.btnSearch;
     }
 
-    protected JComboBox<LanguageWrapper> getLanguageCbx() {
+    protected MyComboBox<Language> getLanguageCbx() {
         return this.cbxLanguage;
     }
 
-    private void setupListeners() {
-        btnSearch.addActionListener(event -> {
-            if (searchAction == null) {
-                return;
-            }
-
-            Thread searchThread = new Thread(searchAction);
-            searchThread.start();
-
-        });
-    }
-
     private void createComponents() {
-        cbxLanguage = new JComboBox<>();
-        cbxLanguage.setModel(new DefaultComboBoxModel<>(languageSelection));
-        cbxLanguage.setSelectedIndex(0);
+        cbxLanguage = new MyComboBox<>(Language.values())
+                .withToMessageStringRenderer(Language::getMsgCode);
 
         btnSearch = new JButton(Messages.getString("InputPanel.SearchForSubtitles"));
     }

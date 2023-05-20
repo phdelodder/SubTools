@@ -1,6 +1,7 @@
 package org.lodder.subtools.multisubdownloader.lib.xml;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +20,7 @@ import lombok.experimental.ExtensionMethod;
 @ExtensionMethod({ XmlExtension.class })
 public class XMLExclude {
 
-    public static void write(List<SettingsExcludeItem> list, File f) throws Throwable {
+    public static void write(List<SettingsExcludeItem> list, Path f) throws Throwable {
         Document newDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         Element rootElement = newDoc.createElement("Exclude-Bierdopje-Scene");
         newDoc.appendChild(rootElement);
@@ -38,8 +39,8 @@ public class XMLExclude {
         XMLHelper.writeToFile(f, newDoc);
     }
 
-    public static List<SettingsExcludeItem> read(File f) throws Throwable {
-        return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(f).getElementsByTagName("excludeitem").stream()
+    public static List<SettingsExcludeItem> read(Path f) throws Throwable {
+        return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(Files.newInputStream(f)).getElementsByTagName("excludeitem").stream()
                 .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
                 .map(node -> {
                     String type = XMLHelper.getStringTagValue("type", (Element) node);

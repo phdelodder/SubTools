@@ -8,7 +8,7 @@ public interface NamedMatchResult extends MatchResult {
 
     List<String> orderedGroups();
 
-    Map<String, String> namedGroups();
+    Map<String, Integer> namedGroups();
 
     String group(String groupName);
 

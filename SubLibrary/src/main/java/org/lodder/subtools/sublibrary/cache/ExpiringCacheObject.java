@@ -1,5 +1,6 @@
 package org.lodder.subtools.sublibrary.cache;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Optional;
 import java.util.function.Function;
@@ -18,6 +19,7 @@ import lombok.ToString;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 class ExpiringCacheObject<T> implements CacheObject<T>, Serializable {
 
+    @Serial
     private static final long serialVersionUID = 3852086993086134232L;
     private static final Pattern PATTERN = Pattern.compile("created:(.*?)|lastAccessed:(.*?)|value:(.*)");
     private final long created;

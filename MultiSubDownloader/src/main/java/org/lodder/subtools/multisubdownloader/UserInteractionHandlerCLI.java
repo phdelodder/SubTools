@@ -1,8 +1,11 @@
 package org.lodder.subtools.multisubdownloader;
 
+import static org.lodder.subtools.multisubdownloader.gui.extra.table.SubtitleTableColumnName.*;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.codehaus.plexus.components.interactivity.DefaultInputHandler;
 import org.codehaus.plexus.components.interactivity.DefaultOutputHandler;
@@ -55,14 +58,8 @@ public class UserInteractionHandlerCLI extends org.lodder.subtools.sublibrary.us
     }
 
     private TableDisplayer<Subtitle> createTableDisplayer() {
-        return new TableDisplayer<>(List.of(
-                createSubtitleDisplayer(SubtitleTableColumnName.SCORE, Subtitle::getScore),
-                createSubtitleDisplayer(SubtitleTableColumnName.FILENAME, Subtitle::getFileName),
-                createSubtitleDisplayer(SubtitleTableColumnName.RELEASEGROUP, Subtitle::getReleaseGroup),
-                createSubtitleDisplayer(SubtitleTableColumnName.QUALITY, Subtitle::getQuality),
-                createSubtitleDisplayer(SubtitleTableColumnName.SOURCE, Subtitle::getSubtitleSource),
-                createSubtitleDisplayer(SubtitleTableColumnName.UPLOADER, Subtitle::getUploader),
-                createSubtitleDisplayer(SubtitleTableColumnName.HEARINGIMPAIRED, Subtitle::isHearingImpaired)));
+        return new TableDisplayer<>(Stream.of(SCORE, FILENAME, RELEASEGROUP, QUALITY, SOURCE, UPLOADER, HEARINGIMPAIRED)
+                .map(stcn -> createSubtitleDisplayer(stcn, stcn.getValueFunction())).toList());
     }
 
     @Override

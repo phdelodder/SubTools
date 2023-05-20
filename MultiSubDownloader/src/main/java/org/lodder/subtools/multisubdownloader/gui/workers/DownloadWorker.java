@@ -14,7 +14,6 @@ import org.lodder.subtools.multisubdownloader.actions.UserInteractionHandlerActi
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
-import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
@@ -27,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Created by IntelliJ IDEA. User: lodder Date: 4/12/11 Time: 8:52 AM To change this template use
- * File | Settings | File Templates.
+ * Path | Settings | Path Templates.
  */
 public class DownloadWorker extends SwingWorker<Void, String> implements Cancelable {
 
@@ -48,14 +47,16 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
 
     @Override
     protected Void doInBackground() {
-        LOGGER.trace("doInBackground: Rows to thread: {} ", table.getModel().getRowCount());
+        VideoTableModel model = (VideoTableModel) table.getModel();
+        LOGGER.trace("doInBackground: Rows to treat: {} ", model.getRowCount());
         Info.downloadOptions(settings, false);
-        final VideoTableModel model = (VideoTableModel) table.getModel();
-        int selectedCount = model.getSelectedCount(table.getColumnIdByName(SearchColumnName.SELECT));
-        int progress = 0;
-        int k = 0;
-        for (int i = 0; i < model.getRowCount(); i++) {
-            if ((Boolean) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.SELECT))) {
+
+        model.executedSynchronized(() -> {
+            List<Release> selectedShows = model.getSelectedShows();
+            int selectedCount = selectedShows.size();
+            int progress = 0;
+            int k = 0;
+            for (Release selectedShow : selectedShows) {
                 k++;
                 if (k > 0) {
                     progress = 100 * k / selectedCount;
@@ -64,24 +65,21 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
                     progress = 1;
                 }
                 setProgress(progress);
-                final Release release =
-                        (Release) model.getValueAt(i, table.getColumnIdByName(SearchColumnName.OBJECT));
-                publish(release.getFileName());
-                List<Subtitle> selection = userInteractionHandlerAction.subtitleSelection(release, true);
+                publish(selectedShow.getFileName());
+                List<Subtitle> selection = userInteractionHandlerAction.subtitleSelection(selectedShow, true);
                 try {
                     for (int j = 0; j < selection.size(); j++) {
-                        downloadAction.download(release, selection.get(j), selection.size() == 1 ? null : j + 1);
+                        downloadAction.download(selectedShow, selection.get(j), selection.size() == 1 ? null : j + 1);
                     }
                     if (!selection.isEmpty()) {
-                        model.removeRow(i);
-                        i--;
+                        model.removeShow(selectedShow);
                     }
                 } catch (IOException | ManagerException e) {
                     LOGGER.error(e.getMessage(), e);
                     showErrorMessage(e.toString());
                 }
             }
-        }
+        });
         return null;
     }
 

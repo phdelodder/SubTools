@@ -44,6 +44,10 @@
 			<artifactId>throwing-interfaces</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>name.falgout.jeffrey</groupId>
+			<artifactId>throwing-streams</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.optimaize.languagedetector</groupId>
 			<artifactId>language-detector</artifactId>
 		</dependency>
@@ -54,42 +58,6 @@
 		<dependency>
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.xmlrpc</groupId>
-			<artifactId>xmlrpc-client</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>xml-apis</groupId>
-					<artifactId>xml-apis</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>com.dropbox.core</groupId>
-			<artifactId>dropbox-core-sdk</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.github.mkolisnyk</groupId>
-			<artifactId>generex</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-collections4</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.hsqldb</groupId>
@@ -112,10 +80,12 @@
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<!-- prompter -->
 		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-interactivity-api</artifactId>
 		</dependency>
+		<!-- CLI TextTable -->
 		<dependency>
 			<groupId>com.massisframework</groupId>
 			<artifactId>j-text-utils</artifactId>
@@ -123,6 +93,26 @@
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.jodah</groupId>
+			<artifactId>typetools</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<build>
@@ -134,7 +124,6 @@
 			<plugin>
 				<groupId>org.openapitools</groupId>
 				<artifactId>openapi-generator-maven-plugin</artifactId>
-				<version>6.2.0</version>
 				<executions>
 					<execution>
 						<goals>
@@ -150,6 +139,8 @@
 							<packageName>org.opensubtitles</packageName>
 							<!--<language>java</language>-->
 							<!--<skipValidateSpec>true</skipValidateSpec>-->
+							<apisToGenerate>Authentication,Download,Subtitles</apisToGenerate>
+							<generateModelTests>false</generateModelTests>
 							<configOptions>
 								<typeMappings>integer=int,int=int</typeMappings>
 								<useSwaggerAnnotations>false</useSwaggerAnnotations>

@@ -1,27 +1,17 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.exception;
 
+import java.io.Serial;
+
 import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 
+import lombok.experimental.StandardException;
+
+@StandardException
 public class OpenSubtitlesException extends SubtitlesProviderException {
 
+    @Serial
     private static final long serialVersionUID = -9050358290926245586L;
-
-    public OpenSubtitlesException() {
-        super();
-    }
-
-    public OpenSubtitlesException(String message) {
-        super(message);
-    }
-
-    public OpenSubtitlesException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public OpenSubtitlesException(Throwable cause) {
-        super(cause);
-    }
 
     @Override
     public String getSubtitleProvider() {

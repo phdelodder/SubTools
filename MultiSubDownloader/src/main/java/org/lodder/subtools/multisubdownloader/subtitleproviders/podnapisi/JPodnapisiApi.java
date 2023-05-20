@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi;
 
+import java.io.Serial;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -23,10 +24,9 @@ import org.lodder.subtools.sublibrary.data.ProviderSerieId;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
+import org.lodder.subtools.sublibrary.util.StringUtil;
 import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 import org.lodder.subtools.sublibrary.xml.XmlExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -35,18 +35,17 @@ import lombok.experimental.ExtensionMethod;
 
 @Getter(value = AccessLevel.PRIVATE)
 @RequiredArgsConstructor
-@ExtensionMethod({ XmlExtension.class, OptionalExtension.class })
+@ExtensionMethod({ XmlExtension.class, OptionalExtension.class, StringUtil.class })
 public class JPodnapisiApi implements SubtitleApi {
 
     public static final int maxAge = 90;
-    private static final Logger LOGGER = LoggerFactory.getLogger(JPodnapisiApi.class);
     private static final String DOMAIN = "https://www.podnapisi.net";
     private final Manager manager;
     private final String userAgent;
     private LocalDateTime nextCheck;
 
     public Optional<ProviderSerieId> getPodnapisiShowName(String showName) throws PodnapisiException {
-        String url = DOMAIN + "/sl/ppodnapisi/search?sK=" + URLEncoder.encode(showName.trim().toLowerCase(), StandardCharsets.UTF_8);
+        String url = DOMAIN + "/sl/ppodnapisi/search?sK=" + showName.trim().toLowerCase().urlEncode();
         return getXml(url).selectFirst(".subtitle-entry") != null
                 ? Optional.of(new ProviderSerieId(showName, showName))
                 : Optional.empty();
@@ -136,6 +135,7 @@ public class JPodnapisiApi implements SubtitleApi {
 
     private static final Map<Language, String> PODNAPISI_LANGS = Collections
             .unmodifiableMap(new EnumMap<>(Language.class) {
+                @Serial
                 private static final long serialVersionUID = 2950169212654074275L;
 
                 {

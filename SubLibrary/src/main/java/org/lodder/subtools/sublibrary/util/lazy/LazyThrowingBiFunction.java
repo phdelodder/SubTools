@@ -13,7 +13,7 @@ public class LazyThrowingBiFunction<T, S, V, X extends Exception> {
 
 	private final Object lock = new Object();
 
-	private boolean initialized = false;
+	private volatile boolean initialized = false;
 
     public V apply(T arg1, S arg2) throws X {
 		if (!initialized) {

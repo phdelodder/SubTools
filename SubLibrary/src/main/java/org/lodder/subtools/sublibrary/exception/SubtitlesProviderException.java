@@ -1,7 +1,10 @@
 package org.lodder.subtools.sublibrary.exception;
 
+import java.io.Serial;
+
 public abstract class SubtitlesProviderException extends Exception {
 
+    @Serial
     private static final long serialVersionUID = -2959483164333075297L;
 
     public SubtitlesProviderException() {

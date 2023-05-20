@@ -67,7 +67,7 @@ public abstract class SearchAction implements Runnable, Cancelable, SearchHandle
             return;
         }
 
-        if (this.releases.size() <= 0) {
+        if (this.releases.isEmpty()) {
             this.cancel(true);
             return;
         }
@@ -79,7 +79,6 @@ public abstract class SearchAction implements Runnable, Cancelable, SearchHandle
         /* Create a new SearchManager. */
         this.searchManager =
                 SearchManager.createWithSettings(this.settings)
-                        .manager(manager)
                         /* Tell the manager which language we want */
                         .language(language)
                         /* Tell the manager where to push progressUpdates */
@@ -105,7 +104,7 @@ public abstract class SearchAction implements Runnable, Cancelable, SearchHandle
 
     protected abstract void validate() throws SearchSetupException;
 
-    protected abstract List<Release> createReleases() throws ActionException;
+    protected abstract List<Release> createReleases();
 
     protected void setStatusMessage(String message) {
         this.statusListener.onStatus(message);

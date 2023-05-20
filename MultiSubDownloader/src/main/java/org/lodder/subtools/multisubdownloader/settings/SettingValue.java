@@ -1,19 +1,16 @@
 package org.lodder.subtools.multisubdownloader.settings;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
 import java.util.stream.IntStream;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.CaseUtils;
+import org.apache.commons.lang3.function.TriFunction;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
@@ -26,21 +23,40 @@ import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpis
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateType;
 import org.lodder.subtools.sublibrary.Language;
+import org.lodder.subtools.sublibrary.util.FileUtils;
+import org.lodder.subtools.sublibrary.util.TriConsumer;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import net.jodah.typetools.TypeResolver;
+import com.google.common.base.CaseFormat;
+import com.google.common.base.Objects;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 public enum SettingValue {
 
     // SETTINGS
-    SETTINGS_VERSION(0, SettingsControl::getSettings, Settings::getSettingsVersion, Settings::setSettingsVersion),
-    LAST_OUTPUT_DIR(new File(""), File::getAbsolutePath, File::new, SettingsControl::getSettings, settings -> MemoryFolderChooser.getInstance().getMemory(), Settings::setLastOutputDir),
+    SETTINGS_VERSION(createSettingInt()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::getSettingsVersion)
+            .valueSetter(Settings::setSettingsVersion)
+            .defaultValue(0)),
+    LAST_OUTPUT_DIR(createSettingPath()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(settings -> MemoryFolderChooser.getInstance().getMemory())
+            .valueSetter(Settings::setLastOutputDir)
+            .defaultValue(Path.of(""))),
 
-    GENERAL_DEFAULT_INCOMING_FOLDER(File::getAbsolutePath, File::new, SettingsControl::getSettings, Settings::getDefaultIncomingFolders),
-    LOCAL_SUBTITLES_SOURCES_FOLDERS(File::getAbsolutePath, File::new, SettingsControl::getSettings, Settings::getLocalSourcesFolders),
-    EXCLUDE_ITEM(v -> v.getType().toString() + "//" + v.getDescription(),
-            v -> {
+    GENERAL_DEFAULT_INCOMING_FOLDER(createSettingPath()
+            .rootElementFunction(SettingsControl::getSettings)
+            .collectionGetter(Settings::getDefaultIncomingFolders)),
+    LOCAL_SUBTITLES_SOURCES_FOLDERS(createSettingPath()
+            .rootElementFunction(SettingsControl::getSettings)
+            .collectionGetter(Settings::getLocalSourcesFolders)),
+    EXCLUDE_ITEM(createSetting(SettingsExcludeItem.class)
+            .toStringMapper(v -> v.getType().toString() + "//" + v.getDescription())
+            .toObjectMapper(v -> {
                 String[] split = v.split("//", 2);
                 String description = split[1];
                 SettingsExcludeType type;
@@ -50,221 +66,405 @@ public enum SettingValue {
                     type = SettingsExcludeType.FOLDER;
                 }
                 return new SettingsExcludeItem(description, type);
-            },
-            SettingsControl::getSettings, Settings::getExcludeList),
-    DEFAULT_SELECTION_QUALITY(SettingsControl::getSettings, Settings::getOptionsDefaultSelectionQualityList),
-    DEFAULT_SELECTION_QUALITY_ENABLED(false, SettingsControl::getSettings, Settings::isOptionsDefaultSelection, Settings::setOptionsDefaultSelection),
+            })
+            .rootElementFunction(SettingsControl::getSettings)
+            .collectionGetter(Settings::getExcludeList)),
+    DEFAULT_SELECTION_QUALITY(createSettingString()
+            .rootElementFunction(SettingsControl::getSettings)
+            .collectionGetter(Settings::getOptionsDefaultSelectionQualityList)),
+    DEFAULT_SELECTION_QUALITY_ENABLED(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isOptionsDefaultSelection)
+            .valueSetter(Settings::setOptionsDefaultSelection)
+            .defaultValue(false)),
 
-    OPTIONS_LANGUAGE(Language.ENGLISH, SettingsControl::getSettings, Settings::getLanguage, Settings::setLanguage),
-    OPTIONS_ALWAYS_CONFIRM(false, SettingsControl::getSettings, Settings::isOptionsAlwaysConfirm, Settings::setOptionsAlwaysConfirm),
-    OPTIONS_CONFIRM_MAPPING(true, SettingsControl::getSettings, Settings::isOptionsConfirmProviderMapping, Settings::setOptionsConfirmProviderMapping),
-    OPTIONS_MIN_AUTOMATIC_SELECTION(false, SettingsControl::getSettings, Settings::isOptionsMinAutomaticSelection, Settings::setOptionsMinAutomaticSelection),
-    OPTIONS_MIN_AUTOMATIC_SELECTION_VALUE(0, SettingsControl::getSettings, Settings::getOptionsMinAutomaticSelectionValue, Settings::setOptionsMinAutomaticSelectionValue),
-    OPTION_SUBTITLE_EXACT_MATCH(true, SettingsControl::getSettings, Settings::isOptionSubtitleExactMatch, Settings::setOptionSubtitleExactMatch),
-    OPTION_SUBTITLE_KEYWORD_MATCH(true, SettingsControl::getSettings, Settings::isOptionSubtitleKeywordMatch, Settings::setOptionSubtitleKeywordMatch),
-    OPTION_SUBTITLE_EXCLUDE_HEARING_IMPAIRED(true, SettingsControl::getSettings, Settings::isOptionSubtitleExcludeHearingImpaired, Settings::setOptionSubtitleExcludeHearingImpaired),
-    OPTIONS_SHOW_ONLY_FOUND(true, SettingsControl::getSettings, Settings::isOptionsShowOnlyFound, Settings::setOptionsShowOnlyFound),
-    OPTIONS_STOP_ON_SEARCH_ERROR(false, SettingsControl::getSettings, Settings::isOptionsStopOnSearchError, Settings::setOptionsStopOnSearchError),
-    OPTION_RECURSIVE(false, SettingsControl::getSettings, Settings::isOptionRecursive, Settings::setOptionRecursive),
-    PROCESS_EPISODE_SOURCE(SettingsProcessEpisodeSource.TVDB, SettingsProcessEpisodeSource::toString, SettingsProcessEpisodeSource::valueOf, SettingsControl::getSettings, Settings::getProcessEpisodeSource, Settings::setProcessEpisodeSource),
-    UPDATE_CHECK_PERIOD(UpdateCheckPeriod.WEEKLY, UpdateCheckPeriod::toString, UpdateCheckPeriod::valueOf, SettingsControl::getSettings, Settings::getUpdateCheckPeriod, Settings::setUpdateCheckPeriod),
-    USE_NIGHTLY(UpdateType.STABLE, SettingsControl::getSettings, Settings::getUpdateType, Settings::setUpdateType),
-    SUBTITLE_LANGUAGE(Language.DUTCH, SettingsControl::getSettings, Settings::getSubtitleLanguage, Settings::setSubtitleLanguage),
+    OPTIONS_LANGUAGE(createSettingEnum(Language.class)
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::getLanguage)
+            .valueSetter(Settings::setLanguage)
+            .defaultValue(Language.ENGLISH)),
+    OPTIONS_ALWAYS_CONFIRM(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isOptionsAlwaysConfirm)
+            .valueSetter(Settings::setOptionsAlwaysConfirm)
+            .defaultValue(false)),
+    OPTIONS_CONFIRM_MAPPING(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isOptionsConfirmProviderMapping)
+            .valueSetter(Settings::setOptionsConfirmProviderMapping)
+            .defaultValue(true)),
+    OPTIONS_MIN_AUTOMATIC_SELECTION(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isOptionsMinAutomaticSelection)
+            .valueSetter(Settings::setOptionsMinAutomaticSelection)
+            .defaultValue(false)),
+    OPTIONS_MIN_AUTOMATIC_SELECTION_VALUE(createSettingInt()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::getOptionsMinAutomaticSelectionValue)
+            .valueSetter(Settings::setOptionsMinAutomaticSelectionValue)
+            .defaultValue(0)),
+    OPTION_SUBTITLE_EXACT_MATCH(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isOptionSubtitleExactMatch)
+            .valueSetter(Settings::setOptionSubtitleExactMatch)
+            .defaultValue(true)),
+    OPTION_SUBTITLE_KEYWORD_MATCH(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isOptionSubtitleKeywordMatch)
+            .valueSetter(Settings::setOptionSubtitleKeywordMatch)
+            .defaultValue(true)),
+    OPTION_SUBTITLE_EXCLUDE_HEARING_IMPAIRED(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isOptionSubtitleExcludeHearingImpaired)
+            .valueSetter(Settings::setOptionSubtitleExcludeHearingImpaired)
+            .defaultValue(true)),
+    OPTIONS_SHOW_ONLY_FOUND(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isOptionsShowOnlyFound)
+            .valueSetter(Settings::setOptionsShowOnlyFound)
+            .defaultValue(true)),
+    OPTIONS_STOP_ON_SEARCH_ERROR(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isOptionsStopOnSearchError)
+            .valueSetter(Settings::setOptionsStopOnSearchError)
+            .defaultValue(false)),
+    OPTION_RECURSIVE(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isOptionRecursive)
+            .valueSetter(Settings::setOptionRecursive)
+            .defaultValue(false)),
+    PROCESS_EPISODE_SOURCE(createSettingEnum(SettingsProcessEpisodeSource.class)
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::getProcessEpisodeSource)
+            .valueSetter(Settings::setProcessEpisodeSource)
+            .defaultValue(SettingsProcessEpisodeSource.TVDB)),
+    UPDATE_CHECK_PERIOD(createSettingEnum(UpdateCheckPeriod.class)
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::getUpdateCheckPeriod)
+            .valueSetter(Settings::setUpdateCheckPeriod)
+            .defaultValue(UpdateCheckPeriod.WEEKLY)),
+    USE_NIGHTLY(createSettingEnum(UpdateType.class)
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::getUpdateType)
+            .valueSetter(Settings::setUpdateType)
+            .defaultValue(UpdateType.STABLE)),
+    SUBTITLE_LANGUAGE(createSettingEnum(Language.class)
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::getSubtitleLanguage)
+            .valueSetter(Settings::setSubtitleLanguage)
+            .defaultValue(Language.DUTCH)),
 
     // SCREEN SETTINGS
-    SCREEN_HIDE_EPISODE(true, sCtr -> sCtr.getSettings().getScreenSettings(), ScreenSettings::isHideEpisode, ScreenSettings::setHideEpisode),
-    SCREEN_HIDE_FILENAME(false, sCtr -> sCtr.getSettings().getScreenSettings(), ScreenSettings::isHideFilename, ScreenSettings::setHideFilename),
-    SCREEN_HIDE_SEASON(true, sCtr -> sCtr.getSettings().getScreenSettings(), ScreenSettings::isHideSeason, ScreenSettings::setHideSeason),
-    SCREEN_HIDE_TITLE(true, sCtr -> sCtr.getSettings().getScreenSettings(), ScreenSettings::isHideTitle, ScreenSettings::setHideTitle),
-    SCREEN_HIDE_TYPE(true, sCtr -> sCtr.getSettings().getScreenSettings(), ScreenSettings::isHideType, ScreenSettings::setHideType),
-    SCREEN_HIDE_W_I_P(true, sCtr -> sCtr.getSettings().getScreenSettings(), ScreenSettings::isHideWIP, ScreenSettings::setHideWIP),
+    SCREEN_HIDE_EPISODE(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getScreenSettings())
+            .valueGetter(ScreenSettings::isHideEpisode)
+            .valueSetter(ScreenSettings::setHideEpisode)
+            .defaultValue(true)),
+    SCREEN_HIDE_FILENAME(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getScreenSettings())
+            .valueGetter(ScreenSettings::isHideFilename)
+            .valueSetter(ScreenSettings::setHideFilename)
+            .defaultValue(false)),
+    SCREEN_HIDE_SEASON(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getScreenSettings())
+            .valueGetter(ScreenSettings::isHideSeason)
+            .valueSetter(ScreenSettings::setHideSeason)
+            .defaultValue(true)),
+    SCREEN_HIDE_TITLE(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getScreenSettings())
+            .valueGetter(ScreenSettings::isHideTitle)
+            .valueSetter(ScreenSettings::setHideTitle)
+            .defaultValue(true)),
+    SCREEN_HIDE_TYPE(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getScreenSettings())
+            .valueGetter(ScreenSettings::isHideType)
+            .valueSetter(ScreenSettings::setHideType)
+            .defaultValue(true)),
+    SCREEN_HIDE_W_I_P(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getScreenSettings())
+            .valueGetter(ScreenSettings::isHideWIP)
+            .valueSetter(ScreenSettings::setHideWIP)
+            .defaultValue(true)),
 
     // PROXY SETTINGS
-    GENERAL_PROXY_ENABLED(false, SettingsControl::getSettings, Settings::isGeneralProxyEnabled, Settings::setGeneralProxyEnabled),
-    GENERAL_PROXY_HOST("", SettingsControl::getSettings, Settings::getGeneralProxyHost, Settings::setGeneralProxyHost),
-    GENERAL_PROXY_PORT(80, SettingsControl::getSettings, Settings::getGeneralProxyPort, Settings::setGeneralProxyPort),
+    GENERAL_PROXY_ENABLED(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isGeneralProxyEnabled)
+            .valueSetter(Settings::setGeneralProxyEnabled)
+            .defaultValue(false)),
+    GENERAL_PROXY_HOST(createSettingString()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::getGeneralProxyHost)
+            .valueSetter(Settings::setGeneralProxyHost)
+            .defaultValue("")),
+    GENERAL_PROXY_PORT(createSettingInt()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::getGeneralProxyPort)
+            .valueSetter(Settings::setGeneralProxyPort)
+            .defaultValue(80)),
 
     // LIBRARY SERIE
-    EPISODE_LIBRARY_BACKUP_SUBTITLE_PATH(null, File::getAbsolutePath, File::new, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryBackupSubtitlePath, LibrarySettings::setLibraryBackupSubtitlePath),
-    EPISODE_LIBRARY_BACKUP_SUBTITLE(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryBackupSubtitle, LibrarySettings::setLibraryBackupSubtitle),
-    EPISODE_LIBRARY_BACKUP_USE_WEBSITE_FILE_NAME(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryBackupUseWebsiteFileName, LibrarySettings::setLibraryBackupUseWebsiteFileName),
-    EPISODE_LIBRARY_ACTION(LibraryActionType.NOTHING, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryAction, LibrarySettings::setLibraryAction),
-    EPISODE_LIBRARY_USE_T_V_D_B_NAMING(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryUseTVDBNaming, LibrarySettings::setLibraryUseTVDBNaming),
-    EPISODE_LIBRARY_REPLACE_CHARS(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryReplaceChars, LibrarySettings::setLibraryReplaceChars),
-    EPISODE_LIBRARY_OTHER_FILE_ACTION(LibraryOtherFileActionType.NOTHING, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryOtherFileAction, LibrarySettings::setLibraryOtherFileAction),
-    EPISODE_LIBRARY_FOLDER(null, File::getAbsolutePath, File::new, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFolder, LibrarySettings::setLibraryFolder),
-    EPISODE_LIBRARY_FOLDER_STRUCTURE("%SHOW NAME%.S%SS%E%EE%.%TITLE%", sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFolderStructure, LibrarySettings::setLibraryFolderStructure),
-    EPISODE_LIBRARY_REMOVE_EMPTY_FOLDERS(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryRemoveEmptyFolders, LibrarySettings::setLibraryRemoveEmptyFolders),
-    EPISODE_LIBRARY_FILENAME_STRUCTURE("%SHOW NAME%%SEPARATOR%%Season %S%", sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFilenameStructure, LibrarySettings::setLibraryFilenameStructure),
-    EPISODE_LIBRARY_REPLACE_SPACE(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryFilenameReplaceSpace, LibrarySettings::setLibraryFilenameReplaceSpace),
-    EPISODE_LIBRARY_REPLACING_SIGN("", sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFilenameReplacingSpaceSign, LibrarySettings::setLibraryFilenameReplacingSpaceSign),
-    EPISODE_LIBRARY_FOLDER_REPLACE_SPACE(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryFolderReplaceSpace, LibrarySettings::setLibraryFolderReplaceSpace),
-    EPISODE_LIBRARY_FOLDER_REPLACING_SIGN("", sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getLibraryFolderReplacingSpaceSign, LibrarySettings::setLibraryFolderReplacingSpaceSign),
-    EPISODE_LIBRARY_INCLUDE_LANGUAGE_CODE(false, sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::isLibraryIncludeLanguageCode, LibrarySettings::setLibraryIncludeLanguageCode),
-    EPISODE_LIBRARY_DEFAULT_NL_TEXT("", sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getDefaultNlText, LibrarySettings::setDefaultNlText),
-    EPISODE_LIBRARY_DEFAULT_EN_TEXT("", sCtr -> sCtr.getSettings().getEpisodeLibrarySettings(), LibrarySettings::getDefaultEnText, LibrarySettings::setDefaultEnText),
+    EPISODE_LIBRARY_BACKUP_SUBTITLE_PATH(createSettingPath()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::getLibraryBackupSubtitlePath)
+            .valueSetter(LibrarySettings::setLibraryBackupSubtitlePath)
+            .defaultValue(null)),
+    EPISODE_LIBRARY_BACKUP_SUBTITLE(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::isLibraryBackupSubtitle)
+            .valueSetter(LibrarySettings::setLibraryBackupSubtitle)
+            .defaultValue(false)),
+    EPISODE_LIBRARY_BACKUP_USE_WEBSITE_FILE_NAME(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::isLibraryBackupUseWebsiteFileName)
+            .valueSetter(LibrarySettings::setLibraryBackupUseWebsiteFileName)
+            .defaultValue(false)),
+    EPISODE_LIBRARY_ACTION(createSettingEnum(LibraryActionType.class)
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::getLibraryAction)
+            .valueSetter(LibrarySettings::setLibraryAction)
+            .defaultValue(LibraryActionType.NOTHING)),
+    EPISODE_LIBRARY_USE_T_V_D_B_NAMING(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::isLibraryUseTVDBNaming)
+            .valueSetter(LibrarySettings::setLibraryUseTVDBNaming)
+            .defaultValue(false)),
+    EPISODE_LIBRARY_REPLACE_CHARS(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::isLibraryReplaceChars)
+            .valueSetter(LibrarySettings::setLibraryReplaceChars)
+            .defaultValue(false)),
+    EPISODE_LIBRARY_OTHER_FILE_ACTION(createSettingEnum(LibraryOtherFileActionType.class)
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::getLibraryOtherFileAction)
+            .valueSetter(LibrarySettings::setLibraryOtherFileAction)
+            .defaultValue(LibraryOtherFileActionType.NOTHING)),
+    EPISODE_LIBRARY_FOLDER(createSettingPath()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::getLibraryFolder)
+            .valueSetter(LibrarySettings::setLibraryFolder)
+            .defaultValue(null)),
+    EPISODE_LIBRARY_FOLDER_STRUCTURE(createSettingString()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::getLibraryFolderStructure)
+            .valueSetter(LibrarySettings::setLibraryFolderStructure)
+            .defaultValue("%SHOW NAME%.S%SS%E%EE%.%TITLE%")),
+    EPISODE_LIBRARY_REMOVE_EMPTY_FOLDERS(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::isLibraryRemoveEmptyFolders)
+            .valueSetter(LibrarySettings::setLibraryRemoveEmptyFolders)
+            .defaultValue(false)),
+    EPISODE_LIBRARY_FILENAME_STRUCTURE(createSettingString()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::getLibraryFilenameStructure)
+            .valueSetter(LibrarySettings::setLibraryFilenameStructure)
+            .defaultValue("%SHOW NAME%%SEPARATOR%%Season %S%")),
+    EPISODE_LIBRARY_REPLACE_SPACE(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::isLibraryFilenameReplaceSpace)
+            .valueSetter(LibrarySettings::setLibraryFilenameReplaceSpace)
+            .defaultValue(false)),
+    EPISODE_LIBRARY_REPLACING_SIGN(createSettingString()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::getLibraryFilenameReplacingSpaceSign)
+            .valueSetter(LibrarySettings::setLibraryFilenameReplacingSpaceSign)
+            .defaultValue("")),
+    EPISODE_LIBRARY_FOLDER_REPLACE_SPACE(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::isLibraryFolderReplaceSpace)
+            .valueSetter(LibrarySettings::setLibraryFolderReplaceSpace)
+            .defaultValue(false)),
+    EPISODE_LIBRARY_FOLDER_REPLACING_SIGN(createSettingString()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::getLibraryFolderReplacingSpaceSign)
+            .valueSetter(LibrarySettings::setLibraryFolderReplacingSpaceSign)
+            .defaultValue("")),
+    EPISODE_LIBRARY_INCLUDE_LANGUAGE_CODE(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::isLibraryIncludeLanguageCode)
+            .valueSetter(LibrarySettings::setLibraryIncludeLanguageCode)
+            .defaultValue(false)),
+    EPISODE_LIBRARY_DEFAULT_NL_TEXT(createSettingString()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::getDefaultNlText)
+            .valueSetter(LibrarySettings::setDefaultNlText)
+            .defaultValue("")),
+    EPISODE_LIBRARY_DEFAULT_EN_TEXT(createSettingString()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::getDefaultEnText)
+            .valueSetter(LibrarySettings::setDefaultEnText)
+            .defaultValue("")),
 
     // LIBRARY MOVIE
-    MOVIE_LIBRARY_BACKUP_SUBTITLE_PATH(null, File::getAbsolutePath, File::new, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryBackupSubtitlePath, LibrarySettings::setLibraryBackupSubtitlePath),
-    MOVIE_LIBRARY_BACKUP_SUBTITLE(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryBackupSubtitle, LibrarySettings::setLibraryBackupSubtitle),
-    MOVIE_LIBRARY_BACKUP_USE_WEBSITE_FILE_NAME(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryBackupUseWebsiteFileName, LibrarySettings::setLibraryBackupUseWebsiteFileName),
-    MOVIE_LIBRARY_ACTION(LibraryActionType.NOTHING, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryAction, LibrarySettings::setLibraryAction),
-    MOVIE_LIBRARY_USE_T_V_D_B_NAMING(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryUseTVDBNaming, LibrarySettings::setLibraryUseTVDBNaming),
-    MOVIE_LIBRARY_REPLACE_CHARS(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryReplaceChars, LibrarySettings::setLibraryReplaceChars),
-    MOVIE_LIBRARY_OTHER_FILE_ACTION(LibraryOtherFileActionType.NOTHING, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryOtherFileAction, LibrarySettings::setLibraryOtherFileAction),
-    MOVIE_LIBRARY_FOLDER(null, File::getAbsolutePath, File::new, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryFolder, LibrarySettings::setLibraryFolder),
-    MOVIE_LIBRARY_FOLDER_STRUCTURE("", sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryFolderStructure, LibrarySettings::setLibraryFolderStructure),
-    MOVIE_LIBRARY_REMOVE_EMPTY_FOLDERS(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryRemoveEmptyFolders, LibrarySettings::setLibraryRemoveEmptyFolders),
-    MOVIE_LIBRARY_FILENAME_STRUCTURE("%MOVIE TITLE% (%YEAR%)", sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryFilenameStructure, LibrarySettings::setLibraryFilenameStructure),
-    MOVIE_LIBRARY_REPLACE_SPACE(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryFilenameReplaceSpace, LibrarySettings::setLibraryFilenameReplaceSpace),
-    MOVIE_LIBRARY_REPLACING_SIGN("", sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryFilenameReplacingSpaceSign, LibrarySettings::setLibraryFilenameReplacingSpaceSign),
-    MOVIE_LIBRARY_FOLDER_REPLACE_SPACE(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryFolderReplaceSpace, LibrarySettings::setLibraryFolderReplaceSpace),
-    MOVIE_LIBRARY_FOLDER_REPLACING_SIGN("", sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getLibraryFolderReplacingSpaceSign, LibrarySettings::setLibraryFolderReplacingSpaceSign),
-    MOVIE_LIBRARY_INCLUDE_LANGUAGE_CODE(false, sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::isLibraryIncludeLanguageCode, LibrarySettings::setLibraryIncludeLanguageCode),
-    MOVIE_LIBRARY_DEFAULT_NL_TEXT("", sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getDefaultNlText, LibrarySettings::setDefaultNlText),
-    MOVIE_LIBRARY_DEFAULT_EN_TEXT("", sCtr -> sCtr.getSettings().getMovieLibrarySettings(), LibrarySettings::getDefaultEnText, LibrarySettings::setDefaultEnText),
+    MOVIE_LIBRARY_BACKUP_SUBTITLE_PATH(createSettingPath()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
+            .valueGetter(LibrarySettings::getLibraryBackupSubtitlePath)
+            .valueSetter(LibrarySettings::setLibraryBackupSubtitlePath)
+            .defaultValue(null)),
+    MOVIE_LIBRARY_BACKUP_SUBTITLE(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::isLibraryBackupSubtitle)
+            .valueSetter(LibrarySettings::setLibraryBackupSubtitle)
+            .defaultValue(false)),
+    MOVIE_LIBRARY_BACKUP_USE_WEBSITE_FILE_NAME(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::isLibraryBackupUseWebsiteFileName)
+            .valueSetter(LibrarySettings::setLibraryBackupUseWebsiteFileName)
+            .defaultValue(false)),
+    MOVIE_LIBRARY_ACTION(createSettingEnum(LibraryActionType.class)
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::getLibraryAction)
+            .valueSetter(LibrarySettings::setLibraryAction)
+            .defaultValue(LibraryActionType.NOTHING)),
+    MOVIE_LIBRARY_USE_T_V_D_B_NAMING(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::isLibraryUseTVDBNaming)
+            .valueSetter(LibrarySettings::setLibraryUseTVDBNaming)
+            .defaultValue(false)),
+    MOVIE_LIBRARY_REPLACE_CHARS(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::isLibraryReplaceChars)
+            .valueSetter(LibrarySettings::setLibraryReplaceChars)
+            .defaultValue(false)),
+    MOVIE_LIBRARY_OTHER_FILE_ACTION(createSettingEnum(LibraryOtherFileActionType.class)
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::getLibraryOtherFileAction)
+            .valueSetter(LibrarySettings::setLibraryOtherFileAction)
+            .defaultValue(LibraryOtherFileActionType.NOTHING)),
+    MOVIE_LIBRARY_FOLDER(createSettingPath()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::getLibraryFolder)
+            .valueSetter(LibrarySettings::setLibraryFolder)
+            .defaultValue(null)),
+    MOVIE_LIBRARY_FOLDER_STRUCTURE(createSettingString()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::getLibraryFolderStructure)
+            .valueSetter(LibrarySettings::setLibraryFolderStructure)
+            .defaultValue("")),
+    MOVIE_LIBRARY_REMOVE_EMPTY_FOLDERS(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::isLibraryRemoveEmptyFolders)
+            .valueSetter(LibrarySettings::setLibraryRemoveEmptyFolders)
+            .defaultValue(false)),
+    MOVIE_LIBRARY_FILENAME_STRUCTURE(createSettingString()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::getLibraryFilenameStructure)
+            .valueSetter(LibrarySettings::setLibraryFilenameStructure)
+            .defaultValue("%MOVIE TITLE% (%YEAR%)")),
+    MOVIE_LIBRARY_REPLACE_SPACE(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::isLibraryFilenameReplaceSpace)
+            .valueSetter(LibrarySettings::setLibraryFilenameReplaceSpace)
+            .defaultValue(false)),
+    MOVIE_LIBRARY_REPLACING_SIGN(createSettingString()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::getLibraryFilenameReplacingSpaceSign)
+            .valueSetter(LibrarySettings::setLibraryFilenameReplacingSpaceSign)
+            .defaultValue("")),
+    MOVIE_LIBRARY_FOLDER_REPLACE_SPACE(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::isLibraryFolderReplaceSpace)
+            .valueSetter(LibrarySettings::setLibraryFolderReplaceSpace)
+            .defaultValue(false)),
+    MOVIE_LIBRARY_FOLDER_REPLACING_SIGN(createSettingString()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::getLibraryFolderReplacingSpaceSign)
+            .valueSetter(LibrarySettings::setLibraryFolderReplacingSpaceSign)
+            .defaultValue("")),
+    MOVIE_LIBRARY_INCLUDE_LANGUAGE_CODE(createSettingBoolean()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::isLibraryIncludeLanguageCode)
+            .valueSetter(LibrarySettings::setLibraryIncludeLanguageCode)
+            .defaultValue(false)),
+    MOVIE_LIBRARY_DEFAULT_NL_TEXT(createSettingString()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::getDefaultNlText)
+            .valueSetter(LibrarySettings::setDefaultNlText)
+            .defaultValue("")),
+    MOVIE_LIBRARY_DEFAULT_EN_TEXT(createSettingString()
+            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .valueGetter(LibrarySettings::getDefaultEnText)
+            .valueSetter(LibrarySettings::setDefaultEnText)
+            .defaultValue("")),
 
     // SERIE SOURCE SETTINGS
-    LOGIN_ADDIC7ED_ENABLED(false, SettingsControl::getSettings, Settings::isLoginAddic7edEnabled, Settings::setLoginAddic7edEnabled),
-    LOGIN_ADDIC7ED_USERNAME("", SettingsControl::getSettings, Settings::getLoginAddic7edUsername, Settings::setLoginAddic7edUsername),
-    LOGIN_ADDIC7ED_PASSWORD("", SettingsControl::getSettings, Settings::getLoginAddic7edPassword, Settings::setLoginAddic7edPassword),
-    LOGIN_OPEN_SUBTITLES_ENABLED(false, SettingsControl::getSettings, Settings::isLoginOpenSubtitlesEnabled, Settings::setLoginOpenSubtitlesEnabled),
-    LOGIN_OPEN_SUBTITLES_USERNAME("", SettingsControl::getSettings, Settings::getLoginOpenSubtitlesUsername, Settings::setLoginOpenSubtitlesUsername),
-    LOGIN_OPEN_SUBTITLES_PASSWORD("", SettingsControl::getSettings, Settings::getLoginOpenSubtitlesPassword, Settings::setLoginOpenSubtitlesPassword),
-    SERIE_SOURCE_ADDIC7ED(true, SettingsControl::getSettings, Settings::isSerieSourceAddic7ed, Settings::setSerieSourceAddic7ed),
-    SERIE_SOURCE_ADDIC7ED_PROXY(true, SettingsControl::getSettings, Settings::isSerieSourceAddic7edProxy, Settings::setSerieSourceAddic7edProxy),
-    SERIE_SOURCE_LOCAL(false, SettingsControl::getSettings, Settings::isSerieSourceLocal, Settings::setSerieSourceLocal),
-    SERIE_SOURCE_OPENSUBTITLES(true, SettingsControl::getSettings, Settings::isSerieSourceOpensubtitles, Settings::setSerieSourceOpensubtitles),
-    SERIE_SOURCE_PODNAPISI(true, SettingsControl::getSettings, Settings::isSerieSourcePodnapisi, Settings::setSerieSourcePodnapisi),
-    SERIE_SOURCE_TV_SUBTITLES(true, SettingsControl::getSettings, Settings::isSerieSourceTvSubtitles, Settings::setSerieSourceTvSubtitles),
-    SERIE_SOURCE_SUBSCENE(true, SettingsControl::getSettings, Settings::isSerieSourceSubscene, Settings::setSerieSourceSubscene);
+    LOGIN_ADDIC7ED_ENABLED(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isLoginAddic7edEnabled)
+            .valueSetter(Settings::setLoginAddic7edEnabled)
+            .defaultValue(false)),
+    LOGIN_ADDIC7ED_USERNAME(createSettingString()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::getLoginAddic7edUsername)
+            .valueSetter(Settings::setLoginAddic7edUsername)
+            .defaultValue("")),
+    LOGIN_ADDIC7ED_PASSWORD(createSettingString()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::getLoginAddic7edPassword)
+            .valueSetter(Settings::setLoginAddic7edPassword)
+            .defaultValue("")),
+    LOGIN_OPEN_SUBTITLES_ENABLED(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isLoginOpenSubtitlesEnabled)
+            .valueSetter(Settings::setLoginOpenSubtitlesEnabled)
+            .defaultValue(false)),
+    LOGIN_OPEN_SUBTITLES_USERNAME(createSettingString()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::getLoginOpenSubtitlesUsername)
+            .valueSetter(Settings::setLoginOpenSubtitlesUsername)
+            .defaultValue("")),
+    LOGIN_OPEN_SUBTITLES_PASSWORD(createSettingString()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::getLoginOpenSubtitlesPassword)
+            .valueSetter(Settings::setLoginOpenSubtitlesPassword)
+            .defaultValue("")),
+    SERIE_SOURCE_ADDIC7ED(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isSerieSourceAddic7ed)
+            .valueSetter(Settings::setSerieSourceAddic7ed)
+            .defaultValue(true)),
+    SERIE_SOURCE_ADDIC7ED_PROXY(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isSerieSourceAddic7edProxy)
+            .valueSetter(Settings::setSerieSourceAddic7edProxy)
+            .defaultValue(true)),
+    SERIE_SOURCE_LOCAL(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isSerieSourceLocal)
+            .valueSetter(Settings::setSerieSourceLocal)
+            .defaultValue(false)),
+    SERIE_SOURCE_OPENSUBTITLES(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isSerieSourceOpensubtitles)
+            .valueSetter(Settings::setSerieSourceOpensubtitles)
+            .defaultValue(true)),
+    SERIE_SOURCE_PODNAPISI(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isSerieSourcePodnapisi)
+            .valueSetter(Settings::setSerieSourcePodnapisi)
+            .defaultValue(true)),
+    SERIE_SOURCE_TV_SUBTITLES(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isSerieSourceTvSubtitles)
+            .valueSetter(Settings::setSerieSourceTvSubtitles)
+            .defaultValue(true)),
+    SERIE_SOURCE_SUBSCENE(createSettingBoolean()
+            .rootElementFunction(SettingsControl::getSettings)
+            .valueGetter(Settings::isSerieSourceSubscene)
+            .valueSetter(Settings::setSerieSourceSubscene)
+            .defaultValue(true));
 
     private final BiConsumer<SettingsControl, Preferences> storeValueFunction;
     private final BiConsumer<SettingsControl, Preferences> loadValueFunction;
 
-    <T, E extends Enum<E>> SettingValue(E defaultValue, Function<SettingsControl, T> rootElementFuntion,
-            Function<T, E> valueGetter, BiConsumer<T, E> valueSetter) {
-        String key = getKey();
-        this.storeValueFunction = (settingsControl, preferences) -> {
-            E value = valueGetter.apply(rootElementFuntion.apply(settingsControl));
-            if (value != defaultValue) {
-                preferences.put(key, value.name());
-            }
-        };
-        Class<E> enumType = (Class<E>) TypeResolver.resolveRawArgument(Enum.class, defaultValue.getClass());
-        this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFuntion.apply(settingsControl),
-                Enum.valueOf(enumType, preferences.get(key, defaultValue.name())));
-    }
-
-    <T> SettingValue(boolean defaultValue, Function<SettingsControl, T> rootElementFuntion, Function<T, Boolean> valueGetter,
-            BiConsumer<T, Boolean> valueSetter) {
-        String key = getKey();
-        this.storeValueFunction = (settingsControl, preferences) -> {
-            Boolean value = valueGetter.apply(rootElementFuntion.apply(settingsControl));
-            if (value != defaultValue) {
-                preferences.putBoolean(key, value);
-            }
-        };
-        this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFuntion.apply(settingsControl),
-                preferences.getBoolean(key, defaultValue));
-    }
-
-    SettingValue(int defaultValue, Function<SettingsControl, Integer> valueGetter, BiConsumer<SettingsControl, Integer> valueSetter) {
-        this(defaultValue, Function.identity(), valueGetter, valueSetter);
-    }
-
-    <T> SettingValue(int defaultValue, Function<SettingsControl, T> rootElementFuntion, Function<T, Integer> valueGetter,
-            BiConsumer<T, Integer> valueSetter) {
-        String key = getKey();
-        this.storeValueFunction = (settingsControl, preferences) -> {
-            Integer value = valueGetter.apply(rootElementFuntion.apply(settingsControl));
-            if (value != defaultValue) {
-                preferences.putInt(key, value);
-            }
-        };
-        this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFuntion.apply(settingsControl),
-                preferences.getInt(key, defaultValue));
-    }
-
-    SettingValue(String defaultValue, Function<SettingsControl, String> valueGetter, BiConsumer<SettingsControl, String> valueSetter) {
-        this(defaultValue, Function.identity(), valueGetter, valueSetter);
-    }
-
-    <T> SettingValue(String defaultValue, Function<SettingsControl, T> rootElementFuntion, Function<T, String> valueGetter,
-            BiConsumer<T, String> valueSetter) {
-        this(defaultValue, Function.identity(), Function.identity(), rootElementFuntion, valueGetter, valueSetter, StringUtils::equals);
-    }
-
-    <T, V> SettingValue(V defaultValue, Function<V, String> toStringMapper, Function<String, V> toObjectMapper,
-            Function<SettingsControl, T> rootElementFuntion, Function<T, V> valueGetter, BiConsumer<T, V> valueSetter) {
-        this(defaultValue, toStringMapper, toObjectMapper, rootElementFuntion, valueGetter, valueSetter, Objects::equals);
-    }
-
-    <T, V> SettingValue(V defaultValue, Function<V, String> toStringMapper, Function<String, V> toObjectMapper,
-            Function<SettingsControl, T> rootElementFuntion, Function<T, V> valueGetter, BiConsumer<T, V> valueSetter,
-            BiPredicate<V, V> equalsPredicate) {
-        String key = getKey();
-        this.storeValueFunction = (settingsControl, preferences) -> {
-            V value = valueGetter.apply(rootElementFuntion.apply(settingsControl));
-            if (!equalsPredicate.test(value, defaultValue)) {
-                preferences.put(key, toStringMapper.apply(value));
-            }
-        };
-        this.loadValueFunction = (settingsControl, preferences) -> valueSetter.accept(rootElementFuntion.apply(settingsControl),
-                Optional.ofNullable(preferences.get(key, Optional.ofNullable(defaultValue).map(toStringMapper::apply).orElse(null)))
-                        .map(toObjectMapper::apply).orElse(defaultValue));
-    }
-
-    <T> SettingValue(Function<SettingsControl, T> rootElementFuntion, Function<T, Collection<String>> collectionGetter) {
-        this(Function.identity(), Function.identity(), rootElementFuntion, collectionGetter);
-    }
-
-    <T, V> SettingValue(Function<V, String> toStringMapper, Function<String, V> toObjectMapper,
-            Function<SettingsControl, T> rootElementFuntion, Function<T, Collection<V>> collectionGetter) {
-        this(toStringMapper, toObjectMapper, rootElementFuntion, (object, v) -> collectionGetter.apply(object).add(v),
-                (object, consumer) -> collectionGetter.apply(object).forEach(consumer::accept));
-    }
-
-    <T, V> SettingValue(Function<V, String> toStringMapper, Function<String, V> toObjectMapper,
-            Function<SettingsControl, T> rootElementFuntion, BiConsumer<T, V> valueAdder, BiConsumer<T, Consumer<V>> valueConsumer) {
-        String key = getKey();
-        this.storeValueFunction = (settingsControl, preferences) -> {
-            T object = rootElementFuntion.apply(settingsControl);
-            IntWrapper i = IntWrapper.of(-1);
-            valueConsumer.accept(object, value -> preferences.put(key + i.increment(), toStringMapper.apply(value)));
-            if (i.getValue() > -1) {
-                preferences.putInt(key + "Size", i.getValue() + 1);
-            }
-        };
-        this.loadValueFunction = (settingsControl, preferences) -> {
-            int numberOfItems = preferences.getInt(key + "Size", 0);
-            T object = rootElementFuntion.apply(settingsControl);
-            IntStream.range(0, numberOfItems).forEach(i -> {
-                valueAdder.accept(object, toObjectMapper.apply(preferences.get(key + i, "")));
-            });
-
-        };
-    }
-
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    private static class IntWrapper {
-        private int i;
-
-        public static IntWrapper of(int i) {
-            return new IntWrapper(i);
-        }
-
-        public int increment() {
-            return ++i;
-        }
-
-        public int getValue() {
-            return i;
-        }
+    SettingValue(SettingBuildIntf settingBuild) {
+        SettingIntf setting = settingBuild.build(getKey());
+        this.storeValueFunction = setting.getStoreValueFunction();
+        this.loadValueFunction = setting.getLoadValueFunction();
     }
 
     public String getKey() {
-        return CaseUtils.toCamelCase(name(), true, '_');
+        return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
     }
 
     public void store(SettingsControl settingsControl, Preferences preferences) {
@@ -277,5 +477,240 @@ public enum SettingValue {
 
     public static void loadAll(SettingsControl settingsControl, Preferences preferences) {
         Arrays.stream(SettingValue.values()).forEach(sv -> sv.load(settingsControl, preferences));
+    }
+
+    @RequiredArgsConstructor
+    @Setter
+    @Accessors(chain = true)
+    @Getter
+    private static class Setting<T, R> implements SettingIntf {
+        private final String key;
+        private final Function<SettingsControl, R> rootElementFunction;
+        private T defaultValue;
+        private BiConsumer<SettingsControl, Preferences> storeValueFunction;
+        private BiConsumer<SettingsControl, Preferences> loadValueFunction;
+    }
+
+    private interface SettingIntf {
+        BiConsumer<SettingsControl, Preferences> getStoreValueFunction();
+
+        BiConsumer<SettingsControl, Preferences> getLoadValueFunction();
+    }
+
+    private static SettingTypedRootElementFunctionIntf<String> createSettingString() {
+        return createSetting(String.class)
+                .toStringMapper(Function.identity())
+                .toObjectMapper(Function.identity());
+    }
+
+    private static SettingTypedRootElementFunctionIntf<Integer> createSettingInt() {
+        return createSetting(Integer.class)
+                .preferencesSetter(Preferences::putInt)
+                .preferencesGetter(Preferences::getInt);
+    }
+
+    private static SettingTypedRootElementFunctionIntf<Boolean> createSettingBoolean() {
+        return createSetting(Boolean.class)
+                .preferencesSetter(Preferences::putBoolean)
+                .preferencesGetter(Preferences::getBoolean);
+    }
+
+    private static SettingTypedRootElementFunctionIntf<Path> createSettingPath() {
+        return createSetting(Path.class)
+                .toStringMapper(FileUtils::toAbsolutePathAsString)
+                .toObjectMapper(Path::of);
+    }
+
+    private static <T extends Enum<T>> SettingTypedRootElementFunctionIntf<T> createSettingEnum(Class<T> type) {
+        return createSetting(type)
+                .toStringMapper(Enum::name)
+                .toObjectMapper(s -> Enum.valueOf(type, s));
+    }
+
+    private static <T> SettingTypedToStringMapperIntf<T> createSetting(Class<T> type) {
+        return new SettingTyped<>(type);
+    }
+
+    private interface SettingTypedToStringMapperIntf<T> {
+        SettingTypedToObjectMapperIntf<T> toStringMapper(Function<T, String> toStringMapper);
+
+        SettingTypedPreferenceGetterIntf<T> preferencesSetter(TriConsumer<Preferences, String, T> preferencesSetter);
+    }
+
+    private interface SettingTypedToObjectMapperIntf<T> {
+        SettingTypedRootElementFunctionIntf<T> toObjectMapper(Function<String, T> toObjectMapper);
+    }
+
+    private interface SettingTypedPreferenceGetterIntf<T> {
+        SettingTypedRootElementFunctionIntf<T> preferencesGetter(TriFunction<Preferences, String, T, T> preferencesGetter);
+    }
+
+    private interface SettingTypedRootElementFunctionIntf<T> {
+        <R> SettingTypedValueGetterIntf<T, R> rootElementFunction(Function<SettingsControl, R> rootElementFunction);
+    }
+
+    private interface SettingTypedValueGetterIntf<T, R> {
+        SettingTypedValueSetterIntf<T, R> valueGetter(Function<R, T> valueGetter);
+
+        SettingBuildIntf collectionGetter(Function<R, Collection<T>> valueGetter);
+    }
+
+    private interface SettingTypedValueSetterIntf<T, R> {
+        SettingTypedDefaultValueIntf<T, R> valueSetter(BiConsumer<R, T> valueSetter);
+    }
+
+    private interface SettingTypedDefaultValueIntf<T, R> {
+        SettingBuildIntf defaultValue(T defaultValue);
+    }
+
+    private interface SettingBuildIntf {
+        SettingIntf build(String key);
+    }
+
+    private enum SettingType {
+        SINGLE_VALUE, COLLECTION;
+    }
+
+    @Setter
+    @Accessors(chain = true, fluent = true)
+    private static class SettingTyped<T, R> extends SettingCommon<T, R, SettingTyped<T, R>>
+            implements
+            SettingTypedToStringMapperIntf<T>,
+            SettingTypedToObjectMapperIntf<T>,
+            SettingTypedPreferenceGetterIntf<T>,
+            SettingTypedRootElementFunctionIntf<T>,
+            SettingTypedValueGetterIntf<T, R>,
+            SettingTypedValueSetterIntf<T, R>,
+            SettingTypedDefaultValueIntf<T, R>,
+            SettingBuildIntf {
+
+        private SettingType settingType = SettingType.SINGLE_VALUE;
+
+        // single value
+        private Function<R, T> valueGetter;
+        private BiConsumer<R, T> valueSetter;
+
+        // collection
+        BiConsumer<R, T> valueAdder;
+        BiConsumer<R, Consumer<T>> valueConsumer;
+
+        private Function<T, String> toStringMapper;
+        private Function<String, T> toObjectMapper;
+
+        private TriConsumer<Preferences, String, T> preferencesSetter;
+        private TriFunction<Preferences, String, T, T> preferencesGetter;
+
+        SettingTyped(Class<T> type) {
+            //
+        }
+
+        @Override
+        public <R2> SettingTyped<T, R2> rootElementFunction(Function<SettingsControl, R2> rootElementFunction) {
+            super.setRootElementFunction(rootElementFunction);
+            return (SettingTyped<T, R2>) this;
+        }
+
+        @Override
+        public SettingTyped<T, R> defaultValue(T defaultValue) {
+            super.defaultValue(defaultValue);
+            return this;
+        }
+
+        @Override
+        public SettingTyped<T, R> toStringMapper(Function<T, String> toStringMapper) {
+            this.toStringMapper = toStringMapper;
+            this.preferencesSetter = (preferences, key, value) -> preferences.put(key, toStringMapper.apply(value));
+            return this;
+        }
+
+        @Override
+        public SettingTyped<T, R> toObjectMapper(Function<String, T> toObjectMapper) {
+            this.toObjectMapper = toObjectMapper;
+            this.preferencesGetter =
+                    (preferences, key, defaultValue) -> {
+                        String value = preferences.get(key, null);
+                        return value != null ? toObjectMapper.apply(value) : getDefaultValue();
+                    };
+            return this;
+        }
+
+        @Override
+        public SettingTyped<T, R> collectionGetter(Function<R, Collection<T>> collectionGetter) {
+            settingType = SettingType.COLLECTION;
+            valueAdder = (object, v) -> collectionGetter.apply(object).add(v);
+            valueConsumer = (object, consumer) -> collectionGetter.apply(object).forEach(consumer);
+            return this;
+        }
+
+        @Override
+        public SettingIntf build(String key) {
+            switch (settingType) {
+                case SINGLE_VALUE -> {
+                    super.storeValueFunction((settingsControl, preferences) -> {
+                        T value = valueGetter.apply(getRootElement(settingsControl));
+                        if (!Objects.equal(value, getDefaultValue())) {
+                            preferencesSetter.accept(preferences, key, value);
+                        }
+                    });
+
+                    super.loadValueFunction((settingsControl, preferences) -> valueSetter.accept(getRootElement(settingsControl),
+                            preferencesGetter.apply(preferences, key, getDefaultValue())));
+                }
+                case COLLECTION -> {
+                    super.storeValueFunction((settingsControl, preferences) -> {
+                        AtomicInteger i = new AtomicInteger(-1);
+                        valueConsumer.accept(getRootElement(settingsControl),
+                                value -> preferences.put(key + i.incrementAndGet(), toStringMapper.apply(value)));
+                        if (i.get() > -1) {
+                            preferences.putInt(key + "Size", i.get() + 1);
+                        }
+                    });
+                    super.loadValueFunction((settingsControl, preferences) -> {
+                        int numberOfItems = preferences.getInt(key + "Size", 0);
+                        IntStream.range(0, numberOfItems).forEach(i -> {
+                            valueAdder.accept(getRootElement(settingsControl), toObjectMapper.apply(preferences.get(key + i, "")));
+                        });
+
+                    });
+                }
+                default -> throw new IllegalArgumentException("Unexpected value: " + settingType);
+            }
+            return this;
+        }
+    }
+
+    @Getter
+    private abstract static class SettingCommon<T, ROOT, TYPE> implements SettingIntf {
+        private Function<SettingsControl, ROOT> rootElementFunction;
+        private T defaultValue;
+        private BiConsumer<SettingsControl, Preferences> storeValueFunction;
+        private BiConsumer<SettingsControl, Preferences> loadValueFunction;
+
+        TYPE defaultValue(T defaultValue) {
+            this.defaultValue = defaultValue;
+            return getThis();
+        }
+
+        public <R> void setRootElementFunction(Function<SettingsControl, R> rootElementFunction) {
+            this.rootElementFunction = (Function<SettingsControl, ROOT>) rootElementFunction;
+        }
+
+        TYPE storeValueFunction(BiConsumer<SettingsControl, Preferences> storeValueFunction) {
+            this.storeValueFunction = storeValueFunction;
+            return getThis();
+        }
+
+        TYPE loadValueFunction(BiConsumer<SettingsControl, Preferences> loadValueFunction) {
+            this.loadValueFunction = loadValueFunction;
+            return getThis();
+        }
+
+        ROOT getRootElement(SettingsControl settingsControl) {
+            return rootElementFunction.apply(settingsControl);
+        }
+
+        private TYPE getThis() {
+            return (TYPE) this;
+        }
     }
 }

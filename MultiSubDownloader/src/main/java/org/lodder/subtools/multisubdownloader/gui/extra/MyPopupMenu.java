@@ -4,9 +4,11 @@ import javax.swing.JPopupMenu;
 
 import java.awt.Component;
 import java.awt.Point;
+import java.io.Serial;
 
 public class MyPopupMenu extends JPopupMenu {
 
+    @Serial
     private static final long serialVersionUID = 1084650376633196066L;
     private Point clickLocation;
 

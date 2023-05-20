@@ -35,7 +35,7 @@ public class TvReleaseControl extends ReleaseControl {
         if (StringUtils.isBlank(tvRelease.getName())) {
             throw new ReleaseControlException("Unable to extract episode details, check file", tvRelease);
         } else {
-            LOGGER.debug("process: showname [{}], season [{}], episode [{}]", tvRelease.getName(),
+            LOGGER.debug("process: show name [{}], season [{}], episode [{}]", tvRelease.getName(),
                     tvRelease.getSeason(), tvRelease.getEpisodeNumbers());
 
             if (tvRelease.isSpecial()) {

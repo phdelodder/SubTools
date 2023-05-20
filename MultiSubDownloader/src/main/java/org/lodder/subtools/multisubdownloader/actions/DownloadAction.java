@@ -1,7 +1,8 @@
 package org.lodder.subtools.multisubdownloader.actions;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
@@ -12,20 +13,18 @@ import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
-import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
-import org.lodder.subtools.sublibrary.model.SubtitleSource;
-import org.lodder.subtools.sublibrary.privateRepo.PrivateRepoIndex;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
-import org.lodder.subtools.sublibrary.util.Files;
-import org.lodder.subtools.sublibrary.util.http.DropBoxClient;
+import org.lodder.subtools.sublibrary.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.ExtensionMethod;
 
+@ExtensionMethod({ FileUtils.class, Files.class })
 @RequiredArgsConstructor
 public class DownloadAction {
 
@@ -50,24 +49,26 @@ public class DownloadAction {
 
     private void download(Release release, Subtitle subtitle, LibrarySettings librarySettings, Integer version)
             throws IOException, ManagerException {
-        LOGGER.trace("cleanUpFiles: LibraryAction", librarySettings.getLibraryAction());
+        LOGGER.trace("cleanUpFiles: LibraryAction {}", librarySettings.getLibraryAction());
         PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager, userInteractionHandler);
-        final File path = new File(pathLibraryBuilder.build(release));
+        Path path = pathLibraryBuilder.build(release);
         if (!path.exists()) {
-            LOGGER.debug("Download creating folder [{}] ", path.getAbsolutePath());
-            if (!path.mkdirs()) {
-                throw new IOException("Download unable to create folder: " + path.getAbsolutePath());
+            LOGGER.debug("Download creating folder [{}] ", path.toAbsolutePath());
+            try {
+                Files.createDirectories(path);
+            } catch (IOException e) {
+                throw new IOException("Download unable to create folder: " + path.toAbsolutePath(), e);
             }
         }
 
         FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager, userInteractionHandler);
-        final String videoFileName = filenameLibraryBuilder.build(release);
-        final String subFileName = filenameLibraryBuilder.buildSubtitle(release, subtitle, videoFileName, version);
-        final File subFile = new File(path, subFileName);
+        String videoFileName = filenameLibraryBuilder.build(release).toString();
+        String subFileName = filenameLibraryBuilder.buildSubtitle(release, subtitle, videoFileName, version);
+        Path subFile = path.resolve(subFileName);
 
         boolean success;
         if (subtitle.getSourceLocation() == Subtitle.SourceLocation.FILE) {
-            Files.copy(subtitle.getFile(), subFile);
+            subtitle.getFile().copyToDir(path);
             success = true;
         } else {
             String url;
@@ -82,50 +83,37 @@ public class DownloadAction {
             }
         }
 
-        if (ReleaseParser.getQualityKeyword(release.getFileName()).split(" ").length > 1) {
-            String dropBoxName = "";
-            if (subtitle.getSubtitleSource() == SubtitleSource.LOCAL) {
-                dropBoxName = PrivateRepoIndex.getFullFilename(FilenameLibraryBuilder.changeExtension(release.getFileName(), ".srt"), "?",
-                        subtitle.getSubtitleSource().toString());
-            } else {
-                dropBoxName = PrivateRepoIndex.getFullFilename(FilenameLibraryBuilder.changeExtension(release.getFileName(), ".srt"),
-                        subtitle.getUploader(), subtitle.getSubtitleSource().toString());
-            }
-            DropBoxClient.getDropBoxClient().put(subFile, dropBoxName, subtitle.getLanguage());
-        }
-
         if (success) {
-            if (!LibraryActionType.NOTHING.equals(librarySettings.getLibraryAction())) {
-                final File oldLocationFile = new File(release.getPath(), release.getFileName());
+            if (!librarySettings.hasLibraryAction(LibraryActionType.NOTHING)) {
+                Path oldLocationFile = release.getPath().resolve(release.getFileName());
                 if (oldLocationFile.exists()) {
-                    final File newLocationFile = new File(path, videoFileName);
-                    LOGGER.info("Moving/Renaming [{}] to folder [{}] this might take a while... ", videoFileName, path.getPath());
-                    Files.move(oldLocationFile, newLocationFile);
-                    if (!LibraryOtherFileActionType.NOTHING.equals(librarySettings.getLibraryOtherFileAction())) {
+                    LOGGER.info("Moving/Renaming [{}] to folder [{}] this might take a while... ", videoFileName, path);
+                    oldLocationFile.moveToDir(path);
+                    if (!librarySettings.hasLibraryOtherFileAction(LibraryOtherFileActionType.NOTHING)) {
                         CleanAction cleanAction = new CleanAction(librarySettings);
                         cleanAction.cleanUpFiles(release, path, videoFileName);
                     }
-                    File[] listFiles = release.getPath().listFiles();
-                    if (librarySettings.isLibraryRemoveEmptyFolders() && listFiles != null && listFiles.length == 0) {
-                        boolean isDeleted = release.getPath().delete();
-                        if (isDeleted) {
-                            // do nothing
-                        }
+                    if (librarySettings.isLibraryRemoveEmptyFolders() && release.getPath().isEmptyDir()) {
+                        FileUtils.delete(release.getPath());
                     }
                 }
             }
             if (librarySettings.isLibraryBackupSubtitle()) {
                 String langFolder = subtitle.getLanguage() == null ? Language.ENGLISH.getName() : subtitle.getLanguage().getName();
-                File backupPath = new File(librarySettings.getLibraryBackupSubtitlePath() + File.separator + langFolder + File.separator);
+                Path backupPath = librarySettings.getLibraryBackupSubtitlePath().resolve(langFolder);
 
-                if (!backupPath.exists() && !backupPath.mkdirs()) {
-                    throw new IOException("Download unable to create folder: " + backupPath.getAbsolutePath());
+                if (!backupPath.exists()) {
+                    try {
+                        Files.createDirectories(backupPath);
+                    } catch (IOException e) {
+                        throw new IOException("Download unable to create folder: " + backupPath.toAbsolutePath(), e);
+                    }
                 }
 
                 if (librarySettings.isLibraryBackupUseWebsiteFileName()) {
-                    Files.copy(subFile, new File(backupPath, subtitle.getFileName()));
+                    subFile.copyToDirAndRename(backupPath, subtitle.getFileName());
                 } else {
-                    Files.copy(subFile, new File(backupPath, subFileName));
+                    subFile.copyToDirAndRename(backupPath, subFileName);
                 }
             }
         }

@@ -1,17 +1,16 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
-import java.io.File;
+import java.io.Serial;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -30,9 +29,9 @@ import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
 import org.lodder.subtools.multisubdownloader.framework.event.Event;
-import org.lodder.subtools.multisubdownloader.gui.ToStringListCellRenderer;
 import org.lodder.subtools.multisubdownloader.gui.extra.JListWithImages;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
+import org.lodder.subtools.multisubdownloader.gui.extra.MyComboBox;
 import org.lodder.subtools.multisubdownloader.gui.extra.PanelCheckBox;
 import org.lodder.subtools.multisubdownloader.gui.panels.DefaultSelectionPanel;
 import org.lodder.subtools.multisubdownloader.gui.panels.EpisodeLibraryPanel;
@@ -61,6 +60,7 @@ import net.miginfocom.swing.MigLayout;
 @ExtensionMethod(JComponentExtension.class)
 public class PreferenceDialog extends MultiSubDialog {
 
+    @Serial
     private static final long serialVersionUID = -5730220264781738564L;
     private final GUI gui;
     private final JPanel contentPanel = new JPanel();
@@ -77,14 +77,14 @@ public class PreferenceDialog extends MultiSubDialog {
     private JListWithImages defaultIncomingFoldersList, localSourcesFoldersList;
     private JCheckBox chkSourceAddic7ed, chkSourceTvSubtitles, chkSourcePodnapisi,
             chkSourceOpenSubtitles, chkSourceLocal, chkSourceSubscene, chkSourceAddic7edProxy;
-    private JComboBox<SettingsProcessEpisodeSource> cbxEpisodeProcessSource;
+    private MyComboBox<SettingsProcessEpisodeSource> cbxEpisodeProcessSource;
     private JCheckBox chkMinScoreSelection;
     private JCheckBox chkConfirmProviderMapping;
     private JSlider sldMinScoreSelection;
     private final Manager manager;
-    private JComboBox<UpdateCheckPeriod> cbxUpdateCheckPeriod;
-    private JComboBox<UpdateType> cbxUpdateType;
-    private JComboBox<Language> cbxLanguage;
+    private MyComboBox<UpdateCheckPeriod> cbxUpdateCheckPeriod;
+    private MyComboBox<UpdateType> cbxUpdateType;
+    private MyComboBox<Language> cbxLanguage;
     private JCheckBox chkDefaultSelection;
     private DefaultSelectionPanel pnlDefaultSelection;
     private JButton btnBrowseLocalSources, btnRemoveLocalSources;
@@ -129,10 +129,8 @@ public class PreferenceDialog extends MultiSubDialog {
                     JLabel lblLanguage = new JLabel(Messages.getString("PreferenceDialog.Language"));
                     pnlGeneral.add(lblLanguage, "width 2");
 
-                    cbxLanguage = new JComboBox<>();
-                    cbxLanguage.setModel(new DefaultComboBoxModel<>(Messages.getAvailableLanguages().toArray(Language[]::new)));
-                    cbxLanguage.setRenderer(new ToStringListCellRenderer<>(cbxLanguage.getRenderer(),
-                            o -> Messages.getString(((Language) o).getMsgCode())));
+                    cbxLanguage = new MyComboBox<>(Messages.getAvailableLanguages(), Language.class)
+                            .withToMessageStringRenderer(Language::getMsgCode);
                     pnlGeneral.add(cbxLanguage, "span");
                 }
 
@@ -148,13 +146,13 @@ public class PreferenceDialog extends MultiSubDialog {
                     JButton btnAddFolder = new JButton(Messages.getString("PreferenceDialog.AddFolder"));
                     btnAddFolder.addActionListener(arg -> {
                         MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), Messages.getString("PreferenceDialog.SelectFolder"))
-                                .map(File::getAbsolutePath).ifPresent(path -> {
+                                .map(Path::toAbsolutePath).ifPresent(path -> {
                                     if (defaultIncomingFoldersList.getModel().getSize() == 0) {
                                         defaultIncomingFoldersList.addItem(SettingsExcludeType.FOLDER, path);
                                     } else {
                                         boolean exists = stream(defaultIncomingFoldersList.getModel())
                                                 .map(panel -> ((JLabel) panel.getComponent(0)).getText())
-                                                .filter(Objects::nonNull).anyMatch(path::equals);
+                                                .filter(Objects::nonNull).anyMatch(path.toString()::equals);
                                         if (!exists) {
                                             defaultIncomingFoldersList.addItem(SettingsExcludeType.FOLDER, path);
                                         }
@@ -186,9 +184,9 @@ public class PreferenceDialog extends MultiSubDialog {
                     btnAddExcludeFolder.addActionListener(arg0 -> addExcludeItem(SettingsExcludeType.FOLDER));
                     pnlGeneral.add(btnAddExcludeFolder, "split");
 
-                    JButton btnDeleteExcludeFoledr = new JButton(Messages.getString("PreferenceDialog.DeleteFolder"));
-                    btnDeleteExcludeFoledr.addActionListener(arg0 -> removeExcludeItem());
-                    pnlGeneral.add(btnDeleteExcludeFoledr);
+                    JButton btnDeleteExcludeFolder = new JButton(Messages.getString("PreferenceDialog.DeleteFolder"));
+                    btnDeleteExcludeFolder.addActionListener(arg0 -> removeExcludeItem());
+                    pnlGeneral.add(btnDeleteExcludeFolder);
 
                     JButton btnAddExcludeRegex = new JButton(Messages.getString("PreferenceDialog.RegexToevoegen"));
                     btnAddExcludeRegex.addActionListener(arg0 -> addExcludeItem(SettingsExcludeType.REGEX));
@@ -197,21 +195,19 @@ public class PreferenceDialog extends MultiSubDialog {
                 }
 
                 {
+                    cbxUpdateCheckPeriod = new MyComboBox<>(UpdateCheckPeriod.values())
+                            .withToMessageStringRenderer(UpdateCheckPeriod::getLangCode);
+
+                    cbxUpdateType = new MyComboBox<>(UpdateType.values())
+                            .withToMessageStringRenderer(UpdateType::getMsgCode);
+
                     pnlGeneral
                             .addComponent(new JLabel(Messages.getString("PreferenceDialog.Update")), "span 2, split")
                             .addComponent(new JSeparator(), "wrap, grow, gapy 5")
                             .addComponent(new JLabel(Messages.getString("PreferenceDialog.NewUpdateCheck")), "gapx 5")
-                            .addComponent(cbxUpdateCheckPeriod = new JComboBox<>(), "wrap")
+                            .addComponent(cbxUpdateCheckPeriod, "wrap")
                             .addComponent(new JLabel(Messages.getString("PreferenceDialog.UpdateType")), "gapx 5")
-                            .addComponent(cbxUpdateType = new JComboBox<>(), "wrap");
-
-                    cbxUpdateCheckPeriod.setModel(new DefaultComboBoxModel<>(UpdateCheckPeriod.values()));
-                    cbxUpdateCheckPeriod.setRenderer(new ToStringListCellRenderer<>(cbxUpdateCheckPeriod.getRenderer(),
-                            o -> Messages.getString(((UpdateCheckPeriod) o).getLangCode())));
-
-                    cbxUpdateType.setModel(new DefaultComboBoxModel<>(UpdateType.values()));
-                    cbxUpdateType.setRenderer(new ToStringListCellRenderer<>(cbxUpdateType.getRenderer(),
-                            o -> Messages.getString(((UpdateType) o).getMsgCode())));
+                            .addComponent(cbxUpdateType, "wrap");
                 }
 
                 {
@@ -308,9 +304,8 @@ public class PreferenceDialog extends MultiSubDialog {
                     pnlOptions.add(new JSeparator(), "cell 0 13 5 1,growx");
                 }
                 {
-                    cbxEpisodeProcessSource = new JComboBox<>();
-                    cbxEpisodeProcessSource.setModel(new DefaultComboBoxModel<>(SettingsProcessEpisodeSource.values()));
-                    cbxEpisodeProcessSource.setEnabled(false);
+                    cbxEpisodeProcessSource = new MyComboBox<>(SettingsProcessEpisodeSource.values())
+                            .disabled();
                     pnlOptions.add(cbxEpisodeProcessSource, "cell 1 14,growx");
                 }
                 {
@@ -324,7 +319,7 @@ public class PreferenceDialog extends MultiSubDialog {
                 JPanel pnlSerieSources = new JPanel(new MigLayout("", "[grow, nogrid]"));
                 tabbedPane.addTab(Messages.getString("PreferenceDialog.SerieSources"), null, pnlSerieSources, null);
 
-                pnlSerieSources.add(new JLabel(Messages.getString("PreferenceDialog.SelectPreferedSources")), "split");
+                pnlSerieSources.add(new JLabel(Messages.getString("PreferenceDialog.SelectPreferredSources")), "split");
                 pnlSerieSources.add(new JSeparator(), "wrap, growx, gapy 5");
 
                 // ADDIC7ED
@@ -376,14 +371,14 @@ public class PreferenceDialog extends MultiSubDialog {
 
                 btnBrowseLocalSources.addActionListener(arg0 -> {
                     MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), Messages.getString("PreferenceDialog.SelectFolder"))
-                            .map(File::getAbsolutePath).ifPresent(path -> {
+                            .map(Path::toAbsolutePath).ifPresent(path -> {
                                 if (localSourcesFoldersList.getModel().getSize() == 0) {
                                     localSourcesFoldersList.addItem(SettingsExcludeType.FOLDER, path);
                                 } else {
                                     boolean exists = false;
                                     for (int i = 0; i < localSourcesFoldersList.getModel().getSize(); i++) {
                                         if (localSourcesFoldersList.getDescription(i) != null
-                                                && localSourcesFoldersList.getDescription(i).equals(path)) {
+                                                && localSourcesFoldersList.getDescription(i).equals(path.toString())) {
                                             exists = true;
                                         }
                                     }
@@ -428,11 +423,11 @@ public class PreferenceDialog extends MultiSubDialog {
         for (SettingsExcludeItem element : settingsCtrl.getSettings().getExcludeList()) {
             excludeList.addItem(element.getType(), element.getDescription());
         }
-        for (File element : settingsCtrl.getSettings().getDefaultIncomingFolders()) {
-            defaultIncomingFoldersList.addItem(SettingsExcludeType.FOLDER, element.getAbsolutePath());
+        for (Path element : settingsCtrl.getSettings().getDefaultIncomingFolders()) {
+            defaultIncomingFoldersList.addItem(SettingsExcludeType.FOLDER, element.toAbsolutePath());
         }
-        for (File element : settingsCtrl.getSettings().getLocalSourcesFolders()) {
-            localSourcesFoldersList.addItem(SettingsExcludeType.FOLDER, element.getAbsolutePath());
+        for (Path element : settingsCtrl.getSettings().getLocalSourcesFolders()) {
+            localSourcesFoldersList.addItem(SettingsExcludeType.FOLDER, element.toAbsolutePath());
         }
         cbxLanguage.setSelectedItem(settingsCtrl.getSettings().getLanguage());
         chkUseProxy.setSelected(settingsCtrl.getSettings().isGeneralProxyEnabled());
@@ -510,7 +505,7 @@ public class PreferenceDialog extends MultiSubDialog {
     private void addExcludeItem(SettingsExcludeType seType) {
         if (seType == SettingsExcludeType.FOLDER) {
             MemoryFolderChooser.getInstance().selectDirectory(getContentPane(), Messages.getString("PreferenceDialog.SelectExcludeFolder"))
-                    .map(File::getAbsolutePath).ifPresent(path -> excludeList.addItem(seType, path));
+                    .map(Path::toAbsolutePath).ifPresent(path -> excludeList.addItem(seType, path));
         } else if (seType == SettingsExcludeType.REGEX) {
             String regex = JOptionPane.showInputDialog(Messages.getString("PreferenceDialog.EnterRegex"));
             if (StringUtils.isNotBlank(regex)) {
@@ -530,9 +525,9 @@ public class PreferenceDialog extends MultiSubDialog {
     private void testAndSaveValues() {
         boolean status = true;
         if (testGeneralTab()) {
-            List<File> folList = new ArrayList<>();
+            List<Path> folList = new ArrayList<>();
             for (int i = 0; i < defaultIncomingFoldersList.getModel().getSize(); i++) {
-                folList.add(new File(defaultIncomingFoldersList.getDescription(i)));
+                folList.add(Path.of(defaultIncomingFoldersList.getDescription(i)));
             }
             settingsCtrl.getSettings().setDefaultIncomingFolders(folList);
 
@@ -545,17 +540,18 @@ public class PreferenceDialog extends MultiSubDialog {
                 SettingsExcludeItem sei = new SettingsExcludeItem(excludeList.getDescription(i), excludeListType);
                 list.add(sei);
             }
-            if (Messages.getLanguage() != (Language) cbxLanguage.getSelectedItem()) {
-                Messages.setLanguage((Language) cbxLanguage.getSelectedItem());
+            if (Messages.getLanguage() != cbxLanguage.getSelectedItem()) {
+                Messages.setLanguage(cbxLanguage.getSelectedItem());
                 gui.redraw();
             }
-            settingsCtrl.getSettings().setLanguage((Language) cbxLanguage.getSelectedItem());
-            settingsCtrl.getSettings().setExcludeList(list);
-            settingsCtrl.getSettings().setUpdateCheckPeriod((UpdateCheckPeriod) cbxUpdateCheckPeriod.getSelectedItem());
-            settingsCtrl.getSettings().setUpdateType((UpdateType) cbxUpdateType.getSelectedItem());
-            settingsCtrl.getSettings().setGeneralProxyEnabled(chkUseProxy.isSelected());
-            settingsCtrl.getSettings().setGeneralProxyHost(txtProxyHost.getText());
-            settingsCtrl.getSettings().setGeneralProxyPort(Integer.parseInt(txtProxyPort.getText()));
+            settingsCtrl.getSettings()
+                    .setLanguage(cbxLanguage.getSelectedItem())
+                    .setExcludeList(list)
+                    .setUpdateCheckPeriod(cbxUpdateCheckPeriod.getSelectedItem())
+                    .setUpdateType(cbxUpdateType.getSelectedItem())
+                    .setGeneralProxyEnabled(chkUseProxy.isSelected())
+                    .setGeneralProxyHost(txtProxyHost.getText())
+                    .setGeneralProxyPort(Integer.parseInt(txtProxyPort.getText()));
         } else {
             status = false;
         }
@@ -572,40 +568,43 @@ public class PreferenceDialog extends MultiSubDialog {
             status = false;
         }
         if (testOptionsTab()) {
-            settingsCtrl.getSettings().setOptionsAlwaysConfirm(chkAlwaysConfirm.isSelected());
-            settingsCtrl.getSettings().setOptionsMinAutomaticSelection(chkMinScoreSelection.isSelected());
-            settingsCtrl.getSettings().setOptionsMinAutomaticSelectionValue(sldMinScoreSelection.getValue());
-            settingsCtrl.getSettings().setOptionSubtitleExactMatch(chkSubtitleExactMethod.isSelected());
-            settingsCtrl.getSettings().setOptionSubtitleKeywordMatch(chkSubtitleKeywordMethod.isSelected());
-            settingsCtrl.getSettings().setOptionSubtitleExcludeHearingImpaired(chkExcludeHearingImpaired.isSelected());
-            settingsCtrl.getSettings().setOptionsShowOnlyFound(chkOnlyFound.isSelected());
-            settingsCtrl.getSettings().setOptionsStopOnSearchError(chkStopOnSearchError.isSelected());
-            settingsCtrl.getSettings().setProcessEpisodeSource((SettingsProcessEpisodeSource) cbxEpisodeProcessSource.getSelectedItem());
-            settingsCtrl.getSettings().setOptionsDefaultSelection(this.chkDefaultSelection.isSelected());
-            settingsCtrl.getSettings().setOptionsDefaultSelectionQualityList(this.pnlDefaultSelection.getDefaultSelectionList());
-            settingsCtrl.getSettings().setOptionsConfirmProviderMapping(this.chkConfirmProviderMapping.isSelected());
+            settingsCtrl.getSettings()
+                    .setOptionsAlwaysConfirm(chkAlwaysConfirm.isSelected())
+                    .setOptionsMinAutomaticSelection(chkMinScoreSelection.isSelected())
+                    .setOptionsMinAutomaticSelectionValue(sldMinScoreSelection.getValue())
+                    .setOptionSubtitleExactMatch(chkSubtitleExactMethod.isSelected())
+                    .setOptionSubtitleKeywordMatch(chkSubtitleKeywordMethod.isSelected())
+                    .setOptionSubtitleExcludeHearingImpaired(chkExcludeHearingImpaired.isSelected())
+                    .setOptionsShowOnlyFound(chkOnlyFound.isSelected())
+                    .setOptionsStopOnSearchError(chkStopOnSearchError.isSelected())
+                    .setProcessEpisodeSource(cbxEpisodeProcessSource.getSelectedItem())
+                    .setOptionsDefaultSelection(this.chkDefaultSelection.isSelected())
+                    .setOptionsDefaultSelectionQualityList(this.pnlDefaultSelection.getDefaultSelectionList())
+                    .setOptionsConfirmProviderMapping(this.chkConfirmProviderMapping.isSelected());
         } else {
             status = false;
         }
         if (testSerieSourcesTab()) {
-            settingsCtrl.getSettings().setLoginAddic7edEnabled(chkUserAddic7edLogin.isSelected());
-            settingsCtrl.getSettings().setLoginAddic7edUsername(txtAddic7edUsername.getText());
-            settingsCtrl.getSettings().setLoginAddic7edPassword(txtAddic7edPassword.getText());
-            settingsCtrl.getSettings().setLoginOpenSubtitlesEnabled(chkUserOpenSubtitlesLogin.isSelected());
-            settingsCtrl.getSettings().setLoginOpenSubtitlesUsername(txtOpenSubtitlesUsername.getText());
-            settingsCtrl.getSettings().setLoginOpenSubtitlesPassword(txtOpenSubtitlesPassword.getText());
-            List<File> folList = new ArrayList<>();
+            settingsCtrl.getSettings()
+                    .setLoginAddic7edEnabled(chkUserAddic7edLogin.isSelected())
+                    .setLoginAddic7edUsername(txtAddic7edUsername.getText())
+                    .setLoginAddic7edPassword(txtAddic7edPassword.getText())
+                    .setLoginOpenSubtitlesEnabled(chkUserOpenSubtitlesLogin.isSelected())
+                    .setLoginOpenSubtitlesUsername(txtOpenSubtitlesUsername.getText())
+                    .setLoginOpenSubtitlesPassword(txtOpenSubtitlesPassword.getText());
+            List<Path> folList = new ArrayList<>();
             for (int i = 0; i < localSourcesFoldersList.getModel().getSize(); i++) {
-                folList.add(new File(localSourcesFoldersList.getDescription(i)));
+                folList.add(Path.of(localSourcesFoldersList.getDescription(i)));
             }
-            settingsCtrl.getSettings().setLocalSourcesFolders(folList);
-            settingsCtrl.getSettings().setSerieSourceAddic7ed(chkSourceAddic7ed.isSelected());
-            settingsCtrl.getSettings().setSerieSourceAddic7edProxy(chkSourceAddic7edProxy.isSelected());
-            settingsCtrl.getSettings().setSerieSourceTvSubtitles(chkSourceTvSubtitles.isSelected());
-            settingsCtrl.getSettings().setSerieSourcePodnapisi(chkSourcePodnapisi.isSelected());
-            settingsCtrl.getSettings().setSerieSourceOpensubtitles(chkSourceOpenSubtitles.isSelected());
-            settingsCtrl.getSettings().setSerieSourceLocal(chkSourceLocal.isSelected());
-            settingsCtrl.getSettings().setSerieSourceSubscene(chkSourceSubscene.isSelected());
+            settingsCtrl.getSettings()
+                    .setLocalSourcesFolders(folList)
+                    .setSerieSourceAddic7ed(chkSourceAddic7ed.isSelected())
+                    .setSerieSourceAddic7edProxy(chkSourceAddic7edProxy.isSelected())
+                    .setSerieSourceTvSubtitles(chkSourceTvSubtitles.isSelected())
+                    .setSerieSourcePodnapisi(chkSourcePodnapisi.isSelected())
+                    .setSerieSourceOpensubtitles(chkSourceOpenSubtitles.isSelected())
+                    .setSerieSourceLocal(chkSourceLocal.isSelected())
+                    .setSerieSourceSubscene(chkSourceSubscene.isSelected());
         } else {
             status = false;
         }

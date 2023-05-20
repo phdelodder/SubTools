@@ -1,7 +1,10 @@
 package org.lodder.subtools.sublibrary.util.http;
 
+import java.io.Serial;
+
 public class HttpClientSetupException extends Exception {
 
+    @Serial
     private static final long serialVersionUID = 7350679372823335661L;
 
     public HttpClientSetupException() {

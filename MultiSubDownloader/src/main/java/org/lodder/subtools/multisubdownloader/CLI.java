@@ -1,7 +1,7 @@
 package org.lodder.subtools.multisubdownloader;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,8 +46,8 @@ public class CLI {
     private boolean recursive = false;
     private Language language;
     private boolean force = false;
-    private List<File> folders = new ArrayList<>();
-    private boolean downloadall = false;
+    private List<Path> folders = new ArrayList<>();
+    private boolean downloadAll = false;
     private boolean subtitleSelection = false;
     private boolean verboseProgress = false;
     private final DownloadAction downloadAction;
@@ -76,7 +76,7 @@ public class CLI {
         this.folders = getFolders(line);
         this.language = getLanguage(line);
         this.force = line.hasCliOption(CliOption.FORCE);
-        this.downloadall = line.hasCliOption(CliOption.DOWNLOAD_ALL);
+        this.downloadAll = line.hasCliOption(CliOption.DOWNLOAD_ALL);
         this.recursive = line.hasCliOption(CliOption.RECURSIVE);
         this.subtitleSelection = line.hasCliOption(CliOption.SELECTION);
         this.verboseProgress = line.hasCliOption(CliOption.VERBOSE_PROGRESS);
@@ -96,7 +96,7 @@ public class CLI {
             try {
                 this.download(release);
             } catch (Exception e) {
-                LOGGER.error("Errow while downloading subtitle for %s (%s)".formatted(release.getReleaseDescription(), e.getMessage()), e);
+                LOGGER.error("Error while downloading subtitle for %s (%s)".formatted(release.getReleaseDescription(), e.getMessage()), e);
             }
         }
     }
@@ -127,7 +127,7 @@ public class CLI {
 
     private void download(Release release) {
         List<Subtitle> selection;
-        if (downloadall) {
+        if (downloadAll) {
             selection = release.getMatchingSubs();
             if (!selection.isEmpty()) {
                 System.out.println("Downloading ALL found subtitles for release: " + release.getFileName());
@@ -136,22 +136,22 @@ public class CLI {
             selection = userInteractionHandlerAction.subtitleSelection(release, subtitleSelection, dryRun);
         }
         if (selection.isEmpty()) {
-            System.out.println("No substitles found for: " + release.getFileName());
+            System.out.println("No subtitles found for: " + release.getFileName());
         } else {
             IntStream.range(0, selection.size()).forEach(j -> {
                 System.out.println("Downloading subtitle: " + release.getMatchingSubs().get(0).getFileName());
                 try {
                     downloadAction.download(release, release.getMatchingSubs().get(j), selection.size() == 1 ? null : j + 1);
                 } catch (IOException | ManagerException e) {
-                    LOGGER.error("Errow while downloading subtitle for %s (%s)".formatted(release.getReleaseDescription(), e.getMessage()), e);
+                    LOGGER.error("Error while downloading subtitle for %s (%s)".formatted(release.getReleaseDescription(), e.getMessage()), e);
                 }
             });
         }
     }
 
-    private List<File> getFolders(CommandLine line) {
+    private List<Path> getFolders(CommandLine line) {
         if (line.hasCliOption(CliOption.FOLDER)) {
-            return List.of(new File(line.getCliOptionValue(CliOption.FOLDER)));
+            return List.of(Path.of(line.getCliOptionValue(CliOption.FOLDER)));
         } else {
             return new ArrayList<>(this.settings.getDefaultFolders());
         }

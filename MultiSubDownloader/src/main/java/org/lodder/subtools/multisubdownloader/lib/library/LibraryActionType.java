@@ -2,9 +2,8 @@ package org.lodder.subtools.multisubdownloader.lib.library;
 
 import java.util.Arrays;
 
-import org.lodder.subtools.multisubdownloader.Messages;
-
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -14,12 +13,8 @@ public enum LibraryActionType {
     MOVE("PreferenceDialog.Action.Move"),
     MOVEANDRENAME("PreferenceDialog.Action.MoveAndRename");
 
+    @Getter
     private final String msgCode;
-
-    @Override
-    public String toString() {
-        return Messages.getString(msgCode);
-    }
 
     @Deprecated(since = "Settings version 2")
     public static LibraryActionType fromString(String description) {

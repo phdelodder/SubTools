@@ -1,5 +1,6 @@
 package org.lodder.subtools.sublibrary.cache;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Optional;
 import java.util.function.Function;
@@ -18,6 +19,7 @@ import lombok.ToString;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 class TemporaryCacheObject<T> implements CacheObject<T>, Serializable {
 
+    @Serial
     private static final long serialVersionUID = -152474119228350222L;
     private static final Pattern PATTERN = Pattern.compile("created:(.*?)|expire:(.*?)|value:(.*)");
     private final long created;
@@ -47,7 +49,7 @@ class TemporaryCacheObject<T> implements CacheObject<T>, Serializable {
 
     @Override
     public String toString(Function<T, String> valueToStringMapper) {
-        return "created:%s|expire:(.*?)|value:%s".formatted(created, timeToLive, valueToStringMapper.apply(value));
+        return "created:%s|expire:%s|value:%s".formatted(created, timeToLive, valueToStringMapper.apply(value));
     }
 
     public static <T> Optional<TemporaryCacheObject<T>> fromString(String string, Function<String, T> valueToObjectMapper) {

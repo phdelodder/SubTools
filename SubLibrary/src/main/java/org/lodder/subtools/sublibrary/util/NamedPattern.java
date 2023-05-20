@@ -9,9 +9,9 @@ public class NamedPattern {
 
     private static final Pattern NAMED_GROUP_PATTERN = Pattern.compile("\\(\\?<(\\w+)>");
 
-    private Pattern pattern;
-    private String namedPattern;
-    private List<String> groupNames;
+    private final Pattern pattern;
+    private final String namedPattern;
+    private final List<String> groupNames;
 
     public static NamedPattern compile(String regex) {
         return new NamedPattern(regex, 0);

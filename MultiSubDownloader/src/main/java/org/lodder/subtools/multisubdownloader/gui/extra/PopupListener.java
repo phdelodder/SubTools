@@ -5,12 +5,13 @@ import javax.swing.table.DefaultTableModel;
 
 import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
 
+import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class PopupListener extends MouseAdapter {
 
-    private JPopupMenu popupMenu;
+    private final JPopupMenu popupMenu;
 
     public PopupListener(JPopupMenu popupMenu) {
         this.popupMenu = popupMenu;
@@ -28,14 +29,16 @@ public class PopupListener extends MouseAdapter {
 
     private synchronized void showPopup(MouseEvent e) {
         if (e.isPopupTrigger()) {
-            final CustomTable t = (CustomTable) e.getComponent();
-            if (t == null) {
+            Component component = e.getComponent();
+            if (component == null) {
                 return;
             }
 
-            final DefaultTableModel model = (DefaultTableModel) t.getModel();
-            if (model.getRowCount() > 0) {
-                popupMenu.show(e.getComponent(), e.getX(), e.getY());
+            if (component instanceof CustomTable customTable) {
+                DefaultTableModel model = (DefaultTableModel) customTable.getModel();
+                if (model.getRowCount() > 0) {
+                    popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                }
             }
         }
     }

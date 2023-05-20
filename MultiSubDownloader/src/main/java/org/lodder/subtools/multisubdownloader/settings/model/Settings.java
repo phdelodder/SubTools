@@ -1,7 +1,9 @@
 package org.lodder.subtools.multisubdownloader.settings.model;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,12 +15,16 @@ import org.lodder.subtools.sublibrary.model.SubtitleSource;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
+import lombok.experimental.ExtensionMethod;
 
 @Getter
 @Setter
+@Accessors(chain = true)
+@ExtensionMethod({ Arrays.class })
 public class Settings implements UserInteractionSettingsIntf {
 
-    private File lastOutputDir;
+    private Path lastOutputDir;
     private boolean optionsAlwaysConfirm;
     private boolean optionSubtitleExactMatch = true;
     private boolean optionSubtitleKeywordMatch = true;
@@ -30,8 +36,8 @@ public class Settings implements UserInteractionSettingsIntf {
     private String generalProxyHost = "";
     private int generalProxyPort = 80;
     private boolean generalProxyEnabled;
-    private List<File> defaultIncomingFolders = new ArrayList<>();
-    private List<File> localSourcesFolders = new ArrayList<>();
+    private List<Path> defaultIncomingFolders = new ArrayList<>();
+    private List<Path> localSourcesFolders = new ArrayList<>();
     private boolean optionRecursive;
     private ScreenSettings screenSettings = new ScreenSettings();
     private boolean loginAddic7edEnabled;
@@ -48,7 +54,7 @@ public class Settings implements UserInteractionSettingsIntf {
     private boolean serieSourceLocal = true;
     private boolean serieSourceSubscene = true;
     private SettingsProcessEpisodeSource processEpisodeSource = SettingsProcessEpisodeSource.TVDB;
-    private Map<String, Integer> sortWeights;
+    private final Map<String, Integer> sortWeights;
     private Language subtitleLanguage;
     private boolean optionsMinAutomaticSelection;
     private int optionsMinAutomaticSelectionValue;
@@ -60,7 +66,19 @@ public class Settings implements UserInteractionSettingsIntf {
     private boolean optionsConfirmProviderMapping;
     private Language language;
 
-    public List<File> getDefaultFolders() {
+    public Settings() {
+        // TODO: user should be able to edit/add these through a panel
+        Map<String, Integer> sortWeightsTemp = new HashMap<>();
+        sortWeightsTemp.put("%GROUP%", 5);
+        VideoPatterns.Source.values().stream()
+                .forEach(source -> source.getValues().stream()
+                        .forEach(keyword -> sortWeightsTemp.put(keyword, source.isManyDifferentSources() ? 1 : 2)));
+        VideoPatterns.AudioEncoding.values().stream()
+                .forEach(encoding -> encoding.getValues().stream().forEach(keyword -> sortWeightsTemp.put(keyword, 2)));
+        this.sortWeights = Collections.unmodifiableMap(sortWeightsTemp);
+    }
+
+    public List<Path> getDefaultFolders() {
         return getDefaultIncomingFolders();
     }
 
@@ -69,25 +87,6 @@ public class Settings implements UserInteractionSettingsIntf {
     }
 
     public Map<String, Integer> getSortWeights() {
-        // TODO: user should be able to edit/add these through a panel
-        sortWeights = new HashMap<>();
-        sortWeights.put("%GROUP%", 5);
-        VideoPatterns videoPatterns = new VideoPatterns();
-        videoPatterns.getQualityKeywords().forEach(keyword -> sortWeights.put(keyword, 2));
-        /* overwrite keywords that should have low weight */
-        // keywords that tend to have a lot of different sources:
-        sortWeights.put("ts", 1);
-        sortWeights.put("dvdscreener", 1);
-        sortWeights.put("r5", 1);
-        sortWeights.put("cam", 1);
-        // encoding says little about the release:
-        sortWeights.put("xvid", 1);
-        sortWeights.put("divx", 1);
-        sortWeights.put("x264", 1);
-        sortWeights.put("x265", 1);
-        // keywords that might get matched too easily
-        // sortWeights.remove("dl");
-
         return sortWeights;
     }
 

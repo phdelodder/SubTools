@@ -1,5 +1,6 @@
 package org.lodder.subtools.sublibrary.data.tvdb.model;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ import lombok.ToString;
 @Getter
 @Setter
 public class TheTvdbSerie implements Serializable {
+    @Serial
     private static final long serialVersionUID = -4036836377513152443L;
     private int id;
     // private String serieId;
@@ -33,7 +35,7 @@ public class TheTvdbSerie implements Serializable {
     private String rating;
     private String runtime;
     private String status;
-    private String fanart;
+    private String fanArt;
     private String lastUpdated;
     private String poster;
 

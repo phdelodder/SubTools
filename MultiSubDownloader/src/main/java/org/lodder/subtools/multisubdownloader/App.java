@@ -1,7 +1,8 @@
 package org.lodder.subtools.multisubdownloader;
 
-import java.io.File;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -13,7 +14,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -41,7 +42,7 @@ import java.awt.EventQueue;
 import ch.qos.logback.classic.Level;
 import lombok.experimental.ExtensionMethod;
 
-@ExtensionMethod({ CLIExtension.class })
+@ExtensionMethod({ CLIExtension.class, Files.class })
 public class App {
 
     private static SettingsControl prefctrl;
@@ -51,10 +52,10 @@ public class App {
     public static void main(String[] args) throws ReflectiveOperationException, UnsupportedLookAndFeelException {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
-        CommandLineParser parser = new GnuParser();
+        CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
 
-        CommandLine line = null;
+        CommandLine line;
         try {
             line = parser.parse(getCLIOptions(), args);
         } catch (ParseException e) {
@@ -139,9 +140,9 @@ public class App {
         if (!line.hasCliOption(CliOption.IMPORT_PREFERENCES)) {
             return;
         }
-        File file = new File(line.getCliOptionValue(CliOption.IMPORT_PREFERENCES));
+        Path file = Path.of(line.getCliOptionValue(CliOption.IMPORT_PREFERENCES));
         try {
-            if (file.isFile()) {
+            if (file.isRegularFile()) {
                 prefctrl.importPreferences(file);
             }
         } catch (Exception e) {

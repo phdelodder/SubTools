@@ -13,11 +13,13 @@ import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 
 import java.awt.event.ActionListener;
+import java.io.Serial;
 
 import net.miginfocom.swing.MigLayout;
 
 public class ResultPanel extends JPanel {
 
+    @Serial
     private static final long serialVersionUID = 2368028332402129899L;
     private JButton btnMove;
     private JButton btnSelectAll;

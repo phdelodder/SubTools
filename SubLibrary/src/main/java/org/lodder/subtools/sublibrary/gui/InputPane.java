@@ -2,6 +2,7 @@ package org.lodder.subtools.sublibrary.gui;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.Serial;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -23,8 +24,6 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 public class InputPane {
-
-    private static final long serialVersionUID = 1L;
 
     private InputPane() {
         // hide constructor
@@ -67,6 +66,7 @@ public class InputPane {
     public static class InputPaneBuilder extends JDialog implements ActionListener, PropertyChangeListener,
             InputPaneBuilderPromptIntf, InputPaneBuilderErrorMessageIntf, InputPaneBuilderValidatorIntf, InputPaneBuilderMessageIntf,
             InputPaneBuilderTitleIntf {
+        @Serial
         private static final long serialVersionUID = 1L;
         private final static String OK = Messages.getString("App.OK");
         private final static String CANCEL = Messages.getString("App.Cancel");
@@ -110,7 +110,7 @@ public class InputPane {
                 @Override
                 public void windowClosing(WindowEvent we) {
                     // Instead of directly closing the window, we're going to change the JOptionPane's value property.
-                    optionPane.setValue(Integer.valueOf(JOptionPane.CLOSED_OPTION));
+                    optionPane.setValue(JOptionPane.CLOSED_OPTION);
                 }
             });
 

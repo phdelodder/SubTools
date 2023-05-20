@@ -10,10 +10,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.JTVSubtitlesApi;
-import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.exception.TvSubtiltesException;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.exception.TvSubtitlesException;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.tvsubtitles.model.TVsubtitlesSubtitleDescriptor;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
@@ -35,7 +35,7 @@ import lombok.experimental.ExtensionMethod;
 
 @Getter
 @ExtensionMethod({ OptionalExtension.class })
-public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDescriptor, ProviderSerieId, TvSubtiltesException> {
+public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDescriptor, ProviderSerieId, TvSubtitlesException> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JTVsubtitlesAdapter.class);
     private static LazySupplier<JTVSubtitlesApi> jtvapi;
@@ -68,20 +68,20 @@ public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDesc
     }
 
     @Override
-    public List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithHash(String hash, Language language) throws TvSubtiltesException {
+    public List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithHash(String hash, Language language) throws TvSubtitlesException {
         // TODO implement this
         return List.of();
     }
 
     @Override
-    public List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithId(int tvdbId, Language language) throws TvSubtiltesException {
+    public List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithId(int tvdbId, Language language) throws TvSubtitlesException {
         // TODO implement this
         return List.of();
     }
 
     @Override
     public List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithName(String name, int year, Language language)
-            throws TvSubtiltesException {
+            throws TvSubtitlesException {
         // TODO implement this
         return List.of();
     }
@@ -93,13 +93,13 @@ public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDesc
     }
 
     @Override
-    public Set<TVsubtitlesSubtitleDescriptor> searchSerieSubtitles(TvRelease tvRelease, Language language) throws TvSubtiltesException {
+    public Set<TVsubtitlesSubtitleDescriptor> searchSerieSubtitles(TvRelease tvRelease, Language language) throws TvSubtitlesException {
         return getProviderSerieId(tvRelease)
                 .map(providerSerieId -> tvRelease.getEpisodeNumbers().stream()
                         .flatMap(episode -> {
                             try {
                                 return getApi().getSubtitles(providerSerieId, tvRelease.getSeason(), episode, language).stream();
-                            } catch (TvSubtiltesException e) {
+                            } catch (TvSubtitlesException e) {
                                 LOGGER.error("API %s searchSubtitles for serie [%s] (%s)".formatted(getSubtitleSource().getName(),
                                         TvRelease.formatName(providerSerieId.getProviderName(), tvRelease.getSeason(), episode),
                                         e.getMessage()), e);
@@ -119,25 +119,25 @@ public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDesc
                         .language(language)
                         .quality(ReleaseParser.getQualityKeyword(sub.getFilename() + " " + sub.getRip()))
                         .subtitleMatchType(SubtitleMatchType.EVERYTHING)
-                        .releaseGroup(ReleaseParser.extractReleasegroup(sub.getFilename(), FilenameUtils.isExtension(sub.getFilename(), "srt")))
+                        .releaseGroup(ReleaseParser.extractReleasegroup(sub.getFilename(), StringUtils.endsWith(sub.getFilename(), ".srt")))
                         .uploader(sub.getAuthor())
                         .hearingImpaired(false))
                 .collect(Collectors.toSet());
     }
 
     @Override
-    public List<ProviderSerieId> getSortedProviderSerieIds(OptionalInt tvdbIdOptional, String serieName, int season) throws TvSubtiltesException {
+    public List<ProviderSerieId> getSortedProviderSerieIds(OptionalInt tvdbIdOptional, String serieName, int season) throws TvSubtitlesException {
         Pattern yearPatter = Pattern.compile("\\((\\d\\d\\d\\d)-(\\d\\d\\d\\d)\\)");
         return getApi().getUrisForSerieName(serieName).stream()
                 .sorted(Comparator.comparing(
                         (ProviderSerieId n) -> !serieName.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(n.getName().replaceAll("[^A-Za-z]", "")))
-                        .thenComparing(Comparator.comparing((ProviderSerieId providerSerieId) -> {
+                        .thenComparing((ProviderSerieId providerSerieId) -> {
                             Matcher matcher = yearPatter.matcher(providerSerieId.getName());
                             if (matcher.find()) {
                                 return Integer.parseInt(matcher.group(2));
                             }
                             return 0;
-                        }, Comparator.reverseOrder())))
+                        }, Comparator.reverseOrder()))
                 .toList();
     }
 

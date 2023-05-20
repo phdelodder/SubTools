@@ -1,12 +1,11 @@
 package org.lodder.subtools.multisubdownloader.gui.actions.search;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.Messages;
-import org.lodder.subtools.multisubdownloader.actions.ActionException;
 import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchPanel;
@@ -36,7 +35,7 @@ public class TextGuiSearchAction extends GuiSearchAction<SearchTextInputPanel> {
     }
 
     public interface TextGuiSearchActionBuilderGUI {
-        TextGuiSearchActionBuilderSearchPanel mainwindow(GUI mainwindow);
+        TextGuiSearchActionBuilderSearchPanel mainWindow(GUI mainWindow);
     }
 
     public interface TextGuiSearchActionBuilderSearchPanel {
@@ -48,7 +47,7 @@ public class TextGuiSearchAction extends GuiSearchAction<SearchTextInputPanel> {
     }
 
     public interface TextGuiSearchActionBuilderBuild {
-        TextGuiSearchAction build() throws SearchSetupException;
+        TextGuiSearchAction build();
     }
 
     public static FileGuiSearchActionBuilderManager createWithSettings(Settings settings) {
@@ -64,19 +63,19 @@ public class TextGuiSearchAction extends GuiSearchAction<SearchTextInputPanel> {
         private final Settings settings;
         private Manager manager;
         private SubtitleProviderStore subtitleProviderStore;
-        private GUI mainwindow;
+        private GUI mainWindow;
         private SearchPanel<SearchTextInputPanel> searchPanel;
         private ReleaseFactory releaseFactory;
 
         @Override
-        public TextGuiSearchAction build() throws SearchSetupException {
-            return new TextGuiSearchAction(manager, settings, subtitleProviderStore, mainwindow, searchPanel, releaseFactory);
+        public TextGuiSearchAction build() {
+            return new TextGuiSearchAction(manager, settings, subtitleProviderStore, mainWindow, searchPanel, releaseFactory);
         }
     }
 
-    private TextGuiSearchAction(Manager manager, Settings settings, SubtitleProviderStore subtitleProviderStore, GUI mainwindow,
-            SearchPanel<SearchTextInputPanel> searchPanel, ReleaseFactory releaseFactory) throws SearchSetupException {
-        super(manager, settings, subtitleProviderStore, mainwindow, searchPanel, releaseFactory);
+    private TextGuiSearchAction(Manager manager, Settings settings, SubtitleProviderStore subtitleProviderStore, GUI mainWindow,
+            SearchPanel<SearchTextInputPanel> searchPanel, ReleaseFactory releaseFactory) {
+        super(manager, settings, subtitleProviderStore, mainWindow, searchPanel, releaseFactory);
     }
 
     @Override
@@ -87,7 +86,7 @@ public class TextGuiSearchAction extends GuiSearchAction<SearchTextInputPanel> {
     }
 
     @Override
-    protected List<Release> createReleases() throws ActionException {
+    protected List<Release> createReleases() {
         String name = getInputPanel().getReleaseName();
         VideoSearchType type = getInputPanel().getType();
 
@@ -95,22 +94,19 @@ public class TextGuiSearchAction extends GuiSearchAction<SearchTextInputPanel> {
         model.clearTable();
 
         // TODO: Redefine what a "release" is.
-        Release release;
-        if (VideoSearchType.EPISODE.equals(type)) {
-            release = TvRelease.builder()
+        Release release = switch (type) {
+            case EPISODE -> TvRelease.builder()
                     .name(name)
                     .season(getInputPanel().getSeason())
                     .episode(getInputPanel().getEpisode())
                     .quality(getInputPanel().getQuality())
                     .build();
-        } else if (VideoSearchType.MOVIE.equals(type)) {
-            release = MovieRelease.builder()
+            case MOVIE -> MovieRelease.builder()
                     .name(name)
                     .quality(getInputPanel().getQuality())
                     .build();
-        } else {
-            release = getReleaseFactory().createRelease(new File(name), getUserInteractionHandler());
-        }
+            default -> getReleaseFactory().createRelease(Path.of(name), getUserInteractionHandler());
+        };
 
         List<Release> releases = new ArrayList<>();
         if (release != null) {

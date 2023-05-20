@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.FilenameUtils;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.JAddic7edApi;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.exception.Addic7edException;
@@ -116,23 +115,15 @@ public class JAddic7edAdapter extends AbstractAdapter<Addic7edSubtitleDescriptor
                 .filter(sub -> language == sub.getLanguage())
                 .map(sub -> Subtitle.downloadSource(sub.getUrl())
                         .subtitleSource(getSubtitleSource())
-                        .fileName(StringUtil.removeIllegalFilenameChars(sub.getTitel() + " " + sub.getVersion()))
+                        .fileName(StringUtil.removeIllegalFilenameChars(sub.getTitle() + " " + sub.getVersion()))
                         .language(sub.getLanguage())
-                        .quality(ReleaseParser.getQualityKeyword(sub.getTitel() + " " + sub.getVersion()))
+                        .quality(ReleaseParser.getQualityKeyword(sub.getTitle() + " " + sub.getVersion()))
                         .subtitleMatchType(SubtitleMatchType.EVERYTHING)
-                        .releaseGroup(ReleaseParser.extractReleasegroup(sub.getTitel() + " " + sub.getVersion(),
-                                hasExtension(sub.getTitel() + " " + sub.getVersion(), "srt")))
+                        .releaseGroup(ReleaseParser.extractReleasegroup(sub.getTitle() + " " + sub.getVersion(),
+                                (sub.getTitle() + " " + sub.getVersion()).endsWith(".srt")))
                         .uploader(sub.getUploader())
                         .hearingImpaired(false))
                 .collect(Collectors.toSet());
-    }
-
-    private static boolean hasExtension(String text, String extension) {
-        try {
-            return FilenameUtils.isExtension(text, extension);
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
     }
 
     @Override
