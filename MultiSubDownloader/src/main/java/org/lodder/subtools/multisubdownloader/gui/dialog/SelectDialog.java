@@ -19,13 +19,18 @@ import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SubtitleTableColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SubtitleTableModel;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.button.AbstractButtonExtension;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.button.JButtonExtension;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcomponent.JComponentExtension;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 
 import java.awt.FlowLayout;
 
+import lombok.experimental.ExtensionMethod;
 import net.miginfocom.swing.MigLayout;
 
+@ExtensionMethod({ JButtonExtension.class, AbstractButtonExtension.class, JComponentExtension.class })
 public class SelectDialog extends MultiSubDialog {
 
     @Serial
@@ -62,34 +67,31 @@ public class SelectDialog extends MultiSubDialog {
             JPanel buttonPane = new JPanel();
             buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
             getContentPane().add(buttonPane, "cell 0 2,grow");
-            {
-                JButton okButton = new JButton(Messages.getString("App.OK"));
-                okButton.addActionListener(arg0 -> {
-                    selectedSubtitleIdxs = getSelectedIdxs();
-                    setVisible(false);
-                });
-                okButton.setActionCommand(Messages.getString("App.OK"));
-                buttonPane.add(okButton);
-                getRootPane().setDefaultButton(okButton);
-            }
-            {
-                JButton allButton = new JButton(Messages.getString("SelectDialog.Everything"));
-                allButton.addActionListener(arg0 -> {
-                    selectedSubtitleIdxs = IntStream.range(0, release.getMatchingSubs().size()).boxed().toList();
-                    setVisible(false);
-                });
-                allButton.setActionCommand(Messages.getString("App.All"));
-                buttonPane.add(allButton);
-            }
-            {
-                JButton cancelButton = new JButton(Messages.getString("App.Cancel"));
-                cancelButton.addActionListener(arg0 -> {
-                    selectedSubtitleIdxs = List.of();
-                    setVisible(false);
-                });
-                cancelButton.setActionCommand(Messages.getString("App.Cancel"));
-                buttonPane.add(cancelButton);
-            }
+
+            new JButton(Messages.getString("App.OK"))
+                    .defaultButtonFor(getRootPane())
+                    .withActionListener(() -> {
+                        selectedSubtitleIdxs = getSelectedIdxs();
+                        setVisible(false);
+                    })
+                    .withActionCommand(Messages.getString("App.OK"))
+                    .addTo(buttonPane);
+
+            new JButton(Messages.getString("SelectDialog.Everything"))
+                    .withActionListener(() -> {
+                        selectedSubtitleIdxs = IntStream.range(0, release.getMatchingSubs().size()).boxed().toList();
+                        setVisible(false);
+                    })
+                    .withActionCommand(Messages.getString("App.All"))
+                    .addTo(buttonPane);
+
+            new JButton(Messages.getString("App.Cancel"))
+                    .withActionListener(arg0 -> {
+                        selectedSubtitleIdxs = List.of();
+                        setVisible(false);
+                    })
+                    .withActionCommand(Messages.getString("App.Cancel"))
+                    .addTo(buttonPane);
         }
     }
 

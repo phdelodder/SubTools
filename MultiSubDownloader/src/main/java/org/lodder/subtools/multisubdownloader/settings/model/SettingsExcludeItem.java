@@ -8,14 +8,15 @@ import org.lodder.subtools.sublibrary.util.NamedPattern;
 
 import lombok.Getter;
 
+@Deprecated(since = "Settigns version 6")
 @Getter
 public class SettingsExcludeItem {
 
     private final String description;
-    private final SettingsExcludeType type;
+    private final PathMatchType type;
     private final Predicate<Path> isExcludedPredicate;
 
-    public SettingsExcludeItem(String description, SettingsExcludeType type) {
+    public SettingsExcludeItem(String description, PathMatchType type) {
         this.description = description;
         this.type = type;
         this.isExcludedPredicate = switch (type) {

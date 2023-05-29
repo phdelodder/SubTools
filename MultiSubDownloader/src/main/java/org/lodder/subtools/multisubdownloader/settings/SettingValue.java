@@ -15,14 +15,14 @@ import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
+import org.lodder.subtools.multisubdownloader.settings.model.PathOrRegex;
 import org.lodder.subtools.multisubdownloader.settings.model.ScreenSettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
-import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
-import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateCheckPeriod;
 import org.lodder.subtools.multisubdownloader.settings.model.UpdateType;
 import org.lodder.subtools.sublibrary.Language;
+import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.util.FileUtils;
 import org.lodder.subtools.sublibrary.util.TriConsumer;
 
@@ -54,22 +54,12 @@ public enum SettingValue {
     LOCAL_SUBTITLES_SOURCES_FOLDERS(createSettingPath()
             .rootElementFunction(SettingsControl::getSettings)
             .collectionGetter(Settings::getLocalSourcesFolders)),
-    EXCLUDE_ITEM(createSetting(SettingsExcludeItem.class)
-            .toStringMapper(v -> v.getType().toString() + "//" + v.getDescription())
-            .toObjectMapper(v -> {
-                String[] split = v.split("//", 2);
-                String description = split[1];
-                SettingsExcludeType type;
-                try {
-                    type = SettingsExcludeType.valueOf(split[0]);
-                } catch (IllegalArgumentException e) {
-                    type = SettingsExcludeType.FOLDER;
-                }
-                return new SettingsExcludeItem(description, type);
-            })
+    EXCLUDE_ITEM(createSetting(PathOrRegex.class)
+            .toStringMapper(PathOrRegex::getValue)
+            .toObjectMapper(PathOrRegex::new)
             .rootElementFunction(SettingsControl::getSettings)
             .collectionGetter(Settings::getExcludeList)),
-    DEFAULT_SELECTION_QUALITY(createSettingString()
+    DEFAULT_SELECTION_QUALITY(createSettingEnum(VideoPatterns.Source.class)
             .rootElementFunction(SettingsControl::getSettings)
             .collectionGetter(Settings::getOptionsDefaultSelectionQualityList)),
     DEFAULT_SELECTION_QUALITY_ENABLED(createSettingBoolean()
@@ -268,7 +258,7 @@ public enum SettingValue {
             .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
             .valueGetter(LibrarySettings::getLibraryFilenameReplacingSpaceSign)
             .valueSetter(LibrarySettings::setLibraryFilenameReplacingSpaceSign)
-            .defaultValue("")),
+            .defaultValue("-")),
     EPISODE_LIBRARY_FOLDER_REPLACE_SPACE(createSettingBoolean()
             .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
             .valueGetter(LibrarySettings::isLibraryFolderReplaceSpace)
@@ -278,7 +268,7 @@ public enum SettingValue {
             .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
             .valueGetter(LibrarySettings::getLibraryFolderReplacingSpaceSign)
             .valueSetter(LibrarySettings::setLibraryFolderReplacingSpaceSign)
-            .defaultValue("")),
+            .defaultValue("-")),
     EPISODE_LIBRARY_INCLUDE_LANGUAGE_CODE(createSettingBoolean()
             .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
             .valueGetter(LibrarySettings::isLibraryIncludeLanguageCode)
@@ -302,87 +292,87 @@ public enum SettingValue {
             .valueSetter(LibrarySettings::setLibraryBackupSubtitlePath)
             .defaultValue(null)),
     MOVIE_LIBRARY_BACKUP_SUBTITLE(createSettingBoolean()
-            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::isLibraryBackupSubtitle)
             .valueSetter(LibrarySettings::setLibraryBackupSubtitle)
             .defaultValue(false)),
     MOVIE_LIBRARY_BACKUP_USE_WEBSITE_FILE_NAME(createSettingBoolean()
-            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::isLibraryBackupUseWebsiteFileName)
             .valueSetter(LibrarySettings::setLibraryBackupUseWebsiteFileName)
             .defaultValue(false)),
     MOVIE_LIBRARY_ACTION(createSettingEnum(LibraryActionType.class)
-            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::getLibraryAction)
             .valueSetter(LibrarySettings::setLibraryAction)
             .defaultValue(LibraryActionType.NOTHING)),
     MOVIE_LIBRARY_USE_T_V_D_B_NAMING(createSettingBoolean()
-            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::isLibraryUseTVDBNaming)
             .valueSetter(LibrarySettings::setLibraryUseTVDBNaming)
             .defaultValue(false)),
     MOVIE_LIBRARY_REPLACE_CHARS(createSettingBoolean()
-            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::isLibraryReplaceChars)
             .valueSetter(LibrarySettings::setLibraryReplaceChars)
             .defaultValue(false)),
     MOVIE_LIBRARY_OTHER_FILE_ACTION(createSettingEnum(LibraryOtherFileActionType.class)
-            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::getLibraryOtherFileAction)
             .valueSetter(LibrarySettings::setLibraryOtherFileAction)
             .defaultValue(LibraryOtherFileActionType.NOTHING)),
     MOVIE_LIBRARY_FOLDER(createSettingPath()
-            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::getLibraryFolder)
             .valueSetter(LibrarySettings::setLibraryFolder)
             .defaultValue(null)),
     MOVIE_LIBRARY_FOLDER_STRUCTURE(createSettingString()
-            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::getLibraryFolderStructure)
             .valueSetter(LibrarySettings::setLibraryFolderStructure)
             .defaultValue("")),
     MOVIE_LIBRARY_REMOVE_EMPTY_FOLDERS(createSettingBoolean()
-            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::isLibraryRemoveEmptyFolders)
             .valueSetter(LibrarySettings::setLibraryRemoveEmptyFolders)
             .defaultValue(false)),
     MOVIE_LIBRARY_FILENAME_STRUCTURE(createSettingString()
-            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::getLibraryFilenameStructure)
             .valueSetter(LibrarySettings::setLibraryFilenameStructure)
             .defaultValue("%MOVIE TITLE% (%YEAR%)")),
     MOVIE_LIBRARY_REPLACE_SPACE(createSettingBoolean()
-            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::isLibraryFilenameReplaceSpace)
             .valueSetter(LibrarySettings::setLibraryFilenameReplaceSpace)
             .defaultValue(false)),
     MOVIE_LIBRARY_REPLACING_SIGN(createSettingString()
-            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::getLibraryFilenameReplacingSpaceSign)
             .valueSetter(LibrarySettings::setLibraryFilenameReplacingSpaceSign)
-            .defaultValue("")),
+            .defaultValue("-")),
     MOVIE_LIBRARY_FOLDER_REPLACE_SPACE(createSettingBoolean()
-            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::isLibraryFolderReplaceSpace)
             .valueSetter(LibrarySettings::setLibraryFolderReplaceSpace)
             .defaultValue(false)),
     MOVIE_LIBRARY_FOLDER_REPLACING_SIGN(createSettingString()
-            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::getLibraryFolderReplacingSpaceSign)
             .valueSetter(LibrarySettings::setLibraryFolderReplacingSpaceSign)
-            .defaultValue("")),
+            .defaultValue("-")),
     MOVIE_LIBRARY_INCLUDE_LANGUAGE_CODE(createSettingBoolean()
-            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::isLibraryIncludeLanguageCode)
             .valueSetter(LibrarySettings::setLibraryIncludeLanguageCode)
             .defaultValue(false)),
     MOVIE_LIBRARY_DEFAULT_NL_TEXT(createSettingString()
-            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::getDefaultNlText)
             .valueSetter(LibrarySettings::setDefaultNlText)
             .defaultValue("")),
     MOVIE_LIBRARY_DEFAULT_EN_TEXT(createSettingString()
-            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
+            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::getDefaultEnText)
             .valueSetter(LibrarySettings::setDefaultEnText)
             .defaultValue("")),
@@ -604,6 +594,7 @@ public enum SettingValue {
             //
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public <R2> SettingTyped<T, R2> rootElementFunction(Function<SettingsControl, R2> rootElementFunction) {
             super.setRootElementFunction(rootElementFunction);
@@ -648,7 +639,7 @@ public enum SettingValue {
                 case SINGLE_VALUE -> {
                     super.storeValueFunction((settingsControl, preferences) -> {
                         T value = valueGetter.apply(getRootElement(settingsControl));
-                        if (!Objects.equal(value, getDefaultValue())) {
+                        if (!Objects.equal(value, getDefaultValue()) && !(value instanceof String text && "".equals(text))) {
                             preferencesSetter.accept(preferences, key, value);
                         }
                     });
@@ -691,6 +682,7 @@ public enum SettingValue {
             return getThis();
         }
 
+        @SuppressWarnings("unchecked")
         public <R> void setRootElementFunction(Function<SettingsControl, R> rootElementFunction) {
             this.rootElementFunction = (Function<SettingsControl, ROOT>) rootElementFunction;
         }
@@ -709,6 +701,7 @@ public enum SettingValue {
             return rootElementFunction.apply(settingsControl);
         }
 
+        @SuppressWarnings("unchecked")
         private TYPE getThis() {
             return (TYPE) this;
         }

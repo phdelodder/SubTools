@@ -10,11 +10,15 @@ import javax.swing.JTextArea;
 
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.extra.LogTextAppender;
-import org.lodder.subtools.multisubdownloader.gui.extra.MyComboBox;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcombobox.MyComboBox;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextarea.JTextAreaExtension;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextcomponent.JTextComponentExtension;
 
 import ch.qos.logback.classic.Level;
+import lombok.experimental.ExtensionMethod;
 import net.miginfocom.swing.MigLayout;
 
+@ExtensionMethod({ JTextComponentExtension.class, JTextAreaExtension.class })
 public class LoggingPanel extends JPanel {
 
     @Serial
@@ -37,10 +41,8 @@ public class LoggingPanel extends JPanel {
         this.add(cbxLogLevel, "cell 1 0,alignx right");
         this.add(scrollPane_1, "cell 0 1 2 1,grow");
 
-        txtLogging = new JTextArea();
+        txtLogging = new JTextArea().autoscrolls(true).editable(false);
         scrollPane_1.setViewportView(txtLogging);
-        txtLogging.setEditable(false);
-        txtLogging.setAutoscrolls(true);
 
         new LogTextAppender(txtLogging);
     }

@@ -16,9 +16,12 @@ import javax.swing.border.EmptyBorder;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
-import org.lodder.subtools.multisubdownloader.gui.panels.EpisodeLibraryPanel;
-import org.lodder.subtools.multisubdownloader.gui.panels.MovieLibraryPanel;
-import org.lodder.subtools.multisubdownloader.gui.panels.VideoLibraryPanel;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.button.AbstractButtonExtension;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.button.JButtonExtension;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcomponent.JComponentExtension;
+import org.lodder.subtools.multisubdownloader.gui.panels.preference.EpisodeLibraryPanel;
+import org.lodder.subtools.multisubdownloader.gui.panels.preference.MovieLibraryPanel;
+import org.lodder.subtools.multisubdownloader.gui.panels.preference.VideoLibraryPanel;
 import org.lodder.subtools.multisubdownloader.gui.workers.TypedRenameWorker;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
@@ -33,6 +36,9 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
+import lombok.experimental.ExtensionMethod;
+
+@ExtensionMethod({ JButtonExtension.class, AbstractButtonExtension.class, JComponentExtension.class })
 public class RenameDialog extends MultiSubDialog implements PropertyChangeListener {
 
     @Serial
@@ -132,26 +138,26 @@ public class RenameDialog extends MultiSubDialog implements PropertyChangeListen
             buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
             getContentPane().add(buttonPane, BorderLayout.SOUTH);
             {
-                JButton renameButton = new JButton(Messages.getString("RenameDialog.Rename"));
-                renameButton.addActionListener(arg0 -> {
-                    if (videoType == VideoType.EPISODE) {
-                        rename(Path.of(txtRenameLocation.getText()), Path.of(txtRenameLocation.getText()),
-                                settings, pnlLibrary.getLibrarySettings(), manager, userInteractionHandler);
-                    } else {
-                        rename(Path.of(txtRenameLocation.getText()), Path.of(txtRenameLocation.getText()),
-                                new Settings(), pnlLibrary.getLibrarySettings(), manager, userInteractionHandler);
-                    }
-                    setVisible(false);
-                });
-                renameButton.setActionCommand("Rename");
-                buttonPane.add(renameButton);
-                getRootPane().setDefaultButton(renameButton);
+                new JButton(Messages.getString("RenameDialog.Rename"))
+                        .defaultButtonFor(getRootPane())
+                        .withActionListener(() -> {
+                            if (videoType == VideoType.EPISODE) {
+                                rename(Path.of(txtRenameLocation.getText()), Path.of(txtRenameLocation.getText()),
+                                        settings, pnlLibrary.getLibrarySettings(), manager, userInteractionHandler);
+                            } else {
+                                rename(Path.of(txtRenameLocation.getText()), Path.of(txtRenameLocation.getText()),
+                                        new Settings(), pnlLibrary.getLibrarySettings(), manager, userInteractionHandler);
+                            }
+                            setVisible(false);
+                        })
+                        .withActionCommand("Rename")
+                        .addTo(buttonPane);
             }
             {
-                JButton cancelButton = new JButton(Messages.getString("App.Cancel"));
-                cancelButton.addActionListener(arg0 -> setVisible(false));
-                cancelButton.setActionCommand("Cancel");
-                buttonPane.add(cancelButton);
+                new JButton(Messages.getString("App.Cancel"))
+                        .withActionListener(() -> setVisible(false))
+                        .withActionCommand("Cancel")
+                        .addTo(buttonPane);
             }
         }
     }

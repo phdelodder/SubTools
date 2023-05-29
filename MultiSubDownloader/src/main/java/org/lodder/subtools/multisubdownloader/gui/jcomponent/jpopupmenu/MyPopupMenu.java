@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader.gui.extra;
+package org.lodder.subtools.multisubdownloader.gui.jcomponent.jpopupmenu;
 
 import javax.swing.JPopupMenu;
 

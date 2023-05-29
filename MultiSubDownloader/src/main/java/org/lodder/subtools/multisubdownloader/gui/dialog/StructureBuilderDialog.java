@@ -17,6 +17,9 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 
 import org.lodder.subtools.multisubdownloader.Messages;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.button.AbstractButtonExtension;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.button.JButtonExtension;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcomponent.JComponentExtension;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.lib.library.PathLibraryBuilder;
@@ -34,8 +37,10 @@ import java.awt.FlowLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import lombok.experimental.ExtensionMethod;
 import net.miginfocom.swing.MigLayout;
 
+@ExtensionMethod({ JButtonExtension.class, AbstractButtonExtension.class, JComponentExtension.class })
 public class StructureBuilderDialog extends MultiSubDialog implements DocumentListener {
 
     @Serial
@@ -74,7 +79,7 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
         ReleaseFactory releaseFactory = new ReleaseFactory(new Settings(), manager);
         if (videoType == VideoType.EPISODE) {
             tvRelease = (TvRelease) releaseFactory.createRelease(
-                    Path.of("Terra.Nova.S01E01E02.720p.HDTV.x264-ORENJI.mkv"),
+                    Path.of("Terra.Nova.S01E01E02.Genesis.720p.HDTV.x264-ORENJI.mkv"),
                     userInteractionHandler);
         } else if (videoType == VideoType.MOVIE) {
             movieRelease = (MovieRelease) releaseFactory.createRelease(Path.of("Final.Destination.5.720p.Bluray.x264-TWiZTED"),
@@ -120,22 +125,24 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
         JPanel buttonPane = new JPanel();
         buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
         getContentPane().add(buttonPane, BorderLayout.SOUTH);
-        JButton okButton = new JButton(Messages.getString("App.OK"));
-        okButton.addActionListener(e -> {
-            setVisible(false);
-            dispose(); // this is needed to dispose the dialog and return the control to the window
-        });
-        okButton.setActionCommand("OK");
-        buttonPane.add(okButton);
-        getRootPane().setDefaultButton(okButton);
-        JButton cancelButton = new JButton(Messages.getString("App.Cancel"));
-        cancelButton.addActionListener(e -> {
-            setVisible(false);
-            txtStructure.setText(oldStructure);
-            dispose(); // this is needed to dispose the dialog and return the control to the window
-        });
-        cancelButton.setActionCommand("Cancel");
-        buttonPane.add(cancelButton);
+
+        new JButton(Messages.getString("App.OK"))
+                .defaultButtonFor(getRootPane())
+                .withActionListener(e -> {
+                    setVisible(false);
+                    dispose(); // this is needed to dispose the dialog and return the control to the window
+                })
+                .withActionCommand("OK")
+                .addTo(buttonPane);
+
+        new JButton(Messages.getString("App.Cancel"))
+                .withActionListener(e -> {
+                    setVisible(false);
+                    txtStructure.setText(oldStructure);
+                    dispose(); // this is needed to dispose the dialog and return the control to the window
+                })
+                .withActionCommand("Cancel")
+                .addTo(buttonPane);
 
     }
 

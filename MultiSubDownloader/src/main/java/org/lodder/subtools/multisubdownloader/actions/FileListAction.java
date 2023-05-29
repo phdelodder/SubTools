@@ -11,7 +11,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
-import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.util.FileUtils;
@@ -94,22 +93,18 @@ public class FileListAction {
         return filelist;
     }
 
-    private boolean isExcludedDir(Path file) {
-        boolean excludedDir = settings.getExcludeList().stream()
-                .filter(item -> item.getType() == SettingsExcludeType.FOLDER)
-                .anyMatch(item -> item.isExcluded(file));
+    private boolean isExcludedDir(Path path) {
+        boolean excludedDir = settings.getExcludeList().stream().anyMatch(item -> item.isExcludedPath(path));
         if (excludedDir) {
-            LOGGER.trace("isExcludedDir, skipping [{}]", file);
+            LOGGER.trace("isExcludedDir, skipping [{}]", path);
         }
         return excludedDir;
     }
 
-    private boolean isExcludedFile(Path file) {
-        boolean excludedFile = settings.getExcludeList().stream()
-                .filter(item -> item.getType() == SettingsExcludeType.FILE || item.getType() == SettingsExcludeType.REGEX)
-                .anyMatch(item -> item.isExcluded(file));
+    private boolean isExcludedFile(Path path) {
+        boolean excludedFile = settings.getExcludeList().stream().anyMatch(item -> item.isExcludedPath(path));
         if (excludedFile) {
-            LOGGER.trace("isExcludedFile, skipping [{}]", file);
+            LOGGER.trace("isExcludedFile, skipping [{}]", path);
         }
         return excludedFile;
     }

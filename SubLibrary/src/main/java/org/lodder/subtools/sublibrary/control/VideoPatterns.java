@@ -1,7 +1,9 @@
 package org.lodder.subtools.sublibrary.control;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -85,6 +87,12 @@ public class VideoPatterns {
         R5(true, "r5"),
         CAM(true, "cam");
 
+        static final Map<String, Source> VALUE_MAP = new HashMap<>();
+
+        static {
+            Arrays.stream(Source.values()).forEach(source -> Arrays.stream(source.getValues()).forEach(value -> VALUE_MAP.put(value, source)));
+        }
+
         final boolean manyDifferentSources;
         final String[] values;
 
@@ -95,6 +103,19 @@ public class VideoPatterns {
 
         public static Stream<String> getValuesStream() {
             return Source.values().stream().map(Source::getValues).flatMap(Arrays::stream);
+        }
+
+        public static Source fromValue(String value) {
+            return VALUE_MAP.get(value);
+        }
+
+        public boolean isTypeForValue(String value) {
+            return Arrays.stream(getValues()).map(String::toLowerCase).anyMatch(value::equals);
+        }
+
+        @Override
+        public String toString() {
+            return values[0];
         }
     }
 

@@ -41,6 +41,10 @@ public class PartialDisableComboBox<T> extends JComboBox<T> {
         });
     }
 
+    public static <T> PartialDisableComboBox<T> of(T... items) {
+        return new PartialDisableComboBox<>(items);
+    }
+
     @Override
     public void addItem(T item) {
         this.addItem(item, true);
@@ -69,9 +73,7 @@ public class PartialDisableComboBox<T> extends JComboBox<T> {
 
     @Override
     public void removeItemAt(int index) {
-        if (index < 0 || index >= itemsState.size()) {
-            throw new IllegalArgumentException("Item Index out of Bounds!");
-        }
+        requireValidIndex(index);
         super.removeItemAt(index);
         itemsState.remove(index);
     }
@@ -84,25 +86,24 @@ public class PartialDisableComboBox<T> extends JComboBox<T> {
 
     @Override
     public void setSelectedIndex(int index) {
-        if (index < 0 || index >= itemsState.size()) {
-            throw new IllegalArgumentException("Item Index out of Bounds!");
-        }
+        requireValidIndex(index);
         if (itemsState.get(index)) {
             super.setSelectedIndex(index);
         }
     }
 
     public void setItemEnabled(int index, boolean enabled) {
-        if (index < 0 || index >= itemsState.size()) {
-            throw new IllegalArgumentException("Item Index out of Bounds!");
-        }
-        itemsState.set(index, enabled);
+        itemsState.set(requireValidIndex(index), enabled);
     }
 
     public boolean isItemEnabled(int index) {
+        return itemsState.get(requireValidIndex(index));
+    }
+
+    private int requireValidIndex(int index) {
         if (index < 0 || index >= itemsState.size()) {
             throw new IllegalArgumentException("Item Index out of Bounds!");
         }
-        return itemsState.get(index);
+        return index;
     }
 }
