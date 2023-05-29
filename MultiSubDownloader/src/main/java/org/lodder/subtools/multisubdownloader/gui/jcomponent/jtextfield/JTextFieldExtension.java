@@ -11,9 +11,4 @@ public class JTextFieldExtension {
         textField.setColumns(columns);
         return textField;
     }
-
-    // public <T extends JTextField> T enabled(T textField, boolean enabled) {
-    // textField.setEnabled(enabled);
-    // return textField;
-    // }
 }
