@@ -1,4 +1,4 @@
-package org.lodder.subtools.multisubdownloader.gui.extra;
+package org.lodder.subtools.multisubdownloader.gui.jcomponent.jcombobox;
 
 import java.io.Serial;
 import java.util.Collection;
@@ -16,6 +16,7 @@ import org.lodder.subtools.multisubdownloader.gui.ToStringListCellRenderer;
 import com.google.common.collect.Iterables;
 
 import java.awt.event.ActionListener;
+import java.awt.event.ItemListener;
 
 public class MyComboBox<E> extends JComboBox<E> {
 
@@ -86,6 +87,10 @@ public class MyComboBox<E> extends JComboBox<E> {
         super();
     }
 
+    public static <E> MyComboBox<E> ofValues(E... values) {
+        return new MyComboBox<>(values);
+    }
+
     public MyComboBox<E> withModel(ComboBoxModel<E> model) {
         setModel(model);
         return this;
@@ -104,9 +109,13 @@ public class MyComboBox<E> extends JComboBox<E> {
         return withRenderer(ToStringListCellRenderer.ofMessage(getRenderer(), toStringRenderer));
     }
 
-    public MyComboBox<E> disabled() {
-        setEnabled(false);
+    public MyComboBox<E> withItemListener(ItemListener itemListener) {
+        this.addItemListener(itemListener);
         return this;
+    }
+
+    public MyComboBox<E> withItemListener(Runnable itemListener) {
+        return withItemListener(arg -> itemListener.run());
     }
 
     public MyComboBox<E> withSelectedItem(E item) {
@@ -119,19 +128,21 @@ public class MyComboBox<E> extends JComboBox<E> {
         return this;
     }
 
+    @SuppressWarnings("unchecked")
     public MyComboBox<E> withEventConsumer(Consumer<MyComboBox<E>> actionListener) {
         addActionListener(event -> actionListener.accept((MyComboBox<E>) (event.getSource())));
         return this;
     }
 
+    @SuppressWarnings("unchecked")
     public MyComboBox<E> withSelectedItemConsumer(Consumer<E> actionListener) {
         addActionListener(event -> actionListener.accept(((MyComboBox<E>) (event.getSource())).getSelectedItem()));
         return this;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public E getSelectedItem() {
         return (E) super.getSelectedItem();
     }
-
 }

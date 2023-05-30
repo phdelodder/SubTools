@@ -2,6 +2,8 @@ package org.lodder.subtools.sublibrary.data;
 
 import java.util.List;
 
+import org.lodder.subtools.sublibrary.control.VideoPatterns;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -17,7 +19,7 @@ public class UserInteractionSettings implements UserInteractionSettingsIntf {
 
     private final boolean optionsDefaultSelection;
 
-    private final List<String> optionsDefaultSelectionQualityList;
+    private final List<VideoPatterns.Source> optionsDefaultSelectionQualityList;
 
     private final boolean optionsConfirmProviderMapping;
 }

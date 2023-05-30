@@ -30,16 +30,16 @@ public class Settings implements UserInteractionSettingsIntf {
     private boolean optionSubtitleKeywordMatch = true;
     private boolean optionSubtitleExcludeHearingImpaired;
     private boolean optionsShowOnlyFound, optionsStopOnSearchError;
-    private List<SettingsExcludeItem> excludeList = new ArrayList<>();
-    private LibrarySettings movieLibrarySettings = new LibrarySettings();
-    private LibrarySettings episodeLibrarySettings = new LibrarySettings();
+    private List<PathOrRegex> excludeList = new ArrayList<>();
+    private final LibrarySettings movieLibrarySettings = new LibrarySettings();
+    private final LibrarySettings episodeLibrarySettings = new LibrarySettings();
     private String generalProxyHost = "";
     private int generalProxyPort = 80;
     private boolean generalProxyEnabled;
     private List<Path> defaultIncomingFolders = new ArrayList<>();
     private List<Path> localSourcesFolders = new ArrayList<>();
     private boolean optionRecursive;
-    private ScreenSettings screenSettings = new ScreenSettings();
+    private final ScreenSettings screenSettings = new ScreenSettings();
     private boolean loginAddic7edEnabled;
     private String loginAddic7edUsername;
     private String loginAddic7edPassword;
@@ -61,7 +61,7 @@ public class Settings implements UserInteractionSettingsIntf {
     private UpdateCheckPeriod updateCheckPeriod;
     private UpdateType updateType;
     private boolean optionsDefaultSelection;
-    private List<String> optionsDefaultSelectionQualityList = new ArrayList<>();
+    private List<VideoPatterns.Source> optionsDefaultSelectionQualityList = new ArrayList<>();
     private int settingsVersion;
     private boolean optionsConfirmProviderMapping;
     private Language language;
@@ -83,7 +83,7 @@ public class Settings implements UserInteractionSettingsIntf {
     }
 
     public boolean hasDefaultFolders() {
-        return getDefaultIncomingFolders().size() > 0;
+        return !getDefaultIncomingFolders().isEmpty();
     }
 
     public Map<String, Integer> getSortWeights() {

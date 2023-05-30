@@ -8,9 +8,11 @@ import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileAction
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Getter
 @Setter
+@Accessors(chain = true)
 public class LibrarySettings {
 
     private String libraryFilenameStructure = "";

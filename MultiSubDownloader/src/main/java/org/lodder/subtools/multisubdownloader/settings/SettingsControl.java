@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
 import java.util.prefs.Preferences;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
@@ -23,11 +21,11 @@ import org.lodder.subtools.multisubdownloader.gui.dialog.MappingEpisodeNameDialo
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
-import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeItem;
-import org.lodder.subtools.multisubdownloader.settings.model.SettingsExcludeType;
 import org.lodder.subtools.multisubdownloader.settings.model.State;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.CacheType;
+import org.lodder.subtools.sublibrary.control.VideoPatterns;
+import org.lodder.subtools.sublibrary.control.VideoPatterns.Source;
 import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,6 +140,9 @@ public class SettingsControl {
         if (version <= 4) {
             migrateSettingsV4ToV5();
         }
+        if (version <= 5) {
+            migrateSettingsV5ToV6();
+        }
     }
 
     public void migrateSettingsV0ToV1() {
@@ -153,21 +154,23 @@ public class SettingsControl {
         preferences.putInt("DictionarySize", preferences.getInt("lastItemDictionary", 0));
         preferences.putInt("MappingVersion", preferences.getInt("mappingVersion", 0));
 
-        int lastItemExclude = preferences.getInt("lastItemExclude", 0);
-        if (lastItemExclude > 0) {
-            List<SettingsExcludeItem> excludeList = settings.getExcludeList();
-            IntStream.range(0, preferences.getInt("lastItemExclude", 0)).forEach(i -> {
-                String description = preferences.get("ExcludeDescription" + i, "");
-                SettingsExcludeType type;
-                try {
-                    type = SettingsExcludeType.valueOf(preferences.get("ExcludeType" + i, ""));
-                } catch (IllegalArgumentException e) {
-                    type = SettingsExcludeType.FOLDER;
-                }
-                excludeList.add(new SettingsExcludeItem(description, type));
-            });
-            EXCLUDE_ITEM.store(this, preferences);
-        }
+        // removed since version 6
+
+        // int lastItemExclude = preferences.getInt("lastItemExclude", 0);
+        // if (lastItemExclude > 0) {
+        // List<SettingsExcludeItem> excludeList = settings.getExcludeList();
+        // IntStream.range(0, preferences.getInt("lastItemExclude", 0)).forEach(i -> {
+        // String description = preferences.get("ExcludeDescription" + i, "");
+        // PathMatchType type;
+        // try {
+        // type = PathMatchType.valueOf(preferences.get("ExcludeType" + i, ""));
+        // } catch (IllegalArgumentException e) {
+        // type = PathMatchType.FOLDER;
+        // }
+        // excludeList.add(new SettingsExcludeItem(description, type));
+        // });
+        // EXCLUDE_ITEM.store(this, preferences);
+        // }
 
         EPISODE_LIBRARY_FOLDER_STRUCTURE.load(this, preferences);
         settings.getEpisodeLibrarySettings()
@@ -226,6 +229,8 @@ public class SettingsControl {
     }
 
     public void migrateSettingsV2ToV3() {
+        // removed since version 6
+
         // int numberOfItems = preferences.getInt("DictionarySize", 0);
         // IntStream.range(0, numberOfItems).forEach(i -> {
         // String v = preferences.get("Dictionary" + i, "");
@@ -246,15 +251,18 @@ public class SettingsControl {
     }
 
     public void migrateSettingsV3ToV4() {
-        int numberOfItems = preferences.getInt("ExcludeItemSize", 0);
-        Pattern pattern = Pattern.compile("(.*?)\\[*==\\](.*?)");
-        IntStream.range(0, numberOfItems).forEach(i -> {
-            String v = preferences.get("ExcludeItem" + i, "");
-            Matcher matcher = pattern.matcher(v);
-            matcher.matches();
-            String newValue = matcher.group(2) + "//" + matcher.group(1);
-            preferences.put("ExcludeItem" + i, newValue);
-        });
+        // removed since version 6
+
+        // int numberOfItems = preferences.getInt("ExcludeItemSize", 0);
+        // Pattern pattern = Pattern.compile("(.*?)\\[*==\\](.*?)");
+        // IntStream.range(0, numberOfItems).forEach(i -> {
+        // String v = preferences.get("ExcludeItem" + i, "");
+        // Matcher matcher = pattern.matcher(v);
+        // matcher.matches();
+        // String newValue = matcher.group(2) + "//" + matcher.group(1);
+        // preferences.put("ExcludeItem" + i, newValue);
+        // });
+        // EXCLUDE_ITEM.store(this, preferences);
         settings.setSettingsVersion(4);
         SETTINGS_VERSION.store(this, preferences);
     }
@@ -269,6 +277,30 @@ public class SettingsControl {
                                     .remove();
                         }));
         settings.setSettingsVersion(5);
+        SETTINGS_VERSION.store(this, preferences);
+    }
+
+    public void migrateSettingsV5ToV6() {
+        IntStream.range(0, preferences.getInt("ExcludeItemSize", 0))
+                .forEach(i -> preferences.put("ExcludeItem" + i, preferences.get("ExcludeItem" + i, "").split("//", 2)[1]));
+        EXCLUDE_ITEM.store(this, preferences);
+
+        // Conversion from String to enum + remove duplicates
+        int defaultSelectionQualitySize = preferences.getInt("DefaultSelectionQualitySize", 0);
+        if (defaultSelectionQualitySize > 0) {
+            List<Source> defaultSelectionQualitySizes = IntStream.range(0, defaultSelectionQualitySize)
+                    .mapToObj(i -> VideoPatterns.Source.fromValue(preferences.get("DefaultSelectionQuality" + i, ""))).distinct().toList();
+            IntStream.range(0, defaultSelectionQualitySizes.size())
+                    .forEach(i -> preferences.put("DefaultSelectionQuality" + i, defaultSelectionQualitySizes.get(i).name()));
+            if (defaultSelectionQualitySize != defaultSelectionQualitySizes.size()) {
+                preferences.putInt("DefaultSelectionQualitySize", defaultSelectionQualitySizes.size());
+                IntStream.range(defaultSelectionQualitySize, defaultSelectionQualitySizes.size())
+                        .forEach(i -> preferences.remove("DefaultSelectionQuality" + i));
+            }
+        }
+        DEFAULT_SELECTION_QUALITY.store(this, preferences);
+
+        settings.setSettingsVersion(6);
         SETTINGS_VERSION.store(this, preferences);
     }
 

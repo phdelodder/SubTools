@@ -51,6 +51,7 @@ public class PathLibraryBuilder extends LibraryBuilder {
         folder = folder.replace("%E%", formattedNumber(tvRelease.getEpisodeNumbers().get(0), false));
         folder = folder.replace("%TITLE%", tvRelease.getTitle());
         folder = folder.replace("%QUALITY%", tvRelease.getQuality());
+        folder = folder.replace("%DESCRIPTION%", tvRelease.getDescription());
         if (getLibrarySettings().isLibraryFolderReplaceSpace()) {
             folder = folder.replace(" ", getLibrarySettings().getLibraryFolderReplacingSpaceSign());
         }

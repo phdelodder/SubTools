@@ -8,11 +8,14 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import org.lodder.subtools.multisubdownloader.Messages;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield.JTextFieldExtension;
 
 import java.awt.event.ActionListener;
 
+import lombok.experimental.ExtensionMethod;
 import net.miginfocom.swing.MigLayout;
 
+@ExtensionMethod({ JTextFieldExtension.class })
 public class SearchFileInputPanel extends InputPanel {
 
     @Serial
@@ -42,8 +45,7 @@ public class SearchFileInputPanel extends InputPanel {
     }
 
     private void createComponents() {
-        txtIncomingPath = new JTextField();
-        txtIncomingPath.setColumns(20);
+        txtIncomingPath = new JTextField().withColumns(20);
 
         chkRecursive = new JCheckBox(Messages.getString("MainWindow.RecursiveSearch"));
         chkForceSubtitleOverwrite = new JCheckBox(Messages.getString("MainWindow.ignoreExistingSubtitles"));

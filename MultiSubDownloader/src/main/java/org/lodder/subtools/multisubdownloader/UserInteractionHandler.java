@@ -21,9 +21,8 @@ public interface UserInteractionHandler extends org.lodder.subtools.sublibrary.u
 
         if (getSettings().isOptionsDefaultSelection()) {
             List<Subtitle> defaultSelectionsFound = getSettings().getOptionsDefaultSelectionQualityList().stream()
-                    .flatMap(q -> shortlist.stream().filter(subtitle -> subtitle.getQuality().toLowerCase().contains(q.toLowerCase())))
-                    .distinct()
-                    .toList();
+                    .flatMap(q -> shortlist.stream().filter(subtitle -> q.isTypeForValue(subtitle.getQuality())))
+                    .distinct().toList();
 
             if (!defaultSelectionsFound.isEmpty()) {
                 return defaultSelectionsFound;

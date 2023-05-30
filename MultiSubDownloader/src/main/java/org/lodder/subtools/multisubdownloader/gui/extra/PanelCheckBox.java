@@ -1,42 +1,116 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
+import java.io.Serial;
+
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 
-import org.lodder.subtools.sublibrary.util.JComponentExtension;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcheckbox.JCheckBoxExtension;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcomponent.JComponentExtension;
 
 import java.awt.Component;
 import java.awt.LayoutManager;
-import java.io.Serial;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.experimental.ExtensionMethod;
 import net.miginfocom.swing.MigLayout;
 
-@ExtensionMethod({ JComponentExtension.class })
+@ExtensionMethod({ JComponentExtension.class, JCheckBoxExtension.class })
 public class PanelCheckBox extends JPanel {
     @Serial
     private static final long serialVersionUID = 1L;
-    private final JCheckBox chk;
+    private final JCheckBox checkbox;
+    @Getter
     private final JPanel panel;
 
-    public PanelCheckBox(JCheckBox chk) {
-        this(chk, "wrap");
+    private PanelCheckBox(JCheckBox checkbox, boolean panelOnNewLine, LayoutManager panelLayout, boolean addVerticalSeparator, int leftGap) {
+        super(new MigLayout("insets 0, novisualpadding, fillx"));
+        this.checkbox = checkbox;
+        this.panel = new JPanel(panelLayout);
+        if (addVerticalSeparator) {
+            this.panel.addComponent("dock west, gap 10 10 0 0", new JSeparator(SwingConstants.VERTICAL));
+        }
+        super.add(checkbox, panelOnNewLine ? "span" : "");
+        super.add(panel, "span, growx, " + (addVerticalSeparator ? "" : "gapx " + leftGap));
+        checkbox.addCheckedChangeListener(this::setEnabledChildren);
     }
 
-    public PanelCheckBox(JCheckBox chk, Object constraints) {
-        this(new MigLayout("insets 0, gap 0 0 0 0, novisualpadding", "[grow, nogrid]"), chk, constraints);
+    public static BuilderPanelNewLineIntf checkbox(JCheckBox checkbox) {
+        return new Builder(checkbox);
     }
 
-    public PanelCheckBox(LayoutManager layout, JCheckBox chk, Object constraints) {
-        super(layout);
-        this.panel = new JPanel(new MigLayout("insets 0, novisualpadding", "[grow, nogrid]"))
-                .addComponent("dock west, gap 10 10 0 0", new JSeparator(SwingConstants.VERTICAL));
-        super.add(chk, constraints);
-        super.add(panel, constraints);
-        this.chk = chk;
-        chk.addCheckedChangeListener(this::setEnabledChildren).setSelected(true);
+    public interface BuilderPanelNewLineIntf {
+        BuilderSeparatorIntf panelOnNewLine();
+
+        BuilderOtherIntf panelOnSameLine();
+    }
+
+    public interface BuilderSeparatorIntf extends BuilderOtherIntf {
+        BuilderOtherIntf addVerticalSeparator();
+
+    }
+
+    public interface BuilderOtherIntf {
+        BuilderOtherIntf leftGap(int leftGap);
+        BuilderOtherIntf panelLayout(LayoutManager panelLayout);
+
+        JPanel addTo(JComponent component);
+
+        JPanel addTo(JComponent component, Object constraints);
+
+        PanelCheckBox build();
+    }
+
+    @RequiredArgsConstructor
+    @Setter
+    @Accessors(chain = true, fluent = true)
+    public static class Builder implements
+            BuilderPanelNewLineIntf,
+            BuilderSeparatorIntf,
+            BuilderOtherIntf {
+        private final JCheckBox checkbox;
+        private boolean panelOnNewLine;
+        private LayoutManager panelLayout = new MigLayout("insets 0, novisualpadding, fillx");
+        private boolean addVerticalSeparator;
+        private int leftGap = 20;
+
+        @Override
+        public Builder panelOnNewLine() {
+            return panelOnNewLine(true);
+        }
+
+        @Override
+        public Builder panelOnSameLine() {
+            return panelOnNewLine(false);
+        }
+
+        @Override
+        public Builder addVerticalSeparator() {
+            return addVerticalSeparator(true);
+        }
+
+        @Override
+        public JPanel addTo(JComponent component) {
+            return addTo(component, "");
+        }
+
+        @Override
+        public JPanel addTo(JComponent component, Object constraints) {
+            PanelCheckBox panelCheckBox = new PanelCheckBox(checkbox, panelOnNewLine, panelLayout, addVerticalSeparator, leftGap);
+            component.add(panelCheckBox, constraints);
+            return panelCheckBox.getPanel();
+        }
+
+        @Override
+        public PanelCheckBox build() {
+            return new PanelCheckBox(checkbox, panelOnNewLine, panelLayout, addVerticalSeparator, leftGap);
+        }
     }
 
     @Override
@@ -57,7 +131,7 @@ public class PanelCheckBox extends JPanel {
     public void setEnabled(boolean enabled) {
         if (enabled != this.isEnabled()) {
             super.setEnabled(enabled);
-            chk.setEnabled(enabled);
+            checkbox.setEnabled(enabled);
             if (isSelected()) {
                 setEnabledChildren(enabled);
             }
@@ -65,6 +139,6 @@ public class PanelCheckBox extends JPanel {
     }
 
     public boolean isSelected() {
-        return chk.isSelected();
+        return checkbox.isSelected();
     }
 }

@@ -27,6 +27,9 @@ import javax.swing.table.TableRowSorter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandlerGUI;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.button.AbstractButtonExtension;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.button.JButtonExtension;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcomponent.JComponentExtension;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
@@ -44,8 +47,10 @@ import java.awt.Insets;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.ExtensionMethod;
 import net.miginfocom.swing.MigLayout;
 
+@ExtensionMethod({ JButtonExtension.class, AbstractButtonExtension.class, JComponentExtension.class })
 public class MappingEpisodeNameDialog extends MultiSubDialog {
 
     @Serial
@@ -274,7 +279,7 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
             }
 
             {
-                btnAddCustomMapping.addActionListener(arg0 -> {
+                btnAddCustomMapping.withActionListener(() -> {
                     int rowNbr = table.convertRowIndexToModel(table.getSelectedRow());
                     MappingTableModel model = (MappingTableModel) table.getModel();
 
@@ -313,11 +318,11 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
             }
 
             {
-                JButton closeButton = new JButton(Messages.getString("App.Close"));
-                closeButton.addActionListener(arg0 -> setVisible(false));
-                closeButton.setActionCommand(Messages.getString("App.Close"));
-                buttonPane.add(closeButton, "skip");
-                getRootPane().setDefaultButton(closeButton);
+                new JButton(Messages.getString("App.Close"))
+                        .defaultButtonFor(getRootPane())
+                        .withActionListener(() -> setVisible(false))
+                        .withActionCommand(Messages.getString("App.Close"))
+                        .addTo(buttonPane, "skip");
             }
         }
     }

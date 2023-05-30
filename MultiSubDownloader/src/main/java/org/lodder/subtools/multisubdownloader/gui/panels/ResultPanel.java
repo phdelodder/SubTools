@@ -1,5 +1,7 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
+import java.io.Serial;
+
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -13,7 +15,6 @@ import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 
 import java.awt.event.ActionListener;
-import java.io.Serial;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -28,9 +29,6 @@ public class ResultPanel extends JPanel {
     private JButton btnSelectFound;
     private JButton btnSelectNone;
     private CustomTable resultTable;
-
-    private ActionListener downloadAction;
-    private ActionListener moveAction;
 
     public ResultPanel() {
         setLayout(new MigLayout("", "[500px:n,grow][]", "[][][][][grow][]"));
@@ -93,11 +91,15 @@ public class ResultPanel extends JPanel {
     }
 
     public void setDownloadAction(ActionListener downloadAction) {
-        this.downloadAction = downloadAction;
+        if (downloadAction != null) {
+            btnDownload.addActionListener(downloadAction::actionPerformed);
+        }
     }
 
     public void setMoveAction(ActionListener moveAction) {
-        this.moveAction = moveAction;
+        if (moveAction != null) {
+            btnMove.addActionListener(moveAction::actionPerformed);
+        }
     }
 
     private void setupListeners() {
@@ -106,18 +108,6 @@ public class ResultPanel extends JPanel {
         btnSelectFound.addActionListener(e -> selectRowsWithFoundSubtitles());
 
         btnSelectAll.addActionListener(e -> selectAllRows());
-
-        btnDownload.addActionListener(e -> {
-            if (downloadAction != null) {
-                downloadAction.actionPerformed(e);
-            }
-        });
-
-        btnMove.addActionListener(e -> {
-            if (moveAction != null) {
-                moveAction.actionPerformed(e);
-            }
-        });
     }
 
     private void createComponents() {
