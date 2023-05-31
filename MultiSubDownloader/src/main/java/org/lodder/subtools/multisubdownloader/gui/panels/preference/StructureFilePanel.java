@@ -1,6 +1,7 @@
 package org.lodder.subtools.multisubdownloader.gui.panels.preference;
 
 import java.io.Serial;
+import java.util.function.Function;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -18,6 +19,9 @@ import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcombobox.MyComboBo
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcomponent.JComponentExtension;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield.JTextFieldExtension;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield.MyTextFieldString;
+import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryCommonBuilder;
+import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
+import org.lodder.subtools.multisubdownloader.lib.library.LibraryBuilder;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.VideoType;
@@ -55,7 +59,8 @@ public class StructureFilePanel extends JPanel {
                     .withActionListener(() -> {
                         StructureBuilderDialog sDialog =
                                 new StructureBuilderDialog(null, Messages.getString("PreferenceDialog.StructureBuilderTitle"), true, videoType,
-                                        StructureBuilderDialog.StructureType.FILE, librarySettings, manager, userInteractionHandler);
+                                        StructureBuilderDialog.StructureType.FILE, manager, userInteractionHandler,
+                                        getLibraryStructureBuilder(manager, userInteractionHandler));
                         String value = sDialog.showDialog(txtFileStructure.getText());
                         if (!value.isEmpty()) {
                             txtFileStructure.setText(value);
@@ -80,6 +85,57 @@ public class StructureFilePanel extends JPanel {
         }
 
         loadPreferenceSettings();
+    }
+
+    private Function<String, LibraryBuilder> getLibraryStructureBuilder(Manager manager, UserInteractionHandler userInteractionHandler) {
+        return filenameStructure -> new FilenameLibraryCommonBuilder(manager, userInteractionHandler) {
+
+            @Override
+            protected boolean isUseTVDBNaming() {
+                return false;
+            }
+
+            @Override
+            protected boolean isReplaceChars() {
+                return false;
+            }
+
+            @Override
+            protected boolean isIncludeLanguageCode() {
+                return chkIncludeLanguageCode.isSelected();
+            }
+
+            @Override
+            protected boolean isFilenameReplaceSpace() {
+                return chkReplaceSpace.isSelected();
+            }
+
+            @Override
+            protected boolean hasAnyLibraryAction(LibraryActionType... libraryActions) {
+                return true;
+            }
+
+            @Override
+            protected String getFilenameStructure() {
+                return filenameStructure;
+            }
+
+            @Override
+            protected String getFilenameReplacingSpaceSign() {
+                return cbxReplaceSpaceChar.getSelectedItem();
+            }
+
+            @Override
+            protected String getDefaultNlText() {
+                return txtDefaultNlText.getText();
+            }
+
+            @Override
+            protected String getDefaultEnText() {
+                return txtDefaultEnText.getText();
+            }
+        };
+
     }
 
     @Override

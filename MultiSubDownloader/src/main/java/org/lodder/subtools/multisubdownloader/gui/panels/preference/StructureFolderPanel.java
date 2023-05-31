@@ -1,6 +1,8 @@
 package org.lodder.subtools.multisubdownloader.gui.panels.preference;
 
 import java.io.Serial;
+import java.nio.file.Path;
+import java.util.function.Function;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -19,6 +21,9 @@ import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcomponent.JCompone
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield.JTextFieldExtension;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield.MyTextFieldPath;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield.MyTextFieldString;
+import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
+import org.lodder.subtools.multisubdownloader.lib.library.LibraryBuilder;
+import org.lodder.subtools.multisubdownloader.lib.library.PathLibraryCommonBuilder;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.VideoType;
@@ -65,7 +70,8 @@ public class StructureFolderPanel extends JPanel implements PreferencePanelIntf 
                     .withActionListener(() -> {
                         StructureBuilderDialog sDialog = new StructureBuilderDialog(null,
                                 Messages.getString("PreferenceDialog.StructureBuilderTitle"),
-                                true, videoType, StructureBuilderDialog.StructureType.FOLDER, librarySettings, manager, userInteractionHandler);
+                                true, videoType, StructureBuilderDialog.StructureType.FOLDER, manager, userInteractionHandler,
+                                getLibraryStructureBuilder(manager, userInteractionHandler));
                         String value = sDialog.showDialog(txtFolderStructure.getText());
                         if (!"".equals(value)) {
                             txtFolderStructure.setText(value);
@@ -86,6 +92,47 @@ public class StructureFolderPanel extends JPanel implements PreferencePanelIntf 
         }
 
         loadPreferenceSettings();
+    }
+
+    private Function<String, LibraryBuilder> getLibraryStructureBuilder(Manager manager, UserInteractionHandler userInteractionHandler) {
+        return folderStructure -> new PathLibraryCommonBuilder(manager, userInteractionHandler) {
+
+            @Override
+            protected boolean hasAnyLibraryAction(LibraryActionType... libraryActions) {
+                return true;
+            }
+
+            @Override
+            protected Path getLibraryFolder() {
+                return txtLibraryFolder.getObject();
+            }
+
+            @Override
+            protected String getFolderStructure() {
+                return folderStructure;
+            }
+
+            @Override
+            protected boolean isReplaceChars() {
+                return chkReplaceSpace.isSelected();
+            }
+
+            @Override
+            protected boolean isFolderReplaceSpace() {
+                return chkReplaceSpace.isSelected();
+            }
+
+            @Override
+            protected String getFolderReplacingSpaceSign() {
+                return cbxReplaceSpaceChar.getSelectedItem();
+            }
+
+            @Override
+            protected boolean isUseTVDBNaming() {
+                return false;
+            }
+
+        };
     }
 
     @Override
