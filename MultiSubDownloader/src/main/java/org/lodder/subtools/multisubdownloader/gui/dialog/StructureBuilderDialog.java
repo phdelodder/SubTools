@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -21,9 +22,7 @@ import org.lodder.subtools.multisubdownloader.gui.jcomponent.button.AbstractButt
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.button.JButtonExtension;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcomponent.JComponentExtension;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
-import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
-import org.lodder.subtools.multisubdownloader.lib.library.PathLibraryBuilder;
-import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
+import org.lodder.subtools.multisubdownloader.lib.library.LibraryBuilder;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
@@ -45,17 +44,17 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
 
     @Serial
     private static final long serialVersionUID = -5174968778375028124L;
+    private final VideoType videoType;
+    private final StructureType structureType;
+    private final Manager manager;
+    private final UserInteractionHandler userInteractionHandler;
+    private final Function<String, LibraryBuilder> libraryBuilder;
     private final JPanel contentPanel = new JPanel();
     private JTextField txtStructure;
-    private final VideoType videoType;
-    private final LibrarySettings librarySettings;
-    private final StructureType structureType;
     private JLabel lblPreview;
     private TvRelease tvRelease;
     private MovieRelease movieRelease;
     private String oldStructure;
-    private final Manager manager;
-    private final UserInteractionHandler userInteractionHandler;
     private int tagRow = 0;
     private int tagCol = 0;
 
@@ -64,13 +63,14 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
     }
 
     public StructureBuilderDialog(JFrame frame, String title, boolean modal, VideoType videoType,
-            StructureType structureType, LibrarySettings librarySettings, Manager manager, UserInteractionHandler userInteractionHandler) {
+            StructureType structureType, Manager manager, UserInteractionHandler userInteractionHandler,
+            Function<String, LibraryBuilder> libraryBuilder) {
         super(frame, title, modal);
         this.videoType = videoType;
-        this.librarySettings = librarySettings;
         this.structureType = structureType;
         this.manager = manager;
         this.userInteractionHandler = userInteractionHandler;
+        this.libraryBuilder = libraryBuilder;
         initializeUi();
         generateVideoFiles();
     }
@@ -171,27 +171,10 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
     }
 
     protected void parseText() {
-        Release release = getGenerateRelease();
-        if (release == null) {
-            return;
-        }
-        switch (structureType) {
-            case FILE -> {
-                librarySettings.setLibraryFilenameStructure(txtStructure.getText());
-                FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager, userInteractionHandler);
-                lblPreview.setText(filenameLibraryBuilder.build(release).toString());
-            }
-            case FOLDER -> {
-                librarySettings.setLibraryFolderStructure(txtStructure.getText());
-                PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager, userInteractionHandler);
-                lblPreview.setText(pathLibraryBuilder.build(release).toString());
-            }
-            default -> {
-            }
-        }
+        lblPreview.setText(libraryBuilder.apply(txtStructure.getText()).build(getGeneratedRelease()).toString());
     }
 
-    private Release getGenerateRelease() {
+    private Release getGeneratedRelease() {
         return switch (videoType) {
             case EPISODE -> tvRelease;
             case MOVIE -> movieRelease;

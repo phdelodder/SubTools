@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.data.tvdb.TheTvdbAdapter;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbSerie;
@@ -12,7 +11,6 @@ import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
 
@@ -20,20 +18,20 @@ import lombok.experimental.ExtensionMethod;
 @ExtensionMethod({ OptionalExtension.class })
 public abstract class LibraryBuilder {
 
-    @Getter
-    private final LibrarySettings librarySettings;
     private final Manager manager;
     private final UserInteractionHandler userInteractionHandler;
 
     public abstract Path build(Release release);
 
     protected String getShowName(String name) {
-        if (librarySettings.isLibraryUseTVDBNaming()) {
+        if (isUseTVDBNaming()) {
             return TheTvdbAdapter.getInstance(manager, userInteractionHandler).getSerie(name).map(TheTvdbSerie::getSerieName).orElse(name);
         } else {
             return name;
         }
     }
+
+    protected abstract boolean isUseTVDBNaming();
 
     protected String replaceFormattedEpisodeNumber(String structure, String tag, List<Integer> episodeNumbers, boolean leadingZero) {
         String formattedEpisodeNumber = "";
