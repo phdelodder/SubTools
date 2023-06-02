@@ -219,11 +219,6 @@ public enum SettingValue {
             .valueGetter(LibrarySettings::isLibraryUseTVDBNaming)
             .valueSetter(LibrarySettings::setLibraryUseTVDBNaming)
             .defaultValue(false)),
-    EPISODE_LIBRARY_REPLACE_CHARS(createSettingBoolean()
-            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
-            .valueGetter(LibrarySettings::isLibraryReplaceChars)
-            .valueSetter(LibrarySettings::setLibraryReplaceChars)
-            .defaultValue(false)),
     EPISODE_LIBRARY_OTHER_FILE_ACTION(createSettingEnum(LibraryOtherFileActionType.class)
             .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
             .valueGetter(LibrarySettings::getLibraryOtherFileAction)
@@ -310,11 +305,6 @@ public enum SettingValue {
             .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::isLibraryUseTVDBNaming)
             .valueSetter(LibrarySettings::setLibraryUseTVDBNaming)
-            .defaultValue(false)),
-    MOVIE_LIBRARY_REPLACE_CHARS(createSettingBoolean()
-            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
-            .valueGetter(LibrarySettings::isLibraryReplaceChars)
-            .valueSetter(LibrarySettings::setLibraryReplaceChars)
             .defaultValue(false)),
     MOVIE_LIBRARY_OTHER_FILE_ACTION(createSettingEnum(LibraryOtherFileActionType.class)
             .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
