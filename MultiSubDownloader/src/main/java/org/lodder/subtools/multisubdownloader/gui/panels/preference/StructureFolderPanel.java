@@ -85,7 +85,7 @@ public class StructureFolderPanel extends JPanel implements PreferencePanelIntf 
 
             PanelCheckBox.checkbox(this.chkReplaceSpace = new JCheckBox(Messages.getString("PreferenceDialog.ReplaceSpaceWith")))
                     .panelOnSameLine().addTo(titelPanel, "span")
-                    .addComponent(this.cbxReplaceSpaceChar = MyComboBox.ofValues("-", ".", "_").withDisabled());
+                    .addComponent(this.cbxReplaceSpaceChar = MyComboBox.ofValues("-", ".", "_"));
 
             // behaviour
             txtLibraryFolder.withValidityChangedCallback(txtFolderStructure::setEnabled, btnStructure::setEnabled);

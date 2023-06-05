@@ -58,19 +58,19 @@ public abstract class MyTextFieldCommon<T, R extends MyTextFieldCommon<T, R>> ex
     @Override
     public R withToStringMapper(Function<T, String> toStringMapper) {
         this.toStringMapper = toStringMapper;
-        return getThis();
+        return self();
     }
 
     @Override
     public R withToObjectMapper(Function<String, T> toObjectMapper) {
         this.toObjectMapper = toObjectMapper;
-        return getThis();
+        return self();
     }
 
     @Override
     public R withValueVerifier(Predicate<String> verifier) {
         this.valueVerifier = verifier;
-        return getThis();
+        return self();
     }
 
     @Override
@@ -81,19 +81,19 @@ public abstract class MyTextFieldCommon<T, R extends MyTextFieldCommon<T, R>> ex
     @Override
     public R requireValue(boolean requireValue) {
         this.requireValue = requireValue;
-        return getThis();
+        return self();
     }
 
     @Override
     public R withValueChangedCallback(Consumer<T> valueChangedCalbackListener) {
         this.valueChangedCalbackListener = valueChangedCalbackListener;
-        return getThis();
+        return self();
     }
 
     @Override
     public final R withValidityChangedCallback(BooleanConsumer... validityChangedCalbackListeners) {
         this.validityChangedCalbackListeners = validityChangedCalbackListeners;
-        return getThis();
+        return self();
     }
 
     private static class ObjectWrapper<S> {
@@ -141,6 +141,7 @@ public abstract class MyTextFieldCommon<T, R extends MyTextFieldCommon<T, R>> ex
         }
 
         if (valueVerifier != null || requireValue || valueChangedCalbackListener != null || validityChangedCalbackListeners != null) {
+            checkValidity(getText());
             getDocument().addDocumentListener(new DocumentListener() {
 
                 @Override
@@ -158,30 +159,31 @@ public abstract class MyTextFieldCommon<T, R extends MyTextFieldCommon<T, R>> ex
                     checkValidity(getText());
                 }
 
-                private void checkValidity(String text) {
-                    boolean valid = completeValueVerifier.test(text);
-                    setSuperBorder(valid ? MyTextFieldCommon.getDefaultBorder(getThis()) : ERROR_BORDER);
-
-                    boolean changedValidity = validWrapper.setValue(valid);
-                    if (changedValidity && validityChangedCalbackListeners != null) {
-                        Arrays.stream(validityChangedCalbackListeners).forEach(listener -> listener.accept(valid));
-                    }
-
-                    if (valueChangedCalbackListener != null) {
-                        T value = toObjectMapper.apply(text);
-                        boolean valueChanged = valueWrapper.setValue(toObjectMapper.apply(text));
-                        if (valueChanged) {
-                            valueChangedCalbackListener.accept(value);
-                        }
-                    }
-                }
             });
         }
-        return getThis();
+        return self();
+    }
+
+    private void checkValidity(String text) {
+        boolean valid = completeValueVerifier.test(text);
+        setSuperBorder(valid ? MyTextFieldCommon.getDefaultBorder(self()) : ERROR_BORDER);
+
+        boolean changedValidity = validWrapper.setValue(valid);
+        if (changedValidity && validityChangedCalbackListeners != null) {
+            Arrays.stream(validityChangedCalbackListeners).forEach(listener -> listener.accept(valid));
+        }
+
+        if (valueChangedCalbackListener != null) {
+            T value = toObjectMapper.apply(text);
+            boolean valueChanged = valueWrapper.setValue(toObjectMapper.apply(text));
+            if (valueChanged) {
+                valueChangedCalbackListener.accept(value);
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")
-    private R getThis() {
+    private R self() {
         return (R) this;
     }
 

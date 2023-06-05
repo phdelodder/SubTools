@@ -130,9 +130,6 @@ public abstract class VideoLibraryPanel extends JPanel implements PreferencePane
         chkUseTVDBNaming.setSelected(librarySettings.isLibraryUseTVDBNaming());
         cbxLibraryOtherFileAction.setSelectedItem(librarySettings.getLibraryOtherFileAction());
 
-        pnlStructureFolder.loadPreferenceSettings();
-        pnlStructureFile.loadPreferenceSettings();
-
         checkEnableStatusPanel();
         checkPossibleOtherFileActions();
     }

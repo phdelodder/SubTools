@@ -51,13 +51,11 @@ public class OptionsPanel extends JPanel implements PreferencePanelIntf {
                 .addComponent("wrap, grow", PanelCheckBox
                         .checkbox(this.chkMinScoreSelection = new JCheckBox(Messages.getString("PreferenceDialog.MinAutomaticScoreSelection")))
                         .panelOnSameLine().build()
-                        .addComponent(this.sldMinScoreSelection = new JSlider().withMinimum(0).withMaximum(100).withDisabled(), "wrap"))
-                .addComponent("wrap, grow",
-                        PanelCheckBox
-                                .checkbox(this.chkDefaultSelection =
-                                        new JCheckBox(Messages.getString("PreferenceDialog.DefaultSelection"), null, true))
-                                .panelOnNewLine().build()
-                                .addComponent(this.pnlDefaultSelection = new DefaultSelectionPanel(settingsCtrl).withDisabled()));
+                        .addComponent(this.sldMinScoreSelection = new JSlider().withMinimum(0).withMaximum(100), "wrap"))
+                .addComponent("wrap, grow", PanelCheckBox
+                        .checkbox(this.chkDefaultSelection = new JCheckBox(Messages.getString("PreferenceDialog.DefaultSelection"), null, true))
+                        .panelOnNewLine().build()
+                        .addComponent(this.pnlDefaultSelection = new DefaultSelectionPanel(settingsCtrl)));
 
         TitlePanel.title(Messages.getString("PreferenceDialog.SearchFilter"))
                 .marginBottom(0).padding(0).paddingLeft(20).addTo(this, "span, grow, wrap")

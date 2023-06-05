@@ -84,8 +84,7 @@ public class SerieProvidersPanel extends JPanel implements PreferencePanelIntf {
                     .addComponent(PanelCheckBox.checkbox(chkUserOpenSubtitlesLogin).panelOnNewLine()
                             .panelLayout(new MigLayout("insets 0, novisualpadding")).build()
                             .addComponent(new JLabel(Messages.getString("PreferenceDialog.Username")))
-                            .addComponent("wrap",
-                                    txtOpenSubtitlesUsername = MyTextFieldString.builder().requireValue().build().withColumns(20))
+                            .addComponent("wrap", txtOpenSubtitlesUsername = MyTextFieldString.builder().requireValue().build().withColumns(20))
                             .addComponent(new JLabel(Messages.getString("PreferenceDialog.Password")))
                             .addComponent(txtOpenSubtitlesPassword = new JPasswordField(20)));
 

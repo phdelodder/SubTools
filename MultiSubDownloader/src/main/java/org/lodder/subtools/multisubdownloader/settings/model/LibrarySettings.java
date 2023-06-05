@@ -2,9 +2,12 @@ package org.lodder.subtools.multisubdownloader.settings.model;
 
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
+import org.lodder.subtools.sublibrary.Language;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +26,6 @@ public class LibrarySettings {
     private boolean libraryIncludeLanguageCode;
     private boolean libraryRemoveEmptyFolders;
     private boolean libraryUseTVDBNaming;
-    private String defaultNlText, defaultEnText;
     private LibraryActionType libraryAction = LibraryActionType.NOTHING;
     private LibraryOtherFileActionType libraryOtherFileAction = LibraryOtherFileActionType.NOTHING;
     private String libraryFilenameReplacingSpaceSign = "";
@@ -31,6 +33,7 @@ public class LibrarySettings {
     private boolean libraryBackupSubtitle;
     private boolean libraryBackupUseWebsiteFileName;
     private Path libraryBackupSubtitlePath;
+    private Map<Language, String> langCodeMap = new LinkedHashMap<>();
 
     public boolean hasLibraryAction(LibraryActionType libraryAction) {
         return this.libraryAction == libraryAction;

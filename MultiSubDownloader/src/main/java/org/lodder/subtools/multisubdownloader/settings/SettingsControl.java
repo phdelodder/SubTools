@@ -20,13 +20,16 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.lodder.subtools.multisubdownloader.gui.dialog.MappingEpisodeNameDialog.MappingType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
+import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.State;
+import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.control.VideoPatterns.Source;
 import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
+import org.lodder.subtools.sublibrary.util.TriConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,6 +145,9 @@ public class SettingsControl {
         }
         if (version <= 5) {
             migrateSettingsV5ToV6();
+        }
+        if (version <= 6) {
+            migrateSettingsV6ToV7();
         }
     }
 
@@ -301,6 +307,46 @@ public class SettingsControl {
         DEFAULT_SELECTION_QUALITY.store(this, preferences);
 
         settings.setSettingsVersion(6);
+        SETTINGS_VERSION.store(this, preferences);
+    }
+
+    public void migrateSettingsV6ToV7() {
+        TriConsumer<String, Language, LibrarySettings> consumer = (label, language, librarySettings) -> {
+            String value = preferences.get(label, null);
+            preferences.remove(label);
+            if (StringUtils.isNotBlank(value)) {
+                librarySettings.getLangCodeMap().put(language, value.trim());
+            }
+        };
+        consumer.accept("EpisodeLibraryDefaultNlText", Language.DUTCH, settings.getEpisodeLibrarySettings());
+        consumer.accept("EpisodeLibraryDefaultEnText", Language.ENGLISH, settings.getEpisodeLibrarySettings());
+        consumer.accept("MovieLibraryDefaultNlText", Language.DUTCH, settings.getMovieLibrarySettings());
+        consumer.accept("MovieLibraryDefaultENText", Language.ENGLISH, settings.getMovieLibrarySettings());
+
+        EPISODE_LIBRARY_LANG_CODE_MAPPING.store(this, preferences);
+        MOVIE_LIBRARY_LANG_CODE_MAPPING.store(this, preferences);
+
+
+        if(settings.getEpisodeLibrarySettings().hasAnyLibraryAction(LibraryActionType.RENAME, LibraryActionType.MOVEANDRENAME)) {
+            if(StringUtils.isBlank(settings.getEpisodeLibrarySettings().getLibraryFilenameStructure())) {
+                settings.getMovieLibrarySettings().setLibraryFilenameStructure("%SHOW NAME%%SEPARATOR%%Season %S%");
+                MOVIE_LIBRARY_FILENAME_STRUCTURE.store(this, preferences);
+                EPISODE_LIBRARY_FILENAME_STRUCTURE.store(this, preferences);
+            }
+            if(StringUtils.isBlank(settings.getEpisodeLibrarySettings().getLibraryFolderStructure())) {
+                settings.getMovieLibrarySettings().setLibraryFolderStructure("%SHOW NAME%.S%SS%E%EE%.%TITLE%");
+                EPISODE_LIBRARY_FOLDER_STRUCTURE.store(this, preferences);
+            }
+        }
+
+        if(settings.getMovieLibrarySettings().hasAnyLibraryAction(LibraryActionType.RENAME, LibraryActionType.MOVEANDRENAME)) {
+            if(StringUtils.isBlank(settings.getMovieLibrarySettings().getLibraryFilenameStructure())) {
+                settings.getMovieLibrarySettings().setLibraryFilenameStructure("%MOVIE TITLE% (%YEAR%)");
+                MOVIE_LIBRARY_FILENAME_STRUCTURE.store(this, preferences);
+            }
+        }
+
+        settings.setSettingsVersion(7);
         SETTINGS_VERSION.store(this, preferences);
     }
 

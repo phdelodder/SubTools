@@ -143,18 +143,13 @@ public class GeneralPanel extends JPanel implements PreferencePanelIntf {
 
             JPanel proxyPanel = TitlePanel.title(Messages.getString("PreferenceDialog.ConfigureProxy"))
                     .padding(0).paddingLeft(20).fillContents(false).addTo(this, "span, grow");
-            {
-                JPanel proxyChkPanel =
-                        PanelCheckBox.checkbox(this.chkUseProxy = new JCheckBox(Messages.getString("PreferenceDialog.UseProxyServer")))
-                                .panelOnSameLine().panelLayout(new MigLayout("insets 0, fill")).leftGap(0).addTo(proxyPanel);
-                {
-                    new JLabel(Messages.getString("PreferenceDialog.Hostname")).addTo(proxyChkPanel);
-                    this.txtProxyHost =
-                            MyTextFieldString.builder().requireValue().build().withColumns(10).withEnabled(false).addTo(proxyChkPanel, "wrap");
-                    new JLabel(Messages.getString("PreferenceDialog.Port")).addTo(proxyChkPanel);
-                    this.txtProxyPort = MyTextFieldInteger.builder().requireValue().build().withColumns(10).withEnabled(false).addTo(proxyChkPanel);
-                }
-            }
+
+            PanelCheckBox.checkbox(this.chkUseProxy = new JCheckBox(Messages.getString("PreferenceDialog.UseProxyServer")))
+                    .panelOnSameLine().panelLayout(new MigLayout("insets 0, fill")).leftGap(0).addTo(proxyPanel)
+                    .addComponent(new JLabel(Messages.getString("PreferenceDialog.Hostname")))
+                    .addComponent("wrap", this.txtProxyHost = MyTextFieldString.builder().requireValue().build().withColumns(30))
+                    .addComponent(new JLabel(Messages.getString("PreferenceDialog.Port")))
+                    .addComponent(this.txtProxyPort = MyTextFieldInteger.builder().requireValue().build().withColumns(5));
         }
 
         loadPreferenceSettings();

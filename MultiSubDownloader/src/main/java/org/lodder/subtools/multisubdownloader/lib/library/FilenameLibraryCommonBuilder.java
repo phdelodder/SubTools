@@ -59,17 +59,9 @@ public abstract class FilenameLibraryCommonBuilder extends LibraryBuilder {
             filename = filename.substring(0, filename.indexOf(extension)) + "-v" + version + "." + release.getExtension();
         }
         if (isIncludeLanguageCode()) {
-            if (language == null) {
-                filename = changeExtension(filename, ".%s.srt".formatted(Language.ENGLISH.getLangCode()));
-            } else {
-                filename = switch (language) {
-                    case DUTCH -> changeExtension(filename,
-                            ".%s.srt".formatted(StringUtils.defaultIfBlank(getDefaultNlText(), Language.DUTCH.getLangCode())));
-                    case ENGLISH -> changeExtension(filename,
-                            ".%s.srt".formatted(StringUtils.defaultIfBlank(getDefaultEnText(), Language.ENGLISH.getLangCode())));
-                    default -> changeExtension(filename, ".%s.srt".formatted(language.getLangCode()));
-                };
-            }
+            String langCode = language == null ? Language.ENGLISH.getLangCode()
+                    : StringUtils.defaultIfBlank(getLangCodeForLanguage(language), language.getLangCode());
+            filename = changeExtension(filename, ".%s.srt".formatted(langCode));
         } else {
             filename = changeExtension(filename, ".srt");
         }
@@ -103,7 +95,6 @@ public abstract class FilenameLibraryCommonBuilder extends LibraryBuilder {
 
     protected abstract boolean isIncludeLanguageCode();
 
-    protected abstract String getDefaultNlText();
+    protected abstract String getLangCodeForLanguage(Language language);
 
-    protected abstract String getDefaultEnText();
 }
