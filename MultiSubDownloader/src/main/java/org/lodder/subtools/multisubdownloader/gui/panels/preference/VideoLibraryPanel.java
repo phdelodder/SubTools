@@ -36,7 +36,6 @@ public abstract class VideoLibraryPanel extends JPanel implements PreferencePane
     protected StructureFolderPanel pnlStructureFolder;
     protected StructureFilePanel pnlStructureFile;
     private final MyComboBox<LibraryActionType> cbxLibraryAction;
-    private final JCheckBox chkReplaceWindowsChar;
     private final JCheckBox chkUseTVDBNaming;
     private final PartialDisableComboBox<LibraryOtherFileActionType> cbxLibraryOtherFileAction;
     private final SubtitleBackupPanel pnlBackup;
@@ -51,9 +50,6 @@ public abstract class VideoLibraryPanel extends JPanel implements PreferencePane
         JPanel performActionPanel = TitlePanel.title(Messages.getString("PreferenceDialog.PerformActions"))
                 .margin(0).padding(0).paddingLeft(20).addTo(this, "span, growx");
         {
-
-            this.chkReplaceWindowsChar = new JCheckBox(Messages.getString("PreferenceDialog.ReplaceInvalidWindowsChars"))
-                    .addTo(performActionPanel, "wrap");
 
             this.chkUseTVDBNaming = new JCheckBox(Messages.getString("PreferenceDialog.UseTvdbName"))
                     .visible(VideoType.EPISODE == videoType)
@@ -132,7 +128,6 @@ public abstract class VideoLibraryPanel extends JPanel implements PreferencePane
     public void loadPreferenceSettings() {
         cbxLibraryAction.setSelectedItem(librarySettings.getLibraryAction());
         chkUseTVDBNaming.setSelected(librarySettings.isLibraryUseTVDBNaming());
-        chkReplaceWindowsChar.setSelected(librarySettings.isLibraryReplaceChars());
         cbxLibraryOtherFileAction.setSelectedItem(librarySettings.getLibraryOtherFileAction());
 
         pnlStructureFolder.loadPreferenceSettings();
@@ -148,7 +143,6 @@ public abstract class VideoLibraryPanel extends JPanel implements PreferencePane
         }
         librarySettings.setLibraryAction(this.cbxLibraryAction.getSelectedItem())
                 .setLibraryUseTVDBNaming(this.chkUseTVDBNaming.isSelected())
-                .setLibraryReplaceChars(this.chkReplaceWindowsChar.isSelected())
                 .setLibraryOtherFileAction((LibraryOtherFileActionType) this.cbxLibraryOtherFileAction.getSelectedItem());
 
         pnlStructureFolder.savePreferenceSettings();

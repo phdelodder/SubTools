@@ -96,11 +96,6 @@ public class StructureFilePanel extends JPanel {
             }
 
             @Override
-            protected boolean isReplaceChars() {
-                return false;
-            }
-
-            @Override
             protected boolean isIncludeLanguageCode() {
                 return chkIncludeLanguageCode.isSelected();
             }

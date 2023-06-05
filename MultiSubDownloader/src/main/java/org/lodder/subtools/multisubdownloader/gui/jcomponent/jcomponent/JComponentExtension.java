@@ -48,12 +48,10 @@ public class JComponentExtension {
         return child;
     }
 
-
     public <T extends Container, S extends Container> T addComponent(T component, Object constraints, S child) {
         component.add(child, constraints);
         return component;
     }
-
 
     public void setEnabledRecursive(Component component, boolean enabled) {
         setRecursive(component, c -> c.setEnabled(enabled));
@@ -80,5 +78,10 @@ public class JComponentExtension {
     public JScrollPane scrollPane(JScrollPane scrollPane, Component view) {
         scrollPane.setViewportView(view);
         return scrollPane;
+    }
+
+    public <T extends JComponent> T withToolTipText(T component, String text) {
+        component.setToolTipText(text);
+        return component;
     }
 }

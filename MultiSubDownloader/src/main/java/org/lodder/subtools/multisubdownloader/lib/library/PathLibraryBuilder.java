@@ -31,11 +31,6 @@ public class PathLibraryBuilder extends PathLibraryCommonBuilder {
     }
 
     @Override
-    protected boolean isReplaceChars() {
-        return librarySettings.isLibraryReplaceChars();
-    }
-
-    @Override
     protected boolean isFolderReplaceSpace() {
         return librarySettings.isLibraryFolderReplaceSpace();
     }

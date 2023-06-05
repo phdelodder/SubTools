@@ -24,11 +24,6 @@ public class FilenameLibraryBuilder extends FilenameLibraryCommonBuilder {
     }
 
     @Override
-    protected boolean isReplaceChars() {
-        return librarySettings.isLibraryReplaceChars();
-    }
-
-    @Override
     protected boolean isFilenameReplaceSpace() {
         return librarySettings.isLibraryFilenameReplaceSpace();
     }

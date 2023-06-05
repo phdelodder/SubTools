@@ -3,30 +3,21 @@ package org.lodder.subtools.sublibrary.util;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.commons.lang3.StringUtils;
+
+import lombok.experimental.ExtensionMethod;
 import lombok.experimental.UtilityClass;
 
+@ExtensionMethod({ StringUtils.class })
 @UtilityClass
 public class StringUtil {
 
     public static String removeIllegalFilenameChars(String s) {
-        s = s.replace("/", "");
-        return s.replace("\0", "");
+        return s.replace("/", "").replace("\0", "");
     }
 
     public static String removeIllegalWindowsChars(String text) {
-        text = text.replace("|", "");
-        text = text.replace("\"", "");
-        text = text.replace("<", "");
-        text = text.replace(">", "");
-        text = text.replace("?", "");
-        text = text.replace("*", "");
-        text = text.replace(":", "");
-        text = text.replace("/", "");
-        text = text.replace("\\", "");
-        if (text.length() > 0 && ".".equals(text.substring(text.length() - 1))) {
-            text = text.substring(0, text.length() - 1);
-        }
-        return text.trim();
+        return text.replaceAll("[\\\\/:*?\"<>|]", "").removeEnd(".").trim();
     }
 
     public static String urlEncode(String text) {

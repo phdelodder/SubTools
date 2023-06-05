@@ -21,7 +21,6 @@ public class LibrarySettings {
     private boolean libraryFilenameReplaceSpace;
     private boolean libraryFolderReplaceSpace;
     private boolean libraryIncludeLanguageCode;
-    private boolean libraryReplaceChars;
     private boolean libraryRemoveEmptyFolders;
     private boolean libraryUseTVDBNaming;
     private String defaultNlText, defaultEnText;

@@ -2,9 +2,7 @@ package org.lodder.subtools.multisubdownloader.gui.dialog;
 
 import java.io.Serial;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 import java.util.function.Function;
 
 import javax.swing.JButton;
@@ -12,7 +10,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
@@ -20,10 +17,17 @@ import javax.swing.text.BadLocationException;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.button.AbstractButtonExtension;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.button.JButtonExtension;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.component.ComponentExtension;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.container.ContainerExtension;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcomponent.JComponentExtension;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield.JTextFieldExtension;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryBuilder;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
+import org.lodder.subtools.multisubdownloader.settings.model.structure.FolderStructureTag;
+import org.lodder.subtools.multisubdownloader.settings.model.structure.MovieStructureTag;
+import org.lodder.subtools.multisubdownloader.settings.model.structure.SerieStructureTag;
+import org.lodder.subtools.multisubdownloader.settings.model.structure.StructureTag;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -32,6 +36,8 @@ import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -39,7 +45,8 @@ import java.awt.event.MouseListener;
 import lombok.experimental.ExtensionMethod;
 import net.miginfocom.swing.MigLayout;
 
-@ExtensionMethod({ JButtonExtension.class, AbstractButtonExtension.class, JComponentExtension.class })
+@ExtensionMethod({ JButtonExtension.class, AbstractButtonExtension.class, JComponentExtension.class, ContainerExtension.class,
+        ComponentExtension.class, JTextFieldExtension.class })
 public class StructureBuilderDialog extends MultiSubDialog implements DocumentListener {
 
     @Serial
@@ -49,14 +56,12 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
     private final Manager manager;
     private final UserInteractionHandler userInteractionHandler;
     private final Function<String, LibraryBuilder> libraryBuilder;
-    private final JPanel contentPanel = new JPanel();
     private JTextField txtStructure;
     private JLabel lblPreview;
     private TvRelease tvRelease;
     private MovieRelease movieRelease;
     private String oldStructure;
-    private int tagRow = 0;
-    private int tagCol = 0;
+    private JPanel tagPanel;
 
     public enum StructureType {
         FILE, FOLDER
@@ -75,6 +80,52 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
         generateVideoFiles();
     }
 
+    private void initializeUi() {
+        setBounds(100, 100, 600, 300);
+        setMinimumSize(new Dimension(600, 300));
+        Container panel = getContentPane().layout(new MigLayout("insets 10, nogrid"));
+
+        new JLabel(Messages.getString("StructureBuilderDialog.AvailableTagsClickToAdd")).addTo(panel, "wrap");
+
+        this.tagPanel = new JPanel(new MigLayout("flowy, wrap 5", "[150px][150px][150px]")).addTo(panel, "grow, wrap");
+        {
+            if (videoType == VideoType.EPISODE) {
+                // add tv show tags
+                buildLabelTable(SerieStructureTag.values());
+            } else if (videoType == VideoType.MOVIE) {
+                // add movie tags
+                buildLabelTable(MovieStructureTag.values());
+            }
+            if (structureType == StructureType.FOLDER) {
+                buildLabelTable(FolderStructureTag.values());
+            }
+        }
+
+        new JLabel(Messages.getString("StructureBuilderDialog.Structure")).addTo(panel);
+        this.txtStructure = new JTextField().withColumns(100).addTo(panel, "span, wrap");
+        this.txtStructure.getDocument().addDocumentListener(this);
+
+        new JLabel(Messages.getString("StructureBuilderDialog.Preview")).addTo(panel);
+        this.lblPreview = new JLabel("").addTo(panel);
+
+        new JPanel(new FlowLayout(FlowLayout.RIGHT)).addTo(panel, BorderLayout.SOUTH)
+                .addComponent(
+                        new JButton(Messages.getString("App.OK"))
+                                .defaultButtonFor(getRootPane())
+                                .withActionListener(e -> {
+                                    setVisible(false);
+                                    dispose(); // this is needed to dispose the dialog and return the control to the window
+                                })
+                                .withActionCommand("OK"))
+                .addComponent(new JButton(Messages.getString("App.Cancel"))
+                        .withActionListener(e -> {
+                            setVisible(false);
+                            txtStructure.setText(oldStructure);
+                            dispose(); // this is needed to dispose the dialog and return the control to the window
+                        })
+                        .withActionCommand("Cancel"));
+    }
+
     private void generateVideoFiles() {
         ReleaseFactory releaseFactory = new ReleaseFactory(new Settings(), manager);
         if (videoType == VideoType.EPISODE) {
@@ -87,79 +138,15 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
         }
     }
 
-    private void initializeUi() {
-        setBounds(100, 100, 600, 300);
-        getContentPane().setLayout(new BorderLayout());
-        contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-        getContentPane().add(contentPanel, BorderLayout.CENTER);
-        contentPanel.setLayout(new MigLayout("", "[][grow]", "[grow][][]"));
-        tagPanel = new JPanel();
-        tagPanel.setLayout(new MigLayout("", "[150px][150px]", "[15px]"));
-
-        // add header label
-        tagPanel.add(new JLabel(Messages.getString("StructureBuilderDialog.AvailableTagsClickToAdd")),
-                "cell 0 0 2 1,alignx left,aligny top");
-        if (videoType == VideoType.EPISODE) {
-            // add tv show tags
-            buildLabelTable(EPISODE_TAGS, 5);
-
-        } else if (videoType == VideoType.MOVIE) {
-            // add movie tags
-            buildLabelTable(MOVIE_TAGS, 5);
-        }
-        if (structureType == StructureType.FOLDER) {
-            buildLabelTable(FOLDER_TAGS, 5);
-        }
-
-        contentPanel.add(tagPanel, "cell 0 0 2 1,grow");
-        JLabel lblNewLabel = new JLabel(Messages.getString("StructureBuilderDialog.Structure"));
-        contentPanel.add(lblNewLabel, "cell 0 1,alignx left");
-        txtStructure = new JTextField();
-        contentPanel.add(txtStructure, "cell 1 1,growx");
-        txtStructure.setColumns(10);
-        txtStructure.getDocument().addDocumentListener(this);
-        JLabel lblNewLabel_1 = new JLabel(Messages.getString("StructureBuilderDialog.Preview"));
-        contentPanel.add(lblNewLabel_1, "cell 0 2");
-        lblPreview = new JLabel("");
-        contentPanel.add(lblPreview, "cell 1 2");
-        JPanel buttonPane = new JPanel();
-        buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        getContentPane().add(buttonPane, BorderLayout.SOUTH);
-
-        new JButton(Messages.getString("App.OK"))
-                .defaultButtonFor(getRootPane())
-                .withActionListener(e -> {
-                    setVisible(false);
-                    dispose(); // this is needed to dispose the dialog and return the control to the window
-                })
-                .withActionCommand("OK")
-                .addTo(buttonPane);
-
-        new JButton(Messages.getString("App.Cancel"))
-                .withActionListener(e -> {
-                    setVisible(false);
-                    txtStructure.setText(oldStructure);
-                    dispose(); // this is needed to dispose the dialog and return the control to the window
-                })
-                .withActionCommand("Cancel")
-                .addTo(buttonPane);
-
+    private void buildLabelTable(StructureTag[] structureTags) {
+        Arrays.stream(structureTags).forEach(this::addTag);
     }
 
-    private void buildLabelTable(Map<String, String> map, int maxRows) {
-        map.forEach(this::addTag);
-    }
-
-    private void addTag(String tag, String tooltipText) {
-        JLabel label = new JLabel(tag);
-        label.addMouseListener(new InsertTag());
-        label.setToolTipText(tooltipText);
-        tagRow++;
-        if (tagRow > 5) {
-            tagCol++;
-            tagRow = 1;
-        }
-        tagPanel.add(label, "cell " + tagCol + " " + tagRow);
+    private void addTag(StructureTag structureTag) {
+        new JLabel(structureTag.getLabel())
+                .withToolTipText(structureTag.getDescription())
+                .addTo(tagPanel)
+                .withMouseListener(new InsertTag());
     }
 
     public String showDialog(String structure) {
@@ -249,44 +236,5 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
         }
 
     }
-
-    private static final Map<String, String> EPISODE_TAGS = Collections.unmodifiableMap(new HashMap<>() {
-        @Serial
-        private static final long serialVersionUID = 3313041588123263612L;
-        {
-            put("%SHOW NAME%", Messages.getString("StructureBuilderDialog.NameTvShow"));
-            put("%TITLE%", Messages.getString("StructureBuilderDialog.EpisodeTitle"));
-            put("%EE%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZero"));
-            put("%EEX%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZeroForMultipe"));
-            put("%E%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeWithoutLeadingZero"));
-            put("%EX%", Messages.getString("StructureBuilderDialog.NumberOfEpisodeLeadingZeroMultiple"));
-            put("%SS%", Messages.getString("StructureBuilderDialog.NumberOfSeasonLeading"));
-            put("%S%", Messages.getString("StructureBuilderDialog.NumberOfSeasonsWithoutLeading"));
-            put("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfRelease"));
-            put("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.Description"));
-            // put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
-        }
-    });
-
-    private static final Map<String, String> MOVIE_TAGS = Collections.unmodifiableMap(new HashMap<>() {
-        @Serial
-        private static final long serialVersionUID = 5943868685951628245L;
-        {
-            put("%MOVIE TITLE%", Messages.getString("StructureBuilderDialog.MovieName"));
-            put("%YEAR%", Messages.getString("StructureBuilderDialog.MovieYear"));
-            put("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfMovie"));
-            put("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.MovieDescription"));
-            // put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
-        }
-    });
-
-    private static final Map<String, String> FOLDER_TAGS = Collections.unmodifiableMap(new HashMap<>() {
-        @Serial
-        private static final long serialVersionUID = 5943868685951628245L;
-        {
-            put("%SEPARATOR%", Messages.getString("StructureBuilderDialog.SystemdependendSeparator"));
-        }
-    });
-    private JPanel tagPanel;
 
 }

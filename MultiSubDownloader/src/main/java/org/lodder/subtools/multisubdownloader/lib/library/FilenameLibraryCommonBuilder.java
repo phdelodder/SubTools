@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader.lib.library;
 import java.nio.file.Path;
 
 import org.apache.commons.lang3.StringUtils;
+import org.lodder.subtools.multisubdownloader.settings.model.structure.SerieStructureTag;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -23,28 +24,25 @@ public abstract class FilenameLibraryCommonBuilder extends LibraryBuilder {
         if (hasAnyLibraryAction(LibraryActionType.RENAME, LibraryActionType.MOVEANDRENAME)
                 && release instanceof TvRelease tvRelease
                 && StringUtils.isNotBlank(getFilenameStructure())) {
-            String show = getShowName(tvRelease.getName());
 
             filename = getFilenameStructure();
             // order is important!
-            filename = filename.replace("%SHOW NAME%", show);
-            filename = replaceFormattedEpisodeNumber(filename, "%EEX%", tvRelease.getEpisodeNumbers(), true);
-            filename = replaceFormattedEpisodeNumber(filename, "%EX%", tvRelease.getEpisodeNumbers(), false);
-            filename = filename.replace("%SS%", formattedNumber(tvRelease.getSeason(), true));
-            filename = filename.replace("%S%", formattedNumber(tvRelease.getSeason(), false));
-            filename = filename.replace("%EE%", formattedNumber(tvRelease.getEpisodeNumbers().get(0), true));
-            filename = filename.replace("%E%", formattedNumber(tvRelease.getEpisodeNumbers().get(0), false));
-            filename = filename.replace("%TITLE%", tvRelease.getTitle());
-            filename = filename.replace("%QUALITY%", release.getQuality());
-            filename = filename.replace("%DESCRIPTION%", release.getDescription());
+            filename = replace(filename, SerieStructureTag.SHOW_NAME, getShowName(tvRelease.getName()));
+            filename = replaceFormattedEpisodeNumber(filename, SerieStructureTag.EPISODES_LONG, tvRelease.getEpisodeNumbers(), true);
+            filename = replaceFormattedEpisodeNumber(filename, SerieStructureTag.EPISODES_SHORT, tvRelease.getEpisodeNumbers(), false);
+            filename = replace(filename, SerieStructureTag.SEASON_LONG, formattedNumber(tvRelease.getSeason(), true));
+            filename = replace(filename, SerieStructureTag.SEASON_SHORT, formattedNumber(tvRelease.getSeason(), false));
+            filename = replace(filename, SerieStructureTag.EPISODE_LONG, formattedNumber(tvRelease.getEpisodeNumbers().get(0), true));
+            filename = replace(filename, SerieStructureTag.EPISODE_SHORT, formattedNumber(tvRelease.getEpisodeNumbers().get(0), false));
+            filename = replace(filename, SerieStructureTag.TITLE, tvRelease.getTitle());
+            filename = replace(filename, SerieStructureTag.QUALITY, release.getQuality());
+            filename = replace(filename, SerieStructureTag.DESCRIPTION, release.getDescription());
 
             filename += "." + release.getExtension();
         } else {
             filename = release.getFileName();
         }
-        if (isReplaceChars()) {
-            filename = StringUtil.removeIllegalWindowsChars(filename);
-        }
+        filename = StringUtil.removeIllegalWindowsChars(filename);
         if (isFilenameReplaceSpace()) {
             filename = filename.replace(" ", getFilenameReplacingSpaceSign());
         }
@@ -75,9 +73,7 @@ public abstract class FilenameLibraryCommonBuilder extends LibraryBuilder {
         } else {
             filename = changeExtension(filename, ".srt");
         }
-        if (isReplaceChars()) {
-            filename = StringUtil.removeIllegalWindowsChars(filename);
-        }
+        filename = StringUtil.removeIllegalWindowsChars(filename);
         if (isFilenameReplaceSpace()) {
             filename = filename.replace(" ", getFilenameReplacingSpaceSign());
         }
@@ -100,8 +96,6 @@ public abstract class FilenameLibraryCommonBuilder extends LibraryBuilder {
     protected abstract boolean hasAnyLibraryAction(LibraryActionType... libraryActions);
 
     protected abstract String getFilenameStructure();
-
-    protected abstract boolean isReplaceChars();
 
     protected abstract boolean isFilenameReplaceSpace();
 

@@ -3,6 +3,9 @@ package org.lodder.subtools.multisubdownloader.lib.library;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.lodder.subtools.multisubdownloader.settings.model.structure.FolderStructureTag;
+import org.lodder.subtools.multisubdownloader.settings.model.structure.MovieStructureTag;
+import org.lodder.subtools.multisubdownloader.settings.model.structure.SerieStructureTag;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
@@ -10,6 +13,9 @@ import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.util.StringUtil;
 
+import lombok.experimental.ExtensionMethod;
+
+@ExtensionMethod({ StringUtil.class })
 public abstract class PathLibraryCommonBuilder extends LibraryBuilder {
 
     public PathLibraryCommonBuilder(Manager manager, UserInteractionHandler userInteractionHandler) {
@@ -35,43 +41,36 @@ public abstract class PathLibraryCommonBuilder extends LibraryBuilder {
 
     protected Path buildEpisode(TvRelease tvRelease) {
         String folder = getFolderStructure();
-        String show = getShowName(tvRelease.getName());
-        if (isReplaceChars()) {
-            show = StringUtil.removeIllegalWindowsChars(show);
-        }
 
-        folder = folder.replace("%SHOW NAME%", show);
+        folder = folder.replace(SerieStructureTag.SHOW_NAME.getLabel(), getShowName(tvRelease.getName()).removeIllegalWindowsChars());
         // order is important!
-        folder = replaceFormattedEpisodeNumber(folder, "%EEX%", tvRelease.getEpisodeNumbers(), true);
-        folder = replaceFormattedEpisodeNumber(folder, "%EX%", tvRelease.getEpisodeNumbers(), false);
-        folder = folder.replace("%SS%", formattedNumber(tvRelease.getSeason(), true));
-        folder = folder.replace("%S%", formattedNumber(tvRelease.getSeason(), false));
-        folder = folder.replace("%EE%", formattedNumber(tvRelease.getEpisodeNumbers().get(0), true));
-        folder = folder.replace("%E%", formattedNumber(tvRelease.getEpisodeNumbers().get(0), false));
-        folder = folder.replace("%TITLE%", tvRelease.getTitle());
-        folder = folder.replace("%QUALITY%", tvRelease.getQuality());
-        folder = folder.replace("%DESCRIPTION%", tvRelease.getDescription());
+        folder = replaceFormattedEpisodeNumber(folder, SerieStructureTag.EPISODES_LONG, tvRelease.getEpisodeNumbers(), true);
+        folder = replaceFormattedEpisodeNumber(folder, SerieStructureTag.EPISODES_SHORT, tvRelease.getEpisodeNumbers(), false);
+        folder = replace(folder, SerieStructureTag.SEASON_LONG, formattedNumber(tvRelease.getSeason(), true));
+        folder = replace(folder, SerieStructureTag.SEASON_SHORT, formattedNumber(tvRelease.getSeason(), false));
+        folder = replace(folder, SerieStructureTag.EPISODE_LONG, formattedNumber(tvRelease.getEpisodeNumbers().get(0), true));
+        folder = replace(folder, SerieStructureTag.EPISODE_SHORT, formattedNumber(tvRelease.getEpisodeNumbers().get(0), false));
+        folder = replace(folder, SerieStructureTag.TITLE, tvRelease.getTitle());
+        folder = replace(folder, SerieStructureTag.QUALITY, tvRelease.getQuality());
+        folder = replace(folder, SerieStructureTag.DESCRIPTION, tvRelease.getDescription());
         if (isFolderReplaceSpace()) {
             folder = folder.replace(" ", getFolderReplacingSpaceSign());
         }
-        return Paths.get("", folder.split("%SEPARATOR%"));
+        folder = folder.trim();
+        return Paths.get("", folder.split(FolderStructureTag.SEPARATOR.getLabel()));
     }
 
     protected Path buildMovie(MovieRelease movieRelease) {
         String folder = getFolderStructure();
-        String title = movieRelease.getName();
 
-        if (isReplaceChars()) {
-            title = StringUtil.removeIllegalWindowsChars(title);
-        }
-
-        folder = folder.replace("%MOVIE TITLE%", title);
-        folder = folder.replace("%YEAR%", Integer.toString(movieRelease.getYear()));
-        folder = folder.replace("%QUALITY%", movieRelease.getQuality());
+        folder = replace(folder, MovieStructureTag.MOVIE_TITLE, movieRelease.getName().removeIllegalFilenameChars());
+        folder = replace(folder, MovieStructureTag.YEAR, Integer.toString(movieRelease.getYear()));
+        folder = replace(folder, MovieStructureTag.QUALITY, movieRelease.getQuality());
         if (isFolderReplaceSpace()) {
             folder = folder.replace(" ", getFolderReplacingSpaceSign());
         }
-        return Paths.get("", folder.split("%SEPARATOR%"));
+        folder = folder.trim();
+        return Paths.get("", folder.split(FolderStructureTag.SEPARATOR.getLabel()));
     }
 
     protected abstract boolean hasAnyLibraryAction(LibraryActionType... libraryActions);
@@ -79,8 +78,6 @@ public abstract class PathLibraryCommonBuilder extends LibraryBuilder {
     protected abstract Path getLibraryFolder();
 
     protected abstract String getFolderStructure();
-
-    protected abstract boolean isReplaceChars();
 
     protected abstract boolean isFolderReplaceSpace();
 

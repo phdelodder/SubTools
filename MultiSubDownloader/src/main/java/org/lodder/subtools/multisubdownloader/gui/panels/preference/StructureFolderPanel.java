@@ -113,11 +113,6 @@ public class StructureFolderPanel extends JPanel implements PreferencePanelIntf 
             }
 
             @Override
-            protected boolean isReplaceChars() {
-                return chkReplaceSpace.isSelected();
-            }
-
-            @Override
             protected boolean isFolderReplaceSpace() {
                 return chkReplaceSpace.isSelected();
             }
