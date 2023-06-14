@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -26,8 +27,6 @@ public class FileListAction {
     private int progressFileIndex;
     private int progressFilesTotal;
     private final Settings settings;
-    private final Set<String> dutchFilters = Set.of("nld", "ned", "dutch", "dut", "nl");
-    private final Set<String> englishFilters = Set.of("eng", "english", "en");
     private final static String subtitleExtension = "srt";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileListAction.class);
@@ -129,34 +128,19 @@ public class FileListAction {
             return true;
         } else {
             String subtitleExtensionWithDot = "." + subtitleExtension;
-            List<String> filters = switch (language) {
-                case DUTCH -> {
-                    List<String> dutchFilterList = getFilters(dutchFilters);
-                    if (!StringUtils.isBlank(settings.getEpisodeLibrarySettings().getDefaultNlText())) {
-                        dutchFilterList.add("." + settings.getEpisodeLibrarySettings().getDefaultNlText() + subtitleExtensionWithDot);
-                    }
-                    yield dutchFilterList;
-                }
-                case ENGLISH -> {
-                    List<String> englishFilterList = getFilters(englishFilters);
-                    if (!StringUtils.isBlank(settings.getEpisodeLibrarySettings().getDefaultEnText())) {
-                        englishFilterList.add("." + settings.getEpisodeLibrarySettings().getDefaultEnText() + subtitleExtensionWithDot);
-                    }
-                    yield englishFilterList;
-                }
-                default -> {
-                    // TODO implement others
-                    yield List.of();
-                }
-            };
+
+            Set<String> langCodes = new HashSet<>();
+            langCodes.add(language.getLangCode());
+            langCodes.addAll(language.getLangCodesOther());
+            String customLangCode = settings.getEpisodeLibrarySettings().getLangCodeMap().get(language);
+            if (!StringUtils.isBlank(customLangCode)) {
+                langCodes.add(customLangCode);
+            }
+            List<String> filters = langCodes.stream().map(word -> word + "." + subtitleExtension).toList();
             String subtitleNameWithoutExtension = subtitleName.replace(subtitleExtensionWithDot, "");
             return file.getParent().list().map(FileUtils::getFileNameAsString).filter(fileName -> filters.stream().anyMatch(fileName::endsWith))
                     .anyMatch(fileName -> fileName.contains(subtitleNameWithoutExtension));
         }
-    }
-
-    private List<String> getFilters(Set<String> words) {
-        return words.stream().map(word -> word + "." + subtitleExtension).toList();
     }
 
     public void setIndexingProgressListener(IndexingProgressListener indexingProgressListener) {

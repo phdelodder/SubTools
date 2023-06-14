@@ -32,7 +32,6 @@ public abstract class StructurePanel<T extends StructurePanel<T>> extends JPanel
         this.btnBuildStructure = new JButton(Messages.getString("StructureBuilderDialog.Structure"));
 
         this.cbxReplaceSpaceChar = new MyComboBox<>(new String[] { "-", ".", "_" });
-        cbxReplaceSpaceChar.setEnabled(false);
 
         this.chkReplaceSpace = new JCheckBox(Messages.getString("PreferenceDialog.ReplaceSpaceWith"))
                 .addCheckedChangeListener(cbxReplaceSpaceChar::setEnabled);

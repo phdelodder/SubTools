@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader.settings;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -233,7 +234,7 @@ public enum SettingValue {
             .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
             .valueGetter(LibrarySettings::getLibraryFolderStructure)
             .valueSetter(LibrarySettings::setLibraryFolderStructure)
-            .defaultValue("%SHOW NAME%.S%SS%E%EE%.%TITLE%")),
+            .defaultValue("")),
     EPISODE_LIBRARY_REMOVE_EMPTY_FOLDERS(createSettingBoolean()
             .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
             .valueGetter(LibrarySettings::isLibraryRemoveEmptyFolders)
@@ -243,7 +244,7 @@ public enum SettingValue {
             .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
             .valueGetter(LibrarySettings::getLibraryFilenameStructure)
             .valueSetter(LibrarySettings::setLibraryFilenameStructure)
-            .defaultValue("%SHOW NAME%%SEPARATOR%%Season %S%")),
+            .defaultValue("")),
     EPISODE_LIBRARY_REPLACE_SPACE(createSettingBoolean()
             .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
             .valueGetter(LibrarySettings::isLibraryFilenameReplaceSpace)
@@ -269,16 +270,13 @@ public enum SettingValue {
             .valueGetter(LibrarySettings::isLibraryIncludeLanguageCode)
             .valueSetter(LibrarySettings::setLibraryIncludeLanguageCode)
             .defaultValue(false)),
-    EPISODE_LIBRARY_DEFAULT_NL_TEXT(createSettingString()
+    EPISODE_LIBRARY_LANG_CODE_MAPPING(createSettingMap()
+            .toStringMapperKey(Language::name)
+            .toObjectMapperKey(Language::valueOf)
+            .toStringMapperValue(Function.identity())
+            .toObjectMapperValue(Function.identity())
             .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
-            .valueGetter(LibrarySettings::getDefaultNlText)
-            .valueSetter(LibrarySettings::setDefaultNlText)
-            .defaultValue("")),
-    EPISODE_LIBRARY_DEFAULT_EN_TEXT(createSettingString()
-            .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
-            .valueGetter(LibrarySettings::getDefaultEnText)
-            .valueSetter(LibrarySettings::setDefaultEnText)
-            .defaultValue("")),
+            .mapGetter(LibrarySettings::getLangCodeMap)),
 
     // LIBRARY MOVIE
     MOVIE_LIBRARY_BACKUP_SUBTITLE_PATH(createSettingPath()
@@ -330,7 +328,7 @@ public enum SettingValue {
             .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::getLibraryFilenameStructure)
             .valueSetter(LibrarySettings::setLibraryFilenameStructure)
-            .defaultValue("%MOVIE TITLE% (%YEAR%)")),
+            .defaultValue("")),
     MOVIE_LIBRARY_REPLACE_SPACE(createSettingBoolean()
             .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::isLibraryFilenameReplaceSpace)
@@ -356,16 +354,13 @@ public enum SettingValue {
             .valueGetter(LibrarySettings::isLibraryIncludeLanguageCode)
             .valueSetter(LibrarySettings::setLibraryIncludeLanguageCode)
             .defaultValue(false)),
-    MOVIE_LIBRARY_DEFAULT_NL_TEXT(createSettingString()
+    MOVIE_LIBRARY_LANG_CODE_MAPPING(createSettingMap()
+            .toStringMapperKey(Language::name)
+            .toObjectMapperKey(Language::valueOf)
+            .toStringMapperValue(Function.identity())
+            .toObjectMapperValue(Function.identity())
             .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
-            .valueGetter(LibrarySettings::getDefaultNlText)
-            .valueSetter(LibrarySettings::setDefaultNlText)
-            .defaultValue("")),
-    MOVIE_LIBRARY_DEFAULT_EN_TEXT(createSettingString()
-            .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
-            .valueGetter(LibrarySettings::getDefaultEnText)
-            .valueSetter(LibrarySettings::setDefaultEnText)
-            .defaultValue("")),
+            .mapGetter(LibrarySettings::getLangCodeMap)),
 
     // SERIE SOURCE SETTINGS
     LOGIN_ADDIC7ED_ENABLED(createSettingBoolean()
@@ -533,6 +528,7 @@ public enum SettingValue {
         SettingTypedValueSetterIntf<T, R> valueGetter(Function<R, T> valueGetter);
 
         SettingBuildIntf collectionGetter(Function<R, Collection<T>> valueGetter);
+
     }
 
     private interface SettingTypedValueSetterIntf<T, R> {
@@ -658,6 +654,136 @@ public enum SettingValue {
             }
             return this;
         }
+    }
+
+    private static SettingMapTypedToStringMapperKeyIntf createSettingMap() {
+        return new SettingMapTyped<>();
+    }
+
+    private interface SettingMapTypedToStringMapperKeyIntf {
+        <K> SettingMapTypedToObjectMapperKeyIntf<K> toStringMapperKey(Function<K, String> toStringMapperKey);
+
+    }
+
+    private interface SettingMapTypedToObjectMapperKeyIntf<K> {
+        SettingMapTypedToStringMapperValueIntf<K> toObjectMapperKey(Function<String, K> toObjectMapperKey);
+    }
+
+    private interface SettingMapTypedToStringMapperValueIntf<K> {
+        <V> SettingMapTypedToObjectMapperValueIntf<K, V> toStringMapperValue(Function<V, String> toStringMapperValue);
+
+    }
+
+    private interface SettingMapTypedToObjectMapperValueIntf<K, V> {
+        SettingMapTypedRootElementFunctionIntf<K, V> toObjectMapperValue(Function<String, V> toObjectMapperValue);
+    }
+
+    private interface SettingMapTypedRootElementFunctionIntf<K, V> {
+        <R> SettingMapTypedMapGetterIntf<K, V, R> rootElementFunction(Function<SettingsControl, R> rootElementFunction);
+    }
+
+    private interface SettingMapTypedMapGetterIntf<K, V, R> {
+        SettingMapTyped<K, V, R> mapGetter(Function<R, Map<K, V>> valueGetter);
+    }
+
+    @Setter
+    @Accessors(chain = true, fluent = true)
+    private static class SettingMapTyped<K, V, R>
+            implements SettingIntf,
+            SettingMapTypedToStringMapperKeyIntf,
+            SettingMapTypedToObjectMapperKeyIntf<K>,
+            SettingMapTypedToStringMapperValueIntf<K>,
+            SettingMapTypedToObjectMapperValueIntf<K, V>,
+            SettingMapTypedRootElementFunctionIntf<K, V>,
+            SettingMapTypedMapGetterIntf<K, V, R>,
+            SettingBuildIntf {
+
+        private Function<K, String> toStringMapperKey;
+        private Function<String, K> toObjectMapperKey;
+        private Function<V, String> toStringMapperValue;
+        private Function<String, V> toObjectMapperValue;
+        private BiConsumer<SettingsControl, Preferences> storeValueFunction;
+        private BiConsumer<SettingsControl, Preferences> loadValueFunction;
+        private Function<SettingsControl, R> rootElementFunction;
+        private TriConsumer<R, K, V> valueAdder;
+        private BiConsumer<R, BiConsumer<K, V>> valueConsumer;
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public <K2> SettingMapTyped<K2, V, R> toStringMapperKey(Function<K2, String> toStringMapperKey) {
+            this.toStringMapperKey = (Function<K, String>) toStringMapperKey;
+            return (SettingMapTyped<K2, V, R>) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public <V2> SettingMapTyped<K, V2, R> toStringMapperValue(Function<V2, String> toStringMapperValue) {
+            this.toStringMapperValue = (Function<V, String>) toStringMapperValue;
+            return (SettingMapTyped<K, V2, R>) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public <R2> SettingMapTyped<K, V, R2> rootElementFunction(Function<SettingsControl, R2> rootElementFunction) {
+            this.rootElementFunction = (Function<SettingsControl, R>) rootElementFunction;
+            return (SettingMapTyped<K, V, R2>) this;
+        }
+
+        @Override
+        public SettingMapTyped<K, V, R> mapGetter(Function<R, Map<K, V>> mapGetter) {
+            valueAdder = (object, k, v) -> mapGetter.apply(object).put(k, v);
+            valueConsumer = (object, consumer) -> mapGetter.apply(object).forEach(consumer);
+            return this;
+        }
+
+        @Override
+        public BiConsumer<SettingsControl, Preferences> getStoreValueFunction() {
+            return storeValueFunction;
+        }
+
+        @Override
+        public BiConsumer<SettingsControl, Preferences> getLoadValueFunction() {
+            return loadValueFunction;
+        }
+
+        @Override
+        public SettingIntf build(String key) {
+            this.storeValueFunction = (settingsControl, preferences) -> {
+                AtomicInteger i = new AtomicInteger(-1);
+                valueConsumer.accept(getRootElement(settingsControl),
+                        (k, v) -> {
+                            int idx = i.incrementAndGet();
+                            preferences.put(getKeyString(key, idx), toStringMapperKey.apply(k));
+                            preferences.put(getValueString(key, idx), toStringMapperValue.apply(v));
+                        });
+                if (i.get() > -1) {
+                    preferences.putInt(key + "Size", i.get() + 1);
+                }
+            };
+            this.loadValueFunction = (settingsControl, preferences) -> {
+                int numberOfItems = preferences.getInt(key + "Size", 0);
+                IntStream.range(0, numberOfItems).forEach(idx -> {
+                    valueAdder.accept(getRootElement(settingsControl),
+                            toObjectMapperKey.apply(preferences.get(getKeyString(key, idx), "")),
+                            toObjectMapperValue.apply(preferences.get(getValueString(key, idx), "")));
+                });
+
+            };
+            return this;
+        }
+
+        private String getKeyString(String key, int idx) {
+            return key + "-key" + idx;
+        }
+
+        private String getValueString(String key, int idx) {
+            return key + "-value" + idx;
+        }
+
+        private R getRootElement(SettingsControl settingsControl) {
+            return rootElementFunction.apply(settingsControl);
+        }
+
     }
 
     @Getter

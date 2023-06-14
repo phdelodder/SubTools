@@ -5,20 +5,28 @@ import java.util.Collection;
 import java.util.Vector;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.ListCellRenderer;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 
 import org.lodder.subtools.multisubdownloader.gui.ToStringListCellRenderer;
 
 import com.google.common.collect.Iterables;
 
+import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 
 public class MyComboBox<E> extends JComboBox<E> {
+
+    private static final Border ERROR_BORDER = new LineBorder(Color.RED, 1);
+    private Border defaultBorder;
+    private Predicate<E> selectedValueVerifier;
 
     @Serial
     private static final long serialVersionUID = -8449456978689044914L;
@@ -36,6 +44,7 @@ public class MyComboBox<E> extends JComboBox<E> {
      */
     public MyComboBox(ComboBoxModel<E> aModel) {
         super(aModel);
+        this.defaultBorder = getBorder();
     }
 
     /**
@@ -48,6 +57,7 @@ public class MyComboBox<E> extends JComboBox<E> {
      */
     public MyComboBox(E[] items) {
         super(items);
+        this.defaultBorder = getBorder();
     }
 
     /**
@@ -61,6 +71,7 @@ public class MyComboBox<E> extends JComboBox<E> {
      */
     public MyComboBox(Collection<E> items, Class<E> elementType) {
         super(Iterables.toArray(items, elementType));
+        this.defaultBorder = getBorder();
     }
 
     /**
@@ -73,6 +84,7 @@ public class MyComboBox<E> extends JComboBox<E> {
      */
     public MyComboBox(Vector<E> items) {
         super(items);
+        this.defaultBorder = getBorder();
     }
 
     /**
@@ -85,6 +97,7 @@ public class MyComboBox<E> extends JComboBox<E> {
      */
     public MyComboBox() {
         super();
+        this.defaultBorder = getBorder();
     }
 
     public static <E> MyComboBox<E> ofValues(E... values) {
@@ -144,5 +157,30 @@ public class MyComboBox<E> extends JComboBox<E> {
     @Override
     public E getSelectedItem() {
         return (E) super.getSelectedItem();
+    }
+
+    public MyComboBox<E> withSelectedValueVerifier(Predicate<E> valueVerifier) {
+        this.selectedValueVerifier = valueVerifier;
+        return this;
+    }
+
+    @Override
+    public void setBorder(Border border) {
+        super.setBorder(border);
+        defaultBorder = border;
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        refreshState();
+    }
+
+    public void refreshState() {
+        if (!isEnabled()) {
+            super.setBorder(defaultBorder);
+        } else if (selectedValueVerifier != null && !selectedValueVerifier.test(getSelectedItem())) {
+            super.setBorder(ERROR_BORDER);
+        }
     }
 }
