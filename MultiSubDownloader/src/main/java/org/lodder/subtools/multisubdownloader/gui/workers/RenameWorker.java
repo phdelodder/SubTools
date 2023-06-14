@@ -31,7 +31,6 @@ public class RenameWorker extends SwingWorker<Void, String> implements Cancelabl
     private final Settings settings;
     private final Manager manager;
     private final UserInteractionHandler userInteractionHandler;
-    private RenameAction renameAction;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RenameWorker.class);
 
@@ -54,6 +53,7 @@ public class RenameWorker extends SwingWorker<Void, String> implements Cancelabl
                 }
                 setProgress(progress);
 
+                RenameAction renameAction = null;
                 if (selectedShow.getVideoType() == VideoType.EPISODE) {
                     LOGGER.debug("Treat as EPISODE");
                     renameAction = new RenameAction(settings.getEpisodeLibrarySettings(), manager, userInteractionHandler);

@@ -250,21 +250,21 @@ public enum SettingValue {
             .valueGetter(LibrarySettings::isLibraryFilenameReplaceSpace)
             .valueSetter(LibrarySettings::setLibraryFilenameReplaceSpace)
             .defaultValue(false)),
-    EPISODE_LIBRARY_REPLACING_SIGN(createSettingString()
+    EPISODE_LIBRARY_REPLACING_SIGN(createSettingCharacter()
             .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
-            .valueGetter(LibrarySettings::getLibraryFilenameReplacingSpaceSign)
-            .valueSetter(LibrarySettings::setLibraryFilenameReplacingSpaceSign)
-            .defaultValue("-")),
+            .valueGetter(LibrarySettings::getLibraryFilenameReplacingSpaceChar)
+            .valueSetter(LibrarySettings::setLibraryFilenameReplacingSpaceChar)
+            .defaultValue('_')),
     EPISODE_LIBRARY_FOLDER_REPLACE_SPACE(createSettingBoolean()
             .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
             .valueGetter(LibrarySettings::isLibraryFolderReplaceSpace)
             .valueSetter(LibrarySettings::setLibraryFolderReplaceSpace)
             .defaultValue(false)),
-    EPISODE_LIBRARY_FOLDER_REPLACING_SIGN(createSettingString()
+    EPISODE_LIBRARY_FOLDER_REPLACING_SIGN(createSettingCharacter()
             .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
-            .valueGetter(LibrarySettings::getLibraryFolderReplacingSpaceSign)
-            .valueSetter(LibrarySettings::setLibraryFolderReplacingSpaceSign)
-            .defaultValue("-")),
+            .valueGetter(LibrarySettings::getLibraryFolderReplacingSpaceChar)
+            .valueSetter(LibrarySettings::setLibraryFolderReplacingSpaceChar)
+            .defaultValue('_')),
     EPISODE_LIBRARY_INCLUDE_LANGUAGE_CODE(createSettingBoolean()
             .rootElementFunction(sCtr -> sCtr.getSettings().getEpisodeLibrarySettings())
             .valueGetter(LibrarySettings::isLibraryIncludeLanguageCode)
@@ -334,21 +334,21 @@ public enum SettingValue {
             .valueGetter(LibrarySettings::isLibraryFilenameReplaceSpace)
             .valueSetter(LibrarySettings::setLibraryFilenameReplaceSpace)
             .defaultValue(false)),
-    MOVIE_LIBRARY_REPLACING_SIGN(createSettingString()
+    MOVIE_LIBRARY_REPLACING_SIGN(createSettingCharacter()
             .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
-            .valueGetter(LibrarySettings::getLibraryFilenameReplacingSpaceSign)
-            .valueSetter(LibrarySettings::setLibraryFilenameReplacingSpaceSign)
-            .defaultValue("-")),
+            .valueGetter(LibrarySettings::getLibraryFilenameReplacingSpaceChar)
+            .valueSetter(LibrarySettings::setLibraryFilenameReplacingSpaceChar)
+            .defaultValue('_')),
     MOVIE_LIBRARY_FOLDER_REPLACE_SPACE(createSettingBoolean()
             .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::isLibraryFolderReplaceSpace)
             .valueSetter(LibrarySettings::setLibraryFolderReplaceSpace)
             .defaultValue(false)),
-    MOVIE_LIBRARY_FOLDER_REPLACING_SIGN(createSettingString()
+    MOVIE_LIBRARY_FOLDER_REPLACING_SIGN(createSettingCharacter()
             .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
-            .valueGetter(LibrarySettings::getLibraryFolderReplacingSpaceSign)
-            .valueSetter(LibrarySettings::setLibraryFolderReplacingSpaceSign)
-            .defaultValue("-")),
+            .valueGetter(LibrarySettings::getLibraryFolderReplacingSpaceChar)
+            .valueSetter(LibrarySettings::setLibraryFolderReplacingSpaceChar)
+            .defaultValue('_')),
     MOVIE_LIBRARY_INCLUDE_LANGUAGE_CODE(createSettingBoolean()
             .rootElementFunction(sCtr -> sCtr.getSettings().getMovieLibrarySettings())
             .valueGetter(LibrarySettings::isLibraryIncludeLanguageCode)
@@ -476,6 +476,12 @@ public enum SettingValue {
         return createSetting(String.class)
                 .toStringMapper(Function.identity())
                 .toObjectMapper(Function.identity());
+    }
+
+    private static SettingTypedRootElementFunctionIntf<Character> createSettingCharacter() {
+        return createSetting(Character.class)
+                .toStringMapper(String::valueOf)
+                .toObjectMapper(s -> s.charAt(0));
     }
 
     private static SettingTypedRootElementFunctionIntf<Integer> createSettingInt() {

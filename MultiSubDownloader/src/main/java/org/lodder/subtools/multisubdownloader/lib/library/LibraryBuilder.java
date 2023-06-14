@@ -6,11 +6,9 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.settings.model.structure.StructureTag;
-import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.data.tvdb.TheTvdbAdapter;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbSerie;
 import org.lodder.subtools.sublibrary.model.Release;
-import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.util.OptionalExtension;
 
 import lombok.RequiredArgsConstructor;
@@ -20,20 +18,14 @@ import lombok.experimental.ExtensionMethod;
 @ExtensionMethod({ OptionalExtension.class, StringUtils.class })
 public abstract class LibraryBuilder {
 
-    private final Manager manager;
-    private final UserInteractionHandler userInteractionHandler;
+    private final boolean useTvdb;
+    private final TheTvdbAdapter tvdbAdapter;
 
     public abstract Path build(Release release);
 
     protected String getShowName(String name) {
-        if (isUseTVDBNaming()) {
-            return TheTvdbAdapter.getInstance(manager, userInteractionHandler).getSerie(name).map(TheTvdbSerie::getSerieName).orElse(name);
-        } else {
-            return name;
-        }
+        return useTvdb ? tvdbAdapter.getSerie(name).map(TheTvdbSerie::getSerieName).orElse(name) : name;
     }
-
-    protected abstract boolean isUseTVDBNaming();
 
     protected String replace(String structure, StructureTag tag, String value) {
         return structure.replace(tag.getLabel(), value);
@@ -56,9 +48,6 @@ public abstract class LibraryBuilder {
     }
 
     protected String formattedNumber(int number, boolean leadingZero) {
-        if (number < 10 && leadingZero) {
-            return "0" + number;
-        }
-        return Integer.toString(number);
+        return number < 10 && leadingZero ? "0" + number : Integer.toString(number);
     }
 }

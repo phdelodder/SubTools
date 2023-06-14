@@ -55,7 +55,7 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
     private final StructureType structureType;
     private final Manager manager;
     private final UserInteractionHandler userInteractionHandler;
-    private final Function<String, LibraryBuilder> libraryBuilder;
+    private final Function<String, ? extends LibraryBuilder> libraryBuilder;
     private JTextField txtStructure;
     private JLabel lblPreview;
     private TvRelease tvRelease;
@@ -69,13 +69,13 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
 
     public StructureBuilderDialog(JFrame frame, String title, boolean modal, VideoType videoType,
             StructureType structureType, Manager manager, UserInteractionHandler userInteractionHandler,
-            Function<String, LibraryBuilder> libraryBuilder) {
+            Function<String, ? extends LibraryBuilder> filenameLibraryBuilder) {
         super(frame, title, modal);
         this.videoType = videoType;
         this.structureType = structureType;
         this.manager = manager;
         this.userInteractionHandler = userInteractionHandler;
-        this.libraryBuilder = libraryBuilder;
+        this.libraryBuilder = filenameLibraryBuilder;
         initializeUi();
         generateVideoFiles();
     }
