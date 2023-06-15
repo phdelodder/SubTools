@@ -28,8 +28,8 @@ public class LibrarySettings {
     private boolean libraryUseTVDBNaming;
     private LibraryActionType libraryAction = LibraryActionType.NOTHING;
     private LibraryOtherFileActionType libraryOtherFileAction = LibraryOtherFileActionType.NOTHING;
-    private String libraryFilenameReplacingSpaceSign = "";
-    private String libraryFolderReplacingSpaceSign = "";
+    private Character libraryFilenameReplacingSpaceChar;
+    private Character libraryFolderReplacingSpaceChar;
     private boolean libraryBackupSubtitle;
     private boolean libraryBackupUseWebsiteFileName;
     private Path libraryBackupSubtitlePath;

@@ -30,9 +30,7 @@ import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcombobox.MyComboBo
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcomponent.JComponentExtension;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield.JTextFieldExtension;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield.MyTextFieldString;
-import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryCommonBuilder;
-import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
-import org.lodder.subtools.multisubdownloader.lib.library.LibraryBuilder;
+import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
@@ -53,7 +51,7 @@ public class StructureFilePanel extends JPanel {
 
     private final MyTextFieldString txtFileStructure;
     private final JCheckBox chkReplaceSpace;
-    private final MyComboBox<String> cbxReplaceSpaceChar;
+    private final MyComboBox<Character> cbxReplaceSpaceChar;
     private final JCheckBox chkIncludeLanguageCode;
     private final Supplier<LanguageComponents> addLanguageSupplier;
     private final LanguageMapping languageMapping = new LanguageMapping();
@@ -73,8 +71,7 @@ public class StructureFilePanel extends JPanel {
                     .withActionListener(() -> {
                         StructureBuilderDialog sDialog =
                                 new StructureBuilderDialog(null, Messages.getString("PreferenceDialog.StructureBuilderTitle"), true, videoType,
-                                        StructureBuilderDialog.StructureType.FILE, manager, userInteractionHandler,
-                                        getLibraryStructureBuilder(manager, userInteractionHandler));
+                                        StructureBuilderDialog.StructureType.FILE, manager, userInteractionHandler, getLibraryStructureBuilder());
                         String value = sDialog.showDialog(txtFileStructure.getText());
                         if (!value.isEmpty()) {
                             txtFileStructure.setText(value);
@@ -86,7 +83,7 @@ public class StructureFilePanel extends JPanel {
             this.chkReplaceSpace = new JCheckBox(Messages.getString("PreferenceDialog.ReplaceSpaceWith"));
 
             PanelCheckBox.checkbox(chkReplaceSpace).panelOnSameLine().addTo(titelPanel, "wrap")
-                    .addComponent("width pref+10px, wrap", this.cbxReplaceSpaceChar = MyComboBox.ofValues("-", ".", "_"));
+                    .addComponent("width pref+10px, wrap", this.cbxReplaceSpaceChar = MyComboBox.ofValues('-', '.', '_'));
 
             this.chkIncludeLanguageCode = new JCheckBox(Messages.getString("PreferenceDialog.IncludeLanguageInFileName"))
                     .withSelectedListener(languageMapping::refreshState).addTo(titelPanel, "wrap");
@@ -107,7 +104,7 @@ public class StructureFilePanel extends JPanel {
                     int id = langId.getAndIncrement();
                     MyComboBox<Language> cmbLanguage =
                             new MyComboBox<>(Language.values()).withToMessageStringRenderer(Language::getMsgCode).addTo(languagePanel);
-                    MyTextFieldString txtLanguage = MyTextFieldString.builder().requireValue().build().withColumns(20).addTo(languagePanel);
+                    MyTextFieldString txtLanguage = MyTextFieldString.builder().build().withColumns(20).addTo(languagePanel);
                     JButton btnDelete = new JButton(Messages.getString("StructureFilePanel.Delete"))
                             .withActionListenerSelf(delBtn -> {
                                 languagePanel.remove(cmbLanguage);
@@ -157,45 +154,17 @@ public class StructureFilePanel extends JPanel {
 
     }
 
-    private Function<String, LibraryBuilder> getLibraryStructureBuilder(Manager manager, UserInteractionHandler userInteractionHandler) {
-        return filenameStructure -> new FilenameLibraryCommonBuilder(manager, userInteractionHandler) {
-
-            @Override
-            protected boolean isUseTVDBNaming() {
-                return false;
-            }
-
-            @Override
-            protected boolean isIncludeLanguageCode() {
-                return chkIncludeLanguageCode.isSelected();
-            }
-
-            @Override
-            protected boolean isFilenameReplaceSpace() {
-                return chkReplaceSpace.isSelected();
-            }
-
-            @Override
-            protected boolean hasAnyLibraryAction(LibraryActionType... libraryActions) {
-                return true;
-            }
-
-            @Override
-            protected String getFilenameStructure() {
-                return filenameStructure;
-            }
-
-            @Override
-            protected String getFilenameReplacingSpaceSign() {
-                return cbxReplaceSpaceChar.getSelectedItem();
-            }
-
-            @Override
-            protected String getLangCodeForLanguage(Language language) {
-                return languageMapping.getLanguageComponentsForLanguage(language).map(langComps -> langComps.txtLanguage().getText()).orElse(null);
-            }
-        };
-
+    private Function<String, FilenameLibraryBuilder> getLibraryStructureBuilder() {
+        return structure -> FilenameLibraryBuilder.builder()
+                .structure(structure)
+                .replaceSpace(chkReplaceSpace.isSelected())
+                .replacingSpaceChar(cbxReplaceSpaceChar.getSelectedItem())
+                .includeLanguageCode(chkIncludeLanguageCode.isSelected())
+                .languageTags(languageMapping.toSettingsMap())
+                .useTvdbName(false)
+                .tvdbAdapter(null)
+                .rename(true)
+                .build();
     }
 
     @Override
@@ -207,7 +176,7 @@ public class StructureFilePanel extends JPanel {
     public void loadPreferenceSettings() {
         txtFileStructure.setText(librarySettings.getLibraryFilenameStructure());
         chkReplaceSpace.setSelected(librarySettings.isLibraryFilenameReplaceSpace());
-        cbxReplaceSpaceChar.setSelectedItem(librarySettings.getLibraryFilenameReplacingSpaceSign());
+        cbxReplaceSpaceChar.setSelectedItem(librarySettings.getLibraryFilenameReplacingSpaceChar());
         chkIncludeLanguageCode.setSelected(librarySettings.isLibraryIncludeLanguageCode());
         librarySettings.getLangCodeMap().forEach(this::addLanguage);
     }
@@ -216,7 +185,7 @@ public class StructureFilePanel extends JPanel {
         librarySettings
                 .setLibraryFilenameStructure(txtFileStructure.getText())
                 .setLibraryFilenameReplaceSpace(chkReplaceSpace.isSelected())
-                .setLibraryFilenameReplacingSpaceSign(cbxReplaceSpaceChar.getSelectedItem())
+                .setLibraryFilenameReplacingSpaceChar(cbxReplaceSpaceChar.getSelectedItem())
                 .setLibraryIncludeLanguageCode(chkIncludeLanguageCode.isSelected())
                 .setLangCodeMap(languageMapping.toSettingsMap());
     }
@@ -264,7 +233,7 @@ public class StructureFilePanel extends JPanel {
             return getLanguageComponentsForLanguageStream(language).findAny();
         }
 
-        public LinkedHashMap<Language, String> toSettingsMap() {
+        public Map<Language, String> toSettingsMap() {
             return languageComponentsMap.values().stream().collect(Collectors.toMap(
                     langComps -> langComps.cmbLanguage().getSelectedItem(), langComps -> langComps.txtLanguage().getText(),
                     (v1, v2) -> v1, LinkedHashMap::new));

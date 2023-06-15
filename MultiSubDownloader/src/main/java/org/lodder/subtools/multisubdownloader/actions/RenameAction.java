@@ -38,8 +38,11 @@ public class RenameAction {
         };
         LOGGER.trace("rename: filename [{}]", filename);
 
-        PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager, userInteractionHandler);
-        Path newDir = pathLibraryBuilder.build(release);
+        
+        Path newDir = switch (librarySettings.getLibraryAction()) {
+            case MOVE, MOVEANDRENAME -> PathLibraryBuilder.fromSettings(librarySettings, manager, userInteractionHandler).build(release);
+            case RENAME, NOTHING -> release.getPath();
+        };
         if (!newDir.exists()) {
             LOGGER.debug("Creating dir [{}]", newDir.toAbsolutePath());
             try {
@@ -74,7 +77,7 @@ public class RenameAction {
     }
 
     private String getNewFilename(Path f, Release release) {
-        FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager, userInteractionHandler);
+        FilenameLibraryBuilder filenameLibraryBuilder = FilenameLibraryBuilder.fromSettings(librarySettings, manager, userInteractionHandler);
         String filename = filenameLibraryBuilder.build(release).toString();
         if (release.hasExtension("srt")) {
             Language language = null;

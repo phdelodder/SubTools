@@ -50,8 +50,7 @@ public class DownloadAction {
     private void download(Release release, Subtitle subtitle, LibrarySettings librarySettings, Integer version)
             throws IOException, ManagerException {
         LOGGER.trace("cleanUpFiles: LibraryAction {}", librarySettings.getLibraryAction());
-        PathLibraryBuilder pathLibraryBuilder = new PathLibraryBuilder(librarySettings, manager, userInteractionHandler);
-        Path path = pathLibraryBuilder.build(release);
+        Path path = PathLibraryBuilder.fromSettings(librarySettings, manager, userInteractionHandler).build(release);
         if (!path.exists()) {
             LOGGER.debug("Download creating folder [{}] ", path.toAbsolutePath());
             try {
@@ -61,7 +60,7 @@ public class DownloadAction {
             }
         }
 
-        FilenameLibraryBuilder filenameLibraryBuilder = new FilenameLibraryBuilder(librarySettings, manager, userInteractionHandler);
+        FilenameLibraryBuilder filenameLibraryBuilder = FilenameLibraryBuilder.fromSettings(librarySettings, manager, userInteractionHandler);
         String videoFileName = filenameLibraryBuilder.build(release).toString();
         String subFileName = filenameLibraryBuilder.buildSubtitle(release, subtitle, videoFileName, version);
         Path subFile = path.resolve(subFileName);
