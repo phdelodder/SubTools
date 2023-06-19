@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Serial;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import javax.swing.JEditorPane;
@@ -250,13 +251,12 @@ public class GUI extends JFrame implements PropertyChangeListener {
 
         menuBar.setViewClearLogAction(arg0 -> ((LoggingPanel) pnlLogging).setLogText(""));
 
-        Consumer<VideoType> showRenameDialog = videoType -> {
-            RenameDialog rDialog = new RenameDialog(getThis(), settingsControl.getSettings(), videoType, manager, userInteractionHandler);
-            rDialog.setVisible(true);
-        };
+        BiConsumer<VideoType, String> showRenameDialog =
+                (videoType, title) -> new RenameDialog(getThis(), settingsControl.getSettings(), videoType, title, manager, userInteractionHandler)
+                        .setVisible(true);
 
-        menuBar.setEditRenameTVAction(arg0 -> showRenameDialog.accept(VideoType.EPISODE));
-        menuBar.setEditRenameMovieAction(arg0 -> showRenameDialog.accept(VideoType.MOVIE));
+        menuBar.setEditRenameTVAction(arg0 -> showRenameDialog.accept(VideoType.EPISODE, Messages.getString("Menu.RenameSerie")));
+        menuBar.setEditRenameMovieAction(arg0 -> showRenameDialog.accept(VideoType.MOVIE, Messages.getString("Menu.RenameMovie")));
 
         menuBar.setEditPreferencesAction(arg0 -> {
             final PreferenceDialog pDialog =

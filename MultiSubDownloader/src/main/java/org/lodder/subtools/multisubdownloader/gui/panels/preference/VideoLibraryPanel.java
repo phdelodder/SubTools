@@ -148,7 +148,7 @@ public abstract class VideoLibraryPanel extends JPanel implements PreferencePane
 
     @Override
     public boolean hasValidSettings() {
-        return pnlStructureFolder.hasValidSettings() && pnlStructureFile.hasValidSettings() && pnlBackup.hasValidSettings();
+        return pnlStructureFolder.hasValidSettings() && pnlStructureFile.hasValidSettings() && (pnlBackup == null || pnlBackup.hasValidSettings());
     }
 
 }

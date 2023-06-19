@@ -2,7 +2,6 @@ package org.lodder.subtools.multisubdownloader.gui.extra;
 
 import java.io.Serial;
 
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -10,6 +9,7 @@ import javax.swing.JSeparator;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcheckbox.JCheckBoxExtension;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcomponent.JComponentExtension;
 
+import java.awt.Container;
 import java.awt.LayoutManager;
 
 import lombok.Getter;
@@ -79,9 +79,9 @@ public class TitlePanel extends JPanel {
 
         BuilderOtherIntf paddingSides(int paddingSide);
 
-        JPanel addTo(JComponent component);
+        JPanel addTo(Container component);
 
-        JPanel addTo(JComponent component, Object constraints);
+        JPanel addTo(Container component, Object constraints);
     }
 
     @RequiredArgsConstructor
@@ -140,12 +140,12 @@ public class TitlePanel extends JPanel {
         }
 
         @Override
-        public JPanel addTo(JComponent component) {
+        public JPanel addTo(Container component) {
             return addTo(component, "");
         }
 
         @Override
-        public JPanel addTo(JComponent component, Object constraints) {
+        public JPanel addTo(Container component, Object constraints) {
             if (panelLayout == null) {
                 panelLayout = new MigLayout(
                         (fillContents ? "fill," : "") + (useGrid ? "" : "nogrid,") + "insets %s %s %s %s".formatted(getPadding(paddingTop),
