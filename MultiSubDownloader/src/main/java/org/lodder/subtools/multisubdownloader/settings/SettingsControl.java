@@ -90,22 +90,20 @@ public class SettingsControl {
         updateProxySettings();
     }
 
-    public void exportPreferences(Path file) {
+    public void exportPreferences(Path file) throws IOException, BackingStoreException {
         store();
         try (OutputStream os = file.newOutputStream()) {
             preferences.exportSubtree(os);
-        } catch (IOException | BackingStoreException e) {
-            LOGGER.error("exportPreferences", e);
         }
     }
 
-    public void importPreferences(Path file) {
+    public void importPreferences(Path file, boolean overwrite) throws IOException, BackingStoreException, InvalidPreferencesFormatException {
         try (InputStream is = new BufferedInputStream(file.newInputStream())) {
-            preferences.clear();
+            if (overwrite) {
+                preferences.clear();
+            }
             Preferences.importPreferences(is);
             load();
-        } catch (IOException | BackingStoreException | InvalidPreferencesFormatException e) {
-            LOGGER.error("importPreferences", e);
         }
     }
 

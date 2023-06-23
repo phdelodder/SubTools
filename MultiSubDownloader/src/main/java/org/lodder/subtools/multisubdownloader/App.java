@@ -143,7 +143,7 @@ public class App {
         Path file = Path.of(line.getCliOptionValue(CliOption.IMPORT_PREFERENCES));
         try {
             if (file.isRegularFile()) {
-                prefctrl.importPreferences(file);
+                prefctrl.importPreferences(file, true);
             }
         } catch (Exception e) {
             LOGGER.error("executeArgs: importPreferences", e);
@@ -159,7 +159,7 @@ public class App {
 
     private static Manager createManager(boolean useGui) {
         if (splash != null) {
-            splash.setProgressMsg("Creating Manager");
+            splash.setProgressMsg(Messages.getString("App.Starting"));
         }
         DiskCache<String, Serializable> diskCache =
                 SerializableDiskCache.cacheBuilder().keyType(String.class).valueType(Serializable.class)

@@ -22,4 +22,10 @@ public interface UserInteractionHandler {
     }
 
     Optional<String> enter(String title, String message, String errorMessage, Predicate<String> validator);
+
+    void showMessage(String message, String title, MessageSeverity messageSeverity);
+
+    enum MessageSeverity {
+        INFO, WARNING, ERROR;
+    }
 }

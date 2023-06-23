@@ -115,8 +115,9 @@ public class Menu extends JMenuBar {
 
     }
 
-    public void setShowOnlyFound(boolean show) {
+    public Menu withShowOnlyFound(boolean show) {
         chckbxmntmShowOnlyFound.setSelected(show);
+        return this;
     }
 
     public boolean isShowOnlyFound() {
@@ -127,127 +128,155 @@ public class Menu extends JMenuBar {
         return chckbxmntmFileName.isSelected();
     }
 
-    public void setViewFileNameSelected(boolean arg0) {
+    public Menu withViewFileNameSelected(boolean arg0) {
         this.chckbxmntmFileName.setSelected(arg0);
+        return this;
     }
 
     public boolean isViewTypeSelected() {
         return chckbxmntmType.isSelected();
     }
 
-    public void setViewTypeSelected(boolean arg0) {
+    public Menu withViewTypeSelected(boolean arg0) {
         this.chckbxmntmType.setSelected(arg0);
+        return this;
     }
 
     public boolean isViewTitleSelected() {
         return chckbxmntmTitle.isSelected();
     }
 
-    public void setViewTitleSelected(boolean arg0) {
+    public Menu withViewTitleSelected(boolean arg0) {
         this.chckbxmntmTitle.setSelected(arg0);
+        return this;
     }
 
     public boolean isViewSeasonSelected() {
         return chckbxmntmSeason.isSelected();
     }
 
-    public void setViewSeasonSelected(boolean arg0) {
+    public Menu withViewSeasonSelected(boolean arg0) {
         this.chckbxmntmSeason.setSelected(arg0);
+        return this;
     }
 
     public boolean isViewEpisodeSelected() {
         return chckbxmntmEpisode.isSelected();
     }
 
-    public void setViewEpisodeSelected(boolean arg0) {
+    public Menu withViewEpisodeSelected(boolean arg0) {
         this.chckbxmntmEpisode.setSelected(arg0);
+        return this;
+    }
+
+    public Menu withFileQuitAction(Runnable fileQuitAction) {
+        addActionListener(mntmQuit, fileQuitAction);
+        return this;
+    }
+
+    public Menu withViewFilenameAction(Runnable viewFilenameAction) {
+        addActionListener(chckbxmntmFileName, viewFilenameAction);
+        return this;
+    }
+
+    public Menu withViewTypeAction(Runnable viewTypeAction) {
+        addActionListener(chckbxmntmType, viewTypeAction);
+        return this;
+    }
+
+    public Menu withViewTitleAction(Runnable viewTitleAction) {
+        addActionListener(chckbxmntmTitle, viewTitleAction);
+        return this;
+    }
+
+    public Menu withEditRenameTVAction(Runnable editRenameTVAction) {
+        addActionListener(mntmRenameSerieFiles, editRenameTVAction);
+        return this;
+    }
+
+    public Menu withEditRenameMovieAction(Runnable editRenameMovieAction) {
+        addActionListener(mntmRenameMovieFiles, editRenameMovieAction);
+        return this;
+    }
+
+    public Menu withEditPreferencesAction(Runnable editPreferencesAction) {
+        addActionListener(mntmPreferences, editPreferencesAction);
+        return this;
+    }
+
+    public Menu withExportExclusionsAction(Runnable exportExclusionsAction) {
+        addActionListener(mntmExportExclusions, exportExclusionsAction);
+        return this;
+    }
+
+    public Menu withExportPreferencesAction(Runnable exportPreferencesAction) {
+        addActionListener(mntmExportPreferences, exportPreferencesAction);
+        return this;
+    }
+
+    public Menu withExportTranslationsAction(Runnable exportTranslationsAction) {
+        addActionListener(mntmExportTranslate, exportTranslationsAction);
+        return this;
+    }
+
+    public Menu withAboutAction(Runnable aboutAction) {
+        addActionListener(mntmAbout, arg -> aboutAction.run());
+        return this;
+    }
+
+    public Menu withCheckUpdateAction(Runnable checkUpdateAction) {
+        addActionListener(mntmCheckForUpdate, checkUpdateAction);
+        return this;
+    }
+
+    public Menu withImportTranslationsAction(Runnable importTranslationsAction) {
+        addActionListener(mntmImportTranslate, importTranslationsAction);
+        return this;
+    }
+
+    public Menu withImportPreferencesAction(Runnable importPreferencesAction) {
+        addActionListener(mntmImportPreferences, importPreferencesAction);
+        return this;
+    }
+
+    public Menu withImportExclusionsAction(Runnable importExclusionsAction) {
+        addActionListener(mntmImportExclusions, importExclusionsAction);
+        return this;
+    }
+
+    public Menu withTranslateShowNamesAction(Runnable translateShowNamesAction) {
+        addActionListener(mntmTranslateShowNames, translateShowNamesAction);
+        return this;
+    }
+
+    public Menu withViewClearLogAction(Runnable viewClearLogAction) {
+        addActionListener(mntmClearLog, viewClearLogAction);
+        return this;
+    }
+
+    public Menu withViewShowOnlyFoundAction(Runnable viewShowOnlyFoundAction) {
+        addActionListener(chckbxmntmShowOnlyFound, viewShowOnlyFoundAction);
+        return this;
+    }
+
+    public Menu withViewEpisodeAction(Runnable viewEpisodeAction) {
+        addActionListener(chckbxmntmEpisode, viewEpisodeAction);
+        return this;
+    }
+
+    public Menu withViewSeasonAction(Runnable viewSeasonAction) {
+        addActionListener(chckbxmntmSeason, viewSeasonAction);
+        return this;
+    }
+
+    private void addActionListener(JMenuItem menuItem, Runnable actionListener) {
+        addActionListener(menuItem, arg -> actionListener.run());
     }
 
     private void addActionListener(JMenuItem menuItem, ActionListener actionListener) {
-        menuItem.addActionListener(actionEvent -> {
-            if (actionListener != null) {
-                actionListener.actionPerformed(actionEvent);
-            }
-        });
+        if (actionListener != null) {
+            menuItem.addActionListener(actionListener::actionPerformed);
+        }
     }
 
-    public void setFileQuitAction(ActionListener fileQuitAction) {
-        addActionListener(mntmQuit, fileQuitAction);
-    }
-
-    public void setViewFilenameAction(ActionListener viewFilenameAction) {
-        addActionListener(chckbxmntmFileName, viewFilenameAction);
-    }
-
-    public void setViewTypeAction(ActionListener viewTypeAction) {
-        addActionListener(chckbxmntmType, viewTypeAction);
-    }
-
-    public void setViewTitleAction(ActionListener viewTitleAction) {
-        addActionListener(chckbxmntmTitle, viewTitleAction);
-    }
-
-    public void setEditRenameTVAction(ActionListener editRenameTVAction) {
-        addActionListener(mntmRenameSerieFiles, editRenameTVAction);
-    }
-
-    public void setEditRenameMovieAction(ActionListener editRenameMovieAction) {
-        addActionListener(mntmRenameMovieFiles, editRenameMovieAction);
-    }
-
-    public void setEditPreferencesAction(ActionListener editPreferencesAction) {
-        addActionListener(mntmPreferences, editPreferencesAction);
-    }
-
-    public void setExportExclusionsAction(ActionListener exportExclusionsAction) {
-        addActionListener(mntmExportExclusions, exportExclusionsAction);
-    }
-
-    public void setExportPreferencesAction(ActionListener exportPreferencesAction) {
-        addActionListener(mntmExportPreferences, exportPreferencesAction);
-    }
-
-    public void setExportTranslationsAction(ActionListener exportTranslationsAction) {
-        addActionListener(mntmExportTranslate, exportTranslationsAction);
-    }
-
-    public void setAboutAction(ActionListener aboutAction) {
-        addActionListener(mntmAbout, aboutAction);
-    }
-
-    public void setCheckUpdateAction(ActionListener checkUpdateAction) {
-        addActionListener(mntmCheckForUpdate, checkUpdateAction);
-    }
-
-    public void setImportTranslationsAction(ActionListener importTranslationsAction) {
-        addActionListener(mntmImportTranslate, importTranslationsAction);
-    }
-
-    public void setImportPreferencesAction(ActionListener importPreferencesAction) {
-        addActionListener(mntmImportPreferences, importPreferencesAction);
-    }
-
-    public void setImportExclusionsAction(ActionListener importExclusionsAction) {
-        addActionListener(mntmImportExclusions, importExclusionsAction);
-    }
-
-    public void setTranslateShowNamesAction(ActionListener translateShowNamesAction) {
-        addActionListener(mntmTranslateShowNames, translateShowNamesAction);
-    }
-
-    public void setViewClearLogAction(ActionListener viewClearLogAction) {
-        addActionListener(mntmClearLog, viewClearLogAction);
-    }
-
-    public void setViewShowOnlyFoundAction(ActionListener viewShowOnlyFoundAction) {
-        addActionListener(chckbxmntmShowOnlyFound, viewShowOnlyFoundAction);
-    }
-
-    public void setViewEpisodeAction(ActionListener viewEpisodeAction) {
-        addActionListener(chckbxmntmEpisode, viewEpisodeAction);
-    }
-
-    public void setViewSeasonAction(ActionListener viewSeasonAction) {
-        addActionListener(chckbxmntmSeason, viewSeasonAction);
-    }
 }

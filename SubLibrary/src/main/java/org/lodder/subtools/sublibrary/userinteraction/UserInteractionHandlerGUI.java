@@ -53,4 +53,14 @@ public class UserInteractionHandlerGUI implements UserInteractionHandler {
     public void message(String message, String title) {
         JOptionPane.showMessageDialog(frame, message, title, JOptionPane.OK_OPTION);
     }
+
+    @Override
+    public void showMessage(String message, String title, MessageSeverity messageSeverity) {
+        int messageType = switch (messageSeverity) {
+            case INFO -> JOptionPane.INFORMATION_MESSAGE;
+            case WARNING -> JOptionPane.WARNING_MESSAGE;
+            case ERROR -> JOptionPane.ERROR_MESSAGE;
+        };
+        JOptionPane.showMessageDialog(frame, message, title, messageType);
+    }
 }

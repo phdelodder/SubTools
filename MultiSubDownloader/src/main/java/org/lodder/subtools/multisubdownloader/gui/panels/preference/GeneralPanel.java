@@ -76,7 +76,7 @@ public class GeneralPanel extends JPanel implements PreferencePanelIntf {
                 new JLabel(Messages.getString("PreferenceDialog.DefaultIncomingFolder")).addTo(settingsPanel, "aligny center, span 1 2");
 
                 new JScrollPane().addTo(settingsPanel, "growx, span, wrap")
-                        .setViewportView(this.defaultIncomingFoldersList = new JListWithImages<>());
+                        .setViewportView(this.defaultIncomingFoldersList = JListWithImages.createForType(Path.class).distinctValues().build());
 
                 new JButton(Messages.getString("PreferenceDialog.AddFolder"))
                         .withActionListener(
@@ -95,7 +95,7 @@ public class GeneralPanel extends JPanel implements PreferencePanelIntf {
                 new JLabel(Messages.getString("PreferenceDialog.ExcludeList")).addTo(settingsPanel, "aligny center, span 1 2");
 
                 new JScrollPane().addTo(settingsPanel, "growx, span, wrap")
-                        .setViewportView(this.excludeList = new JListWithImages<>());
+                        .setViewportView(this.excludeList = JListWithImages.createForType(PathOrRegex.class).distinctValues().build());
 
                 Consumer<PathMatchType> addExcludeItemConsumer = type -> {
                     if (type == PathMatchType.FOLDER) {
