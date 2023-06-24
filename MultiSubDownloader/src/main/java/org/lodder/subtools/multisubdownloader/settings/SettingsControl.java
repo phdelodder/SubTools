@@ -90,22 +90,18 @@ public class SettingsControl {
         updateProxySettings();
     }
 
-    public void exportPreferences(Path file) {
+    public void exportPreferences(Path file) throws IOException, BackingStoreException {
         store();
         try (OutputStream os = file.newOutputStream()) {
             preferences.exportSubtree(os);
-        } catch (IOException | BackingStoreException e) {
-            LOGGER.error("exportPreferences", e);
         }
     }
 
-    public void importPreferences(Path file) {
+    public void importPreferences(Path file) throws IOException, BackingStoreException, InvalidPreferencesFormatException {
         try (InputStream is = new BufferedInputStream(file.newInputStream())) {
             preferences.clear();
             Preferences.importPreferences(is);
             load();
-        } catch (IOException | BackingStoreException | InvalidPreferencesFormatException e) {
-            LOGGER.error("importPreferences", e);
         }
     }
 
@@ -326,21 +322,20 @@ public class SettingsControl {
         EPISODE_LIBRARY_LANG_CODE_MAPPING.store(this, preferences);
         MOVIE_LIBRARY_LANG_CODE_MAPPING.store(this, preferences);
 
-
-        if(settings.getEpisodeLibrarySettings().hasAnyLibraryAction(LibraryActionType.RENAME, LibraryActionType.MOVEANDRENAME)) {
-            if(StringUtils.isBlank(settings.getEpisodeLibrarySettings().getLibraryFilenameStructure())) {
+        if (settings.getEpisodeLibrarySettings().hasAnyLibraryAction(LibraryActionType.RENAME, LibraryActionType.MOVEANDRENAME)) {
+            if (StringUtils.isBlank(settings.getEpisodeLibrarySettings().getLibraryFilenameStructure())) {
                 settings.getMovieLibrarySettings().setLibraryFilenameStructure("%SHOW NAME%%SEPARATOR%%Season %S%");
                 MOVIE_LIBRARY_FILENAME_STRUCTURE.store(this, preferences);
                 EPISODE_LIBRARY_FILENAME_STRUCTURE.store(this, preferences);
             }
-            if(StringUtils.isBlank(settings.getEpisodeLibrarySettings().getLibraryFolderStructure())) {
+            if (StringUtils.isBlank(settings.getEpisodeLibrarySettings().getLibraryFolderStructure())) {
                 settings.getMovieLibrarySettings().setLibraryFolderStructure("%SHOW NAME%.S%SS%E%EE%.%TITLE%");
                 EPISODE_LIBRARY_FOLDER_STRUCTURE.store(this, preferences);
             }
         }
 
-        if(settings.getMovieLibrarySettings().hasAnyLibraryAction(LibraryActionType.RENAME, LibraryActionType.MOVEANDRENAME)) {
-            if(StringUtils.isBlank(settings.getMovieLibrarySettings().getLibraryFilenameStructure())) {
+        if (settings.getMovieLibrarySettings().hasAnyLibraryAction(LibraryActionType.RENAME, LibraryActionType.MOVEANDRENAME)) {
+            if (StringUtils.isBlank(settings.getMovieLibrarySettings().getLibraryFilenameStructure())) {
                 settings.getMovieLibrarySettings().setLibraryFilenameStructure("%MOVIE TITLE% (%YEAR%)");
                 MOVIE_LIBRARY_FILENAME_STRUCTURE.store(this, preferences);
             }

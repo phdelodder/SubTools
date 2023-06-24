@@ -22,6 +22,8 @@ import java.awt.FlowLayout;
 import java.awt.Image;
 
 import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod({ JComponentExtension.class })
@@ -31,15 +33,36 @@ public class JListWithImages<T> extends JList<JListWithImages.LabelPanel<T>> {
     private static final long serialVersionUID = 342783165266555869L;
 
     private final Function<T, String> toStringMapper;
+    private final boolean distinctValues;
 
-    public JListWithImages() {
-        this(Object::toString);
-    }
-
-    public JListWithImages(Function<T, String> toStringMapper) {
-        this.toStringMapper = toStringMapper;
+    private JListWithImages(Function<T, String> toStringMapper, boolean distinctValues) {
+        this.toStringMapper = toStringMapper == null ? Object::toString : toStringMapper;
+        this.distinctValues = distinctValues;
         setCellRenderer(new ImageListCellRenderer());
         setModel(new DefaultListModel<>());
+    }
+
+    public static <T> JListWithImages<T> forType(Class<T> type) {
+        return createForType(type).build();
+    }
+
+    public static <T> JListWithImagesBuilder<T> createForType(Class<T> type) {
+        return new JListWithImagesBuilder<>();
+    }
+
+    @Setter
+    @Accessors(chain = true, fluent = true)
+    public static class JListWithImagesBuilder<T> {
+        private Function<T, String> toStringMapper;
+        private boolean distinctValues;
+
+        public JListWithImagesBuilder<T> distinctValues() {
+            return distinctValues(true);
+        }
+
+        public JListWithImages<T> build() {
+            return new JListWithImages<>(toStringMapper, distinctValues);
+        }
     }
 
     public void addItems(Image image, Collection<T> values) {
@@ -47,7 +70,9 @@ public class JListWithImages<T> extends JList<JListWithImages.LabelPanel<T>> {
     }
 
     public void addItem(Image image, T value) {
-        ((DefaultListModel<LabelPanel<T>>) getModel()).addElement(new LabelPanel<>(image, value, toStringMapper, SwingConstants.LEFT));
+        if (!distinctValues || !contains(value)) {
+            ((DefaultListModel<LabelPanel<T>>) getModel()).addElement(new LabelPanel<>(image, value, toStringMapper, SwingConstants.LEFT));
+        }
     }
 
     public void removeSelectedItem() {

@@ -573,6 +573,7 @@ public enum SettingValue {
         private BiConsumer<R, T> valueSetter;
 
         // collection
+        Consumer<R> listCleaner;
         BiConsumer<R, T> valueAdder;
         BiConsumer<R, Consumer<T>> valueConsumer;
 
@@ -620,6 +621,7 @@ public enum SettingValue {
         @Override
         public SettingTyped<T, R> collectionGetter(Function<R, Collection<T>> collectionGetter) {
             settingType = SettingType.COLLECTION;
+            listCleaner = object -> collectionGetter.apply(object).clear();
             valueAdder = (object, v) -> collectionGetter.apply(object).add(v);
             valueConsumer = (object, consumer) -> collectionGetter.apply(object).forEach(consumer);
             return this;
@@ -650,8 +652,10 @@ public enum SettingValue {
                     });
                     super.loadValueFunction((settingsControl, preferences) -> {
                         int numberOfItems = preferences.getInt(key + "Size", 0);
+                        R rootElement = getRootElement(settingsControl);
+                        listCleaner.accept(rootElement);
                         IntStream.range(0, numberOfItems).forEach(i -> {
-                            valueAdder.accept(getRootElement(settingsControl), toObjectMapper.apply(preferences.get(key + i, "")));
+                            valueAdder.accept(rootElement, toObjectMapper.apply(preferences.get(key + i, "")));
                         });
 
                     });

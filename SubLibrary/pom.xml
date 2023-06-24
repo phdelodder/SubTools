@@ -28,6 +28,10 @@
 			<artifactId>logging-interceptor</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>io.gsonfire</groupId>
 			<artifactId>gson-fire</artifactId>
 		</dependency>
