@@ -157,7 +157,6 @@ public class ExportImport {
                     .map(importStyle -> importStyle == ImportStyle.OVERWRITE).forEach(overwrite -> {
                         try {
                             settingsControl.importPreferences(path, overwrite);
-                            settingsControl.store();
                         } catch (IOException | BackingStoreException | InvalidPreferencesFormatException e) {
                             throw new CorruptSettingsFileException(e);
                         }
