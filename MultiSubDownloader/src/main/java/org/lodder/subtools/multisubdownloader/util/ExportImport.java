@@ -230,21 +230,12 @@ public class ExportImport {
     }
 
     private static Optional<ImportStyle> getImportStyle(UserInteractionHandler userInteractionHandler) {
-        return userInteractionHandler.selectFromList(Arrays.asList(ImportStyle.values()),
+        return userInteractionHandler.choice(Arrays.asList(ImportStyle.values()),
                 Messages.getString("ImportExport.OverwriteOrAdd"), Messages.getString("ImportExport.OverwriteOrAddTitle"),
                 option -> switch (option) {
                     case OVERWRITE -> Messages.getString("ImportExport.Overwrite");
                     case APPEND -> Messages.getString("ImportExport.Add");
                 });
-
-        // return selectedImportStyle.map(option -> option == ImportStyle.OVERWRITE).orElseGet(this::overwriteSettings);
-
-        // String[] options = { "overwrite", "append" };
-        // var selection = JOptionPane.showOptionDialog(parent,
-        // "Do you want to overwrite the current settings, or add the imported settings settings to the existing settings",
-        // "Overwrite or add to settings?",
-        // JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-        // return selection == 0;
     }
 
     private enum ImportStyle {

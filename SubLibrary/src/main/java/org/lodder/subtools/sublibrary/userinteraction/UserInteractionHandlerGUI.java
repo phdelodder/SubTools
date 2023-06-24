@@ -15,7 +15,6 @@ import org.lodder.subtools.sublibrary.gui.OptionsPane;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-
 @Getter
 @RequiredArgsConstructor
 public class UserInteractionHandlerGUI implements UserInteractionHandler {
@@ -25,10 +24,7 @@ public class UserInteractionHandlerGUI implements UserInteractionHandler {
 
     @Override
     public Optional<String> selectFromList(Collection<String> options, String message, String title) {
-        if (options.isEmpty()) {
-            return Optional.empty();
-        }
-        return OptionsPane.stringOptions(options).title(title).message(message).defaultOption().parent(frame).prompt();
+        return selectFromList(options, message, title, null);
     }
 
     @Override
@@ -37,6 +33,24 @@ public class UserInteractionHandlerGUI implements UserInteractionHandler {
             return Optional.empty();
         }
         return OptionsPane.options(options).toStringMapper(toStringMapper).title(title).message(message).defaultOption().parent(frame).prompt();
+    }
+
+    @Override
+    public <T> Optional<T> choice(Collection<T> options, String message, String title) {
+        return choice(options, message, title, null);
+    }
+
+    @Override
+    public <T> Optional<T> choice(Collection<T> options, String message, String title, Function<T, String> toStringMapper) {
+        String[] optionsasAsStrings;
+        if (toStringMapper != null) {
+            optionsasAsStrings = options.stream().map(toStringMapper::apply).toArray(String[]::new);
+        } else {
+            optionsasAsStrings = options.stream().map(String::valueOf).toArray(String[]::new);
+        }
+        int selection = JOptionPane.showOptionDialog(frame, message, title,
+                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, optionsasAsStrings, optionsasAsStrings[0]);
+        return selection == JOptionPane.CLOSED_OPTION ? Optional.empty() : options.stream().skip(selection).findFirst();
     }
 
     @Override

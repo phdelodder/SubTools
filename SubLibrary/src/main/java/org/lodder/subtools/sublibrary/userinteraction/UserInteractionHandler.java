@@ -17,6 +17,10 @@ public interface UserInteractionHandler {
 
     <T> Optional<T> selectFromList(Collection<T> options, String message, String title, Function<T, String> toStringMapper);
 
+    <T> Optional<T> choice(Collection<T> options, String message, String title);
+
+    <T> Optional<T> choice(Collection<T> options, String message, String title, Function<T, String> toStringMapper);
+
     default Optional<String> enter(String title, String message) {
         return enter(title, message, null, null);
     }

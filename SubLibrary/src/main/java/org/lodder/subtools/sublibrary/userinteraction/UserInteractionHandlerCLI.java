@@ -22,15 +22,24 @@ public class UserInteractionHandlerCLI implements UserInteractionHandler {
     private final Prompter prompter = new DefaultPrompter();
     private final UserInteractionSettingsIntf settings;
 
-
     @Override
     public Optional<String> selectFromList(Collection<String> options, String message, String title) {
-        return PrompterUtil.getStringFromList(options).message(message).includeNull().prompt(prompter);
+        return selectFromList(options, message, title, null);
     }
 
     @Override
     public <T> Optional<T> selectFromList(Collection<T> options, String message, String title, Function<T, String> toStringMapper) {
         return PrompterUtil.getElementFromList(options).toStringMapper(toStringMapper).message(message).includeNull().prompt(prompter);
+    }
+
+    @Override
+    public <T> Optional<T> choice(Collection<T> options, String message, String title) {
+        return choice(options, message, title, null);
+    }
+
+    @Override
+    public <T> Optional<T> choice(Collection<T> options, String message, String title, Function<T, String> toStringMapper) {
+        return selectFromList(options, message, title, toStringMapper);
     }
 
     @Override
