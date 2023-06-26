@@ -91,19 +91,25 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
 
     @Getter
     public enum MappingType {
-        TVDB("TVDB", "TVDB", new SelectionForKeyPrefix("", "TVDB-serieId-", k -> k.replace("-serieId-", "-tvdbSerie-"))),
-        ADDIC7ED("Addic7ed", SubtitleSource.ADDIC7ED, new SelectionForKeyPrefix("", "ADDIC7ED-serieName-name:"),
+        TVDB("TVDB", "TVDB",
+                new SelectionForKeyPrefix("", "TVDB-serieId-", k -> k.replace("-serieId-", "-tvdbSerie-"))),
+        ADDIC7ED("Addic7ed", SubtitleSource.ADDIC7ED,
+                new SelectionForKeyPrefix("", "ADDIC7ED-serieName-name:"),
                 new SelectionForKeyPrefix("", "ADDIC7ED-serieName-tvdbId:")),
         ADDIC7ED_PROXY("Addic7ed (Proxy)", SubtitleSource.ADDIC7ED.name() + "-GESTDOWN",
                 new SelectionForKeyPrefix("", "ADDIC7ED-GESTDOWN-serieName-name:"),
                 new SelectionForKeyPrefix("", "ADDIC7ED-GESTDOWN-serieName-tvdbId:")),
-        SUBSCENE("Subscene", SubtitleSource.SUBSCENE, new SelectionForKeyPrefix("", "SUBSCENE-serieName-name:"),
+        SUBSCENE("Subscene", SubtitleSource.SUBSCENE,
+                new SelectionForKeyPrefix("", "SUBSCENE-serieName-name:"),
                 new SelectionForKeyPrefix("", "SUBSCENE-serieName-tvdbId:")),
-        TV_SUBTITLES("TVSubtitles", SubtitleSource.TVSUBTITLES, new SelectionForKeyPrefix("", "TVSUBTITLES-serieName-name:"),
+        TV_SUBTITLES("TVSubtitles", SubtitleSource.TVSUBTITLES,
+                new SelectionForKeyPrefix("", "TVSUBTITLES-serieName-name:"),
                 new SelectionForKeyPrefix("", "TVSUBTITLES-serieName-tvdbId:")),
-        OPEN_SUBTITLES("OpenSubtitles", SubtitleSource.OPENSUBTITLES, new SelectionForKeyPrefix("", "OPENSUBTITLES-serieName-name:"),
+        OPEN_SUBTITLES("OpenSubtitles", SubtitleSource.OPENSUBTITLES,
+                new SelectionForKeyPrefix("", "OPENSUBTITLES-serieName-name:"),
                 new SelectionForKeyPrefix("", "OPENSUBTITLES-serieName-tvdbId:")),
-        PODNAPISI("Podnapisi", SubtitleSource.PODNAPISI, new SelectionForKeyPrefix("", "PODNAPISI-serieName:"),
+        PODNAPISI("Podnapisi", SubtitleSource.PODNAPISI,
+                new SelectionForKeyPrefix("", "PODNAPISI-serieName-name:"),
                 new SelectionForKeyPrefix("", "PODNAPISI-serieName-tvdbId:"));
 
         public static final BiFunction<Manager, SelectionForKeyPrefix, List<Pair<String, SerieMapping>>> MAPPING_SUPPLIER;

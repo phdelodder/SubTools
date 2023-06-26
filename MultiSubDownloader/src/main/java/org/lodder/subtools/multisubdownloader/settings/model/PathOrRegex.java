@@ -1,8 +1,10 @@
 package org.lodder.subtools.multisubdownloader.settings.model;
 
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
@@ -11,16 +13,15 @@ import org.lodder.subtools.sublibrary.util.NamedPattern;
 import java.awt.Image;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
-public class PathOrRegex {
+public class PathOrRegex implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     @Getter
     private final String value;
     @Getter
-    private final Image image;
-    private final Predicate<Path> isExcludedPathPredicate;
+    private final transient Image image;
+    private final transient Predicate<Path> isExcludedPathPredicate;
 
     public PathOrRegex(Path path) {
         this.value = path.toString();
@@ -30,19 +31,22 @@ public class PathOrRegex {
 
     public PathOrRegex(String value) {
         this.value = value;
-        Image img;
-        Predicate<Path> excludedPathPredicate;
+        boolean regex;
+        Path path = null;
         try {
-            Path path = Path.of(value);
-            img = path.isAbsolute() ? getImage(path) : PathMatchType.REGEX.getImage();
-            excludedPathPredicate = path::equals;
+            path = Path.of(value);
+            regex = !path.isAbsolute();
         } catch (InvalidPathException e) {
-            img = PathMatchType.REGEX.getImage();
-            NamedPattern np = NamedPattern.compile(value.replace("*", ".*") + ".*$", Pattern.CASE_INSENSITIVE);
-            excludedPathPredicate = p -> np.matcher(p.getFileName().toString()).find();
+            regex = true;
         }
-        this.image = img;
-        this.isExcludedPathPredicate = excludedPathPredicate;
+        if (regex) {
+            this.image = PathMatchType.REGEX.getImage();
+            NamedPattern np = NamedPattern.compile(value.replace("*", ".*") + ".*$", Pattern.CASE_INSENSITIVE);
+            this.isExcludedPathPredicate = p -> np.matcher(p.getFileName().toString()).find();
+        } else {
+            this.image = getImage(path);
+            this.isExcludedPathPredicate = path::equals;
+        }
     }
 
     private Image getImage(Path path) {
@@ -58,4 +62,13 @@ public class PathOrRegex {
         return value;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof PathOrRegex other && Objects.equals(value, other.getValue());
+    }
 }

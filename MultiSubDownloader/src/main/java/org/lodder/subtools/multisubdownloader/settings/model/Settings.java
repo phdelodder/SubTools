@@ -3,10 +3,13 @@ package org.lodder.subtools.multisubdownloader.settings.model;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
@@ -30,7 +33,7 @@ public class Settings implements UserInteractionSettingsIntf {
     private boolean optionSubtitleKeywordMatch = true;
     private boolean optionSubtitleExcludeHearingImpaired;
     private boolean optionsShowOnlyFound, optionsStopOnSearchError;
-    private List<PathOrRegex> excludeList = new ArrayList<>();
+    private final Set<PathOrRegex> excludeList = new LinkedHashSet<>();
     private final LibrarySettings movieLibrarySettings = new LibrarySettings();
     private final LibrarySettings episodeLibrarySettings = new LibrarySettings();
     private String generalProxyHost = "";
@@ -100,5 +103,11 @@ public class Settings implements UserInteractionSettingsIntf {
             case LOCAL -> this.isSerieSourceLocal();
             case SUBSCENE -> this.isSerieSourceSubscene();
         };
+    }
+
+    public Settings setExcludeList(Collection<PathOrRegex> exclusions) {
+        excludeList.clear();
+        excludeList.addAll(exclusions);
+        return this;
     }
 }
