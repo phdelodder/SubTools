@@ -147,7 +147,7 @@ public class MappingEpisodeNameDialog extends MultiSubDialog {
         }
     }
 
-    public static record SelectionForKeyPrefix(String name, String keyPrefix, Function<String, String> deleteOtherFunction) {
+    public record SelectionForKeyPrefix(String name, String keyPrefix, Function<String, String> deleteOtherFunction) {
         public SelectionForKeyPrefix(String name, String keyPrefix) {
             this(name, keyPrefix, null);
         }

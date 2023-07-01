@@ -39,7 +39,7 @@ public abstract class StructurePanel<T extends StructurePanel<T>> extends JPanel
 
     @SuppressWarnings("unchecked")
     public T addBuildStructureAction(ActionListener buildStructureAction) {
-        btnBuildStructure.addActionListener(buildStructureAction::actionPerformed);
+        btnBuildStructure.addActionListener(buildStructureAction);
         return (T) this;
     }
 

@@ -59,7 +59,7 @@ public class SearchFileInputPanel extends InputPanel {
 
     public void addSelectFolderAction(ActionListener selectFolderAction) {
         if (selectFolderAction != null) {
-            btnBrowse.addActionListener(e -> selectFolderAction.actionPerformed(e));
+            btnBrowse.addActionListener(selectFolderAction);
         }
     }
 

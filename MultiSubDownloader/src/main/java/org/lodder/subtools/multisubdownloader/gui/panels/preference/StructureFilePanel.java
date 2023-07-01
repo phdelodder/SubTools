@@ -125,14 +125,14 @@ public class StructureFilePanel extends JPanel {
                     return languageComponents;
                 };
                 new JButton(Messages.getString("StructureFilePanel.AddLanguage"))
-                        .withActionListener(() -> addLanguageSupplier.get()).addTo(languagePanelRoot);
+                        .withActionListener(addLanguageSupplier::get).addTo(languagePanelRoot);
             }
         }
 
         loadPreferenceSettings();
     }
 
-    private static record LanguageComponents(MyComboBox<Language> cmbLanguage, MyTextFieldString txtLanguage, JButton btnDelete) {
+    private record LanguageComponents(MyComboBox<Language> cmbLanguage, MyTextFieldString txtLanguage, JButton btnDelete) {
 
         public void setValue(Language language, String langCode) {
             cmbLanguage.setSelectedItem(language);
@@ -216,7 +216,7 @@ public class StructureFilePanel extends JPanel {
             }
 
             Border border = componentList.size() > 1 ? ERROR_BORDER : getDefaultBorder(componentList.get(0));
-            componentList.stream().forEach(components -> components.cmbLanguage.setBorder(border));
+            componentList.forEach(components -> components.cmbLanguage.setBorder(border));
         }
 
         public boolean hasValidSettings() {
@@ -244,7 +244,7 @@ public class StructureFilePanel extends JPanel {
                 languageComponentsMap.values().stream().map(langComp -> langComp.cmbLanguage.getSelectedItem()).distinct()
                         .forEach(this::updateBorder);
             } else {
-                languageComponentsMap.values().stream()
+                languageComponentsMap.values()
                         .forEach(langComps -> langComps.cmbLanguage.setBorder(getDefaultBorder(langComps)));
             }
         }

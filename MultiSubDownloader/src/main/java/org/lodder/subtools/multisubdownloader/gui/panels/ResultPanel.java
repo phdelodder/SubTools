@@ -92,13 +92,13 @@ public class ResultPanel extends JPanel {
 
     public void setDownloadAction(ActionListener downloadAction) {
         if (downloadAction != null) {
-            btnDownload.addActionListener(downloadAction::actionPerformed);
+            btnDownload.addActionListener(downloadAction);
         }
     }
 
     public void setMoveAction(ActionListener moveAction) {
         if (moveAction != null) {
-            btnMove.addActionListener(moveAction::actionPerformed);
+            btnMove.addActionListener(moveAction);
         }
     }
 

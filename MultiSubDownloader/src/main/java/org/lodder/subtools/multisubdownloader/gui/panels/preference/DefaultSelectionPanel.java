@@ -140,7 +140,7 @@ public class DefaultSelectionPanel extends JPanel implements PreferencePanelIntf
         }
 
         public List<E> getItems() {
-            return IntStream.range(0, model.getRowCount()).mapToObj(i -> getItemAt(i)).toList();
+            return IntStream.range(0, model.getRowCount()).mapToObj(this::getItemAt).toList();
         }
 
         @Override

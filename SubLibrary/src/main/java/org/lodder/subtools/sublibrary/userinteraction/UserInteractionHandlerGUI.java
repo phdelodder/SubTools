@@ -44,7 +44,7 @@ public class UserInteractionHandlerGUI implements UserInteractionHandler {
     public <T> Optional<T> choice(Collection<T> options, String message, String title, Function<T, String> toStringMapper) {
         String[] optionsasAsStrings;
         if (toStringMapper != null) {
-            optionsasAsStrings = options.stream().map(toStringMapper::apply).toArray(String[]::new);
+            optionsasAsStrings = options.stream().map(toStringMapper).toArray(String[]::new);
         } else {
             optionsasAsStrings = options.stream().map(String::valueOf).toArray(String[]::new);
         }

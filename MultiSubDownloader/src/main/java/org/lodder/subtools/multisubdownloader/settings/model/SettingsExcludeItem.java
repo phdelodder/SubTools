@@ -20,8 +20,7 @@ public class SettingsExcludeItem {
         this.description = description;
         this.type = type;
         this.isExcludedPredicate = switch (type) {
-            case FOLDER -> Path.of(description)::equals;
-            case FILE -> Path.of(description)::equals;
+            case FOLDER, FILE -> Path.of(description)::equals;
             case REGEX -> {
                 NamedPattern np = NamedPattern.compile(description.replace("*", ".*") + ".*$", Pattern.CASE_INSENSITIVE);
                 yield file -> np.matcher(file.getFileName().toString()).find();

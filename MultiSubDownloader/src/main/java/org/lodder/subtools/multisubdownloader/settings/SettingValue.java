@@ -550,7 +550,7 @@ public enum SettingValue {
     }
 
     private enum SettingType {
-        SINGLE_VALUE, COLLECTION;
+        SINGLE_VALUE, COLLECTION
     }
 
     @Setter

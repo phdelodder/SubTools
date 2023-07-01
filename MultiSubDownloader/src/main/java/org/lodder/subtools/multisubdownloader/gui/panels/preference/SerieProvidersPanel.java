@@ -101,7 +101,7 @@ public class SerieProvidersPanel extends JPanel implements PreferencePanelIntf {
                             .map(Path::toAbsolutePath).filter(not(localSourcesFoldersList::contains))
                             .ifPresent(path -> localSourcesFoldersList.addItem(PathMatchType.FOLDER.getImage(), path)));
             JButton btnRemoveLocalSources = new JButton(Messages.getString("PreferenceDialog.DeleteFolder"))
-                    .withActionListener(() -> localSourcesFoldersList.removeSelectedItem());
+                    .withActionListener(localSourcesFoldersList::removeSelectedItem);
 
             PanelCheckBox.checkbox(chkSourceLocal).panelOnNewLine().addTo(titelPanel)
                     .addComponent("aligny top, gapy 5px", new JLabel(Messages.getString("PreferenceDialog.LocalFolderWithSubtitles")))
