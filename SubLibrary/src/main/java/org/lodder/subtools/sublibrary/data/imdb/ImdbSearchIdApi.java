@@ -22,16 +22,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
 
-@RequiredArgsConstructor
-@ExtensionMethod({ OptionalExtension.class })
-class ImdbSearchIdApi {
+record ImdbSearchIdApi(Manager manager) {
 
-    private static final Pattern IMDB_URL_ID_PATTERN = Pattern.compile("\\/title\\/tt([0-9]*)");
-    @Getter
-    private final Manager manager;
+    private static final Pattern IMDB_URL_ID_PATTERN = Pattern.compile("/title/tt([0-9]*)");
 
     public Set<ProviderSerieId> getImdbIdOnImdb(String title, Integer year) throws ImdbSearchIdException {
-        return getManager().valueBuilder()
+        return manager.valueBuilder()
                 .memoryCache()
                 .key("%s-imdbid-imdb-%s-%s".formatted("IMDB", title, year))
                 .collectionSupplier(ProviderSerieId.class, () -> {
@@ -56,7 +52,7 @@ class ImdbSearchIdApi {
     }
 
     public Set<ProviderSerieId> getImdbIdOnYahoo(String title, Integer year) throws ImdbSearchIdException {
-        return getManager().valueBuilder()
+        return manager.valueBuilder()
                 .memoryCache()
                 .key("%s-imdbid-yahoo-%s-%s".formatted("IMDB", title, year))
                 .collectionSupplier(ProviderSerieId.class, () -> {
@@ -86,7 +82,7 @@ class ImdbSearchIdApi {
     }
 
     public Set<ProviderSerieId> getImdbIdOnGoogle(String title, Integer year) throws ImdbSearchIdException {
-        return getManager().valueBuilder()
+        return manager.valueBuilder()
                 .memoryCache()
                 .key("%s-imdbid-google-%s-%s".formatted("IMDB", title, year))
                 .collectionSupplier(ProviderSerieId.class, () -> {
