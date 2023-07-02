@@ -101,7 +101,7 @@ public class SerieProvidersPanel extends JPanel implements PreferencePanelIntf {
                             .map(Path::toAbsolutePath).filter(not(localSourcesFoldersList::contains))
                             .ifPresent(path -> localSourcesFoldersList.addItem(PathMatchType.FOLDER.getImage(), path)));
             JButton btnRemoveLocalSources = new JButton(Messages.getString("PreferenceDialog.DeleteFolder"))
-                    .withActionListener(() -> localSourcesFoldersList.removeSelectedItem());
+                    .withActionListener(localSourcesFoldersList::removeSelectedItem);
 
             PanelCheckBox.checkbox(chkSourceLocal).panelOnNewLine().addTo(titelPanel)
                     .addComponent("aligny top, gapy 5px", new JLabel(Messages.getString("PreferenceDialog.LocalFolderWithSubtitles")))
@@ -137,13 +137,13 @@ public class SerieProvidersPanel extends JPanel implements PreferencePanelIntf {
                 .setLoginAddic7edEnabled(chkUserAddic7edLogin.isSelected())
                 .setSerieSourceAddic7edProxy(chkSourceAddic7edProxy.isSelected())
                 .setLoginAddic7edUsername(txtAddic7edUsername.getText())
-                .setLoginAddic7edPassword(txtAddic7edPassword.getText())
+                .setLoginAddic7edPassword(new String(txtAddic7edPassword.getPassword()))
                 .setSerieSourceTvSubtitles(chkSourceTvSubtitles.isSelected())
                 .setSerieSourcePodnapisi(chkSourcePodnapisi.isSelected())
                 .setSerieSourceOpensubtitles(chkSourceOpenSubtitles.isSelected())
                 .setLoginOpenSubtitlesEnabled(chkUserOpenSubtitlesLogin.isSelected())
                 .setLoginOpenSubtitlesUsername(txtOpenSubtitlesUsername.getText())
-                .setLoginOpenSubtitlesPassword(txtOpenSubtitlesPassword.getText())
+                .setLoginOpenSubtitlesPassword(new String(txtOpenSubtitlesPassword.getPassword()))
                 .setSerieSourceSubscene(chkSourceSubscene.isSelected())
                 .setSerieSourceLocal(chkSourceLocal.isSelected())
                 .setLocalSourcesFolders(localSourcesFoldersList.stream().map(LabelPanel::getObject).toList());

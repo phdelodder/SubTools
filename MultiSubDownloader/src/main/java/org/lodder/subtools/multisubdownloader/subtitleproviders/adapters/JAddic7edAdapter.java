@@ -67,20 +67,19 @@ public class JAddic7edAdapter extends AbstractAdapter<Addic7edSubtitleDescriptor
     }
 
     @Override
-    public List<Addic7edSubtitleDescriptor> searchMovieSubtitlesWithHash(String hash, Language language) throws Addic7edException {
+    public List<Addic7edSubtitleDescriptor> searchMovieSubtitlesWithHash(String hash, Language language) {
         // TODO implement this
         return List.of();
     }
 
     @Override
-    public List<Addic7edSubtitleDescriptor> searchMovieSubtitlesWithId(int tvdbId, Language language) throws Addic7edException {
+    public List<Addic7edSubtitleDescriptor> searchMovieSubtitlesWithId(int tvdbId, Language language) {
         // TODO implement this
         return List.of();
     }
 
     @Override
-    public List<Addic7edSubtitleDescriptor> searchMovieSubtitlesWithName(String name, int year, Language language)
-            throws Addic7edException {
+    public List<Addic7edSubtitleDescriptor> searchMovieSubtitlesWithName(String name, int year, Language language) {
         // TODO implement this
         return List.of();
     }

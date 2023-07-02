@@ -14,7 +14,6 @@ import javax.swing.JFileChooser;
 
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
-import org.lodder.subtools.multisubdownloader.gui.dialog.MappingEpisodeNameDialog;
 import org.lodder.subtools.multisubdownloader.gui.dialog.MappingEpisodeNameDialog.MappingType;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.sublibrary.Manager;
@@ -131,9 +130,9 @@ public class ExportImport {
     public static class ExportImportSerieMapping {
 
         public void exportSettings(Path path, Manager manager) throws IOException {
-            List<SeriemappingWithKey> serieMappingsWithKey = Arrays.stream(MappingEpisodeNameDialog.MappingType.values())
+            List<SeriemappingWithKey> serieMappingsWithKey = Arrays.stream(MappingType.values())
                     .map(MappingType::getSelectionForKeyPrefixList)
-                    .map(Arrays::stream).flatMap(s -> s)
+                    .flatMap(Arrays::stream)
                     .flatMap(selectionForKeyPrefix -> manager.valueBuilder()
                             .cacheType(CacheType.DISK)
                             .keyFilter(k -> k.startsWith(selectionForKeyPrefix.keyPrefix()))
@@ -153,9 +152,9 @@ public class ExportImport {
             }
             getImportStyle(userInteractionHandler).ifPresent(importStyle -> {
                 if (importStyle == ImportStyle.OVERWRITE) {
-                    Arrays.stream(MappingEpisodeNameDialog.MappingType.values())
+                    Arrays.stream(MappingType.values())
                             .map(MappingType::getSelectionForKeyPrefixList)
-                            .map(Arrays::stream).flatMap(s -> s)
+                            .flatMap(Arrays::stream)
                             .forEach(selectionForKeyPrefix -> manager.clearExpiredCacheBuilder()
                                     .cacheType(CacheType.DISK)
                                     .keyFilter((String k) -> k.startsWith(selectionForKeyPrefix.keyPrefix()))
@@ -201,7 +200,7 @@ public class ExportImport {
     }
 
     private enum ImportStyle {
-        OVERWRITE, APPEND;
+        OVERWRITE, APPEND
     }
 
     @StandardException

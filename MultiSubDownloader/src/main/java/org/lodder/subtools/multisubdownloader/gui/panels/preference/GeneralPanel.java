@@ -88,7 +88,7 @@ public class GeneralPanel extends JPanel implements PreferencePanelIntf {
                         .addTo(settingsPanel, "span, split 2");
 
                 new JButton(Messages.getString("PreferenceDialog.DeleteFolder"))
-                        .withActionListener(() -> defaultIncomingFoldersList.removeSelectedItem())
+                        .withActionListener(defaultIncomingFoldersList::removeSelectedItem)
                         .addTo(settingsPanel, "wrap, gapbottom 10px");
             }
             {
@@ -115,7 +115,7 @@ public class GeneralPanel extends JPanel implements PreferencePanelIntf {
                         .addTo(settingsPanel, "span, split 3");
 
                 new JButton(Messages.getString("PreferenceDialog.DeleteFolder"))
-                        .withActionListener(() -> excludeList.removeSelectedItem())
+                        .withActionListener(excludeList::removeSelectedItem)
                         .addTo(settingsPanel);
 
                 new JButton(Messages.getString("PreferenceDialog.RegexToevoegen"))

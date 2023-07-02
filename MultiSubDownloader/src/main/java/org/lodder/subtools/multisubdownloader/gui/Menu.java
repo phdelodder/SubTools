@@ -259,7 +259,7 @@ public class Menu extends JMenuBar {
 
     private void addActionListener(JMenuItem menuItem, ActionListener actionListener) {
         if (actionListener != null) {
-            menuItem.addActionListener(actionListener::actionPerformed);
+            menuItem.addActionListener(actionListener);
         }
     }
 

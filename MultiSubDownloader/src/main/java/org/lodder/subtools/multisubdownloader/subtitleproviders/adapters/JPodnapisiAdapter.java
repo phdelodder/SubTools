@@ -65,12 +65,12 @@ public class JPodnapisiAdapter extends AbstractAdapter<PodnapisiSubtitleDescript
     }
 
     @Override
-    public List<PodnapisiSubtitleDescriptor> searchMovieSubtitlesWithHash(String hash, Language language) throws PodnapisiException {
+    public List<PodnapisiSubtitleDescriptor> searchMovieSubtitlesWithHash(String hash, Language language) {
         return List.of();
     }
 
     @Override
-    public List<PodnapisiSubtitleDescriptor> searchMovieSubtitlesWithId(int tvdbId, Language language) throws PodnapisiException {
+    public List<PodnapisiSubtitleDescriptor> searchMovieSubtitlesWithId(int tvdbId, Language language) {
         return List.of();
     }
 

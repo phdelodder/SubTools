@@ -29,7 +29,6 @@ public class PartialDisableComboBox<T> extends JComboBox<T> {
             @Serial
             private static final long serialVersionUID = -2774241371293899669L;
 
-            @SuppressWarnings("rawtypes")
             @Override
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);

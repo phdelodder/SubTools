@@ -42,7 +42,7 @@ public class ReleaseParser {
         throw new ReleaseParseException("Unknown format, can't be parsed: " + file.toAbsolutePath());
     }
 
-    private final Release parsePatternResult(Path file, String fileParseName) throws ReleaseParseException {
+    private Release parsePatternResult(Path file, String fileParseName) throws ReleaseParseException {
         List<String> namedGroups = namedMatcher.namedPattern().groupNames();
         String seriesName = "";
         List<Integer> episodeNumbers = new ArrayList<>();
@@ -153,7 +153,7 @@ public class ReleaseParser {
                 .build();
     }
 
-    private final String cleanUnwantedChars(String text) {
+    private String cleanUnwantedChars(String text) {
         if (text.contains("cd1")) {
             text = text.replace("cd1", " ");
         }

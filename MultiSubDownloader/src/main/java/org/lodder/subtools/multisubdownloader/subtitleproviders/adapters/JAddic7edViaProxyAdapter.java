@@ -58,19 +58,19 @@ public class JAddic7edViaProxyAdapter extends AbstractAdapter<Subtitle, Provider
     }
 
     @Override
-    public Collection<Subtitle> searchMovieSubtitlesWithHash(String hash, Language language) throws ApiException {
+    public Collection<Subtitle> searchMovieSubtitlesWithHash(String hash, Language language) {
         // TODO implement this
         return List.of();
     }
 
     @Override
-    public Collection<Subtitle> searchMovieSubtitlesWithId(int tvdbId, Language language) throws ApiException {
+    public Collection<Subtitle> searchMovieSubtitlesWithId(int tvdbId, Language language) {
         // TODO implement this
         return List.of();
     }
 
     @Override
-    public Collection<Subtitle> searchMovieSubtitlesWithName(String name, int year, Language language) throws ApiException {
+    public Collection<Subtitle> searchMovieSubtitlesWithName(String name, int year, Language language) {
         // TODO implement this
         return List.of();
     }

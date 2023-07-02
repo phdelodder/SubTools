@@ -18,15 +18,15 @@ public class AbstractButtonExtension {
     }
 
     public <T extends AbstractButton> T withActionListener(T abstractButton, Runnable listener) {
-        return withActionListener(abstractButton, (ActionListener) arg -> listener.run());
+        return withActionListener(abstractButton, arg -> listener.run());
     }
 
     public <T extends AbstractButton> T withActionListenerSelf(T abstractButton, Consumer<T> selfConsumerListener) {
-        return withActionListener(abstractButton, (ActionListener) arg -> selfConsumerListener.accept(abstractButton));
+        return withActionListener(abstractButton, arg -> selfConsumerListener.accept(abstractButton));
     }
 
     public <T extends AbstractButton> T withSelectedListener(T abstractButton, BooleanConsumer selectedConsumer) {
-        return withActionListener(abstractButton, (ActionListener) arg -> selectedConsumer.accept(abstractButton.isSelected()));
+        return withActionListener(abstractButton, arg -> selectedConsumer.accept(abstractButton.isSelected()));
     }
 
     public <T extends AbstractButton> T actionCommand(T abstractButton, String actionCommand) {
