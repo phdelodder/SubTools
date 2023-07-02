@@ -72,19 +72,19 @@ public class JSubsceneAdapter extends AbstractAdapter<SubsceneSubtitleDescriptor
     }
 
     @Override
-    public List<SubsceneSubtitleDescriptor> searchMovieSubtitlesWithHash(String hash, Language language) throws SubsceneException {
+    public List<SubsceneSubtitleDescriptor> searchMovieSubtitlesWithHash(String hash, Language language) {
         // TODO implement this
         return List.of();
     }
 
     @Override
-    public List<SubsceneSubtitleDescriptor> searchMovieSubtitlesWithId(int tvdbId, Language language) throws SubsceneException {
+    public List<SubsceneSubtitleDescriptor> searchMovieSubtitlesWithId(int tvdbId, Language language) {
         // TODO implement this
         return List.of();
     }
 
     @Override
-    public List<SubsceneSubtitleDescriptor> searchMovieSubtitlesWithName(String name, int year, Language language) throws SubsceneException {
+    public List<SubsceneSubtitleDescriptor> searchMovieSubtitlesWithName(String name, int year, Language language) {
         // TODO implement this
         return List.of();
     }

@@ -68,20 +68,19 @@ public class JTVsubtitlesAdapter extends AbstractAdapter<TVsubtitlesSubtitleDesc
     }
 
     @Override
-    public List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithHash(String hash, Language language) throws TvSubtitlesException {
+    public List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithHash(String hash, Language language) {
         // TODO implement this
         return List.of();
     }
 
     @Override
-    public List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithId(int tvdbId, Language language) throws TvSubtitlesException {
+    public List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithId(int tvdbId, Language language) {
         // TODO implement this
         return List.of();
     }
 
     @Override
-    public List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithName(String name, int year, Language language)
-            throws TvSubtitlesException {
+    public List<TVsubtitlesSubtitleDescriptor> searchMovieSubtitlesWithName(String name, int year, Language language) {
         // TODO implement this
         return List.of();
     }
