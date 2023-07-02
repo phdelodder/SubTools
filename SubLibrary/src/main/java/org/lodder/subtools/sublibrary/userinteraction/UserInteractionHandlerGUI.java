@@ -1,19 +1,17 @@
 package org.lodder.subtools.sublibrary.userinteraction;
 
+import javax.swing.*;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.lodder.subtools.sublibrary.data.UserInteractionSettingsIntf;
 import org.lodder.subtools.sublibrary.gui.InputPane;
 import org.lodder.subtools.sublibrary.gui.OptionsPane;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
@@ -42,14 +40,10 @@ public class UserInteractionHandlerGUI implements UserInteractionHandler {
 
     @Override
     public <T> Optional<T> choice(Collection<T> options, String message, String title, Function<T, String> toStringMapper) {
-        String[] optionsasAsStrings;
-        if (toStringMapper != null) {
-            optionsasAsStrings = options.stream().map(toStringMapper).toArray(String[]::new);
-        } else {
-            optionsasAsStrings = options.stream().map(String::valueOf).toArray(String[]::new);
-        }
-        int selection = JOptionPane.showOptionDialog(frame, message, title,
-                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, optionsasAsStrings, optionsasAsStrings[0]);
+        String[] optionsAsStrings = options.stream().map(Objects.requireNonNullElseGet(toStringMapper, () -> String::valueOf)).toArray(String[]::new);
+        int selection =
+                JOptionPane.showOptionDialog(frame, message, title, JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, optionsAsStrings,
+                        optionsAsStrings[0]);
         return selection == JOptionPane.CLOSED_OPTION ? Optional.empty() : options.stream().skip(selection).findFirst();
     }
 
