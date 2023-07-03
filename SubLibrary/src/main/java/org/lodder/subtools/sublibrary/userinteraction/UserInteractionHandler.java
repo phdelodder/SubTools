@@ -30,6 +30,6 @@ public interface UserInteractionHandler {
     void showMessage(String message, String title, MessageSeverity messageSeverity);
 
     enum MessageSeverity {
-        INFO, WARNING, ERROR;
+        INFO, WARNING, ERROR
     }
 }

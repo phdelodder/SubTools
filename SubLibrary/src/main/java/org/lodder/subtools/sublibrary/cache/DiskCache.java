@@ -63,7 +63,7 @@ public abstract class DiskCache<K, V> extends Cache<K, V> {
                 boolean errorWhileReadingCacheFile = false;
                 try (
                         Statement stmt = connection.createStatement();
-                        ResultSet rs = stmt.executeQuery("SELECT key, cacheobject FROM %s;".formatted(tableName));) {
+                        ResultSet rs = stmt.executeQuery("SELECT key, cacheobject FROM %s;".formatted(tableName))) {
                     // Map<K, CacheObject<V>> tempCache = new HashMap<>();
                     Multimap<K, CacheObject<V>> tempCache = MultimapBuilder.hashKeys()
                             .treeSetValues(Comparator.comparingLong((CacheObject<V> value) -> value.getAge()).reversed()).build();

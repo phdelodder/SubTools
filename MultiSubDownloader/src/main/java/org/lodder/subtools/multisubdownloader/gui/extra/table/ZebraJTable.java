@@ -37,10 +37,6 @@ public class ZebraJTable extends javax.swing.JTable {
         super(dataModel, columnModel, selectionModel);
     }
 
-    // public ZebraJTable(java.util.Vector<?> rowData, java.util.Vector<?> columnNames) {
-    // super(rowData, columnNames);
-    // }
-
     /** Add stripes between cells and behind non-opaque cells. */
     @Override
     public void paintComponent(java.awt.Graphics g) {

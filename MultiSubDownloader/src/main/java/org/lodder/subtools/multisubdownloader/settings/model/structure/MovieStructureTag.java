@@ -11,8 +11,8 @@ import lombok.RequiredArgsConstructor;
 public enum MovieStructureTag implements StructureTag {
 
     MOVIE_TITLE("%MOVIE TITLE%", Messages.getString("StructureBuilderDialog.MovieName")),
-    QUALITY("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfRelease")),
-    DESCRIPTION("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.Description")),
+    QUALITY("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfMovie")),
+    DESCRIPTION("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.MovieDescription")),
     YEAR("%YEAR%", Messages.getString("StructureBuilderDialog.MovieYear"));
 
     @Getter

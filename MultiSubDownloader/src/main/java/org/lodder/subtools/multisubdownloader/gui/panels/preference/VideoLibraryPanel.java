@@ -33,8 +33,8 @@ public abstract class VideoLibraryPanel extends JPanel implements PreferencePane
     @Getter
     private final LibrarySettings librarySettings;
 
-    protected StructureFolderPanel pnlStructureFolder;
-    protected StructureFilePanel pnlStructureFile;
+    protected final StructureFolderPanel pnlStructureFolder;
+    protected final StructureFilePanel pnlStructureFile;
     private final MyComboBox<LibraryActionType> cbxLibraryAction;
     private final JCheckBox chkUseTVDBNaming;
     private final PartialDisableComboBox<LibraryOtherFileActionType> cbxLibraryOtherFileAction;
@@ -105,16 +105,12 @@ public abstract class VideoLibraryPanel extends JPanel implements PreferencePane
     private void checkEnableStatusPanel() {
         LibraryActionType libraryActionType = cbxLibraryAction.getSelectedItem();
         boolean pnlStructureFileVisible = switch (libraryActionType) {
-            case MOVE -> false;
-            case RENAME -> true;
-            case MOVEANDRENAME -> true;
-            case NOTHING -> false;
+            case MOVE, NOTHING -> false;
+            case RENAME, MOVEANDRENAME -> true;
         };
         boolean pnlStructureFolderVisible = switch (libraryActionType) {
-            case MOVE -> true;
-            case RENAME -> false;
-            case MOVEANDRENAME -> true;
-            case NOTHING -> false;
+            case MOVE, MOVEANDRENAME -> true;
+            case RENAME, NOTHING -> false;
         };
         checkEnableStatus(pnlStructureFile, pnlStructureFileVisible);
         checkEnableStatus(pnlStructureFolder, pnlStructureFolderVisible);

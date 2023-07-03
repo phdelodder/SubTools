@@ -274,7 +274,7 @@ public class Manager {
             } catch (HttpClientException e) {
                 if (retries-- > 0 && retryPredicate.test(e)) {
                     try {
-                        Thread.sleep(retryWait * 1000);
+                        Thread.sleep(retryWait * 1000L);
                     } catch (InterruptedException e1) {
                         // continue
                     }
@@ -901,7 +901,7 @@ public class Manager {
             } catch (Exception e) {
                 if (retries-- > 0 && retryPredicate.test(e)) {
                     try {
-                        Thread.sleep(retryWait * 1000);
+                        Thread.sleep(retryWait * 1000L);
                     } catch (InterruptedException e1) {
                         throw new RuntimeException(e1);
                     }

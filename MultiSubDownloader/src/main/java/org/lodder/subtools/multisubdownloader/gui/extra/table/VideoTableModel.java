@@ -88,7 +88,7 @@ public class VideoTableModel extends DefaultTableModel {
         return new Row(release, userInteractionHandler);
     }
 
-    private class Row {
+    private static class Row {
         private final Release release;
         private final UserInteractionHandler userInteractionHandler;
         @Getter
@@ -120,11 +120,9 @@ public class VideoTableModel extends DefaultTableModel {
         }
 
         private int calculateSubsFound() {
-            int matchingSubsSize = release.getMatchingSubCount();
-            int selectionSize = userInteractionHandler != null
+            return userInteractionHandler != null
                     ? userInteractionHandler.getAutomaticSelection(release.getMatchingSubs()).size()
-                    : matchingSubsSize;
-            return selectionSize == matchingSubsSize ? matchingSubsSize : selectionSize;
+                    :  release.getMatchingSubCount();
         }
 
         public int updateSubsFound() {

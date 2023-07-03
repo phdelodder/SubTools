@@ -51,7 +51,6 @@ public class CLI {
     private boolean subtitleSelection = false;
     private boolean verboseProgress = false;
     private final DownloadAction downloadAction;
-    private final UserInteractionHandlerCLI userInteractionHandler;
     private final UserInteractionHandlerAction userInteractionHandlerAction;
     private boolean dryRun = false;
 
@@ -60,7 +59,7 @@ public class CLI {
         this.settings = settingControl.getSettings();
         this.manager = (Manager) this.app.make("Manager");
         checkUpdate(manager);
-        userInteractionHandler = new UserInteractionHandlerCLI(settings);
+        UserInteractionHandlerCLI userInteractionHandler = new UserInteractionHandlerCLI(settings);
         userInteractionHandlerAction = new UserInteractionHandlerAction(settings, userInteractionHandler);
         downloadAction = new DownloadAction(settings, (Manager) this.app.make("Manager"), userInteractionHandler);
     }

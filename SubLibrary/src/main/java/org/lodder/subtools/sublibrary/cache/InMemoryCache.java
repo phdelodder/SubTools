@@ -78,7 +78,7 @@ public class InMemoryCache<K, V> extends Cache<K, V> {
             while (true) {
                 try {
                     Thread.sleep(timerInterval);
-                } catch (InterruptedException ex) {
+                } catch (InterruptedException ignored) {
                 }
                 cleanup();
             }

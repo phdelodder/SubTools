@@ -54,9 +54,9 @@ public class StringUtils {
         htmlEntities.put("&uuml;", "ü");
         htmlEntities.put("&Uuml;", "Ü");
         htmlEntities.put("&nbsp;", " ");
-        htmlEntities.put("&copy;", "\u00a9");
-        htmlEntities.put("&reg;", "\u00ae");
-        htmlEntities.put("&euro;", "\u20a0");
+        htmlEntities.put("&copy;", "©");
+        htmlEntities.put("&reg;", "®");
+        htmlEntities.put("&euro;", "₠");
         htmlEntities.put("&iexcl;", "¡");
     }
 
@@ -76,7 +76,7 @@ public class StringUtils {
      * M. McNeely Jr. has sent a version with do...while()loop which is more robust. Thanks to him!
      */
 
-    public static final String unescapeHTML(String source) {
+    public static String unescapeHTML(String source) {
         int i, j;
 
         boolean continueLoop;

@@ -37,7 +37,7 @@ public class Subtitle {
     private int score;
 
     public enum SourceLocation {
-        URL, URL_SUPPLIER, FILE;
+        URL, URL_SUPPLIER, FILE
     }
 
     private Subtitle(ThrowingSupplier<String, ? extends SubtitlesProviderException> urlSupplier) {
