@@ -4,11 +4,10 @@ import java.io.Serial;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import javax.swing.JComponent;
-import javax.swing.JTextField;
+import javax.swing.JPasswordField;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
@@ -19,30 +18,32 @@ import org.apache.commons.lang3.StringUtils;
 import java.awt.Color;
 
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import lombok.Getter;
 
-public abstract class MyTextFieldCommon<T, R extends MyTextFieldCommon<T, R>> extends JTextField implements
-        MyTextFieldToStringMapperIntf<T, R>,
-        MyTextFieldToObjectMapperIntf<T, R>,
-        MyTextFieldOthersIntf<T, R> {
+public class MyPasswordField extends JPasswordField implements MypasswordFieldOthersIntf {
 
     @Serial
-    private static final long serialVersionUID = -393882042554264226L;
+    private static final long serialVersionUID = -3002009544577141751L;
     private static final String DEFAULT_BORDER_PROPERTY = "DefaultBorder";
     private static final Border ERROR_BORDER = new LineBorder(Color.RED, 1);
 
-    private Function<T, String> toStringMapper;
-    private Function<String, T> toObjectMapper;
-    private Predicate<String> valueVerifier;
+    public Predicate<String> valueVerifier = StringUtils::isNotEmpty;
+
     private boolean requireValue;
-    private Consumer<T> valueChangedCalbackListener;
+    private Consumer<String> valueChangedCalbackListener;
     private BooleanConsumer[] validityChangedCalbackListeners;
 
-    private final ObjectWrapper<T> valueWrapper = new ObjectWrapper<>();
+    private final ObjectWrapper<String> valueWrapper = new ObjectWrapper<>();
     private final ObjectWrapper<Boolean> validWrapper = new ObjectWrapper<>();
     private Predicate<String> completeValueVerifier;
 
-    MyTextFieldCommon() {
+    private MyPasswordField() {
+        super();
         putClientProperty(DEFAULT_BORDER_PROPERTY, getBorder());
+    }
+
+    public static MyPasswordField builder() {
+        return new MyPasswordField();
     }
 
     @Override
@@ -60,52 +61,37 @@ public abstract class MyTextFieldCommon<T, R extends MyTextFieldCommon<T, R>> ex
     }
 
     @Override
-    public R withToStringMapper(Function<T, String> toStringMapper) {
-        this.toStringMapper = toStringMapper;
-        return self();
-    }
-
-    @Override
-    public R withToObjectMapper(Function<String, T> toObjectMapper) {
-        this.toObjectMapper = toObjectMapper;
-        return self();
-    }
-
-    @Override
-    public R withValueVerifier(Predicate<String> verifier) {
+    public MyPasswordField withValueVerifier(Predicate<String> verifier) {
         this.valueVerifier = verifier;
-        return self();
+        return this;
     }
 
     @Override
-    public R requireValue(boolean requireValue) {
+    public MyPasswordField requireValue(boolean requireValue) {
         this.requireValue = requireValue;
-        return self();
+        return this;
     }
 
     @Override
-    public R withValueChangedCallback(Consumer<T> valueChangedCalbackListener) {
+    public MyPasswordField withValueChangedCallback(Consumer<String> valueChangedCalbackListener) {
         this.valueChangedCalbackListener = valueChangedCalbackListener;
-        return self();
+        return this;
     }
 
     @Override
-    public final R withValidityChangedCallback(BooleanConsumer... validityChangedCalbackListeners) {
+    public MyPasswordField withValidityChangedCallback(BooleanConsumer... validityChangedCalbackListeners) {
         this.validityChangedCalbackListeners = validityChangedCalbackListeners;
-        return self();
+        return this;
     }
 
     private static class ObjectWrapper<S> {
+        @Getter
         private S value;
 
         public boolean setValue(S value) {
             boolean changed = this.value != value;
             this.value = value;
             return changed;
-        }
-
-        public S getValue() {
-            return value;
         }
     }
 
@@ -118,7 +104,7 @@ public abstract class MyTextFieldCommon<T, R extends MyTextFieldCommon<T, R>> ex
     public void refreshState() {
         if (!isEnabled()) {
             setSuperBorder(getDefaultBorder(this));
-        } else if (!completeValueVerifier.test(getText())) {
+        } else if (!completeValueVerifier.test(getRawText())) {
             setSuperBorder(ERROR_BORDER);
         }
     }
@@ -128,7 +114,7 @@ public abstract class MyTextFieldCommon<T, R extends MyTextFieldCommon<T, R>> ex
     }
 
     @Override
-    public R build() {
+    public MyPasswordField build() {
         if (valueVerifier != null && requireValue) {
             completeValueVerifier = text -> (StringUtils.isNotEmpty(text) && valueVerifier.test(text));
         } else if (valueVerifier != null) {
@@ -140,32 +126,32 @@ public abstract class MyTextFieldCommon<T, R extends MyTextFieldCommon<T, R>> ex
         }
 
         if (valueVerifier != null || requireValue || valueChangedCalbackListener != null || validityChangedCalbackListeners != null) {
-            checkValidity(getText());
+            checkValidity(getRawText());
             getDocument().addDocumentListener(new DocumentListener() {
 
                 @Override
                 public void insertUpdate(DocumentEvent e) {
-                    checkValidity(getText());
+                    checkValidity(getRawText());
                 }
 
                 @Override
                 public void removeUpdate(DocumentEvent e) {
-                    checkValidity(getText());
+                    checkValidity(getRawText());
                 }
 
                 @Override
                 public void changedUpdate(DocumentEvent e) {
-                    checkValidity(getText());
+                    checkValidity(getRawText());
                 }
 
             });
         }
-        return self();
+        return this;
     }
 
     private void checkValidity(String text) {
         boolean valid = completeValueVerifier.test(text);
-        setSuperBorder(valid ? MyTextFieldCommon.getDefaultBorder(self()) : ERROR_BORDER);
+        setSuperBorder(valid ? MyPasswordField.getDefaultBorder(this) : ERROR_BORDER);
 
         boolean changedValidity = validWrapper.setValue(valid);
         if (changedValidity && validityChangedCalbackListeners != null) {
@@ -173,35 +159,36 @@ public abstract class MyTextFieldCommon<T, R extends MyTextFieldCommon<T, R>> ex
         }
 
         if (valueChangedCalbackListener != null) {
-            T value = toObjectMapper.apply(text);
-            boolean valueChanged = valueWrapper.setValue(toObjectMapper.apply(text));
+            boolean valueChanged = valueWrapper.setValue(text);
             if (valueChanged) {
-                valueChangedCalbackListener.accept(value);
+                valueChangedCalbackListener.accept(text);
             }
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private R self() {
-        return (R) this;
+    private String getRawText() {
+        return new String(getPassword());
     }
 
-    public T getObject() {
-        String text = super.getText();
-        return completeValueVerifier.test(text) ? toObjectMapper.apply(text) : null;
+    @Override
+    public String getText() {
+        String text = new String(getPassword());
+        return completeValueVerifier.test(text) ? text : null;
     }
 
-    public Optional<T> getOptionalObject() {
-        return Optional.ofNullable(getObject());
+
+    public Optional<String> getOptionalObject() {
+        return Optional.ofNullable(getText());
     }
 
-    public void setObject(T object) {
-        super.setText(object == null ? null : toStringMapper.apply(object));
-        valueWrapper.setValue(object);
-        validWrapper.setValue(completeValueVerifier.test(object == null ? null : toStringMapper.apply(object)));
+    @Override
+    public void setText(String password) {
+        super.setText(password == null ? null : password);
+        valueWrapper.setValue(password);
+        validWrapper.setValue(completeValueVerifier.test(password == null ? null : password));
     }
 
     public boolean hasValidValue() {
-        return !isEnabled() || completeValueVerifier.test(getText());
+        return !isEnabled() || completeValueVerifier.test(getRawText());
     }
 }

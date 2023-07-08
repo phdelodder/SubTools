@@ -8,7 +8,9 @@ import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 public interface MyTextFieldOthersIntf<T, R extends MyTextFieldCommon<T, R>> {
     MyTextFieldOthersIntf<T, R> withValueVerifier(Predicate<String> verifier);
 
-    MyTextFieldOthersIntf<T, R> requireValue();
+    default MyTextFieldOthersIntf<T, R> requireValue() {
+        return requireValue(true);
+    }
 
     MyTextFieldOthersIntf<T, R> requireValue(boolean requireValue);
 
