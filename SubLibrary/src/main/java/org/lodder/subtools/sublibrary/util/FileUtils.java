@@ -127,13 +127,13 @@ public class FileUtils {
         if (Files.isDirectory(sourceDir)) {
             return moveNonEmptyDirectoryRecursively(sourceDir, targetDir, copyOptions);
         } else {
-            return Files.move(sourceDir, targetDir, copyOptions);
+            return moveToDir(sourceDir, targetDir, copyOptions);
         }
     }
 
     private static Path moveNonEmptyDirectoryRecursively(Path source, Path target, StandardCopyOption... copyOptions) throws IOException {
         foreachSubfile(source, s -> s.asThrowingStream(IOException.class)
-                .forEach(child -> moveNonEmptyDirectory(child, target.resolve(child.getFileName()), copyOptions)));
+                .forEach(child -> moveNonEmptyDirectory(child, target.resolve(source.getFileName()), copyOptions)));
         Files.delete(source);
         return target;
     }
