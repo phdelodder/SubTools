@@ -26,15 +26,18 @@ import lombok.experimental.ExtensionMethod;
 @ExtensionMethod({ OptionalExtension.class, JSONUtils.class })
 public class OpenSubtitlesApi implements SubtitleApi {
 
-    private final String apikey = "lNNp0yv0ah8gytkmYPbHwuaATJqr4rS9";
+    private static final String APIKEY = "lNNp0yv0ah8gytkmYPbHwuaATJqr4rS9";
+    private static final ApiClient API_CLIENT;
     @Getter
     private final Manager manager;
-    private final ApiClient apiClient;
+
+    static {
+        API_CLIENT = new ApiClient();
+        API_CLIENT.setApiKey(APIKEY);
+    }
 
     public OpenSubtitlesApi(Manager manager) {
         this.manager = manager;
-        apiClient = new ApiClient();
-        apiClient.setApiKey(apikey);
     }
 
     public OpenSubtitlesApi(Manager manager, String userName, String password) throws OpenSubtitlesException {
@@ -45,19 +48,28 @@ public class OpenSubtitlesApi implements SubtitleApi {
     public void login(String userName, String password) throws OpenSubtitlesException {
         try {
             Login200Response loginResponse =
-                    new AuthenticationApi(apiClient).login("application/json", new LoginRequest().username(userName).password(password));
-            apiClient.setBearerToken(loginResponse.getToken());
+                    new AuthenticationApi(API_CLIENT).login("application/json", new LoginRequest().username(userName).password(password));
+            API_CLIENT.setBearerToken(loginResponse.getToken());
         } catch (ApiException e) {
             throw new OpenSubtitlesException(e);
         }
     }
 
+    public static boolean isValidCredentials(String userName, String password) {
+        try {
+            new AuthenticationApi(API_CLIENT).login("application/json", new LoginRequest().username(userName).password(password));
+            return true;
+        } catch (ApiException e) {
+            return false;
+        }
+    }
+
     public SearchSubtitles searchSubtitles() {
-        return new SearchSubtitles(manager, apiClient);
+        return new SearchSubtitles(manager, API_CLIENT);
     }
 
     public DownloadSubtitle downloadSubtitle() {
-        return new DownloadSubtitle(apiClient);
+        return new DownloadSubtitle(API_CLIENT);
     }
 
     public List<OpensubtitleSerieId> getProviderSerieIds(String serieName) throws OpenSubtitlesException {

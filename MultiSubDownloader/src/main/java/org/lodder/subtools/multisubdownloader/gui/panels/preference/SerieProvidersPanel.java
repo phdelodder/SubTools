@@ -9,7 +9,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 
 import org.lodder.subtools.multisubdownloader.Messages;
@@ -22,9 +21,11 @@ import org.lodder.subtools.multisubdownloader.gui.jcomponent.button.AbstractButt
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcheckbox.JCheckBoxExtension;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcomponent.JComponentExtension;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield.JTextFieldExtension;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield.MyPasswordField;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield.MyTextFieldString;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.PathMatchType;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesApi;
 
 import lombok.experimental.ExtensionMethod;
 import net.miginfocom.swing.MigLayout;
@@ -39,13 +40,13 @@ public class SerieProvidersPanel extends JPanel implements PreferencePanelIntf {
     private final JCheckBox chkUserAddic7edLogin;
     private final JCheckBox chkSourceAddic7edProxy;
     private final MyTextFieldString txtAddic7edUsername;
-    private final JPasswordField txtAddic7edPassword;
+    private final MyPasswordField txtAddic7edPassword;
     private final JCheckBox chkSourceTvSubtitles;
     private final JCheckBox chkSourcePodnapisi;
     private final JCheckBox chkSourceOpenSubtitles;
     private final JCheckBox chkUserOpenSubtitlesLogin;
     private final MyTextFieldString txtOpenSubtitlesUsername;
-    private final JPasswordField txtOpenSubtitlesPassword;
+    private final MyPasswordField txtOpenSubtitlesPassword;
     private final JCheckBox chkSourceSubscene;
     private final JCheckBox chkSourceLocal;
     private final JListWithImages<Path> localSourcesFoldersList;
@@ -69,7 +70,7 @@ public class SerieProvidersPanel extends JPanel implements PreferencePanelIntf {
                             .addComponent(new JLabel(Messages.getString("PreferenceDialog.Username")))
                             .addComponent("wrap", this.txtAddic7edUsername = MyTextFieldString.builder().requireValue().build().withColumns(20))
                             .addComponent(new JLabel(Messages.getString("PreferenceDialog.Password")))
-                            .addComponent(this.txtAddic7edPassword = new JPasswordField(20)));
+                            .addComponent(this.txtAddic7edPassword = MyPasswordField.builder().requireValue().build().withColumns(20)));
 
             // TV SUBTITLES
             this.chkSourceTvSubtitles = new JCheckBox("Tv Subtitles").addTo(titelPanel, "wrap");
@@ -86,7 +87,7 @@ public class SerieProvidersPanel extends JPanel implements PreferencePanelIntf {
                             .addComponent(new JLabel(Messages.getString("PreferenceDialog.Username")))
                             .addComponent("wrap", txtOpenSubtitlesUsername = MyTextFieldString.builder().requireValue().build().withColumns(20))
                             .addComponent(new JLabel(Messages.getString("PreferenceDialog.Password")))
-                            .addComponent(txtOpenSubtitlesPassword = new JPasswordField(20)));
+                            .addComponent(txtOpenSubtitlesPassword = MyPasswordField.builder().requireValue().build().withColumns(20)));
 
             // SUBSCENE
             this.chkSourceSubscene = new JCheckBox("Subscene").addTo(titelPanel, "wrap");
@@ -149,16 +150,25 @@ public class SerieProvidersPanel extends JPanel implements PreferencePanelIntf {
                 .setLocalSourcesFolders(localSourcesFoldersList.stream().map(LabelPanel::getObject).toList());
     }
 
+    private boolean hasValidSettingsAddic7ed() {
+        return txtAddic7edUsername.hasValidValue() && txtAddic7edPassword.hasValidValue();
+    }
+
+    private boolean hasValidSettingsOpenSubtitles() {
+        if (!txtOpenSubtitlesUsername.hasValidValue() || !txtOpenSubtitlesPassword.hasValidValue()) {
+            return false;
+        }
+        if (chkUserOpenSubtitlesLogin.isSelected() && !OpenSubtitlesApi.isValidCredentials(txtOpenSubtitlesUsername.getText(),
+                new String(txtOpenSubtitlesPassword.getPassword()))) {
+            txtOpenSubtitlesUsername.setErrorBorder();
+            txtOpenSubtitlesPassword.setErrorBorder();
+            return false;
+        }
+        return true;
+    }
+
     @Override
     public boolean hasValidSettings() {
-        return txtAddic7edUsername.hasValidValue() &&
-                hasValidValue(txtAddic7edPassword) &&
-                txtOpenSubtitlesUsername.hasValidValue() &&
-                hasValidValue(txtOpenSubtitlesPassword);
+        return hasValidSettingsAddic7ed() && hasValidSettingsOpenSubtitles();
     }
-
-    private boolean hasValidValue(JPasswordField passwordField) {
-        return !passwordField.isEnabled() || passwordField.getPassword().length > 0;
-    }
-
 }

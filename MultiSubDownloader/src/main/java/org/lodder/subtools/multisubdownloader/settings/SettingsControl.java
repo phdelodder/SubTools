@@ -23,6 +23,7 @@ import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileAction
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.settings.model.State;
+import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesApi;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.CacheType;
@@ -119,7 +120,7 @@ public class SettingsControl {
      * Migrate settings layout for backward incompatibility changes.
      */
     private void migrateSettings() {
-        SETTINGS_VERSION.load(this, preferences);
+        SettingValue.loadAll(this, preferences);
         int version = settings.getSettingsVersion();
         if (version == 0) {
             migrateSettingsV0ToV1();
@@ -144,6 +145,9 @@ public class SettingsControl {
         }
         if (version <= 6) {
             migrateSettingsV6ToV7();
+        }
+        if (version <= 7) {
+            migrateSettingsV7ToV8();
         }
     }
 
@@ -342,6 +346,16 @@ public class SettingsControl {
         }
 
         settings.setSettingsVersion(7);
+        SETTINGS_VERSION.store(this, preferences);
+    }
+
+    public void migrateSettingsV7ToV8() {
+        if (settings.isLoginOpenSubtitlesEnabled()
+                && !OpenSubtitlesApi.isValidCredentials(settings.getLoginOpenSubtitlesUsername(), settings.getLoginOpenSubtitlesPassword())) {
+            settings.setLoginOpenSubtitlesEnabled(false);
+            LOGIN_OPEN_SUBTITLES_ENABLED.store(this, preferences);
+        }
+        settings.setSettingsVersion(8);
         SETTINGS_VERSION.store(this, preferences);
     }
 
