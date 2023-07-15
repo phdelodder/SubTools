@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 public class ReleaseFactory {
 
     private final ReleaseParser releaseParser;
-    private ReleaseControl releaseControl;
     private final Settings settings;
     private final Manager manager;
 
@@ -35,7 +34,7 @@ public class ReleaseFactory {
     public Release createRelease(Path file, UserInteractionHandler userInteractionHandler) {
         try {
             Release r = releaseParser.parse(file);
-            releaseControl = switch (r.getVideoType()) {
+            ReleaseControl releaseControl = switch (r.getVideoType()) {
                 case EPISODE -> new TvReleaseControl((TvRelease) r, settings, manager, userInteractionHandler);
                 case MOVIE -> new MovieReleaseControl((MovieRelease) r, settings, manager, userInteractionHandler);
             };

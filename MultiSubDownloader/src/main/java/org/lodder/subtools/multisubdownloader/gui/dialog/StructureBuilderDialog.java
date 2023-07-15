@@ -172,24 +172,19 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
     @Override
     public void removeUpdate(DocumentEvent arg0) {
         parseText();
-
     }
 
     private class InsertTag implements MouseListener {
-        private int pos;
-        private int txtStructureLength;
-        private JLabel clickedLabel;
-        private String clickedTag;
-        private String beforeCaret;
-        private String afterCaret;
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            pos = txtStructure.getCaretPosition();
-            txtStructureLength = txtStructure.getText().length();
-            clickedLabel = (JLabel) e.getComponent();
+            int pos = txtStructure.getCaretPosition();
+            int txtStructureLength = txtStructure.getText().length();
+            JLabel clickedLabel = (JLabel) e.getComponent();
             if (clickedLabel != null) {
-                clickedTag = clickedLabel.getText();
+                String clickedTag = clickedLabel.getText();
+                String afterCaret;
+                String beforeCaret;
                 try {
                     beforeCaret = txtStructure.getText(0, pos);
                     afterCaret = txtStructure.getText(pos, txtStructureLength - pos);
