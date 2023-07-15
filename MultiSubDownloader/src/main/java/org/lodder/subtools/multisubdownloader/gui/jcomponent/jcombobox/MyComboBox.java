@@ -1,5 +1,10 @@
 package org.lodder.subtools.multisubdownloader.gui.jcomponent.jcombobox;
 
+import javax.swing.*;
+import javax.swing.border.*;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemListener;
 import java.io.Serial;
 import java.util.Collection;
 import java.util.Vector;
@@ -7,20 +12,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JComboBox;
-import javax.swing.ListCellRenderer;
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
-
-import org.lodder.subtools.multisubdownloader.gui.ToStringListCellRenderer;
-
 import com.google.common.collect.Iterables;
-
-import java.awt.Color;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemListener;
+import org.lodder.subtools.multisubdownloader.gui.ToStringListCellRenderer;
 
 public class MyComboBox<E> extends JComboBox<E> {
 
@@ -49,7 +42,7 @@ public class MyComboBox<E> extends JComboBox<E> {
 
     /**
      * Creates a <code>MyComboBox</code> that contains the elements
-     * in the specified array. By default the first item in the array
+     * in the specified array. By default, the first item in the array
      * (and therefore the data model) becomes selected.
      *
      * @param items an array of objects to insert into the combo box
@@ -62,7 +55,7 @@ public class MyComboBox<E> extends JComboBox<E> {
 
     /**
      * Creates a <code>MyComboBox</code> that contains the elements
-     * in the specified collection. By default the first item in the
+     * in the specified collection. By default, the first item in the
      * collection (and therefore the data model) becomes selected.
      *
      * @param items a collection of objects to insert into the combo box
@@ -76,7 +69,7 @@ public class MyComboBox<E> extends JComboBox<E> {
 
     /**
      * Creates a <code>MyComboBox</code> that contains the elements
-     * in the specified Vector. By default the first item in the vector
+     * in the specified Vector. By default, the first item in the vector
      * (and therefore the data model) becomes selected.
      *
      * @param items an array of vectors to insert into the combo box
@@ -90,7 +83,7 @@ public class MyComboBox<E> extends JComboBox<E> {
     /**
      * Creates a <code>MyComboBox</code> with a default data model.
      * The default data model is an empty list of objects.
-     * Use <code>addItem</code> to add items. By default the first item
+     * Use <code>addItem</code> to add items. By default, the first item
      * in the data model becomes selected.
      *
      * @see DefaultComboBoxModel

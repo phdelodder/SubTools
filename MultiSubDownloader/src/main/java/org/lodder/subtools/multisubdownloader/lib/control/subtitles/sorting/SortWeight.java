@@ -27,7 +27,7 @@ public class SortWeight {
         this.maxScore = 0;
         this.weights = new HashMap<>();
 
-        /* make a clone so we can't mess up the defined weights */
+        /* make a clone, so we can't mess up the defined weights */
         defaultWeights = new HashMap<>(defaultWeights); // clone
 
         replaceReservedKeywords(release, defaultWeights);
