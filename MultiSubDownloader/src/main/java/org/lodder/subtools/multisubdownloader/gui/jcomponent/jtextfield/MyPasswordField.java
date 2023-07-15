@@ -1,24 +1,18 @@
 package org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield;
 
+import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.event.*;
+import java.awt.*;
 import java.io.Serial;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import javax.swing.JComponent;
-import javax.swing.JPasswordField;
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-
-import org.apache.commons.lang3.StringUtils;
-
-import java.awt.Color;
-
-import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
+import org.lodder.subtools.sublibrary.util.BooleanConsumer;
 
 public class MyPasswordField extends JPasswordField implements MypasswordFieldOthersIntf {
 
@@ -183,9 +177,9 @@ public class MyPasswordField extends JPasswordField implements MypasswordFieldOt
 
     @Override
     public void setText(String password) {
-        super.setText(password == null ? null : password);
+        super.setText(password);
         valueWrapper.setValue(password);
-        validWrapper.setValue(completeValueVerifier.test(password == null ? null : password));
+        validWrapper.setValue(completeValueVerifier.test(password));
     }
 
     public boolean hasValidValue() {

@@ -43,8 +43,8 @@ public class ReleaseFactory {
             return releaseControl.getVideoFile();
 
         } catch (ReleaseParseException | ReleaseControlException e) {
-            LOGGER.error("createRelease", e);
+            LOGGER.error("createRelease: " + e.getMessage(), e);
+            return null;
         }
-        return null;
     }
 }

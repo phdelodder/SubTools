@@ -1,9 +1,11 @@
 package org.lodder.subtools.multisubdownloader.gui.actions.search;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
@@ -19,10 +21,6 @@ import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoSearchType;
-
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.Accessors;
 
 public class TextGuiSearchAction extends GuiSearchAction<SearchTextInputPanel> {
 
@@ -107,31 +105,22 @@ public class TextGuiSearchAction extends GuiSearchAction<SearchTextInputPanel> {
                     .build();
             default -> getReleaseFactory().createRelease(Path.of(name), getUserInteractionHandler());
         };
-
-        List<Release> releases = new ArrayList<>();
-        if (release != null) {
-            releases.add(release);
-        }
-
-        return releases;
+        return release != null ? List.of(release) : List.of();
     }
 
     @Override
     public void onFound(Release release, List<Subtitle> subtitles) {
-        List<Subtitle> subtitlesFiltered = subtitles;
         VideoTableModel model = (VideoTableModel) this.getSearchPanel().getResultPanel().getTable().getModel();
 
-        if (getFiltering() != null) {
-            subtitlesFiltered = getFiltering().getFiltered(subtitlesFiltered, release);
-        }
+        List<Subtitle> subtitlesFiltered =
+                getFiltering() != null ? subtitles.stream().filter(subtitle -> getFiltering().useSubtitle(subtitle, release)).toList() : subtitles;
         subtitlesFiltered.forEach(release::addMatchingSub);
 
         // use automatic selection to reduce the selection for the user
-        subtitlesFiltered = getUserInteractionHandler().getAutomaticSelection(subtitlesFiltered);
-
-        subtitlesFiltered.forEach(model::addRow);
+        List<Subtitle> subtitlesFilteredAutomatic = getUserInteractionHandler().getAutomaticSelection(subtitlesFiltered);
+        subtitlesFilteredAutomatic.forEach(model::addRow);
 
         /* Let GuiSearchAction also make some decisions */
-        super.onFound(release, subtitlesFiltered);
+        super.onFound(release, subtitlesFilteredAutomatic);
     }
 }

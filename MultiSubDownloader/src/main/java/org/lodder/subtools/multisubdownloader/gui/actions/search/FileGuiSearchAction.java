@@ -4,6 +4,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.actions.FileListAction;
@@ -18,11 +22,6 @@ import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.Accessors;
 
 public class FileGuiSearchAction extends GuiSearchAction<SearchFileInputPanel> {
 
@@ -94,16 +93,15 @@ public class FileGuiSearchAction extends GuiSearchAction<SearchFileInputPanel> {
     public void onFound(Release release, List<Subtitle> subtitles) {
         VideoTableModel model = (VideoTableModel) this.getSearchPanel().getResultPanel().getTable().getModel();
 
-        if (getFiltering() != null) {
-            subtitles = getFiltering().getFiltered(subtitles, release);
-        }
-        subtitles.forEach(release::addMatchingSub);
+        List<Subtitle> filteredSubtitles =
+                getFiltering() != null ? subtitles.stream().filter(subtitle -> getFiltering().useSubtitle(subtitle, release)).toList() : subtitles;
+        filteredSubtitles.forEach(release::addMatchingSub);
 
         model.addRow(release);
         getMainWindow().repaint();
 
         /* Let GuiSearchAction also make some decisions */
-        super.onFound(release, subtitles);
+        super.onFound(release, filteredSubtitles);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
+import javax.swing.table.*;
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -12,16 +13,13 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import javax.swing.table.DefaultTableModel;
-
+import lombok.Getter;
+import lombok.Setter;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.TvRelease;
-
-import lombok.Getter;
-import lombok.Setter;
 
 public class VideoTableModel extends DefaultTableModel {
 

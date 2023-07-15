@@ -7,10 +7,8 @@ import java.util.Locale;
  *
  * please keep the notes below as a pseudo-license
  *
- * http://stackoverflow.com/questions/228477/how-do-i-programmatically-determine
- * -operating-system-in-java compare to
- * http://svn.terracotta.org/svn/tc/dso/tags
- * /2.6.4/code/base/common/src/com/tc/util/runtime/Os.java
+ * http://stackoverflow.com/questions/228477/how-do-i-programmatically-determine-operating-system-in-java compare to
+ * http://svn.terracotta.org/svn/tc/dso/tags/2.6.4/code/base/common/src/com/tc/util/runtime/Os.java
  * http://www.docjar.com/html/api/org/apache/commons/lang/SystemUtils.java.html
  */
 public final class OsCheck {

@@ -1,24 +1,21 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JProgressBar;
-
-import org.lodder.subtools.multisubdownloader.Messages;
-import org.lodder.subtools.multisubdownloader.gui.extra.progress.Messenger;
-import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
-
+import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.Serial;
 
+import lombok.Getter;
 import net.miginfocom.swing.MigLayout;
+import org.lodder.subtools.multisubdownloader.Messages;
+import org.lodder.subtools.multisubdownloader.gui.extra.progress.Messenger;
+import org.lodder.subtools.multisubdownloader.gui.extra.progress.StatusMessenger;
 
 public class ProgressDialog extends MultiSubDialog implements Messenger {
 
     @Serial
     private static final long serialVersionUID = -2320149791421648965L;
+    @Getter
     private JProgressBar progressBar;
     private JLabel label;
     private final Cancelable worker;
@@ -69,10 +66,6 @@ public class ProgressDialog extends MultiSubDialog implements Messenger {
 
     public String getMessage() {
         return label.getText();
-    }
-
-    public JProgressBar getProgressBar() {
-        return progressBar;
     }
 
     @Override

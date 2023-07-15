@@ -24,13 +24,9 @@ public class ReleaseParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseParser.class);
 
     public final Release parse(Path file) throws ReleaseParseException {
-        String folderName = "";
-        if (file.getParent() != null) {
-            folderName = file.getParent().getFileName().toString();
-        }
-        String[] parseNames = { file.getFileName().toString(), folderName };
+        String folderName = file.getParent() != null ? file.getParent().getFileName().toString() : "";
 
-        for (String fileParseName : parseNames) {
+        for (String fileParseName : List.of(file.getFileName().toString(), folderName)) {
             for (NamedPattern np : VideoPatterns.COMPILED_PATTERNS) {
                 namedMatcher = np.matcher(fileParseName);
                 if (namedMatcher.find()) {
@@ -47,16 +43,8 @@ public class ReleaseParser {
         String seriesName = "";
         List<Integer> episodeNumbers = new ArrayList<>();
         int seasonNumber = 0;
-        Integer year = null;
-        String description = "";
-
-        if (namedGroups.contains("description")) {
-            description = namedMatcher.group("description").substring(1);
-        }
-
-        if (namedGroups.contains("year")) {
-            year = Integer.parseInt(namedMatcher.group("year"));
-        }
+        Integer year = namedGroups.contains("year") ? Integer.parseInt(namedMatcher.group("year")): null;
+        String description =namedGroups.contains("description") ?  namedMatcher.group("description").substring(1): "";
 
         if (namedGroups.contains("moviename")) {
             String movieName;

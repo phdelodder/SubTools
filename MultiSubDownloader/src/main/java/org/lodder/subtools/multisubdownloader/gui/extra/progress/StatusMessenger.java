@@ -6,26 +6,24 @@ import java.util.List;
 public enum StatusMessenger implements Messenger {
     instance;
 
-    private final List<Messenger> statusMessagers = new LinkedList<>();
+    private final List<Messenger> statusMessengers = new LinkedList<>();
 
     public void addListener(Messenger sm) {
-        synchronized (statusMessagers) {
-            statusMessagers.add(sm);
+        synchronized (statusMessengers) {
+            statusMessengers.add(sm);
         }
     }
 
     public void removeListener(Messenger sm) {
-        synchronized (statusMessagers) {
-            statusMessagers.remove(sm);
+        synchronized (statusMessengers) {
+            statusMessengers.remove(sm);
         }
     }
 
     @Override
     public void message(String message) {
-        synchronized (statusMessagers) {
-            for (Messenger sm : statusMessagers) {
-                sm.message(message);
-            }
+        synchronized (statusMessengers) {
+            statusMessengers.forEach(sm ->  sm.message(message));
         }
     }
 }

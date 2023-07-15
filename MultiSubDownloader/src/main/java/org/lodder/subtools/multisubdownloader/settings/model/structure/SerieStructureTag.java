@@ -4,6 +4,7 @@ import org.lodder.subtools.multisubdownloader.Messages;
 
 import lombok.Getter;
 
+@Getter
 public enum SerieStructureTag implements StructureTag {
 
     SHOW_NAME("%SHOW NAME%", "StructureBuilderDialog.NameTvShow"),
@@ -17,9 +18,7 @@ public enum SerieStructureTag implements StructureTag {
     QUALITY("%QUALITY%", "StructureBuilderDialog.QualityOfRelease"),
     DESCRIPTION("%DESCRIPTION%", "StructureBuilderDialog.Description");
 
-    @Getter
     private final String label;
-    @Getter
     private final String description;
 
     SerieStructureTag(String label, String descriptionMessage) {

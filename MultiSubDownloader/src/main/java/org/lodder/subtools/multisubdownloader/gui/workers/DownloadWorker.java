@@ -1,10 +1,8 @@
 package org.lodder.subtools.multisubdownloader.gui.workers;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.util.List;
-
-import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
 
 import org.lodder.subtools.multisubdownloader.GUI;
 import org.lodder.subtools.multisubdownloader.Messages;
@@ -41,8 +39,8 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
         this.table = table;
         this.settings = settings;
         UserInteractionHandlerGUI userInteractionHandler = new UserInteractionHandlerGUI(settings, gui);
-        downloadAction = new DownloadAction(settings, manager, userInteractionHandler);
-        userInteractionHandlerAction = new UserInteractionHandlerAction(settings, userInteractionHandler);
+        this.downloadAction = new DownloadAction(settings, manager, userInteractionHandler);
+        this.userInteractionHandlerAction = new UserInteractionHandlerAction(settings, userInteractionHandler);
     }
 
     @Override

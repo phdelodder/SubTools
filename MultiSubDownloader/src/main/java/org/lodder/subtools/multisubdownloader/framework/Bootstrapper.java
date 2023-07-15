@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.prefs.Preferences;
 
+import lombok.RequiredArgsConstructor;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.framework.service.providers.ServiceProvider;
 import org.lodder.subtools.multisubdownloader.framework.service.providers.ServiceProviderComparator;
@@ -15,8 +16,6 @@ import org.lodder.subtools.sublibrary.util.lazy.LazySupplier;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class Bootstrapper {
@@ -48,7 +47,7 @@ public class Bootstrapper {
         this.registerProviders(providers, userInteractionHandler);
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public List<ServiceProvider> getProviders() {
 
         Reflections reflections = new Reflections("org.lodder.subtools.multisubdownloader");
@@ -58,20 +57,13 @@ public class Bootstrapper {
 
         // Instantiate all service providers
         for (Class serviceProviderClass : providerClasses) {
-            ServiceProvider serviceProvider = null;
-
             try {
                 Constructor constructor = serviceProviderClass.getConstructor();
-                serviceProvider = (ServiceProvider) constructor.newInstance();
+                ServiceProvider serviceProvider = (ServiceProvider) constructor.newInstance();
+                providers.add(serviceProvider);
             } catch (Exception e) {
                 LOGGER.error("ServiceProvider: '{}' failed to create instance.", serviceProviderClass.getName());
             }
-
-            if (serviceProvider == null) {
-                continue;
-            }
-
-            providers.add(serviceProvider);
         }
         return providers;
     }

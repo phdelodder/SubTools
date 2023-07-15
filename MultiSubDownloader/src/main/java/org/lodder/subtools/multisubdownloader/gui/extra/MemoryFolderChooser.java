@@ -1,15 +1,13 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
-import javax.swing.JFileChooser;
-
 import org.apache.commons.lang3.StringUtils;
-
-import java.awt.Component;
 
 public class MemoryFolderChooser {
 
@@ -61,5 +59,4 @@ public class MemoryFolderChooser {
     public Path getMemory() {
         return memory.toPath();
     }
-
 }

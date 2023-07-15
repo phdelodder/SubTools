@@ -11,6 +11,11 @@ import java.util.function.Function;
 import java.util.prefs.Preferences;
 import java.util.stream.IntStream;
 
+import com.google.common.base.CaseFormat;
+import com.google.common.base.Objects;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.apache.commons.lang3.function.TriFunction;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
@@ -26,14 +31,6 @@ import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.util.FileUtils;
 import org.lodder.subtools.sublibrary.util.TriConsumer;
-
-import com.google.common.base.CaseFormat;
-import com.google.common.base.Objects;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.Accessors;
 
 public enum SettingValue {
 
@@ -454,17 +451,6 @@ public enum SettingValue {
         Arrays.stream(SettingValue.values()).forEach(sv -> sv.load(settingsControl, preferences));
     }
 
-    @RequiredArgsConstructor
-    @Setter
-    @Accessors(chain = true)
-    @Getter
-    private static class Setting<T, R> implements SettingIntf {
-        private final String key;
-        private final Function<SettingsControl, R> rootElementFunction;
-        private T defaultValue;
-        private BiConsumer<SettingsControl, Preferences> storeValueFunction;
-        private BiConsumer<SettingsControl, Preferences> loadValueFunction;
-    }
 
     private interface SettingIntf {
         BiConsumer<SettingsControl, Preferences> getStoreValueFunction();
@@ -538,10 +524,10 @@ public enum SettingValue {
     }
 
     private interface SettingTypedValueSetterIntf<T, R> {
-        SettingTypedDefaultValueIntf<T, R> valueSetter(BiConsumer<R, T> valueSetter);
+        SettingTypedDefaultValueIntf<T> valueSetter(BiConsumer<R, T> valueSetter);
     }
 
-    private interface SettingTypedDefaultValueIntf<T, R> {
+    private interface SettingTypedDefaultValueIntf<T> {
         SettingBuildIntf defaultValue(T defaultValue);
     }
 
@@ -563,7 +549,7 @@ public enum SettingValue {
             SettingTypedRootElementFunctionIntf<T>,
             SettingTypedValueGetterIntf<T, R>,
             SettingTypedValueSetterIntf<T, R>,
-            SettingTypedDefaultValueIntf<T, R>,
+            SettingTypedDefaultValueIntf<T>,
             SettingBuildIntf {
 
         private SettingType settingType = SettingType.SINGLE_VALUE;

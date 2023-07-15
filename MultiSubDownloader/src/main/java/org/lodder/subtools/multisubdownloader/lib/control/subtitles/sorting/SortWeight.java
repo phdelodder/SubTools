@@ -1,26 +1,22 @@
 package org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.replacers.GroupReplacer;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.replacers.KeywordReplacer;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.Release;
 
+@Getter
 public class SortWeight {
 
-    private static final List<KeywordReplacer> keywordReplacers;
+    private static final List<KeywordReplacer> KEYWORD_REPLACERS = List.of(new GroupReplacer());
 
-    static {
-        keywordReplacers = new ArrayList<>();
-        keywordReplacers.add(new GroupReplacer());
-    }
-
-    protected Map<String, Integer> weights;
+    private Map<String, Integer> weights;
     protected int maxScore;
 
     public SortWeight(Release release, Map<String, Integer> defaultWeights) {
@@ -54,15 +50,6 @@ public class SortWeight {
     }
 
     private void replaceReservedKeywords(Release release, Map<String, Integer> weights) {
-        SortWeight.keywordReplacers.forEach(replacer -> replacer.replace(release, weights));
+        SortWeight.KEYWORD_REPLACERS.forEach(replacer -> replacer.replace(release, weights));
     }
-
-    public Map<String, Integer> getWeights() {
-        return this.weights;
-    }
-
-    public int getMaxScore() {
-        return this.maxScore;
-    }
-
 }

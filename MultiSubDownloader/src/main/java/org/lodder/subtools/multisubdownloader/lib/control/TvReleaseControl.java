@@ -46,7 +46,7 @@ public class TvReleaseControl extends ReleaseControl {
         }
     }
 
-    public void processTvdb() throws ReleaseControlException {
+    private void processTvdb() throws ReleaseControlException {
         jtvdba.getSerie(tvRelease.getName()).ifPresentOrThrow(tvdbSerie -> {
             tvRelease.setTvdbId(tvdbSerie.getId());
             tvRelease.setOriginalName(tvdbSerie.getSerieName());

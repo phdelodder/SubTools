@@ -1,20 +1,17 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
+import javax.swing.*;
+import javax.swing.plaf.basic.*;
+import java.awt.*;
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import javax.swing.JComboBox;
-import javax.swing.JList;
-import javax.swing.plaf.basic.BasicComboBoxRenderer;
-
-import java.awt.Component;
-
 /**
  *
- * @author http://vetruvet.blogspot.com/2011/03/jcombobox-with-disabled-items.html
+ * @author <a href="http://vetruvet.blogspot.com/2011/03/jcombobox-with-disabled-items.html">author</a>
  */
 public class PartialDisableComboBox<T> extends JComboBox<T> {
     @Serial

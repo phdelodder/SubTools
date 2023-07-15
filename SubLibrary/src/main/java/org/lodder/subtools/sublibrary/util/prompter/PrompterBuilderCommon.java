@@ -22,7 +22,7 @@ public class PrompterBuilderCommon {
             String value = prompter.prompt(message + System.lineSeparator());
             if (StringUtils.isEmpty(value)) {
                 if (defaultValue != null) {
-                    return Optional.ofNullable(defaultValue);
+                    return Optional.of(defaultValue);
                 } else if (defaultValueSupplier != null) {
                     return Optional.ofNullable(defaultValueSupplier.get());
                 } else {

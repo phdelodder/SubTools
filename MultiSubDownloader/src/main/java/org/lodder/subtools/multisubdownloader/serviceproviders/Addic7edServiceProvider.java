@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.serviceproviders;
 
 import java.util.prefs.Preferences;
 
+import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
@@ -50,18 +51,10 @@ public class Addic7edServiceProvider implements ServiceProvider {
         String username = "";
         String password = "";
         if (settings.isLoginAddic7edEnabled()) {
-            loginEnabled = true;
-            username = settings.getLoginAddic7edUsername();
-            password = settings.getLoginAddic7edPassword();
-        }
-
-        /* Nullpointer safety */
-        username = username == null ? "" : username.trim();
-        password = password == null ? "" : password.trim();
-
-        /* Protect against empty login */
-        if (loginEnabled && (username.isEmpty() || password.isEmpty())) {
-            loginEnabled = false;
+            username = StringUtils.trim(settings.getLoginAddic7edUsername());
+            password = StringUtils.trim(settings.getLoginAddic7edPassword());
+            /* Protect against empty login */
+            loginEnabled = !username.isEmpty() && !password.isEmpty();
         }
 
         if (settings.isSerieSourceAddic7edProxy()) {
