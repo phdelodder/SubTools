@@ -89,10 +89,6 @@ public class Settings implements UserInteractionSettingsIntf {
         return !getDefaultIncomingFolders().isEmpty();
     }
 
-    public Map<String, Integer> getSortWeights() {
-        return sortWeights;
-    }
-
     public boolean isSerieSource(SubtitleSource sbtitleSource) {
         // TODO: dynamically inject SubtitleProvider to settings
         return switch (sbtitleSource) {

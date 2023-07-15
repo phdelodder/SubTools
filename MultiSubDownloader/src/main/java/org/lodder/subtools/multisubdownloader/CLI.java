@@ -20,7 +20,7 @@ import org.lodder.subtools.multisubdownloader.exceptions.SearchSetupException;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.lib.Info;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
-import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
+import org.lodder.subtools.multisubdownloader.lib.control.subtitles.SubtitleFiltering;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
@@ -112,7 +112,7 @@ public class CLI {
                     .fileListAction(new FileListAction(this.settings))
                     .language(language)
                     .releaseFactory(new ReleaseFactory(this.settings, (Manager) app.make("Manager")))
-                    .filtering(new Filtering(this.settings))
+                    .filtering(new SubtitleFiltering(this.settings))
                     .folders(folders)
                     .recursive(recursive)
                     .overwriteSubtitles(force)

@@ -1,10 +1,9 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog.progress.search;
 
+import javax.swing.table.*;
 import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.swing.table.DefaultTableModel;
 
 import org.lodder.subtools.multisubdownloader.Messages;
 
@@ -12,15 +11,15 @@ public class SearchProgressTableModel extends DefaultTableModel {
 
     @Serial
     private static final long serialVersionUID = -8366722569174216456L;
-    private final String[] columnNames = { Messages.getString("SearchProgressTableModel.Source"),
-            Messages.getString("SearchProgressTableModel.Queue"),
-            Messages.getString("SearchProgressTableModel.Release") };
     private final Map<String, Integer> rowMap = new HashMap<>();
 
     public SearchProgressTableModel() {
         super();
         this.setColumnCount(3);
-        this.setColumnIdentifiers(columnNames);
+        this.setColumnIdentifiers(new String[]{
+                Messages.getString("SearchProgressTableModel.Source"),
+                Messages.getString("SearchProgressTableModel.Queue"),
+                Messages.getString("SearchProgressTableModel.Release")});
     }
 
     public void update(String source, int queue, String release) {
@@ -43,7 +42,7 @@ public class SearchProgressTableModel extends DefaultTableModel {
     private void createRow(String source, int queue, String release) {
         this.rowMap.put(source, this.getRowCount());
 
-        Object[] row = { source, queue, release };
+        Object[] row = {source, queue, release};
         this.addRow(row);
     }
 }

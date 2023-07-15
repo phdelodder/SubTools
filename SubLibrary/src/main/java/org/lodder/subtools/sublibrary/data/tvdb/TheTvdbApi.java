@@ -38,7 +38,7 @@ public class TheTvdbApi {
     }
 
     public List<TheTvdbSerie> getSeries(String serieName, Language language) throws TheTvdbException {
-        return getManager().valueBuilder()
+        return manager.valueBuilder()
                 .memoryCache()
                 .key("%s-series-%s-%s".formatted("TVDB", serieName, language))
                 .collectionSupplier(TheTvdbSerie.class, () -> {
@@ -73,7 +73,7 @@ public class TheTvdbApi {
     }
 
     public Optional<TheTvdbEpisode> getEpisode(int tvdbId, int season, int episode, Language language) throws TheTvdbException {
-        return getManager().valueBuilder()
+        return manager.valueBuilder()
                 .memoryCache()
                 .key("%s-episode-%s-%s-%s-%s".formatted("TVDB", tvdbId, season, episode, language))
                 .optionalSupplier(() -> {

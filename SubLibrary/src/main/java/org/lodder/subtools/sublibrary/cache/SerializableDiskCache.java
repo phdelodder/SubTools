@@ -9,8 +9,6 @@ import lombok.experimental.Accessors;
 
 public class SerializableDiskCache<K extends Serializable, V extends Serializable> extends DiskCache<K, V> {
 
-    public static final Object LOCK = new Object();
-
     @Getter(value = AccessLevel.PROTECTED)
     private final Class<K> dbKeyType;
     @Getter(value = AccessLevel.PROTECTED)

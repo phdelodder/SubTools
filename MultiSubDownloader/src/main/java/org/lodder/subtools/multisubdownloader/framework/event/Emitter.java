@@ -11,9 +11,7 @@ public class Emitter {
     public void fire(Event event) {
         List<Handler> handlers = this.eventListeners.get(event.getEventName());
         if (handlers != null) {
-            for (Handler handler : handlers) {
-                handler.handle(event);
-            }
+            handlers.forEach(handler -> handler.handle(event));
         }
     }
 

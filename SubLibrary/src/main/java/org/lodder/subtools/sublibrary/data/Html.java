@@ -3,28 +3,20 @@ package org.lodder.subtools.sublibrary.data;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.Manager.PageContentBuilderCacheTypeIntf;
 
-import lombok.Getter;
-
+@RequiredArgsConstructor
 public class Html {
     @Getter
     private final Manager manager;
-    private String userAgent;
+    private final String userAgent;
 
     public Html(Manager manager) {
         this.manager = manager;
         this.userAgent = "";
-    }
-
-    public Html(Manager manager, String userAgent) {
-        this.manager = manager;
-        this.userAgent = userAgent;
-    }
-
-    public void setUserAgent(String userAgent) {
-        this.userAgent = userAgent;
     }
 
     public void storeCookies(String domain, Map<String, String> cookieMap) {

@@ -8,7 +8,7 @@ import org.lodder.subtools.sublibrary.util.NamedPattern;
 
 import lombok.Getter;
 
-@Deprecated(since = "Settigns version 6")
+@Deprecated(since = "Settings version 6")
 @Getter
 public class SettingsExcludeItem {
 

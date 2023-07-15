@@ -1,13 +1,12 @@
 package org.lodder.subtools.sublibrary.util;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class DeleteDirVisitor extends SimpleFileVisitor<Path> {
 

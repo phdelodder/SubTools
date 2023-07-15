@@ -1,6 +1,6 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.model;
 
-import java.util.Arrays;
+import java.util.Objects;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +31,7 @@ public class OpenSubtitlesMovieDescriptor {
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(new Object[] { name, year, imdbId });
+        return Objects.hash(name, year, imdbId);
     }
 
     @Override

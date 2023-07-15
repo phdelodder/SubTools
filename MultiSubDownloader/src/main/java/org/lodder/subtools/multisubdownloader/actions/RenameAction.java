@@ -87,7 +87,7 @@ public class RenameAction {
                     LOGGER.error("Unable to detect language, leaving language code blank");
                 }
             }
-            filename = filenameLibraryBuilder.buildSubtitle(release, filename, language, 0);
+            return filenameLibraryBuilder.buildSubtitle(release, filename, language, 0);
         }
         return filename;
     }

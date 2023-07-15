@@ -3,7 +3,7 @@ package org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import org.lodder.subtools.sublibrary.util.BooleanConsumer;
 
 public interface MyTextFieldOthersIntf<T, R extends MyTextFieldCommon<T, R>> {
     MyTextFieldOthersIntf<T, R> withValueVerifier(Predicate<String> verifier);

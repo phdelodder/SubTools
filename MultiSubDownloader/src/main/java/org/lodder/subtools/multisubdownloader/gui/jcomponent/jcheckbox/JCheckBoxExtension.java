@@ -1,11 +1,10 @@
 package org.lodder.subtools.multisubdownloader.gui.jcomponent.jcheckbox;
 
+import javax.swing.*;
 import java.util.Arrays;
 
-import javax.swing.JCheckBox;
-
-import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import lombok.experimental.UtilityClass;
+import org.lodder.subtools.sublibrary.util.BooleanConsumer;
 
 @UtilityClass
 public class JCheckBoxExtension {

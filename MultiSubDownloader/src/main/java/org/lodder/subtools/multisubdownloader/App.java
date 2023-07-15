@@ -1,5 +1,7 @@
 package org.lodder.subtools.multisubdownloader;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -8,10 +10,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
-import javax.swing.JFrame;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-
+import ch.qos.logback.classic.Level;
+import lombok.experimental.ExtensionMethod;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -37,15 +37,10 @@ import org.lodder.subtools.sublibrary.util.http.HttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.EventQueue;
-
-import ch.qos.logback.classic.Level;
-import lombok.experimental.ExtensionMethod;
-
 @ExtensionMethod({ CLIExtension.class, Files.class })
 public class App {
 
-    private static SettingsControl prefctrl;
+    private static SettingsControl prefCtrl;
     private static Splash splash;
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
@@ -74,9 +69,9 @@ public class App {
 
         final Container app = new Container();
         final Manager manager = createManager(!line.hasCliOption(CliOption.NO_GUI));
-        prefctrl = new SettingsControl(manager);
-        Messages.setLanguage(prefctrl.getSettings().getLanguage());
-        Bootstrapper bootstrapper = new Bootstrapper(app, prefctrl.getSettings(), preferences, manager);
+        prefCtrl = new SettingsControl(manager);
+        Messages.setLanguage(prefCtrl.getSettings().getLanguage());
+        Bootstrapper bootstrapper = new Bootstrapper(app, prefCtrl.getSettings(), preferences, manager);
 
         if (line.hasCliOption(CliOption.TRACE)) {
             setLogLevel(Level.ALL);
@@ -85,8 +80,8 @@ public class App {
         }
 
         if (line.hasCliOption(CliOption.NO_GUI)) {
-            bootstrapper.initialize(new UserInteractionHandlerCLI(prefctrl.getSettings()));
-            CLI cmd = new CLI(prefctrl, app);
+            bootstrapper.initialize(new UserInteractionHandlerCLI(prefCtrl.getSettings()));
+            CLI cmd = new CLI(prefCtrl, app);
 
             /* Defined here so there is output on console */
             importPreferences(line);
@@ -106,10 +101,10 @@ public class App {
             /* Defined here so there is output in the splash */
             importPreferences(line);
 
-            bootstrapper.initialize(new UserInteractionHandlerGUI(prefctrl.getSettings(), null));
+            bootstrapper.initialize(new UserInteractionHandlerGUI(prefCtrl.getSettings(), null));
             EventQueue.invokeLater(() -> {
                 try {
-                    JFrame window = new GUI(prefctrl, app);
+                    JFrame window = new GUI(prefCtrl, app);
                     window.setVisible(true);
                     splash.setVisible(false);
                     splash.dispose();
@@ -143,7 +138,7 @@ public class App {
         Path file = Path.of(line.getCliOptionValue(CliOption.IMPORT_PREFERENCES));
         try {
             if (file.isRegularFile()) {
-                prefctrl.importPreferences(file);
+                prefCtrl.importPreferences(file);
             }
         } catch (Exception e) {
             LOGGER.error("executeArgs: importPreferences", e);

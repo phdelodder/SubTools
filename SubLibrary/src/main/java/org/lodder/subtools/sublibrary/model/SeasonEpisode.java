@@ -34,13 +34,13 @@ public class SeasonEpisode {
             return Optional.of(
                     new SeasonEpisode(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)), Integer.parseInt(matcher.group(3))));
         }
-        matcher = SEASON_EPISODE_PATTERN_1.matcher(text);
-        if (matcher.find()) {
-            return Optional.of(new SeasonEpisode(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2))));
+        Matcher matcher2 = SEASON_EPISODE_PATTERN_1.matcher(text);
+        if (matcher2.find()) {
+            return Optional.of(new SeasonEpisode(Integer.parseInt(matcher2.group(1)), Integer.parseInt(matcher2.group(2))));
         }
-        matcher = SEASON_EPISODE_PATTERN_2.matcher(text);
-        if (matcher.find()) {
-            return Optional.of(new SeasonEpisode(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2))));
+        Matcher matcher3 = SEASON_EPISODE_PATTERN_2.matcher(text);
+        if (matcher3.find()) {
+            return Optional.of(new SeasonEpisode(Integer.parseInt(matcher3.group(1)), Integer.parseInt(matcher3.group(2))));
         }
         return Optional.empty();
     }

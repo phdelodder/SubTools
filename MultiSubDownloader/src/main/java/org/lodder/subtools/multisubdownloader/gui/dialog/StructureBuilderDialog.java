@@ -1,19 +1,18 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.text.*;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.Serial;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.function.Function;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
-
+import lombok.experimental.ExtensionMethod;
+import net.miginfocom.swing.MigLayout;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.button.AbstractButtonExtension;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.button.JButtonExtension;
@@ -34,16 +33,6 @@ import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
-
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-
-import lombok.experimental.ExtensionMethod;
-import net.miginfocom.swing.MigLayout;
 
 @ExtensionMethod({ JButtonExtension.class, AbstractButtonExtension.class, JComponentExtension.class, ContainerExtension.class,
         ComponentExtension.class, JTextFieldExtension.class })
@@ -183,22 +172,19 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
     @Override
     public void removeUpdate(DocumentEvent arg0) {
         parseText();
-
     }
 
     private class InsertTag implements MouseListener {
-        private int pos, txtStructureLength;
-        private JLabel clickedLabel;
-        private String clickedTag, beforeCaret, afterCaret;
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            pos = txtStructure.getCaretPosition();
-            txtStructureLength = txtStructure.getText().length();
-            clickedLabel = (JLabel) e.getComponent();
+            int pos = txtStructure.getCaretPosition();
+            int txtStructureLength = txtStructure.getText().length();
+            JLabel clickedLabel = (JLabel) e.getComponent();
             if (clickedLabel != null) {
-                clickedTag = clickedLabel.getText();
-
+                String clickedTag = clickedLabel.getText();
+                String afterCaret;
+                String beforeCaret;
                 try {
                     beforeCaret = txtStructure.getText(0, pos);
                     afterCaret = txtStructure.getText(pos, txtStructureLength - pos);
@@ -206,35 +192,28 @@ public class StructureBuilderDialog extends MultiSubDialog implements DocumentLi
                     beforeCaret = txtStructure.getText();
                     afterCaret = "";
                 }
-
                 txtStructure.setText(String.format("%s%s%s", beforeCaret, clickedTag, afterCaret));
             }
         }
 
         @Override
         public void mouseEntered(MouseEvent e) {
-            // TODO Auto-generated method stub
-
+            // do nothing
         }
 
         @Override
         public void mouseExited(MouseEvent e) {
-            // TODO Auto-generated method stub
-
+            // do nothing
         }
 
         @Override
         public void mousePressed(MouseEvent e) {
-            // TODO Auto-generated method stub
-
+            // do nothing
         }
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            // TODO Auto-generated method stub
-
+            // do nothing
         }
-
     }
-
 }

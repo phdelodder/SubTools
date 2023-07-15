@@ -1,23 +1,14 @@
 package org.lodder.subtools.sublibrary.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter @Setter
 public abstract class Video {
 
-    private VideoType videoType;
-
-    public Video() {
-
-    }
+    private final VideoType videoType;
 
     public Video(VideoType videoType) {
-        this.setVideoType(videoType);
-    }
-
-    public void setVideoType(VideoType videoType) {
         this.videoType = videoType;
     }
-
-    public VideoType getVideoType() {
-        return videoType;
-    }
-
 }

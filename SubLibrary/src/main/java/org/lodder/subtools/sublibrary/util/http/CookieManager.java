@@ -14,19 +14,18 @@ import java.util.StringTokenizer;
 /**
  * CookieManager is a simple utility for handling cookies when working with java.net.URL and
  * java.net.URLConnection objects.
- *
- *
+ * <p>
+ * <p>
  * Cookiemanager cm = new CookieManager(); URL url = new
  * URL("http://www.hccp.org/test/cookieTest.jsp");
- *
+ * <p>
  * . . .
- *
+ * <p>
  * // getting cookies: URLConnection conn = url.openConnection(); conn.connect();
- *
+ * <p>
  * // setting cookies cm.storeCookies(conn); cm.setCookies(url.openConnection());
  *
  * @author Ian Brown
- *
  **/
 
 public class CookieManager {
@@ -53,11 +52,12 @@ public class CookieManager {
     /**
      * Retrieves and stores cookies returned by the host on the other side of the the open
      * java.net.URLConnection.
-     *
+     * <p>
      * The connection MUST have been opened using the connect() method or a IOException will be
      * thrown.
      *
-     * @param conn a java.net.URLConnection - must be open, or IOException will be thrown
+     * @param conn
+     *         a java.net.URLConnection - must be open, or IOException will be thrown
      */
     public void storeCookies(URLConnection conn) {
 
@@ -117,11 +117,13 @@ public class CookieManager {
     /**
      * Prior to opening a URLConnection, calling this method will set all unexpired cookies that match
      * the path or sub paths for this underlying URL
-     *
+     * <p>
      * The connection MUST NOT have been opened method or an IOException will be thrown.
      *
-     * @param conn a java.net.URLConnection - must NOT be open, or IOException will be thrown
-     * @throws java.io.IOException Thrown if conn has already been opened.
+     * @param conn
+     *         a java.net.URLConnection - must NOT be open, or IOException will be thrown
+     * @throws java.io.IOException
+     *         Thrown if conn has already been opened.
      */
     public void setCookies(URLConnection conn) throws IOException {
 
@@ -171,11 +173,8 @@ public class CookieManager {
     }
 
     private boolean isNotExpired(String cookieExpires) {
-        if (cookieExpires == null) {
-            return true;
-        }
         try {
-            return LocalDateTime.now().isBefore(LocalDateTime.parse(cookieExpires, DATE_FORMATTER));
+            return cookieExpires == null || LocalDateTime.now().isBefore(LocalDateTime.parse(cookieExpires, DATE_FORMATTER));
         } catch (DateTimeParseException e) {
             e.printStackTrace();
             return false;
@@ -183,14 +182,7 @@ public class CookieManager {
     }
 
     private boolean comparePaths(String cookiePath, String targetPath) {
-        if (cookiePath == null) {
-            return true;
-        } else if ("/".equals(cookiePath)) {
-            return true;
-        } else {
-            return targetPath.regionMatches(0, cookiePath, 0, cookiePath.length());
-        }
-
+        return cookiePath == null || "/".equals(cookiePath) || targetPath.regionMatches(0, cookiePath, 0, cookiePath.length());
     }
 
     /**

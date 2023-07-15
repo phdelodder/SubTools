@@ -9,7 +9,7 @@ import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.gui.panels.InputPanel;
 import org.lodder.subtools.multisubdownloader.gui.panels.SearchPanel;
 import org.lodder.subtools.multisubdownloader.lib.ReleaseFactory;
-import org.lodder.subtools.multisubdownloader.lib.control.subtitles.Filtering;
+import org.lodder.subtools.multisubdownloader.lib.control.subtitles.SubtitleFiltering;
 import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener;
 import org.lodder.subtools.multisubdownloader.listeners.SearchProgressListener;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
@@ -28,7 +28,7 @@ public abstract class GuiSearchAction<P extends InputPanel> extends SearchAction
 
     private final @NonNull GUI mainWindow;
     private final @NonNull SearchPanel<P> searchPanel;
-    private final Filtering filtering;
+    private final SubtitleFiltering filtering;
     private final @NonNull ReleaseFactory releaseFactory;
     private final IndexingProgressListener indexingProgressListener;
     private final SearchProgressListener searchProgressListener;
@@ -39,7 +39,7 @@ public abstract class GuiSearchAction<P extends InputPanel> extends SearchAction
         super(manager, settings, subtitleProviderStore);
         this.mainWindow = mainWindow;
         this.searchPanel = searchPanel;
-        this.filtering = new Filtering(settings);
+        this.filtering = new SubtitleFiltering(settings);
         this.releaseFactory = releaseFactory;
         /* Create ProgressListeners */
         /*

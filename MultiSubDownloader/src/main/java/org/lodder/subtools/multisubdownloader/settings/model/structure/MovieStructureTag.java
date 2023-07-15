@@ -15,9 +15,7 @@ public enum MovieStructureTag implements StructureTag {
     DESCRIPTION("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.MovieDescription")),
     YEAR("%YEAR%", Messages.getString("StructureBuilderDialog.MovieYear"));
 
-    @Getter
     private final String label;
-    @Getter
     private final String description;
 
 }

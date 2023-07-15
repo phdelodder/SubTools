@@ -22,8 +22,8 @@ public class UserInteractionHandlerAction {
     private final UserInteractionHandler userInteractionHandler;
 
     /**
-     * @param release
-     * @param subtitleSelectionDialog
+     * @param release release
+     * @param subtitleSelectionDialog subtitleSelectionDialog
      * @return integer which subtitle is selected for downloading
      */
     public List<Subtitle> subtitleSelection(final Release release, final boolean subtitleSelectionDialog) {
@@ -31,9 +31,9 @@ public class UserInteractionHandlerAction {
     }
 
     /**
-     * @param release
-     * @param subtitleSelectionDialog
-     * @param dryRun
+     * @param release release
+     * @param subtitleSelectionDialog subtitleSelectionDialog
+     * @param dryRun dryRun
      * @return integer which subtitle is selected for downloading
      */
     public List<Subtitle> subtitleSelection(Release release, final boolean subtitleSelectionDialog, final boolean dryRun) {

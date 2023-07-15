@@ -1,5 +1,6 @@
 package org.lodder.subtools.multisubdownloader.serviceproviders;
 
+import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
@@ -46,20 +47,11 @@ public class OpenSubtitlesServiceProvider implements ServiceProvider {
         String username = "";
         String password = "";
         if (settings.isLoginOpenSubtitlesEnabled()) {
-            loginEnabled = true;
-            username = settings.getLoginOpenSubtitlesUsername();
-            password = settings.getLoginOpenSubtitlesPassword();
+            username = StringUtils.trim(settings.getLoginOpenSubtitlesUsername());
+            password = StringUtils.trim(settings.getLoginOpenSubtitlesPassword());
+            /* Protect against empty login */
+            loginEnabled = !username.isEmpty() && !password.isEmpty();
         }
-
-        /* Nullpointer safety */
-        username = username == null ? "" : username.trim();
-        password = password == null ? "" : password.trim();
-
-        /* Protect against empty login */
-        if (loginEnabled && (username.isEmpty() || password.isEmpty())) {
-            loginEnabled = false;
-        }
-
         return new JOpenSubAdapter(loginEnabled, username, password, manager, userInteractionHandler);
     }
 

@@ -1,5 +1,13 @@
 package org.lodder.subtools.multisubdownloader;
 
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.table.*;
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -9,20 +17,7 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import javax.swing.JEditorPane;
-import javax.swing.JFrame;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.RowSorter;
-import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
-
+import lombok.experimental.ExtensionMethod;
 import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
 import org.lodder.subtools.multisubdownloader.gui.Menu;
@@ -72,20 +67,6 @@ import org.lodder.subtools.sublibrary.util.TriConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.HeadlessException;
-import java.awt.Insets;
-import java.awt.Toolkit;
-import java.awt.datatransfer.StringSelection;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
-import lombok.experimental.ExtensionMethod;
-
 @ExtensionMethod({ FileUtils.class })
 public class GUI extends JFrame implements PropertyChangeListener {
 
@@ -95,17 +76,14 @@ public class GUI extends JFrame implements PropertyChangeListener {
     private final Manager manager;
     private final Settings settings;
     private final UserInteractionHandlerGUI userInteractionHandler;
-    private StatusLabel lblStatus;
     private final SettingsControl settingsControl;
     private ProgressDialog progressDialog;
     private MyPopupMenu popupMenu;
     private SearchPanel<SearchFileInputPanel> pnlSearchFile;
     private SearchPanel<SearchTextInputPanel> pnlSearchText;
     private LoggingPanel pnlLogging;
-    private SearchTextInputPanel pnlSearchTextInput;
     private SearchFileInputPanel pnlSearchFileInput;
     private Menu menuBar;
-    private SearchProgressDialog searchProgressDialog;
     private IndexingProgressDialog fileIndexerProgressDialog;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GUI.class);
@@ -212,7 +190,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
         gbc_pnlLogging.gridy = 1;
         getContentPane().add(pnlLogging, gbc_pnlLogging);
 
-        lblStatus = new StatusLabel("");
+        StatusLabel lblStatus = new StatusLabel("");
         StatusMessenger.instance.addListener(lblStatus);
         final GridBagConstraints gbc_lblStatus = new GridBagConstraints();
         gbc_lblStatus.anchor = GridBagConstraints.SOUTHWEST;
@@ -263,7 +241,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
         /* resolve the SubtitleProviderStore from the Container */
         SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) this.app.make("SubtitleProviderStore");
         ResultPanel resultPanel = new ResultPanel();
-        pnlSearchTextInput = new SearchTextInputPanel();
+        SearchTextInputPanel pnlSearchTextInput = new SearchTextInputPanel();
         pnlSearchText = new SearchPanel<>(pnlSearchTextInput, resultPanel);
         pnlSearchTextInput.setSelectedlanguage(settings.getSubtitleLanguage() == null ? Language.DUTCH : settings.getSubtitleLanguage());
         resultPanel.showSelectFoundSubtitlesButton();
@@ -547,8 +525,7 @@ public class GUI extends JFrame implements PropertyChangeListener {
     }
 
     public SearchProgressDialog createSearchProgressDialog(Cancelable searchAction) {
-        searchProgressDialog = new SearchProgressDialog(this, searchAction);
-        return searchProgressDialog;
+        return new SearchProgressDialog(this, searchAction);
     }
 
     public IndexingProgressDialog createFileIndexerProgressDialog(Cancelable searchAction) {

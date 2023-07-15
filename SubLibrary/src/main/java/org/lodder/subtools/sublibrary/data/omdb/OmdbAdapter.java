@@ -43,7 +43,7 @@ public class OmdbAdapter {
 
     public Optional<OmdbDetails> getMovieDetails(int imdbId) {
         try {
-            return getManager().valueBuilder()
+            return manager.valueBuilder()
                     .cacheType(CacheType.DISK)
                     .key("%S-movieDetails-%s".formatted(getProviderName(), imdbId))
                     .optionalSupplier(() -> getApi().getMovieDetails(imdbId))

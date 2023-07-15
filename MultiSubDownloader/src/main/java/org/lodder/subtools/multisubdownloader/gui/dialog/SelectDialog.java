@@ -1,20 +1,15 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog;
 
+import javax.swing.*;
+import javax.swing.table.*;
+import java.awt.*;
 import java.io.Serial;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.RowSorter;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
-
+import lombok.experimental.ExtensionMethod;
+import net.miginfocom.swing.MigLayout;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SubtitleTableColumnName;
@@ -24,11 +19,6 @@ import org.lodder.subtools.multisubdownloader.gui.jcomponent.button.JButtonExten
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcomponent.JComponentExtension;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
-
-import java.awt.FlowLayout;
-
-import lombok.experimental.ExtensionMethod;
-import net.miginfocom.swing.MigLayout;
 
 @ExtensionMethod({ JButtonExtension.class, AbstractButtonExtension.class, JComponentExtension.class })
 public class SelectDialog extends MultiSubDialog {
@@ -86,7 +76,7 @@ public class SelectDialog extends MultiSubDialog {
                     .addTo(buttonPane);
 
             new JButton(Messages.getString("App.Cancel"))
-                    .withActionListener(arg0 -> {
+                    .withActionListener(() -> {
                         selectedSubtitleIdxs = List.of();
                         setVisible(false);
                     })

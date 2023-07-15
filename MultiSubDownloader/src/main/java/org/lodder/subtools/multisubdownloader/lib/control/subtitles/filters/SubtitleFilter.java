@@ -1,15 +1,18 @@
 package org.lodder.subtools.multisubdownloader.lib.control.subtitles.filters;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 
-public abstract class Filter {
+public abstract class SubtitleFilter {
 
-    public abstract List<Subtitle> doFilter(Release release, List<Subtitle> Subtitles);
+    public abstract boolean useSubtitle(Release release, Subtitle subtitle);
+
+    public boolean excludeSubtitle(Release release, Subtitle subtitle){
+        return !useSubtitle(release, subtitle);
+    }
 
     protected String getReleaseName(Release release) {
         return release.getFileName() == null ? "" : release.getFileName().toLowerCase().replace("." + release.getExtension(), "");

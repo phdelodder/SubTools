@@ -1,10 +1,10 @@
 package org.lodder.subtools.sublibrary.xml;
 
-/**
- * Source: http://www.rgagnon.com/javadetails/java-0307.html
- */
-import java.util.HashMap;
 
+import java.util.HashMap;
+/**
+ * <a href="http://www.rgagnon.com/javadetails/java-0307.html">Source</a>
+ */
 public class StringUtils {
     private StringUtils() {
     }

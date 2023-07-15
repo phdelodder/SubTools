@@ -1,5 +1,7 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.Serial;
 import java.util.Collection;
 import java.util.Optional;
@@ -7,24 +9,12 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-
-import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcomponent.JComponentExtension;
-
 import com.google.common.base.Objects;
-
-import java.awt.FlowLayout;
-import java.awt.Image;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.ExtensionMethod;
+import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcomponent.JComponentExtension;
 
 @ExtensionMethod({ JComponentExtension.class })
 public class JListWithImages<T> extends JList<JListWithImages.LabelPanel<T>> {
@@ -141,9 +131,7 @@ public class JListWithImages<T> extends JList<JListWithImages.LabelPanel<T>> {
         }
 
         private static ImageIcon resizeIcon(ImageIcon icon, int width, int height) {
-            Image img = icon.getImage();
-            Image newimg = img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH);
-            return new ImageIcon(newimg);
+            return new ImageIcon( icon.getImage().getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH));
         }
     }
 }

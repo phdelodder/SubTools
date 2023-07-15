@@ -1,34 +1,27 @@
 package org.lodder.subtools.multisubdownloader.gui.extra;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.Serial;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.SwingConstants;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Insets;
-
+@Getter
+@Setter
 public class ArrowButton extends JButton {
 
     @Serial
     private static final long serialVersionUID = -4630720317499130016L;
 
     /**
-     * The cardinal direction of the arrow(s).
+     * The cardinal direction of the arrow(s),
+     * any of {@link SwingConstants#NORTH}, {@link SwingConstants#SOUTH}, {@link SwingConstants#WEST} or {@link SwingConstants#EAST}
      */
     private int direction;
 
-    /**
-     * The number of arrows.
-     */
     private int arrowCount;
 
-    /**
-     * The arrow size.
-     */
     private int arrowSize;
 
     public ArrowButton(int direction, int arrowCount, int arrowSize) {
@@ -36,54 +29,6 @@ public class ArrowButton extends JButton {
         setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         this.direction = direction;
         this.arrowCount = arrowCount;
-        this.arrowSize = arrowSize;
-    }
-
-    /**
-     * Returns the cardinal direction of the arrow(s).
-     *
-     * @see #setDirection(int)
-     */
-    public int getDirection() {
-        return direction;
-    }
-
-    /**
-     * Sets the cardinal direction of the arrow(s).
-     *
-     * @param direction the direction of the arrow(s), can be {@link SwingConstants#NORTH},
-     *        {@link SwingConstants#SOUTH}, {@link SwingConstants#WEST} or {@link SwingConstants#EAST}
-     * @see #getDirection()
-     */
-    public void setDirection(int direction) {
-        this.direction = direction;
-    }
-
-    /**
-     * Returns the number of arrows.
-     */
-    public int getArrowCount() {
-        return arrowCount;
-    }
-
-    /**
-     * Sets the number of arrows.
-     */
-    public void setArrowCount(int arrowCount) {
-        this.arrowCount = arrowCount;
-    }
-
-    /**
-     * Returns the arrow size.
-     */
-    public int getArrowSize() {
-        return arrowSize;
-    }
-
-    /**
-     * Sets the arrow size.
-     */
-    public void setArrowSize(int arrowSize) {
         this.arrowSize = arrowSize;
     }
 
@@ -98,9 +43,7 @@ public class ArrowButton extends JButton {
                 * (direction == SwingConstants.EAST || direction == SwingConstants.WEST ? arrowCount : 3)
                 + getBorder().getBorderInsets(this).left + getBorder().getBorderInsets(this).right,
                 arrowSize
-                        * (direction == SwingConstants.NORTH || direction == SwingConstants.SOUTH
-                                ? arrowCount
-                                : 3)
+                        * (direction == SwingConstants.NORTH || direction == SwingConstants.SOUTH ? arrowCount : 3)
                         + getBorder().getBorderInsets(this).top
                         + getBorder().getBorderInsets(this).bottom);
     }
@@ -124,19 +67,15 @@ public class ArrowButton extends JButton {
         for (int i = 0; i < arrowCount; i++) {
             paintArrow(g,
                     (w - arrowSize
-                            * (direction == SwingConstants.EAST || direction == SwingConstants.WEST
-                                    ? arrowCount
-                                    : 1))
+                            * (direction == SwingConstants.EAST || direction == SwingConstants.WEST ? arrowCount : 1))
                             / 2
                             + arrowSize
-                                    * (direction == SwingConstants.EAST || direction == SwingConstants.WEST ? i : 0),
+                            * (direction == SwingConstants.EAST || direction == SwingConstants.WEST ? i : 0),
                     (h - arrowSize
-                            * (direction == SwingConstants.EAST || direction == SwingConstants.WEST
-                                    ? 1
-                                    : arrowCount))
+                            * (direction == SwingConstants.EAST || direction == SwingConstants.WEST ? 1 : arrowCount))
                             / 2
                             + arrowSize
-                                    * (direction == SwingConstants.EAST || direction == SwingConstants.WEST ? 0 : i),
+                            * (direction == SwingConstants.EAST || direction == SwingConstants.WEST ? 0 : i),
                     g.getColor());
         }
 

@@ -5,7 +5,7 @@ import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener
 
 public class CLIFileindexerProgress extends CLIProgress<CLIFileindexerProgress> implements IndexingProgressListener {
 
-    String currentFile;
+    private String currentFile;
 
     public CLIFileindexerProgress() {
         super();

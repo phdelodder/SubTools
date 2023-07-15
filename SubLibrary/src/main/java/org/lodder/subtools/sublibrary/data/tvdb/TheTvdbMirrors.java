@@ -1,11 +1,11 @@
 package org.lodder.subtools.sublibrary.data.tvdb;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import javax.xml.parsers.ParserConfigurationException;
-
+import lombok.experimental.ExtensionMethod;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.ManagerException;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
@@ -13,11 +13,9 @@ import org.lodder.subtools.sublibrary.xml.XmlExtension;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import lombok.experimental.ExtensionMethod;
-
 /**
  * @author lodder
- *         Code found on Web: http://code.google.com/p/moviejukebox/
+ * <a href="http://code.google.com/p/moviejukebox/">Source</a>
  */
 @ExtensionMethod({ XmlExtension.class })
 public class TheTvdbMirrors {
