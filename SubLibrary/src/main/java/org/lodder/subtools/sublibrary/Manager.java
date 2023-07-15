@@ -1,5 +1,6 @@
 package org.lodder.subtools.sublibrary;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -19,8 +20,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import javax.xml.parsers.ParserConfigurationException;
-
+import com.pivovarit.function.ThrowingSupplier;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+import lombok.experimental.ExtensionMethod;
+import name.falgout.jeffrey.throwing.Nothing;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONArray;
@@ -37,15 +43,6 @@ import org.lodder.subtools.sublibrary.util.http.HttpClient;
 import org.lodder.subtools.sublibrary.util.http.HttpClientException;
 import org.lodder.subtools.sublibrary.xml.XMLHelper;
 import org.w3c.dom.Document;
-
-import com.pivovarit.function.ThrowingSupplier;
-
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.Accessors;
-import lombok.experimental.ExtensionMethod;
-import name.falgout.jeffrey.throwing.Nothing;
 
 @Setter
 @RequiredArgsConstructor
@@ -652,8 +649,8 @@ public class Manager {
             if (value != null) {
                 cache.put(key, value);
             } else {
-                if (cache instanceof DiskCache diskCache) {
-                    diskCache.putWithoutPersist(key, null);
+                if (cache instanceof DiskCache dCache) {
+                    dCache.putWithoutPersist(key, null);
                 } else {
                     cache.put(key, null);
                 }
@@ -717,8 +714,8 @@ public class Manager {
             } else {
                 Optional<T> value = executeSupplier(optionalSupplier);
                 value.ifPresentOrElse(v -> cache.put(key, v), () -> {
-                    if (cache instanceof DiskCache diskCache) {
-                        diskCache.putWithoutPersist(key, null);
+                    if (cache instanceof DiskCache dCache) {
+                        dCache.putWithoutPersist(key, null);
                     } else {
                         cache.put(key, null);
                     }
@@ -750,8 +747,8 @@ public class Manager {
             } else {
                 OptionalInt value = executeSupplier(optionalIntSupplier);
                 value.ifPresentOrElse(v -> cache.put(key, v), () -> {
-                    if (cache instanceof DiskCache diskCache) {
-                        diskCache.putWithoutPersist(key, null);
+                    if (cache instanceof DiskCache dCache) {
+                        dCache.putWithoutPersist(key, null);
                     } else {
                         cache.put(key, null);
                     }

@@ -181,7 +181,7 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
 
     /**
      * Changes the extension of a file to a new extension.
-     *
+     * <p>
      * Example: changeExtension("data.txt", ".java") will result in "data.java".
      *
      * @param fileName the name of the file

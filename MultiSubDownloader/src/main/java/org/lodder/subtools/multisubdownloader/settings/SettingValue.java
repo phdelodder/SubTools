@@ -640,10 +640,8 @@ public enum SettingValue {
                         int numberOfItems = preferences.getInt(key + "Size", 0);
                         R rootElement = getRootElement(settingsControl);
                         listCleaner.accept(rootElement);
-                        IntStream.range(0, numberOfItems).forEach(i -> {
-                            valueAdder.accept(rootElement, toObjectMapper.apply(preferences.get(key + i, "")));
-                        });
-
+                        IntStream.range(0, numberOfItems)
+                                .forEach(i -> valueAdder.accept(rootElement, toObjectMapper.apply(preferences.get(key + i, ""))));
                     });
                 }
                 default -> throw new IllegalArgumentException("Unexpected value: " + settingType);
