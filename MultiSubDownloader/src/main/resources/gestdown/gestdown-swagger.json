@@ -3,7 +3,7 @@
   "info": {
     "title": "Gestdown: Addicted Proxy",
     "description": "Provide a full api to search and download subtitles from Addic7ed website.",
-    "version": "4.6.3"
+    "version": "4.14.16"
   },
   "servers": [
     {
@@ -25,6 +25,99 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApplicationInfoDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/media/trending/{max}": {
+      "get": {
+        "tags": [
+          "Media"
+        ],
+        "summary": "Get the trending media of the last week",
+        "parameters": [
+          {
+            "name": "max",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "maximum": 50,
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MediaDetailsDto"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/media/{showId}/details": {
+      "get": {
+        "tags": [
+          "Media"
+        ],
+        "summary": "Get the details of a specific show",
+        "operationId": "MediaDetails",
+        "parameters": [
+          {
+            "name": "showId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaDetailsDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -174,6 +267,16 @@
               }
             }
           },
+          "400": {
+            "description": "Doesn't follow the right format for the search: Show S00E00",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WrongFormatResponse"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Couldn't find the show or its season/episode",
             "content": {
@@ -190,16 +293,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Doesn't follow the right format for the search: Show S00E00",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WrongFormatResponse"
                 }
               }
             }
@@ -277,6 +370,16 @@
               }
             }
           },
+          "400": {
+            "description": "Doesn't follow the right format for the search: Show S00E00",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WrongFormatResponse"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Couldn't find the show or its season/episode",
             "content": {
@@ -293,16 +396,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Doesn't follow the right format for the search: Show S00E00",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WrongFormatResponse"
                 }
               }
             }
@@ -383,16 +476,6 @@
               }
             }
           },
-          "404": {
-            "description": "Couldn't find the show or its season/episode",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
           "400": {
             "description": "Doesn't follow the right format for the search: Show S00E00",
             "content": {
@@ -403,6 +486,19 @@
               }
             }
           },
+          "404": {
+            "description": "Couldn't find the show or its season/episode",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Refreshing the show, currently don't have data, try again later"
+          },
           "429": {
             "description": "Reached the rate limiting of the endpoint",
             "content": {
@@ -412,9 +508,6 @@
                 }
               }
             }
-          },
-          "423": {
-            "description": "Refreshing the show, currently don't have data, try again later"
           }
         }
       }
@@ -448,8 +541,8 @@
               }
             }
           },
-          "429": {
-            "description": "Reached the rate limiting of the endpoint",
+          "404": {
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -458,8 +551,8 @@
               }
             }
           },
-          "404": {
-            "description": "Not Found",
+          "429": {
+            "description": "Reached the rate limiting of the endpoint",
             "content": {
               "application/json": {
                 "schema": {
@@ -500,8 +593,8 @@
               }
             }
           },
-          "429": {
-            "description": "Reached the rate limiting of the endpoint",
+          "404": {
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -510,8 +603,8 @@
               }
             }
           },
-          "404": {
-            "description": "Not Found",
+          "429": {
+            "description": "Reached the rate limiting of the endpoint",
             "content": {
               "application/json": {
                 "schema": {
@@ -542,11 +635,11 @@
           }
         ],
         "responses": {
-          "404": {
-            "description": "Couldn't find the show"
-          },
           "204": {
             "description": "If the job to sync the show has been scheduled"
+          },
+          "404": {
+            "description": "Couldn't find the show"
           }
         }
       }
@@ -589,29 +682,6 @@
           }
         ],
         "responses": {
-          "404": {
-            "description": "Couldn't find the show"
-          },
-          "429": {
-            "description": "Reached the rate limiting of the endpoint",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "200": {
             "description": "Success",
             "content": {
@@ -634,6 +704,29 @@
           },
           "400": {
             "description": "Unknown language"
+          },
+          "404": {
+            "description": "Couldn't find the show"
+          },
+          "429": {
+            "description": "Reached the rate limiting of the endpoint",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -652,6 +745,86 @@
             "type": "string",
             "description": "Version of the application",
             "example": "2.9.5"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DetailsDto": {
+        "required": [
+          "backdropPath",
+          "englishName",
+          "genre",
+          "mediaType",
+          "originalName",
+          "overview",
+          "posterPath",
+          "tagLine",
+          "voteAverage"
+        ],
+        "type": "object",
+        "properties": {
+          "posterPath": {
+            "minLength": 1,
+            "type": "string",
+            "description": "URL of the poster",
+            "example": "https://upload.wikimedia.org/wikipedia/en/thumb/5/54/Bloodhounds_%28South_Korean_TV_series%29.jpg/250px-Bloodhounds_%28South_Korean_TV_series%29.jpg"
+          },
+          "overview": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Short description of the media, usually the plot",
+            "example": "Bloodhounds depicts a story about two young boxers who set foot in the world of private loans in pursuit of money and get caught up in a huge force"
+          },
+          "originalName": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Original name in its own language, useful for non-english shows",
+            "example": "사냥개들"
+          },
+          "mediaType": {
+            "$ref": "#/components/schemas/MediaType"
+          },
+          "backdropPath": {
+            "minLength": 1,
+            "type": "string",
+            "description": "URL of the backdrop image for the show",
+            "example": "https://upload.wikimedia.org/wikipedia/en/thumb/5/54/Bloodhounds_%28South_Korean_TV_series%29.jpg/250px-Bloodhounds_%28South_Korean_TV_series%29.jpg"
+          },
+          "voteAverage": {
+            "type": "number",
+            "description": "Percentage of user votes",
+            "format": "double",
+            "example": 0.85
+          },
+          "genre": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Genre of the media",
+            "example": [
+              "action",
+              "horror"
+            ]
+          },
+          "tagLine": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Tagline of the media",
+            "example": "The best show on earth"
+          },
+          "releaseYear": {
+            "type": "integer",
+            "description": "Year of release",
+            "format": "int32",
+            "nullable": true,
+            "example": 2023
+          },
+          "englishName": {
+            "minLength": 1,
+            "type": "string",
+            "description": "English name of the show",
+            "example": "Bloodhounds"
           }
         },
         "additionalProperties": false
@@ -771,6 +944,26 @@
         "additionalProperties": false,
         "description": "Returns when there is an error"
       },
+      "MediaDetailsDto": {
+        "type": "object",
+        "properties": {
+          "media": {
+            "$ref": "#/components/schemas/ShowDto"
+          },
+          "details": {
+            "$ref": "#/components/schemas/DetailsDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MediaType": {
+        "enum": [
+          "Show",
+          "Movie"
+        ],
+        "type": "string",
+        "description": "Represent the type of media"
+      },
       "SearchRequest": {
         "type": "object",
         "properties": {
@@ -823,7 +1016,7 @@
               "type": "integer",
               "format": "int32"
             },
-            "description": "Seasons available",
+            "description": "Seasons available in ascending order",
             "example": [
               2,
               3,
@@ -838,6 +1031,13 @@
             "format": "int32",
             "nullable": true,
             "example": 344280
+          },
+          "tmdbId": {
+            "type": "integer",
+            "description": "ID of the show in TMDB if available",
+            "format": "int32",
+            "nullable": true,
+            "example": 80475
           }
         },
         "additionalProperties": false,
