@@ -3,7 +3,7 @@
   "info": {
     "title": "Gestdown: Addicted Proxy",
     "description": "Provide a full api to search and download subtitles from Addic7ed website.",
-    "version": "4.14.16"
+    "version": "4.22.5"
   },
   "servers": [
     {
@@ -20,7 +20,7 @@
         "summary": "Information about the application",
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
@@ -54,7 +54,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
@@ -100,7 +100,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
@@ -108,9 +108,6 @@
                 }
               }
             }
-          },
-          "404": {
-            "description": "Not Found"
           },
           "429": {
             "description": "Too Many Requests",
@@ -121,6 +118,9 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       }
@@ -147,7 +147,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "OK",
             "content": {
               "text/plain": {
                 "schema": {
@@ -199,13 +199,27 @@
         ],
         "responses": {
           "200": {
-            "description": "Success"
+            "description": "OK"
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Not Found"
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
@@ -267,16 +281,6 @@
               }
             }
           },
-          "400": {
-            "description": "Doesn't follow the right format for the search: Show S00E00",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WrongFormatResponse"
-                }
-              }
-            }
-          },
           "404": {
             "description": "Couldn't find the show or its season/episode",
             "content": {
@@ -293,6 +297,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Doesn't follow the right format for the search: Show S00E00",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WrongFormatResponse"
                 }
               }
             }
@@ -370,16 +384,6 @@
               }
             }
           },
-          "400": {
-            "description": "Doesn't follow the right format for the search: Show S00E00",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WrongFormatResponse"
-                }
-              }
-            }
-          },
           "404": {
             "description": "Couldn't find the show or its season/episode",
             "content": {
@@ -396,6 +400,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Doesn't follow the right format for the search: Show S00E00",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WrongFormatResponse"
                 }
               }
             }
@@ -476,16 +490,6 @@
               }
             }
           },
-          "400": {
-            "description": "Doesn't follow the right format for the search: Show S00E00",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WrongFormatResponse"
-                }
-              }
-            }
-          },
           "404": {
             "description": "Couldn't find the show or its season/episode",
             "content": {
@@ -496,8 +500,15 @@
               }
             }
           },
-          "423": {
-            "description": "Refreshing the show, currently don't have data, try again later"
+          "400": {
+            "description": "Doesn't follow the right format for the search: Show S00E00",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WrongFormatResponse"
+                }
+              }
+            }
           },
           "429": {
             "description": "Reached the rate limiting of the endpoint",
@@ -508,6 +519,9 @@
                 }
               }
             }
+          },
+          "423": {
+            "description": "Refreshing the show, currently don't have data, try again later"
           }
         }
       }
@@ -541,8 +555,8 @@
               }
             }
           },
-          "404": {
-            "description": "Not Found",
+          "429": {
+            "description": "Reached the rate limiting of the endpoint",
             "content": {
               "application/json": {
                 "schema": {
@@ -551,8 +565,8 @@
               }
             }
           },
-          "429": {
-            "description": "Reached the rate limiting of the endpoint",
+          "404": {
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -593,8 +607,8 @@
               }
             }
           },
-          "404": {
-            "description": "Not Found",
+          "429": {
+            "description": "Reached the rate limiting of the endpoint",
             "content": {
               "application/json": {
                 "schema": {
@@ -603,8 +617,8 @@
               }
             }
           },
-          "429": {
-            "description": "Reached the rate limiting of the endpoint",
+          "404": {
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -635,11 +649,11 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "If the job to sync the show has been scheduled"
-          },
           "404": {
             "description": "Couldn't find the show"
+          },
+          "204": {
+            "description": "If the job to sync the show has been scheduled"
           }
         }
       }
@@ -682,29 +696,6 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/TvShowSubtitleResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TvShowSubtitleResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TvShowSubtitleResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Unknown language"
-          },
           "404": {
             "description": "Couldn't find the show"
           },
@@ -727,6 +718,29 @@
                 }
               }
             }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TvShowSubtitleResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TvShowSubtitleResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TvShowSubtitleResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown language"
           }
         }
       }
@@ -824,7 +838,7 @@
             "minLength": 1,
             "type": "string",
             "description": "English name of the show",
-            "example": "Bloodhounds"
+            "example": "Bloodhounds (2024)"
           }
         },
         "additionalProperties": false
@@ -988,7 +1002,8 @@
           "id",
           "name",
           "nbSeasons",
-          "seasons"
+          "seasons",
+          "slug"
         ],
         "type": "object",
         "properties": {
@@ -1038,6 +1053,12 @@
             "format": "int32",
             "nullable": true,
             "example": 80475
+          },
+          "slug": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Slug to be used in URL for the show\r\n<example>wellington-paranormal</example>",
+            "readOnly": true
           }
         },
         "additionalProperties": false,
