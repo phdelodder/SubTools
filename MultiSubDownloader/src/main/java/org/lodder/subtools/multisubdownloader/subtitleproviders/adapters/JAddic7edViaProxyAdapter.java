@@ -4,14 +4,19 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.pivovarit.function.ThrowingSupplier;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import manifold.ext.props.rt.api.override;
+import manifold.ext.props.rt.api.val;
 import org.gestdown.invoker.ApiException;
+import org.jspecify.annotations.Nullable;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.proxy.gestdown.JAddic7edProxyGestdownApi;
 import org.lodder.subtools.sublibrary.Language;
@@ -21,36 +26,22 @@ import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.util.OptionalExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.pivovarit.function.ThrowingSupplier;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.ExtensionMethod;
-
 @Getter
-@ExtensionMethod({ OptionalExtension.class })
-public class JAddic7edViaProxyAdapter extends AbstractAdapter<Subtitle, ProviderSerieId, ApiException> {
+public final class JAddic7edViaProxyAdapter extends AbstractAdapter<Subtitle, ProviderSerieId, ApiException> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JAddic7edViaProxyAdapter.class);
+
     private final JAddic7edProxyGestdownApi jaapi;
+    @val @override SubtitleSource subtitleSource = SubtitleSource.ADDIC7ED;
+    @val @override String providerName = subtitleSource.name() + "-GESTDOWN";
+    @val @override boolean useSeasonForSerieId = false;
 
     public JAddic7edViaProxyAdapter(Manager manager, UserInteractionHandler userInteractionHandler) {
         super(manager, userInteractionHandler);
         this.jaapi = new JAddic7edProxyGestdownApi(manager);
-    }
-
-    @Override
-    public SubtitleSource getSubtitleSource() {
-        return SubtitleSource.ADDIC7ED;
-    }
-
-    @Override
-    public String getProviderName() {
-        return getSubtitleSource().name() + "-GESTDOWN";
     }
 
     private JAddic7edProxyGestdownApi getApi() {
@@ -70,7 +61,7 @@ public class JAddic7edViaProxyAdapter extends AbstractAdapter<Subtitle, Provider
     }
 
     @Override
-    public Collection<Subtitle> searchMovieSubtitlesWithName(String name, int year, Language language) {
+    public Collection<Subtitle> searchMovieSubtitlesWithName(String name, @Nullable Integer year, Language language) {
         // TODO implement this
         return List.of();
     }
@@ -82,52 +73,53 @@ public class JAddic7edViaProxyAdapter extends AbstractAdapter<Subtitle, Provider
 
     @Override
     public Set<Subtitle> searchSerieSubtitles(TvRelease tvRelease, Language language) throws ApiException {
-        return getProviderSerieId(tvRelease)
-                .map(providerSerieId -> tvRelease.getEpisodeNumbers().stream()
-                        .flatMap(episode -> {
-                            try {
-                                return new ExecuteCall<>(() -> getApi().getSubtitles(providerSerieId, tvRelease.getSeason(), episode, language))
-                                        .message("getSubtitles: [%s]".formatted(
-                                                TvRelease.formatName(providerSerieId.getProviderName(), tvRelease.getSeason(), episode)))
-                                        .retryWhenHttpCode(ReturnCode.REFRESHING)
-                                        .retryWhenHttpCode(ReturnCode.RATE_LIMIT_REACHED)
-                                        .execute().stream();
-                            } catch (ApiException e) {
-                                LOGGER.error("API %s searchSubtitles for serie [%s] (%s)".formatted(getSubtitleSource().getName(),
-                                        TvRelease.formatName(providerSerieId.getProviderName(), tvRelease.getSeason(), episode),
-                                        e.getMessage()), e);
-                                return Stream.empty();
-                            }
-                        })
-                        .collect(Collectors.toSet()))
-                .orElseGet(Set::of);
+        return getProviderSerieId(tvRelease).map(
+            providerSerieId -> tvRelease.episodes.stream().flatMap(episode -> {
+                try {
+                    return new ExecuteCall<>(
+                        () -> getApi().getSubtitles(providerSerieId, tvRelease.season, episode, language))
+                        .message("getSubtitles: [%s]".formatted(
+                            TvRelease.formatName(providerSerieId.providerName, tvRelease.season, episode)))
+                        .retryWhenHttpCode(ReturnCode.REFRESHING)
+                        .retryWhenHttpCode(ReturnCode.RATE_LIMIT_REACHED)
+                        .execute()
+                        .stream();
+                } catch (ApiException e) {
+                    LOGGER.error("API %s searchSubtitles for serie [%s] (%s)".formatted(subtitleSource.name,
+                        TvRelease.formatName(providerSerieId.providerName, tvRelease.season, episode),
+                        e.getMessage()), e);
+                    return Stream.empty();
+                }
+            }).collect(Collectors.toSet())).orElseGet(Set::of);
     }
 
     @Override
-    public List<ProviderSerieId> getSortedProviderSerieIds(OptionalInt tvdbIdOptional, String serieName, int season) throws ApiException {
-        List<ProviderSerieId> serieIds = tvdbIdOptional.mapToObj(tvdbId -> new ExecuteCall<>(() -> getApi().getProviderSerieName(tvdbId))
-                .message("getProviderSerieName: [%s]".formatted(tvdbId))
+    public List<ProviderSerieId> getSortedProviderSerieIds(@Nullable Integer tvdbId, String serieName, int season)
+        throws ApiException {
+        List<ProviderSerieId> serieIds = tvdbId == null ? List.of() :
+            new ExecuteCall<>(() -> getApi().getProviderSerieName(tvdbId))
+                .message("getProviderSerieName: [$tvdbId]")
                 .retryWhenHttpCode(ReturnCode.RATE_LIMIT_REACHED)
                 .handleHttpCode(ReturnCode.NOT_FOUND, () -> {
-                    LOGGER.info("API %s - Could not find tvdbId [%s]".formatted(getProviderName(), tvdbId));
+                    LOGGER.info("API %s - Could not find tvdbId [%s]".formatted(providerName, tvdbId));
                     return List.of();
                 })
-                .execute()).orElseGet(List::of);
+                .execute();
 
         if (serieIds.isEmpty()) {
-            serieIds = new ExecuteCall<>(() -> getApi().getProviderSerieName(serieName))
-                    .message("getProviderSerieName: [%s]".formatted(serieName))
-                    .retryWhenHttpCode(ReturnCode.RATE_LIMIT_REACHED)
-                    .handleHttpCode(ReturnCode.NOT_FOUND, () -> {
-                        LOGGER.info("API %s - Could not find serie name [%s]".formatted(getProviderName(), serieName));
-                        return List.of();
-                    })
-                    .execute();
+            serieIds = new ExecuteCall<>(() -> getApi().getProviderSerieName(serieName)).message(
+                    "getProviderSerieName: [$serieName]")
+                .retryWhenHttpCode(ReturnCode.RATE_LIMIT_REACHED)
+                .handleHttpCode(ReturnCode.NOT_FOUND, () -> {
+                    LOGGER.info("API $providerName - Could not find serie name [$serieName]");
+                    return List.of();
+                })
+                .execute();
         }
         return serieIds.stream()
-                .sorted(Comparator
-                        .comparing(n -> !serieName.replaceAll("[^A-Za-z]", "").equalsIgnoreCase(n.getName().replaceAll("[^A-Za-z]", ""))))
-                .toList();
+            .sorted(Comparator.comparing(n -> !serieName.replaceAll("[^A-Za-z]", "")
+                .equalsIgnoreCase(n.name.replaceAll("[^A-Za-z]", ""))))
+            .toList();
     }
 
     @Override
@@ -136,21 +128,14 @@ public class JAddic7edViaProxyAdapter extends AbstractAdapter<Subtitle, Provider
     }
 
     @Override
-    public boolean useSeasonForSerieId() {
-        return false;
-    }
-
-    @Override
     public String providerSerieIdToDisplayString(ProviderSerieId providerSerieId) {
-        return providerSerieId.getName();
+        return providerSerieId.name;
     }
 
     @Getter
     @RequiredArgsConstructor
     private enum ReturnCode {
-        NOT_FOUND(404),
-        RATE_LIMIT_REACHED(429),
-        REFRESHING(423);
+        NOT_FOUND(404), RATE_LIMIT_REACHED(429), REFRESHING(423);
 
         final int code;
 
@@ -159,27 +144,31 @@ public class JAddic7edViaProxyAdapter extends AbstractAdapter<Subtitle, Provider
         }
     }
 
-    public static class ExecuteCall<T> extends AbstractAdapter.ExecuteCall<T, ApiException, ExecuteCall<T>> {
+    private static class ExecuteCall<T> extends AbstractAdapter.ExecuteCall<T, ApiException> {
 
         public ExecuteCall(ThrowingSupplier<T, ApiException> supplier) {
             super(supplier);
         }
 
         public ExecuteCall<T> retryWhenHttpCode(ReturnCode returnCode) {
-            return super.retryWhenException(e -> returnCode.isSameCode(e.getCode()));
+            super.retryWhenException(e -> returnCode.isSameCode(e.getCode()));
+            return this;
         }
 
         public ExecuteCall<T> handleHttpCode(ReturnCode returnCode, Function<ApiException, T> function) {
-            return super.handleException(e -> returnCode.isSameCode(e.getCode()), function);
+            super.handleException(e -> returnCode.isSameCode(e.getCode()), function);
+            return this;
         }
 
         public ExecuteCall<T> handleHttpCode(ReturnCode returnCode, Supplier<T> supplier) {
-            return super.handleException(e -> returnCode.isSameCode(e.getCode()), supplier);
+            super.handleException(e -> returnCode.isSameCode(e.getCode()), supplier);
+            return this;
         }
 
         @Override
         public ExecuteCall<T> handleException(Supplier<T> suppliers) {
-            return super.handleException(e -> true, suppliers);
+            super.handleException(_ -> true, suppliers);
+            return this;
         }
     }
 }

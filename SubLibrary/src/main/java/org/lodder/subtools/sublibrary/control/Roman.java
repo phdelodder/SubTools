@@ -1,21 +1,30 @@
 package org.lodder.subtools.sublibrary.control;
 
-/**
- *  <a href="http://rosettacode.org/wiki/Roman_numerals/Decode#Java_2">Source</a>
- */
+import lombok.AllArgsConstructor;
+import lombok.experimental.UtilityClass;
+import manifold.ext.props.rt.api.val;
 
+/**
+ * <a href="http://rosettacode.org/wiki/Roman_numerals/Decode#Java_2">Source</a>
+ */
+@UtilityClass
 public class Roman {
+
+    @AllArgsConstructor
+    public enum RomanNumeral {
+        I(1),
+        V(5),
+        X(10),
+        L(50),
+        C(100),
+        D(500),
+        M(1000);
+
+        @val int value;
+    }
+
     private static int decodeSingle(char letter) {
-        return switch (letter) {
-            case 'M' -> 1000;
-            case 'D' -> 500;
-            case 'C' -> 100;
-            case 'L' -> 50;
-            case 'X' -> 10;
-            case 'V' -> 5;
-            case 'I' -> 1;
-            default -> 0;
-        };
+        return RomanNumeral.valueOf(String.valueOf(letter).toUpperCase()).value;
     }
 
     public static int decode(String roman) {

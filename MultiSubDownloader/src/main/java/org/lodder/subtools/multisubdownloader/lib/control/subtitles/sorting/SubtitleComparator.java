@@ -14,6 +14,6 @@ public class SubtitleComparator implements Comparator<Subtitle>, Serializable {
     @Override
     public int compare(Subtitle a, Subtitle b) {
         /* inverse sorting */
-        return Integer.compare(b.getScore(), a.getScore());
+        return Integer.compare(b.score, a.score);
     }
 }

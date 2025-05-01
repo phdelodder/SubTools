@@ -1,38 +1,35 @@
 package org.lodder.subtools.sublibrary.cache;
 
+import static manifold.ext.props.rt.api.PropOption.*;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.OptionalLong;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import manifold.ext.props.rt.api.val;
+import manifold.science.measures.Time;
+import name.falgout.jeffrey.throwing.ThrowingSupplier;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jspecify.annotations.Nullable;
 
-import com.pivovarit.function.ThrowingSupplier;
+public abstract sealed class Cache<K, V> permits DiskCache, InMemoryCache {
 
-import lombok.AccessLevel;
-import lombok.Getter;
+    @val(Protected) final Map<K, CacheObject<V>> cacheMap;
 
-@Getter(value = AccessLevel.PROTECTED)
-public abstract class Cache<K, V> {
-
-    private final Map<K, CacheObject<V>> cacheMap;
-    private final Integer maxItems;
-
-    protected Cache(Integer maxItems) {
-        this.maxItems = maxItems;
+    protected Cache(@Nullable Integer maxItems=null) {
         this.cacheMap = maxItems != null ? new LRUMap<>(maxItems) : new HashMap<>();
     }
 
-    public void put(K key, V value) {
-        put(key, new ExpiringCacheObject<>(value));
-    }
-
-    public void put(K key, V value, long timeToLive) {
-        put(key, new TemporaryCacheObject<>(timeToLive, value));
+    public void put(K key, V value, @Nullable Time timeToLive=null) {
+        if (timeToLive == null) {
+            put(key, new ExpiringCacheObject<>(value));
+        } else {
+            put(key, new TemporaryCacheObject<>(timeToLive, value));
+        }
     }
 
     protected void put(K key, CacheObject<V> value) {
@@ -49,47 +46,34 @@ public abstract class Cache<K, V> {
 
     public Optional<V> get(K key) {
         synchronized (cacheMap) {
-            CacheObject<V> obj = cacheMap.get(key);
-            if (obj == null) {
-                return Optional.empty();
-            } else {
-                obj.updateLastAccessed();
-                return Optional.ofNullable(obj.getValue());
-            }
+            return Optional.ofNullable(cacheMap.get(key))
+                .map(obj -> {
+                    obj.updateLastAccessed();
+                    return obj.value;
+                });
         }
     }
 
     public boolean isTemporaryObject(K key) {
         synchronized (cacheMap) {
-            CacheObject<V> obj = cacheMap.get(key);
-            if (obj == null) {
-                return false;
-            } else {
-                return obj instanceof TemporaryCacheObject<?>;
-            }
+            return cacheMap.get(key) instanceof TemporaryCacheObject<?>;
         }
     }
 
     public boolean isTemporaryExpired(K key) {
         synchronized (cacheMap) {
             CacheObject<V> obj = cacheMap.get(key);
-            if (obj == null) {
-                return false;
-            } else {
-                return obj instanceof TemporaryCacheObject<?> tempCacheObject && tempCacheObject.isExpired();
-            }
+            return obj instanceof TemporaryCacheObject<?> tempCacheObject && tempCacheObject.isExpired();
         }
     }
 
-    public OptionalLong getTemporaryTimeToLive(K key) {
+    public Optional<Time> getTemporaryTimeToLive(K key) {
         synchronized (cacheMap) {
-            CacheObject<V> obj = cacheMap.get(key);
-            if (obj == null) {
-                return OptionalLong.empty();
-            } else {
-                return obj instanceof TemporaryCacheObject<?> tempCacheObject ? OptionalLong.of(tempCacheObject.getTimeToLive())
-                        : OptionalLong.empty();
-            }
+            return switch (cacheMap.get(key)) {
+                case TemporaryCacheObject<?> tempCacheObject -> Optional.of(tempCacheObject.timeToLive);
+                case ExpiringCacheObject<?> _ -> Optional.empty();
+                case null -> Optional.empty();
+            };
         }
     }
 
@@ -113,7 +97,7 @@ public abstract class Cache<K, V> {
             return null;
         } else {
             obj.updateLastAccessed();
-            return obj.getValue();
+            return obj.value;
         }
 
     }
@@ -130,17 +114,13 @@ public abstract class Cache<K, V> {
         }
     }
 
-    public List<Pair<K, V>> getEntries() {
-        return getEntries(null);
-    }
-
-    public List<Pair<K, V>> getEntries(Predicate<K> keyFilter) {
+    public List<Pair<K, V>> getEntries(Predicate<K> keyFilter=null) {
         synchronized (cacheMap) {
-            return getEntryStream(keyFilter).map(entry -> Pair.of(entry.getKey(), entry.getValue().getValue())).toList();
+            return getEntryStream(keyFilter).map(entry -> Pair.of(entry.getKey(), entry.getValue().value)).toList();
         }
     }
 
-    public Stream<Entry<K, CacheObject<V>>> getEntryStream(Predicate<K> keyFilter) {
+    public Stream<Entry<K, CacheObject<V>>> getEntryStream(Predicate<K> keyFilter=null) {
         synchronized (cacheMap) {
             return cacheMap.entrySet().stream().filter(entry -> keyFilter == null || keyFilter.test(entry.getKey()));
         }
@@ -151,4 +131,11 @@ public abstract class Cache<K, V> {
             getEntryStream(keyFilter).toList().forEach(entry -> remove(entry.getKey()));
         }
     }
+
+    public void cleanup() {
+        cleanup(null);
+    }
+
+    public abstract void cleanup(Predicate<K> keyFilter);
+
 }

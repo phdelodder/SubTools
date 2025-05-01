@@ -1,27 +1,22 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
+import static org.lodder.subtools.multisubdownloader.Messages.*;
+
+import javax.swing.*;
+import javax.swing.table.*;
+import java.awt.event.ActionListener;
 import java.io.Serial;
 
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.table.DefaultTableModel;
-
-import org.lodder.subtools.multisubdownloader.Messages;
+import net.miginfocom.swing.MigLayout;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.CustomTable;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.SearchColumnName;
 import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
-
-import java.awt.event.ActionListener;
-
-import net.miginfocom.swing.MigLayout;
 
 public class ResultPanel extends JPanel {
 
     @Serial
     private static final long serialVersionUID = 2368028332402129899L;
+
     private JButton btnMove;
     private JButton btnSelectAll;
     private JScrollPane scrollPane;
@@ -44,7 +39,7 @@ public class ResultPanel extends JPanel {
         actionButtonsPanel.add(btnDownload, "cell 0 0,alignx right,aligny top");
         actionButtonsPanel.add(btnMove, "cell 1 0,alignx left,aligny top");
 
-        add(new JLabel(Messages.getString("ResultPanel.SearchResults")), "cell 0 0 2 1,gapy 5");
+        add(new JLabel(getText("ResultPanel.SearchResults")), "cell 0 0 2 1,gapy 5");
         add(new JSeparator(), "cell 0 0 2 1,growx,gaptop 5");
         add(scrollPane, "cell 0 1 1 4,grow");
         add(btnSelectNone, "cell 1 1,aligny bottom");
@@ -103,18 +98,18 @@ public class ResultPanel extends JPanel {
     }
 
     private void setupListeners() {
-        btnSelectNone.addActionListener(e -> deselectAllRows());
-        btnSelectFound.addActionListener(e -> selectRowsWithFoundSubtitles());
-        btnSelectAll.addActionListener(e -> selectAllRows());
+        btnSelectNone.addActionListener(_ -> deselectAllRows());
+        btnSelectFound.addActionListener(_ -> selectRowsWithFoundSubtitles());
+        btnSelectAll.addActionListener(_ -> selectAllRows());
     }
 
     private void createComponents() {
         scrollPane = new JScrollPane();
-        btnSelectNone = new JButton(Messages.getString("ResultPanel.SelectNothing"));
-        btnSelectFound = new JButton(Messages.getString("ResultPanel.SelectFound"));
-        btnSelectAll = new JButton(Messages.getString("ResultPanel.SelectEverything"));
-        btnDownload = new JButton(Messages.getString("ResultPanel.DownloadSelected"));
-        btnMove = new JButton(Messages.getString("ResultPanel.MoveSelected"));
+        btnSelectNone = new JButton(getText("ResultPanel.SelectNothing"));
+        btnSelectFound = new JButton(getText("ResultPanel.SelectFound"));
+        btnSelectAll = new JButton(getText("ResultPanel.SelectEverything"));
+        btnDownload = new JButton(getText("ResultPanel.DownloadSelected"));
+        btnMove = new JButton(getText("ResultPanel.MoveSelected"));
     }
 
     private void setEnableButtons(boolean enabled) {

@@ -1,13 +1,12 @@
 package org.lodder.subtools.multisubdownloader.settings.model;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import manifold.ext.props.rt.api.val;
 
-@RequiredArgsConstructor
-@Getter
+@AllArgsConstructor
 public enum UpdateType {
     STABLE("InputPanel.UpdateType.Stable"),
     NIGHTLY("InputPanel.UpdateType.Nightly");
 
-    private final String msgCode;
+    @val String msgCode;
 }

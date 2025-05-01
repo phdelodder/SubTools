@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.ExtensionMethod;
+import org.jspecify.annotations.Nullable;
 import org.lodder.subtools.multisubdownloader.lib.library.FilenameLibraryBuilder;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryActionType;
 import org.lodder.subtools.multisubdownloader.lib.library.LibraryOtherFileActionType;
@@ -17,14 +20,10 @@ import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
-import org.lodder.subtools.sublibrary.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.ExtensionMethod;
-
-@ExtensionMethod({ FileUtils.class, Files.class })
+@ExtensionMethod({ Files.class })
 @RequiredArgsConstructor
 public class DownloadAction {
 
@@ -34,22 +33,20 @@ public class DownloadAction {
     private final Manager manager;
     private final UserInteractionHandler userInteractionHandler;
 
-    public void download(Release release, Subtitle subtitle, Integer version) throws IOException, ManagerException {
-        switch (release.getVideoType()) {
-            case EPISODE -> download(release, subtitle, settings.getEpisodeLibrarySettings(), version);
-            case MOVIE -> download(release, subtitle, settings.getMovieLibrarySettings(), version);
-            default -> throw new IllegalArgumentException("Unexpected value: " + release.getVideoType());
+    public void download(Release release, Subtitle subtitle, Integer version=0) throws IOException,
+        ManagerException {
+        LOGGER.info("Downloading subtitle: [{}] for release: [{}]", subtitle.fileName, release.fileName);
+        switch (release.videoType) {
+            case EPISODE -> download(release, subtitle, settings.episodeLibrarySettings, version);
+            case MOVIE -> download(release, subtitle, settings.movieLibrarySettings, version);
+            default -> throw new IllegalArgumentException("Unexpected value: " + release.videoType);
         }
     }
 
-    public void download(Release release, Subtitle subtitle) throws IOException, ManagerException {
-        LOGGER.info("Downloading subtitle: [{}] for release: [{}]", subtitle.getFileName(), release.getFileName());
-        download(release, subtitle, 0);
-    }
-
-    private void download(Release release, Subtitle subtitle, LibrarySettings librarySettings, Integer version)
-            throws IOException, ManagerException {
-        LOGGER.trace("cleanUpFiles: LibraryAction {}", librarySettings.getLibraryAction());
+    private void download(Release release, Subtitle subtitle, LibrarySettings librarySettings,
+        @Nullable Integer version)
+        throws IOException, ManagerException {
+        LOGGER.trace("cleanUpFiles: LibraryAction {}", librarySettings.action);
         Path path = PathLibraryBuilder.fromSettings(librarySettings, manager, userInteractionHandler).build(release);
         if (!path.exists()) {
             LOGGER.debug("Download creating folder [{}] ", path.toAbsolutePath());
@@ -60,31 +57,34 @@ public class DownloadAction {
             }
         }
 
-        FilenameLibraryBuilder filenameLibraryBuilder = FilenameLibraryBuilder.fromSettings(librarySettings, manager, userInteractionHandler);
+        FilenameLibraryBuilder filenameLibraryBuilder =
+            FilenameLibraryBuilder.fromSettings(librarySettings, manager, userInteractionHandler);
         String videoFileName = filenameLibraryBuilder.build(release).toString();
         String subFileName = filenameLibraryBuilder.buildSubtitle(release, subtitle, videoFileName, version);
         Path subFile = path.resolve(subFileName);
 
-        boolean success;
-        if (subtitle.getSourceLocation() == Subtitle.SourceLocation.FILE) {
-            subtitle.getFile().copyToDir(path);
-            success = true;
-        } else {
-            String url;
-            try {
-                url = subtitle.getSourceLocation() == Subtitle.SourceLocation.URL ? subtitle.getUrl() : subtitle.getUrlSupplier().get();
-                success = manager.store(url, subFile);
-                LOGGER.debug("doDownload file was [{}] ", success);
-            } catch (SubtitlesProviderException e) {
-                LOGGER.error("Error while getting url for [%s] for subtitle provider [%s] (%s)".formatted(release.getReleaseDescription(),
-                        e.getSubtitleProvider(), e.getMessage()), e);
-                throw new RuntimeException(e);
+        boolean success = switch (subtitle.downloadSource.sourceLocation) {
+            case FILE -> {
+                subtitle.downloadSource.file.copyToDir(path);
+                yield true;
             }
-        }
+            case URL, URL_SUPPLIER -> {
+                try {
+                    String url = subtitle.downloadSource.getValue();
+                    boolean result = manager.store(url, subFile);
+                    LOGGER.debug("doDownload file was [{}] ", result);
+                    yield result;
+                } catch (SubtitlesProviderException e) {
+                    LOGGER.error("Error while getting url for [${release.releaseDescription}] " +
+                        "for subtitle provider [${e.subtitleProvider}] (${e.getMessage()})", e);
+                    throw new RuntimeException(e);
+                }
+            }
+        };
 
         if (success) {
             if (!librarySettings.hasLibraryAction(LibraryActionType.NOTHING)) {
-                Path oldLocationFile = release.getPath().resolve(release.getFileName());
+                Path oldLocationFile = release.getPath().resolve(release.fileName);
                 if (oldLocationFile.exists()) {
                     LOGGER.info("Moving/Renaming [{}] to folder [{}] this might take a while... ", videoFileName, path);
                     oldLocationFile.moveToDir(path);
@@ -92,14 +92,15 @@ public class DownloadAction {
                         CleanAction cleanAction = new CleanAction(librarySettings);
                         cleanAction.cleanUpFiles(release, path, videoFileName);
                     }
-                    if (librarySettings.isLibraryRemoveEmptyFolders() && release.getPath().isEmptyDir()) {
-                        FileUtils.delete(release.getPath());
+                    if (librarySettings.removeEmptyFolders && release.path.isEmptyDir()) {
+                        release.path.deletePath();
                     }
                 }
             }
-            if (librarySettings.isLibraryBackupSubtitle()) {
-                String langFolder = subtitle.getLanguage() == null ? Language.ENGLISH.getName() : subtitle.getLanguage().getName();
-                Path backupPath = librarySettings.getLibraryBackupSubtitlePath().resolve(langFolder);
+            if (librarySettings.backupSubtitle) {
+                String langFolder =
+                    subtitle.language == null ? Language.ENGLISH.getName() : subtitle.language.getName();
+                Path backupPath = librarySettings.backupSubtitlePath.resolve(langFolder);
 
                 if (!backupPath.exists()) {
                     try {
@@ -109,8 +110,8 @@ public class DownloadAction {
                     }
                 }
 
-                if (librarySettings.isLibraryBackupUseWebsiteFileName()) {
-                    subFile.copyToDirAndRename(backupPath, subtitle.getFileName());
+                if (librarySettings.backupUseWebsiteFileName) {
+                    subFile.copyToDirAndRename(backupPath, subtitle.fileName);
                 } else {
                     subFile.copyToDirAndRename(backupPath, subFileName);
                 }

@@ -10,6 +10,6 @@ public class ServiceProviderComparator implements Comparator<ServiceProvider>, S
 
     @Override
     public int compare(ServiceProvider a, ServiceProvider b) {
-        return Integer.compare(a.getPriority(), b.getPriority());
+        return Integer.compare(a.priority, b.priority);
     }
 }

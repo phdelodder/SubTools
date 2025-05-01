@@ -6,18 +6,18 @@ import java.net.URLConnection;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.StringTokenizer;
 
 /**
- * CookieManager is a simple utility for handling cookies when working with java.net.URL and
- * java.net.URLConnection objects.
+ * CookieManager is a simple utility for handling cookies when working with java.net.URL and java.net.URLConnection
+ * objects.
  * <p>
  * <p>
- * Cookiemanager cm = new CookieManager(); URL url = new
- * URL("http://www.hccp.org/test/cookieTest.jsp");
+ * Cookiemanager cm = new CookieManager(); URL url = new URL("http://www.hccp.org/test/cookieTest.jsp");
  * <p>
  * . . .
  * <p>
@@ -50,14 +50,11 @@ public class CookieManager {
     }
 
     /**
-     * Retrieves and stores cookies returned by the host on the other side of the the open
-     * java.net.URLConnection.
+     * Retrieves and stores cookies returned by the host on the other side of the open java.net.URLConnection.
      * <p>
-     * The connection MUST have been opened using the connect() method or a IOException will be
-     * thrown.
+     * The connection MUST have been opened using the connect() method or a IOException will be thrown.
      *
-     * @param conn
-     *         a java.net.URLConnection - must be open, or IOException will be thrown
+     * @param conn a java.net.URLConnection - must be open, or IOException will be thrown
      */
     public void storeCookies(URLConnection conn) {
 
@@ -65,17 +62,7 @@ public class CookieManager {
         String domain = getDomainFromHost(conn.getURL().getHost());
 
         // this is where we will store cookies for this domain
-        Map<String, Map<String, String>> domainStore;
-
-        // now let's check the store to see if we have an entry for this domain
-        if (store.containsKey(domain)) {
-            // we do, so lets retrieve it from the store
-            domainStore = store.get(domain);
-        } else {
-            // we don't, so let's create it and put it in the store
-            domainStore = new HashMap<>();
-            store.put(domain, domainStore);
-        }
+        Map<String, Map<String, String>> domainStore = store.computeIfAbsent(domain, _ -> new HashMap<>());
 
         // OK, now we are ready to get the cookies out of the URLConnection
 
@@ -100,35 +87,38 @@ public class CookieManager {
                 while (st.hasMoreTokens()) {
                     String token = st.nextToken();
                     cookie.put(token.substring(0, token.indexOf(NAME_VALUE_SEPARATOR)).toLowerCase(),
-                            token.substring(token.indexOf(NAME_VALUE_SEPARATOR) + 1));
+                        token.substring(token.indexOf(NAME_VALUE_SEPARATOR) + 1));
                 }
             }
         }
     }
 
-    public void storeCookies(String domain, Map<String, String> cookieMap) {
-        if (cookieMap == null || cookieMap.isEmpty()) {
-            return;
+    public CookieManager storeCookie(String domain, String cookieName, String cookieValue) {
+        Map<String, Map<String, String>> domainStore = store.computeIfAbsent(domain, _ -> new HashMap<>());
+        domainStore.put(cookieName, Map.of(cookieName, cookieValue));
+        return this;
+    }
+
+    public CookieManager storeCookies(String domain, Map<String, String> cookieMap) {
+        if (cookieMap != null && !cookieMap.isEmpty()) {
+            Map<String, Map<String, String>> domainStore = store.computeIfAbsent(domain, _ -> new HashMap<>());
+            cookieMap.forEach((k, v) -> domainStore.put(k, Map.of(k, v)));
         }
-        Map<String, Map<String, String>> domainStore = store.computeIfAbsent(domain, key -> new HashMap<>());
-        cookieMap.forEach((k, v) -> domainStore.put(k, Map.of(k, v)));
+        return this;
     }
 
     /**
-     * Prior to opening a URLConnection, calling this method will set all unexpired cookies that match
-     * the path or sub paths for this underlying URL
+     * Prior to opening a URLConnection, calling this method will set all unexpired cookies that match the path or sub
+     * paths for this underlying URL
      * <p>
      * The connection MUST NOT have been opened method or an IOException will be thrown.
      *
-     * @param conn
-     *         a java.net.URLConnection - must NOT be open, or IOException will be thrown
-     * @throws java.io.IOException
-     *         Thrown if conn has already been opened.
+     * @param conn a java.net.URLConnection - must NOT be open, or IOException will be thrown
+     * @throws java.io.IOException Thrown if conn has already been opened.
      */
     public void setCookies(URLConnection conn) throws IOException {
 
-        // let's determine the domain and path to retrieve the appropriate
-        // cookies
+        // let's determine the domain and path to retrieve the appropriate cookies
         URL url = conn.getURL();
         String domain = getDomainFromHost(url.getHost());
         String path = url.getPath();
@@ -144,8 +134,8 @@ public class CookieManager {
             // check cookie to ensure path matches and cookie is not expired
             // if all is cool, add cookie to header string
             if (comparePaths(cookie.get(PATH), path)
-                    && isNotExpired(cookie.get(EXPIRES))) {
-                if (cookieStringBuffer.length() > 0) {
+                && isNotExpired(cookie.get(EXPIRES))) {
+                if (!cookieStringBuffer.isEmpty()) {
                     cookieStringBuffer.append(SET_COOKIE_SEPARATOR);
                 }
 
@@ -158,9 +148,8 @@ public class CookieManager {
         try {
             conn.setRequestProperty(COOKIE, cookieStringBuffer.toString());
         } catch (java.lang.IllegalStateException ise) {
-            throw new IOException(
-                    "Illegal State! Cookies cannot be set on a URLConnection that is already connected. "
-                            + "Only call setCookies(java.net.URLConnection) AFTER calling java.net.URLConnection.connect().");
+            throw new IOException("Illegal State! Cookies cannot be set on a URLConnection that is already connected. "
+                + "Only call setCookies(java.net.URLConnection) AFTER calling java.net.URLConnection.connect().");
         }
     }
 
@@ -174,7 +163,8 @@ public class CookieManager {
 
     private boolean isNotExpired(String cookieExpires) {
         try {
-            return cookieExpires == null || LocalDateTime.now().isBefore(LocalDateTime.parse(cookieExpires, DATE_FORMATTER));
+            return cookieExpires == null ||
+                LocalDateTime.now().isBefore(LocalDateTime.parse(cookieExpires, DATE_FORMATTER));
         } catch (DateTimeParseException e) {
             e.printStackTrace();
             return false;
@@ -182,7 +172,8 @@ public class CookieManager {
     }
 
     private boolean comparePaths(String cookiePath, String targetPath) {
-        return cookiePath == null || "/".equals(cookiePath) || targetPath.regionMatches(0, cookiePath, 0, cookiePath.length());
+        return cookiePath == null || "/".equals(cookiePath) ||
+            targetPath.regionMatches(0, cookiePath, 0, cookiePath.length());
     }
 
     /**
@@ -191,5 +182,11 @@ public class CookieManager {
     @Override
     public String toString() {
         return store.toString();
+    }
+
+    public String toString(String domain) {
+        return store.computeIfAbsent(domain, _ -> new HashMap<>()).entrySet().stream()
+            .sorted(Comparator.comparing(Entry::getKey))
+            .map(e -> e.getKey() + "=" + e.getValue().get(e.getKey()) + "\n").reduce("", (a, b) -> a + b);
     }
 }

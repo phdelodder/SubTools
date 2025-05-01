@@ -1,6 +1,8 @@
 package org.lodder.subtools.multisubdownloader.settings;
 
+import static manifold.ext.props.rt.api.PropOption.*;
 import static org.lodder.subtools.multisubdownloader.settings.SettingValue.*;
+import static org.lodder.subtools.sublibrary.cache.CacheType.*;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -8,13 +10,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
 import java.util.prefs.Preferences;
 import java.util.stream.IntStream;
 
+import lombok.experimental.ExtensionMethod;
+import manifold.ext.props.rt.api.get;
+import manifold.ext.props.rt.api.set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lodder.subtools.multisubdownloader.gui.dialog.MappingEpisodeNameDialog.MappingType;
@@ -26,28 +30,25 @@ import org.lodder.subtools.multisubdownloader.settings.model.State;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesApi;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
-import org.lodder.subtools.sublibrary.cache.CacheType;
+import org.lodder.subtools.sublibrary.Manager.Value;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
 import org.lodder.subtools.sublibrary.control.VideoPatterns.Source;
 import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
-import org.lodder.subtools.sublibrary.util.TriConsumer;
+import org.lodder.subtools.sublibrary.util.function.TriConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import lombok.Getter;
-import lombok.experimental.ExtensionMethod;
-
-@ExtensionMethod({ Files.class })
+@ExtensionMethod({Files.class})
 public class SettingsControl {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SettingsControl.class);
+    private static final String BACKING_STORE_AVAIL = "BackingStoreAvail";
+    public static final String DATABASE_VERSION_KEY = "DATABSE_VERSION";
 
     private final Manager manager;
     private final Preferences preferences;
-    @Getter
-    private Settings settings;
-    @Getter
-    private State state;
-    private static final String BACKING_STORE_AVAIL = "BackingStoreAvail";
-    private static final Logger LOGGER = LoggerFactory.getLogger(SettingsControl.class);
+    @get @set(Private) Settings settings;
+    @get @set(Private) State state;
 
     public SettingsControl(Manager manager) {
         if (!backingStoreAvailable()) {
@@ -77,7 +78,7 @@ public class SettingsControl {
         try {
             // clean up
             preferences.clear();
-            Arrays.stream(SettingValue.values()).forEach(sv -> sv.store(this, preferences));
+            SettingValue.values().forEach(sv -> sv.store(this, preferences));
             updateProxySettings();
         } catch (BackingStoreException e) {
             LOGGER.error(e.getMessage(), e);
@@ -98,7 +99,8 @@ public class SettingsControl {
         }
     }
 
-    public void importPreferences(Path file) throws IOException, BackingStoreException, InvalidPreferencesFormatException {
+    public void importPreferences(Path file)
+        throws IOException, BackingStoreException, InvalidPreferencesFormatException {
         try (InputStream is = new BufferedInputStream(file.newInputStream())) {
             preferences.clear();
             Preferences.importPreferences(is);
@@ -107,10 +109,10 @@ public class SettingsControl {
     }
 
     public void updateProxySettings() {
-        if (settings.isGeneralProxyEnabled()) {
+        if (settings.generalProxyEnabled) {
             System.getProperties().put("proxySet", "true");
-            System.getProperties().put("proxyHost", settings.getGeneralProxyHost());
-            System.getProperties().put("proxyPort", settings.getGeneralProxyPort());
+            System.getProperties().put("proxyHost", settings.generalProxyHost);
+            System.getProperties().put("proxyPort", settings.generalProxyPort);
         } else {
             System.getProperties().put("proxySet", "false");
         }
@@ -121,7 +123,7 @@ public class SettingsControl {
      */
     private void migrateSettings() {
         SettingValue.loadAll(this, preferences);
-        int version = settings.getSettingsVersion();
+        int version = settings.settingsVersion;
         if (version == 0) {
             migrateSettingsV0ToV1();
             settings = new Settings();
@@ -153,7 +155,8 @@ public class SettingsControl {
 
     public void migrateSettingsV0ToV1() {
         preferences.putInt("GeneralDefaultIncomingFolderSize", preferences.getInt("lastDefaultIncomingFolder", 0));
-        preferences.putInt("LocalSubtitlesSourcesFoldersSize", preferences.getInt("lastLocalSubtitlesSourcesFolder", 0));
+        preferences.putInt("LocalSubtitlesSourcesFoldersSize",
+            preferences.getInt("lastLocalSubtitlesSourcesFolder", 0));
         preferences.putInt("GeneralDefaultIncomingFolderSize", preferences.getInt("lastDefaultIncomingFolder", 0));
         preferences.putInt("DefaultSelectionQualitySize", preferences.getInt("lastItemDefaultSelectionQuality", 0));
         preferences.putInt("DefaultSelectionQualitySize", preferences.getInt("lastItemDefaultSelectionQuality", 0));
@@ -164,7 +167,7 @@ public class SettingsControl {
 
         // int lastItemExclude = preferences.getInt("lastItemExclude", 0);
         // if (lastItemExclude > 0) {
-        // List<SettingsExcludeItem> excludeList = settings.getExcludeList();
+        // List<SettingsExcludeItem> excludeList = settings.excludeList;
         // IntStream.range(0, preferences.getInt("lastItemExclude", 0)).forEach(i -> {
         // String description = preferences.get("ExcludeDescription" + i, "");
         // PathMatchType type;
@@ -179,27 +182,27 @@ public class SettingsControl {
         // }
 
         EPISODE_LIBRARY_FOLDER_STRUCTURE.load(this, preferences);
-        settings.getEpisodeLibrarySettings()
-                .setLibraryFolderStructure(migrateLibraryStructureV0(settings.getEpisodeLibrarySettings().getLibraryFolderStructure()));
+        settings.episodeLibrarySettings.folderStructure =
+            migrateLibraryStructureV0(settings.episodeLibrarySettings.folderStructure);
         EPISODE_LIBRARY_FOLDER_STRUCTURE.store(this, preferences);
 
         EPISODE_LIBRARY_FILENAME_STRUCTURE.load(this, preferences);
-        settings.getEpisodeLibrarySettings()
-                .setLibraryFilenameStructure(migrateLibraryStructureV0(settings.getEpisodeLibrarySettings().getLibraryFilenameStructure()));
+        settings.episodeLibrarySettings.filenameStructure =
+            migrateLibraryStructureV0(settings.episodeLibrarySettings.filenameStructure);
         EPISODE_LIBRARY_FILENAME_STRUCTURE.store(this, preferences);
 
         MOVIE_LIBRARY_FOLDER_STRUCTURE.load(this, preferences);
-        settings.getEpisodeLibrarySettings()
-                .setLibraryFolderStructure(migrateLibraryStructureV0(settings.getEpisodeLibrarySettings().getLibraryFolderStructure()));
+        settings.episodeLibrarySettings.folderStructure =
+            migrateLibraryStructureV0(settings.episodeLibrarySettings.folderStructure);
         MOVIE_LIBRARY_FOLDER_STRUCTURE.store(this, preferences);
 
         MOVIE_LIBRARY_FILENAME_STRUCTURE.load(this, preferences);
-        settings.getEpisodeLibrarySettings()
-                .setLibraryFilenameStructure(migrateLibraryStructureV0(settings.getEpisodeLibrarySettings().getLibraryFilenameStructure()));
+        settings.episodeLibrarySettings.filenameStructure =
+            migrateLibraryStructureV0(settings.episodeLibrarySettings.filenameStructure);
         MOVIE_LIBRARY_FILENAME_STRUCTURE.store(this, preferences);
 
         try {
-            Arrays.stream(preferences.keys()).forEach(key -> {
+            preferences.keys().forEach(key -> {
                 String value = preferences.get(key, "");
                 preferences.remove(key);
                 preferences.put(StringUtils.capitalize(key), value);
@@ -208,29 +211,29 @@ public class SettingsControl {
             LOGGER.error("Error during migration of settings, ignoring...");
         }
 
-        settings.setSettingsVersion(1);
+        settings.settingsVersion = 1;
         SETTINGS_VERSION.store(this, preferences);
     }
 
     @SuppressWarnings("deprecation")
     public void migrateSettingsV1ToV2() {
-        settings.getEpisodeLibrarySettings()
-                .setLibraryOtherFileAction(LibraryOtherFileActionType.fromString(preferences.get(EPISODE_LIBRARY_OTHER_FILE_ACTION.getKey(), "")));
+        settings.episodeLibrarySettings.otherFileAction =
+            LibraryOtherFileActionType.fromString(preferences.get(EPISODE_LIBRARY_OTHER_FILE_ACTION.getKey(), ""));
         EPISODE_LIBRARY_OTHER_FILE_ACTION.store(this, preferences);
 
-        settings.getMovieLibrarySettings()
-                .setLibraryOtherFileAction(LibraryOtherFileActionType.fromString(preferences.get(MOVIE_LIBRARY_OTHER_FILE_ACTION.getKey(), "")));
+        settings.movieLibrarySettings.otherFileAction =
+            LibraryOtherFileActionType.fromString(preferences.get(MOVIE_LIBRARY_OTHER_FILE_ACTION.getKey(), ""));
         MOVIE_LIBRARY_OTHER_FILE_ACTION.store(this, preferences);
 
-        settings.getEpisodeLibrarySettings()
-                .setLibraryAction(LibraryActionType.fromString(preferences.get(EPISODE_LIBRARY_ACTION.getKey(), "")));
+        settings.episodeLibrarySettings.action =
+            LibraryActionType.fromString(preferences.get(EPISODE_LIBRARY_ACTION.getKey(), ""));
         EPISODE_LIBRARY_ACTION.store(this, preferences);
 
-        settings.getMovieLibrarySettings()
-                .setLibraryAction(LibraryActionType.fromString(preferences.get(MOVIE_LIBRARY_ACTION.getKey(), "")));
+        settings.movieLibrarySettings.action =
+            LibraryActionType.fromString(preferences.get(MOVIE_LIBRARY_ACTION.getKey(), ""));
         MOVIE_LIBRARY_ACTION.store(this, preferences);
 
-        settings.setSettingsVersion(2);
+        settings.settingsVersion = 2;
         SETTINGS_VERSION.store(this, preferences);
     }
 
@@ -252,7 +255,7 @@ public class SettingsControl {
         // });
         // preferences.remove("DictionarySize");
 
-        settings.setSettingsVersion(3);
+        settings.settingsVersion = 3;
         SETTINGS_VERSION.store(this, preferences);
     }
 
@@ -269,44 +272,43 @@ public class SettingsControl {
         // preferences.put("ExcludeItem" + i, newValue);
         // });
         // EXCLUDE_ITEM.store(this, preferences);
-        settings.setSettingsVersion(4);
+        settings.settingsVersion = 4;
         SETTINGS_VERSION.store(this, preferences);
     }
 
     public void migrateSettingsV4ToV5() {
-        Arrays.stream(MappingType.ADDIC7ED_PROXY.getSelectionForKeyPrefixList())
-                .forEach(selectionForKeyPrefix -> MappingType.MAPPING_SUPPLIER.apply(manager, selectionForKeyPrefix)
-                        .forEach(serieMappingPair -> {
-                            manager.valueBuilder()
-                                    .cacheType(CacheType.DISK)
-                                    .key(serieMappingPair.getKey())
-                                    .remove();
-                        }));
-        settings.setSettingsVersion(5);
+        MappingType.ADDIC7ED_PROXY.selectionForKeyPrefixList
+            .forEach(selectionForKeyPrefix -> MappingType.MAPPING_SUPPLIER.apply(manager, selectionForKeyPrefix)
+                .forEach(serieMappingPair -> manager.getCache(DISK, serieMappingPair.getKey()).remove()));
+        settings.settingsVersion = 5;
         SETTINGS_VERSION.store(this, preferences);
     }
 
     public void migrateSettingsV5ToV6() {
         IntStream.range(0, preferences.getInt("ExcludeItemSize", 0))
-                .forEach(i -> preferences.put("ExcludeItem" + i, preferences.get("ExcludeItem" + i, "").split("//", 2)[1]));
+            .forEach(i -> preferences.put("ExcludeItem" + i,
+                preferences.get("ExcludeItem" + i, "").split("//", 2)[1]));
         EXCLUDE_ITEM.store(this, preferences);
 
         // Conversion from String to enum + remove duplicates
         int defaultSelectionQualitySize = preferences.getInt("DefaultSelectionQualitySize", 0);
         if (defaultSelectionQualitySize > 0) {
             List<Source> defaultSelectionQualitySizes = IntStream.range(0, defaultSelectionQualitySize)
-                    .mapToObj(i -> VideoPatterns.Source.fromValue(preferences.get("DefaultSelectionQuality" + i, ""))).distinct().toList();
+                .mapToObj(i -> VideoPatterns.Source.fromValue(preferences.get("DefaultSelectionQuality" + i, "")))
+                .distinct()
+                .toList();
             IntStream.range(0, defaultSelectionQualitySizes.size())
-                    .forEach(i -> preferences.put("DefaultSelectionQuality" + i, defaultSelectionQualitySizes.get(i).name()));
+                .forEach(i -> preferences.put("DefaultSelectionQuality" + i,
+                    defaultSelectionQualitySizes.get(i).name()));
             if (defaultSelectionQualitySize != defaultSelectionQualitySizes.size()) {
                 preferences.putInt("DefaultSelectionQualitySize", defaultSelectionQualitySizes.size());
                 IntStream.range(defaultSelectionQualitySize, defaultSelectionQualitySizes.size())
-                        .forEach(i -> preferences.remove("DefaultSelectionQuality" + i));
+                    .forEach(i -> preferences.remove("DefaultSelectionQuality" + i));
             }
         }
         DEFAULT_SELECTION_QUALITY.store(this, preferences);
 
-        settings.setSettingsVersion(6);
+        settings.settingsVersion = 6;
         SETTINGS_VERSION.store(this, preferences);
     }
 
@@ -315,47 +317,50 @@ public class SettingsControl {
             String value = preferences.get(label, null);
             preferences.remove(label);
             if (StringUtils.isNotBlank(value)) {
-                librarySettings.getLangCodeMap().put(language, value.trim());
+                librarySettings.langCodeMap.put(language, value.trim());
             }
         };
-        consumer.accept("EpisodeLibraryDefaultNlText", Language.DUTCH, settings.getEpisodeLibrarySettings());
-        consumer.accept("EpisodeLibraryDefaultEnText", Language.ENGLISH, settings.getEpisodeLibrarySettings());
-        consumer.accept("MovieLibraryDefaultNlText", Language.DUTCH, settings.getMovieLibrarySettings());
-        consumer.accept("MovieLibraryDefaultENText", Language.ENGLISH, settings.getMovieLibrarySettings());
+        consumer.accept("EpisodeLibraryDefaultNlText", Language.DUTCH, settings.episodeLibrarySettings);
+        consumer.accept("EpisodeLibraryDefaultEnText", Language.ENGLISH, settings.episodeLibrarySettings);
+        consumer.accept("MovieLibraryDefaultNlText", Language.DUTCH, settings.movieLibrarySettings);
+        consumer.accept("MovieLibraryDefaultENText", Language.ENGLISH, settings.movieLibrarySettings);
 
         EPISODE_LIBRARY_LANG_CODE_MAPPING.store(this, preferences);
         MOVIE_LIBRARY_LANG_CODE_MAPPING.store(this, preferences);
 
-        if (settings.getEpisodeLibrarySettings().hasAnyLibraryAction(LibraryActionType.RENAME, LibraryActionType.MOVEANDRENAME)) {
-            if (StringUtils.isBlank(settings.getEpisodeLibrarySettings().getLibraryFilenameStructure())) {
-                settings.getMovieLibrarySettings().setLibraryFilenameStructure("%SHOW NAME%%SEPARATOR%%Season %S%");
+        if (settings.episodeLibrarySettings.hasAnyLibraryAction(LibraryActionType.RENAME,
+            LibraryActionType.MOVEANDRENAME)) {
+            if (StringUtils.isBlank(settings.episodeLibrarySettings.filenameStructure)) {
+                settings.movieLibrarySettings.filenameStructure = "%SHOW NAME%%SEPARATOR%%Season %S%";
                 MOVIE_LIBRARY_FILENAME_STRUCTURE.store(this, preferences);
                 EPISODE_LIBRARY_FILENAME_STRUCTURE.store(this, preferences);
             }
-            if (StringUtils.isBlank(settings.getEpisodeLibrarySettings().getLibraryFolderStructure())) {
-                settings.getMovieLibrarySettings().setLibraryFolderStructure("%SHOW NAME%.S%SS%E%EE%.%TITLE%");
+            if (StringUtils.isBlank(settings.episodeLibrarySettings.folderStructure)) {
+                settings.movieLibrarySettings.folderStructure = "%SHOW NAME%.S%SS%E%EE%.%TITLE%";
                 EPISODE_LIBRARY_FOLDER_STRUCTURE.store(this, preferences);
             }
         }
 
-        if (settings.getMovieLibrarySettings().hasAnyLibraryAction(LibraryActionType.RENAME, LibraryActionType.MOVEANDRENAME)) {
-            if (StringUtils.isBlank(settings.getMovieLibrarySettings().getLibraryFilenameStructure())) {
-                settings.getMovieLibrarySettings().setLibraryFilenameStructure("%MOVIE TITLE% (%YEAR%)");
+        if (settings.movieLibrarySettings.hasAnyLibraryAction(LibraryActionType.RENAME,
+            LibraryActionType.MOVEANDRENAME)) {
+            if (StringUtils.isBlank(settings.movieLibrarySettings.filenameStructure)) {
+                settings.movieLibrarySettings.filenameStructure = "%MOVIE TITLE% (%YEAR%)";
                 MOVIE_LIBRARY_FILENAME_STRUCTURE.store(this, preferences);
             }
         }
 
-        settings.setSettingsVersion(7);
+        settings.settingsVersion = 7;
         SETTINGS_VERSION.store(this, preferences);
     }
 
     public void migrateSettingsV7ToV8() {
-        if (settings.isLoginOpenSubtitlesEnabled()
-                && !OpenSubtitlesApi.isValidCredentials(settings.getLoginOpenSubtitlesUsername(), settings.getLoginOpenSubtitlesPassword())) {
-            settings.setLoginOpenSubtitlesEnabled(false);
+        if (settings.loginOpenSubtitlesEnabled &&
+            !OpenSubtitlesApi.isValidCredentials(settings.loginOpenSubtitlesUsername,
+                settings.loginOpenSubtitlesPassword)) {
+            settings.loginOpenSubtitlesEnabled = false;
             LOGIN_OPEN_SUBTITLES_ENABLED.store(this, preferences);
         }
-        settings.setSettingsVersion(8);
+        settings.settingsVersion = 8;
         SETTINGS_VERSION.store(this, preferences);
     }
 
@@ -376,7 +381,7 @@ public class SettingsControl {
     }
 
     private void migrateDatabase() {
-        int version = manager.valueBuilder().cacheType(CacheType.DISK).key("DATABSE_VERSION").valueSupplier(() -> 0).get();
+        int version = manager.getCache(DISK, DATABASE_VERSION_KEY).get(() -> 0);
         if (version == 0) {
             migrateDatabaseV0ToV1();
         }
@@ -386,33 +391,33 @@ public class SettingsControl {
     }
 
     private void migrateDatabaseV0ToV1() {
-        manager.valueBuilder().cacheType(CacheType.DISK).keyFilter(k -> k.startsWith("TVDB-SerieMapping-")).remove();
-        manager.valueBuilder().cacheType(CacheType.DISK).keyFilter(k -> k.startsWith("TVDB-SerieId-")).remove();
-        manager.valueBuilder().cacheType(CacheType.DISK).key("DATABSE_VERSION").value(1).store();
+        manager.getCache(DISK, k -> k.startsWith("TVDB-SerieMapping-")).remove();
+        manager.getCache(DISK, k -> k.startsWith("TVDB-SerieId-")).remove();
+        manager.getCache(DISK, DATABASE_VERSION_KEY).store(Value.of(1));
     }
 
     private void migrateDatabaseV1ToV2() {
-        List<Pair<String, SerieMapping>> entries = manager.valueBuilder().cacheType(CacheType.DISK)
-                .keyFilter(k -> k.startsWith("SUBSCENE-serieName-")).returnType(SerieMapping.class).getEntries();
-        List<Pair<String, SerieMapping>> editedEntries = entries.stream().map(pair -> {
-            int lastIndexOfDash = pair.getKey().lastIndexOf("-");
-            int season;
-            try {
-                season = Integer.parseInt(pair.getKey().substring(lastIndexOfDash + 1));
-            } catch (NumberFormatException e) {
-                season = -1;
-            }
-            String name = pair.getValue().getName();
-            String providerId = pair.getValue().getProviderId();
-            String providerName = pair.getValue().getProviderName();
-            SerieMapping serieMapping = new SerieMapping(name, providerId, providerName, season);
-            System.out.println(serieMapping);
-            return Pair.of(pair.getKey(), serieMapping);
-        }).toList();
+        List<Pair<String, SerieMapping>> editedEntries =
+            manager.getCache(DISK, k -> k.startsWith("SUBSCENE-serieName-"))
+                .getEntries(SerieMapping.class)
+                .stream().map(pair -> {
+                    int lastIndexOfDash = pair.getKey().lastIndexOf("-");
+                    int season;
+                    try {
+                        season = Integer.parseInt(pair.getKey().substring(lastIndexOfDash + 1));
+                    } catch (NumberFormatException e) {
+                        season = -1;
+                    }
+                    String name = pair.getValue().name;
+                    String providerId = pair.getValue().providerId;
+                    String providerName = pair.getValue().providerName;
+                    SerieMapping serieMapping = new SerieMapping(name, providerId, providerName, season);
+                    return Pair.of(pair.getKey(), serieMapping);
+                }).toList();
         editedEntries.forEach(entry -> {
-            manager.valueBuilder().cacheType(CacheType.DISK).key(entry.getKey()).remove();
-            manager.valueBuilder().cacheType(CacheType.DISK).key(entry.getKey()).value(entry.getValue()).store();
+            manager.getCache(DISK, entry.key).remove();
+            manager.getCache(DISK, entry.key).store(Value.of(entry.getValue()));
         });
-        manager.valueBuilder().cacheType(CacheType.DISK).key("DATABSE_VERSION").value(2).store();
+        manager.getCache(DISK, DATABASE_VERSION_KEY).store(Value.of(2));
     }
 }

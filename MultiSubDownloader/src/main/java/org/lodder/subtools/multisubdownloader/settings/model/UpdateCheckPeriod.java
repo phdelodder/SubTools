@@ -1,16 +1,15 @@
 package org.lodder.subtools.multisubdownloader.settings.model;
 
 import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import manifold.ext.props.rt.api.val;
 
-@Getter
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum UpdateCheckPeriod {
     MANUAL("InputPanel.UpdateInterval.Manual"),
     DAILY("InputPanel.UpdateInterval.Daily"),
     WEEKLY("InputPanel.UpdateInterval.Weekly"),
     MONTHLY("InputPanel.UpdateInterval.Monthly");
 
-    private final String langCode;
+    @val String langCode;
 }

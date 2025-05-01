@@ -1,13 +1,14 @@
 package org.lodder.subtools.sublibrary.data.imdb;
 
+import static org.lodder.subtools.sublibrary.PageContentParams.*;
+
 import java.util.Optional;
 
-import org.apache.commons.lang3.StringUtils;
+import lombok.RequiredArgsConstructor;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.imdb.exception.ImdbException;
 import org.lodder.subtools.sublibrary.data.imdb.model.ImdbDetails;
-
-import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class ImdbApi {
@@ -16,22 +17,19 @@ public class ImdbApi {
     private final Manager manager;
 
     public Optional<ImdbDetails> getMovieDetails(int imdbId) throws ImdbException {
-        return manager.valueBuilder()
-                .memoryCache()
-                .key("%s-moviedetails-%s".formatted("IMDB", imdbId))
-                .optionalSupplier(() -> {
-                    final String url = "%s/title/tt%s/releaseinfo".formatted(DOMAIN, StringUtils.leftPad(String.valueOf(imdbId), 7, "0"));
-                    try {
-                        org.jsoup.nodes.Element element = manager.getPageContentBuilder()
-                                .url(url)
-                                .getAsJsoupDocument()
-                                .selectFirst(".article .subpage_title_block .subpage_title_block__right-column");
-                        String imdbName = element.selectFirst("a[itemprop='url']").text();
-                        int year = Integer.parseInt(element.selectFirst("span.nobr").text().replaceAll("[^0-9]", ""));
-                        return Optional.of(new ImdbDetails(imdbName, year));
-                    } catch (Exception e) {
-                        throw new ImdbException("Error IMDBAPI", url, e);
-                    }
-                }).getOptional();
+        return manager.getCache(CacheType.MEMORY, "IMDB-moviedetails-$imdbId")
+            .getOptional(() -> {
+                final String url = "$DOMAIN/title/tt${%07d/releaseinfo".formatted(imdbId);
+                try {
+                    org.jsoup.nodes.Element element = manager.getAsJsoupDocument(url(url))
+                        .selectFirstByCss(".article .subpage_title_block .subpage_title_block__right-column");
+                    String imdbName = element.selectFirstByCss("a[itemprop='url']").text();
+                    int year = Integer.parseInt(
+                        element.selectFirstByCss("span.nobr").text().replaceAll("[^0-9]", ""));
+                    return Optional.of(new ImdbDetails(imdbName, year));
+                } catch (Exception e) {
+                    throw new ImdbException("Error IMDB API", url, e);
+                }
+            });
     }
 }

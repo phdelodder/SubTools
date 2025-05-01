@@ -47,7 +47,7 @@ public class Bootstrapper {
         this.registerProviders(providers, userInteractionHandler);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public List<ServiceProvider> getProviders() {
 
         Reflections reflections = new Reflections("org.lodder.subtools.multisubdownloader");

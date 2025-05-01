@@ -1,9 +1,9 @@
 package org.lodder.subtools.multisubdownloader.gui.workers;
 
+import javax.swing.*;
 import java.util.List;
 
-import javax.swing.SwingWorker;
-
+import lombok.RequiredArgsConstructor;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.actions.RenameAction;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
@@ -13,16 +13,11 @@ import org.lodder.subtools.multisubdownloader.gui.extra.table.VideoTableModel;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.Release;
-import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import lombok.RequiredArgsConstructor;
 
 /**
- * Created by IntelliJ IDEA. User: lodder Date: 4/12/11 Time: 8:52 AM To change this template use
- * Path | Settings | Path Templates.
+ * Created by IntelliJ IDEA. User: lodder Date: 4/12/11 Time: 8:52 AM To change this template use Path | Settings | Path
+ * Templates.
  */
 @RequiredArgsConstructor
 public class RenameWorker extends SwingWorker<Void, String> implements Cancelable {
@@ -31,8 +26,6 @@ public class RenameWorker extends SwingWorker<Void, String> implements Cancelabl
     private final Settings settings;
     private final Manager manager;
     private final UserInteractionHandler userInteractionHandler;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RenameWorker.class);
 
     @Override
     protected Void doInBackground() {
@@ -53,17 +46,11 @@ public class RenameWorker extends SwingWorker<Void, String> implements Cancelabl
                 }
                 setProgress(progress);
 
-                RenameAction renameAction = null;
-                if (selectedShow.getVideoType() == VideoType.EPISODE) {
-                    LOGGER.debug("Treat as EPISODE");
-                    renameAction = new RenameAction(settings.getEpisodeLibrarySettings(), manager, userInteractionHandler);
-                } else if (selectedShow.getVideoType() == VideoType.MOVIE) {
-                    LOGGER.debug("Treat as MOVIE");
-                    renameAction = new RenameAction(settings.getMovieLibrarySettings(), manager, userInteractionHandler);
-                }
-                if (renameAction != null) {
-                    renameAction.rename(selectedShow.getPath().resolve(selectedShow.getFileName()), selectedShow);
-                }
+                RenameAction renameAction = switch (selectedShow.videoType) {
+                    case EPISODE -> new RenameAction(settings.episodeLibrarySettings, manager, userInteractionHandler);
+                    case MOVIE -> new RenameAction(settings.movieLibrarySettings, manager, userInteractionHandler);
+                };
+                renameAction.rename(selectedShow.getPath().resolve(selectedShow.fileName), selectedShow);
                 model.removeShow(selectedShow);
             }
         });
@@ -72,6 +59,6 @@ public class RenameWorker extends SwingWorker<Void, String> implements Cancelabl
 
     @Override
     protected void process(List<String> data) {
-        data.forEach(s -> StatusMessenger.instance.message(Messages.getString("MainWindow.RenamingFile", s)));
+        data.forEach(s -> StatusMessenger.instance.message(Messages.getText("MainWindow.RenamingFile", s)));
     }
 }

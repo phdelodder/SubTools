@@ -2,10 +2,9 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.except
 
 import java.io.Serial;
 
+import lombok.experimental.StandardException;
 import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
-
-import lombok.experimental.StandardException;
 
 @StandardException
 public class Addic7edException extends SubtitlesProviderException {
@@ -15,6 +14,6 @@ public class Addic7edException extends SubtitlesProviderException {
 
     @Override
     public String getSubtitleProvider() {
-        return SubtitleSource.ADDIC7ED.getName();
+        return SubtitleSource.ADDIC7ED.name;
     }
 }

@@ -4,25 +4,19 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.Serial;
 
-import lombok.Getter;
-import lombok.Setter;
+import manifold.ext.props.rt.api.var;
 
-@Getter
-@Setter
 public class ArrowButton extends JButton {
 
-    @Serial
-    private static final long serialVersionUID = -4630720317499130016L;
+    @Serial private static final long serialVersionUID = -4630720317499130016L;
 
     /**
-     * The cardinal direction of the arrow(s),
-     * any of {@link SwingConstants#NORTH}, {@link SwingConstants#SOUTH}, {@link SwingConstants#WEST} or {@link SwingConstants#EAST}
+     * The cardinal direction of the arrow(s), any of {@link SwingConstants#NORTH}, {@link SwingConstants#SOUTH},
+     * {@link SwingConstants#WEST} or {@link SwingConstants#EAST}
      */
-    private int direction;
-
-    private int arrowCount;
-
-    private int arrowSize;
+    @var int direction;
+    @var int arrowCount;
+    @var int arrowSize;
 
     public ArrowButton(int direction, int arrowCount, int arrowSize) {
         setMargin(new Insets(0, 2, 0, 2));
@@ -39,13 +33,10 @@ public class ArrowButton extends JButton {
 
     @Override
     public Dimension getMinimumSize() {
-        return new Dimension(arrowSize
-                * (direction == SwingConstants.EAST || direction == SwingConstants.WEST ? arrowCount : 3)
-                + getBorder().getBorderInsets(this).left + getBorder().getBorderInsets(this).right,
-                arrowSize
-                        * (direction == SwingConstants.NORTH || direction == SwingConstants.SOUTH ? arrowCount : 3)
-                        + getBorder().getBorderInsets(this).top
-                        + getBorder().getBorderInsets(this).bottom);
+        return new Dimension(arrowSize * (direction == EAST || direction == WEST ? arrowCount : 3) +
+                             getBorder().getBorderInsets(this).left + getBorder().getBorderInsets(this).right,
+                arrowSize * (direction == NORTH || direction == SOUTH ? arrowCount : 3) +
+                getBorder().getBorderInsets(this).top + getBorder().getBorderInsets(this).bottom);
     }
 
     @Override
@@ -65,18 +56,10 @@ public class ArrowButton extends JButton {
         int w = getSize().width;
         int h = getSize().height;
         for (int i = 0; i < arrowCount; i++) {
-            paintArrow(g,
-                    (w - arrowSize
-                            * (direction == SwingConstants.EAST || direction == SwingConstants.WEST ? arrowCount : 1))
-                            / 2
-                            + arrowSize
-                            * (direction == SwingConstants.EAST || direction == SwingConstants.WEST ? i : 0),
-                    (h - arrowSize
-                            * (direction == SwingConstants.EAST || direction == SwingConstants.WEST ? 1 : arrowCount))
-                            / 2
-                            + arrowSize
-                            * (direction == SwingConstants.EAST || direction == SwingConstants.WEST ? 0 : i),
-                    g.getColor());
+            paintArrow(g, (w - arrowSize * (direction == EAST || direction == WEST ? arrowCount : 1)) / 2 +
+                          arrowSize * (direction == EAST || direction == WEST ? i : 0),
+                    (h - arrowSize * (direction == EAST || direction == WEST ? 1 : arrowCount)) / 2 +
+                    arrowSize * (direction == EAST || direction == WEST ? 0 : i), g.getColor());
         }
 
         g.setColor(oldColor);
@@ -86,7 +69,7 @@ public class ArrowButton extends JButton {
         int mid, i, j;
 
         Color oldColor = g.getColor();
-        boolean isEnabled = isEnabled();
+        boolean enabled = isEnabled();
 
         j = 0;
         arrowSize = Math.max(arrowSize, 2);
@@ -99,13 +82,13 @@ public class ArrowButton extends JButton {
                 for (i = 0; i < arrowSize; i++) {
                     g.drawLine(mid - i, i, mid + i, i);
                 }
-                if (!isEnabled) {
+                if (!enabled) {
                     g.setColor(highlight);
                     g.drawLine(mid - i + 2, i, mid + i, i);
                 }
             }
             case SOUTH -> {
-                if (!isEnabled) {
+                if (!enabled) {
                     g.translate(1, 1);
                     g.setColor(highlight);
                     for (i = arrowSize - 1; i >= 0; i--) {
@@ -125,13 +108,13 @@ public class ArrowButton extends JButton {
                 for (i = 0; i < arrowSize; i++) {
                     g.drawLine(i, mid - i, i, mid + i);
                 }
-                if (!isEnabled) {
+                if (!enabled) {
                     g.setColor(highlight);
                     g.drawLine(i, mid - i + 2, i, mid + i);
                 }
             }
             case EAST -> {
-                if (!isEnabled) {
+                if (!enabled) {
                     g.translate(1, 1);
                     g.setColor(highlight);
                     for (i = arrowSize - 1; i >= 0; i--) {

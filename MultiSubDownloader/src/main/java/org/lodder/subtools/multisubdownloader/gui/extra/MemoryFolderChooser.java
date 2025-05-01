@@ -7,13 +7,14 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
+import manifold.ext.props.rt.api.var;
 import org.apache.commons.lang3.StringUtils;
 
 public class MemoryFolderChooser {
 
-    private final JFileChooser chooser;
     private static MemoryFolderChooser instance;
-    private File memory;
+    private final JFileChooser chooser;
+    @var Path memory;
 
     private MemoryFolderChooser() {
         chooser = new JFileChooser();
@@ -35,14 +36,14 @@ public class MemoryFolderChooser {
     public Optional<Path> selectDirectory(Component c, String title, File file) {
         chooser.setDialogTitle(title);
         if (file == null || !StringUtils.isBlank(file.getAbsolutePath())) {
-            chooser.setCurrentDirectory(Objects.requireNonNullElseGet(memory, () -> new File(".")));
+            chooser.setCurrentDirectory(Objects.requireNonNullElseGet(memory.toFile(), () -> new File(".")));
         } else {
             chooser.setCurrentDirectory(file);
         }
 
         int result = chooser.showOpenDialog(c);
         if (result == JFileChooser.APPROVE_OPTION) {
-            memory = chooser.getSelectedFile();
+            memory = chooser.getSelectedFile().toPath();
             return Optional.of(chooser.getSelectedFile().toPath());
         }
         return Optional.empty();
@@ -50,13 +51,5 @@ public class MemoryFolderChooser {
 
     public Optional<Path> selectDirectory(Component c, String title) {
         return selectDirectory(c, title, memory);
-    }
-
-    public void setMemory(Path memory) {
-        this.memory = memory.toFile();
-    }
-
-    public Path getMemory() {
-        return memory.toPath();
     }
 }

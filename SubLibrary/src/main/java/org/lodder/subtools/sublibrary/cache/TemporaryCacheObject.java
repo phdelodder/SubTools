@@ -1,44 +1,45 @@
 package org.lodder.subtools.sublibrary.cache;
 
+import static manifold.science.util.UnitConstants.*;
+
 import java.io.Serial;
-import java.io.Serializable;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
+import manifold.ext.props.rt.api.override;
+import manifold.ext.props.rt.api.val;
+import manifold.science.measures.Time;
 
 @ToString
-@Setter
-@Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-class TemporaryCacheObject<T> implements CacheObject<T>, Serializable {
+sealed class TemporaryCacheObject<T> implements CacheObject<T> permits TemporarySerializableCacheObject {
 
     @Serial
     private static final long serialVersionUID = -152474119228350222L;
     private static final Pattern PATTERN = Pattern.compile("created:(.*?)|expire:(.*?)|value:(.*)");
-    private final long created;
-    private final long timeToLive;
-    private T value;
+    @override @val Time created;
+    @val Time timeToLive;
+    @override @val T value;
 
-    protected TemporaryCacheObject(long timeToLive, T value) {
-        this.created = System.currentTimeMillis();
+    protected TemporaryCacheObject(Time timeToLive, T value) {
+        this(Time.now(), timeToLive, value);
+    }
+
+    private TemporaryCacheObject(Time created, Time timeToLive, T value) {
+        this.created = created;
         this.timeToLive = timeToLive;
         this.value = value;
     }
 
     @Override
-    public boolean isExpired(long ttl) {
+    public boolean isExpired(Time ttl) {
         return isExpired();
     }
 
     public boolean isExpired() {
-        return System.currentTimeMillis() > (created + timeToLive);
+        return Time.now().isAfter(created + timeToLive);
     }
 
 
@@ -52,11 +53,12 @@ class TemporaryCacheObject<T> implements CacheObject<T>, Serializable {
         return "created:%s|expire:%s|value:%s".formatted(created, timeToLive, valueToStringMapper.apply(value));
     }
 
-    public static <T> Optional<TemporaryCacheObject<T>> fromString(String string, Function<String, T> valueToObjectMapper) {
+    public static <T> Optional<TemporaryCacheObject<T>> fromString(String string,
+            Function<String, T> valueToObjectMapper) {
         Matcher matcher = PATTERN.matcher(string);
         if (matcher.matches()) {
-            long created = Long.parseLong(matcher.group(1));
-            long timeToLive = Long.parseLong(matcher.group(2));
+            Time created = Time.create(Long.parseLong(matcher.group(1)), ms);
+            Time timeToLive = Time.create(Long.parseLong(matcher.group(2)), ms);
             String value = matcher.group(3);
             return Optional.of(new TemporaryCacheObject<>(created, timeToLive, valueToObjectMapper.apply(value)));
         }
@@ -64,7 +66,7 @@ class TemporaryCacheObject<T> implements CacheObject<T>, Serializable {
     }
 
     @Override
-    public long getAge() {
-        return getCreated();
+    public Time getAge() {
+        return created;
     }
 }

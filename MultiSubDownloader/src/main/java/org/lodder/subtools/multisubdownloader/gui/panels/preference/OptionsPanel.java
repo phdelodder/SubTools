@@ -1,33 +1,22 @@
 package org.lodder.subtools.multisubdownloader.gui.panels.preference;
 
+import static org.lodder.subtools.multisubdownloader.Messages.*;
+
+import javax.swing.*;
 import java.io.Serial;
 
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-
-import org.lodder.subtools.multisubdownloader.Messages;
+import net.miginfocom.swing.MigLayout;
+import org.lodder.subtools.multisubdownloader.gui.extra.BoxModelProperties;
 import org.lodder.subtools.multisubdownloader.gui.extra.PanelCheckBox;
 import org.lodder.subtools.multisubdownloader.gui.extra.TitlePanel;
-import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcheckbox.JCheckBoxExtension;
-import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcombobox.MyComboBox;
-import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcomponent.JComponentExtension;
-import org.lodder.subtools.multisubdownloader.gui.jcomponent.jslider.JSliderExtension;
-import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield.JTextFieldExtension;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.SettingsProcessEpisodeSource;
 
-import lombok.experimental.ExtensionMethod;
-import net.miginfocom.swing.MigLayout;
-
-@ExtensionMethod({ JTextFieldExtension.class, JCheckBoxExtension.class, JComponentExtension.class, JSliderExtension.class })
 public class OptionsPanel extends JPanel implements PreferencePanelIntf {
 
-    @Serial
-    private static final long serialVersionUID = -5458593307643063563L;
+    @Serial private static final long serialVersionUID = -5458593307643063563L;
 
     private final SettingsControl settingsCtrl;
-
     private final JCheckBox chkAlwaysConfirm;
     private final JCheckBox chkMinScoreSelection;
     private final JSlider sldMinScoreSelection;
@@ -38,74 +27,101 @@ public class OptionsPanel extends JPanel implements PreferencePanelIntf {
     private final JCheckBox chkExcludeHearingImpaired;
     private final JCheckBox chkOnlyFound;
     private final JCheckBox chkStopOnSearchError;
-    private final MyComboBox<SettingsProcessEpisodeSource> cbxEpisodeProcessSource;
+    private final JComboBox<SettingsProcessEpisodeSource> cbxEpisodeProcessSource;
     private final JCheckBox chkConfirmProviderMapping;
 
     public OptionsPanel(SettingsControl settingsCtrl) {
         super(new MigLayout("insets 0, fill, nogrid"));
         this.settingsCtrl = settingsCtrl;
 
-        TitlePanel.title(Messages.getString("PreferenceDialog.DownloadOptions"))
-                .marginBottom(0).padding(0).paddingLeft(20).addTo(this, "span, grow, wrap")
-                .addComponent(this.chkAlwaysConfirm = new JCheckBox(Messages.getString("PreferenceDialog.CheckBeforeDownloading")), "wrap")
-                .addComponent("wrap, grow", PanelCheckBox
-                        .checkbox(this.chkMinScoreSelection = new JCheckBox(Messages.getString("PreferenceDialog.MinAutomaticScoreSelection")))
-                        .panelOnSameLine().build()
-                        .addComponent(this.sldMinScoreSelection = new JSlider().withMinimum(0).withMaximum(100), "wrap"))
-                .addComponent("wrap, grow", PanelCheckBox
-                        .checkbox(this.chkDefaultSelection = new JCheckBox(Messages.getString("PreferenceDialog.DefaultSelection"), null, true))
-                        .panelOnNewLine().build()
-                        .addComponent(this.pnlDefaultSelection = new DefaultSelectionPanel(settingsCtrl)));
+        new TitlePanel(
+            title:getText("PreferenceDialog.DownloadOptions"),
+            margin:new BoxModelProperties(null, null, 0, null),
+            padding:new BoxModelProperties(0, 20, 0, 0))
+            .addToPanel(this, "span, grow, wrap")
+            .addComponent(this.chkAlwaysConfirm =
+                new JCheckBox(getText("PreferenceDialog.CheckBeforeDownloading")), "wrap")
+            .addComponent("wrap, grow",
+                new PanelCheckBox(
+                    checkbox:this.chkMinScoreSelection =
+                        new JCheckBox(getText("PreferenceDialog.MinAutomaticScoreSelection")),
+                    panelOnNewLine:false
+                    )
+                    .addComponent(this.sldMinScoreSelection = new JSlider().minimum(0).maximum(100), "wrap"))
+            .addComponent("wrap, grow",
+                new PanelCheckBox(
+                    checkbox:this.chkDefaultSelection =
+                        new JCheckBox(getText("PreferenceDialog.DefaultSelection"), null, true),
+                    panelOnNewLine:true
+                    )
+                    .addComponent(this.pnlDefaultSelection = new DefaultSelectionPanel(settingsCtrl)));
 
-        TitlePanel.title(Messages.getString("PreferenceDialog.SearchFilter"))
-                .marginBottom(0).padding(0).paddingLeft(20).addTo(this, "span, grow, wrap")
-                .addComponent(this.chkSubtitleExactMethod = new JCheckBox(Messages.getString("PreferenceDialog.SearchFilterExact")), "wrap")
-                .addComponent(this.chkSubtitleKeywordMethod = new JCheckBox(Messages.getString("PreferenceDialog.SearchFilterKeyword")), "wrap")
-                .addComponent(this.chkExcludeHearingImpaired = new JCheckBox(Messages.getString("PreferenceDialog.ExcludeHearingImpaired")));
+        new TitlePanel(
+            title:getText("PreferenceDialog.SearchFilter"),
+            margin:new BoxModelProperties(null, null, 0, null),
+            padding:new BoxModelProperties(0, 20, 0, 0))
+            .addToPanel(this, "span, grow, wrap")
+            .addComponent(
+                this.chkSubtitleExactMethod = new JCheckBox(getText("PreferenceDialog.SearchFilterExact")),
+                "wrap")
+            .addComponent(this.chkSubtitleKeywordMethod =
+                new JCheckBox(getText("PreferenceDialog.SearchFilterKeyword")), "wrap")
+            .addComponent(this.chkExcludeHearingImpaired =
+                new JCheckBox(getText("PreferenceDialog.ExcludeHearingImpaired")));
 
-        TitlePanel.title(Messages.getString("PreferenceDialog.TableOptions"))
-                .marginBottom(0).padding(0).paddingLeft(20).addTo(this, "span, grow, wrap")
-                .addComponent(this.chkOnlyFound = new JCheckBox(Messages.getString("PreferenceDialog.ShowOnlyFound")));
+        new TitlePanel(
+            title:getText("PreferenceDialog.TableOptions"),
+            margin:new BoxModelProperties(null, null, 0, null),
+            padding:new BoxModelProperties(0, 20, 0, 0))
+            .addToPanel(this, "span, grow, wrap")
+            .addComponent(this.chkOnlyFound = new JCheckBox(getText("PreferenceDialog.ShowOnlyFound")));
 
-        TitlePanel.title(Messages.getString("PreferenceDialog.ErrorHandlingOption"))
-                .marginBottom(0).padding(0).paddingLeft(20).addTo(this, "span, grow, wrap")
-                .addComponent(this.chkStopOnSearchError = new JCheckBox(Messages.getString("PreferenceDialog.StopAfterError")));
+        new TitlePanel(
+            title:getText("PreferenceDialog.ErrorHandlingOption"),
+            margin:new BoxModelProperties(null, null, 0, null),
+            padding:new BoxModelProperties(0, 20, 0, 0))
+            .addToPanel(this, "span, grow, wrap")
+            .addComponent(this.chkStopOnSearchError = new JCheckBox(getText("PreferenceDialog.StopAfterError")));
 
-        TitlePanel.title(Messages.getString("PreferenceDialog.SerieDatabaseSource"))
-                .marginBottom(0).padding(0).paddingLeft(20).addTo(this, "span, grow")
-                .addComponent(this.cbxEpisodeProcessSource = MyComboBox.ofValues(SettingsProcessEpisodeSource.values()), "wrap")
-                .addComponent(this.chkConfirmProviderMapping = new JCheckBox(Messages.getString("PreferenceDialog.ConfirmProviderMapping")));
+        new TitlePanel(
+            title:getText("PreferenceDialog.SerieDatabaseSource"),
+            margin:new BoxModelProperties(null, null, 0, null),
+            padding:new BoxModelProperties(0, 20, 0, 0))
+            .addToPanel(this, "span, grow")
+            .addComponent(this.cbxEpisodeProcessSource = new JComboBox<>(SettingsProcessEpisodeSource.values()),
+                "wrap")
+            .addComponent(this.chkConfirmProviderMapping =
+                new JCheckBox(getText("PreferenceDialog.ConfirmProviderMapping")));
 
         loadPreferenceSettings();
     }
 
     public void loadPreferenceSettings() {
-        chkAlwaysConfirm.setSelected(settingsCtrl.getSettings().isOptionsAlwaysConfirm());
-        chkMinScoreSelection.setSelected(settingsCtrl.getSettings().isOptionsMinAutomaticSelection());
-        sldMinScoreSelection.setValue(settingsCtrl.getSettings().getOptionsMinAutomaticSelectionValue());
-        chkDefaultSelection.setSelected(settingsCtrl.getSettings().isOptionsDefaultSelection());
-        chkSubtitleExactMethod.setSelected(settingsCtrl.getSettings().isOptionSubtitleExactMatch());
-        chkSubtitleKeywordMethod.setSelected(settingsCtrl.getSettings().isOptionSubtitleKeywordMatch());
-        chkExcludeHearingImpaired.setSelected(settingsCtrl.getSettings().isOptionSubtitleExcludeHearingImpaired());
-        chkOnlyFound.setSelected(settingsCtrl.getSettings().isOptionsShowOnlyFound());
-        chkStopOnSearchError.setSelected(settingsCtrl.getSettings().isOptionsStopOnSearchError());
-        cbxEpisodeProcessSource.setSelectedItem(settingsCtrl.getSettings().getProcessEpisodeSource());
-        chkConfirmProviderMapping.setSelected(settingsCtrl.getSettings().isOptionsConfirmProviderMapping());
+        chkAlwaysConfirm.setSelected(settingsCtrl.settings.optionsAlwaysConfirm);
+        chkMinScoreSelection.setSelected(settingsCtrl.settings.optionsMinAutomaticSelection);
+        sldMinScoreSelection.setValue(settingsCtrl.settings.optionsMinAutomaticSelectionValue);
+        chkDefaultSelection.setSelected(settingsCtrl.settings.optionsDefaultSelection);
+        chkSubtitleExactMethod.setSelected(settingsCtrl.settings.optionSubtitleExactMatch);
+        chkSubtitleKeywordMethod.setSelected(settingsCtrl.settings.optionSubtitleKeywordMatch);
+        chkExcludeHearingImpaired.setSelected(settingsCtrl.settings.optionSubtitleExcludeHearingImpaired);
+        chkOnlyFound.setSelected(settingsCtrl.settings.optionsShowOnlyFound);
+        chkStopOnSearchError.setSelected(settingsCtrl.settings.optionsStopOnSearchError);
+        cbxEpisodeProcessSource.setSelectedItem(settingsCtrl.settings.processEpisodeSource);
+        chkConfirmProviderMapping.setSelected(settingsCtrl.settings.optionsConfirmProviderMapping);
     }
 
     public void savePreferenceSettings() {
-        settingsCtrl.getSettings()
-                .setOptionsAlwaysConfirm(chkAlwaysConfirm.isSelected())
-                .setOptionsMinAutomaticSelection(chkMinScoreSelection.isSelected())
-                .setOptionsMinAutomaticSelectionValue(sldMinScoreSelection.getValue())
-                .setOptionsDefaultSelection(chkDefaultSelection.isSelected())
-                .setOptionSubtitleExactMatch(chkSubtitleExactMethod.isSelected())
-                .setOptionSubtitleKeywordMatch(chkSubtitleKeywordMethod.isSelected())
-                .setOptionSubtitleExcludeHearingImpaired(chkExcludeHearingImpaired.isSelected())
-                .setOptionsShowOnlyFound(chkOnlyFound.isSelected())
-                .setOptionsStopOnSearchError(chkStopOnSearchError.isSelected())
-                .setProcessEpisodeSource(cbxEpisodeProcessSource.getSelectedItem())
-                .setOptionsConfirmProviderMapping(chkConfirmProviderMapping.isSelected());
+        settingsCtrl.settings.optionsAlwaysConfirm = chkAlwaysConfirm.isSelected();
+        settingsCtrl.settings.optionsMinAutomaticSelection = chkMinScoreSelection.isSelected();
+        settingsCtrl.settings.optionsMinAutomaticSelectionValue = sldMinScoreSelection.getValue();
+        settingsCtrl.settings.optionsDefaultSelection = chkDefaultSelection.isSelected();
+        settingsCtrl.settings.optionSubtitleExactMatch = chkSubtitleExactMethod.isSelected();
+        settingsCtrl.settings.optionSubtitleKeywordMatch = chkSubtitleKeywordMethod.isSelected();
+        settingsCtrl.settings.optionSubtitleExcludeHearingImpaired = chkExcludeHearingImpaired.isSelected();
+        settingsCtrl.settings.optionsShowOnlyFound = chkOnlyFound.isSelected();
+        settingsCtrl.settings.optionsStopOnSearchError = chkStopOnSearchError.isSelected();
+        settingsCtrl.settings.processEpisodeSource = cbxEpisodeProcessSource.getSelectedValue();
+        settingsCtrl.settings.optionsConfirmProviderMapping = chkConfirmProviderMapping.isSelected();
         pnlDefaultSelection.savePreferenceSettings();
     }
 

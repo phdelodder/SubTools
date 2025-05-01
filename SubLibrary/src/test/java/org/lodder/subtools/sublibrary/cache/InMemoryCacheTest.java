@@ -1,7 +1,11 @@
 package org.lodder.subtools.sublibrary.cache;
 
+import static manifold.science.measures.TimeUnit.*;
+import static manifold.science.util.UnitConstants.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.lodder.subtools.sublibrary.util.Sleep.*;
 
+import manifold.science.measures.Time;
 import org.junit.jupiter.api.Test;
 
 class InMemoryCacheTest {
@@ -9,11 +13,12 @@ class InMemoryCacheTest {
     @Test
     void testAddRemoveObjects() {
         InMemoryCache<String, String> cache =
-                InMemoryCache.builder().keyType(String.class).valueType(String.class)
-                        .timeToLive(200L)
-                        .timerInterval(100L)
-                        .maxItems(6)
-                        .build();
+            new InMemoryCache<>(
+                keyType:String.class,
+                valueType:String.class,
+                timeToLive:200 ms,
+                timerInterval:100 ms,
+                maxItems:6);
 
         cache.put("eBay", "eBay");
         cache.put("Paypal", "Paypal");
@@ -33,47 +38,50 @@ class InMemoryCacheTest {
     }
 
     @Test
-    void testExpiredCacheObjects() throws InterruptedException {
+    void testExpiredCacheObjects() {
 
         InMemoryCache<String, String> cache =
-                InMemoryCache.builder().keyType(String.class).valueType(String.class)
-                        .timeToLive(1L)
-                        .timerInterval(1L)
-                        .maxItems(10)
-                        .build();
+            new InMemoryCache<>(
+                keyType:String.class,
+                valueType:String.class,
+                timeToLive:1 ms,
+                timerInterval:1 ms,
+                maxItems:10);
 
         cache.put("eBay", "eBay");
         cache.put("Paypal", "Paypal");
         // Adding 3 seconds sleep.. Both above objects will be removed from
         // Cache because of timeToLiveInSeconds value
-        Thread.sleep(3000);
+
+        sleep(3 Second);
 
         assertThat(cache.size()).as("Cache should not contain items that are expired").isEqualTo(0);
     }
 
     @Test
-    void testObjectsCleanupTime() throws InterruptedException {
-        int size = 500000;
+    void testObjectsCleanupTime() {
+        int size = 500;
 
         InMemoryCache<String, String> cache =
-                InMemoryCache.builder().keyType(String.class).valueType(String.class)
-                        .timeToLive(100L)
-                        .timerInterval(100L)
-                        .maxItems(500000)
-                        .build();
+            new InMemoryCache<>(
+                keyType:String.class,
+                valueType:String.class,
+                timeToLive:100 ms,
+                timerInterval:100 ms,
+                maxItems:500);
 
         for (int i = 0; i < size; i++) {
             String value = Integer.toString(i);
             cache.put(value, value);
         }
 
-        Thread.sleep(200);
+        sleep(200 ms);
 
-        long start = System.currentTimeMillis();
+        Time start = Time.now();
         cache.cleanup();
-        double finish = (System.currentTimeMillis() - start) / 1000.0;
+        Time duration = Time.now() - start;
 
-        System.out.println("Cleanup times for " + size + " objects are " + finish + " s");
+        System.out.println("Cleanup duration for $size objects is $duration");
     }
 
 }

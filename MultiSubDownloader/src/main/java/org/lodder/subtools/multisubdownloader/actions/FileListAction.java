@@ -9,44 +9,36 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import extensions.java.nio.file.Path.PathExt;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.ExtensionMethod;
+import manifold.ext.props.rt.api.set;
 import org.apache.commons.lang3.StringUtils;
 import org.lodder.subtools.multisubdownloader.listeners.IndexingProgressListener;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
-import org.lodder.subtools.sublibrary.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import lombok.experimental.ExtensionMethod;
-
-@ExtensionMethod({ Files.class, FileUtils.class })
+@RequiredArgsConstructor
+@ExtensionMethod({ Files.class })
 public class FileListAction {
 
-    private IndexingProgressListener indexingProgressListener;
-    private int progressFileIndex;
-    private int progressFilesTotal;
-    private final Settings settings;
-    private final static String subtitleExtension = "srt";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(FileListAction.class);
+    private static final String SUBTITLE_EXTENSION = "srt";
 
-    public FileListAction(Settings settings) {
-        this.settings = settings;
-    }
+    private final Settings settings;
+    @set IndexingProgressListener indexingProgressListener;
+
 
     public List<Path> getFileListing(Path dir, boolean recursive, Language language, boolean forceSubtitleOverwrite) {
-        LOGGER.trace("getFileListing: dir [{}] Recursive [{}] languageCode [{}] forceSubtitleOverwrite [{}]", dir, recursive, language,
-                forceSubtitleOverwrite);
-        /* Reset progress counters */
-        this.progressFileIndex = 0;
-        this.progressFilesTotal = 0;
+        LOGGER.trace("getFileListing: dir [{}] Recursive [{}] languageCode [{}] forceSubtitleOverwrite [{}]",
+            dir, recursive, language, forceSubtitleOverwrite);
+        int progressFileIndex = 0;
+        int progressFilesTotal = 0;
 
         /* Start listing process */
-        return this._getFileListing(dir, recursive, language, forceSubtitleOverwrite);
-    }
-
-    private List<Path> _getFileListing(Path dir, boolean recursive, Language language, boolean forceSubtitleOverwrite) {
         final List<Path> filelist = new ArrayList<>();
         List<Path> contents;
         try {
@@ -57,26 +49,26 @@ public class FileListAction {
         }
 
         /* Increase progressTotalFiles count */
-        this.progressFilesTotal += contents.size();
+        progressFilesTotal += contents.size();
 
         if (this.indexingProgressListener != null) {
             this.indexingProgressListener.progress(dir.toString());
         }
 
         for (Path file : contents) {
-            /* Increase progressFileIndex */
-            this.progressFileIndex++;
+            progressFileIndex++;
 
             /* Update progressListener */
             if (this.indexingProgressListener != null) {
                 /* Tell the progress listener the overall progress */
-                int progress = (int) Math.floor((float) this.progressFileIndex / this.progressFilesTotal * 100);
+                int progress = (int) Math.floor((float) progressFileIndex / progressFilesTotal * 100);
                 this.indexingProgressListener.progress(progress);
             }
 
             try {
                 if (file.isRegularFile()) {
-                    if (isValidVideoFile(file) && (forceSubtitleOverwrite || !fileHasSubtitles(file, language)) && !isExcludedFile(file)) {
+                    if (isValidVideoFile(file) && (forceSubtitleOverwrite || !fileHasSubtitles(file, language)) &&
+                        !isExcludedFile(file)) {
                         filelist.add(file);
                     }
                 } else if (recursive && !isExcludedDir(file)) {
@@ -93,7 +85,7 @@ public class FileListAction {
     }
 
     private boolean isExcludedDir(Path path) {
-        boolean excludedDir = settings.getExcludeList().stream().anyMatch(item -> item.isExcludedPath(path));
+        boolean excludedDir = settings.excludeList.stream().anyMatch(item -> item.isExcludedPath(path));
         if (excludedDir) {
             LOGGER.trace("isExcludedDir, skipping [{}]", path);
         }
@@ -101,7 +93,7 @@ public class FileListAction {
     }
 
     private boolean isExcludedFile(Path path) {
-        boolean excludedFile = settings.getExcludeList().stream().anyMatch(item -> item.isExcludedPath(path));
+        boolean excludedFile = settings.excludeList.stream().anyMatch(item -> item.isExcludedPath(path));
         if (excludedFile) {
             LOGGER.trace("isExcludedFile, skipping [{}]", path);
         }
@@ -115,9 +107,9 @@ public class FileListAction {
     public boolean fileHasSubtitles(Path file, Language language) throws IOException {
         String extension = file.getExtension();
         Optional<String> subtitleNameOptional = VideoPatterns.EXTENSIONS.stream()
-                .filter(extension::equals)
-                .map(x -> file.changeExtension(subtitleExtension))
-                .findAny();
+            .filter(extension::equals)
+            .map(_ -> file.changeExtension(SUBTITLE_EXTENSION))
+            .findAny();
 
         if (subtitleNameOptional.isEmpty()) {
             return false;
@@ -127,23 +119,22 @@ public class FileListAction {
         if (f.exists()) {
             return true;
         } else {
-            String subtitleExtensionWithDot = "." + subtitleExtension;
+            String subtitleExtensionWithDot = "." + SUBTITLE_EXTENSION;
 
             Set<String> langCodes = new HashSet<>();
-            langCodes.add(language.getLangCode());
-            langCodes.addAll(language.getLangCodesOther());
-            String customLangCode = settings.getEpisodeLibrarySettings().getLangCodeMap().get(language);
+            langCodes.add(language.langCode);
+            langCodes.addAll(language.langCodesOther);
+            String customLangCode = settings.episodeLibrarySettings.langCodeMap.get(language);
             if (!StringUtils.isBlank(customLangCode)) {
                 langCodes.add(customLangCode);
             }
-            List<String> filters = langCodes.stream().map(word -> word + "." + subtitleExtension).toList();
+            List<String> filters = langCodes.stream().map(word -> word + "." + SUBTITLE_EXTENSION).toList();
             String subtitleNameWithoutExtension = subtitleName.replace(subtitleExtensionWithDot, "");
-            return file.getParent().list().map(FileUtils::getFileNameAsString).filter(fileName -> filters.stream().anyMatch(fileName::endsWith))
-                    .anyMatch(fileName -> fileName.contains(subtitleNameWithoutExtension));
+            return file.getParent()
+                .list()
+                .map(PathExt::getFileNameAsString)
+                .filter(fileName -> filters.stream().anyMatch(fileName::endsWith))
+                .anyMatch(fileName -> fileName.contains(subtitleNameWithoutExtension));
         }
-    }
-
-    public void setIndexingProgressListener(IndexingProgressListener indexingProgressListener) {
-        this.indexingProgressListener = indexingProgressListener;
     }
 }

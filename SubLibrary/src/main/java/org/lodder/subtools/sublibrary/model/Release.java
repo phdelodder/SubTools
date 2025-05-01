@@ -1,66 +1,64 @@
 package org.lodder.subtools.sublibrary.model;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import manifold.ext.props.rt.api.val;
+import manifold.ext.props.rt.api.var;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 
-import lombok.Getter;
+public abstract sealed class Release permits MovieRelease, TvRelease {
 
-@Getter
-public abstract class Release extends Video {
+    private final Set<Subtitle> matchingSubsSet = new HashSet<>();
+    @val VideoType videoType;
+    @val @Nullable Path filePath;
+    @val @Nullable String quality;
+    @val @Nullable String releaseGroup;
+    @val @Nullable String extension;
+    @var @Nullable Integer tvdbId;
 
-    private final Set<Subtitle> matchingSubs = new HashSet<>();
-    private final Path path;
-    private final String quality;
-    private final String description;
-    private final String releaseGroup;
+    protected Release(VideoType videoType, @Nullable Path filePath, @Nullable String releaseGroup,
+        @Nullable String quality, @Nullable String extension) {
+        this.videoType = videoType;
+        this.filePath = filePath;
+        this.releaseGroup = releaseGroup;
+        this.quality = quality;
+        this.extension = extension;
+    }
 
     public void addMatchingSub(Subtitle sub) {
-        matchingSubs.add(sub);
+        matchingSubsSet.add(sub);
     }
 
     public List<Subtitle> getMatchingSubs() {
-        return new ArrayList<>(matchingSubs);
+        return List.copyOf(matchingSubsSet);
     }
 
     public int getMatchingSubCount() {
-        return matchingSubs.size();
-    }
-
-    protected Release(VideoType videoFileType, Path path, String description, String releaseGroup, String quality) {
-        super(videoFileType);
-        this.path = path;
-        this.description = description;
-        this.releaseGroup = releaseGroup;
-        this.quality = quality;
+        return matchingSubsSet.size();
     }
 
     public String getFileName() {
-        return path != null ? path.getFileName().toString() : null;
+        return filePath != null ? filePath.getFileName().toString() : null;
     }
 
     public Path getPath() {
-        return path != null ? path.getParent() : null;
-    }
-
-    public String getExtension() {
-        return StringUtils.substringAfterLast(getFileName(), ".");
+        return filePath != null ? filePath.getParent() : null;
     }
 
     public boolean hasExtension(String extension) {
-        return StringUtils.endsWith(getFileName(), "." + extension);
+        return StringUtils.isNotBlank(extension) && extension.equals(this.extension);
     }
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + ": " + this.getFileName() + " " + this.getQuality();
+        return "${getClass().getSimpleName()}: $fileName $quality";
     }
 
     public String getReleaseDescription() {
-        return getFileName();
+        return fileName;
     }
 }

@@ -2,9 +2,8 @@ package org.lodder.subtools.multisubdownloader.exceptions;
 
 import java.io.Serial;
 
-import org.lodder.subtools.multisubdownloader.actions.ActionException;
-
 import lombok.experimental.StandardException;
+import org.lodder.subtools.multisubdownloader.actions.ActionException;
 
 @StandardException
 public class SearchSetupException extends ActionException {

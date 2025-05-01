@@ -1,16 +1,12 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import lombok.AllArgsConstructor;
+import manifold.ext.props.rt.api.val;
 import org.lodder.subtools.sublibrary.Language;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@Getter
-@RequiredArgsConstructor
+@AllArgsConstructor
 public enum LanguageId {
 
     ALL(null, 0),
@@ -80,10 +76,10 @@ public enum LanguageId {
     VIETNAMESE(Language.VIETNAMESE, 45),
     WELSH(Language.WELSH, 65);
 
-    private final Language language;
-    private final int id;
+    @val Language language;
+    @val int id;
 
     public static List<LanguageId> forLanguage(Language language) {
-        return Arrays.stream(LanguageId.values()).filter(langId -> langId.getLanguage() == language).collect(Collectors.toList());
+        return LanguageId.values().stream().filter(langId -> langId.language == language).toList();
     }
 }

@@ -1,55 +1,66 @@
 package org.lodder.subtools.sublibrary.userinteraction;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import static org.lodder.subtools.multisubdownloader.Messages.*;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.function.Function;
+
+import extensions.org.codehaus.plexus.components.interactivity.Prompter.PrompterExt;
+import manifold.ext.props.rt.api.override;
+import manifold.ext.props.rt.api.val;
+import org.codehaus.plexus.components.interactivity.DefaultInputHandler;
+import org.codehaus.plexus.components.interactivity.DefaultOutputHandler;
 import org.codehaus.plexus.components.interactivity.DefaultPrompter;
 import org.codehaus.plexus.components.interactivity.Prompter;
+import org.jspecify.annotations.Nullable;
 import org.lodder.subtools.sublibrary.data.UserInteractionSettingsIntf;
-import org.lodder.subtools.sublibrary.util.prompter.PrompterUtil;
+import org.lodder.subtools.sublibrary.util.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@Getter
-@RequiredArgsConstructor
 public class UserInteractionHandlerCLI implements UserInteractionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserInteractionHandlerCLI.class);
-    private final Prompter prompter = new DefaultPrompter();
-    private final UserInteractionSettingsIntf settings;
+    @val Prompter prompter = new DefaultPrompter(new DefaultOutputHandler(), new DefaultInputHandler());
+    @val @override UserInteractionSettingsIntf settings;
 
-    @Override
-    public Optional<String> selectFromList(Collection<String> options, String message, String title) {
-        return selectFromList(options, message, title, null);
+    public UserInteractionHandlerCLI(UserInteractionSettingsIntf settings) {
+        this.settings = settings;
     }
 
     @Override
-    public <T> Optional<T> selectFromList(Collection<T> options, String message, String title, Function<T, String> toStringMapper) {
-        return PrompterUtil.getElementFromList(options).toStringMapper(toStringMapper).message(message).includeNull().prompt(prompter);
-    }
-
-    @Override
-    public <T> Optional<T> choice(Collection<T> options, String message, String title) {
-        return choice(options, message, title, null);
-    }
-
-    @Override
-    public <T> Optional<T> choice(Collection<T> options, String message, String title, Function<T, String> toStringMapper) {
-        return selectFromList(options, message, title, toStringMapper);
+    public <T> Optional<T> selectFromList(Iterable<T> options, @Nullable String message, @Nullable String title,
+        @Nullable Function<T, String> toStringMapper) {
+        // TODO use extension method
+        return PrompterExt.promptValueFromList(prompter,
+            message,
+            options,
+            toStringMapper,
+            true);
     }
 
     @Override
     public boolean confirm(String message, String title) {
-        return PrompterUtil.getBooleanValue().message(message + " (Y/N)").prompt(prompter).get();
+        // TODO Use extension method
+        return PrompterExt.promptBoolean(prompter,
+                message + " (%s/%s)".formatted(getText("Prompter.YesAbbreviation"),
+                    getText("Prompter.NoAbbreviation")))
+            .orElse(false);
     }
 
     @Override
-    public Optional<String> enter(String title, String message, String errorMessage, Predicate<String> validator) {
-        return PrompterUtil.getString().message(message).errorMessage(errorMessage).objectValidator(validator).prompt(prompter);
+    public Optional<String> enter(String message, @Nullable String title,
+        @Nullable List<Validator<String>> inputValidators) {
+        // TODO use extension method
+        return PrompterExt.promptString(prompter, message, inputValidators:inputValidators);
+    }
+
+    @Override
+    public OptionalInt enterNumber(String title, String message,
+        @Nullable List<Validator<Integer>> objectValidators) {
+        // TODO use extension method
+        return PrompterExt.promptInt(prompter, message, objectValidators:objectValidators);
     }
 
     @Override

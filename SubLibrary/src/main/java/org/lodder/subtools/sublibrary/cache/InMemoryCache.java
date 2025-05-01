@@ -1,85 +1,42 @@
 package org.lodder.subtools.sublibrary.cache;
 
-import java.io.Serializable;
+import static manifold.ext.props.rt.api.PropOption.*;
+import static org.lodder.subtools.sublibrary.util.Sleep.*;
+
 import java.util.function.Predicate;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
+import manifold.ext.props.rt.api.val;
+import manifold.science.measures.Time;
 
-@Getter(value = AccessLevel.PROTECTED)
-public class InMemoryCache<K, V> extends Cache<K, V> {
+public final class InMemoryCache<K, V> extends Cache<K, V> {
 
-    private final Long timeToLive;
+    @val(Protected) Time timeToLive;
 
-    protected InMemoryCache(Long timeToLiveSeconds, Long timerIntervalSeconds, Integer maxItems) {
+    public InMemoryCache(Class<K> keyType, Class<V> valueType, Time timeToLive=null,
+        Time timerInterval=null, Integer maxItems=null) {
         super(maxItems);
         if (maxItems != null && maxItems < 1) {
             throw new IllegalStateException("maxItems should be a positive number");
-        }
-        if (timerIntervalSeconds != null && timerIntervalSeconds < 1) {
+        } else if (timerInterval != null && timerInterval.isNegative()) {
             throw new IllegalStateException("timerInterval should be a positive number");
-        }
-        if (timeToLiveSeconds != null && timeToLiveSeconds < 1) {
+        } else if (timeToLive != null && timeToLive.isNegative()) {
             throw new IllegalStateException("timeToLive should be a positive number");
-        }
-        if (timeToLiveSeconds == null && timerIntervalSeconds != null) {
+        } else if (timeToLive == null && timerInterval != null) {
             throw new IllegalStateException("timeToLive should be specified when timerInterval is used");
-        }
-        if (timeToLiveSeconds != null && timerIntervalSeconds != null && timeToLiveSeconds < timerIntervalSeconds) {
+        } else if (timeToLive != null && timerInterval != null &&
+            timeToLive < timerInterval) {
             throw new IllegalStateException("timerInterval should be greater than timeToLive");
         }
-        if (timerIntervalSeconds != null) {
-            createCleanUpThread(timerIntervalSeconds * 1000);
+        if (timerInterval != null) {
+            createCleanUpThread(timerInterval);
         }
-        this.timeToLive = timeToLiveSeconds * 1000;
+        this.timeToLive = timeToLive;
     }
 
-    public static InMemoryCacheBuilderKeyTypeIntf builder() {
-        return new InMemoryCacheBuilder<>();
-    }
-
-    public interface InMemoryCacheBuilderKeyTypeIntf {
-        <K extends Serializable> InMemoryCacheBuilderValueTypeIntf<K> keyType(Class<K> keyType);
-    }
-
-    public interface InMemoryCacheBuilderValueTypeIntf<K extends Serializable> {
-        <V extends Serializable> InMemoryCacheBuilder<K, V> valueType(Class<V> valueType);
-    }
-
-    @Setter
-    @Accessors(chain = true, fluent = true)
-    public static class InMemoryCacheBuilder<K extends Serializable, V extends Serializable>
-            implements InMemoryCacheBuilderKeyTypeIntf, InMemoryCacheBuilderValueTypeIntf<K> {
-        private Long timeToLive;
-        private Long timerInterval;
-        private Integer maxItems;
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public <T extends Serializable> InMemoryCacheBuilder<T, V> keyType(Class<T> keyType) {
-            return (InMemoryCacheBuilder<T, V>) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public <T extends Serializable> InMemoryCacheBuilder<K, T> valueType(Class<T> valueType) {
-            return (InMemoryCacheBuilder<K, T>) this;
-        }
-
-        public InMemoryCache<K, V> build() {
-            return new InMemoryCache<>(timeToLive, timerInterval, maxItems);
-        }
-    }
-
-    private void createCleanUpThread(long timerInterval) {
+    private void createCleanUpThread(Time timerInterval) {
         Thread t = new Thread(() -> {
             while (true) {
-                try {
-                    Thread.sleep(timerInterval);
-                } catch (InterruptedException ignored) {
-                }
+                sleep(timerInterval);
                 cleanup();
             }
         });
@@ -88,14 +45,12 @@ public class InMemoryCache<K, V> extends Cache<K, V> {
         t.start();
     }
 
-    public void cleanup() {
-        cleanup(null);
-    }
-
+    @Override
     public void cleanup(Predicate<K> keyFilter) {
-        synchronized (getCacheMap()) {
-            getCacheMap().entrySet()
-                    .removeIf(entry -> (keyFilter == null || keyFilter.test(entry.getKey())) && entry.getValue().isExpired(timeToLive));
+        synchronized (cacheMap) {
+            cacheMap.entrySet()
+                .removeIf(entry -> (keyFilter == null || keyFilter.test(entry.getKey())) &&
+                    entry.getValue().isExpired(timeToLive));
             Thread.yield();
         }
     }

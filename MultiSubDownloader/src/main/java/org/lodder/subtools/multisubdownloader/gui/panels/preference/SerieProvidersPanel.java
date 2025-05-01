@@ -1,40 +1,30 @@
 package org.lodder.subtools.multisubdownloader.gui.panels.preference;
 
 import static java.util.function.Predicate.*;
+import static org.lodder.subtools.multisubdownloader.Messages.*;
 
+import javax.swing.*;
 import java.io.Serial;
 import java.nio.file.Path;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-
-import org.lodder.subtools.multisubdownloader.Messages;
+import net.miginfocom.swing.MigLayout;
 import org.lodder.subtools.multisubdownloader.gui.extra.JListWithImages;
 import org.lodder.subtools.multisubdownloader.gui.extra.JListWithImages.LabelPanel;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.extra.PanelCheckBox;
 import org.lodder.subtools.multisubdownloader.gui.extra.TitlePanel;
-import org.lodder.subtools.multisubdownloader.gui.jcomponent.button.AbstractButtonExtension;
-import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcheckbox.JCheckBoxExtension;
-import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcomponent.JComponentExtension;
-import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield.JTextFieldExtension;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield.MyPasswordField;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield.MyTextFieldString;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.settings.model.PathMatchType;
+import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.OpenSubtitlesApi;
 
-import lombok.experimental.ExtensionMethod;
-import net.miginfocom.swing.MigLayout;
-
-@ExtensionMethod({ JTextFieldExtension.class, JCheckBoxExtension.class, JComponentExtension.class, AbstractButtonExtension.class })
 public class SerieProvidersPanel extends JPanel implements PreferencePanelIntf {
 
     @Serial
     private static final long serialVersionUID = -5458593307643063563L;
+
     private final SettingsControl settingsCtrl;
     private final JCheckBox chkSourceAddic7ed;
     private final JCheckBox chkUserAddic7edLogin;
@@ -47,7 +37,7 @@ public class SerieProvidersPanel extends JPanel implements PreferencePanelIntf {
     private final JCheckBox chkUserOpenSubtitlesLogin;
     private final MyTextFieldString txtOpenSubtitlesUsername;
     private final MyPasswordField txtOpenSubtitlesPassword;
-    private final JCheckBox chkSourceSubscene;
+    //    private final JCheckBox chkSourceSubscene;
     private final JCheckBox chkSourceLocal;
     private final JListWithImages<Path> localSourcesFoldersList;
 
@@ -55,99 +45,118 @@ public class SerieProvidersPanel extends JPanel implements PreferencePanelIntf {
         super(new MigLayout("insets 0, fill, nogrid"));
         this.settingsCtrl = settingsCtrl;
 
-        JPanel titelPanel = TitlePanel.title(Messages.getString("PreferenceDialog.SelectPreferredSources")).addTo(this, "span, grow");
+        JPanel titlePanel = new TitlePanel(getText("PreferenceDialog.SelectPreferredSources"))
+            .addToPanel(this, "span, grow");
 
         {
             // ADDIC7ED
             this.chkSourceAddic7ed = new JCheckBox("Addic7ed");
-            this.chkUserAddic7edLogin = new JCheckBox(Messages.getString("PreferenceDialog.UseAddic7edLogin"));
-            this.chkSourceAddic7edProxy = new JCheckBox(Messages.getString("PreferenceDialog.Proxy"));
+            this.chkUserAddic7edLogin = new JCheckBox(getText("PreferenceDialog.UseAddic7edLogin"));
+            this.chkSourceAddic7edProxy = new JCheckBox(getText("PreferenceDialog.Proxy"));
 
-            PanelCheckBox.checkbox(chkSourceAddic7ed).panelOnNewLine().addTo(titelPanel, "wrap")
-                    .addComponent("wrap", chkSourceAddic7edProxy)
-                    .addComponent(PanelCheckBox.checkbox(chkUserAddic7edLogin).panelOnNewLine()
-                            .panelLayout(new MigLayout("insets 0, novisualpadding")).build()
-                            .addComponent(new JLabel(Messages.getString("PreferenceDialog.Username")))
-                            .addComponent("wrap", this.txtAddic7edUsername = MyTextFieldString.builder().requireValue().build().withColumns(20))
-                            .addComponent(new JLabel(Messages.getString("PreferenceDialog.Password")))
-                            .addComponent(this.txtAddic7edPassword = MyPasswordField.builder().requireValue().build().withColumns(20)));
+            new PanelCheckBox(checkbox:chkSourceAddic7ed, panelOnNewLine:true)
+                .addToPanel(titlePanel, "wrap")
+                .addComponent("wrap", chkSourceAddic7edProxy)
+                .addComponent(new PanelCheckBox(
+                    checkbox:chkUserAddic7edLogin,
+                    panelOnNewLine:true,
+                    panelLayout:new MigLayout("insets 0, novisualpadding")
+                    )
+                    .addComponent(new JLabel(getText("PreferenceDialog.Username")))
+                    .addComponent("wrap", this.txtAddic7edUsername =
+                        MyTextFieldString.builder().requireValue().build().columns(20))
+                    .addComponent(new JLabel(getText("PreferenceDialog.Password")))
+                    .addComponent(this.txtAddic7edPassword =
+                        MyPasswordField.builder().requireValue().build().columns(20)));
 
             // TV SUBTITLES
-            this.chkSourceTvSubtitles = new JCheckBox("Tv Subtitles").addTo(titelPanel, "wrap");
+            this.chkSourceTvSubtitles = new JCheckBox("Tv Subtitles").addTo(titlePanel, "wrap");
 
             // PODNAPISI
-            this.chkSourcePodnapisi = new JCheckBox("Podnapisi").addTo(titelPanel, "wrap");
+            this.chkSourcePodnapisi = new JCheckBox("Podnapisi").addTo(titlePanel, "wrap");
 
             // OPENSUBTITLES
             this.chkSourceOpenSubtitles = new JCheckBox("OpenSubtitles");
-            this.chkUserOpenSubtitlesLogin = new JCheckBox(Messages.getString("PreferenceDialog.UseOpenSubtitlesLogin"));
-            PanelCheckBox.checkbox(chkSourceOpenSubtitles).panelOnNewLine().addTo(titelPanel, "wrap")
-                    .addComponent(PanelCheckBox.checkbox(chkUserOpenSubtitlesLogin).panelOnNewLine()
-                            .panelLayout(new MigLayout("insets 0, novisualpadding")).build()
-                            .addComponent(new JLabel(Messages.getString("PreferenceDialog.Username")))
-                            .addComponent("wrap", txtOpenSubtitlesUsername = MyTextFieldString.builder().requireValue().build().withColumns(20))
-                            .addComponent(new JLabel(Messages.getString("PreferenceDialog.Password")))
-                            .addComponent(txtOpenSubtitlesPassword = MyPasswordField.builder().requireValue().build().withColumns(20)));
+            this.chkUserOpenSubtitlesLogin = new JCheckBox(getText("PreferenceDialog.UseOpenSubtitlesLogin"));
+            new PanelCheckBox(checkbox:chkSourceOpenSubtitles, panelOnNewLine:true)
+                .addTo(titlePanel, "wrap").panel
+                .addComponent(new PanelCheckBox(
+                    checkbox:chkUserOpenSubtitlesLogin,
+                    panelOnNewLine:true,
+                    panelLayout:new MigLayout("insets 0, novisualpadding")
+                    )
+                    .addComponent(new JLabel(getText("PreferenceDialog.Username")))
+                    .addComponent("wrap", txtOpenSubtitlesUsername =
+                        MyTextFieldString.builder().requireValue().build().columns(20))
+                    .addComponent(new JLabel(getText("PreferenceDialog.Password")))
+                    .addComponent(txtOpenSubtitlesPassword =
+                        MyPasswordField.builder().requireValue().build().columns(20)));
 
             // SUBSCENE
-            this.chkSourceSubscene = new JCheckBox("Subscene").addTo(titelPanel, "wrap");
+//            this.chkSourceSubscene = new JCheckBox("Subscene").addTo(titlePanel, "wrap");
 
             // LOCAL
-            this.chkSourceLocal = new JCheckBox(Messages.getString("PreferenceDialog.Local"));
-            JScrollPane scrlPlocalSources =
-                    new JScrollPane().scrollPane(this.localSourcesFoldersList = JListWithImages.createForType(Path.class).distinctValues().build());
-            JButton btnBrowseLocalSources = new JButton(Messages.getString("PreferenceDialog.AddFolder"))
-                    .withActionListener(() -> MemoryFolderChooser.getInstance()
-                            .selectDirectory(this, Messages.getString("PreferenceDialog.SelectFolder"))
-                            .map(Path::toAbsolutePath).filter(not(localSourcesFoldersList::contains))
-                            .ifPresent(path -> localSourcesFoldersList.addItem(PathMatchType.FOLDER.getImage(), path)));
-            JButton btnRemoveLocalSources = new JButton(Messages.getString("PreferenceDialog.DeleteFolder"))
-                    .withActionListener(localSourcesFoldersList::removeSelectedItem);
+            this.chkSourceLocal = new JCheckBox(getText("PreferenceDialog.Local"));
+            JScrollPane scrLocalSources =
+                new JScrollPane().viewportView(this.localSourcesFoldersList = new JListWithImages<>());
+            JButton btnBrowseLocalSources = new JButton(getText("PreferenceDialog.AddFolder"))
+                .actionListener(() -> MemoryFolderChooser.getInstance()
+                    .selectDirectory(this, getText("PreferenceDialog.SelectFolder"))
+                    .map(Path::toAbsolutePath).filter(not(localSourcesFoldersList::contains))
+                    .ifPresent(path -> localSourcesFoldersList.addItem(PathMatchType.FOLDER.image, path)));
+            JButton btnRemoveLocalSources = new JButton(getText("PreferenceDialog.DeleteFolder"))
+                .actionListener(localSourcesFoldersList::removeSelectedItem);
 
-            PanelCheckBox.checkbox(chkSourceLocal).panelOnNewLine().addTo(titelPanel)
-                    .addComponent("aligny top, gapy 5px", new JLabel(Messages.getString("PreferenceDialog.LocalFolderWithSubtitles")))
-                    .addComponent("wrap", new JPanel(new MigLayout("insets 0", "[grow, nogrid]")).addComponent("split", btnBrowseLocalSources)
-                            .addComponent("wrap", btnRemoveLocalSources).addComponent("wrap", scrlPlocalSources));
+            new PanelCheckBox(checkbox:chkSourceLocal, panelOnNewLine:true)
+                .addTo(titlePanel).panel
+                .addComponent("aligny top, gapy 5px",
+                    new JLabel(getText("PreferenceDialog.LocalFolderWithSubtitles")))
+                .addComponent("wrap",
+                    new JPanel(new MigLayout("insets 0", "[grow, nogrid]"))
+                        .addComponent("split", btnBrowseLocalSources)
+                        .addComponent("wrap", btnRemoveLocalSources)
+                        .addComponent("wrap", scrLocalSources));
         }
 
         loadPreferenceSettings();
     }
 
     public void loadPreferenceSettings() {
-        chkSourceAddic7ed.setSelected(settingsCtrl.getSettings().isSerieSourceAddic7ed());
-        chkUserAddic7edLogin.setSelected(settingsCtrl.getSettings().isLoginAddic7edEnabled());
-        chkSourceAddic7edProxy.setSelected(settingsCtrl.getSettings().isSerieSourceAddic7edProxy());
-        // chkSourceAddic7edProxy.setEnabled(settingsCtrl.getSettings().isSerieSourceAddic7ed());
-        txtAddic7edUsername.setText(settingsCtrl.getSettings().getLoginAddic7edUsername());
-        txtAddic7edPassword.setText(settingsCtrl.getSettings().getLoginAddic7edPassword());
+        Settings settings = settingsCtrl.settings;
+        chkSourceAddic7ed.setSelected(settings.serieSourceAddic7ed);
+        chkUserAddic7edLogin.setSelected(settings.loginAddic7edEnabled);
+        chkSourceAddic7edProxy.setSelected(settings.serieSourceAddic7edProxy);
+        // chkSourceAddic7edProxy.setEnabled(settings.serieSourceAddic7ed);
+        txtAddic7edUsername.setText(settings.loginAddic7edUsername);
+        txtAddic7edPassword.setText(settings.loginAddic7edPassword);
 
-        chkSourceTvSubtitles.setSelected(settingsCtrl.getSettings().isSerieSourceTvSubtitles());
-        chkSourcePodnapisi.setSelected(settingsCtrl.getSettings().isSerieSourcePodnapisi());
-        chkSourceOpenSubtitles.setSelected(settingsCtrl.getSettings().isSerieSourceOpensubtitles());
-        chkUserOpenSubtitlesLogin.setSelected(settingsCtrl.getSettings().isLoginOpenSubtitlesEnabled());
-        txtOpenSubtitlesUsername.setText(settingsCtrl.getSettings().getLoginOpenSubtitlesUsername());
-        txtOpenSubtitlesPassword.setText(settingsCtrl.getSettings().getLoginOpenSubtitlesPassword());
-        chkSourceSubscene.setSelected(settingsCtrl.getSettings().isSerieSourceSubscene());
-        chkSourceLocal.setSelected(settingsCtrl.getSettings().isSerieSourceLocal());
-        settingsCtrl.getSettings().getLocalSourcesFolders().forEach(path -> localSourcesFoldersList.addItem(PathMatchType.FOLDER.getImage(), path));
+        chkSourceTvSubtitles.setSelected(settings.serieSourceTvSubtitles);
+        chkSourcePodnapisi.setSelected(settings.serieSourcePodnapisi);
+        chkSourceOpenSubtitles.setSelected(settings.serieSourceOpensubtitles);
+        chkUserOpenSubtitlesLogin.setSelected(settings.loginOpenSubtitlesEnabled);
+        txtOpenSubtitlesUsername.setText(settings.loginOpenSubtitlesUsername);
+        txtOpenSubtitlesPassword.setText(settings.loginOpenSubtitlesPassword);
+//        chkSourceSubscene.setSelected(settings.serieSourceSubscene);
+        chkSourceLocal.setSelected(settings.serieSourceLocal);
+        settings.localSourcesFolders.forEach(path -> localSourcesFoldersList.addItem(PathMatchType.FOLDER.image, path));
     }
 
     public void savePreferenceSettings() {
-        settingsCtrl.getSettings()
-                .setSerieSourceAddic7ed(chkSourceAddic7ed.isSelected())
-                .setLoginAddic7edEnabled(chkUserAddic7edLogin.isSelected())
-                .setSerieSourceAddic7edProxy(chkSourceAddic7edProxy.isSelected())
-                .setLoginAddic7edUsername(txtAddic7edUsername.getText())
-                .setLoginAddic7edPassword(new String(txtAddic7edPassword.getPassword()))
-                .setSerieSourceTvSubtitles(chkSourceTvSubtitles.isSelected())
-                .setSerieSourcePodnapisi(chkSourcePodnapisi.isSelected())
-                .setSerieSourceOpensubtitles(chkSourceOpenSubtitles.isSelected())
-                .setLoginOpenSubtitlesEnabled(chkUserOpenSubtitlesLogin.isSelected())
-                .setLoginOpenSubtitlesUsername(txtOpenSubtitlesUsername.getText())
-                .setLoginOpenSubtitlesPassword(new String(txtOpenSubtitlesPassword.getPassword()))
-                .setSerieSourceSubscene(chkSourceSubscene.isSelected())
-                .setSerieSourceLocal(chkSourceLocal.isSelected())
-                .setLocalSourcesFolders(localSourcesFoldersList.stream().map(LabelPanel::getObject).toList());
+        Settings settings = settingsCtrl.settings;
+        settings.serieSourceAddic7ed = chkSourceAddic7ed.isSelected();
+        settings.loginAddic7edEnabled = chkUserAddic7edLogin.isSelected();
+        settings.serieSourceAddic7edProxy = chkSourceAddic7edProxy.isSelected();
+        settings.loginAddic7edUsername = txtAddic7edUsername.getText();
+        settings.loginAddic7edPassword = new String(txtAddic7edPassword.getPassword());
+        settings.serieSourceTvSubtitles = chkSourceTvSubtitles.isSelected();
+        settings.serieSourcePodnapisi = chkSourcePodnapisi.isSelected();
+        settings.serieSourceOpensubtitles = chkSourceOpenSubtitles.isSelected();
+        settings.loginOpenSubtitlesEnabled = chkUserOpenSubtitlesLogin.isSelected();
+        settings.loginOpenSubtitlesUsername = txtOpenSubtitlesUsername.getText();
+        settings.loginOpenSubtitlesPassword = new String(txtOpenSubtitlesPassword.getPassword());
+        settings.serieSourceSubscene = false; //chkSourceSubscene.isSelected();
+        settings.serieSourceLocal = chkSourceLocal.isSelected();
+        settings.localSourcesFolders = localSourcesFoldersList.stream().map(LabelPanel::getObject).toList();
     }
 
     private boolean hasValidSettingsAddic7ed() {
@@ -158,7 +167,8 @@ public class SerieProvidersPanel extends JPanel implements PreferencePanelIntf {
         if (!txtOpenSubtitlesUsername.hasValidValue() || !txtOpenSubtitlesPassword.hasValidValue()) {
             return false;
         }
-        if (chkUserOpenSubtitlesLogin.isSelected() && !OpenSubtitlesApi.isValidCredentials(txtOpenSubtitlesUsername.getText(),
+        if (chkUserOpenSubtitlesLogin.isSelected() &&
+            !OpenSubtitlesApi.isValidCredentials(txtOpenSubtitlesUsername.getText(),
                 new String(txtOpenSubtitlesPassword.getPassword()))) {
             txtOpenSubtitlesUsername.setErrorBorder();
             txtOpenSubtitlesPassword.setErrorBorder();

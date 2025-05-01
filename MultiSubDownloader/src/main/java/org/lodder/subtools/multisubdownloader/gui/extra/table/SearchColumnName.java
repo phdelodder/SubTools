@@ -1,17 +1,14 @@
 package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import manifold.ext.props.rt.api.override;
+import manifold.ext.props.rt.api.val;
 import org.lodder.subtools.multisubdownloader.Messages;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
 public enum SearchColumnName implements CustomColumnName {
 
     RELEASE("App.Release", String.class, false),
@@ -27,17 +24,17 @@ public enum SearchColumnName implements CustomColumnName {
     SCORE("SearchColumnName.Score", Integer.class, false);
 
     private static final Map<String, SearchColumnName> MAP =
-            Arrays.stream(SearchColumnName.values()).collect(Collectors.toMap(SearchColumnName::getColumnName, Function.identity()));
+            SearchColumnName.values().stream()
+                    .collect(Collectors.toMap(SearchColumnName::getColumnName, Function.identity()));
 
-    private final String columnNameCode;
-    @Getter
-    private final Class<?> c;
-    @Getter
-    private final boolean editable;
+    @val @override String columnName;
+    @val @override Class<?> clazz;
+    @val @override boolean editable;
 
-    @Override
-    public String getColumnName() {
-        return Messages.getString(columnNameCode);
+    SearchColumnName(String columnNameCode, Class<?> clazz, boolean editable) {
+        this.columnName = Messages.getText(columnNameCode);
+        this.clazz = clazz;
+        this.editable = editable;
     }
 
     public static Optional<SearchColumnName> getForColumnName(String columnName) {

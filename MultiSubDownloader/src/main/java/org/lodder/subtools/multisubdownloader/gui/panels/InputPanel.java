@@ -1,60 +1,40 @@
 package org.lodder.subtools.multisubdownloader.gui.panels;
 
+import static manifold.ext.props.rt.api.PropOption.*;
+
+import javax.swing.*;
 import java.io.Serial;
 
-import javax.swing.JButton;
-import javax.swing.JPanel;
-
+import manifold.ext.props.rt.api.val;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.actions.SearchAction;
-import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcombobox.MyComboBox;
 import org.lodder.subtools.sublibrary.Language;
 
-public abstract class InputPanel extends JPanel {
+public abstract sealed class InputPanel extends JPanel permits SearchFileInputPanel, SearchTextInputPanel {
 
     @Serial
     private static final long serialVersionUID = 7753220002440733463L;
-    private JButton btnSearch;
-    private MyComboBox<Language> cbxLanguage;
-
-    public InputPanel() {
-        createComponents();
-    }
+    @val JButton searchButton = new JButton(Messages.getText("InputPanel.SearchForSubtitles"));
+    @val(Protected) JComboBox<Language> languageCbx =
+        new JComboBox<>(Language.values()).toMessageStringRenderer(Language::getMsgCode);
 
     public Language getSelectedLanguage() {
-        return cbxLanguage.getSelectedItem();
+        return languageCbx.getSelectedValue();
     }
 
-    public void setSelectedlanguage(Language language) {
-        cbxLanguage.setSelectedItem(language);
+    public void setSelectedLanguage(Language language) {
+        languageCbx.setSelectedItem(language);
     }
 
     public void addSearchAction(SearchAction searchAction) {
-        if (searchAction != null) {
-            btnSearch.addActionListener(event -> new Thread(searchAction).start());
-        }
+        searchButton.addActionListener(_ -> new Thread(searchAction).start());
     }
 
     public void enableSearchButton() {
-        btnSearch.setEnabled(true);
+        searchButton.setEnabled(true);
     }
 
     public void disableSearchButton() {
-        this.btnSearch.setEnabled(false);
-    }
-
-    protected JButton getSearchButton() {
-        return this.btnSearch;
-    }
-
-    protected MyComboBox<Language> getLanguageCbx() {
-        return this.cbxLanguage;
-    }
-
-    private void createComponents() {
-        cbxLanguage = new MyComboBox<>(Language.values())
-                .withToMessageStringRenderer(Language::getMsgCode);
-
-        btnSearch = new JButton(Messages.getString("InputPanel.SearchForSubtitles"));
+        this.searchButton.setEnabled(false);
     }
 }

@@ -1,21 +1,21 @@
 package org.lodder.subtools.multisubdownloader.settings.model.structure;
 
+import manifold.ext.props.rt.api.override;
+import manifold.ext.props.rt.api.val;
 import org.lodder.subtools.multisubdownloader.Messages;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@Getter
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum MovieStructureTag implements StructureTag {
 
-    MOVIE_TITLE("%MOVIE TITLE%", Messages.getString("StructureBuilderDialog.MovieName")),
-    QUALITY("%QUALITY%", Messages.getString("StructureBuilderDialog.QualityOfMovie")),
-    DESCRIPTION("%DESCRIPTION%", Messages.getString("StructureBuilderDialog.MovieDescription")),
-    YEAR("%YEAR%", Messages.getString("StructureBuilderDialog.MovieYear"));
+    MOVIE_TITLE("%MOVIE TITLE%", "StructureBuilderDialog.MovieName"),
+    QUALITY("%QUALITY%", "StructureBuilderDialog.QualityOfMovie"),
+    YEAR("%YEAR%", "StructureBuilderDialog.MovieYear"),
+    RELEASE_GROUP("%RELEASE GROUP%", "StructureBuilderDialog.ReleaseGroup");
 
-    private final String label;
-    private final String description;
+    @val @override String label;
+    @val @override String description;
 
+    MovieStructureTag(String label, String descriptionMessage) {
+        this.label = label;
+        this.description = Messages.getText(descriptionMessage);
+    }
 }

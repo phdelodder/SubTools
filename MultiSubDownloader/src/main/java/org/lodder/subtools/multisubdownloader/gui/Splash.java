@@ -1,33 +1,30 @@
 package org.lodder.subtools.multisubdownloader.gui;
 
+import static org.lodder.subtools.multisubdownloader.Messages.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.Serial;
 
 import net.miginfocom.swing.MigLayout;
-import org.lodder.subtools.multisubdownloader.Messages;
 
 public class Splash extends JWindow {
 
     @Serial
     private static final long serialVersionUID = -7795482367449509520L;
-    private JProgressBar progressBar;
+    private final JProgressBar progressBar;
 
     public Splash() {
-        initialize_ui();
-    }
-
-    public void initialize_ui() {
         setBounds(100, 100, 501, 100);
-        getContentPane().setLayout(new MigLayout("", "[][475px,center][]", "[][40px:n]"));
+        contentPane.setLayout(new MigLayout("", "[][475px,center][]", "[][40px:n]"));
 
-        JLabel label = new JLabel(Messages.getString("Splash.starting"));
-        getContentPane().add(label, "cell 1 0 2 1,alignx left");
+        JLabel label = new JLabel(getText("Splash.starting"));
+        contentPane.add(label, "cell 1 0 2 1,alignx left");
 
         progressBar = new JProgressBar(0, 100);
         progressBar.setIndeterminate(true);
         progressBar.setStringPainted(true);
-        getContentPane().add(progressBar, "cell 1 1,grow");
+        contentPane.add(progressBar, "cell 1 1,grow");
 
         Rectangle r = getBounds();
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
@@ -37,9 +34,10 @@ public class Splash extends JWindow {
 
     }
 
-    public void showSplash() {
+    public Splash showSplash() {
         setVisible(true);
         toFront();
+        return this;
     }
 
     public void setProgressMsg(String msg) {

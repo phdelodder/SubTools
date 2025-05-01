@@ -1,31 +1,26 @@
 package org.lodder.subtools.sublibrary.cache;
 
-import java.util.Optional;
+import java.io.Serializable;
 import java.util.function.Function;
 
-public interface CacheObject<T> {
+import manifold.ext.props.rt.api.val;
+import manifold.science.measures.Time;
 
-    long getCreated();
+public sealed interface CacheObject<T> extends Serializable permits ExpiringCacheObject, TemporaryCacheObject {
 
-    T getValue();
+    @val Time created;
+    @val T value;
+    @val Time age;
 
     void updateLastAccessed();
 
-    boolean isExpired(long ttl);
+    boolean isExpired(Time ttl);
 
     String toString(Function<T, String> valueToStringMapper);
 
     static <T> CacheObject<T> fromString(String string, Function<String, T> valueToObjectMapper) {
-        Optional<CacheObject<T>> cacheObject = ExpiringCacheObject.fromString(string, valueToObjectMapper);
-        if (cacheObject.isPresent()) {
-            return cacheObject.get();
-        }
-        Optional<TemporaryCacheObject<T>> temporaryCacheObject = TemporaryCacheObject.fromString(string, valueToObjectMapper);
-        if (temporaryCacheObject.isPresent()) {
-            return temporaryCacheObject.get();
-        }
-        throw new IllegalStateException("Could not parse value: " + string);
+        return ExpiringCacheObject.fromString(string, valueToObjectMapper)
+            .orElseGet(() -> TemporaryCacheObject.fromString(string, valueToObjectMapper)
+                .orElseThrow(() -> new IllegalStateException("Could not parse value: $string")));
     }
-
-    long getAge();
 }

@@ -1,32 +1,30 @@
 package org.lodder.subtools.sublibrary.control;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.lodder.subtools.sublibrary.assertions.SubLibraryAssertions.assertThat;
 
 import java.nio.file.Path;
-import java.util.List;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.lodder.subtools.sublibrary.exception.ReleaseParseException;
-import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
-import org.lodder.subtools.sublibrary.model.TvRelease;
-import org.lodder.subtools.sublibrary.model.VideoType;
 
 class ReleaseParserTest {
 
     @Test
-    void testReleaseGroup() throws Exception {
-        String releaseGroup = ReleaseParser.extractReleasegroup("The.Following.S03E01.HDTV.XviD-AFG", false);
+    void testReleaseGroup() {
+        String releaseGroup = ReleaseParser.extractReleaseGroup("The.Following.S03E01.HDTV.XviD-AFG", false);
         assertThat(releaseGroup).isEqualTo("AFG");
 
-        releaseGroup = ReleaseParser.extractReleasegroup("The.Following.S03E01.HDTV.XviD-AFG", true);
-        assertThat(releaseGroup).isEqualTo("A");
+        releaseGroup = ReleaseParser.extractReleaseGroup("The.Following.S03E01.HDTV.XviD-AFG", true);
+        assertThat(releaseGroup).isEmpty();
 
-        releaseGroup = ReleaseParser.extractReleasegroup("The.Following.S03E01.HDTV.XviD-AFG.srt", false);
-        assertThat(releaseGroup).isEqualTo("");
+        releaseGroup = ReleaseParser.extractReleaseGroup("The.Following.S03E01.HDTV.XviD-AFG.srt", false);
+        assertThat(releaseGroup).isEmpty();
 
-        releaseGroup = ReleaseParser.extractReleasegroup("The.Following.S03E01.HDTV.XviD-AFG.srt", true);
+        releaseGroup = ReleaseParser.extractReleaseGroup("The.Following.S03E01.HDTV.XviD-AFG.srt", true);
         assertThat(releaseGroup).isEqualTo("AFG");
     }
 
@@ -37,154 +35,314 @@ class ReleaseParserTest {
         Path file = Path.of("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv");
         Release release = releaseparser.parse(file);
 
-        List<String> q = ReleaseParser.getQualityKeyWords(release.getQuality());
-
-        assertThat(q).containsExactly("720p", "hdtv", "x264");
+        assertThat(ReleaseParser.getQualityKeyWords(release.quality)).containsExactly("720p", "hdtv", "x264");
 
         file = Path.of("The.Drop.2014.1080p.WEB-DL.DD5.1.H264-RARBG.mkv");
         release = releaseparser.parse(file);
 
-        q = ReleaseParser.getQualityKeyWords(release.getQuality());
+        assertThat(ReleaseParser.getQualityKeyWords(release.quality))
+            .containsExactly("1080p", "web-dl", "dd5.1", "x264");
+    }
 
-        assertThat(q).containsExactly("1080p", "web-dl", "dd5 1", "h264");
+    @Nested
+    class testTV {
+
+        private final ReleaseParser releaseparser = new ReleaseParser();
+
+        @Nested
+        class StartsWithSeasonEpisode {
+
+
+            @Test
+            void StartsWithSeasonEpisode1() throws Exception {
+                Path file = Path.of("S04E02 - White Collar - Most Wanted.mkv");
+                Release release = releaseparser.parse(file);
+
+                assertThat(release)
+                    .isSerie()
+                    .hasEpisodeVideoType()
+                    .hasExtension("mkv")
+                    .hasFileName("S04E02 - White Collar - Most Wanted.mkv")
+                    .withoutReleaseGroup()
+                    .withoutQuality()
+                    .hasSeason(4)
+                    .hasEpisodes(2)
+                    .hasName("White Collar")
+                    .hasTitle("Most Wanted");
+            }
+
+            @Test
+            void StartsWithSeasonEpisode2() throws Exception {
+                Path file = Path.of("(S04E02) - White Collar - Most Wanted.mkv");
+                Release release = releaseparser.parse(file);
+
+                assertThat(release)
+                    .isSerie()
+                    .hasEpisodeVideoType()
+                    .hasExtension("mkv")
+                    .hasFileName("(S04E02) - White Collar - Most Wanted.mkv")
+                    .withoutReleaseGroup()
+                    .withoutQuality()
+                    .hasSeason(4)
+                    .hasEpisodes(2)
+                    .hasName("White Collar")
+                    .hasTitle("Most Wanted");
+            }
+
+            @Test
+            void StartsWithSeasonEpisode3() throws Exception {
+                Path file = Path.of("(S04E02) White Collar - Most Wanted.mkv");
+                Release release = releaseparser.parse(file);
+
+                assertThat(release)
+                    .isSerie()
+                    .hasEpisodeVideoType()
+                    .hasExtension("mkv")
+                    .hasFileName("(S04E02) White Collar - Most Wanted.mkv")
+                    .withoutReleaseGroup()
+                    .withoutQuality()
+                    .hasSeason(4)
+                    .hasEpisodes(2)
+                    .hasName("White Collar")
+                    .hasTitle("Most Wanted");
+            }
+        }
+
+
+        @Test
+        void testTV1() throws Exception {
+            Path file = Path.of("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv");
+            Release release = releaseparser.parse(file);
+
+            assertThat(release)
+                .isSerie()
+                .hasEpisodeVideoType()
+                .hasExtension("mkv")
+                .hasFileName("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv")
+                .hasReleaseGroup("DIMENSION")
+                .hasQuality("720p hdtv x264")
+                .hasSeason(10)
+                .hasEpisodes(12)
+                .hasName("Criminal Minds")
+                .withoutTitle();
+        }
+
+        @Test
+        void testTV4() throws Exception {
+            Path file = Path.of("Spartacus.Gods.of.The.Arena.Pt.IV.720p.HDTV.X264-DIMENSION.mkv");
+            Release release = releaseparser.parse(file);
+
+            assertThat(release)
+                .isSerie()
+                .hasEpisodeVideoType()
+                .hasExtension("mkv")
+                .hasFileName("Spartacus.Gods.of.The.Arena.Pt.IV.720p.HDTV.X264-DIMENSION.mkv")
+                .hasReleaseGroup("DIMENSION")
+                .hasQuality("720p hdtv x264")
+                .hasSeason(1)
+                .hasEpisodes(4)
+                .hasName("Spartacus Gods of The Arena")
+                .withoutTitle();
+        }
+
+        @Test
+        void testTV5() throws Exception {
+            Path file = Path.of("hawaii.five-0.2010.410.hdtv-lol.mp4");
+            Release release = releaseparser.parse(file);
+
+            assertThat(release)
+                .isSerie()
+                .hasEpisodeVideoType()
+                .hasExtension("mp4")
+                .hasFileName("hawaii.five-0.2010.410.hdtv-lol.mp4")
+                .hasReleaseGroup("lol")
+                .hasQuality("hdtv")
+                .hasSeason(4)
+                .hasEpisodes(10)
+                .hasName("hawaii five-0")
+                .withoutTitle();
+        }
+
+        @Test
+        void testTV6() throws Exception {
+            Path file = Path.of("Greys.Anatomy.S10E01E02.720p.HDTV.X264-DIMENSION.mkv");
+            Release release = releaseparser.parse(file);
+
+            assertThat(release)
+                .isSerie()
+                .hasEpisodeVideoType()
+                .hasExtension("mkv")
+                .hasFileName("Greys.Anatomy.S10E01E02.720p.HDTV.X264-DIMENSION.mkv")
+                .hasReleaseGroup("DIMENSION")
+                .hasQuality("720p hdtv x264")
+                .hasSeason(10)
+                .hasEpisodes(1, 2)
+                .hasName("Greys Anatomy")
+                .withoutTitle();
+        }
+
+        @Test
+        void testTV7() throws Exception {
+            Path file = Path.of("Greys.Anatomy.S10E01E02 Seal Our Fate 720p.HDTV.X264-DIMENSION.mkv");
+            Release release = releaseparser.parse(file);
+
+            assertThat(release)
+                .isSerie()
+                .hasEpisodeVideoType()
+                .hasExtension("mkv")
+                .hasFileName("Greys.Anatomy.S10E01E02 Seal Our Fate 720p.HDTV.X264-DIMENSION.mkv")
+                .hasReleaseGroup("DIMENSION")
+                .hasQuality("720p hdtv x264")
+                .hasSeason(10)
+                .hasEpisodes(1, 2)
+                .hasName("Greys Anatomy")
+                .hasTitle("Seal Our Fate");
+        }
+
+
+        @Test
+        void testTV8() throws Exception {
+            Path file = Path.of("(2-11) Joey and the High School Friend.mkv");
+            Release release = releaseparser.parse(file);
+
+            assertThat(release)
+                .isSerie()
+                .hasEpisodeVideoType()
+                .hasExtension("mkv")
+                .hasFileName("(2-11) Joey and the High School Friend.mkv")
+                .withoutReleaseGroup()
+                .withoutQuality()
+                .hasSeason(2)
+                .hasEpisodes(11)
+                .hasName("Joey and the High School Friend")
+                .withoutTitle();
+        }
+
+        @Test
+        void testTV9() throws Exception {
+            Path file = Path.of("The.Boys.S04E05.Beware.the.jabberwock.my.son.1080p.web.dl.hevc.x265.rmteam.mkv");
+            Release release = releaseparser.parse(file);
+
+            assertThat(release)
+                .isSerie()
+                .hasEpisodeVideoType()
+                .hasExtension("mkv")
+                .hasFileName("The.Boys.S04E05.Beware.the.jabberwock.my.son.1080p.web.dl.hevc.x265.rmteam.mkv")
+                .hasReleaseGroup("rmteam")
+                .hasQuality("1080p web-dl x265")
+                .hasSeason(4)
+                .hasEpisodes(5)
+                .hasName("The Boys")
+                .hasTitle("Beware the jabberwock my son");
+        }
     }
 
     @Test
-    void testTV() throws Exception {
-        ReleaseParser releaseparser = new ReleaseParser();
-
-        Path file = Path.of("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv");
-        Release release = releaseparser.parse(file);
-
-        assertThat(release.getVideoType()).isEqualTo(VideoType.EPISODE);
-        assertThat(release.getExtension()).isEqualTo("mkv");
-        assertThat(release.getFileName()).isEqualTo("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv");
-        assertThat(release.getReleaseGroup()).isEqualTo("DIMENSION");
-        assertThat(release.getQuality()).isEqualTo("720p hdtv x264");
-
-        TvRelease tvrelease = (TvRelease) release;
-
-        assertThat(tvrelease.getSeason()).isEqualTo(10);
-        assertThat(tvrelease.getEpisodeNumbers().size()).isEqualTo(1);
-        assertThat((int) tvrelease.getEpisodeNumbers().get(0)).isEqualTo(12);
-
-        file = Path.of("S04E02 - White Collar - Most Wanted.mkv");
-        release = releaseparser.parse(file);
-
-        assertThat(release.getVideoType()).isEqualTo(VideoType.EPISODE);
-        assertThat(release.getExtension()).isEqualTo("mkv");
-        assertThat(release.getFileName()).isEqualTo("S04E02 - White Collar - Most Wanted.mkv");
-        assertThat(release.getReleaseGroup()).isEqualTo("");
-        assertThat(release.getQuality()).isEqualTo("");
-
-        tvrelease = (TvRelease) release;
-
-        assertThat(tvrelease.getSeason()).isEqualTo(4);
-        assertThat(tvrelease.getEpisodeNumbers().size()).isEqualTo(1);
-        assertThat((int) tvrelease.getEpisodeNumbers().get(0)).isEqualTo(2);
-
-        file = Path.of("Spartacus.Gods.of.The.Arena.Pt.I.720p.HDTV.X264-DIMENSION.mkv");
-        release = releaseparser.parse(file);
-
-        assertThat(release.getVideoType()).isEqualTo(VideoType.EPISODE);
-        assertThat(release.getExtension()).isEqualTo("mkv");
-        assertEquals(release.getFileName(),
-                "Spartacus.Gods.of.The.Arena.Pt.I.720p.HDTV.X264-DIMENSION.mkv");
-        assertThat(release.getReleaseGroup()).isEqualTo("DIMENSION");
-        assertThat(release.getQuality()).isEqualTo("720p hdtv x264");
-
-        tvrelease = (TvRelease) release;
-
-        assertThat(tvrelease.getSeason()).isEqualTo(1);
-        assertThat(tvrelease.getEpisodeNumbers().size()).isEqualTo(1);
-        assertThat((int) tvrelease.getEpisodeNumbers().get(0)).isEqualTo(1);
-
-        file = Path.of("hawaii.five-0.2010.410.hdtv-lol.mp4");
-        release = releaseparser.parse(file);
-
-        assertThat(release.getVideoType()).isEqualTo(VideoType.EPISODE);
-        assertThat(release.getExtension()).isEqualTo("mp4");
-        assertThat(release.getFileName()).isEqualTo("hawaii.five-0.2010.410.hdtv-lol.mp4");
-        assertThat(release.getReleaseGroup()).isEqualTo("lol");
-        assertThat(release.getQuality()).isEqualTo("hdtv");
-
-        tvrelease = (TvRelease) release;
-
-        assertThat(tvrelease.getSeason()).isEqualTo(4);
-        assertThat(tvrelease.getEpisodeNumbers().size()).isEqualTo(1);
-        assertThat((int) tvrelease.getEpisodeNumbers().get(0)).isEqualTo(10);
-
-        file = Path.of("Greys.Anatomy.S10E01E02.720p.HDTV.X264-DIMENSION.mkv");
-        release = releaseparser.parse(file);
-
-        assertThat(release.getVideoType()).isEqualTo(VideoType.EPISODE);
-        assertThat(release.getExtension()).isEqualTo("mkv");
-        assertThat(release.getFileName()).isEqualTo("Greys.Anatomy.S10E01E02.720p.HDTV.X264-DIMENSION.mkv");
-        assertThat(release.getReleaseGroup()).isEqualTo("DIMENSION");
-        assertThat(release.getQuality()).isEqualTo("720p hdtv x264");
-
-        tvrelease = (TvRelease) release;
-
-        assertThat(tvrelease.getSeason()).isEqualTo(10);
-        assertThat(tvrelease.getEpisodeNumbers().size()).isEqualTo(2);
-        assertThat((int) tvrelease.getEpisodeNumbers().get(0)).isEqualTo(1);
-        assertThat((int) tvrelease.getEpisodeNumbers().get(1)).isEqualTo(2);
-    }
-
-    @Test
-    void testReleaseParseExceptionMessage() throws ReleaseParseException {
+    void testReleaseParseExceptionMessage() {
         Path file = Path.of("exceptiontesting.mkv");
 
-        assertThatExceptionOfType(ReleaseParseException.class)
-                .isThrownBy(() -> new ReleaseParser().parse(file))
-                .withMessage("Unknown format, can't be parsed: " + file.toAbsolutePath());
+        assertThatExceptionOfType(ReleaseParseException.class).isThrownBy(() -> new ReleaseParser().parse(file))
+            .withMessage("Unknown format, can't be parsed: " + file.toAbsolutePath());
     }
 
-    @Test
-    void testMovie() throws Exception {
-        ReleaseParser releaseparser = new ReleaseParser();
+    @Nested
+    class TestMovie {
+        private final ReleaseParser releaseparser = new ReleaseParser();
 
-        Path file = Path.of("Back.to.the.Future.Part.II.1989.720p.BluRay.X264-AMIABLE.mkv");
-        Release release = releaseparser.parse(file);
+        @Test
+        void testMovie1() throws Exception {
+            Path file = Path.of("Back.to.the.Future.Part.II.1989.720p.BluRay.X264-AMIABLE.mkv");
+            Release release = releaseparser.parse(file);
 
-        assertThat(release.getVideoType()).isEqualTo(VideoType.MOVIE);
-        assertThat(release.getExtension()).isEqualTo("mkv");
-        assertThat(release.getFileName()).isEqualTo("Back.to.the.Future.Part.II.1989.720p.BluRay.X264-AMIABLE.mkv");
-        assertThat(release.getReleaseGroup()).isEqualTo("AMIABLE");
-        assertThat(release.getQuality()).isEqualTo("720p bluray x264");
+            assertThat(release)
+                .isMovie()
+                .hasMovieVideoType()
+                .hasExtension("mkv")
+                .hasFileName("Back.to.the.Future.Part.II.1989.720p.BluRay.X264-AMIABLE.mkv")
+                .hasReleaseGroup("AMIABLE")
+                .hasQuality("720p bluray x264")
+                .hasYear(1989)
+                .hasName("Back to the Future Part II");
+        }
 
-        MovieRelease movieRelease = (MovieRelease) release;
+        @Test
+        void testMovie2() throws Exception {
+            Path file = Path.of("Back.to.the.Future.Part.21.1989.720p.BluRay.X264-AMIABLE.mkv");
+            Release release = releaseparser.parse(file);
 
-        assertThat((int) movieRelease.getYear()).isEqualTo(1989);
-        assertThat(movieRelease.getName()).isEqualTo("Back to the Future Part II");
+            assertThat(release)
+                .isMovie()
+                .hasMovieVideoType()
+                .hasExtension("mkv")
+                .hasFileName("Back.to.the.Future.Part.21.1989.720p.BluRay.X264-AMIABLE.mkv")
+                .hasReleaseGroup("AMIABLE")
+                .hasQuality("720p bluray x264")
+                .hasYear(1989)
+                .hasName("Back to the Future Part 21");
+        }
 
-        file = Path.of("The.Equalizer.2014.720p.BluRay.x264-SPARKS.mkv");
-        release = releaseparser.parse(file);
+        @Test
+        void testMovie3() throws Exception {
+            Path file = Path.of("The.Equalizer.2014.720p.BluRay.x264-SPARKS.mkv");
+            Release release = releaseparser.parse(file);
 
-        assertThat(release.getVideoType()).isEqualTo(VideoType.MOVIE);
-        assertThat(release.getExtension()).isEqualTo("mkv");
-        assertThat(release.getFileName()).isEqualTo("The.Equalizer.2014.720p.BluRay.x264-SPARKS.mkv");
-        assertThat(release.getReleaseGroup()).isEqualTo("SPARKS");
-        assertThat(release.getQuality()).isEqualTo("720p bluray x264");
+            assertThat(release)
+                .isMovie()
+                .hasMovieVideoType()
+                .hasExtension("mkv")
+                .hasFileName("The.Equalizer.2014.720p.BluRay.x264-SPARKS.mkv")
+                .hasReleaseGroup("SPARKS")
+                .hasQuality("720p bluray x264")
+                .hasYear(2014)
+                .hasName("The Equalizer");
+        }
 
-        movieRelease = (MovieRelease) release;
+        @Test
+        void testMovie4() throws Exception {
+            Path file = Path.of("The.Trip.to.Italy.2014.LIMITED.720p.BluRay.x264-GECKOS.mkv");
+            Release release = releaseparser.parse(file);
 
-        assertThat((int) movieRelease.getYear()).isEqualTo(2014);
-        assertThat(movieRelease.getName()).isEqualTo("The Equalizer");
+            assertThat(release)
+                .isMovie()
+                .hasMovieVideoType()
+                .hasExtension("mkv")
+                .hasFileName("The.Trip.to.Italy.2014.LIMITED.720p.BluRay.x264-GECKOS.mkv")
+                .hasReleaseGroup("GECKOS")
+                .hasQuality("720p bluray x264")
+                .hasYear(2014)
+                .hasName("The Trip to Italy");
+        }
 
-        file = Path.of("The.Trip.to.Italy.2014.LIMITED.720p.BluRay.x264-GECKOS.mkv");
-        release = releaseparser.parse(file);
+        @Test
+        void testMovie5() throws Exception {
+            Path file = Path.of("Final.Destination.5.720p.Bluray.x264-TWiZTED.mkv");
+            Release release = releaseparser.parse(file);
 
-        assertThat(release.getVideoType()).isEqualTo(VideoType.MOVIE);
-        assertThat(release.getExtension()).isEqualTo("mkv");
-        assertEquals(release.getFileName(),
-                "The.Trip.to.Italy.2014.LIMITED.720p.BluRay.x264-GECKOS.mkv");
-        assertThat(release.getReleaseGroup()).isEqualTo("GECKOS");
-        assertThat(release.getQuality()).isEqualTo("720p bluray x264");
+            assertThat(release)
+                .isMovie()
+                .hasMovieVideoType()
+                .hasExtension("mkv")
+                .hasFileName("Final.Destination.5.720p.Bluray.x264-TWiZTED.mkv")
+                .hasReleaseGroup("TWiZTED")
+                .hasQuality("720p bluray x264")
+                .withoutYear()
+                .hasName("Final Destination 5");
+        }
 
-        movieRelease = (MovieRelease) release;
+        @Test
+        void testMovie6() throws Exception {
+            Path file = Path.of("Final.Destination.5.2011.720p.Bluray.x264-TWiZTED.mkv");
+            Release release = releaseparser.parse(file);
 
-        assertThat((int) movieRelease.getYear()).isEqualTo(2014);
-        assertThat(movieRelease.getName()).isEqualTo("The Trip to Italy");
+            assertThat(release)
+                .isMovie()
+                .hasMovieVideoType()
+                .hasExtension("mkv")
+                .hasFileName("Final.Destination.5.2011.720p.Bluray.x264-TWiZTED.mkv")
+                .hasReleaseGroup("TWiZTED")
+                .hasQuality("720p bluray x264")
+                .hasYear(2011)
+                .hasName("Final Destination 5");
+        }
     }
 }

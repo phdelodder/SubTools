@@ -1,9 +1,10 @@
 package org.lodder.subtools.multisubdownloader.settings.model.structure;
 
+import manifold.ext.props.rt.api.val;
+
 public interface StructureTag {
 
-    String getLabel();
-
-    String getDescription();
+    @val String label;
+    @val String description;
 
 }

@@ -5,43 +5,33 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import manifold.ext.props.rt.api.var;
 import org.lodder.subtools.sublibrary.Language;
 
 public class Messages {
-    private static final String BUNDLE_NAME = "messages";
-    private static final Language DEFAULT_LANGUAGE = Language.ENGLISH;
-    private static Language LANGUAGE;
-    private static ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME, Locale.forLanguageTag(DEFAULT_LANGUAGE.getLangCode()));
+    private static final String BUNDLE_NAME = "resourcebundle.Message";
+    private static ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE_NAME, Locale.ROOT);
+    static @var Language language;
 
     private Messages() {
     }
 
-    public static String getString(String key) {
+    public static String getText(String key, Object... replacements) {
         try {
-            return RESOURCE_BUNDLE.getString(key);
+            String text = resourceBundle.getString(key);
+            return replacements == null || replacements.isEmpty() ? text : text.formatted(replacements);
         } catch (MissingResourceException e) {
-            return '!' + key + '!';
-        }
-    }
-
-    public static String getString(String key, Object... replacements) {
-        try {
-            return RESOURCE_BUNDLE.getString(key).formatted(replacements);
-        } catch (MissingResourceException e) {
-            return '!' + key + '!';
+            return "!$key!";
         }
     }
 
     public static void setLanguage(Language language) {
-        LANGUAGE = language;
-        RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME, Locale.forLanguageTag(language.getLangCode()));
-    }
-
-    public static Language getLanguage() {
-        return LANGUAGE;
+        Messages.language = language;
+        Locale locale = language == Language.ENGLISH ? Locale.ROOT : Locale.forLanguageTag(language.langCode);
+        resourceBundle = ResourceBundle.getBundle(BUNDLE_NAME, locale);
     }
 
     public static List<Language> getAvailableLanguages() {
-        return List.of(Language.fromId("nl"), DEFAULT_LANGUAGE);
+        return List.of(Language.DUTCH, Language.ENGLISH);
     }
 }

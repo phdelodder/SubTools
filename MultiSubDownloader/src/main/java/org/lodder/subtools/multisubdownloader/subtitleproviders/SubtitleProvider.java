@@ -3,6 +3,7 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders;
 import java.util.Optional;
 import java.util.Set;
 
+import manifold.ext.props.rt.api.val;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.CacheType;
@@ -16,18 +17,14 @@ import org.slf4j.LoggerFactory;
 
 public interface SubtitleProvider {
 
+    @val Manager manager;
+    @val SubtitleSource subtitleSource;
+    @val String providerName;
+    @val String name = subtitleSource.name;
+
     Set<Subtitle> searchSubtitles(TvRelease tvRelease, Language language);
 
     Set<Subtitle> searchSubtitles(MovieRelease movieRelease, Language language);
-
-    SubtitleSource getSubtitleSource();
-
-    /**
-     * @return The name of the SubtitleProvider
-     */
-    default String getName() {
-        return getSubtitleSource().getName();
-    }
 
     /**
      * Starts a search for subtitles
@@ -38,28 +35,20 @@ public interface SubtitleProvider {
      */
     default Set<Subtitle> search(Release release, Language language) {
         try {
-            if (release instanceof MovieRelease movieRelease) {
-                return this.searchSubtitles(movieRelease, language);
-            } else if (release instanceof TvRelease tvRelease) {
-                return this.searchSubtitles(tvRelease, language);
-            }
+            return switch (release) {
+                case MovieRelease movieRelease -> this.searchSubtitles(movieRelease, language);
+                case TvRelease tvRelease -> this.searchSubtitles(tvRelease, language);
+            };
         } catch (Exception e) {
-            LoggerFactory.getLogger(SubtitleProvider.class).error("Error in %s API: %s".formatted(getName(), e.getMessage()), e);
+            LoggerFactory.getLogger(SubtitleProvider.class)
+                .error("Error in %s API: %s".formatted(name, e.getMessage()), e);
         }
         return Set.of();
     }
 
     default void clearCache() {
-        getManager().clearExpiredCacheBuilder()
-                .cacheType(CacheType.DISK)
-                .keyFilter((String k) -> k.startsWith(getProviderName() + "-"))
-                .clear();
+        manager.getCache(CacheType.DISK, k -> k.startsWith(providerName + "-")).clearExpiredCache();
     }
 
-    String getProviderName();
-
-    Manager getManager();
-
     <X extends Exception> Optional<SerieMapping> getProviderSerieId(TvRelease tvRelease) throws X;
-
 }

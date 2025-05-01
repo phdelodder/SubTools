@@ -2,6 +2,7 @@ package org.lodder.subtools.multisubdownloader.actions;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.SubtitleComparator;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
@@ -10,8 +11,6 @@ import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class UserInteractionHandlerAction {
@@ -36,37 +35,36 @@ public class UserInteractionHandlerAction {
      * @param dryRun dryRun
      * @return integer which subtitle is selected for downloading
      */
-    public List<Subtitle> subtitleSelection(Release release, final boolean subtitleSelectionDialog, final boolean dryRun) {
+    public List<Subtitle> subtitleSelection(Release release, final boolean subtitleSelectionDialog,
+        final boolean dryRun) {
 
         // Sort subtitles by score
-        release.getMatchingSubs().sort(new SubtitleComparator());
+        List<Subtitle> subs = release.getMatchingSubs().stream().sorted(new SubtitleComparator()).toList();
         if (dryRun) {
-            if (!release.getMatchingSubs().isEmpty()) {
+            if (!subs.isEmpty()) {
                 userInteractionHandler.dryRunOutput(release);
             }
         } else {
-            if (!release.getMatchingSubs().isEmpty()) {
+            if (!subs.isEmpty()) {
                 LOGGER.debug("determineWhatSubtitleDownload for videoFile: [{}] # found subs: [{}]",
-                        release.getFileName(), release.getMatchingSubs().size());
-                if (settings.isOptionsAlwaysConfirm()) {
+                    release.fileName, subs.size());
+                if (settings.optionsAlwaysConfirm) {
                     return userInteractionHandler.selectSubtitles(release);
-                } else if (release.getMatchingSubs().size() == 1
-                        && release.getMatchingSubs().get(0).getSubtitleMatchType() == SubtitleMatchType.EXACT) {
+                } else if (subs.size() == 1 && subs.first.subtitleMatchType == SubtitleMatchType.EXACT) {
                     LOGGER.debug("determineWhatSubtitleDownload: Exact Match");
-                    return List.of(release.getMatchingSubs().get(0));
-                } else if (release.getMatchingSubs().size() > 1) {
+                    return List.of(subs.first);
+                } else if (subs.size() > 1) {
                     LOGGER.debug("determineWhatSubtitleDownload: Multiple subs detected");
 
                     // Automatic selection
-                    List<Subtitle> shortlist = userInteractionHandler.getAutomaticSelection(release.getMatchingSubs());
+                    List<Subtitle> shortlist = userInteractionHandler.getAutomaticSelection(subs);
                     shortlist.forEach(release::addMatchingSub);
-                    // automatic selection results in 1 result
-                    if (shortlist.size() == 1) {
-                        return List.of(release.getMatchingSubs().get(0));
-                    }
-                    // nothing match the minimum automatic selection value
                     if (shortlist.isEmpty()) {
+                        // nothing match the minimum automatic selection value
                         return List.of();
+                    } else if (shortlist.size() == 1) {
+                        // automatic selection results in 1 result
+                        return List.of(subs.first);
                     }
 
                     // still more than 1 subtitle, let the user decide!
@@ -74,15 +72,15 @@ public class UserInteractionHandlerAction {
                         LOGGER.debug("determineWhatSubtitleDownload: Select subtitle with dialog");
                         return userInteractionHandler.selectSubtitles(release);
                     } else {
-                        LOGGER.info("Multiple subs detected for: [{}] Unhandleable for CMD! switch to GUI or use '--selection' as switch in de CMD",
-                                release.getFileName());
+                        LOGGER.info("Multiple subs detected for: [{}] Unhandleable for CMD! switch to GUI or use " +
+                            "'--selection' as switch in de CMD", release.fileName);
                     }
-                } else if (release.getMatchingSubs().size() == 1) {
+                } else {
                     LOGGER.debug("determineWhatSubtitleDownload: only one sub taking it!!!!");
-                    return List.of(release.getMatchingSubs().get(0));
+                    return List.of(subs.first);
                 }
             }
-            LOGGER.debug("determineWhatSubtitleDownload: No subs found for  [{}]", release.getFileName());
+            LOGGER.debug("determineWhatSubtitleDownload: No subs found for  [{}]", release.fileName);
         }
         return List.of();
     }

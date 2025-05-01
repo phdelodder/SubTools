@@ -3,7 +3,7 @@ package org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import org.lodder.subtools.sublibrary.util.BooleanConsumer;
+import org.lodder.subtools.sublibrary.util.function.BooleanConsumer;
 
 public interface MyTextFieldOthersIntf<T, R extends MyTextFieldCommon<T, R>> {
     MyTextFieldOthersIntf<T, R> withValueVerifier(Predicate<String> verifier);
@@ -14,9 +14,9 @@ public interface MyTextFieldOthersIntf<T, R extends MyTextFieldCommon<T, R>> {
 
     MyTextFieldOthersIntf<T, R> requireValue(boolean requireValue);
 
-    MyTextFieldOthersIntf<T, R> withValueChangedCallback(Consumer<T> valueChangedCalbackListener);
+    MyTextFieldOthersIntf<T, R> withValueChangedCallback(Consumer<T> valueChangedCallbackListener);
 
-    MyTextFieldOthersIntf<T, R> withValidityChangedCallback(BooleanConsumer... validityChangedCalbackListeners);
+    MyTextFieldOthersIntf<T, R> withValidityChangedCallback(BooleanConsumer... validityChangedCallbackListeners);
 
     R build();
 }

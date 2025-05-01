@@ -3,33 +3,49 @@ package org.lodder.subtools.sublibrary.model;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-import java.util.OptionalInt;
 
+import manifold.ext.props.rt.api.val;
+import manifold.ext.props.rt.api.var;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 import org.lodder.subtools.sublibrary.data.tvdb.model.TheTvdbEpisode;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
-
-@Getter
-@Setter
-public class TvRelease extends Release {
+public final class TvRelease extends Release {
 
     // parsed from the filename
-    private final String name;
-    private String title;
-    private final int season;
-    private int tvdbId;
-    private final List<Integer> episodeNumbers;
+    @val String name;
+    @val int season;
+    @val List<Integer> episodes;
+    @var @Nullable String title;
     // tvdb name
-    private String originalName;
-    private boolean special;
+    @var @Nullable String originalName;
+    @val boolean special;
     // custom name which can be used to search subtitle providers
-    private String customName;
+    @val @Nullable String customName;
+
+    public TvRelease(String name, int season, int episode, @Nullable Path file=null, @Nullable String releaseGroup=null,
+        @Nullable String quality=null, @Nullable String extension=null, @Nullable String originalName=null,
+        @Nullable String customName=null, @Nullable String title=null, boolean special=false) {
+        this(name, season, List.of(episode), file, releaseGroup, quality, extension, originalName, customName, title,
+            special);
+    }
+
+    public TvRelease(String name, int season, List<Integer> episodes, @Nullable Path file=null,
+        @Nullable String releaseGroup=null, @Nullable String quality=null, @Nullable String extension=null,
+        @Nullable String originalName=null, @Nullable String customName=null, @Nullable String title=null,
+        boolean special=false) {
+        super(VideoType.EPISODE, file, releaseGroup, quality, extension);
+        this.name = name;
+        this.title = title;
+        this.season = season;
+        this.episodes = Collections.unmodifiableList(episodes);
+        this.special = special;
+        this.originalName = originalName;
+        this.customName = customName;
+    }
 
     public String getNameWithSeasonEpisode() {
-        return formatName(name, season, episodeNumbers.isEmpty() ? -1 : episodeNumbers.get(0));
+        return formatName(name, season, episodes.isEmpty() ? -1 : firstEpisode);
     }
 
     public static String formatName(String serieName, int season, int episode) {
@@ -37,111 +53,20 @@ public class TvRelease extends Release {
     }
 
     public static String formatSeasonEpisode(int season, int episode) {
-        return "S%sE%s".formatted(StringUtils.leftPad(String.valueOf(season), 2, "0"),
-                StringUtils.leftPad(String.valueOf(episode), 2, "0"));
-    }
-
-    public interface TvReleaseBuilderShowName {
-        TvReleaseBuilderSeason name(String name);
-    }
-
-    public interface TvReleaseBuilderSeason {
-        TvReleaseBuilderEpisode season(int season);
-    }
-
-    public interface TvReleaseBuilderEpisode {
-        TvReleaseBuilderOther episode(int episode);
-
-        TvReleaseBuilderOther episodes(List<Integer> episodes);
-    }
-
-    public interface TvReleaseBuilderOther {
-        TvReleaseBuilderOther file(Path file);
-
-        TvReleaseBuilderOther quality(String quality);
-
-        TvReleaseBuilderOther description(String description);
-
-        TvReleaseBuilderOther special(boolean special);
-
-        TvReleaseBuilderOther releaseGroup(String releaseGroup);
-
-        TvReleaseBuilderOther title(String title);
-
-        TvReleaseBuilderOther customName(String customName);
-
-        TvReleaseBuilderOther originalName(String originalName);
-
-        TvRelease build();
-    }
-
-    public static TvReleaseBuilderShowName builder() {
-        return new TvReleaseBuilder();
-    }
-
-    @Setter
-    @Accessors(chain = true, fluent = true)
-    public static class TvReleaseBuilder
-            implements TvReleaseBuilderOther, TvReleaseBuilderEpisode, TvReleaseBuilderSeason, TvReleaseBuilderShowName {
-        private String name;
-        private String title;
-        private int season;
-        private List<Integer> episodes;
-        private boolean special;
-        private String quality;
-        private Path file;
-        private String description;
-        private String releaseGroup;
-        private String customName;
-        private String originalName;
-
-        @Override
-        public TvReleaseBuilder episode(int episode) {
-            this.episodes = List.of(episode);
-            return this;
-        }
-
-        @Override
-        public TvReleaseBuilder episodes(List<Integer> episodes) {
-            this.episodes = Collections.unmodifiableList(episodes);
-            return this;
-        }
-
-        @Override
-        public TvRelease build() {
-            return new TvRelease(file, description, releaseGroup, quality, name, originalName, customName, title, season, episodes, special);
-        }
-    }
-
-    private TvRelease(Path file, String description, String releaseGroup, String quality, String name, String originalName, String customName,
-            String title, int season,
-            List<Integer> episodeNumbers, boolean special) {
-        super(VideoType.EPISODE, file, description, releaseGroup, quality);
-        this.name = name;
-        this.title = title;
-        this.season = season;
-        this.episodeNumbers = episodeNumbers;
-        this.special = special;
-        this.originalName = originalName;
-        this.customName = customName;
+        return "S%02dE%02d".formatted(season, episode);
     }
 
     public void updateTvdbEpisodeInfo(TheTvdbEpisode tvdbEpisode) {
-        this.title = tvdbEpisode.getEpisodeName(); // update to reflect correct episode title
+        this.title = tvdbEpisode.episodeName; // update to reflect correct episode title
     }
 
-    public OptionalInt getTvdbId() {
-        return tvdbId == 0 ? OptionalInt.empty() : OptionalInt.of(tvdbId);
-    }
-
-    public int getFirstEpisodeNumber() {
-        return episodeNumbers.get(0);
+    public int getFirstEpisode() {
+        return episodes.first;
     }
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + ": " + this.getName() + " s" + this.getSeason() + " e"
-                + this.getEpisodeNumbers().toString() + " " + this.getQuality() + " " + this.getReleaseGroup();
+        return "${getClass().getSimpleName()}: $name s$season e$episodes $quality $releaseGroup";
     }
 
     @Override
@@ -150,6 +75,6 @@ public class TvRelease extends Release {
     }
 
     public String getDisplayName() {
-        return StringUtils.isNotBlank(getOriginalName()) ? getOriginalName() : getName();
+        return StringUtils.defaultIfBlank(originalName, name);
     }
 }

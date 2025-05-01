@@ -6,7 +6,7 @@ import java.util.function.Predicate;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class MyTextFieldInteger extends MyTextFieldCommon<Integer, MyTextFieldInteger> {
+public final class MyTextFieldInteger extends MyTextFieldCommon<Integer, MyTextFieldInteger> {
     @Serial
     private static final long serialVersionUID = -8526638589445703452L;
 
@@ -28,10 +28,10 @@ public class MyTextFieldInteger extends MyTextFieldCommon<Integer, MyTextFieldIn
 
     }
 
-    public static <T> MyTextFieldOthersIntf<Integer, MyTextFieldInteger> builder() {
+    public static MyTextFieldOthersIntf<Integer, MyTextFieldInteger> builder() {
         return new MyTextFieldInteger()
-                .withToStringMapper(TO_STRING_MAPPER)
-                .withToObjectMapper(TO_OBJECT_MAPPER)
-                .withValueVerifier(INT_VERIFIER);
+            .withToStringMapper(TO_STRING_MAPPER)
+            .withToObjectMapper(TO_OBJECT_MAPPER)
+            .withValueVerifier(INT_VERIFIER);
     }
 }

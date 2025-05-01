@@ -4,21 +4,20 @@ import java.nio.file.Path;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 import org.lodder.subtools.multisubdownloader.settings.model.LibrarySettings;
+import org.lodder.subtools.multisubdownloader.settings.model.structure.MovieStructureTag;
 import org.lodder.subtools.multisubdownloader.settings.model.structure.SerieStructureTag;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.data.tvdb.TheTvdbAdapter;
+import org.lodder.subtools.sublibrary.model.MovieRelease;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.TvRelease;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
-import org.lodder.subtools.sublibrary.util.StringUtil;
 
-import lombok.Setter;
-import lombok.experimental.Accessors;
-
-public class FilenameLibraryBuilder extends LibraryBuilder {
+public final class FilenameLibraryBuilder extends LibraryBuilder {
 
     private final String structure;
     private final boolean replaceSpace;
@@ -27,9 +26,10 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
     private final Map<Language, String> languageTags;
     private final boolean rename;
 
-    private FilenameLibraryBuilder(String structure, boolean replaceSpace, char replacingSpaceChar, boolean includeLanguageCode,
-            Map<Language, String> languageTags, boolean useTvdb, TheTvdbAdapter tvdbAdapter, boolean rename) {
-        super(useTvdb, tvdbAdapter);
+    public FilenameLibraryBuilder(String structure, boolean replaceSpace, char replacingSpaceChar,
+        boolean includeLanguageCode, Map<Language, String> languageTags, TheTvdbAdapter tvdbAdapter=null,
+        boolean rename) {
+        super(tvdbAdapter);
         this.structure = structure;
         this.replaceSpace = replaceSpace;
         this.replacingSpaceChar = replacingSpaceChar;
@@ -38,145 +38,86 @@ public class FilenameLibraryBuilder extends LibraryBuilder {
         this.rename = rename;
     }
 
-    public static FilenameLibraryBuilder fromSettings(LibrarySettings librarySettings, Manager manager,
-            UserInteractionHandler userInteractionHandler) {
-        return FilenameLibraryBuilder.builder()
-                .structure(librarySettings.getLibraryFolderStructure())
-                .replaceSpace(librarySettings.isLibraryFolderReplaceSpace())
-                .replacingSpaceChar(librarySettings.getLibraryFolderReplacingSpaceChar())
-                .includeLanguageCode(librarySettings.isLibraryIncludeLanguageCode())
-                .languageTags(librarySettings.getLangCodeMap())
-                .useTvdbName(librarySettings.isLibraryUseTVDBNaming())
-                .tvdbAdapter(TheTvdbAdapter.getInstance(manager, userInteractionHandler))
-                .rename(librarySettings.hasAnyLibraryAction(LibraryActionType.RENAME, LibraryActionType.MOVEANDRENAME))
-                .build();
-    }
-
-    public static FilenameLibraryBuilderStructureIntf builder() {
-        return new FilenameLibraryBuilderBuilder();
-    }
-
-    public interface FilenameLibraryBuilderStructureIntf {
-        FilenameLibraryBuilderReplaceSpaceIntf structure(String structure);
-    }
-
-    public interface FilenameLibraryBuilderReplaceSpaceIntf {
-        FilenameLibraryBuilderReplaceSpaceCharIntf replaceSpace(boolean replaceSpace);
-    }
-
-    public interface FilenameLibraryBuilderReplaceSpaceCharIntf {
-        FilenameLibraryBuilderIncludeLanguageCodeIntf replacingSpaceChar(char replacingSpaceChar);
-    }
-
-    public interface FilenameLibraryBuilderIncludeLanguageCodeIntf {
-        FilenameLibraryBuilderLanguageTagIntf includeLanguageCode(boolean includeLanguageCode);
-    }
-
-    public interface FilenameLibraryBuilderLanguageTagIntf {
-        FilenameLibraryBuilderUseTvdbNameIntf languageTags(Map<Language, String> languageTags);
-    }
-
-    public interface FilenameLibraryBuilderUseTvdbNameIntf extends FilenameLibraryBuilderBuildIntf {
-        FilenameLibraryBuilderTvdbAdapterIntf useTvdbName(boolean useTvdbName);
-    }
-
-    public interface FilenameLibraryBuilderTvdbAdapterIntf {
-        FilenameLibraryBuilderRenameIntf tvdbAdapter(TheTvdbAdapter tvdbAdapter);
-    }
-
-    public interface FilenameLibraryBuilderRenameIntf {
-        FilenameLibraryBuilderBuildIntf rename(boolean rename);
-    }
-
-    public interface FilenameLibraryBuilderBuildIntf {
-        FilenameLibraryBuilder build();
-    }
-
-    @Setter
-    @Accessors(chain = true, fluent = true)
-    public static class FilenameLibraryBuilderBuilder implements
-            FilenameLibraryBuilderStructureIntf,
-            FilenameLibraryBuilderReplaceSpaceIntf,
-            FilenameLibraryBuilderReplaceSpaceCharIntf,
-            FilenameLibraryBuilderIncludeLanguageCodeIntf,
-            FilenameLibraryBuilderLanguageTagIntf,
-            FilenameLibraryBuilderUseTvdbNameIntf,
-            FilenameLibraryBuilderTvdbAdapterIntf,
-            FilenameLibraryBuilderRenameIntf,
-            FilenameLibraryBuilderBuildIntf {
-        private String structure;
-
-        private boolean replaceSpace;
-        private char replacingSpaceChar;
-
-        private boolean includeLanguageCode;
-        private Map<Language, String> languageTags;
-
-        private boolean useTvdbName;
-        private TheTvdbAdapter tvdbAdapter;
-
-        private boolean rename;
-
-        @Override
-        public FilenameLibraryBuilder build() {
-            return new FilenameLibraryBuilder(structure, replaceSpace, replacingSpaceChar, includeLanguageCode, languageTags, useTvdbName,
-                    tvdbAdapter, rename);
-        }
+    public static FilenameLibraryBuilder fromSettings(LibrarySettings libSettings, Manager manager,
+        UserInteractionHandler userInteractionHandler) {
+        return new FilenameLibraryBuilder(
+            structure:libSettings.folderStructure,
+            replaceSpace:libSettings.folderReplaceSpace,
+            replacingSpaceChar:libSettings.folderReplacingSpaceChar,
+            includeLanguageCode:libSettings.includeLanguageCode,
+            languageTags:libSettings.langCodeMap,
+            tvdbAdapter:libSettings.useTVDBNaming ? TheTvdbAdapter.getInstance(manager, userInteractionHandler) : null,
+            rename:libSettings.hasAnyLibraryAction(LibraryActionType.RENAME, LibraryActionType.MOVEANDRENAME));
     }
 
     @Override
     public Path build(Release release) {
-        if (rename) {
-            String filename;
-            if (release instanceof TvRelease tvRelease && StringUtils.isNotBlank(structure)) {
-                filename = structure;
-                // order is important!
-                filename = replace(filename, SerieStructureTag.SHOW_NAME, getShowName(tvRelease.getName()));
-                filename = replaceFormattedEpisodeNumber(filename, SerieStructureTag.EPISODES_LONG, tvRelease.getEpisodeNumbers(), true);
-                filename = replaceFormattedEpisodeNumber(filename, SerieStructureTag.EPISODES_SHORT, tvRelease.getEpisodeNumbers(), false);
-                filename = replace(filename, SerieStructureTag.SEASON_LONG, formattedNumber(tvRelease.getSeason(), true));
-                filename = replace(filename, SerieStructureTag.SEASON_SHORT, formattedNumber(tvRelease.getSeason(), false));
-                filename = replace(filename, SerieStructureTag.EPISODE_LONG, formattedNumber(tvRelease.getEpisodeNumbers().get(0), true));
-                filename = replace(filename, SerieStructureTag.EPISODE_SHORT, formattedNumber(tvRelease.getEpisodeNumbers().get(0), false));
-                filename = replace(filename, SerieStructureTag.TITLE, tvRelease.getTitle());
-                filename = replace(filename, SerieStructureTag.QUALITY, release.getQuality());
-                filename = replace(filename, SerieStructureTag.DESCRIPTION, release.getDescription());
+        if (rename && StringUtils.isNotBlank(structure)) {
+            String filename = switch (release) {
+                case TvRelease tvRelease -> {
+                    String fName = structure;
+                    // order is important!
+                    fName = replace(fName, SerieStructureTag.SHOW_NAME, getShowName(tvRelease.name));
+                    fName =
+                        replaceFormattedEpisodeNumber(fName, SerieStructureTag.EPISODES_LONG, tvRelease.episodes, true);
+                    fName = replaceFormattedEpisodeNumber(fName, SerieStructureTag.EPISODES_SHORT, tvRelease.episodes,
+                        false);
+                    fName = replace(fName, SerieStructureTag.SEASON_LONG, formatNumber(tvRelease.season, true));
+                    fName = replace(fName, SerieStructureTag.SEASON_SHORT, formatNumber(tvRelease.season, false));
+                    fName = replace(fName, SerieStructureTag.EPISODE_LONG, formatNumber(tvRelease.firstEpisode, true));
+                    fName =
+                        replace(fName, SerieStructureTag.EPISODE_SHORT, formatNumber(tvRelease.firstEpisode, false));
+                    fName = replace(fName, SerieStructureTag.TITLE, tvRelease.title);
+                    fName = replace(fName, SerieStructureTag.QUALITY, release.quality);
+                    fName = replace(fName, SerieStructureTag.RELEASE_GROUP, release.releaseGroup);
 
-                filename += "." + release.getExtension();
-            } else {
-                filename = release.getFileName();
-            }
-            filename = StringUtil.removeIllegalWindowsChars(filename);
+                    fName += "." + release.extension;
+                    yield fName;
+                }
+                case MovieRelease movieRelease -> {
+                    String fName = structure;
+                    // order is important!
+                    fName = replace(fName, MovieStructureTag.MOVIE_TITLE, getShowName(movieRelease.name));
+                    fName = replace(fName, MovieStructureTag.YEAR, formatNumber(movieRelease.year, false));
+                    fName = replace(fName, MovieStructureTag.QUALITY, release.quality);
+                    fName = replace(fName, MovieStructureTag.RELEASE_GROUP, release.releaseGroup);
+
+                    fName += "." + release.extension;
+                    yield fName;
+                }
+            };
+
+            filename = filename.removeIllegalWindowsChars();
             if (replaceSpace) {
                 filename = filename.replace(' ', replacingSpaceChar);
             }
             return Path.of(filename);
         } else {
-            return Path.of(release.getFileName());
+            return Path.of(release.fileName);
         }
     }
 
-    public String buildSubtitle(Release release, Subtitle sub, String filename, Integer version) {
-        return buildSubtitle(release, filename, sub.getLanguage(), version);
+    public String buildSubtitle(Release release, Subtitle sub, String filename, @Nullable Integer version) {
+        return buildSubtitle(release, filename, sub.language, version);
     }
 
-    public String buildSubtitle(Release release, String filename, Language language, Integer version) {
-        final String extension = "." + release.getExtension();
+    public String buildSubtitle(Release release, String filename, Language language, @Nullable Integer version) {
+        final String extension = "." + release.extension;
+        String subFileName = filename;
         if (version != null) {
-            filename = filename.substring(0, filename.indexOf(extension)) + "-v" + version + "." + release.getExtension();
+            subFileName = subFileName.substring(0, subFileName.indexOf(extension)) + "-v$version.${release.extension}";
         }
         if (includeLanguageCode) {
-            String langCode = language == null ? "" : languageTags.getOrDefault(language, language.getLangCode());
-            filename = changeExtension(filename, !"".equals(langCode) ? ".%s.srt".formatted(langCode) : ".srt");
+            String langCode = language == null ? "" : languageTags.getOrDefault(language, language.langCode);
+            subFileName = changeExtension(subFileName, !"".equals(langCode) ? ".$langCode.srt" : ".srt");
         } else {
-            filename = changeExtension(filename, ".srt");
+            subFileName = changeExtension(subFileName, ".srt");
         }
-
-        filename = StringUtil.removeIllegalWindowsChars(filename);
+        subFileName = subFileName.removeIllegalWindowsChars();
         if (replaceSpace) {
-            filename = filename.replace(' ', replacingSpaceChar);
+            subFileName = subFileName.replace(' ', replacingSpaceChar);
         }
-        return filename;
+        return subFileName;
     }
 
     /**

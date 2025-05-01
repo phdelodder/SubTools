@@ -1,8 +1,12 @@
 package org.lodder.subtools.sublibrary.data;
 
-public interface ReleaseDBIntf {
+import java.io.Serializable;
 
-    String getName();
+import manifold.ext.props.rt.api.val;
 
-    int year();
+public interface ReleaseDBIntf extends Serializable {
+
+    @val String name;
+
+    @val int year;
 }

@@ -1,10 +1,13 @@
 package org.lodder.subtools.multisubdownloader.lib;
 
+import lombok.experimental.UtilityClass;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("java:S106")
+@UtilityClass
 public class Info {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Info.class);
@@ -17,12 +20,12 @@ public class Info {
         }
         for (SubtitleSource source : SubtitleSource.values()) {
             boolean enabled = switch (source) {
-                case ADDIC7ED -> settings.isSerieSourceAddic7ed();
-                case LOCAL -> settings.isSerieSourceLocal();
-                case OPENSUBTITLES -> settings.isSerieSourceOpensubtitles();
-                case PODNAPISI -> settings.isSerieSourcePodnapisi();
-                case TVSUBTITLES -> settings.isSerieSourceTvSubtitles();
-                case SUBSCENE -> settings.isSerieSourceSubscene();
+                case ADDIC7ED -> settings.serieSourceAddic7ed;
+                case LOCAL -> settings.serieSourceLocal;
+                case OPENSUBTITLES -> settings.serieSourceOpensubtitles;
+                case PODNAPISI -> settings.serieSourcePodnapisi;
+                case TVSUBTITLES -> settings.serieSourceTvSubtitles;
+                case SUBSCENE -> settings.serieSourceSubscene;
             };
             if (isCli) {
                 System.out.println(" - provider : " + source + " enabled: " + enabled);
@@ -40,15 +43,16 @@ public class Info {
     public static void subtitleFiltering(Settings settings, boolean isCli) {
         if (isCli) {
             System.out.println("----- Subtitle Filtering ------");
-            System.out.println(" - OptionSubtitleExactMatch : " + settings.isOptionSubtitleExactMatch());
-            System.out.println(" - OptionSubtitleKeywordMatch : " + settings.isOptionSubtitleKeywordMatch());
-            System.out.println(" - OptionSubtitleExcludeHearingImpaired : " + settings.isOptionSubtitleExcludeHearingImpaired());
+            System.out.println(" - OptionSubtitleExactMatch : " + settings.optionSubtitleExactMatch);
+            System.out.println(" - OptionSubtitleKeywordMatch : " + settings.optionSubtitleKeywordMatch);
+            System.out.println(
+                    " - OptionSubtitleExcludeHearingImpaired : " + settings.optionSubtitleExcludeHearingImpaired);
             System.out.println("-------------------------------");
         } else {
             LOGGER.info("----- Subtitle Filtering ------");
-            LOGGER.info(" - OptionSubtitleExactMatch: {} ", settings.isOptionSubtitleExactMatch());
-            LOGGER.info(" - OptionSubtitleKeywordMatch: {} ", settings.isOptionSubtitleKeywordMatch());
-            LOGGER.info(" - OptionSubtitleExcludeHearingImpaired: {} ", settings.isOptionSubtitleExcludeHearingImpaired());
+            LOGGER.info(" - OptionSubtitleExactMatch: {} ", settings.optionSubtitleExactMatch);
+            LOGGER.info(" - OptionSubtitleKeywordMatch: {} ", settings.optionSubtitleKeywordMatch);
+            LOGGER.info(" - OptionSubtitleExcludeHearingImpaired: {} ", settings.optionSubtitleExcludeHearingImpaired);
             LOGGER.info("-------------------------------");
         }
 
@@ -57,11 +61,11 @@ public class Info {
     public static void downloadOptions(Settings settings, boolean isCli) {
         if (isCli) {
             System.out.println("----- Download Options ------");
-            System.out.println(" - OptionsAlwaysConfirm : " + settings.isOptionsAlwaysConfirm());
+            System.out.println(" - OptionsAlwaysConfirm : " + settings.optionsAlwaysConfirm);
             System.out.println("-----------------------------");
         } else {
             LOGGER.info("----- Download Options ------");
-            LOGGER.info(" - OptionsAlwaysConfirm : " + settings.isOptionsAlwaysConfirm());
+            LOGGER.info(" - OptionsAlwaysConfirm : " + settings.optionsAlwaysConfirm);
             LOGGER.info("-----------------------------");
         }
 

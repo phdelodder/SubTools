@@ -1,5 +1,7 @@
 package org.lodder.subtools.multisubdownloader.workers;
 
+import static manifold.ext.props.rt.api.PropOption.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -8,6 +10,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 
+import manifold.ext.props.rt.api.set;
+import manifold.ext.props.rt.api.val;
+import manifold.ext.props.rt.api.var;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.gui.dialog.Cancelable;
 import org.lodder.subtools.multisubdownloader.lib.control.subtitles.sorting.ScoreCalculator;
@@ -19,63 +24,33 @@ import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.Accessors;
-
-@RequiredArgsConstructor
 public class SearchManager implements Cancelable {
-
-    public interface SearchManagerLanguage {
-        SearchManagerProgressListener language(@NonNull Language language);
-    }
-
-    public interface SearchManagerProgressListener {
-        SearchManagerUserInteractionHandler progressListener(@NonNull SearchProgressListener progressListener);
-    }
-
-    public interface SearchManagerUserInteractionHandler {
-        SearchManagerOnFound userInteractionHandler(@NonNull UserInteractionHandler userInteractionHandler);
-    }
-
-    public interface SearchManagerOnFound {
-        SearchManager onFound(@NonNull SearchHandler onFound);
-    }
-
-    @Setter
-    @Accessors(fluent = true)
-    public static class SearchManagerBuilder
-            implements SearchManagerOnFound, SearchManagerUserInteractionHandler, SearchManagerProgressListener, SearchManagerLanguage {
-        private Settings settings;
-        private Language language;
-        private SearchProgressListener progressListener;
-        private UserInteractionHandler userInteractionHandler;
-
-        @Override
-        public SearchManager onFound(SearchHandler onFound) {
-            return new SearchManager(settings, onFound, language, progressListener, userInteractionHandler);
-        }
-    }
 
     private final Map<SubtitleProvider, Queue<Release>> queue = new HashMap<>();
     private final Map<SubtitleProvider, SearchWorker> workers = new HashMap<>();
     private final Map<Release, ScoreCalculator> scoreCalculators = new HashMap<>();
     private final Settings settings;
-    @Getter
-    private int progress = 0;
+    @var @set(Private) int progress = 0;
     private int totalJobs;
 
     private final SearchHandler onFound;
-    @Getter
-    private final Language language;
+    @val Language language;
     private final SearchProgressListener progressListener;
-    @Getter
-    private final UserInteractionHandler userInteractionHandler;
+    @val UserInteractionHandler userInteractionHandler;
 
-    public static SearchManagerLanguage createWithSettings(Settings settings) {
-        return new SearchManagerBuilder().settings(settings);
+    public SearchManager(Settings settings, Language language, SearchProgressListener progressListener,
+        UserInteractionHandler userInteractionHandler, SearchHandler onFound) {
+        this.settings = settings;
+        this.language = language;
+        this.progressListener = progressListener;
+        this.userInteractionHandler = userInteractionHandler;
+        this.onFound = onFound;
+    }
+
+    public void reset() {
+        queue.clear();
+        workers.clear();
+        scoreCalculators.clear();
     }
 
     public void addProvider(SubtitleProvider provider) {
@@ -87,10 +62,10 @@ public class SearchManager implements Cancelable {
     }
 
     public void addRelease(Release release) {
-        this.queue.forEach((key, value) -> queue.get(key).add(release));
+        this.queue.forEach((key, _) -> queue.get(key).add(release));
         /* Create a scoreCalculator so we can score subtitles for this release */
         // TODO: extract to factory
-        SortWeight weights = new SortWeight(release, this.settings.getSortWeights());
+        SortWeight weights = new SortWeight(release, this.settings.sortWeights);
         this.scoreCalculators.put(release, new ScoreCalculator(weights));
     }
 
@@ -106,17 +81,17 @@ public class SearchManager implements Cancelable {
     }
 
     public void onCompleted(SearchWorker worker) {
-        Release release = worker.getRelease();
-        List<Subtitle> subtitles = new ArrayList<>(worker.getSubtitles());
+        Release release = worker.release;
+        List<Subtitle> subtitles = new ArrayList<>(worker.subtitles);
 
         /* set the score of the found subtitles */
         ScoreCalculator calculator = this.scoreCalculators.get(release);
-        subtitles.forEach(subtitle -> subtitle.setScore(calculator.calculate(subtitle)));
+        subtitles.forEach(subtitle -> subtitle.score = calculator.calculate(subtitle));
 
         synchronized (this) {
             calculateProgress();
             /* Tell the progress listener our total progress */
-            this.progressListener.progress(this.getProgress());
+            this.progressListener.progress(this.progress);
         }
 
         onFound.onFound(release, subtitles);
@@ -155,7 +130,7 @@ public class SearchManager implements Cancelable {
         for (Entry<SubtitleProvider, Queue<Release>> provider : this.queue.entrySet()) {
             jobsLeft += provider.getValue().size();
             SearchWorker worker = this.workers.get(provider.getKey());
-            if (worker.isAlive() && worker.isBusy()) {
+            if (worker.isAlive() && worker.busy) {
                 jobsLeft++;
             }
         }

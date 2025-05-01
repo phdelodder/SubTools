@@ -1,12 +1,10 @@
 package org.lodder.subtools.multisubdownloader.cli;
 
+import lombok.AllArgsConstructor;
+import manifold.ext.props.rt.api.get;
 import org.lodder.subtools.multisubdownloader.Messages;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@Getter
-@RequiredArgsConstructor
+@AllArgsConstructor
 public enum CliOption {
     HELP("help", false, "App.OptionHelpMsg"),
     NO_GUI("nogui", false, "App.OptionNoGuiMsg"),
@@ -24,17 +22,17 @@ public enum CliOption {
     DRY_RUN("dryrun", false, "App.OptionDryRun"),
     CONFIRM_PROVIDER_MAPPING("confirmProviderMapping", false, "App.OptionConfirmProviderMapping");
 
-    private final String value;
-    private final String longValue;
-    private final boolean hasArg;
-    private final String msgCode;
+    @get String value;
+    @get String longValue;
+    @get boolean hasArg;
+    @get String msgCode;
 
     CliOption(String value, boolean hasArg, String description) {
         this(value, null, hasArg, description);
     }
 
     public String getDescription() {
-        return Messages.getString(msgCode);
+        return Messages.getText(msgCode);
     }
 
 }

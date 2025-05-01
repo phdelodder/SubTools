@@ -3,19 +3,16 @@ package org.lodder.subtools.sublibrary.cache;
 import java.io.Serial;
 import java.io.Serializable;
 
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
+import manifold.science.measures.Time;
 
 @ToString
-@Setter
-@Getter
-class TemporarySerializableCacheObject<T extends Serializable> extends TemporaryCacheObject<T> implements Serializable {
+final class TemporarySerializableCacheObject<T extends Serializable> extends TemporaryCacheObject<T> {
 
     @Serial
     private static final long serialVersionUID = 3426939140266268946L;
 
-    protected TemporarySerializableCacheObject(long timeToLive, T value) {
+    TemporarySerializableCacheObject(Time timeToLive, T value) {
         super(timeToLive, value);
     }
 }

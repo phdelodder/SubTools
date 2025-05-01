@@ -1,7 +1,12 @@
 package org.lodder.subtools.multisubdownloader.workers;
 
+import static manifold.ext.props.rt.api.PropOption.*;
+
 import java.util.Set;
 
+import manifold.ext.props.rt.api.set;
+import manifold.ext.props.rt.api.val;
+import manifold.ext.props.rt.api.var;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.exception.SubtitlesProviderInitException;
@@ -12,13 +17,14 @@ import org.slf4j.LoggerFactory;
 
 public class SearchWorker extends Thread {
 
-    protected final SubtitleProvider provider;
-    private final SearchManager scheduler;
-    private boolean busy = false;
-    private boolean isInterrupted = false;
-    private Release release;
-    private Set<Subtitle> subtitles;
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchWorker.class);
+
+    @val SubtitleProvider provider;
+    private final SearchManager scheduler;
+    @var @set(Private) boolean busy = false;
+    private boolean isInterrupted = false;
+    @var @set(Private) Release release;
+    @var @set(Private) Set<Subtitle> subtitles;
 
     public SearchWorker(SubtitleProvider provider, SearchManager scheduler) {
         this.provider = provider;
@@ -27,7 +33,7 @@ public class SearchWorker extends Thread {
 
     @Override
     public void run() {
-        Language language = this.scheduler.getLanguage();
+        Language language = this.scheduler.language;
         this.busy = false;
         try {
             while (!this.isInterrupted()) {
@@ -39,7 +45,7 @@ public class SearchWorker extends Thread {
                     break;
                 }
                 this.release = release;
-                LOGGER.debug("[Search] {} searching {} ", this.provider.getName(), release);
+                LOGGER.debug("[Search] {} searching {} ", this.provider.name, release);
 
                 Set<Subtitle> subtitles = this.provider.search(release, language);
 
@@ -47,14 +53,15 @@ public class SearchWorker extends Thread {
                 this.subtitles = Set.copyOf(subtitles);
 
                 this.busy = false;
-                LOGGER.debug("[Search] {} found {} subtitles for {} ", this.provider.getName(), subtitles.size(), release);
+                LOGGER.debug("[Search] {} found {} subtitles for {} ", this.provider.name, subtitles.size(),
+                        release);
 
                 if (!this.isInterrupted()) {
                     this.scheduler.onCompleted(this);
                 }
             }
         } catch (SubtitlesProviderInitException e) {
-            LOGGER.error("API %s INIT (%s)".formatted(e.getProviderName(), e.getMessage()), e);
+            LOGGER.error("API %s INIT (%s)".formatted(e.providerName, e.getMessage()), e);
         }
     }
 
@@ -68,21 +75,5 @@ public class SearchWorker extends Thread {
     public void interrupt() {
         this.isInterrupted = true;
         super.interrupt();
-    }
-
-    public boolean isBusy() {
-        return busy;
-    }
-
-    public Release getRelease() {
-        return release;
-    }
-
-    public Set<Subtitle> getSubtitles() {
-        return subtitles;
-    }
-
-    public SubtitleProvider getProvider() {
-        return provider;
     }
 }

@@ -8,20 +8,21 @@ import java.util.HashMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.lodder.subtools.sublibrary.model.Release;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 
 class GroupReplacerTest {
 
     protected GroupReplacer replacer;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         replacer = new GroupReplacer();
     }
 
     @Test
-    void test_it_replaces_the_keyword_group_to_a_releasename() throws Exception {
-        Release release = mock(Release.class);
-        when(release.getReleaseGroup()).thenReturn("Acme");
+    void test_it_replaces_the_keyword_group_to_a_releasename() {
+        Release release = mock(TvRelease.class);
+        when(release.releaseGroup).thenReturn("Acme");
 
         HashMap<String, Integer> definedWeights = new HashMap<>();
         definedWeights.put("%GROUP%", 5);
@@ -36,9 +37,9 @@ class GroupReplacerTest {
     }
 
     @Test
-    void testEmptyWeights() throws Exception {
-        Release release = mock(Release.class);
-        when(release.getReleaseGroup()).thenReturn("Acme");
+    void testEmptyWeights() {
+        Release release = mock(TvRelease.class);
+        when(release.releaseGroup).thenReturn("Acme");
 
         HashMap<String, Integer> definedWeights = new HashMap<>();
 

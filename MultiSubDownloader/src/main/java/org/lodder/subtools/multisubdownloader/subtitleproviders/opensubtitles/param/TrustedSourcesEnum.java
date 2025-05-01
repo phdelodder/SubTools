@@ -1,18 +1,19 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.param;
 
 import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import manifold.ext.props.rt.api.override;
+import manifold.ext.props.rt.api.val;
 
-@Getter
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum TrustedSourcesEnum implements ParamIntf {
-    INCLUDE("include"), ONLY("only");
+    INCLUDE("include"),
+    ONLY("only");
 
-    private final String value;
+    @val @override String value;
 
     @Override
     public String toString() {
-        return getValue();
+        return value;
     }
 }

@@ -16,4 +16,14 @@ public class LRUMap<K, V> extends LinkedHashMap<K, V> {
     protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
         return size() > maxItems;
     }
+
+    @Override
+    public int hashCode() {
+        return maxItems + super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof LRUMap map && this.maxItems == map.maxItems && super.equals(map);
+    }
 }

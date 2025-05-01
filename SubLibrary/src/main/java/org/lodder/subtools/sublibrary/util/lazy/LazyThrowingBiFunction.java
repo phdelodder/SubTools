@@ -1,37 +1,36 @@
 package org.lodder.subtools.sublibrary.util.lazy;
 
 import com.pivovarit.function.ThrowingBiFunction;
-
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class LazyThrowingBiFunction<T, S, V, X extends Exception> {
+public class LazyThrowingBiFunction<T, U, R, X extends Exception> {
 
-    private final ThrowingBiFunction<T, S, V, X> function;
+    private final Object lock = new Object();
 
-    private V object;
+    private final ThrowingBiFunction<T, U, R, X> function;
 
-	private final Object lock = new Object();
+    private R object;
 
-	private volatile boolean initialized = false;
+    private volatile boolean initialized = false;
 
-    public V apply(T arg1, S arg2) throws X {
-		if (!initialized) {
-			synchronized (lock) {
-				if (!initialized) {
+    public R apply(T arg1, U arg2) throws X {
+        if (!initialized) {
+            synchronized (lock) {
+                if (!initialized) {
                     object = function.apply(arg1, arg2);
-					initialized = true;
-				}
-			}
-		}
+                    initialized = true;
+                }
+            }
+        }
         return object;
-	}
+    }
 
-	public boolean isInitialized() {
-		return initialized;
-	}
+    public boolean isInitialized() {
+        return initialized;
+    }
 
-	public void reset() {
-		initialized = false;
-	}
+    public void reset() {
+        initialized = false;
+    }
 }

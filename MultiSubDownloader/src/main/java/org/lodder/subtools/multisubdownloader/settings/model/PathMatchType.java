@@ -1,17 +1,15 @@
 package org.lodder.subtools.multisubdownloader.settings.model;
 
-import java.awt.Image;
-import java.awt.Toolkit;
+import java.awt.*;
 
-import lombok.Getter;
+import manifold.ext.props.rt.api.val;
 
-@Getter
 public enum PathMatchType {
     FOLDER("/folder.png"),
     REGEX("/regex.gif"),
     FILE("/file.jpg");
 
-    private final Image image;
+    @val Image image;
 
     PathMatchType(String imagePath) {
         this.image = Toolkit.getDefaultToolkit().getImage(getClass().getResource(imagePath));

@@ -2,10 +2,9 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.e
 
 import java.io.Serial;
 
+import lombok.experimental.StandardException;
 import org.lodder.subtools.sublibrary.exception.SubtitlesProviderException;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
-
-import lombok.experimental.StandardException;
 
 @StandardException
 public class OpenSubtitlesException extends SubtitlesProviderException {
@@ -15,6 +14,6 @@ public class OpenSubtitlesException extends SubtitlesProviderException {
 
     @Override
     public String getSubtitleProvider() {
-        return SubtitleSource.OPENSUBTITLES.getName();
+        return SubtitleSource.OPENSUBTITLES.name;
     }
 }

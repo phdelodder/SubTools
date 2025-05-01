@@ -1,8 +1,10 @@
 package org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield;
 
 import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.io.Serial;
 import java.util.Arrays;
@@ -12,12 +14,13 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.apache.commons.lang3.StringUtils;
-import org.lodder.subtools.sublibrary.util.BooleanConsumer;
+import org.lodder.subtools.sublibrary.util.function.BooleanConsumer;
 
-public abstract class MyTextFieldCommon<T, R extends MyTextFieldCommon<T, R>> extends JTextField implements
-        MyTextFieldToStringMapperIntf<T, R>,
-        MyTextFieldToObjectMapperIntf<T, R>,
-        MyTextFieldOthersIntf<T, R> {
+public abstract sealed class MyTextFieldCommon<T, R extends MyTextFieldCommon<T, R>> extends JTextField implements
+    MyTextFieldToStringMapperIntf<T, R>,
+    MyTextFieldToObjectMapperIntf<T, R>,
+    MyTextFieldOthersIntf<T, R>
+    permits MyTextFieldInteger, MyTextFieldPath, MyTextFieldString {
 
     @Serial
     private static final long serialVersionUID = -393882042554264226L;
@@ -28,8 +31,8 @@ public abstract class MyTextFieldCommon<T, R extends MyTextFieldCommon<T, R>> ex
     private Function<String, T> toObjectMapper;
     private Predicate<String> valueVerifier;
     private boolean requireValue;
-    private Consumer<T> valueChangedCalbackListener;
-    private BooleanConsumer[] validityChangedCalbackListeners;
+    private Consumer<T> valueChangedCallbackListener;
+    private BooleanConsumer[] validityChangedCallbackListeners;
 
     private final ObjectWrapper<T> valueWrapper = new ObjectWrapper<>();
     private final ObjectWrapper<Boolean> validWrapper = new ObjectWrapper<>();
@@ -78,14 +81,14 @@ public abstract class MyTextFieldCommon<T, R extends MyTextFieldCommon<T, R>> ex
     }
 
     @Override
-    public R withValueChangedCallback(Consumer<T> valueChangedCalbackListener) {
-        this.valueChangedCalbackListener = valueChangedCalbackListener;
+    public R withValueChangedCallback(Consumer<T> valueChangedCallbackListener) {
+        this.valueChangedCallbackListener = valueChangedCallbackListener;
         return self();
     }
 
     @Override
-    public final R withValidityChangedCallback(BooleanConsumer... validityChangedCalbackListeners) {
-        this.validityChangedCalbackListeners = validityChangedCalbackListeners;
+    public final R withValidityChangedCallback(BooleanConsumer... validityChangedCallbackListeners) {
+        this.validityChangedCallbackListeners = validityChangedCallbackListeners;
         return self();
     }
 
@@ -133,7 +136,8 @@ public abstract class MyTextFieldCommon<T, R extends MyTextFieldCommon<T, R>> ex
             completeValueVerifier = t -> true;
         }
 
-        if (valueVerifier != null || requireValue || valueChangedCalbackListener != null || validityChangedCalbackListeners != null) {
+        if (valueVerifier != null || requireValue || valueChangedCallbackListener != null ||
+            validityChangedCallbackListeners != null) {
             checkValidity(getText());
             getDocument().addDocumentListener(new DocumentListener() {
 
@@ -162,15 +166,15 @@ public abstract class MyTextFieldCommon<T, R extends MyTextFieldCommon<T, R>> ex
         setSuperBorder(valid ? MyTextFieldCommon.getDefaultBorder(self()) : ERROR_BORDER);
 
         boolean changedValidity = validWrapper.setValue(valid);
-        if (changedValidity && validityChangedCalbackListeners != null) {
-            Arrays.stream(validityChangedCalbackListeners).forEach(listener -> listener.accept(valid));
+        if (changedValidity && validityChangedCallbackListeners != null) {
+            Arrays.stream(validityChangedCallbackListeners).forEach(listener -> listener.accept(valid));
         }
 
-        if (valueChangedCalbackListener != null) {
+        if (valueChangedCallbackListener != null) {
             T value = toObjectMapper.apply(text);
             boolean valueChanged = valueWrapper.setValue(toObjectMapper.apply(text));
             if (valueChanged) {
-                valueChangedCalbackListener.accept(value);
+                valueChangedCallbackListener.accept(value);
             }
         }
     }

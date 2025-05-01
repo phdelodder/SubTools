@@ -1,25 +1,23 @@
 package org.lodder.subtools.multisubdownloader.lib.control.subtitles.filters;
 
-import java.util.Arrays;
-
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 
-public abstract class SubtitleFilter {
+public abstract sealed class SubtitleFilter permits ExactNameFilter, KeywordFilter, ReleaseGroupFilter {
 
     public abstract boolean useSubtitle(Release release, Subtitle subtitle);
 
-    public boolean excludeSubtitle(Release release, Subtitle subtitle){
+    public boolean excludeSubtitle(Release release, Subtitle subtitle) {
         return !useSubtitle(release, subtitle);
     }
 
     protected String getReleaseName(Release release) {
-        return release.getFileName() == null ? "" : release.getFileName().toLowerCase().replace("." + release.getExtension(), "");
+        return release.fileName == null ? "" : release.fileName.toLowerCase().replace("." + release.extension, "");
     }
 
     protected boolean checkKeywordSubtitleMatch(Subtitle subtitle, String keywordsFile) {
-        String keywordsSub = ReleaseParser.getQualityKeyword(subtitle.getFileName());
+        String keywordsSub = ReleaseParser.getQualityKeyword(subtitle.fileName);
         return keywordsFile.equalsIgnoreCase(keywordsSub) || keywordCheck(keywordsFile, keywordsSub);
     }
 
@@ -54,6 +52,6 @@ public abstract class SubtitleFilter {
     }
 
     private boolean containsBoth(String string1, String string2, String... values) {
-        return Arrays.stream(values).allMatch(string1::contains) && Arrays.stream(values).allMatch(string2::contains);
+        return values.stream().allMatch(string1::contains) && values.stream().allMatch(string2::contains);
     }
 }

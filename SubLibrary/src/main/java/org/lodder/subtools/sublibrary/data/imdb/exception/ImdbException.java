@@ -8,7 +8,7 @@ public class ImdbException extends Exception {
     private static final long serialVersionUID = 8887410537703318009L;
 
     public ImdbException(String s, String url, Exception e) {
-        super(s + " :" + url, e);
+        super("$s: $url", e);
     }
 
 }

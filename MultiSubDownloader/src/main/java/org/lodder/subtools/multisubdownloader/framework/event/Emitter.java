@@ -16,7 +16,7 @@ public class Emitter {
     }
 
     public void listen(String eventName, Handler handler) {
-        eventListeners.computeIfAbsent(eventName, k -> new ArrayList<>()).add(handler);
+        eventListeners.computeIfAbsent(eventName, _ -> new ArrayList<>()).add(handler);
     }
 
     public void unlisten(String eventName, Handler handler) {

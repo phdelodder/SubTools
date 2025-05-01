@@ -1,11 +1,11 @@
 package org.lodder.subtools.multisubdownloader.gui.dialog.progress.search;
 
-import javax.swing.table.*;
+import static org.lodder.subtools.multisubdownloader.Messages.*;
+
+import javax.swing.table.DefaultTableModel;
 import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.lodder.subtools.multisubdownloader.Messages;
 
 public class SearchProgressTableModel extends DefaultTableModel {
 
@@ -17,9 +17,9 @@ public class SearchProgressTableModel extends DefaultTableModel {
         super();
         this.setColumnCount(3);
         this.setColumnIdentifiers(new String[]{
-                Messages.getString("SearchProgressTableModel.Source"),
-                Messages.getString("SearchProgressTableModel.Queue"),
-                Messages.getString("SearchProgressTableModel.Release")});
+            getText("SearchProgressTableModel.Source"),
+            getText("SearchProgressTableModel.Queue"),
+            getText("SearchProgressTableModel.Release") });
     }
 
     public void update(String source, int queue, String release) {
@@ -42,7 +42,12 @@ public class SearchProgressTableModel extends DefaultTableModel {
     private void createRow(String source, int queue, String release) {
         this.rowMap.put(source, this.getRowCount());
 
-        Object[] row = {source, queue, release};
+        Object[] row = { source, queue, release };
         this.addRow(row);
+    }
+
+    public void clear() {
+        rowMap.clear();
+        dataVector.removeAllElements();
     }
 }

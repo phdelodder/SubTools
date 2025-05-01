@@ -1,8 +1,7 @@
 package org.lodder.subtools.sublibrary.util.lazy;
 
-import org.lodder.subtools.sublibrary.util.Nothing;
-
 import com.pivovarit.function.ThrowingRunnable;
+import org.lodder.subtools.sublibrary.util.Nothing;
 
 public class LazyRunnable extends LazyThrowingRunnable<Nothing> {
 

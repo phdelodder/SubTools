@@ -11,13 +11,13 @@ public class ScoreCalculator {
     }
 
     public int calculate(Subtitle subtitle) {
-        if (weights.getMaxScore() <= 0) {
+        if (weights.maxScore <= 0) {
             return 0;
         }
-
-        String subtitleInfo = "%s %s %s".formatted(subtitle.getFileName(), subtitle.getQuality(), subtitle.getReleaseGroup()).trim().toLowerCase();
-
-        int score = weights.getWeights().keySet().stream().filter(subtitleInfo::contains).mapToInt(weights.getWeights()::get).sum();
-        return (int) Math.ceil((float) score / weights.getMaxScore() * 100);
+        String subtitleInfo =
+                "%s %s %s".formatted(subtitle.fileName, subtitle.quality, subtitle.releaseGroup).trim().toLowerCase();
+        int score =
+                weights.weights.keySet().stream().filter(subtitleInfo::contains).mapToInt(weights.weights::get).sum();
+        return (int) Math.ceil((float) score / weights.maxScore * 100);
     }
 }

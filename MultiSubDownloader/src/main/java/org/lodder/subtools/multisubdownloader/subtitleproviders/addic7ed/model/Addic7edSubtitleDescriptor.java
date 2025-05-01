@@ -1,22 +1,10 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.model;
 
+import java.io.Serializable;
+
+import org.jspecify.annotations.Nullable;
 import org.lodder.subtools.sublibrary.Language;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
-
-@EqualsAndHashCode
-@Accessors(chain = true)
-@Getter
-@Setter
-public class Addic7edSubtitleDescriptor {
-
-    private String version;
-    private Language language;
-    private String url;
-    private String title;
-    private String uploader;
-    private boolean hearingImpaired;
+public record Addic7edSubtitleDescriptor(String version, @Nullable Language language, String url, String title,
+                                         String uploader, boolean hearingImpaired) implements Serializable {
 }

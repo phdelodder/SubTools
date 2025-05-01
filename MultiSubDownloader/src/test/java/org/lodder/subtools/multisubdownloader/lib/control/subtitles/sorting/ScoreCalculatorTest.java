@@ -8,11 +8,12 @@ import java.util.HashMap;
 import org.junit.jupiter.api.Test;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 
 class ScoreCalculatorTest {
 
     @Test
-    void test_it_calculates_the_score_for_subtitle() throws Exception {
+    void test_it_calculates_the_score_for_subtitle() {
         SortWeight weights = createWeights("DVDRip XviD", "MEDiEVAL");
 
         ScoreCalculator calculator = new ScoreCalculator(weights);
@@ -44,17 +45,17 @@ class ScoreCalculatorTest {
 
     private Subtitle createSubtitle(String filename, String quality, String team) {
         Subtitle subtitle = mock(Subtitle.class);
-        when(subtitle.getFileName()).thenReturn(filename);
-        when(subtitle.getQuality()).thenReturn(quality);
-        when(subtitle.getReleaseGroup()).thenReturn(team);
+        when(subtitle.fileName).thenReturn(filename);
+        when(subtitle.quality).thenReturn(quality);
+        when(subtitle.releaseGroup).thenReturn(team);
         return subtitle;
     }
 
     private SortWeight createWeights(String quality, String group) {
         // Arrested.Development.S01E01.DVDRip.XviD-MEDiEVAL
-        Release release = mock(Release.class);
-        when(release.getQuality()).thenReturn(quality);
-        when(release.getReleaseGroup()).thenReturn(group);
+        Release release = mock(TvRelease.class);
+        when(release.quality).thenReturn(quality);
+        when(release.releaseGroup).thenReturn(group);
 
         HashMap<String, Integer> definedWeights = new HashMap<>();
         definedWeights.put("hdtv", 2);

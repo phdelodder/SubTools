@@ -1,34 +1,29 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.podnapisi.model;
 
-import org.lodder.subtools.sublibrary.Language;
+import java.io.Serializable;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import manifold.ext.props.rt.api.var;
+import org.lodder.subtools.sublibrary.Language;
 
 /**
- * Created by IntelliJ IDEA.
- * User: lodder
- * Date: 20/08/11
- * Time: 13:44
- * To change this template use Path | Settings | Path Templates.
+ * Created by IntelliJ IDEA. User: lodder Date: 20/08/11 Time: 13:44 To change this template use Path | Settings | Path
+ * Templates.
  */
-@Getter
-@Setter
 @Builder
-public class PodnapisiSubtitleDescriptor {
+public class PodnapisiSubtitleDescriptor implements Serializable {
 
-    private String subtitleId;
-    private Language language;
-    private String uploaderName;
-    // private String uploaderUid;
-    // private String matchRanking;
-    private String releaseString;
-    // private String subtitleRating;
-    private String url;
-    private boolean hearingImpaired;
-    private boolean isInexact;
-    private String year;
-    private String omdb;
-    private String imdb;
+    @var String subtitleId;
+    @var Language language;
+    @var String uploaderName;
+    // @var String uploaderUid;
+    // @var String matchRanking;
+    @var String releaseString;
+    // @var String subtitleRating;
+    @var String url;
+    @var boolean hearingImpaired;
+    @var boolean isInexact;
+    @var String year;
+    @var String omdb;
+    @var String imdb;
 }

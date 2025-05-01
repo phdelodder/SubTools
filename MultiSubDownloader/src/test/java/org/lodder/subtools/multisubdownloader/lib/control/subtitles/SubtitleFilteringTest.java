@@ -1,16 +1,15 @@
 package org.lodder.subtools.multisubdownloader.lib.control.subtitles;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.sublibrary.model.Release;
 import org.lodder.subtools.sublibrary.model.Subtitle;
+import org.lodder.subtools.sublibrary.model.TvRelease;
 
 class SubtitleFilteringTest {
 
@@ -31,10 +30,14 @@ class SubtitleFilteringTest {
         Release release = createRelease("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv", "DIMENSION");
         Subtitle subtitle1 = createSubtitle("Criminal.Minds.S10E12.HDTV.XviD-AFG.srt", "AFG", false, "");
         Subtitle subtitle2 = createSubtitle("criminal.minds.1012.hdtv-lol.srt", "lol", false, "");
-        Subtitle subtitle3 = createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", true, "");
-        Subtitle subtitle4 = createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", false, "");
-        Subtitle subtitle5 = createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", false, "720p HDTV X264");
-        Subtitle subtitle6 = createSubtitle("Criminal.Minds.S10E12.Anonymous.1080p.WEB-DL.DD5.1.H.264-CtrlHD", "CtrlHD", false, "");
+        Subtitle subtitle3 =
+                createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", true, "");
+        Subtitle subtitle4 =
+                createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", false, "");
+        Subtitle subtitle5 = createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", false,
+                "720p HDTV X264");
+        Subtitle subtitle6 =
+                createSubtitle("Criminal.Minds.S10E12.Anonymous.1080p.WEB-DL.DD5.1.H.264-CtrlHD", "CtrlHD", false, "");
 
         // only keyword
         assertThatFilter(new SubtitleFiltering(createSettings(true, false, false)))
@@ -54,9 +57,12 @@ class SubtitleFilteringTest {
         Release release = createRelease("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.mkv", "DIMENSION");
         Subtitle subtitle1 = createSubtitle("Criminal.Minds.S10E12.HDTV.XviD-AFG.srt", "AFG", false, "");
         Subtitle subtitle2 = createSubtitle("criminal.minds.1012.hdtv-lol.srt", "lol", false, "");
-        Subtitle subtitle3 = createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", true, "");
-        Subtitle subtitle4 = createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", false, "");
-        Subtitle subtitle5 = createSubtitle("Criminal.Minds.S10E12.Anonymous.1080p.WEB-DL.DD5.1.H.264-CtrlHD", "CtrlHD", false, "");
+        Subtitle subtitle3 =
+                createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", true, "");
+        Subtitle subtitle4 =
+                createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", false, "");
+        Subtitle subtitle5 =
+                createSubtitle("Criminal.Minds.S10E12.Anonymous.1080p.WEB-DL.DD5.1.H.264-CtrlHD", "CtrlHD", false, "");
 
         // only exact match
         assertThatFilter(new SubtitleFiltering(createSettings(false, true, false)))
@@ -76,10 +82,14 @@ class SubtitleFilteringTest {
         Release release = createRelease("Criminal.Minds.S10E12.Anonymous.720p.HDTV.X264-DIMENSION.mkv", "DIMENSION");
         Subtitle subtitle1 = createSubtitle("Criminal.Minds.S10E12.HDTV.XviD-AFG.srt", "AFG", false, "");
         Subtitle subtitle2 = createSubtitle("criminal.minds.1012.hdtv-lol.srt", "lol", false, "");
-        Subtitle subtitle3 = createSubtitle("Criminal.Minds.S10E12.Anonymous.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", true, "");
-        Subtitle subtitle4 = createSubtitle("Criminal.Minds.S10E12.Anonymous.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", false, "");
-        Subtitle subtitle5 = createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", false, "");
-        Subtitle subtitle6 = createSubtitle("Criminal.Minds.S10E12.Anonymous.1080p.WEB-DL.DD5.1.H.264-CtrlHD", "CtrlHD", false, "");
+        Subtitle subtitle3 =
+                createSubtitle("Criminal.Minds.S10E12.Anonymous.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", true, "");
+        Subtitle subtitle4 =
+                createSubtitle("Criminal.Minds.S10E12.Anonymous.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", false, "");
+        Subtitle subtitle5 =
+                createSubtitle("Criminal.Minds.S10E12.720p.HDTV.X264-DIMENSION.srt", "DIMENSION", false, "");
+        Subtitle subtitle6 =
+                createSubtitle("Criminal.Minds.S10E12.Anonymous.1080p.WEB-DL.DD5.1.H.264-CtrlHD", "CtrlHD", false, "");
 
         // only exact match
         assertThatFilter(new SubtitleFiltering(createSettings(true, true, false)))
@@ -97,19 +107,19 @@ class SubtitleFilteringTest {
     private Settings createSettings(boolean keyword, boolean exact, boolean excludehearing) {
         Settings settings = mock(Settings.class);
 
-        when(settings.isOptionSubtitleExactMatch()).thenReturn(exact);
-        when(settings.isOptionSubtitleKeywordMatch()).thenReturn(keyword);
-        when(settings.isOptionSubtitleExcludeHearingImpaired()).thenReturn(excludehearing);
+        when(settings.optionSubtitleExactMatch).thenReturn(exact);
+        when(settings.optionSubtitleKeywordMatch).thenReturn(keyword);
+        when(settings.optionSubtitleExcludeHearingImpaired).thenReturn(excludehearing);
 
         return settings;
     }
 
     private Release createRelease(String filename, String releasegroup) {
-        Release release = mock(Release.class);
+        Release release = mock(TvRelease.class);
 
-        when(release.getFileName()).thenReturn(filename);
-        when(release.getExtension()).thenReturn("mkv");
-        when(release.getReleaseGroup()).thenReturn(releasegroup);
+        when(release.fileName).thenReturn(filename);
+        when(release.extension).thenReturn("mkv");
+        when(release.releaseGroup).thenReturn(releasegroup);
 
         return release;
     }
@@ -117,10 +127,10 @@ class SubtitleFilteringTest {
     private Subtitle createSubtitle(String filename, String releaseGroup, boolean excludeHearing, String quality) {
         Subtitle subtitle = mock(Subtitle.class);
 
-        when(subtitle.getFileName()).thenReturn(filename);
-        when(subtitle.getReleaseGroup()).thenReturn(releaseGroup);
-        when(subtitle.getQuality()).thenReturn(quality);
-        when(subtitle.isHearingImpaired()).thenReturn(excludeHearing);
+        when(subtitle.fileName).thenReturn(filename);
+        when(subtitle.releaseGroup).thenReturn(releaseGroup);
+        when(subtitle.quality).thenReturn(quality);
+        when(subtitle.hearingImpaired).thenReturn(excludeHearing);
 
         return subtitle;
     }
@@ -143,7 +153,8 @@ class SubtitleFilteringTest {
         void matchesSubtitles(Subtitle... subtitles);
     }
 
-    private static class TestSetupFiltering implements TestSetupSubtitlesIntf, TestSetupReleaseIntf, TestSetupMatchesIntf {
+    private static class TestSetupFiltering
+            implements TestSetupSubtitlesIntf, TestSetupReleaseIntf, TestSetupMatchesIntf {
         private SubtitleFiltering filter;
         private List<Subtitle> subtitles;
         private Release release;
@@ -154,7 +165,7 @@ class SubtitleFilteringTest {
         }
 
         public TestSetupFiltering appliedOnSubtitles(Subtitle... subtitles) {
-            this.subtitles = Arrays.stream(subtitles).toList();
+            this.subtitles = subtitles.stream().toList();
             return this;
         }
 
@@ -164,10 +175,11 @@ class SubtitleFilteringTest {
         }
 
         public void matchesSubtitles(Subtitle... subtitles) {
-            List<Subtitle> filteredSubtitles = this.subtitles.stream().filter(subtitle -> filter.useSubtitle(subtitle, release)).toList();
+            List<Subtitle> filteredSubtitles =
+                    this.subtitles.stream().filter(subtitle -> filter.useSubtitle(subtitle, release)).toList();
             assertThat(filteredSubtitles)
                     .withFailMessage("Expected the filtered subtitles to contain exactly %s, but found %s".formatted(
-                            Arrays.stream(subtitles).map(Subtitle::getFileName).toList(),
+                            subtitles.stream().map(Subtitle::getFileName).toList(),
                             filteredSubtitles.stream().map(Subtitle::getFileName).toList()))
                     .containsExactlyInAnyOrder(subtitles);
         }

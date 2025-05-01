@@ -5,44 +5,41 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.ToString;
+import manifold.ext.props.rt.api.var;
+import org.jspecify.annotations.Nullable;
 import org.lodder.subtools.sublibrary.Language;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
 @ToString
-@Getter
-@Setter
 public class TheTvdbEpisode implements Serializable {
     @Serial
     private static final long serialVersionUID = 913790243120597542L;
-    private String id;
-    private String combinedEpisodeNumber;
-    private String combinedSeason;
-    private String dvdChapter;
-    private String dvdDiscId;
-    private String dvdEpisodeNumber;
-    private String dvdSeason;
-    private List<String> directors = new ArrayList<>();
-    private String epImgFlag;
-    private String episodeName;
-    private int episodeNumber;
-    private String firstAired;
-    private List<String> guestStars = new ArrayList<>();
-    private String imdbId;
-    private Language language;
-    // private String overview;
-    private String productionCode;
-    private String rating;
-    private int seasonNumber;
-    private List<String> writers = new ArrayList<>();
-    private String absoluteNumber;
-    private int airsAfterSeason;
-    private int airsBeforeSeason;
-    private int airsBeforeEpisode;
-    private String filename;
-    private String lastUpdated;
-    private String seriesId;
-    private String seasonId;
+    @var @Nullable String id;
+    @var @Nullable String combinedEpisodeNumber;
+    @var @Nullable String combinedSeason;
+    @var @Nullable String dvdChapter;
+    @var @Nullable String dvdDiscId;
+    @var @Nullable String dvdEpisodeNumber;
+    @var @Nullable String dvdSeason;
+    @var List<String> directors = new ArrayList<>();
+    @var @Nullable String epImgFlag;
+    @var @Nullable String episodeName;
+    @var int episodeNumber;
+    @var @Nullable String firstAired;
+    @var List<String> guestStars = new ArrayList<>();
+    @var @Nullable String imdbId;
+    @var @Nullable Language language;
+    // @var String overview;
+    @var @Nullable String productionCode;
+    @var @Nullable String rating;
+    @var int seasonNumber;
+    @var List<String> writers = new ArrayList<>();
+    @var @Nullable String absoluteNumber;
+    @var int airsAfterSeason;
+    @var int airsBeforeSeason;
+    @var int airsBeforeEpisode;
+    @var @Nullable String filename;
+    @var @Nullable String lastUpdated;
+    @var @Nullable String seriesId;
+    @var @Nullable String seasonId;
 }

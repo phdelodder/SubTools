@@ -2,37 +2,25 @@ package org.lodder.subtools.multisubdownloader.gui.panels.preference;
 
 import static java.util.function.Predicate.*;
 
-import java.util.Arrays;
+import javax.swing.*;
+import javax.swing.table.*;
+import java.awt.*;
+import java.io.Serial;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-import javax.swing.table.DefaultTableModel;
-
+import net.miginfocom.swing.MigLayout;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.extra.ArrowButton;
-import org.lodder.subtools.multisubdownloader.gui.jcomponent.button.AbstractButtonExtension;
-import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcomponent.JComponentExtension;
-import org.lodder.subtools.multisubdownloader.gui.jcomponent.jscrollpane.JScrollPaneExtension;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.sublibrary.control.VideoPatterns.Source;
 
-import java.awt.Component;
-import java.awt.Container;
-
-import lombok.experimental.ExtensionMethod;
-import net.miginfocom.swing.MigLayout;
-
-@ExtensionMethod({ Arrays.class, JComponentExtension.class, AbstractButtonExtension.class, JScrollPaneExtension.class })
 public class DefaultSelectionPanel extends JPanel implements PreferencePanelIntf {
 
-    private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
+
     private final SettingsControl settingsCtrl;
     private final ScrollTable<Source> unusedPatternsTable;
     private final ScrollTable<Source> usedPatternsTable;
@@ -41,20 +29,23 @@ public class DefaultSelectionPanel extends JPanel implements PreferencePanelIntf
         super(new MigLayout("fill, bottom, insets 0", "[grow][][grow][]", "[grow, bottom][grow, top]"));
         this.settingsCtrl = settingsCtrl;
 
-        unusedPatternsTable = ScrollTable.create(Messages.getString("PreferenceDialog.DefaultSelectionUnused"), Source.class).add(this, "spany 2");
-        new ArrowButton(SwingConstants.EAST, 1, 10).withActionListener(this::addPattern).addTo(this);
-        usedPatternsTable = ScrollTable.create(Messages.getString("PreferenceDialog.DefaultSelectionUsed"), Source.class).add(this, "spany 2");
-        new ArrowButton(SwingConstants.NORTH, 1, 10).withActionListener(this::moveRuleRowUp).addTo(this, "wrap");
+        unusedPatternsTable =
+            ScrollTable.create(Messages.getText("PreferenceDialog.DefaultSelectionUnused"), Source.class)
+                .add(this, "spany 2");
+        new ArrowButton(SwingConstants.EAST, 1, 10).actionListener(this::addPattern).addTo(this);
+        usedPatternsTable = ScrollTable.create(Messages.getText("PreferenceDialog.DefaultSelectionUsed"), Source.class)
+            .add(this, "spany 2");
+        new ArrowButton(SwingConstants.NORTH, 1, 10).actionListener(this::moveRuleRowUp).addTo(this, "wrap");
 
-        new ArrowButton(SwingConstants.WEST, 1, 10).withActionListener(this::removePattern).addTo(this, "skip");
-        new ArrowButton(SwingConstants.SOUTH, 1, 10).withActionListener(this::moveRuleRowDown).addTo(this, "skip");
+        new ArrowButton(SwingConstants.WEST, 1, 10).actionListener(this::removePattern).addTo(this, "skip");
+        new ArrowButton(SwingConstants.SOUTH, 1, 10).actionListener(this::moveRuleRowDown).addTo(this, "skip");
 
         loadPreferenceSettings();
     }
 
     private static class ScrollTable<E> extends Container {
 
-        private static final long serialVersionUID = 1L;
+        @Serial private static final long serialVersionUID = 1L;
 
         private final JScrollPane scrollPane;
         private final JTable table;
@@ -73,8 +64,8 @@ public class DefaultSelectionPanel extends JPanel implements PreferencePanelIntf
         }
 
         private ScrollTable(String header, Stream<E> items) {
-            this.table = new JTable(new DefaultTableModel(new String[] { header }, 1));
-            this.scrollPane = new JScrollPane().withViewportView(table);
+            this.table = new JTable(new DefaultTableModel(new String[]{ header }, 1));
+            this.scrollPane = new JScrollPane().viewportView(table);
             this.model = (DefaultTableModel) table.getModel();
             model.removeRow(0);
             if (items != null) {
@@ -84,7 +75,7 @@ public class DefaultSelectionPanel extends JPanel implements PreferencePanelIntf
         }
 
         public void addItem(E item) {
-            model.addRow(new Object[] { item });
+            model.addRow(new Object[]{ item });
         }
 
         public int getSelectedRow() {
@@ -145,7 +136,7 @@ public class DefaultSelectionPanel extends JPanel implements PreferencePanelIntf
 
         @Override
         public Component[] getComponents() {
-            return new Component[] { scrollPane, table };
+            return new Component[]{ scrollPane, table };
         }
 
         @Override
@@ -188,13 +179,13 @@ public class DefaultSelectionPanel extends JPanel implements PreferencePanelIntf
     }
 
     public void loadPreferenceSettings() {
-        Source.values().stream().filter(not(settingsCtrl.getSettings().getOptionsDefaultSelectionQualityList()::contains))
-                .forEach(unusedPatternsTable::addItem);
-        settingsCtrl.getSettings().getOptionsDefaultSelectionQualityList().forEach(usedPatternsTable::addItem);
+        Source.values().stream().filter(not(settingsCtrl.settings.optionsDefaultSelectionQualityList::contains))
+            .forEach(unusedPatternsTable::addItem);
+        settingsCtrl.settings.optionsDefaultSelectionQualityList.forEach(usedPatternsTable::addItem);
     }
 
     public void savePreferenceSettings() {
-        settingsCtrl.getSettings().setOptionsDefaultSelectionQualityList(usedPatternsTable.getItems());
+        settingsCtrl.settings.optionsDefaultSelectionQualityList = usedPatternsTable.getItems();
     }
 
     @Override

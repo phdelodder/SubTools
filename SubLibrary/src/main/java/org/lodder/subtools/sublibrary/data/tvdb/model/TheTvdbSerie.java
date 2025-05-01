@@ -5,38 +5,34 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.ToString;
+import manifold.ext.props.rt.api.var;
+import org.jspecify.annotations.Nullable;
 import org.lodder.subtools.sublibrary.Language;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
 @ToString
-@Getter
-@Setter
 public class TheTvdbSerie implements Serializable {
     @Serial
     private static final long serialVersionUID = -4036836377513152443L;
-    private int id;
-    // private String serieId;
-    private Language language;
-    private String serieName;
-    private String banner;
-    // private String overview;
-    private String firstAired;
-    private String imdbId;
-    private String zap2ItId;
-    private List<String> actors = new ArrayList<>();
-    private String airsDayOfWeek;
-    private String airsTime;
-    private String contentRating;
-    private List<String> genres = new ArrayList<>();
-    private String network;
-    private String rating;
-    private String runtime;
-    private String status;
-    private String fanArt;
-    private String lastUpdated;
-    private String poster;
-
+    @var int id;
+    //@var String serieId;
+    @var @Nullable Language language;
+    @var @Nullable String serieName;
+    @var @Nullable String banner;
+    //@var String overview;
+    @var @Nullable String firstAired;
+    @var @Nullable String imdbId;
+    @var @Nullable String zap2ItId;
+    @var List<String> actors = new ArrayList<>();
+    @var @Nullable String airsDayOfWeek;
+    @var @Nullable String airsTime;
+    @var @Nullable String contentRating;
+    @var List<String> genres = new ArrayList<>();
+    @var @Nullable String network;
+    @var @Nullable String rating;
+    @var @Nullable String runtime;
+    @var @Nullable String status;
+    @var @Nullable String fanArt;
+    @var @Nullable String lastUpdated;
+    @var @Nullable String poster;
 }

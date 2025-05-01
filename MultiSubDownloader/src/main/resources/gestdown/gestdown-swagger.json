@@ -3,7 +3,7 @@
   "info": {
     "title": "Gestdown: Addicted Proxy",
     "description": "Provide a full api to search and download subtitles from Addic7ed website.",
-    "version": "4.22.5"
+    "version": "4.29.11"
   },
   "servers": [
     {
@@ -46,7 +46,7 @@
             "required": true,
             "schema": {
               "maximum": 50,
-              "minimum": 0,
+              "minimum": 1,
               "type": "integer",
               "format": "int32"
             }
@@ -105,6 +105,60 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MediaDetailsDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/media/{showId}/episodes/{language}": {
+      "get": {
+        "tags": [
+          "Media"
+        ],
+        "summary": "Get the show details with the last season and episodes",
+        "parameters": [
+          {
+            "name": "showId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "language",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaDetailsWithEpisodeAndSubtitlesDto"
                 }
               }
             }
@@ -969,6 +1023,33 @@
           }
         },
         "additionalProperties": false
+      },
+      "MediaDetailsWithEpisodeAndSubtitlesDto": {
+        "required": [
+          "details",
+          "episodeWithSubtitles"
+        ],
+        "type": "object",
+        "properties": {
+          "details": {
+            "$ref": "#/components/schemas/MediaDetailsDto"
+          },
+          "episodeWithSubtitles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EpisodeWithSubtitlesDto"
+            },
+            "description": ""
+          },
+          "lastSeasonNumber": {
+            "type": "integer",
+            "description": "",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represent a media with its details and episodes with subtitles"
       },
       "MediaType": {
         "enum": [

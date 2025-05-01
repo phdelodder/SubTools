@@ -1,41 +1,38 @@
 package org.lodder.subtools.sublibrary.data.omdb;
 
+import static org.lodder.subtools.sublibrary.PageContentParams.*;
+
 import java.util.Optional;
 
-import org.apache.commons.lang3.StringUtils;
+import lombok.RequiredArgsConstructor;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.data.omdb.exception.OmdbException;
 import org.lodder.subtools.sublibrary.data.omdb.model.OmdbDetails;
-import org.w3c.dom.Element;
-
-import lombok.RequiredArgsConstructor;
+import org.w3c.dom.Node;
 
 @RequiredArgsConstructor
 class OmdbApi {
 
+    private static final String DOMAIN = "http://www.omdbapi.com";
     private final Manager manager;
 
     public Optional<OmdbDetails> getMovieDetails(int imdbId) throws OmdbException {
-        return manager.valueBuilder()
-                .memoryCache()
-                .key("%s-moviedetails-%s".formatted("OMDB", imdbId))
-                .optionalSupplier(() -> {
-                    final String url = "http://www.omdbapi.com/?i=tt" + StringUtils.leftPad(String.valueOf(imdbId), 7, "0") + "&plot=short&r=xml";
-                    try {
-                        return manager.getPageContentBuilder()
-                                .url(url)
-                                .getAsDocument()
-                                .map(doc -> doc.getElementsByTagName("movie"))
-                                .filter(nodeList -> nodeList.getLength() > 0)
-                                .map(nodeList -> parseOMDBDetails((Element) nodeList.item(0)));
-                    } catch (Exception e) {
-                        throw new OmdbException("Error OMDBAPI", url, e);
-                    }
-                }).getOptional();
+        return manager.getCache(CacheType.MEMORY, "OMDB-moviedetails-$imdbId")
+            .getOptional(() -> {
+                final String url = "$DOMAIN/?i=tt$%07d&plot=short&r=xml".formatted(imdbId);
+                try {
+                    return manager.getAsDocument(url(url))
+                        .getElementsByTagName("movie").stream()
+                        .map(this::parseOMDBDetails).findFirst();
+                } catch (Exception e) {
+                    throw new OmdbException("Error OMDB API", url, e);
+                }
+            });
     }
 
-    private OmdbDetails parseOMDBDetails(Element item) {
-        return new OmdbDetails(item.getAttribute("title"), Integer.parseInt(item.getAttribute("year")));
+    private OmdbDetails parseOMDBDetails(Node node) {
+        return new OmdbDetails(node.getAttribute("title"), Integer.parseInt(node.getAttribute("year")));
     }
 
 }

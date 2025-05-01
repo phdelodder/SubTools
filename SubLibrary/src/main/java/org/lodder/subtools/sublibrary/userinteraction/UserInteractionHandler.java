@@ -1,31 +1,28 @@
 package org.lodder.subtools.sublibrary.userinteraction;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
+import manifold.ext.props.rt.api.val;
+import org.jspecify.annotations.Nullable;
 import org.lodder.subtools.sublibrary.data.UserInteractionSettingsIntf;
+import org.lodder.subtools.sublibrary.util.Validator;
 
 public interface UserInteractionHandler {
 
-    UserInteractionSettingsIntf getSettings();
+    @val UserInteractionSettingsIntf settings;
 
     boolean confirm(String message, String title);
 
-    Optional<String> selectFromList(Collection<String> options, String message, String title);
+    <T> Optional<T> selectFromList(Iterable<T> options, String message, @Nullable String title=null,
+        @Nullable Function<T, String> toStringMapper=null);
 
-    <T> Optional<T> selectFromList(Collection<T> options, String message, String title, Function<T, String> toStringMapper);
+    Optional<String> enter(String message, @Nullable String title=null,
+        @Nullable List<Validator<String>> inputValidators=null);
 
-    <T> Optional<T> choice(Collection<T> options, String message, String title);
-
-    <T> Optional<T> choice(Collection<T> options, String message, String title, Function<T, String> toStringMapper);
-
-    default Optional<String> enter(String title, String message) {
-        return enter(title, message, null, null);
-    }
-
-    Optional<String> enter(String title, String message, String errorMessage, Predicate<String> validator);
+    OptionalInt enterNumber(String title, String message, @Nullable List<Validator<Integer>> objectValidators=null);
 
     void showMessage(String message, String title, MessageSeverity messageSeverity);
 

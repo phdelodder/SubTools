@@ -1,11 +1,8 @@
 package org.lodder.subtools.multisubdownloader.lib.library;
 
-import java.util.Arrays;
-
-import org.lodder.subtools.multisubdownloader.Messages;
-
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.lodder.subtools.multisubdownloader.Messages;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum LibraryOtherFileActionType {
@@ -20,12 +17,12 @@ public enum LibraryOtherFileActionType {
 
     @Override
     public String toString() {
-        return Messages.getString(msgCode);
+        return Messages.getText(msgCode);
     }
 
     @Deprecated(since = "Settings version 2")
     public static LibraryOtherFileActionType fromString(String description) {
-        return Arrays.stream(LibraryOtherFileActionType.values())
+        return LibraryOtherFileActionType.values().stream()
                 .filter(v -> description.equalsIgnoreCase(v.toString())).findAny()
                 .orElse(LibraryOtherFileActionType.NOTHING);
     }

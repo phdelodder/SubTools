@@ -9,12 +9,7 @@ public class Event {
     private final String eventName;
     private final EventBag eventBag;
 
-    public Event(String name) {
-        this.eventName = name;
-        this.eventBag = new EventBag();
-    }
-
-    public Event(String name, EventBag bag) {
+    public Event(String name, EventBag bag=new EventBag()) {
         this.eventName = name;
         this.eventBag = bag;
     }

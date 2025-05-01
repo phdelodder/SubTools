@@ -1,15 +1,13 @@
 package org.lodder.subtools.sublibrary;
 
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 
 import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import manifold.ext.props.rt.api.val;
 
-@Getter
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Language {
 
     ALBANIAN("App.Language.Albanian", "sq", Set.of("alb", "sq", "Albanian")),
@@ -74,20 +72,23 @@ public enum Language {
     VIETNAMESE("App.Language.Vietnamese", "vi", Set.of("vie", "Vietnamese")),
     WELSH("App.Language.Welsh", "cy", Set.of("wel", "cym", "Welsh"));
 
-    private final String msgCode;
-    private final String langCode;
-    private final Set<String> langCodesOther;
+    @val String msgCode;
+    @val String langCode;
+    @val Set<String> langCodesOther;
 
     public static Language fromValue(String value) {
-        return Arrays.stream(Language.values()).filter(lang -> lang.name().equalsIgnoreCase(value)).findAny().orElseThrow();
+        return Language.values().stream()
+                .filter(lang -> lang.name().equalsIgnoreCase(value))
+                .findAny()
+                .orElseThrow();
     }
 
     public static Optional<Language> fromValueOptional(String value) {
-        return Arrays.stream(Language.values()).filter(lang -> lang.name().equalsIgnoreCase(value)).findAny();
+        return Language.values().stream().filter(lang -> lang.name().equalsIgnoreCase(value)).findAny();
     }
 
     public static Optional<Language> fromIdOptional(String languageId) {
-        return Arrays.stream(Language.values()).filter(lang -> lang.getLangCode().equalsIgnoreCase(languageId)).findAny();
+        return Language.values().stream().filter(lang -> lang.langCode.equalsIgnoreCase(languageId)).findAny();
     }
 
     public static Language fromId(String languageId) {

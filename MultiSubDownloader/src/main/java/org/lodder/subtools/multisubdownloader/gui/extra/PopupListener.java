@@ -24,8 +24,8 @@ public class PopupListener extends MouseAdapter {
 
     private synchronized void showPopup(MouseEvent e) {
         if (e.isPopupTrigger()
-                && e.getComponent() instanceof CustomTable customTable
-                && customTable.getModel().getRowCount() > 0) {
+            && e.getComponent() instanceof CustomTable customTable
+            && customTable.getModel().getRowCount() > 0) {
             popupMenu.show(e.getComponent(), e.getX(), e.getY());
         }
     }

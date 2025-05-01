@@ -1,26 +1,21 @@
 package org.lodder.subtools.multisubdownloader.serviceproviders;
 
+import manifold.ext.props.rt.api.override;
+import manifold.ext.props.rt.api.val;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.framework.Container;
-import org.lodder.subtools.multisubdownloader.framework.event.Emitter;
 import org.lodder.subtools.multisubdownloader.framework.service.providers.ServiceProvider;
-import org.lodder.subtools.multisubdownloader.settings.model.Settings;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.Local;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
-import org.lodder.subtools.sublibrary.Manager;
 
 public class LocalServiceProvider implements ServiceProvider {
 
-    protected Container app;
-    protected SubtitleProvider subtitleProvider;
     private UserInteractionHandler userInteractionHandler;
-
-    @Override
-    public int getPriority() {
-        /* We define a priority lower than SubtitleServiceProvider */
-        return 1;
-    }
+    private Container app;
+    private SubtitleProvider subtitleProvider;
+    /* We define a priority lower than SubtitleServiceProvider */
+    @val @override int priority = 1;
 
     @Override
     public void register(Container app, UserInteractionHandler userInteractionHandler) {
@@ -28,7 +23,7 @@ public class LocalServiceProvider implements ServiceProvider {
         this.userInteractionHandler = userInteractionHandler;
 
         /* Resolve the SubtitleProviderStore from the IoC Container */
-        final SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) app.make("SubtitleProviderStore");
+        final SubtitleProviderStore subtitleProviderStore = app.makeSubtitleProviderStore();
 
         /* Create the SubtitleProvider */
         subtitleProvider = createProvider();
@@ -41,17 +36,12 @@ public class LocalServiceProvider implements ServiceProvider {
     }
 
     private SubtitleProvider createProvider() {
-        Settings settings = (Settings) this.app.make("Settings");
-        Manager manager = (Manager) app.make("Manager");
-        return new Local(settings, manager, userInteractionHandler);
+        return new Local(app.makeSettings(), app.makeManager(), userInteractionHandler);
     }
 
     private void registerListener(final SubtitleProviderStore subtitleProviderStore) {
-        /* Resolve the EventEmitter from the IoC Container */
-        Emitter emitter = (Emitter) app.make("EventEmitter");
-
         /* Listen for settings-change */
-        emitter.listen("providers.settings.change", event -> {
+        app.makeEventEmitter().listen("providers.settings.change", _ -> {
             /* Change occurred, delete outdated provider from store */
             subtitleProviderStore.deleteProvider(subtitleProvider);
 

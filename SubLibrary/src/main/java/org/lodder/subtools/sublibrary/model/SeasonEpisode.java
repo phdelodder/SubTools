@@ -6,17 +6,15 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import lombok.Getter;
+import manifold.ext.props.rt.api.val;
 
 public class SeasonEpisode {
 
     private static final Pattern SEASON_EPISODE_PATTERN_1 = Pattern.compile("S(\\d{1,2})E(\\d{1,2})");
     private static final Pattern SEASON_EPISODE_PATTERN_2 = Pattern.compile("[. ](\\d{1,2})x(\\d{1,2})");
     private static final Pattern SEASON_EPISODES_PATTERN_1 = Pattern.compile("S(\\d{1,2})E(\\d{1,2})E(\\d{1,2})");
-    @Getter
-    private final int season;
-    @Getter
-    private final List<Integer> episodes;
+    @val int season;
+    @val List<Integer> episodes;
 
     public SeasonEpisode(int season, int episode) {
         this.season = season;
@@ -43,5 +41,9 @@ public class SeasonEpisode {
             return Optional.of(new SeasonEpisode(Integer.parseInt(matcher3.group(1)), Integer.parseInt(matcher3.group(2))));
         }
         return Optional.empty();
+    }
+
+    public boolean containsEpisode(int episode) {
+        return episodes.contains(episode);
     }
 }

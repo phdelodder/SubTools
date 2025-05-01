@@ -1,14 +1,10 @@
 package org.lodder.subtools.sublibrary.util.filefilter;
 
-public class XmlFileFilter extends ExtensionFileFilter {
+import manifold.ext.props.rt.api.override;
+import manifold.ext.props.rt.api.val;
 
-    @Override
-    public String getDescription() {
-        return "xml files";
-    }
+public final class XmlFileFilter extends ExtensionFileFilter {
 
-    @Override
-    public String getExtension() {
-        return "xml";
-    }
+    @val @override String description = "xml files";
+    @val @override String extension = "xml";
 }

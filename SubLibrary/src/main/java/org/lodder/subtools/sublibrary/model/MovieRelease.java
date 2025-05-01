@@ -1,87 +1,34 @@
 package org.lodder.subtools.sublibrary.model;
 
 import java.nio.file.Path;
-import java.util.OptionalInt;
 
-import org.apache.commons.lang3.StringUtils;
+import manifold.ext.props.rt.api.var;
+import org.jspecify.annotations.Nullable;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.Accessors;
+public final class MovieRelease extends Release {
 
-@Getter
-@Setter
-public class MovieRelease extends Release {
+    @var String name;
+    @var @Nullable Integer year;
+    @var @Nullable Integer imdbId;
 
-    private String name;
-    private Integer year;
-    private int imdbId;
-    private int tvdbId;
-
-    public interface MovieReleaseBuilderName {
-        MovieReleaseBuilderOther name(String name);
-    }
-
-    public interface MovieReleaseBuilderOther {
-        MovieReleaseBuilderOther file(Path file);
-
-        MovieReleaseBuilderOther quality(String quality);
-
-        MovieReleaseBuilderOther description(String description);
-
-        MovieReleaseBuilderOther releaseGroup(String releaseGroup);
-
-        MovieReleaseBuilderOther year(Integer year);
-
-        MovieRelease build();
-    }
-
-    public static MovieReleaseBuilderName builder() {
-        return new MovieReleaseBuilder();
-    }
-
-    @Setter
-    @Accessors(chain = true, fluent = true)
-    public static class MovieReleaseBuilder implements MovieReleaseBuilderOther, MovieReleaseBuilderName {
-        private String name;
-        private Integer year;
-
-        private String quality;
-        private Path file;
-        private String description;
-        private String releaseGroup;
-
-        @Override
-        public MovieRelease build() {
-            return new MovieRelease(file, description, releaseGroup, quality, name, year == null ? 0 : year);
-        }
-    }
-
-    private MovieRelease(Path file, String description, String releaseGroup, String quality, String name, int year) {
-        super(VideoType.MOVIE, file, description, releaseGroup, quality);
+    public MovieRelease(String name, @Nullable Path file=null, @Nullable String releaseGroup=null,
+        @Nullable String quality=null, @Nullable String extension=null, @Nullable Integer year=null) {
+        super(VideoType.MOVIE, file, releaseGroup, quality, extension);
         this.name = name;
         this.year = year;
     }
 
     public String getImdbIdAsString() {
-        return "tt" + StringUtils.leftPad(String.valueOf(imdbId), 7, "0");
-    }
-
-    public OptionalInt getTvdbId() {
-        return tvdbId == 0 ? OptionalInt.empty() : OptionalInt.of(tvdbId);
-    }
-
-    public OptionalInt getImdbId() {
-        return imdbId == 0 ? OptionalInt.empty() : OptionalInt.of(imdbId);
+        return "tt%07d".formatted(imdbId);
     }
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + ": " + this.getName() + " " + this.getQuality() + " " + this.getReleaseGroup();
+        return "${getClass().getSimpleName()}: $name ${quality} ${releaseGroup}";
     }
 
     @Override
     public String getReleaseDescription() {
-        return getName();
+        return name;
     }
 }

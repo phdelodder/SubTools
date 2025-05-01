@@ -1,33 +1,31 @@
 package org.lodder.subtools.multisubdownloader.cli.progress;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import static manifold.ext.props.rt.api.PropOption.*;
 
-@Getter(value = AccessLevel.PROTECTED)
-@Setter(value = AccessLevel.PROTECTED)
-abstract class CLIProgress<T extends CLIProgress<T>> {
+import manifold.ext.props.rt.api.var;
+import manifold.ext.rt.api.Self;
 
-    private int progress;
-    private boolean isEnabled;
-    private boolean isVerbose;
+abstract sealed class CLIProgress permits CLIFileIndexerProgress, CLISearchProgress {
+
+    @var(Protected) int progress;
+    @var(Protected) boolean enabled;
+    @var(Protected) boolean verbose;
 
     protected CLIProgress() {
-        isEnabled = true;
-        isVerbose = false;
+        enabled = true;
+        verbose = false;
         progress = 0;
     }
 
     public void disable() {
-        this.isEnabled = false;
+        this.enabled = false;
         /* Print a line */
         System.out.println();
     }
 
-    @SuppressWarnings("unchecked")
-    public T verbose(boolean isVerbose) {
-        this.isVerbose = isVerbose;
-        return (T) this;
+    public @Self CLIProgress verbose(boolean verbose) {
+        this.verbose = verbose;
+        return this;
     }
 
     protected abstract void printProgress();

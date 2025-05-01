@@ -1,23 +1,18 @@
 package org.lodder.subtools.multisubdownloader.gui.panels.preference;
 
+import static org.lodder.subtools.multisubdownloader.Messages.*;
+
+import javax.swing.*;
 import java.io.Serial;
 import java.util.function.Function;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
+import net.miginfocom.swing.MigLayout;
 import org.lodder.subtools.multisubdownloader.Messages;
 import org.lodder.subtools.multisubdownloader.gui.dialog.StructureBuilderDialog;
+import org.lodder.subtools.multisubdownloader.gui.extra.BoxModelProperties;
 import org.lodder.subtools.multisubdownloader.gui.extra.MemoryFolderChooser;
 import org.lodder.subtools.multisubdownloader.gui.extra.PanelCheckBox;
 import org.lodder.subtools.multisubdownloader.gui.extra.TitlePanel;
-import org.lodder.subtools.multisubdownloader.gui.jcomponent.button.AbstractButtonExtension;
-import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcheckbox.JCheckBoxExtension;
-import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcombobox.MyComboBox;
-import org.lodder.subtools.multisubdownloader.gui.jcomponent.jcomponent.JComponentExtension;
-import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield.JTextFieldExtension;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield.MyTextFieldPath;
 import org.lodder.subtools.multisubdownloader.gui.jcomponent.jtextfield.MyTextFieldString;
 import org.lodder.subtools.multisubdownloader.lib.library.PathLibraryBuilder;
@@ -26,81 +21,80 @@ import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 
-import lombok.experimental.ExtensionMethod;
-import net.miginfocom.swing.MigLayout;
-
-@ExtensionMethod({ JTextFieldExtension.class, JComponentExtension.class, JCheckBoxExtension.class, AbstractButtonExtension.class })
 public class StructureFolderPanel extends JPanel implements PreferencePanelIntf {
 
     @Serial
     private static final long serialVersionUID = 3476596236588408382L;
-    private final LibrarySettings librarySettings;
 
+    private final LibrarySettings librarySettings;
     private final MyTextFieldPath txtLibraryFolder;
     private final MyTextFieldString txtFolderStructure;
     private final JCheckBox chkRemoveEmptyFolder;
     private final JCheckBox chkReplaceSpace;
-    private final MyComboBox<Character> cbxReplaceSpaceChar;
+    private final JComboBox<Character> cbxReplaceSpaceChar;
 
     public StructureFolderPanel(LibrarySettings librarySettings, VideoType videoType, Manager manager,
-            UserInteractionHandler userInteractionHandler) {
+        UserInteractionHandler userInteractionHandler) {
         super(new MigLayout("insets 0, fill, nogrid"));
         this.librarySettings = librarySettings;
 
-        JPanel titelPanel = TitlePanel.title(Messages.getString("PreferenceDialog.MoveToLibrary"))
-                .margin(0).padding(0).marginLeft(20).paddingLeft(20).useGrid()
-                .panelColumnConstraints("[shrink][grow][shrink]").addTo(this, "span, grow");
+        JPanel titlePanel = new TitlePanel(
+            title:Messages.getText("PreferenceDialog.MoveToLibrary"),
+            margin:new BoxModelProperties(0, 20, 0, 0),
+            padding:new BoxModelProperties(0, 20, 0, 0),
+            useGrid:true,
+            panelColumnConstraints:"[shrink][grow][shrink]")
+            .addToPanel(this, "span, grow");
 
-        {
-            new JLabel(Messages.getString("PreferenceDialog.Location")).addTo(titelPanel, "shrink");
-            this.txtLibraryFolder = MyTextFieldPath.builder().requireValue().build().withColumns(20).addTo(titelPanel, "grow");
-            new JButton(Messages.getString("App.Browse"))
-                    .withActionListener(() -> MemoryFolderChooser.getInstance()
-                            .selectDirectory(getRootPane(), Messages.getString("PreferenceDialog.LibraryFolder"))
-                            .ifPresent(txtLibraryFolder::setObject))
-                    .addTo(titelPanel, "shrink, wrap");
+        new JLabel(getText("PreferenceDialog.Location")).addTo(titlePanel, "shrink");
+        this.txtLibraryFolder =
+            MyTextFieldPath.builder().requireValue().build().columns(20).addTo(titlePanel, "grow");
+        new JButton(getText("App.Browse"))
+            .actionListener(() -> MemoryFolderChooser.getInstance()
+                .selectDirectory(getRootPane(), getText("PreferenceDialog.LibraryFolder"))
+                .ifPresent(txtLibraryFolder::setObject))
+            .addTo(titlePanel, "shrink, wrap");
 
-            new JLabel(Messages.getString("StructureBuilderDialog.Structure")).addTo(titelPanel, "shrink");
-            this.txtFolderStructure =
-                    MyTextFieldString.builder().requireValue().build().withColumns(20).withDisabled().addTo(titelPanel, "grow");
-            JButton btnStructure = new JButton(Messages.getString("StructureBuilderDialog.Structure"))
-                    .withActionListener(() -> {
-                        StructureBuilderDialog sDialog = new StructureBuilderDialog(null,
-                                Messages.getString("PreferenceDialog.StructureBuilderTitle"),
-                                true, videoType, StructureBuilderDialog.StructureType.FOLDER, manager, userInteractionHandler,
-                                getLibraryStructureBuilder());
-                        String value = sDialog.showDialog(txtFolderStructure.getText());
-                        if (!"".equals(value)) {
-                            txtFolderStructure.setText(value);
-                        }
+        new JLabel(getText("StructureBuilderDialog.Structure")).addTo(titlePanel, "shrink");
+        this.txtFolderStructure =
+            MyTextFieldString.builder().requireValue().build().columns(20).disabled().addTo(titlePanel, "grow");
+        JButton btnStructure = new JButton(getText("StructureBuilderDialog.Structure"))
+            .actionListener(() -> {
+                StructureBuilderDialog sDialog = new StructureBuilderDialog(null,
+                    getText("PreferenceDialog.StructureBuilderTitle"),
+                    true, videoType, StructureBuilderDialog.StructureType.FOLDER, manager,
+                    userInteractionHandler, getLibraryStructureBuilder());
+                String value = sDialog.showDialog(txtFolderStructure.getText());
+                if (!"".equals(value)) {
+                    txtFolderStructure.setText(value);
+                }
+            })
+            .disabled()
+            .addTo(titlePanel, "shrink, wrap");
 
-                    })
-                    .withDisabled()
-                    .addTo(titelPanel, "shrink, wrap");
+        this.chkRemoveEmptyFolder = new JCheckBox(getText("PreferenceDialog.RemoveEmptyFolders"))
+            .addTo(titlePanel, "span, wrap");
 
-            this.chkRemoveEmptyFolder = new JCheckBox(Messages.getString("PreferenceDialog.RemoveEmptyFolders")).addTo(titelPanel, "span, wrap");
+        new PanelCheckBox(
+            checkbox:this.chkReplaceSpace = new JCheckBox(getText("PreferenceDialog.ReplaceSpaceWith")),
+            panelOnNewLine:false
+            )
+            .addToPanel(titlePanel, "span")
+            .addComponent(this.cbxReplaceSpaceChar = JComboBox.create('-', '.', '_'));
 
-            PanelCheckBox.checkbox(this.chkReplaceSpace = new JCheckBox(Messages.getString("PreferenceDialog.ReplaceSpaceWith")))
-                    .panelOnSameLine().addTo(titelPanel, "span")
-                    .addComponent(this.cbxReplaceSpaceChar = MyComboBox.ofValues('-', '.', '_'));
-
-            // behaviour
-            txtLibraryFolder.withValidityChangedCallback(txtFolderStructure::setEnabled, btnStructure::setEnabled);
-        }
+        // behaviour
+        txtLibraryFolder.withValidityChangedCallback(txtFolderStructure::setEnabled, btnStructure::setEnabled);
 
         loadPreferenceSettings();
     }
 
     private Function<String, PathLibraryBuilder> getLibraryStructureBuilder() {
-        return structure -> PathLibraryBuilder.builder()
-                .structure(structure)
-                .replaceSpace(chkReplaceSpace.isSelected())
-                .replacingSpaceChar(cbxReplaceSpaceChar.getSelectedItem())
-                .useTvdbName(false)
-                .tvdbAdapter(null)
-                .libraryFolder(txtLibraryFolder.getObject())
-                .move(true)
-                .build();
+        return structure -> new PathLibraryBuilder(
+            structure:structure,
+            replaceSpace:chkReplaceSpace.isSelected(),
+            replacingSpaceChar:cbxReplaceSpaceChar.getSelectedValue(),
+            libraryFolder:txtLibraryFolder.getObject(),
+            move:true);
     }
 
     @Override
@@ -111,22 +105,19 @@ public class StructureFolderPanel extends JPanel implements PreferencePanelIntf 
     }
 
     public void loadPreferenceSettings() {
-        txtLibraryFolder.setObject(librarySettings.getLibraryFolder());
-        txtFolderStructure.setText(librarySettings.getLibraryFolderStructure());
-        chkRemoveEmptyFolder.setSelected(librarySettings.isLibraryRemoveEmptyFolders());
-        chkReplaceSpace.setSelected(librarySettings.isLibraryFolderReplaceSpace());
-        cbxReplaceSpaceChar.setSelectedItem(librarySettings.getLibraryFolderReplacingSpaceChar());
+        txtLibraryFolder.setObject(librarySettings.folder);
+        txtFolderStructure.setText(librarySettings.folderStructure);
+        chkRemoveEmptyFolder.setSelected(librarySettings.removeEmptyFolders);
+        chkReplaceSpace.setSelected(librarySettings.folderReplaceSpace);
+        cbxReplaceSpaceChar.setSelectedItem(librarySettings.folderReplacingSpaceChar);
     }
 
     public void savePreferenceSettings() {
-        librarySettings
-                .setLibraryFolder(txtLibraryFolder.getObject())
-                .setLibraryFolderStructure(txtFolderStructure.getText())
-                .setLibraryRemoveEmptyFolders(chkRemoveEmptyFolder.isSelected())
-                .setLibraryFolderReplaceSpace(chkReplaceSpace.isSelected())
-                // if (pnlStructureFolder.isReplaceSpaceSelected()) {
-                .setLibraryFolderReplacingSpaceChar(cbxReplaceSpaceChar.getSelectedItem());
-        // }
+        librarySettings.folder = txtLibraryFolder.getObject();
+        librarySettings.folderStructure = txtFolderStructure.getText();
+        librarySettings.removeEmptyFolders = chkRemoveEmptyFolder.isSelected();
+        librarySettings.folderReplaceSpace = chkReplaceSpace.isSelected();
+        librarySettings.folderReplacingSpaceChar = cbxReplaceSpaceChar.getSelectedValue();
     }
 
     @Override

@@ -1,10 +1,10 @@
 package org.lodder.subtools.multisubdownloader.gui.extra.table;
 
+import manifold.ext.props.rt.api.val;
+
 public interface CustomColumnName {
 
-    String getColumnName();
-
-    boolean isEditable();
-
-    Class<?> getC();
+    @val String columnName;
+    @val boolean editable;
+    @val Class<?> clazz;
 }

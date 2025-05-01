@@ -7,7 +7,7 @@ import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.model.VideoType;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler;
 
-public class EpisodeLibraryPanel extends VideoLibraryPanel {
+public final class EpisodeLibraryPanel extends VideoLibraryPanel {
 
     @Serial
     private static final long serialVersionUID = -9175813173306481849L;

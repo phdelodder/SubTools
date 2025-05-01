@@ -1,10 +1,9 @@
 package org.lodder.subtools.sublibrary.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import manifold.ext.props.rt.api.val;
 
 @AllArgsConstructor
-@Getter
 public enum SubtitleSource {
     OPENSUBTITLES("OpenSubtitles"),
     PODNAPISI("Podnapisi"),
@@ -13,5 +12,5 @@ public enum SubtitleSource {
     LOCAL("Local"),
     SUBSCENE("Subscene");
 
-    private final String name;
+    @val String name;
 }

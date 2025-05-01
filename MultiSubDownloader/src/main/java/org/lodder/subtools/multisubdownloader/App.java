@@ -1,13 +1,13 @@
 package org.lodder.subtools.multisubdownloader;
 
+import static manifold.science.util.UnitConstants.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
 import ch.qos.logback.classic.Level;
@@ -25,24 +25,23 @@ import org.lodder.subtools.multisubdownloader.framework.Container;
 import org.lodder.subtools.multisubdownloader.gui.Splash;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProvider;
-import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleProviderStore;
-import org.lodder.subtools.multisubdownloader.util.CLIExtension;
 import org.lodder.subtools.sublibrary.ConfigProperties;
+import org.lodder.subtools.sublibrary.ConfigProperties.Property;
 import org.lodder.subtools.sublibrary.Manager;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.cache.DiskCache;
 import org.lodder.subtools.sublibrary.cache.InMemoryCache;
-import org.lodder.subtools.sublibrary.cache.SerializableDiskCache;
 import org.lodder.subtools.sublibrary.util.http.HttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ExtensionMethod({ CLIExtension.class, Files.class })
+@ExtensionMethod({Files.class})
 public class App {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
     private static SettingsControl prefCtrl;
     private static Splash splash;
-    private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
     public static void main(String[] args) throws ReflectiveOperationException, UnsupportedLookAndFeelException {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -59,19 +58,19 @@ public class App {
         }
 
         if (!line.hasCliOption(CliOption.NO_GUI)) {
-            splash = new Splash();
-            splash.showSplash();
+            splash = new Splash().showSplash();
         }
 
         Preferences preferences = Preferences.userRoot();
-        preferences.putBoolean("speedy", line.hasCliOption(CliOption.SPEEDY));
-        preferences.putBoolean("confirmProviderMapping", line.hasCliOption(CliOption.CONFIRM_PROVIDER_MAPPING));
+        preferences.putBoolean(CliOption.SPEEDY.value, line.hasCliOption(CliOption.SPEEDY));
+        preferences.putBoolean(CliOption.CONFIRM_PROVIDER_MAPPING.value,
+            line.hasCliOption(CliOption.CONFIRM_PROVIDER_MAPPING));
 
         final Container app = new Container();
         final Manager manager = createManager(!line.hasCliOption(CliOption.NO_GUI));
         prefCtrl = new SettingsControl(manager);
-        Messages.setLanguage(prefCtrl.getSettings().getLanguage());
-        Bootstrapper bootstrapper = new Bootstrapper(app, prefCtrl.getSettings(), preferences, manager);
+        Messages.language = prefCtrl.settings.language;
+        Bootstrapper bootstrapper = new Bootstrapper(app, prefCtrl.settings, preferences, manager);
 
         if (line.hasCliOption(CliOption.TRACE)) {
             setLogLevel(Level.ALL);
@@ -80,7 +79,7 @@ public class App {
         }
 
         if (line.hasCliOption(CliOption.NO_GUI)) {
-            bootstrapper.initialize(new UserInteractionHandlerCLI(prefCtrl.getSettings()));
+            bootstrapper.initialize(new UserInteractionHandlerCLI(prefCtrl.settings));
             CLI cmd = new CLI(prefCtrl, app);
 
             /* Defined here so there is output on console */
@@ -89,7 +88,7 @@ public class App {
             try {
                 cmd.setUp(line);
                 if (line.hasCliOption(CliOption.HELP)) {
-                    formatter.printHelp(ConfigProperties.getInstance().getProperty("name"), getCLIOptions());
+                    formatter.printHelp(ConfigProperties.getProperty(Property.NAME), getCLIOptions());
                     return;
                 }
             } catch (CliException e) {
@@ -101,7 +100,7 @@ public class App {
             /* Defined here so there is output in the splash */
             importPreferences(line);
 
-            bootstrapper.initialize(new UserInteractionHandlerGUI(prefCtrl.getSettings(), null));
+            bootstrapper.initialize(new UserInteractionHandlerGUI(prefCtrl.settings, null));
             EventQueue.invokeLater(() -> {
                 try {
                     JFrame window = new GUI(prefCtrl, app);
@@ -114,20 +113,19 @@ public class App {
             });
         }
         new Thread(() -> {
-            SubtitleProviderStore subtitleProviderStore = (SubtitleProviderStore) app.make("SubtitleProviderStore");
-            List<String> providerNames = subtitleProviderStore.getAllProviders().stream().map(SubtitleProvider::getProviderName)
+            List<String> providerNames =
+                app.makeSubtitleProviderStore().getAllProviders().stream().map(SubtitleProvider::getProviderName)
                     .map(providerName -> providerName.contains("-") ? providerName.split("-")[0] : providerName)
                     .map(providerName -> providerName + "-").toList();
-            manager.clearExpiredCacheBuilder()
-                    .cacheType(CacheType.DISK)
-                    .keyFilter((String key) -> providerNames.stream().noneMatch(key::startsWith))
-                    .clear();
+            manager.getCache(CacheType.DISK, key -> providerNames.stream().noneMatch(key::startsWith))
+                .clearExpiredCache();
         }).start();
 
     }
 
     private static void setLogLevel(Level level) {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root =
+            (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root.setLevel(level);
     }
 
@@ -147,27 +145,29 @@ public class App {
 
     public static Options getCLIOptions() {
         Options options = new Options();
-        Arrays.stream(CliOption.values()).forEach(
-                cliOption -> options.addOption(cliOption.getValue(), cliOption.getLongValue(), cliOption.isHasArg(), cliOption.getDescription()));
+        CliOption.values().forEach(cliOption -> options.addOption(cliOption.value, cliOption.longValue,
+            cliOption.hasArg, cliOption.description));
         return options;
     }
 
     private static Manager createManager(boolean useGui) {
         if (splash != null) {
-            splash.setProgressMsg(Messages.getString("App.Starting"));
+            splash.progressMsg = Messages.getText("App.Starting");
         }
         DiskCache<String, Serializable> diskCache =
-                SerializableDiskCache.cacheBuilder().keyType(String.class).valueType(Serializable.class)
-                        .timeToLive(TimeUnit.SECONDS.convert(500, TimeUnit.DAYS))
-                        .maxItems(2500)
-                        .build();
+            new DiskCache<>(
+                String.class,
+                Serializable.class,
+                500 day,
+                2500);
 
-        InMemoryCache<String, Serializable> inMemoryCache =
-                InMemoryCache.builder().keyType(String.class).valueType(Serializable.class)
-                        .timeToLive(TimeUnit.SECONDS.convert(10, TimeUnit.MINUTES))
-                        .timerInterval(100L)
-                        .maxItems(500)
-                        .build();
+        InMemoryCache<String, String> inMemoryCache =
+            new InMemoryCache<>(
+                String.class,
+                String.class,
+                10 min,
+                100 ms,
+                500);
 
         return new Manager(new HttpClient(), inMemoryCache, diskCache);
     }

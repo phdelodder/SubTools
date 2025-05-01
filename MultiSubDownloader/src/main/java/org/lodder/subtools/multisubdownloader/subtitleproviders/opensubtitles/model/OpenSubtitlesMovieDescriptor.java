@@ -2,25 +2,19 @@ package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.m
 
 import java.util.Objects;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import manifold.ext.props.rt.api.val;
+import manifold.ext.props.rt.api.var;
 
-@Getter
-@Setter
+@AllArgsConstructor
 public class OpenSubtitlesMovieDescriptor {
 
-    private final int year;
-    private final int imdbId;
-    private String name;
+    @var String name;
+    @val int year;
+    @val int imdbId;
 
     public OpenSubtitlesMovieDescriptor(String name, int imdbId) {
         this(name, -1, imdbId);
-    }
-
-    public OpenSubtitlesMovieDescriptor(String name, int year, int imdbId) {
-        this.name = name;
-        this.year = year;
-        this.imdbId = imdbId;
     }
 
     @Override
@@ -39,7 +33,6 @@ public class OpenSubtitlesMovieDescriptor {
         if (year < 0) {
             return name;
         }
-
-        return String.format("%s (%d)", name, year);
+        return "$name ($year)";
     }
 }

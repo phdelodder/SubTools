@@ -1,11 +1,10 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.opensubtitles.param;
 
 import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import manifold.ext.props.rt.api.val;
 
-@Getter
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum SearchSubtitlesEnum {
 
     // exclude, include (default: exclude)
@@ -80,5 +79,5 @@ public enum SearchSubtitlesEnum {
     // Filter by movie/episode year
     YEAR("year");
 
-    private final String paramName;
+    @val String paramName;
 }

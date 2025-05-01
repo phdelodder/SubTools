@@ -1,6 +1,11 @@
 package org.lodder.subtools.multisubdownloader.util;
 
+import static org.lodder.subtools.multisubdownloader.Messages.*;
+
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,33 +15,25 @@ import java.util.Optional;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
 
-import javax.swing.JFileChooser;
-
-import org.lodder.subtools.multisubdownloader.Messages;
+import com.google.gson.GsonBuilder;
+import io.gsonfire.GsonFireBuilder;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.StandardException;
+import lombok.experimental.UtilityClass;
+import manifold.ext.props.rt.api.val;
 import org.lodder.subtools.multisubdownloader.UserInteractionHandler;
 import org.lodder.subtools.multisubdownloader.gui.dialog.MappingEpisodeNameDialog.MappingType;
 import org.lodder.subtools.multisubdownloader.settings.SettingsControl;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.Manager.Value;
 import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
 import org.lodder.subtools.sublibrary.userinteraction.UserInteractionHandler.MessageSeverity;
-import org.lodder.subtools.sublibrary.util.StreamExtension;
 import org.lodder.subtools.sublibrary.util.filefilter.ExtensionFileFilter;
 import org.lodder.subtools.sublibrary.util.filefilter.JsonFileFilter;
 import org.lodder.subtools.sublibrary.util.filefilter.XmlFileFilter;
-
-import com.google.gson.GsonBuilder;
-
-import java.awt.Component;
-
-import io.gsonfire.GsonFireBuilder;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.ExtensionMethod;
-import lombok.experimental.StandardException;
-import lombok.experimental.UtilityClass;
 
 @RequiredArgsConstructor
 public class ExportImport {
@@ -46,69 +43,63 @@ public class ExportImport {
     private final UserInteractionHandler userInteractionHandler;
     private final Component parent;
 
-    @RequiredArgsConstructor
-    @Getter
+    @AllArgsConstructor
     public enum SettingsType {
-        PREFERENCES(FileType.XML),
-        SERIE_MAPPING(FileType.JSON);
+        PREFERENCES(FileType.XML), SERIE_MAPPING(FileType.JSON);
 
-        private final FileType fileType;
+        @val FileType fileType;
     }
 
-    @RequiredArgsConstructor
-    @Getter
+    @AllArgsConstructor
     private enum FileType {
-        XML(".xml", new XmlFileFilter()),
-        JSON(".json", new JsonFileFilter());
+        XML(".xml", new XmlFileFilter()), JSON(".json", new JsonFileFilter());
 
-        private final String extension;
-        private final ExtensionFileFilter fileFilter;
+        @val String extension;
+        @val ExtensionFileFilter fileFilter;
     }
 
     public void importSettings(SettingsType listType) {
-        chooseFile(listType.getFileType()).ifPresent(path -> {
+        chooseFile(listType.fileType).ifPresent(path -> {
             if (Files.notExists(path)) {
-                userInteractionHandler.showMessage(Messages.getString("ImportExport.FileDoesNotExist"),
-                        Messages.getString("ImportExport.ErrorWhileImporting"), MessageSeverity.WARNING);
+                userInteractionHandler.showMessage(getText("ImportExport.FileDoesNotExist"),
+                    getText("ImportExport.ErrorWhileImporting"), MessageSeverity.WARNING);
                 return;
             }
             try {
                 switch (listType) {
-                    case PREFERENCES -> ExportImportPreferences.importSettings(path, userInteractionHandler, settingsControl);
-                    case SERIE_MAPPING -> ExportImportSerieMapping.importSettings(path, userInteractionHandler, manager);
+                    case PREFERENCES ->
+                        ExportImportPreferences.importSettings(path, userInteractionHandler, settingsControl);
+                    case SERIE_MAPPING ->
+                        ExportImportSerieMapping.importSettings(path, userInteractionHandler, manager);
                     default -> throw new IllegalArgumentException("Unexpected value: " + listType);
                 }
             } catch (CorruptSettingsFileException e) {
-                userInteractionHandler.showMessage(
-                        Messages.getString("ImportExport.ImportCorruptFile"),
-                        Messages.getString("ImportExport.ErrorWhileImporting"),
-                        MessageSeverity.ERROR);
+                userInteractionHandler.showMessage(getText("ImportExport.ImportCorruptFile"),
+                    getText("ImportExport.ErrorWhileImporting"), MessageSeverity.ERROR);
             } catch (Exception e) {
-                userInteractionHandler.showMessage(Messages.getString("ImportExport.ErrorWhileImporting"),
-                        Messages.getString("ImportExport.ErrorWhileImporting"), MessageSeverity.ERROR);
+                userInteractionHandler.showMessage(getText("ImportExport.ErrorWhileImporting"),
+                    getText("ImportExport.ErrorWhileImporting"), MessageSeverity.ERROR);
             }
         });
     }
 
     public void exportSettings(SettingsType listType) {
-        chooseFile(listType.getFileType())
-                .map(path -> path.toString().endsWith(listType.getFileType().getExtension()) ? path
-                        : path.getParent().resolve(path.getFileName().toString() + listType.getFileType().getExtension()))
-                .ifPresent(path -> {
-                    try {
-                        switch (listType) {
-                            case PREFERENCES -> ExportImportPreferences.exportSettings(path, settingsControl);
-                            case SERIE_MAPPING -> ExportImportSerieMapping.exportSettings(path, manager);
-                            default -> throw new IllegalArgumentException("Unexpected value: " + listType);
-                        }
-                    } catch (Exception e) {
-                        userInteractionHandler.showMessage(Messages.getString("ImportExport.ErrorWhileExporting"),
-                                Messages.getString("ImportExport.ErrorWhileExporting"), MessageSeverity.ERROR);
+        chooseFile(listType.fileType).map(path -> path.toString().endsWith(listType.fileType.extension) ? path :
+                path.getParent().resolve(path.getFileName().toString() + listType.fileType.extension))
+            .ifPresent(path -> {
+                try {
+                    switch (listType) {
+                        case PREFERENCES -> ExportImportPreferences.exportSettings(path, settingsControl);
+                        case SERIE_MAPPING -> ExportImportSerieMapping.exportSettings(path, manager);
+                        default -> throw new IllegalArgumentException("Unexpected value: " + listType);
                     }
-                });
+                } catch (Exception e) {
+                    userInteractionHandler.showMessage(getText("ImportExport.ErrorWhileExporting"),
+                        getText("ImportExport.ErrorWhileExporting"), MessageSeverity.ERROR);
+                }
+            });
     }
 
-    @ExtensionMethod({ StreamExtension.class })
     @UtilityClass
     public static class ExportImportPreferences {
 
@@ -116,8 +107,8 @@ public class ExportImport {
             settingsControl.exportPreferences(path);
         }
 
-        public void importSettings(Path path, UserInteractionHandler userInteractionHandler, SettingsControl settingsControl)
-                throws CorruptSettingsFileException {
+        public void importSettings(Path path, UserInteractionHandler userInteractionHandler,
+            SettingsControl settingsControl) throws CorruptSettingsFileException {
             try {
                 settingsControl.importPreferences(path);
             } catch (IOException | BackingStoreException | InvalidPreferencesFormatException e) {
@@ -130,48 +121,55 @@ public class ExportImport {
     public static class ExportImportSerieMapping {
 
         public void exportSettings(Path path, Manager manager) throws IOException {
-            List<SeriemappingWithKey> serieMappingsWithKey = Arrays.stream(MappingType.values())
-                    .map(MappingType::getSelectionForKeyPrefixList)
-                    .flatMap(Arrays::stream)
-                    .flatMap(selectionForKeyPrefix -> manager.valueBuilder()
-                            .cacheType(CacheType.DISK)
-                            .keyFilter(k -> k.startsWith(selectionForKeyPrefix.keyPrefix()))
-                            .returnType(SerieMapping.class)
-                            .getEntries().stream().map(pair -> new SeriemappingWithKey(pair.getKey(), pair.getValue())))
-                    .toList();
+            List<SeriemappingWithKey> serieMappingsWithKey = MappingType.values().stream()
+                .map(MappingType::getSelectionForKeyPrefixList)
+                .flatMap(Arrays::stream)
+                .flatMap(selectionForKeyPrefix -> manager.getCache(CacheType.DISK,
+                        k -> k.startsWith(selectionForKeyPrefix.keyPrefix())).getEntries(SerieMapping.class)
+                    .stream()
+                    .map(pair -> new SeriemappingWithKey(pair.getKey(), pair.getValue())))
+                .toList();
             Files.writeString(path, new GsonBuilder().setPrettyPrinting().create().toJson(serieMappingsWithKey));
         }
 
-        public void importSettings(Path path, UserInteractionHandler userInteractionHandler, Manager manager) throws CorruptSettingsFileException {
+        public void importSettings(Path path, UserInteractionHandler userInteractionHandler, Manager manager)
+            throws CorruptSettingsFileException {
             SeriemappingWithKey[] serieMappings;
             try {
-                serieMappings = new GsonFireBuilder().enableHooks(SerieMapping.class).createGson().fromJson(Files.readString(path),
-                        SeriemappingWithKey[].class);
+                serieMappings = new GsonFireBuilder().enableHooks(SerieMapping.class)
+                    .createGson()
+                    .fromJson(Files.readString(path), SeriemappingWithKey[].class);
             } catch (IOException e) {
                 throw new CorruptSettingsFileException(e);
             }
             getImportStyle(userInteractionHandler).ifPresent(importStyle -> {
                 if (importStyle == ImportStyle.OVERWRITE) {
-                    Arrays.stream(MappingType.values())
-                            .map(MappingType::getSelectionForKeyPrefixList)
-                            .flatMap(Arrays::stream)
-                            .forEach(selectionForKeyPrefix -> manager.clearExpiredCacheBuilder()
-                                    .cacheType(CacheType.DISK)
-                                    .keyFilter((String k) -> k.startsWith(selectionForKeyPrefix.keyPrefix()))
-                                    .clear());
+                    MappingType.values().stream()
+                        .map(MappingType::getSelectionForKeyPrefixList)
+                        .flatMap(Arrays::stream)
+                        .forEach(selectionForKeyPrefix ->
+                            manager.getCache(CacheType.DISK, k -> k.startsWith(selectionForKeyPrefix.keyPrefix))
+                                .clearExpiredCache());
                 }
-                Arrays.stream(serieMappings).forEach(serieMapping -> manager.valueBuilder()
-                        .cacheType(CacheType.DISK)
-                        .key(serieMapping.key)
-                        .value(serieMapping.serieMapping)
-                        .store());
+                serieMappings.forEach(serieMapping ->
+                    manager.getCache(CacheType.DISK, serieMapping.key).store(Value.of(serieMapping.serieMapping)));
             });
+        }
+
+        private static Optional<ImportStyle> getImportStyle(UserInteractionHandler userInteractionHandler) {
+            return userInteractionHandler.selectFromList(Arrays.asList(ImportStyle.values()),
+                getText("ImportExport.OverwriteOrAdd"),
+                getText("ImportExport.OverwriteOrAddTitle"),
+                option -> switch (option) {
+                    case OVERWRITE -> getText("ImportExport.Overwrite");
+                    case APPEND -> getText("ImportExport.Add");
+                });
         }
 
         @AllArgsConstructor
         @Data
         private static class SeriemappingWithKey implements Serializable {
-            private static final long serialVersionUID = 1L;
+            @Serial private static final long serialVersionUID = 1L;
             private String key;
             private SerieMapping serieMapping;
         }
@@ -181,7 +179,7 @@ public class ExportImport {
         JFileChooser fc = new JFileChooser();
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fc.setAcceptAllFileFilterUsed(false);
-        fc.setFileFilter(fileType.getFileFilter());
+        fc.setFileFilter(fileType.fileFilter);
         int returnVal = fc.showOpenDialog(parent);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             return Optional.of(fc.getSelectedFile().toPath());
@@ -190,20 +188,11 @@ public class ExportImport {
         }
     }
 
-    private static Optional<ImportStyle> getImportStyle(UserInteractionHandler userInteractionHandler) {
-        return userInteractionHandler.choice(Arrays.asList(ImportStyle.values()),
-                Messages.getString("ImportExport.OverwriteOrAdd"), Messages.getString("ImportExport.OverwriteOrAddTitle"),
-                option -> switch (option) {
-                    case OVERWRITE -> Messages.getString("ImportExport.Overwrite");
-                    case APPEND -> Messages.getString("ImportExport.Add");
-                });
-    }
-
     private enum ImportStyle {
         OVERWRITE, APPEND
     }
 
     @StandardException
-    private static class CorruptSettingsFileException extends Exception {
+    public static class CorruptSettingsFileException extends Exception {
     }
 }

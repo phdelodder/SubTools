@@ -1,10 +1,13 @@
 package org.lodder.subtools.multisubdownloader.subtitleproviders.addic7ed.proxy.gestdown;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import extensions.java.lang.String.StringExt;
+import manifold.ext.props.rt.api.override;
+import manifold.ext.props.rt.api.val;
 import org.gestdown.api.SubtitlesApi;
 import org.gestdown.api.TvShowsApi;
 import org.gestdown.invoker.ApiException;
@@ -14,76 +17,67 @@ import org.gestdown.model.SubtitleSearchResponse;
 import org.lodder.subtools.multisubdownloader.subtitleproviders.SubtitleApi;
 import org.lodder.subtools.sublibrary.Language;
 import org.lodder.subtools.sublibrary.Manager;
+import org.lodder.subtools.sublibrary.cache.CacheType;
 import org.lodder.subtools.sublibrary.control.ReleaseParser;
-import org.lodder.subtools.sublibrary.data.Html;
 import org.lodder.subtools.sublibrary.data.ProviderSerieId;
 import org.lodder.subtools.sublibrary.model.Subtitle;
 import org.lodder.subtools.sublibrary.model.SubtitleMatchType;
 import org.lodder.subtools.sublibrary.model.SubtitleSource;
 import org.lodder.subtools.sublibrary.settings.model.SerieMapping;
-import org.lodder.subtools.sublibrary.util.OptionalExtension;
-import org.lodder.subtools.sublibrary.util.StringUtil;
-
-import lombok.experimental.ExtensionMethod;
 
 // see https://www.gestdown.info/Api
-@ExtensionMethod({ OptionalExtension.class })
-public class JAddic7edProxyGestdownApi extends Html implements SubtitleApi {
+public class JAddic7edProxyGestdownApi implements SubtitleApi {
 
     private static final String DOMAIN = "https://api.gestdown.info";
-    private final TvShowsApi tvShowsApi;
-    private final SubtitlesApi subtitlesApi;
+
+    private final Manager manager;
+    private final TvShowsApi tvShowsApi = new TvShowsApi();
+    private final SubtitlesApi subtitlesApi = new SubtitlesApi();
+    @val @override SubtitleSource subtitleSource = SubtitleSource.ADDIC7ED;
 
     public JAddic7edProxyGestdownApi(Manager manager) {
-        super(manager);
-        tvShowsApi = new TvShowsApi();
-        subtitlesApi = new SubtitlesApi();
+        this.manager = manager;
     }
 
     public List<ProviderSerieId> getProviderSerieName(String serieName) throws ApiException {
         return tvShowsApi.showsSearchSearchGet(serieName).getShows().stream()
-                .map(showDto -> new ProviderSerieId(showDto.getName(), showDto.getId().toString())).toList();
+            .map(showDto -> new ProviderSerieId(showDto.getName(), showDto.getId().toString())).toList();
     }
 
     public List<ProviderSerieId> getProviderSerieName(int tvdbId) throws ApiException {
         return tvShowsApi.showsExternalTvdbTvdbIdGet(tvdbId).getShows().stream()
-                .map(showDto -> new ProviderSerieId(showDto.getName(), showDto.getId().toString())).toList();
+            .map(showDto -> new ProviderSerieId(showDto.getName(), showDto.getId().toString())).toList();
     }
 
-    public Set<Subtitle> getSubtitles(SerieMapping providerSerieId, int season, int episode, Language language) throws ApiException {
-        return getManager().valueBuilder()
-                .memoryCache()
-                .key("%s-subtitles-%s-%s-%s-%s".formatted(getSubtitleSource().name(), providerSerieId.getProviderId(), season, episode, language))
-                .collectionSupplier(Subtitle.class, () -> {
-                    Set<Subtitle> results = new HashSet<>();
-                    SubtitleSearchResponse response = subtitlesApi.subtitlesGetShowUniqueIdSeasonEpisodeLanguageGet(language.getName(),
-                            UUID.fromString(providerSerieId.getProviderId()), season, episode);
-                    response.getMatchingSubtitles().stream()
-                            .filter(SubtitleDto::isCompleted).map(sub -> mapToSubtitle(sub, response.getEpisode(), language))
-                            .forEach(results::add);
-                    return results;
-                }).getCollection();
+    public Set<Subtitle> getSubtitles(SerieMapping providerSerieId, int season, int episode, Language language)
+        throws ApiException {
+        return manager.getCache(CacheType.MEMORY, "%s-subtitles-%s-%s-%s-%s".formatted(subtitleSource.name(),
+                providerSerieId.providerId, season, episode, language))
+            .getCollection(() -> {
+                SubtitleSearchResponse response = subtitlesApi.subtitlesGetShowUniqueIdSeasonEpisodeLanguageGet(
+                    language.getName(), UUID.fromString(providerSerieId.providerId), season, episode);
+                return response.getMatchingSubtitles()
+                    .stream()
+                    .filter(SubtitleDto::isCompleted)
+                    .map(sub -> mapToSubtitle(sub, response.episode, language))
+                    .collect(Collectors.toSet());
+            });
     }
 
     private Subtitle mapToSubtitle(SubtitleDto sub, EpisodeDto episodedto, Language language) {
-        return Subtitle.downloadSource(getDownloadUrl(sub.getDownloadUri()))
-                .subtitleSource(getSubtitleSource())
-                .fileName(StringUtil
-                        .removeIllegalFilenameChars("%s - %s - %s".formatted(episodedto.getShow(), episodedto.getTitle(), sub.getVersion())))
-                .language(language)
-                .quality(ReleaseParser.getQualityKeyword(episodedto.getTitle() + " " + sub.getVersion()))
-                .subtitleMatchType(SubtitleMatchType.EVERYTHING)
-                .releaseGroup(sub.getVersion())
-                .uploader("")
-                .hearingImpaired(false);
+        return new Subtitle(
+            downloadSource:Subtitle.DownloadSource.of(getDownloadUrl(sub.getDownloadUri())),
+            subtitleSource:subtitleSource,
+            fileName:StringExt.removeIllegalFilenameChars("${episodedto.show} - ${episodedto.title} - ${sub.version}"),
+            language:language,
+            quality:ReleaseParser.getQualityKeyword(episodedto.getTitle() + " " + sub.getVersion()),
+            subtitleMatchType:SubtitleMatchType.EVERYTHING,
+            releaseGroup:sub.getVersion(),
+            uploader:"",
+            hearingImpaired:false);
     }
 
     public String getDownloadUrl(String subtitleId) {
         return DOMAIN + subtitleId;
-    }
-
-    @Override
-    public SubtitleSource getSubtitleSource() {
-        return SubtitleSource.ADDIC7ED;
     }
 }

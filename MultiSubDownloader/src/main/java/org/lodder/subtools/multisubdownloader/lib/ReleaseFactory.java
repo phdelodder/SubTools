@@ -19,27 +19,33 @@ import org.slf4j.LoggerFactory;
 
 public class ReleaseFactory {
 
-    private final ReleaseParser releaseParser;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseFactory.class);
+
+    private final ReleaseParser releaseParser = new ReleaseParser();
     private final Settings settings;
     private final Manager manager;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseFactory.class);
-
     public ReleaseFactory(Settings settings, Manager manager) {
-        this.releaseParser = new ReleaseParser();
         this.settings = settings;
         this.manager = manager;
     }
 
     public Release createRelease(Path file, UserInteractionHandler userInteractionHandler) {
+        return createRelease(file, userInteractionHandler, true);
+    }
+
+    public Release createRelease(Path file, UserInteractionHandler userInteractionHandler,
+        boolean validate) {
         try {
-            Release r = releaseParser.parse(file);
-            ReleaseControl releaseControl = switch (r.getVideoType()) {
-                case EPISODE -> new TvReleaseControl((TvRelease) r, settings, manager, userInteractionHandler);
-                case MOVIE -> new MovieReleaseControl((MovieRelease) r, settings, manager, userInteractionHandler);
+            ReleaseControl releaseControl = switch (releaseParser.parse(file)) {
+                case TvRelease tvRelease -> new TvReleaseControl(tvRelease, settings, manager, userInteractionHandler);
+                case MovieRelease movieRelease -> new MovieReleaseControl(movieRelease, settings, manager,
+                    userInteractionHandler);
             };
-            releaseControl.process();
-            return releaseControl.getVideoFile();
+            if (validate) {
+                releaseControl.process();
+            }
+            return releaseControl.videoFile;
 
         } catch (ReleaseParseException | ReleaseControlException e) {
             LOGGER.error("createRelease: " + e.getMessage(), e);

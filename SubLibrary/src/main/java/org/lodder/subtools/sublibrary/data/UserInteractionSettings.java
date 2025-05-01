@@ -2,24 +2,23 @@ package org.lodder.subtools.sublibrary.data;
 
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+import manifold.ext.props.rt.api.override;
+import manifold.ext.props.rt.api.val;
 import org.lodder.subtools.sublibrary.control.VideoPatterns;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
-@Getter
+@AllArgsConstructor
 public class UserInteractionSettings implements UserInteractionSettingsIntf {
 
-    private final boolean optionsAlwaysConfirm;
+    @override @val boolean optionsAlwaysConfirm;
 
-    private final boolean optionsMinAutomaticSelection;
+    @override @val boolean optionsMinAutomaticSelection;
 
-    private final int optionsMinAutomaticSelectionValue;
+    @override @val int optionsMinAutomaticSelectionValue;
 
-    private final boolean optionsDefaultSelection;
+    @override @val boolean optionsDefaultSelection;
 
-    private final List<VideoPatterns.Source> optionsDefaultSelectionQualityList;
+    @override @val List<VideoPatterns.Source> optionsDefaultSelectionQualityList;
 
-    private final boolean optionsConfirmProviderMapping;
+    @override @val boolean optionsConfirmProviderMapping;
 }

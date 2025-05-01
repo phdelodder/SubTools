@@ -2,12 +2,9 @@ package org.lodder.subtools.multisubdownloader.settings.model;
 
 import java.time.LocalDate;
 
-import lombok.Getter;
-import lombok.Setter;
+import manifold.ext.props.rt.api.var;
 
-@Getter
-@Setter
 public class State {
 
-    private LocalDate latestUpdateCheck;
+    @var LocalDate latestUpdateCheck;
 }

@@ -1,6 +1,5 @@
 package org.lodder.subtools.sublibrary.util;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -9,19 +8,19 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
-import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
-@RequiredArgsConstructor
 public class CopyDirVisitor extends SimpleFileVisitor<Path> {
 
     private final Path fromPath;
-
     private final Path toPath;
-
     private final StandardCopyOption[] copyOptions;
 
-    public CopyDirVisitor(Path fromPath, Path toPath) {
-        this(fromPath, toPath, new StandardCopyOption[] { StandardCopyOption.REPLACE_EXISTING });
+    public CopyDirVisitor(Path fromPath, Path toPath,
+        StandardCopyOption[] copyOptions=new StandardCopyOption[]{StandardCopyOption.REPLACE_EXISTING}) {
+        this.fromPath = fromPath;
+        this.toPath = toPath;
+        this.copyOptions = copyOptions;
     }
 
     @Override

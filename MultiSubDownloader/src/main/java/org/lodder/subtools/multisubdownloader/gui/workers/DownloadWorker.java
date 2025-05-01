@@ -23,17 +23,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created by IntelliJ IDEA. User: lodder Date: 4/12/11 Time: 8:52 AM To change this template use
- * Path | Settings | Path Templates.
+ * Created by IntelliJ IDEA. User: lodder Date: 4/12/11 Time: 8:52 AM To change this template use Path | Settings | Path
+ * Templates.
  */
 public class DownloadWorker extends SwingWorker<Void, String> implements Cancelable {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DownloadWorker.class);
 
     private final CustomTable table;
     private final Settings settings;
     private final DownloadAction downloadAction;
     private final UserInteractionHandlerAction userInteractionHandlerAction;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DownloadWorker.class);
 
     public DownloadWorker(CustomTable table, Settings settings, Manager manager, GUI gui) {
         this.table = table;
@@ -63,7 +63,7 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
                     progress = 1;
                 }
                 setProgress(progress);
-                publish(selectedShow.getFileName());
+                publish(selectedShow.fileName);
                 List<Subtitle> selection = userInteractionHandlerAction.subtitleSelection(selectedShow, true);
                 try {
                     for (int j = 0; j < selection.size(); j++) {
@@ -83,11 +83,12 @@ public class DownloadWorker extends SwingWorker<Void, String> implements Cancela
 
     @Override
     protected void process(List<String> data) {
-        data.forEach(s -> StatusMessenger.instance.message(Messages.getString("MainWindow.DownloadingSubtitle", s)));
+        data.forEach(s -> StatusMessenger.instance.message(Messages.getText("MainWindow.DownloadingSubtitle", s)));
     }
 
     private void showErrorMessage(String message) {
-        JOptionPane.showConfirmDialog(null, message, "JBierSubDownloader", JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showConfirmDialog(null, message, "JBierSubDownloader", JOptionPane.DEFAULT_OPTION,
+                JOptionPane.ERROR_MESSAGE);
     }
 
 }
